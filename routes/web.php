@@ -15,14 +15,18 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+
+Route::get('/',[HomeController::class,'index'])->name('home');
+// les hago el comentario de que toda la documentacion la quiero en Ingles
+// otra parte si es que van a tocar las rutas requiero que  la parte del /ruta que sea en español 
+// si no no la toquen y diganme /nombrerutaespanol y va a llevar un difernete nombre
+
+
+
 
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
-Route::get('/homecontroller',[HomeController::class,'index']);
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
