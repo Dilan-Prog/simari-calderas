@@ -30,6 +30,10 @@
       content="Diseño, instalación y mantenimiento de calderas industriales. Auditorías de eficiencia energética y soporte 24/7."
     />
     <meta name="twitter:image" content="https://tudominio.com/og-home.jpg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
     @yield('styles')
 
     <!-- JSON-LD: LocalBusiness / Organization -->
@@ -99,7 +103,6 @@
     @include('frontend.layouts.header')
     <main>
         @yield('content')
-        
 
 
 
@@ -111,7 +114,8 @@
 
 
 
-        
+
+
     </main>
 
     @include('frontend.layouts.footer')

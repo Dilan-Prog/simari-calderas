@@ -1,5 +1,7 @@
+
+@import "./products.css";
+
 :root{
-    --background-primary:#F3F4F6;
     --header-footer-color:#1A2535;
     --text-header-color-nav:#D1D5DC;
     --text-header-color-nav-hover:#C62828;
@@ -8,8 +10,93 @@
     --button-primary-color-hover:#b71c1c;
     --button-serondary-color: transparent;
     --button-secondary-color-hover:#ffffff;
-
+    --font-family:'Inter', sans-serif;
 
 }
+main,body{
+    margin: 0;
+    padding: 0;
+}
 
+header{
+    font-family: var(--font-family);
+    background: var(--header-footer-color);
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+nav{
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 200px;
+  box-sizing: border-box;
+}
 
+nav ul{
+  display: flex;
+  align-items: center;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+nav ul.nav-link{ gap: 50px; }
+nav ul.nav-action{ gap: 26px; }
+
+nav ul.nav-action svg{
+  width: 30px;
+  height: 30px;
+  display: inline-block;
+  vertical-align: middle;
+  color: var(--text-header-color-nav);
+}
+
+nav ul li a{
+  color: var(--text-header-color-nav);
+  text-decoration: none;
+  font-size: 15px;
+  font-weight: 550;
+  letter-spacing: 0.2px;
+  line-height: 20px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: color 0.2s ease-in-out;
+}
+nav ul li a svg{
+  width: 14px;
+  height: 14px;
+  display: inline-block;
+  vertical-align: middle;
+  color: inherit;
+}
+nav ul li a svg path,
+nav ul li a svg circle,
+nav ul li a svg rect,
+nav ul li a svg line{
+  stroke: currentColor;
+  fill: none;
+  transition: stroke 0.2s ease-in-out, fill 0.2s ease-in-out;
+}
+nav ul li a:hover{
+  color: var(--text-header-color-nav-hover);
+}
+nav ul li a svg use,
+nav ul li a svg [fill]{
+  fill: currentColor;
+}
+
+.button-primary.header{
+    padding: 10px 28px;
+    font-size: 18px;
+    border-radius: 6px;
+}
+
+.button-primary.header:hover{
+    transform: translateY(0.0px);
+}
