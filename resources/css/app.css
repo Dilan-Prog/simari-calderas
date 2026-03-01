@@ -1,6 +1,7 @@
 
 @import "./products.css";
-
+@import "./preventive_main.css";
+@import "./chillers_main.css";
 :root{
     --header-footer-color:#1A2535;
     --text-header-color-nav:#D1D5DC;

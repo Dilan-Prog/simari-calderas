@@ -1,0 +1,443 @@
+
+:root{
+    --background-primary:#F3F4F6;
+    --background-secondary: #F9FAFB;
+    --background-tertiary:#0E1A2B;
+    --header-footer-color:#1A2535;
+    --text-header-color-nav:#D1D5DC;
+    --text-header-color-nav-hover:#C62828;
+    --text-subtitle-color: #251A2B;
+    --secondary-color:#C62828;
+    --button-primary-color:#C62828;
+    --button-primary-color-hover:#b71c1c;
+    --button-serondary-color: transparent;
+    --button-secondary-color-hover:#ffffff;
+    --font-family:'Inter', sans-serif;
+    --font-family-secondary: 'Segoe UI';
+    --title-color: #ffffff;
+    --information-title: #D1D5DC;
+    --infomation-list: #364153;
+    --text-subdescription: #4A556A;
+}
+.container{
+    width: 100%;
+    padding: 0px 50px 50px 50px;
+}
+
+
+.preventive-title{
+    color: var(--title-color);
+    font-size: 80px;
+    font-style:normal;
+    font-family: 'Segoe UI';
+    width: fit-content;
+    justify-content: center;
+    line-height: 100px;
+    font-weight: 700;
+    max-width: 1000px;
+    
+}
+.section-preventive p{
+    font-style: normal;
+    font-size: 24px !important;
+    color: var(--information-title);
+    max-width: 895px;
+    font-family: var(--font-family);
+    max-width: 1060px;
+    letter-spacing: 0.6px; /* Un toque sutil */
+    line-height: 1.6;
+
+}
+.section-preventive{
+    background: var(--header-footer-color);
+    width: 100%;
+    padding: 2% 6% ;
+    
+
+}
+.section-preventive button{
+    background: var(--button-primary-color);
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.1s ease-in-out;
+    margin: 30px 0px 0px 0px;
+}
+.button-secondary:hover {
+    background: var(--button-primary-color-hover); 
+    transform: translateY(-2.5px);
+    color: var(--button-secondary-color-hover);
+
+}
+
+
+
+
+.section-information{
+    background: var(--button-secondary-color-hover);
+    width: 100%;
+    padding: 5% 9% ;
+    font-family: var(--font-family-secondary) !important;
+    max-width: 1500px;
+}
+.section-information p{
+    font-size: 20px;
+    color: var(--infomation-list);
+    letter-spacing: 0.5px; /* Un toque sutil */
+    line-height: 1.6;
+    
+    font-family: 'Segoe UI' !important;
+}
+.section-information h2{
+    font-size: 45px;
+    color: var(--text-subtitle-color);
+}
+
+.title-list-information{
+    padding: 30px !important;
+    background-color: #F9FAFB !important; /* Fondo blanco de la tarjeta */
+    border-left: 6px solid #C62828 !important; /* Línea roja gruesa */
+    border-radius: 12px !important;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08) !important;
+}
+.section-information .list-information{
+    display: grid !important; 
+    grid-template-columns: repeat(2, 1fr) !important; /* Fuerza las 2 columnas iguales */
+    gap: 20px 40px !important; /* Espacio entre filas y columnas */
+    width: 100% !important;
+    max-width: 1500px !important;
+    list-style: none !important;
+}
+.section-information .list-information li {
+    display: flex !important;
+    align-items: center !important; /* Centra verticalmente el ícono con el texto */
+    font-size: 16px !important;
+    color: #333 !important;
+    margin-bottom: 10px !important;
+}
+.section-information .list-information li::before {
+    content: "" !important;
+    display: inline-block !important;
+    width: 24px !important;  /* Un poquito más grande para que luzca */
+    height: 24px !important;
+    margin-right: 12px !important;
+    flex-shrink: 0 !important; /* Evita que el ícono se haga chiquito */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23C62828' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M21.801 10A10 10 0 1 1 17 3.335'/%3E%3Cpath d='m9 11 3 3L22 4'/%3E%3C/svg%3E") !important;
+    background-repeat: no-repeat !important;
+    background-size: contain !important;
+}
+
+
+
+
+.section-includes-information{
+    background-color: var(--background-secondary);    align-items: center;
+    display: flex !important;
+    flex-direction: column !important; /* Alinea los elementos uno abajo del otro */
+    justify-content: center !important; /* Centra verticalmente */
+    align-items: center !important;    /* Centra horizontalmente */
+    text-align: center !important;     /* Centra las líneas de texto internamente */
+    min-height: 400px;
+}
+.section-includes-information h2{
+    font-size: 45px;
+    color: var(--text-subtitle-color);
+    font-family: 'Segoe UI' !important;
+}
+.section-includes-information .information-divs{
+    align-items: center;
+    padding: 188px;
+    display: grid !important; 
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 30px
+}
+.section-includes-information .information-divs div{
+    padding: 30px !important;
+    background-color: #ffffff ; /* Fondo blanco de la tarjeta */
+    border-radius: 12px !important;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08) !important;
+    align-items: left !important;
+    border: 1px solid #E5E7EB;
+    
+    max-width: 500px;
+    max-height: 500px;
+
+    font-size: 20px;
+    color: var(--infomation-list);
+    letter-spacing: 0.5px; /* Un toque sutil */
+    line-height: 1.6;
+    text-align: left;
+    font-family: 'Segoe UI' !important;
+}
+.section-includes-information .icon {
+    width: 10px ;
+    height: 10px;
+    background-color: #C62828 !important;   /* rojo */
+    border-radius: 12px;         /* esquinas redondeadas */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 16px;         /* espacio debajo */
+    position: relative;
+}
+
+.section-includes-information .icon svg {
+    width: 35px;
+    height:35px;
+    color: #ffffff;              /* icono blanco */
+    position: absolute;
+}
+
+
+
+
+
+.section-benefits-operations h2{
+    font-size: 45px;
+    color: var(--background-tertiary);
+    font-family: 'Segoe UI' !important;
+}
+.section-benefits-operations{
+    background-color: var(--button-secondary-color-hover);   
+    display: flex !important;
+    flex-direction: column !important; /* Alinea los elementos uno abajo del otro */
+    justify-content: center !important; /* Centra verticalmente */
+    align-items: center !important;    /* Centra horizontalmente */
+    text-align: center !important;     /* Centra las líneas de texto internamente */
+    min-height: 400px;
+}
+
+.section-benefits-operations .benefits-div{
+    align-items: center;
+    padding: 188px;
+    display: grid !important; 
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 30px
+}
+.section-benefits-operations .benefits-div div{
+    padding: 30px !important;
+    border-radius: 12px !important;
+    align-items: left !important;
+    background-color: var(--background-secondary);
+    max-width: 5000px; /* el largo del div*/
+    max-height: 500px;
+
+    font-size: 20px;
+    color: var(--text-subdescription);
+    letter-spacing: 0.5px; /* Un toque sutil */
+    line-height: 1.6;
+    text-align: left;
+    font-family: 'Segoe UI' !important;
+}
+.section-benefits-operations .benefits-div div h3{
+    
+    color: var(--background-tertiary) !important;
+}
+.section-benefits-operations .icon {
+    width: 10px ;
+    height: 10px;
+    background-color: #C62828 !important;   /* rojo */
+    border-radius: 12px;         /* esquinas redondeadas */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 16px;         /* espacio debajo */
+    position: relative;
+}
+
+.section-benefits-operations .icon svg {
+    width: 35px;
+    height:35px;
+    color: #ffffff;              /* icono blanco */
+    position: absolute;
+}
+
+
+
+
+
+.section-we-work {
+    background-color: var(--background-tertiary); /* azul oscuro */
+    padding: 100px 60px;
+    text-align: center;
+}
+
+.section-we-work h2 {
+    font-size: 45px;
+    color: #ffffff;
+    margin-bottom: 70px;
+    font-family: 'Segoe UI';
+}
+
+/* Contenedor de las 4 columnas */
+.section-we-work .work-div {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 40px;
+}
+
+/* Cada bloque */
+.section-we-work .work-div > div {
+    color: #dfe6ee;
+    font-family: 'Segoe UI';
+}
+
+/* Icono circular */
+.section-we-work .icon {
+    width: 80px;
+    height: 80px;
+    background-color: #C62828;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 25px auto; /* centrado */
+}
+
+/* Número dentro del círculo */
+.section-we-work .icon span {
+    color: white;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+/* Títulos */
+.section-we-work h3 {
+    color: white;
+    font-size: 22px;
+    margin-bottom: 15px;
+}
+
+/* Párrafos */
+.section-we-work p {
+    font-size: 17px;
+    line-height: 1.6;
+    max-width: 280px;
+    margin: 0 auto;
+}
+
+
+
+
+
+.section-why-choose {
+    background-color: #f2f2f2; /* gris claro */
+    padding: 100px 60px;
+    text-align: center;
+}
+
+.section-why-choose h2 {
+    font-size: 42px;
+    color: #0B1F36;
+    margin-bottom: 80px;
+    font-family: 'Segoe UI';
+}
+
+/* Contenedor de las 3 columnas */
+.section-why-choose .choose-div {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 60px;
+    max-width: 5000px;
+}
+
+/* Cada bloque */
+.section-why-choose .choose-div > div {
+    font-family: 'Segoe UI';
+    
+}
+
+/* EL PRIMER DIV INTERNO (30+, 24/7, 500+) */
+.section-why-choose .choose-div > div > div {
+    font-size: 60px;
+    font-weight: bold;
+    color: #C62828;
+    margin-bottom: 15px;
+}
+
+.section-why-choose h3 {
+    font-size: 22px;
+    color: #0B1F36;
+    margin-bottom: 15px;
+}
+
+.section-why-choose p {
+    font-size: 19px;
+    line-height: 1.6;
+    color: #4a4a4a;
+    max-width: 320px;
+    margin: 0 auto;
+}
+
+
+
+
+
+
+.section-protect-investment {
+    background-color: var(--background-tertiary); /* azul oscuro */
+    padding: 110px 20px;
+    text-align: center;
+    color: white;
+}
+
+/* Título */
+.section-protect-investment h2 {
+    font-size: 52px;
+    margin-bottom: 30px;
+    font-family: 'Segoe UI';
+    
+}
+
+/* Párrafo */
+.section-protect-investment p {
+    
+    font-family: 'Segoe UI';
+    max-width: 1100px;
+    margin: 0 auto 50px auto;
+    line-height: 1.5;
+    font-size: 25px;
+    color: var(--information-title);
+    letter-spacing: 0.5px;
+}
+
+/* Contenedor interno opcional para botones */
+.section-protect-investment .buttons {
+    display: flex;
+    justify-content: center;
+    gap: 25px;
+    flex-wrap: wrap;
+}
+
+/* Botón rojo */
+.section-protect-investment .request {
+    background-color: #C62828;
+    color: white;
+    padding: 18px 35px;
+    border: none;
+    border-radius: 6px;
+    font-size: 18px;
+    cursor: pointer;
+    transition: 0.3s ease;
+}
+
+.section-protect-investment .request:hover {
+    background-color: #a51f1f;
+}
+
+/* Botón outline */
+.section-protect-investment .call {
+    background-color: transparent;
+    color: white;
+    padding: 18px 35px;
+    border: 2px solid white;
+    border-radius: 6px;
+    font-size: 18px;
+    cursor: pointer;
+    transition: 0.3s ease;
+}
+
+.section-protect-investment .call:hover {
+    background-color: white;
+    color: #0B1F36;
+}
