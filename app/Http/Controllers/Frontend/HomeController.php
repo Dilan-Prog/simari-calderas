@@ -10,6 +10,6 @@ class HomeController extends Controller
     //
     public function index()
     {
-        return view('frontend.pages.servCalibration-1');
+        return view('frontend.pages.servProyectIndus');
     }
 }

@@ -47,8 +47,8 @@
 .second-sectionProyectIndus {
     display: flex;
     flex-direction: column;
-    margin: 0 128px;
-    padding: 0 32px;
+    margin: 0;
+    padding: 0;
 }
 
 .second-sectionProyectIndus h2 {
@@ -57,9 +57,8 @@
     margin: 0 0 24px 0;
     color: var(--section-example);
 }
-
-.second-sectionProyectIndus p {
-    font-size: 19px;
+.container.second-sectionProyectIndus{
+    font-size: 20px;
     margin: 0 0 24px 0;
     color: var(--header-footer-color);
     line-height: 1.5;
@@ -394,14 +393,15 @@
     gap: 20px;
 }
 
-.buttonSecondary-servProyectIndus {
-    background-color: transparent;
-    border: 2px solid var(--text-subwhite-color);
-    display: flex;
-    gap: 5px;
+.button-secondary.calibration,
+.button-primary.calibration{
+    font-weight: 600;
+    border-radius: 10px;
+    gap: 8px;
 }
 
-.buttonSecondary-servProyectIndus:hover {
-    background-color: #ffffff;
-    color: #000000;
+.button-primary.calibration:hover{
+    transform: translateY(0px);
 }
+
+

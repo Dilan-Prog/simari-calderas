@@ -7,79 +7,83 @@
 @section('content')
     {{-- Main section --}}
     <section class="first-content-servCalibation">
-        {{-- main text --}}
-        <div class="textServCalibration">
-            <h1>Calibración de Equipos y Quemadores Industriales</h1>
-            <p>Optimización precisa de parámetros de combustión y
-                calibración certificada de instrumentos para máxima
-                eficiencia energética.
-            </p>
-            {{-- Button declaration --}}
-            <button class="button-primary">Solicitar Cotizacion
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-                    <path d="M4.99866 11.9966H18.9948" stroke="white" stroke-width="1.99945" stroke-linecap="round"
-                        stroke-linejoin="round" />
-                    <path d="M11.9967 4.99854L18.9948 11.9966L11.9967 18.9947" stroke="white" stroke-width="1.99945"
-                        stroke-linecap="round" stroke-linejoin="round" />
-                </svg>
-            </button>
+        <div class="container">
+            {{-- main text --}}
+            <div class="textServCalibration">
+                <h1>Calibración de Equipos y Quemadores Industriales</h1>
+                <p>Optimización precisa de parámetros de combustión y
+                    calibración certificada de instrumentos para máxima
+                    eficiencia energética.
+                </p>
+                {{-- Button declaration --}}
+                <button class="button-primary">Solicitar Cotizacion
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                        <path d="M4.99866 11.9966H18.9948" stroke="white" stroke-width="1.99945" stroke-linecap="round"
+                            stroke-linejoin="round" />
+                        <path d="M11.9967 4.99854L18.9948 11.9966L11.9967 18.9947" stroke="white" stroke-width="1.99945"
+                            stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                </button>
+            </div>
         </div>
     </section>
 
     {{-- second section --}}
     <section class="second-content-ServCalibration">
-        <div class="second-text-ServCalibration">
-            <h2>¿En qué consiste el servicio de Calibración?</h2>
-            <p>La calibración profesional de quemadores industriales y
-                equipos de medición garantiza combustión eficiente, reducción de emisiones
-                contaminantes y precisión en el control de procesos térmicos críticos. </p>
+        <div class="container second-section">
+            <div class="second-text-ServCalibration">
+                <h2>¿En qué consiste el servicio de Calibración?</h2>
+                <p>La calibración profesional de quemadores industriales y
+                    equipos de medición garantiza combustión eficiente, reducción de emisiones
+                    contaminantes y precisión en el control de procesos térmicos críticos. </p>
 
-            <p>Realizamos ajustes técnicos de relación aire-combustible, presiones de operación,
-                temperatura de flama y sincronización de controles de seguridad.</p>
-        </div>
+                <p>Realizamos ajustes técnicos de relación aire-combustible, presiones de operación,
+                    temperatura de flama y sincronización de controles de seguridad.</p>
+            </div>
 
-        <div class="red-table">
-            <h2>Aplicaciones</h2>
-            <ul class="applications__list">
-                <li class="applications__item">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                        class="lucide lucide-circle-check-big">
-                        <path d="M21.801 10A10 10 0 1 1 17 3.335"></path>
-                        <path d="m9 11 3 3L22 4"></path>
-                    </svg>Quemadores industriales
-                </li>
-                <li class="applications__item"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                        stroke-linejoin="round" class="lucide lucide-circle-check-big">
-                        <path d="M21.801 10A10 10 0 1 1 17 3.335"></path>
-                        <path d="m9 11 3 3L22 4"></path>
-                    </svg>Manómetros y transmisores</li>
-                <li class="applications__item"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                        stroke-linejoin="round" class="lucide lucide-circle-check-big">
-                        <path d="M21.801 10A10 10 0 1 1 17 3.335"></path>
-                        <path d="m9 11 3 3L22 4"></path>
-                    </svg>Sensores de temperatura</li>
-                <li class="applications__item"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                        stroke-linejoin="round" class="lucide lucide-circle-check-big">
-                        <path d="M21.801 10A10 10 0 1 1 17 3.335"></path>
-                        <path d="m9 11 3 3L22 4"></path>
-                    </svg>Válvulas de seguridad</li>
-                <li class="applications__item"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                        stroke-linejoin="round" class="lucide lucide-circle-check-big">
-                        <path d="M21.801 10A10 10 0 1 1 17 3.335"></path>
-                        <path d="m9 11 3 3L22 4"></path>
-                    </svg>Controles de nivel</li>
-                <li class="applications__item"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                        stroke-linejoin="round" class="lucide lucide-circle-check-big">
-                        <path d="M21.801 10A10 10 0 1 1 17 3.335"></path>
-                        <path d="m9 11 3 3L22 4"></path>
-                    </svg>Analizadores de gases</li>
-            </ul>
+            <div class="red-table">
+                <h2>Aplicaciones</h2>
+                <ul class="applications__list">
+                    <li class="applications__item">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round" class="lucide lucide-circle-check-big">
+                            <path d="M21.801 10A10 10 0 1 1 17 3.335"></path>
+                            <path d="m9 11 3 3L22 4"></path>
+                        </svg>Quemadores industriales
+                    </li>
+                    <li class="applications__item"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round" class="lucide lucide-circle-check-big">
+                            <path d="M21.801 10A10 10 0 1 1 17 3.335"></path>
+                            <path d="m9 11 3 3L22 4"></path>
+                        </svg>Manómetros y transmisores</li>
+                    <li class="applications__item"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round" class="lucide lucide-circle-check-big">
+                            <path d="M21.801 10A10 10 0 1 1 17 3.335"></path>
+                            <path d="m9 11 3 3L22 4"></path>
+                        </svg>Sensores de temperatura</li>
+                    <li class="applications__item"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round" class="lucide lucide-circle-check-big">
+                            <path d="M21.801 10A10 10 0 1 1 17 3.335"></path>
+                            <path d="m9 11 3 3L22 4"></path>
+                        </svg>Válvulas de seguridad</li>
+                    <li class="applications__item"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round" class="lucide lucide-circle-check-big">
+                            <path d="M21.801 10A10 10 0 1 1 17 3.335"></path>
+                            <path d="m9 11 3 3L22 4"></path>
+                        </svg>Controles de nivel</li>
+                    <li class="applications__item"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round" class="lucide lucide-circle-check-big">
+                            <path d="M21.801 10A10 10 0 1 1 17 3.335"></path>
+                            <path d="m9 11 3 3L22 4"></path>
+                        </svg>Analizadores de gases</li>
+                </ul>
+            </div>
     </section>
 
     {{-- THIRD SECTION --}}
@@ -135,7 +139,7 @@
             </div>
         </article>
 
-        {{-- SECOND TAB  --}}
+        {{-- FOURTH TAB  --}}
         <article class="accordion__item">
             <button class="accordion__header">
                 <div class="accordion__icon-box">
@@ -340,7 +344,7 @@
             </p>
             {{-- Buttons declaration --}}
             <div class="buttons-container-servCalibration">
-                <button class="button-primary">Solicitar Calibracion
+                <button class="button-primary calibration">Solicitar Calibracion
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
                         fill="none">
                         <path d="M4.99866 11.9966H18.9948" stroke="white" stroke-width="1.99945" stroke-linecap="round"
@@ -349,7 +353,7 @@
                             stroke-linecap="round" stroke-linejoin="round" />
                     </svg>
                 </button>
-                <button class="button-primary secundary">
+                <button class="button-secondary calibration">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                         stroke-linejoin="round" class="lucide lucide-phone">

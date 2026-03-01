@@ -6,101 +6,107 @@
 
 @section('content')
     <section class="first-content-servCalibation proyectIndus">
-        {{-- main text --}}
-        <div class="textServCalibration proyectIndus">
-            <h1>Proyectos Industriales Integrales Llave en Mano</h1>
-            <p>Diseño, suministro, instalación y puesta en marcha de salas de calderas completas, cuartos de máquinas y
-                sistemas térmicos industriales con garantía total.
-            </p>
-            {{-- Button declaration --}}
-            <button class="button-primary">Solicitar Cotizacion
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-                    <path d="M4.99866 11.9966H18.9948" stroke="white" stroke-width="1.99945" stroke-linecap="round"
-                        stroke-linejoin="round" />
-                    <path d="M11.9967 4.99854L18.9948 11.9966L11.9967 18.9947" stroke="white" stroke-width="1.99945"
-                        stroke-linecap="round" stroke-linejoin="round" />
-                </svg>
-            </button>
+        <div class="container">
+            {{-- main text --}}
+            <div class="textServCalibration proyectIndus">
+                <h1>Proyectos Industriales Integrales Llave en Mano</h1>
+                <p>Diseño, suministro, instalación y puesta en marcha de salas de calderas completas, cuartos de máquinas y
+                    sistemas térmicos industriales con garantía total.
+                </p>
+                {{-- Button declaration --}}
+                <button class="button-primary">Solicitar Cotizacion
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                        <path d="M4.99866 11.9966H18.9948" stroke="white" stroke-width="1.99945" stroke-linecap="round"
+                            stroke-linejoin="round" />
+                        <path d="M11.9967 4.99854L18.9948 11.9966L11.9967 18.9947" stroke="white" stroke-width="1.99945"
+                            stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                </button>
+            </div>
         </div>
     </section>
 
     {{-- SECOND --}}
     <section class="second-sectionProyectIndus">
-        <h2>¿En qué consisten los Proyectos Industriales Integrales?</h2>
-        <p>Desarrollamos proyectos llave en mano que abarcan desde la ingeniería conceptual hasta la capacitación del
-            personal operativo, incluyendo diseño de salas de calderas, cálculos de demanda térmica, dimensionamiento de
-            equipos, ingeniería de detalle, suministro de maquinaria certificada, construcción de obra civil, instalación
-            mecánica, montaje eléctrico, automatización con PLC/SCADA, pruebas de arranque, gestión de permisos y
-            capacitación técnica especializada. Aplicamos estándares de gestión PMI, cronogramas Gantt y entregables
-            documentados en cada etapa del proyecto.</p>
-        <div class="firstcontainer-servProyectIndust">
-            <h3>Aplicaciones Industriales:</h3>
+        <div class="container">
+            <h2>¿En qué consisten los Proyectos Industriales Integrales?</h2>
+            <p>Desarrollamos proyectos llave en mano que abarcan desde la ingeniería conceptual hasta la capacitación del
+                personal operativo, incluyendo diseño de salas de calderas, cálculos de demanda térmica, dimensionamiento de
+                equipos, ingeniería de detalle, suministro de maquinaria certificada, construcción de obra civil,
+                instalación
+                mecánica, montaje eléctrico, automatización con PLC/SCADA, pruebas de arranque, gestión de permisos y
+                capacitación técnica especializada. Aplicamos estándares de gestión PMI, cronogramas Gantt y entregables
+                documentados en cada etapa del proyecto.</p>
 
-            <div class="accordion__content-servProyectIndus">
-                <div class="accordion__grid-servProyectIndus">
-                    <div>
-                        <ul>
-                            <li>
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    class="lucide lucide-circle-check-big text-[#C62828] flex-shrink-0 mt-1">
-                                    <path d="M21.801 10A10 10 0 1 1 17 3.335"></path>
-                                    <path d="m9 11 3 3L22 4"></path>
-                                </svg>Hoteles y desarrollos turísticos
-                            </li>
-                            <li>
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    class="lucide lucide-circle-check-big text-[#C62828] flex-shrink-0 mt-1">
-                                    <path d="M21.801 10A10 10 0 1 1 17 3.335"></path>
-                                    <path d="m9 11 3 3L22 4"></path>
-                                </svg>Lavanderías industriales
-                            </li>
-                            <li>
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    class="lucide lucide-circle-check-big text-[#C62828] flex-shrink-0 mt-1">
-                                    <path d="M21.801 10A10 10 0 1 1 17 3.335"></path>
-                                    <path d="m9 11 3 3L22 4"></path>
-                                </svg>Industria alimentaria y bebidas
-                            </li>
+            <div class="firstcontainer-servProyectIndust">
+                <h3>Aplicaciones Industriales:</h3>
 
-                        </ul>
+                <div class="accordion__content-servProyectIndus">
+                    <div class="accordion__grid-servProyectIndus">
+                        <div>
+                            <ul>
+                                <li>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                        stroke-linecap="round" stroke-linejoin="round"
+                                        class="lucide lucide-circle-check-big text-[#C62828] flex-shrink-0 mt-1">
+                                        <path d="M21.801 10A10 10 0 1 1 17 3.335"></path>
+                                        <path d="m9 11 3 3L22 4"></path>
+                                    </svg>Hoteles y desarrollos turísticos
+                                </li>
+                                <li>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                        stroke-linecap="round" stroke-linejoin="round"
+                                        class="lucide lucide-circle-check-big text-[#C62828] flex-shrink-0 mt-1">
+                                        <path d="M21.801 10A10 10 0 1 1 17 3.335"></path>
+                                        <path d="m9 11 3 3L22 4"></path>
+                                    </svg>Lavanderías industriales
+                                </li>
+                                <li>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                        stroke-linecap="round" stroke-linejoin="round"
+                                        class="lucide lucide-circle-check-big text-[#C62828] flex-shrink-0 mt-1">
+                                        <path d="M21.801 10A10 10 0 1 1 17 3.335"></path>
+                                        <path d="m9 11 3 3L22 4"></path>
+                                    </svg>Industria alimentaria y bebidas
+                                </li>
+
+                            </ul>
+                        </div>
+
+                        <div>
+                            <ul>
+                                <li>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                        stroke-linecap="round" stroke-linejoin="round"
+                                        class="lucide lucide-circle-check-big text-[#C62828] flex-shrink-0 mt-1">
+                                        <path d="M21.801 10A10 10 0 1 1 17 3.335"></path>
+                                        <path d="m9 11 3 3L22 4"></path>
+                                    </svg>Hospitales y clínicas privadas
+                                </li>
+                                <li><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                        stroke-linecap="round" stroke-linejoin="round"
+                                        class="lucide lucide-circle-check-big text-[#C62828] flex-shrink-0 mt-1">
+                                        <path d="M21.801 10A10 10 0 1 1 17 3.335"></path>
+                                        <path d="m9 11 3 3L22 4"></path>
+                                    </svg>Plantas manufactureras
+                                </li>
+                                <li><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                        stroke-linecap="round" stroke-linejoin="round"
+                                        class="lucide lucide-circle-check-big text-[#C62828] flex-shrink-0 mt-1">
+                                        <path d="M21.801 10A10 10 0 1 1 17 3.335"></path>
+                                        <path d="m9 11 3 3L22 4"></path>
+                                    </svg>Procesamiento químico y petroquímico
+                                </li>
+                            </ul>
+                        </div>
+
                     </div>
-
-                    <div>
-                        <ul>
-                            <li>
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    class="lucide lucide-circle-check-big text-[#C62828] flex-shrink-0 mt-1">
-                                    <path d="M21.801 10A10 10 0 1 1 17 3.335"></path>
-                                    <path d="m9 11 3 3L22 4"></path>
-                                </svg>Hospitales y clínicas privadas
-                            </li>
-                            <li><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    class="lucide lucide-circle-check-big text-[#C62828] flex-shrink-0 mt-1">
-                                    <path d="M21.801 10A10 10 0 1 1 17 3.335"></path>
-                                    <path d="m9 11 3 3L22 4"></path>
-                                </svg>Plantas manufactureras
-                            </li>
-                            <li><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    class="lucide lucide-circle-check-big text-[#C62828] flex-shrink-0 mt-1">
-                                    <path d="M21.801 10A10 10 0 1 1 17 3.335"></path>
-                                    <path d="m9 11 3 3L22 4"></path>
-                                </svg>Procesamiento químico y petroquímico
-                            </li>
-                        </ul>
-                    </div>
-
                 </div>
             </div>
         </div>
@@ -449,7 +455,7 @@
             {{-- Buttons declaration --}}
             <div class="buttonsContainer-servProyectIndus">
 
-                <button class="button-primary">
+                <button class="button-primary calibration">
                     Solicitar Propuesta
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
                         fill="none">
@@ -460,7 +466,7 @@
                     </svg>
                 </button>
 
-                <button class="button-primary secundary buttonSecondary-servProyectIndus">
+                <button class="button-secondary calibration">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                         stroke-linejoin="round">
