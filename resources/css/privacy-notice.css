@@ -1,0 +1,290 @@
+:root {
+    --text-header-color-nav: #d1d5dc;
+    --text-header-color-nav-hover: #c62828;
+    --header-background-color: #1a2535;
+    --border-header-footer-color: #2e3a46;
+    --background : #1a2942;
+    --footer-background-color: #0e1a2b;
+    --text-footer-color-links: #99a1af;
+    --text-footer-color-links-hover: #ffffff;
+    --text-white-color: #ffffff;
+    --border-footer-color-legal: #2e3a46;
+    --secondary-color: #c62828;
+    --secondary-color-rgb: 198, 40, 40;
+    --button-primary-color: #c62828;
+    --button-primary-color-hover: #b71c1c;
+    --button-serondary-color: transparent;
+    --button-secondary-color-hover: #ffffff;
+    --font-family: "Inter", sans-serif;
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.06);
+    --shadow-md: 0 10px 20px rgba(0, 0, 0, 0.1);
+    --shadow-red-md: 0 10px 20px rgba(127, 29, 29, 0.2);
+}
+
+* {
+    box-sizing: border-box;
+}
+body {
+    margin: 0;
+    font-family:
+        system-ui,
+        -apple-system,
+        Segoe UI,
+        Roboto,
+        Arial,
+        sans-serif;
+    color: #111827;
+}
+
+a {
+    color: inherit;
+}
+
+/* BODY */
+
+.simari-privacy-body__inner {
+    width: min(100%, 1200px);
+    margin-top: 20px;
+    margin-bottom: 3.5%;
+    margin-inline: auto;
+    padding-inline: 16px;
+}
+.simari-privacy-body__stack {
+    display: grid;
+    gap: 48px;
+}
+
+/* ARTICLE (optional wrapper) */
+.simari-privacy-article {
+    display: grid;
+    gap: 24px; /* separa secciones */
+}
+/* PRESENTATION */
+.simari-privacy-presentation {
+    width: 100%;
+    background: var(--background);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.presentation-container{
+    display: flex;
+    max-width: 1024px;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 96px 16px;
+}
+.presentation-container svg{
+    color: var(--secondary-color);
+    display: block;
+    background: rgba(var(--secondary-color-rgb), 0.18);
+    width: 96px;
+    height: 96px;
+    padding: 22px;
+    margin: 0;
+    border: 1px solid rgba(var(--secondary-color-rgb), 0.55);
+    border-radius: 16px;
+}
+.presentation-container h1{
+    color: var(--text-white-color);
+    font-size: 48px;
+    margin: 0;
+    padding: 0;
+}
+.presentation-container .presentation-subcontent-title{
+    color: #c9c9c9;
+    max-width: 85%;
+    font-size: 22px;
+    text-align: center;
+    font-weight: 400;
+}
+.presentation-subcontent-date{
+    color: var(--text-footer-color-links);
+    text-align: center;
+    font-weight: 300;
+}
+/* CARDS */
+.simari-privacy-card {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 20px;
+    padding: 32px;
+    box-shadow: var(--shadow-sm);
+    transition:
+        box-shadow 0.2s ease,
+        transform 0.2s ease;
+}
+.simari-privacy-card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-1px);
+}
+.simari-privacy-card__row {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+}
+.simari-privacy-card__badge {
+    flex: 0 0 auto;
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: grid;
+    place-items: center;
+    background: linear-gradient(
+        135deg,
+        var(--secondary-color),
+        var(--button-primary-color-hover)
+    );
+    box-shadow: var(--shadow-red-md);
+}
+.simari-privacy-card__content {
+    min-width: 0;
+}
+.simari-privacy-card__title {
+    margin: 0 0 16px;
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--footer-background-color);
+}
+.simari-privacy-card__text {
+    color: #374151;
+    line-height: 1.75;
+}
+.simari-privacy-card__text p {
+    margin: 0 0 12px;
+}
+.simari-privacy-card__text p:last-child {
+    margin-bottom: 0;
+}
+
+/* LISTS */
+.simari-privacy-bullets {
+    margin: 8px 0 16px;
+    padding-left: 20px;
+    list-style: disc;
+}
+.simari-privacy-bullets li {
+    margin: 6px 0;
+}
+
+/* EMPHASIS + NOTES + PLACEHOLDERS */
+.simari-privacy-emphasis {
+    font-weight: 600;
+}
+.simari-privacy-note {
+    font-size: 14px;
+    font-style: italic;
+    color: #4b5563;
+}
+.simari-privacy-placeholder {
+    font-weight: 700;
+    color: #111827;
+}
+
+/* CTA */
+.simari-privacy-cta {
+    margin-top: 64px;
+    padding: 32px;
+    border-radius: 20px;
+    color: #fff;
+    background: linear-gradient(
+        135deg,
+        var(--footer-background-color),
+        var(--border-header-footer-color)
+    );
+}
+.simari-privacy-cta__title {
+    margin: 0 0 16px;
+    font-size: 24px;
+    font-weight: 700;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+.simari-privacy-cta__text {
+    margin: 0 0 24px;
+    color: #d1d5db;
+    line-height: 1.7;
+}
+.simari-privacy-cta__grid {
+    display: grid;
+    gap: 16px;
+}
+@media (min-width: 768px) {
+    .simari-privacy-cta__grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+/* CONTACT BLOCKS */
+.simari-privacy-contact {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(8px);
+}
+.simari-privacy-contact__label {
+    margin: 0;
+    font-size: 14px;
+    color: #9ca3af;
+}
+.simari-privacy-contact__value {
+    margin: 4px 0 0;
+    font-weight: 600;
+    color: var(--text-white-color) ;
+    text-decoration: none;
+}
+.simari-privacy-contact__value a {
+    text-decoration: none;
+    color: inherit;
+}
+
+/* ICONS */
+.simari-privacy-icon {
+    display: inline-block;
+}
+.simari-privacy-icon--white {
+    color: #fff;
+}
+.simari-privacy-icon--primary {
+    color: var(--secondary-color);
+}
+.simari-privacy-icon--sm {
+    width: 20px;
+    height: 20px;
+}
+.simari-privacy-icon--md {
+    width: 24px;
+    height: 24px;
+}
+.simari-privacy-icon--lg {
+    width: 28px;
+    height: 28px;
+}
+.simari-privacy-icon--xl {
+    width: 40px;
+    height: 40px;
+}
+
+/* RESPONSIVE IMPROVEMENTS */
+@media (max-width: 640px) {
+    .simari-privacy-hero {
+        padding: 72px 0;
+    }
+    .simari-privacy-card {
+        padding: 24px;
+    }
+    .simari-privacy-card__row {
+        gap: 12px;
+    }
+    .simari-privacy-card__title {
+        font-size: 22px;
+    }
+    .simari-privacy-cta {
+        padding: 24px;
+    }
+}

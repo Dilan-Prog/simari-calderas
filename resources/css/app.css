@@ -2,9 +2,16 @@
 @import "./products.css";
 
 :root{
-    --header-footer-color:#1A2535;
     --text-header-color-nav:#D1D5DC;
     --text-header-color-nav-hover:#C62828;
+    --header-background-color:#1A2535;
+    --border-header-footer-color:#2E3A46;
+
+    --footer-background-color:#0E1A2B;
+    --text-footer-color-links:#99A1AF;
+    --text-footer-color-links-hover:#ffffff;
+    --text-white-color:#ffffff;
+    --border-footer-color-legal:#2E3A46;
     --secondary-color:#C62828;
     --button-primary-color:#C62828;
     --button-primary-color-hover:#b71c1c;
@@ -20,15 +27,20 @@ main,body{
 
 header{
     font-family: var(--font-family);
-    background: var(--header-footer-color);
+    background: var(--header-background-color);
     width: 100%;
     margin: 0;
     padding: 0;
     display: flex;
     justify-content: center;
     align-items: center;
+    border-bottom: 1px solid var(--border-header-footer-color);
 }
-nav{
+.header_logo{
+    width: 125px;
+    height: auto;
+}
+.main-nav-header{
   width: 100%;
   display: flex;
   justify-content: space-between;
@@ -37,7 +49,7 @@ nav{
   box-sizing: border-box;
 }
 
-nav ul{
+.main-nav-header ul{
   display: flex;
   align-items: center;
   list-style: none;
@@ -45,18 +57,26 @@ nav ul{
   padding: 0;
 }
 
-nav ul.nav-link{ gap: 50px; }
-nav ul.nav-action{ gap: 26px; }
+.main-nav-header ul.nav-link{ gap: 50px; }
+.main-nav-header ul.nav-action{ gap: 26px; }
 
-nav ul.nav-action svg{
+.main-nav-header ul.nav-action svg{
   width: 30px;
   height: 30px;
   display: inline-block;
   vertical-align: middle;
   color: var(--text-header-color-nav);
+  cursor: pointer;
+  transition: color 0.2s ease-in-out;
+}
+.main-nav-header ul.nav-action svg path{
+  stroke: currentColor;
+}
+.main-nav-header ul.nav-action svg:hover{
+    color: var(--text-header-color-nav-hover);
 }
 
-nav ul li a{
+.main-nav-header ul li a{
   color: var(--text-header-color-nav);
   text-decoration: none;
   font-size: 15px;
@@ -68,26 +88,26 @@ nav ul li a{
   gap: 6px;
   transition: color 0.2s ease-in-out;
 }
-nav ul li a svg{
+.main-nav-header ul li a svg{
   width: 14px;
   height: 14px;
   display: inline-block;
   vertical-align: middle;
   color: inherit;
 }
-nav ul li a svg path,
-nav ul li a svg circle,
-nav ul li a svg rect,
-nav ul li a svg line{
+.main-nav-header ul li a svg path,
+.main-nav-header ul li a svg circle,
+.main-nav-header ul li a svg rect,
+.main-nav-header ul li a svg line{
   stroke: currentColor;
   fill: none;
   transition: stroke 0.2s ease-in-out, fill 0.2s ease-in-out;
 }
-nav ul li a:hover{
+.main-nav-header ul li a:hover{
   color: var(--text-header-color-nav-hover);
 }
-nav ul li a svg use,
-nav ul li a svg [fill]{
+.main-nav-header ul li a svg use,
+.main-nav-header ul li a svg [fill]{
   fill: currentColor;
 }
 
@@ -100,3 +120,217 @@ nav ul li a svg [fill]{
 .button-primary.header:hover{
     transform: translateY(0.0px);
 }
+
+
+
+/* footer start styles */
+footer{
+    background: var(--footer-background-color);
+    font-family: var(--font-family);
+    font-style: normal;
+    display: flex;
+    padding: 64.949px 200px 0 200px;
+    flex-direction: column;
+    align-items: flex-start;
+    flex-shrink: 0;
+    border-top: 1px solid var(--border-header-footer-color);
+}
+.footer-container{
+    display: flex;
+    padding: 0 31.986px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 47.987px;
+    flex-shrink: 0;
+    align-self: stretch;
+}
+.footer-top{
+    width: 100%;
+    padding: 15px 20px;
+}
+.footer-grid{
+    display: flex;
+    justify-content: space-between;
+    gap: 23.993px;
+}
+.footer-brand, .footer-nav, .footer-newletter{
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    font-family: var(--font-family);
+    font-style: normal;
+}
+.footer-brand{
+    max-width: 290px;
+    color: var(--text-footer-color-links);
+    font-size: 14px;
+    line-height: 22px;
+}
+.footer-brand a{
+    text-decoration: none;
+}
+.footer-brand .footer-logo{
+    width: 268px;
+    height: auto;
+}
+.footer-brand address a{
+    color: var(--text-footer-color-links); /* o el color que quieras */
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+}
+.footer-nav ul{
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+/* Nav footer start */
+.footer-nav{
+    max-width: 300px;
+}
+.footer-nav ul li a{
+    color: var(--text-footer-color-links);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 400;
+    transition: color 0.2s ease-in-out;
+}
+.footer-nav ul li a:hover{
+    color: var(--text-footer-color-links-hover);
+}
+
+/* Nav footer end */
+
+/* Newsletter footer start */
+.footer-newsletter{
+    max-width: 300px;
+    color: var(--text-footer-color-links);
+}
+.footer-newsletter h2,.footer-nav h2{
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-white-color);
+}
+.footer-newsletter #newsletter-email{
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+    width: 100%;
+    padding: 8px 10px;
+    border-radius: 4px;
+    border: 0.962px solid #364153;
+    background: #2E3A46;
+    margin-bottom: 8px;
+}
+.form-footer .button_footer{
+    width: 100%;
+    background-color: var(--button-primary-color);
+    color: var(--text-white-color);
+    padding: 10px 0;
+    border: none;
+    font-size: 14px;
+    font-weight: 500;
+    border-radius: 4px;
+    margin-bottom: 8px;
+    cursor: pointer;
+}
+.form-footer .button_footer:hover{
+    background-color: var(--button-primary-color-hover);
+}
+.social .social-list{
+    display: flex;
+    gap: 15px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.social .social-list svg{
+    width: 28px;
+    height: 28px;
+    display: inline-block;
+    vertical-align: middle;
+    color: var(--text-footer-color-links);
+    transition: color 0.2s ease-in-out;
+}
+
+.social .social-list a{
+    display: inline-flex;
+    align-items: center;
+    
+    transition: color 0.2s ease-in-out;
+}
+
+.social .social-list a svg path,
+.social .social-list a svg circle,
+.social .social-list a svg rect,
+.social .social-list a svg line,
+.social .social-list a svg polyline,
+.social .social-list a svg polygon{
+    stroke: currentColor !important;
+    transition: stroke 0.2s ease-in-out, fill 0.2s ease-in-out;
+}
+
+.social .social-list a svg [fill]{
+    fill: none !important;
+}
+
+.social .social-list a:hover,
+.social .social-list a:hover svg{
+    color: var(--text-footer-color-links-hover) !important;
+}
+/* Newsletter footer end */
+
+/* Legal Footer start */
+.footer-bottom{
+    display: flex;
+    padding-right: 0;
+    color: var(--text-footer-color-links);
+    justify-content: space-between;
+    padding-top: 15px;
+    margin-bottom: 30px;
+    align-items: center;
+    flex-shrink: 0;
+    align-self: stretch;
+    border-top: 1px solid var(--border-footer-color-legal);
+}
+.footer-bottom p{
+  display: flex;
+  flex-direction: row;
+  gap: 6px;
+  white-space: nowrap;
+  font-size: 12px;
+  font-weight: 400;
+  align-items: center;
+  margin: 0;
+}
+.footer-bottom p span{
+  display: inline-block;
+}
+.footer-legal{
+    display: flex;
+    align-items: flex-start;
+    gap: 23.993px;
+}
+.footer-legal ul{
+    display: flex;
+    gap: 15px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+.footer-legal ul li a{
+    color: var(--text-footer-color-links);
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 400;
+    transition: color 0.2s ease-in-out;
+}
+.footer-legal ul li a:hover{
+    color: var(--text-footer-color-links-hover);
+}
+/* Legal footer end */

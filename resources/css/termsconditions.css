@@ -1,0 +1,243 @@
+:root {
+    --text-header-color-nav: #d1d5dc;
+    --text-header-color-nav-hover: #c62828;
+    --header-background-color: #1a2535;
+    --border-header-footer-color: #2e3a46;
+    --background : #1a2942;
+    --footer-background-color: #0e1a2b;
+    --text-footer-color-links: #99a1af;
+    --text-footer-color-links-hover: #ffffff;
+    --text-white-color: #ffffff;
+    --border-footer-color-legal: #2e3a46;
+    --secondary-color: #c62828;
+    --secondary-color-rgb: 198, 40, 40;
+    --button-primary-color: #c62828;
+    --button-primary-color-hover: #b71c1c;
+    --button-serondary-color: transparent;
+    --button-secondary-color-hover: #ffffff;
+    --font-family: "Inter", sans-serif;
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.06);
+    --shadow-md: 0 10px 20px rgba(0, 0, 0, 0.1);
+    --shadow-red-md: 0 10px 20px rgba(127, 29, 29, 0.2);
+}
+/* ===========================
+   TERMS / PRIVACY SHARED PATCH
+   Usando TU :root
+=========================== */
+
+.simari-privacy-body{
+  background: #fff;
+  font-family: var(--font-family);
+}
+
+/* ===========================
+   HERO (gradiente + radiales)
+=========================== */
+.simari-hero{
+  position: relative;
+  overflow: hidden;
+  padding: 96px 0; /* py-24 */
+  color: var(--text-white-color);
+  background: linear-gradient(
+    135deg,
+    var(--footer-background-color),
+    var(--background),
+    var(--border-header-footer-color)
+  );
+}
+
+.simari-hero__bg{
+  position: absolute;
+  inset: 0;
+  opacity: 0.10;
+  background-image:
+    radial-gradient(circle at 20% 50%, rgba(var(--secondary-color-rgb), 0.30) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(var(--secondary-color-rgb), 0.20) 0%, transparent 50%);
+}
+
+.simari-hero__container{
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+.simari-hero__badge{
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 24px;
+  display: grid;
+  place-items: center;
+  border-radius: 18px;
+  background: rgba(var(--secondary-color-rgb), 0.20);
+  border: 1px solid rgba(var(--secondary-color-rgb), 0.30);
+  backdrop-filter: blur(6px);
+}
+
+.simari-hero__badge svg{
+  width: 40px;
+  height: 40px;
+  color: var(--secondary-color);
+}
+
+.simari-hero__title{
+  font-size: clamp(32px, 4vw, 48px);
+  line-height: 1.1;
+  margin: 0 0 12px;
+  font-weight: 800;
+}
+
+.simari-hero__subtitle{
+  max-width: 720px;
+  margin: 0 auto;
+  color: rgba(209, 213, 220, 0.92); /* similar a --text-header-color-nav */
+}
+
+.simari-hero__date{
+  margin-top: 24px;
+  color: rgba(153, 161, 175, 0.95); /* similar a --text-footer-color-links */
+  font-size: 13px;
+}
+
+/* ===========================
+   Cards (sombra / hover)
+=========================== */
+.simari-privacy-card{
+  border: 1px solid #e5e7eb;
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow .2s ease, transform .2s ease;
+}
+
+.simari-privacy-card:hover{
+  box-shadow: var(--shadow-md);
+}
+
+/* Badge rojo tipo Tailwind */
+.simari-privacy-card__badge{
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: linear-gradient(
+    135deg,
+    var(--secondary-color),
+    var(--button-primary-color-hover)
+  );
+  display: grid;
+  place-items: center;
+  box-shadow: var(--shadow-red-md);
+}
+
+/* Títulos dentro de las cards */
+.simari-privacy-card__title{
+  color: var(--footer-background-color);
+}
+
+/* Texto general */
+.simari-privacy-card__text{
+  color: #374151; /* gris legible */
+  line-height: 1.7;
+}
+
+/* Listas */
+.simari-privacy-bullets{
+  margin: 12px 0;
+  padding-left: 20px;
+}
+
+.simari-privacy-bullets li{
+  margin: 8px 0;
+}
+
+/* Bloque nota (borde rojo) */
+.simari-privacy-note{
+  margin-top: 12px;
+  padding: 12px 14px;
+  border-left: 4px solid var(--secondary-color);
+  background: #f9fafb;
+  border-radius: 10px;
+}
+
+.simari-privacy-emphasis{
+  font-weight: 700;
+  color: var(--secondary-color);
+}
+
+/* Links */
+.simari-privacy-link{
+  color: var(--secondary-color);
+  text-decoration: none;
+}
+
+.simari-privacy-link:hover{
+  text-decoration: underline;
+}
+
+/* ===========================
+   ALERT warning (Importante)
+=========================== */
+.simari-alert{
+  background: #fffbeb;   /* amber-50 */
+  border-color: #fde68a; /* amber-200 */
+}
+
+.simari-alert .simari-privacy-card__title{
+  color: #78350f; /* amber-900 */
+}
+
+.simari-alert .simari-privacy-card__text{
+  color: #92400e; /* amber-800 */
+}
+
+.simari-alert__icon{
+  background: #d97706; /* amber-600 */
+  box-shadow: none;
+}
+
+/* ===========================
+   CTA final oscuro
+=========================== */
+.simari-cta--dark{
+  margin-top: 48px;
+  background: linear-gradient(
+    135deg,
+    var(--footer-background-color),
+    var(--border-header-footer-color)
+  );
+  border: none;
+  color: var(--text-white-color);
+  box-shadow: var(--shadow-md);
+}
+
+.simari-cta--dark .simari-privacy-cta__title{
+  color: var(--text-white-color);
+}
+
+.simari-cta--dark .simari-privacy-cta__text{
+  color: rgba(209, 213, 220, 0.95);
+}
+
+.simari-cta__footer{
+  margin-top: 24px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(255,255,255,0.10);
+  color: rgba(153, 161, 175, 0.95);
+  font-size: 13px;
+}
+
+/* ===========================
+   Responsive
+=========================== */
+@media (max-width: 768px){
+  .simari-hero{
+    padding: 72px 0;
+  }
+
+  .simari-hero__badge{
+    width: 72px;
+    height: 72px;
+  }
+}

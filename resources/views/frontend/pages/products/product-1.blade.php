@@ -1,7 +1,4 @@
 @extends('frontend.layouts.master')
-@section('styles')
-    <link rel="stylesheet" href="{{ asset('frontend/css/products.css') }}">
-@endsection
 @section('content')
     <section class="section-product">
         <div class="container">

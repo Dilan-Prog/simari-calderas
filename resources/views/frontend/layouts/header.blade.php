@@ -1,7 +1,7 @@
 <header>
-    <nav aria-label="Navegación principal">
+    <nav class="main-nav-header" aria-label="Navegación principal">
         <a href="/" aria-label="Ir al inicio">
-            <img src="/resources/images/logo.png" alt="Logo Simari Calderas">
+            <img class="header_logo" src="{{ Vite::asset('resources/images/logo/logo_SVG.svg') }}" alt="Logo Simari Calderas">
         </a>
         <ul class="nav-link">
             <li><a href="{{ route('home') }}">Inicio</a></li>

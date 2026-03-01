@@ -12,4 +12,14 @@ class HomeController extends Controller
     {
         return view('frontend.pages.products.product-1');
     }
+
+    public function privacyNotice()
+    {
+        return view('frontend.pages.legal.privacy-notice');
+    }
+
+    public function termsOfService()
+    {
+        return view('frontend.pages.legal.termsconditions');
+    }
 }
