@@ -1,0 +1,688 @@
+/* Definición de variables (Root) */
+:root {
+    --header-footer-color: #1A2535;
+    --vaner-color: #0c1b2e;
+    --secondary-color: #CE000D; /* Rojo corporativo Rinnai */
+    --text-white-color: #ffffff;
+    --text-subwhite-color: #D1D5DC;
+    --text-description-color: #6B7280;
+    --background-primary: #F8F9FA;
+    --button-primary-color: var(--secondary-color);
+    --button-primary-color-hover: #a8000a; /* Rojo más oscuro para el hover */
+    --font-family: 'Inter', sans-serif;
+}
+
+/* Clases Generales */
+* {
+    box-sizing: border-box;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* --- SECCIÓN 1: HERO DE PRODUCTO --- */
+.product-hero-section {
+    background-color: var(--background-primary);
+    padding: 80px 0 100px 0;
+    font-family: var(--font-family);
+}
+
+/* Contenedor del Logotipo Superior */
+.brand-logo-container {
+    margin-bottom: 40px;
+    display: flex;
+    justify-content: center;
+}
+
+.brand-logo-text {
+    font-size: 86px;
+    font-weight: 700;
+    color: var(--secondary-color);
+    margin: 0;
+    letter-spacing: -1px;
+    font-family: var(--font-family);
+}
+
+/* Grid Principal: 2 Columnas en Desktop, 1 en Mobile */
+.product-hero-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 40px;
+    align-items: center;
+}
+
+@media (min-width: 992px) {
+    .product-hero-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 60px;
+    }
+}
+
+/* --- COLUMNA IZQUIERDA: IMAGEN --- */
+.product-image-wrapper {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.product-image-card {
+    background-color: var(--text-white-color);
+    border-radius: 24px;
+    padding: 60px 40px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+    border: 1px solid #E5E7EB;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 600px; /* Ajustado para que no estire de más en pantallas pequeñas */
+    height: 100%;
+}
+
+.main-product-img {
+    width: 100%;
+    height: auto;
+    max-height: 500px;
+    object-fit: contain;
+    border-radius: 12px;
+}
+
+/* --- COLUMNA DERECHA: TEXTOS E INFO --- */
+.product-info-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: space-between;
+    height: 100%;
+}
+
+/* Etiqueta Premium */
+.badge-premium {
+    display: inline-block;
+    background-color: rgba(206, 0, 13, 0.1);
+    color: var(--secondary-color);
+    padding: 8px 16px;
+    border-radius: 50px;
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    letter-spacing: 0.5px;
+    font-family: var(--font-family);
+}
+
+/* Título y Descripción */
+.product-main-title {
+    font-size: 48px;
+    font-weight: 800;
+    color: #111827;
+    line-height: 1.1;
+    margin-top: 0;
+    margin-bottom: 24px;
+    font-family: var(--font-family);
+}
+
+@media (min-width: 768px) {
+    .product-main-title {
+        font-size: 56px;
+    }
+}
+
+@media (min-width: 1024px) {
+    .product-main-title {
+        font-size: 68px;
+    }
+}
+
+.product-main-desc {
+    font-size: 20px;
+    color: var(--text-description-color);
+    line-height: 1.6;
+    margin-bottom: 40px;
+    font-family: var(--font-family);
+}
+
+/* Grid de Características (Los 4 cuadritos) */
+.product-features-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin-bottom: 40px;
+    width: 100%;
+}
+
+.feat-card {
+    background-color: var(--text-white-color);
+    border: 1px solid #E5E7EB;
+    border-radius: 16px;
+    padding: 20px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.feat-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+}
+
+.feat-icon {
+    color: var(--secondary-color);
+    margin-bottom: 12px;
+}
+
+.feat-value {
+    font-size: 28px;
+    font-weight: 800;
+    color: #111827;
+    line-height: 1;
+    margin-bottom: 6px;
+    font-family: var(--font-family);
+}
+
+.feat-label {
+    font-size: 14px;
+    color: var(--text-description-color);
+    font-weight: 500;
+    font-family: var(--font-family);
+}
+
+/* --- BOTÓN DE ACCIÓN (CTA) --- */
+.button-primary {
+    border-radius: 36px;
+}
+
+.btn-product-cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    background-color: var(--secondary-color);
+    color: var(--text-white-color);
+    font-weight: 700;
+    font-size: 18px;
+    padding: 16px 32px;
+    border-radius: 50px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 10px 20px rgba(206, 0, 13, 0.3);
+    font-family: var(--font-family);
+}
+
+.btn-product-cta:hover {
+    background-color: var(--button-primary-color-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 15px 25px rgba(206, 0, 13, 0.4);
+    color: var(--text-white-color);
+}
+
+/* --- SECCIÓN 2: ¿POR QUÉ ELEGIR RINNAI? --- */
+.why-rinnai-section {
+    background-color: var(--text-white-color);
+    padding: 80px 0;
+    font-family: var(--font-family);
+}
+
+.why-rinnai-header {
+    text-align: center;
+    margin-bottom: 64px;
+}
+
+.why-rinnai-title {
+    font-size: 36px;
+    font-weight: 800;
+    color: #111827;
+    margin-top: 0;
+    margin-bottom: 16px;
+    line-height: 1.2;
+    font-family: var(--font-family);
+}
+
+@media (min-width: 768px) {
+    .why-rinnai-title {
+        font-size: 48px;
+    }
+}
+
+.why-rinnai-subtitle {
+    font-size: 20px;
+    color: var(--text-description-color);
+    max-width: 768px;
+    margin: 0 auto;
+    line-height: 1.6;
+    font-family: var(--font-family);
+}
+
+.why-rinnai-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 32px;
+}
+
+@media (min-width: 768px) {
+    .why-rinnai-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+.why-rinnai-card {
+    background-color: var(--background-primary);
+    padding: 32px;
+    border-radius: 16px;
+    transition: all 0.3s ease;
+}
+
+.why-rinnai-card:hover {
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    transform: translateY(-5px);
+}
+
+.why-rinnai-icon-box {
+    width: 64px;
+    height: 64px;
+    background-color: var(--secondary-color);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 24px;
+    color: var(--text-white-color);
+}
+
+.why-rinnai-card-title {
+    font-size: 24px;
+    font-weight: 800;
+    color: #111827;
+    margin-top: 0;
+    margin-bottom: 16px;
+    font-family: var(--font-family);
+}
+
+.why-rinnai-card-text {
+    font-size: 18px;
+    color: var(--text-description-color);
+    line-height: 1.625;
+    margin: 0;
+    font-family: var(--font-family);
+}
+
+/* --- SECCIÓN 3: APLICACIONES IDEALES --- */
+.ideal-applications-section {
+    background: linear-gradient(to bottom right, var(--background-primary), var(--text-white-color));
+    padding: 80px 0;
+    font-family: var(--font-family);
+}
+
+.ideal-apps-title {
+    text-align: center;
+    font-size: 36px;
+    font-weight: 800;
+    color: #111827;
+    margin-top: 0;
+    margin-bottom: 48px;
+    line-height: 1.2;
+    font-family: var(--font-family);
+}
+
+@media (min-width: 768px) {
+    .ideal-apps-title {
+        font-size: 48px;
+    }
+}
+
+.ideal-apps-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 24px;
+}
+
+@media (min-width: 768px) {
+    .ideal-apps-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 1024px) {
+    .ideal-apps-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+.app-card {
+    background-color: var(--text-white-color);
+    padding: 24px;
+    border-radius: 16px;
+    border: 2px solid #E5E7EB;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.app-card:hover {
+    border-color: var(--secondary-color);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.app-card-icon {
+    color: var(--secondary-color);
+    margin-bottom: 12px;
+    width: 24px;
+    height: 24px;
+}
+
+.app-card-text {
+    font-size: 16px;
+    font-weight: 600;
+    color: #111827;
+    margin: 0;
+    font-family: var(--font-family);
+}
+
+/* --- SECCIÓN 4: ESPECIFICACIONES TÉCNICAS --- */
+.tech-specs-section {
+    background-color: var(--text-white-color);
+    padding: 80px 0;
+    font-family: var(--font-family);
+}
+
+.specs-container {
+    max-width: 1024px;
+    margin: 0 auto;
+}
+
+.tech-specs-title {
+    text-align: center;
+    font-size: 36px;
+    font-weight: 800;
+    color: #111827;
+    margin-top: 0;
+    margin-bottom: 48px;
+    line-height: 1.2;
+    font-family: var(--font-family);
+}
+
+@media (min-width: 768px) {
+    .tech-specs-title {
+        font-size: 48px;
+    }
+}
+
+.tech-specs-card {
+    background-color: var(--background-primary);
+    border-radius: 24px;
+    padding: 32px;
+    border: 1px solid #E5E7EB;
+}
+
+@media (min-width: 768px) {
+    .tech-specs-card {
+        padding: 48px;
+    }
+}
+
+.tech-specs-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 32px;
+}
+
+@media (min-width: 768px) {
+    .tech-specs-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+.specs-column {
+    display: flex;
+    flex-direction: column;
+}
+
+.specs-col-title {
+    font-size: 24px;
+    font-weight: 800;
+    color: #111827;
+    margin-top: 0;
+    margin-bottom: 24px;
+    font-family: var(--font-family);
+}
+
+.specs-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.specs-list-item {
+    display: flex;
+    justify-content: space-between;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #D1D5DB;
+}
+
+.specs-list-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.specs-label {
+    font-weight: 600;
+    color: #374151;
+    font-size: 16px;
+    font-family: var(--font-family);
+}
+
+.specs-value {
+    color: #111827;
+    font-size: 16px;
+    font-family: var(--font-family);
+}
+
+/* --- SECCIÓN 5: CTA FINAL (CALIDAD JAPONESA) --- */
+.final-cta-rinnai {
+    background: linear-gradient(to bottom right, var(--secondary-color), #A00008);
+    padding: 80px 0;
+    color: var(--text-white-color);
+    font-family: var(--font-family);
+}
+
+.cta-rinnai-container {
+    max-width: 896px;
+    margin: 0 auto;
+    text-align: center;
+    padding: 0 20px;
+}
+
+.cta-rinnai-title {
+    font-size: 36px;
+    font-weight: 800;
+    margin-top: 0;
+    margin-bottom: 24px;
+    line-height: 1.2;
+    font-family: var(--font-family);
+}
+
+@media (min-width: 768px) {
+    .cta-rinnai-title {
+        font-size: 48px;
+    }
+}
+
+.cta-rinnai-subtitle {
+    font-size: 20px !important;
+    color: rgba(255, 255, 255, 0.9);
+    line-height: 1.625;
+    margin-top: 0;
+    padding: 0px 0px 40px 0px;
+    font-family: var(--font-family);
+}
+
+.cta-rinnai-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    justify-content: center;
+    align-items: center;
+}
+
+@media (min-width: 640px) {
+    .cta-rinnai-buttons {
+        flex-direction: row;
+    }
+}
+
+.btn-rinnai-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background-color: var(--text-white-color);
+    color: var(--secondary-color);
+    font-weight: 700;
+    font-size: 18px;
+    padding: 20px 40px;
+    border: none;
+    border-radius: 50px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    font-family: var(--font-family);
+}
+
+.btn-rinnai-primary:hover {
+    background-color: #F3F4F6;
+    transform: translateY(-2px);
+}
+
+.btn-rinnai-outline {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background-color: transparent;
+    color: var(--text-white-color);
+    font-weight: 700;
+    font-size: 18px;
+    padding: 20px 40px;
+    border: 2px solid var(--text-white-color);
+    border-radius: 50px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    font-family: var(--font-family);
+}
+
+.btn-rinnai-outline:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    transform: translateY(-2px);
+}
+
+/* =========================================
+   --- RESPONSIVE DESIGN (MÓVILES Y TABLETS) ---
+   ========================================= */
+
+/* Dispositivos Móviles (Tablets verticales y Teléfonos) */
+@media (max-width: 768px) {
+    /* Ajustes generales de padding en secciones */
+    .product-hero-section,
+    .why-rinnai-section,
+    .ideal-applications-section,
+    .tech-specs-section,
+    .final-cta-rinnai {
+        padding: 50px 0;
+    }
+
+    /* Logo más pequeño */
+    .brand-logo-text {
+        font-size: 56px;
+    }
+
+    /* Tarjeta de imagen no tan estirada en móvil */
+    .product-image-card {
+        min-height: auto;
+        padding: 30px 20px;
+    }
+
+    .main-product-img {
+        max-height: 350px; /* Evita que la imagen sea gigante en móvil */
+    }
+
+    /* Textos del producto centrados */
+    .product-info-wrapper {
+        align-items: center;
+        text-align: center;
+    }
+
+    .product-main-title {
+        font-size: 38px;
+    }
+
+    .product-main-desc {
+        font-size: 18px;
+    }
+
+    /* Cuadritos de características en 1 sola columna */
+    .product-features-grid {
+        grid-template-columns: 1fr;
+    }
+
+    /* Títulos de sección más pequeños */
+    .why-rinnai-title,
+    .ideal-apps-title,
+    .tech-specs-title,
+    .cta-rinnai-title {
+        font-size: 32px;
+    }
+
+    /* Tarjeta de Especificaciones Técnicas */
+    .tech-specs-card {
+        padding: 24px;
+    }
+
+    .specs-list-item {
+        flex-direction: column; /* Apilar label y valor */
+        align-items: flex-start;
+        gap: 6px;
+    }
+
+    /* Botones a ancho completo en móvil */
+    .btn-product-cta,
+    .btn-rinnai-primary,
+    .btn-rinnai-outline {
+        width: 100%;
+        padding: 18px 20px;
+        text-align: center;
+    }
+
+    .cta-rinnai-buttons {
+        width: 100%;
+    }
+}
+
+/* Dispositivos muy pequeños (Smartphones compactos) */
+@media (max-width: 480px) {
+    .brand-logo-text {
+        font-size: 42px;
+    }
+
+    .product-main-title {
+        font-size: 32px;
+    }
+
+    .why-rinnai-title,
+    .ideal-apps-title,
+    .tech-specs-title,
+    .cta-rinnai-title {
+        font-size: 28px;
+    }
+
+    .feat-value {
+        font-size: 24px;
+    }
+
+    .product-main-desc {
+        font-size: 16px;
+    }
+}

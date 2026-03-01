@@ -1,5 +1,7 @@
-
 @import "./products.css";
+@import "./home.css";
+@import "./Industrial-Hair-Dryer-Repair.css";
+@import "./heat-pumps.css";
 
 :root{
     --header-footer-color:#1A2535;

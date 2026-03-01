@@ -1,0 +1,611 @@
+/* =========================================
+   VARIABLES GLOBALES
+========================================= */
+:root {
+    --header-footer-color: #1A2535;
+    --vaner-color: #0c1b2e;
+    --secondary-color: #C62828;
+    --button-primary-color: #C62828;
+    --button-primary-color-hover: #b71c1c;
+    --text-white-color: #ffffff;
+    --text-subwhite-color: #D1D5DC;
+    --text-description-color: #6B7280;
+    --background-primary: #F8F9FA;
+    --text-header-color-nav: #D1D5DC;
+    --text-header-color-nav-hover: #C62828;
+    --font-family: 'Inter', sans-serif;
+}
+
+/* =========================================
+   RESETEO Y CLASES GLOBALES
+========================================= */
+main, body {
+    margin: 0;
+    padding: 0;
+    font-family: var(--font-family);
+    box-sizing: border-box;
+}
+
+*, *::before, *::after {
+    box-sizing: inherit;
+}
+
+h1, h2, h3, h4, h5, h6, p, span, a, button {
+    font-family: var(--font-family);
+}
+
+/* Agrupamos contenedores para que funcionen ambas clases */
+.container,
+.container-industrial {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.text-white {
+    color: var(--text-white-color) !important;
+}
+
+.section-main-title {
+    text-align: center;
+    font-size: 36px;
+    font-weight: 800;
+    color: var(--header-footer-color);
+    margin-top: 0;
+    margin-bottom: 60px;
+    font-family: var(--font-family);
+}
+
+/* =========================================
+   BOTONES GLOBALES
+========================================= */
+.button-primary,
+.button-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 14px 32px;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: var(--font-family);
+}
+
+.button-primary {
+    background-color: var(--button-primary-color);
+    color: var(--text-white-color);
+    border: none;
+}
+
+.button-primary:hover {
+    background-color: var(--button-primary-color-hover);
+    transform: translateY(-2px);
+}
+
+.button-secondary {
+    background-color: transparent;
+    color: var(--text-white-color);
+    border: 1px solid var(--text-white-color);
+}
+
+.button-secondary:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    transform: translateY(-2px);
+}
+
+/* =========================================
+   SECCIÓN: HERO (Cabecera Principal)
+========================================= */
+.hero-section {
+    position: relative;
+    background: var(--vaner-color);
+    min-height: 70vh;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+}
+
+.hero-background,
+.hero-overlay {
+    position: absolute;
+    inset: 0;
+}
+
+.hero-background img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.5;
+}
+
+.hero-overlay {
+    background: linear-gradient(to right, var(--vaner-color) 0%, var(--vaner-color) 5%, rgba(3, 5, 8, 0.7) 75%, transparent 100%);
+    z-index: 2;
+}
+
+.hero-container {
+    position: relative;
+    z-index: 3;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.hero-content {
+    max-width: 700px;
+}
+
+.hero-title {
+    font-size: 55px;
+    font-weight: 700;
+    color: var(--text-white-color);
+    line-height: 1.1;
+    margin-bottom: 20px;
+    font-family: var(--font-family);
+}
+
+.hero-description {
+    font-size: 17px;
+    line-height: 1.6;
+    color: var(--text-subwhite-color);
+    margin-bottom: 40px;
+    font-family: var(--font-family);
+}
+
+.hero-actions {
+    display: flex;
+    gap: 20px;
+}
+
+/* =========================================
+   SECCIÓN: DETALLE DEL SERVICIO Y APLICACIONES
+========================================= */
+.service-description-section,
+.service-description-section-industrial {
+    background-color: var(--text-white-color);
+    padding: 100px 0;
+}
+
+/* Ajuste de ancho específico para lectura cómoda */
+.service-description-section .container,
+.service-description-section-industrial .container-industrial {
+    max-width: 1200px;
+}
+
+.service-subtitle,
+.service-subtitle-industrial {
+    font-size: 36px;
+    font-weight: 800;
+    color: var(--header-footer-color);
+    margin-top: 0;
+    margin-bottom: 24px;
+    line-height: 1.2;
+    font-family: var(--font-family);
+}
+
+.service-text,
+.service-text-industrial {
+    font-size: 16px;
+    color: var(--text-description-color);
+    line-height: 1.8;
+    margin-bottom: 50px;
+    font-family: var(--font-family);
+}
+
+.applications-card {
+    background-color: var(--background-primary);
+    border-left: 4px solid var(--secondary-color);
+    border-radius: 4px 12px 12px 4px;
+    padding: 45px 50px;
+}
+
+.applications-title {
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--header-footer-color);
+    margin-top: 0;
+    margin-bottom: 30px;
+    font-family: var(--font-family);
+}
+
+.applications-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px 40px;
+}
+
+.app-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.app-item span {
+    font-size: 16px;
+    color: var(--text-description-color);
+    font-family: var(--font-family);
+}
+
+.check-circle {
+    width: 22px;
+    height: 22px;
+    border: 2px solid var(--secondary-color);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--secondary-color);
+    flex-shrink: 0;
+}
+
+.check-circle svg {
+    width: 12px;
+    height: 12px;
+}
+
+/* =========================================
+   SECCIÓN: ¿QUÉ INCLUYE EL SERVICIO?
+========================================= */
+.what-includes-section {
+    background-color: var(--background-primary);
+    padding: 100px 0;
+}
+
+.includes-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+}
+
+.include-card {
+    background-color: var(--text-white-color);
+    border-radius: 12px;
+    padding: 40px 30px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.include-card .icon-box {
+    width: 50px;
+    height: 50px;
+    background-color: var(--secondary-color);
+    color: var(--text-white-color);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 24px;
+}
+
+.include-card-title {
+    font-size: 19px;
+    font-weight: 700;
+    color: var(--header-footer-color);
+    margin-top: 0;
+    margin-bottom: 15px;
+    line-height: 1.3;
+    font-family: var(--font-family);
+}
+
+.include-card-text {
+    font-size: 14px;
+    color: var(--text-description-color);
+    line-height: 1.6;
+    margin: 0;
+    font-family: var(--font-family);
+}
+
+/* =========================================
+   SECCIÓN: BENEFICIOS OPERATIVOS
+========================================= */
+.benefits-section {
+    background-color: var(--text-white-color);
+    padding: 100px 0;
+}
+
+.benefits-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 30px;
+}
+
+.benefit-item {
+    background-color: var(--background-primary);
+    border-radius: 12px;
+    padding: 35px 30px;
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+}
+
+.benefit-icon-box {
+    width: 48px;
+    height: 48px;
+    background-color: var(--secondary-color);
+    color: var(--text-white-color);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.benefit-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.benefit-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--header-footer-color);
+    margin-top: 0;
+    margin-bottom: 12px;
+    line-height: 1.3;
+    font-family: var(--font-family);
+}
+
+.benefit-text {
+    font-size: 15px;
+    color: var(--text-description-color);
+    line-height: 1.6;
+    margin: 0;
+    font-family: var(--font-family);
+}
+
+/* =========================================
+   SECCIÓN: NUESTRO PROCESO DE TRABAJO
+========================================= */
+.work-process-section {
+    background-color: var(--vaner-color);
+    padding: 100px 0;
+}
+
+.process-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 30px;
+}
+
+.process-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 0 10px;
+}
+
+.step-number-circle {
+    width: 64px;
+    height: 64px;
+    background-color: var(--secondary-color);
+    color: var(--text-white-color);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    font-weight: 800;
+    margin-bottom: 24px;
+    font-family: var(--font-family);
+}
+
+.step-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-white-color);
+    margin-top: 0;
+    margin-bottom: 16px;
+    font-family: var(--font-family);
+}
+
+.step-desc {
+    font-size: 15px;
+    color: var(--text-subwhite-color);
+    line-height: 1.6;
+    margin: 0;
+    font-family: var(--font-family);
+}
+
+/* =========================================
+   SECCIÓN: POR QUÉ ELEGIR A SIMARI CALDERAS
+========================================= */
+.why-choose-simari-section {
+    background-color: var(--text-white-color);
+    padding: 100px 0;
+}
+
+.simari-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+}
+
+.simari-stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 15px;
+}
+
+.stat-big-number {
+    font-size: 55px;
+    font-weight: 800;
+    color: var(--secondary-color);
+    margin-bottom: 12px;
+    line-height: 1;
+    font-family: var(--font-family);
+}
+
+.stat-small-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--header-footer-color);
+    margin-bottom: 15px;
+    margin-top: 0;
+    font-family: var(--font-family);
+}
+
+.stat-small-desc {
+    font-size: 15px;
+    color: var(--text-description-color);
+    line-height: 1.6;
+    margin: 0;
+    max-width: 320px;
+    font-family: var(--font-family);
+}
+
+/* =========================================
+   SECCIÓN: CTA FINAL (Mantenga su Lavandería...)
+========================================= */
+.final-cta-section {
+    background-color: var(--vaner-color);
+    padding: 100px 0;
+    color: var(--text-white-color);
+}
+
+.final-cta-section .container {
+    max-width: 850px;
+}
+
+
+.cta-final-title-industri {
+    font-size: 36px;
+    font-weight: 700;
+    margin-bottom: 24px;
+    line-height: 1.2;
+    color: var(--text-white-color);
+    font-family: var(--font-family);
+}
+
+.cta-final-description-industri {
+    font-size: 17px !important;
+    color: var(--text-subwhite-color);
+    padding: 25px;
+    font-family: var(--font-family);
+}
+
+.cta-final-actions {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: auto;
+    gap: 20px;
+}
+
+.final-cta-section .button-secondary svg {
+    margin-right: 8px;
+}
+
+.button-secondary:hover {
+    background-color: var(--text-white-color);
+    color: var(--header-footer-color);
+    transform: translateY(-2px);
+}
+
+/* =========================================
+   MEDIA QUERIES (DISEÑO RESPONSIVO GLOBAL)
+========================================= */
+
+/* Tablets / Pantallas medianas */
+@media (max-width: 1024px) {
+    .includes-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 992px) {
+    .hero-title {
+        font-size: 45px;
+    }
+    .stat-big-number {
+        font-size: 45px;
+    }
+    .process-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 50px 30px;
+    }
+    .benefits-grid {
+        gap: 20px;
+    }
+    .benefit-item {
+        padding: 25px 20px;
+    }
+}
+
+/* Dispositivos Móviles */
+@media (max-width: 768px) {
+    /* Ajustes de Padding General para Secciones en Móvil (Agrupados) */
+    .hero-section { min-height: 60vh; }
+
+    .why-choose-simari-section,
+    .service-description-section,
+    .service-description-section-industrial,
+    .what-includes-section,
+    .benefits-section,
+    .work-process-section,
+    .final-cta-section {
+        padding: 60px 0;
+    }
+
+    .hero-title {
+        font-size: 38px;
+    }
+
+    .section-main-title,
+    .service-subtitle,
+    .service-subtitle-industrial,
+    .cta-final-title,
+    .cta-final-title-industri {
+        font-size: 30px;
+        margin-bottom: 40px;
+    }
+
+    .cta-final-title,
+    .cta-final-title-industri {
+        font-size: 28px;
+    }
+
+    /* Cambio a 1 Columna en móviles */
+    .simari-stats-grid,
+    .applications-grid,
+    .includes-grid,
+    .benefits-grid,
+    .process-grid {
+        grid-template-columns: 1fr;
+    }
+
+    /* Ajustes específicos de espaciado en grillas móviles */
+    .simari-stats-grid { gap: 50px; }
+    .applications-grid { gap: 15px; }
+    .process-grid { gap: 40px; }
+
+    .applications-card {
+        padding: 30px 20px;
+    }
+
+    .include-card {
+        padding: 30px 25px;
+    }
+
+    /* Ajuste de Botones en Móviles */
+    .hero-actions,
+    .cta-final-actions {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .button-primary,
+    .button-secondary {
+        width: 100%;
+    }
+}
