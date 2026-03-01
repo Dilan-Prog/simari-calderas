@@ -1,0 +1,263 @@
+:root{
+    --background-primary:#F3F4F6;
+    --header-footer-color:#1A2535;
+
+    --text-header-color-nav:#D1D5DC;
+    --text-header-color-nav-hover:#C62828;
+    --secondary-color:#C62828;
+    --button-primary-color:#C62828;
+    --button-primary-color-hover:#b71c1c;
+    --button-serondary-color: transparent;
+    --button-secondary-color-hover:#ffffff;
+    --font-family:'Inter', sans-serif;
+    --text-white-color:#ffffff;
+    --section-example:#0E1A2B;
+    --text-subwhite-color:#E5E7EB;
+    --text-description-color:#99A1AF;
+}
+
+/* =========================================
+   ESTILOS DE LA PÁGINA DE CONTACTO
+   ========================================= */
+
+.contact-page {
+    font-family: var(--font-family);
+    background-color: var(--text-white-color);
+}
+
+.contact-page .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* Colores auxiliares */
+.contact-page .text-white { color: var(--text-white-color); }
+.contact-page .text-dark { color: var(--header-footer-color); }
+.contact-page .text-gray { color: var(--text-description-color); }
+.contact-page .icon-red { color: var(--secondary-color); }
+.contact-page .bg-light { background-color: #E3F2FD; } /* Azul muy clarito del diseño original */
+
+/* --- 1. HEADER CONTACTO --- */
+.contact-header {
+    background-color: var(--section-example); /* #0E1A2B */
+    color: var(--text-white-color);
+    padding: 80px 20px;
+    position: relative;
+    overflow: hidden;
+}
+.contact-header-decor {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 30%;
+    height: 100%;
+    background-color: var(--secondary-color);
+    opacity: 0.1;
+    transform: skewX(12deg);
+    transform-origin: top right;
+}
+.contact-title-main {
+    font-size: 3rem;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+.contact-subtitle {
+    font-size: 1.25rem;
+    color: var(--text-subwhite-color);
+    max-width: 800px;
+    line-height: 1.6;
+}
+
+/* --- 2. BANNER DE WHATSAPP --- */
+.contact-whatsapp-banner {
+    background-color: var(--secondary-color); /* #C62828 */
+    padding: 60px 20px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+.contact-banner-texture {
+    position: absolute;
+    inset: 0;
+    background-image: url('https://www.transparenttextures.com/patterns/carbon-fibre.png');
+    opacity: 0.1;
+}
+.contact-banner-title {
+    font-size: 2.2rem;
+    font-weight: bold;
+    color: var(--text-white-color);
+    margin-bottom: 15px;
+}
+.contact-banner-text {
+    font-size: 1.25rem;
+    color: rgba(255,255,255,0.9);
+    margin-bottom: 30px;
+}
+.contact-btn-whatsapp {
+    display: inline-flex;
+    align-items: center;
+    gap: 15px;
+    background-color: #25D366; /* Verde de WhatsApp */
+    color: var(--text-white-color);
+    padding: 15px 40px;
+    border-radius: 50px;
+    font-size: 1.5rem;
+    font-weight: bold;
+    text-decoration: none;
+    border: 4px solid rgba(255,255,255,0.2);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+    transition: all 0.3s ease;
+}
+.contact-btn-whatsapp:hover {
+    background-color: #20bd5a;
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.25);
+}
+
+/* --- 3. SECCIÓN PRINCIPAL E INFO --- */
+.contact-main-section {
+    padding: 80px 0;
+}
+.contact-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+}
+
+.contact-info-column { display: flex; flex-direction: column; gap: 40px; }
+.contact-section-title { font-size: 2rem; font-weight: bold; margin-bottom: 10px; }
+.contact-divider { width: 80px; height: 4px; background-color: var(--secondary-color); margin-bottom: 20px; }
+.contact-desc { font-size: 1.1rem; line-height: 1.6; }
+
+.contact-info-list { display: flex; flex-direction: column; gap: 30px; }
+.contact-info-item { display: flex; align-items: flex-start; gap: 20px; }
+.contact-icon-box {
+    padding: 12px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.contact-item-title { font-size: 1.2rem; font-weight: bold; margin-bottom: 5px; }
+.contact-item-text { font-size: 1rem; line-height: 1.6; color: #4B5563; }
+.contact-links-group { display: flex; flex-direction: column; gap: 5px; }
+.contact-link { color: #4B5563; text-decoration: none; transition: color 0.3s; }
+.contact-link:hover { color: var(--secondary-color); }
+.font-medium { font-weight: 500; }
+
+.contact-guarantees {
+    margin-top: 40px;
+    padding-top: 30px;
+    border-top: 1px solid #E5E7EB;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+.contact-guarantee-item { display: flex; align-items: center; gap: 15px; }
+.contact-guarantee-title { font-weight: bold; font-size: 1.1rem; }
+.contact-guarantee-subtitle { font-size: 0.85rem; color: #6B7280; }
+
+/* --- FORMULARIO DE CONTACTO --- */
+.contact-form-wrapper {
+    background-color: var(--background-primary); /* #F3F4F6 */
+    padding: 40px;
+    border-radius: 16px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+    border: 1px solid #E5E7EB;
+}
+.contact-form-title { font-size: 1.8rem; font-weight: bold; margin-bottom: 30px; }
+
+.contact-form { display: flex; flex-direction: column; gap: 25px; }
+.contact-form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+
+.contact-input-group { display: flex; flex-direction: column; gap: 8px; }
+.contact-input-group label { font-size: 0.95rem; font-weight: 600; color: #374151; }
+.contact-input-group input,
+.contact-input-group select,
+.contact-input-group textarea {
+    width: 100%;
+    padding: 12px 16px;
+    border-radius: 8px;
+    border: 1px solid #D1D5DB;
+    background-color: var(--text-white-color);
+    font-family: inherit;
+    font-size: 1rem;
+    outline: none;
+    transition: all 0.3s;
+}
+.contact-input-group input:focus,
+.contact-input-group select:focus,
+.contact-input-group textarea:focus {
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 0 3px rgba(198, 40, 40, 0.1);
+}
+.contact-input-group textarea { resize: vertical; min-height: 120px; }
+.contact-error { color: #EF4444; font-size: 0.8rem; display: none; /* Visible via JS validation */ }
+
+.contact-btn-submit {
+    width: 100%;
+    background-color: var(--secondary-color);
+    color: var(--text-white-color);
+    font-weight: bold;
+    font-size: 1.1rem;
+    padding: 16px;
+    border: none;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+.contact-btn-submit:hover {
+    background-color: var(--button-primary-color-hover);
+    transform: translateY(-2px);
+}
+.contact-form-disclaimer {
+    font-size: 0.8rem;
+    text-align: center;
+    color: #6B7280;
+    margin-top: 10px;
+}
+
+/* --- 4. MAPA PLACEHOLDER --- */
+.contact-map-placeholder {
+    height: 400px;
+    width: 100%;
+    background-color: #E5E7EB;
+    position: relative;
+}
+.contact-map-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(46, 58, 70, 0.9); /* #2E3A46 transparente */
+    color: rgba(255, 255, 255, 0.5);
+    text-align: center;
+}
+.contact-map-overlay svg { margin-bottom: 15px; }
+.contact-map-title { font-size: 1.5rem; font-weight: 500; color: var(--text-white-color); }
+.contact-map-subtitle { font-size: 1rem; margin-top: 10px; }
+
+/* =========================================
+   RESPONSIVE (MÓVILES Y TABLETS)
+   ========================================= */
+@media (max-width: 992px) {
+    .contact-grid-2 { grid-template-columns: 1fr; gap: 50px; }
+    .contact-title-main { font-size: 2.5rem; }
+}
+
+@media (max-width: 768px) {
+    .contact-form-row { grid-template-columns: 1fr; }
+    .contact-guarantees { grid-template-columns: 1fr; }
+    .contact-banner-title { font-size: 1.8rem; }
+    .contact-btn-whatsapp { font-size: 1.2rem; padding: 12px 25px; }
+    .contact-form-wrapper { padding: 25px; }
+}

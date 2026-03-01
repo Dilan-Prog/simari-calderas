@@ -8,8 +8,10 @@ use Illuminate\Http\Request;
 class HomeController extends Controller
 {
     //
-    public function index()
+
+     public function index()
     {
-        return view('frontend.pages.products.product-1');
+        return view('frontend.pages.services.automation');
     }
+
 }

@@ -1,6 +1,10 @@
 
 @import "./products.css";
-
+@import "./company.css";
+@import "./automation.css";
+@import "./products-calderas_simari.css";
+@import "./water-heaters.css";
+@import "./contact.css";
 :root{
     --header-footer-color:#1A2535;
     --text-header-color-nav:#D1D5DC;

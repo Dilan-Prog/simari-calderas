@@ -1,0 +1,384 @@
+:root{
+    --background-primary:#F3F4F6;
+    --header-footer-color:#1A2535;
+
+    --text-header-color-nav:#D1D5DC;
+    --text-header-color-nav-hover:#C62828;
+    --secondary-color:#C62828;
+    --button-primary-color:#C62828;
+    --button-primary-color-hover:#b71c1c;
+    --button-serondary-color: transparent;
+    --button-secondary-color-hover:#ffffff;
+    --font-family:'Inter', sans-serif;
+    --text-white-color:#ffffff;
+    --section-example:#0E1A2B;
+    --text-subwhite-color:#E5E7EB;
+    --text-description-color:#99A1AF;
+}
+/* =========================================
+   ESTILOS DE LA PÁGINA RINNAI (WATER HEATERS)
+   ========================================= */
+
+
+
+.rinnai-page {
+    font-family: var(--font-family, 'Inter', sans-serif);
+    background-color: var(--text-white-color, #ffffff);
+}
+
+/* Reutilizamos o definimos el contenedor base si no está en un CSS global */
+.rinnai-page .container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+    box-sizing: border-box;
+}
+
+/* Colores Auxiliares basados en variables */
+.rinnai-page .text-white { color: var(--text-white-color, #ffffff); }
+.rinnai-page .text-dark { color: var(--header-footer-color, #1A2535); }
+.rinnai-page .text-gray { color: var(--text-description-color, #99A1AF); }
+.rinnai-page .text-red {color: rgb(206, 0, 13) ;
+}
+.rinnai-page .icon-red { transform: translate(1px, 1px);color: rgb(206, 0, 13) ;  }
+
+.rinnai-page .bg-white { background-color: var(--text-white-color, #ffffff); }
+.rinnai-page .bg-light { background-color:  #fbf9fa ; }
+
+.rinnai-page .rin-section { padding: 80px 0; }
+.rinnai-page .rin-section-title { font-size: 2.5rem; font-weight: 700; text-align: center; margin-bottom: 40px; color: var(--header-footer-color, #1A2535); }
+
+/* --- BOTONES --- */
+.rinnai-page .btn-primary,
+.rinnai-page .btn-outline {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 10px 20px; /* Reduje el padding para hacer el botón más corto */
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: 1rem; /* Opcional: ajustar el tamaño de la fuente si se desea */
+    text-decoration: none;
+
+}
+
+.rinnai-page .btn-primary {
+    background-color: rgb(206, 0, 13) ; /* Color de fondo del botón */
+    color: var(--text-white-color); /* Color del texto */
+    padding: 22px 30px; /* Ajuste de padding (más pequeño para hacer el botón más corto) */
+    border-radius: 50px; /* Borde redondeado completo */
+    font-size: 1rem; /* Tamaño de la fuente más pequeño */
+    font-weight: bold; /* Negritas */
+    text-transform: none; /* Texto en mayúsculas */
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15); /* Sombra */
+    transition: none; /* Eliminar transición */
+     transition: background-color 0.3s ease; /* Transición de color de fondo */
+ transform: translateY(-20px);
+    }
+
+.rinnai-page .btn-primary:hover {
+    background-color: rgba(179, 0, 12, 0.908); /* Oscurecer el color de fondo al pasar el cursor */
+    opacity: 1; /* Eliminar cambio de opacidad */
+    transform: none; /* Eliminar levitación */
+ transform: translateY(-20px);
+}
+
+.rinnai-page .btn-outline {
+    background-color: transparent;
+    border: 2px solid var(--text-white-color);
+    color: var(--text-white-color);
+}
+
+.rinnai-page .btn-outline:hover {
+    background-color: rgba(255,255,255,0.1);
+}
+
+.rinnai-page .cald-btn-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+/* --- SECCIÓN HERO --- */
+.rin-hero {
+    background: linear-gradient(135deg, var(--section-example, #0E1A2B), #1F2937, #000000);
+    padding: 80px 0 100px 0;
+    color: var(--text-white-color, #ffffff);
+}
+
+/* Logo Text (Reemplazo del logo imagen) */
+.rin-logo-wrapper { display: flex; justify-content: center; margin-bottom: 30px; }
+.rin-logo-text {
+    font-size: 5.5rem;
+    font-weight: 700;
+   color: rgb(206, 0, 13); /* Cambié el color a rgb(206, 0, 13) para que coincida con el color que mencionas */
+    line-height: 1;
+    letter-spacing: -2px;
+}
+
+.rin-hero-text {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.rin-badge {
+    display: inline-block;
+    background-color: #CE000D; /* Color de fondo ajustado al rojo que mencionaste (#CE000D) */
+    color: var(--text-white-color, #ffffff); /* Color del texto (blanco) */
+    padding: 8px 20px; /* Espaciado interno: 8px arriba y abajo, 20px a los lados */
+    border-radius: 50px; /* Bordes redondeados */
+    font-size: 0.85rem; /* Tamaño de fuente ajustado */
+    font-weight: 700; /* Negrita */
+    margin-bottom: 20px; /* Margen inferior ajustado */
+}
+  .rin-title { /* aqui ya no le supe noner la misma tipografia me lo desconfiguraba*/
+    font-family: sans-serif;
+    font-size: 60px !important; /* Tamaño de fuente ajustado */
+    font-weight: 700; /* Negrita */
+    line-height: 1; /* Ajuste de altura de línea */
+    margin-bottom: 20px; /* Margen inferior */
+    transform: translateY(-34px);
+}
+
+.rin-subtitle {
+    font-size: 1.15rem !important; /* Tamaño de fuente ajustado (equivalente a text-xl) */
+    color: rgb(214, 212, 212); /* Color de texto (equivalente a text-gray-300) */
+    max-width: 800px; /* Ancho máximo de 800px (equivalente a max-w-3xl) */
+    margin: 0 auto; /* Centra el párrafo horizontalmente (equivalente a mx-auto) */
+    line-height: 1.6; /* Ajuste de altura de línea (equivalente a line-height) */
+    transform: translateY(-38px);
+}
+
+/* --- TABS --- */
+.rin-tabs {
+    display: flex;
+    justify-content: center;
+    gap: 15px; /* Espacio entre botones */
+    margin-bottom: 40px; /* Margen inferior */
+    flex-wrap: wrap; /* Permite que los botones se ajusten al ancho */
+    transform: translateY(-38px);
+}
+
+.rin-tab {
+    padding: 18px 31px; /* Espaciado dentro del botón */
+    border-radius: 12px; /* Bordes redondeados */
+    font-weight: 700; /* Negrita */
+    font-size: 1.1rem; /* Tamaño de fuente */
+    background-color: #1F2937; /* Color de fondo oscuro */
+    color: var(--text-subwhite-color, #E5E7EB); /* Color del texto */
+    border: none; /* Sin borde */
+    cursor: pointer; /* Cambia el cursor cuando se pasa por encima */
+    transition: all 0.3s ease; /* Transición suave en hover y al activar */
+
+}
+
+.rin-tab:hover {
+    background-color: #374151; /* Fondo más claro al pasar el cursor */
+}
+
+.rin-tab.active {
+    background-color: rgb(206, 0, 13); /* Fondo del botón activo */
+    color: var(--text-white-color, #ffffff); /* Texto blanco para el botón activo */
+    transform: scale(1.05); /* Efecto de escalado al estar activo */
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3); /* Sombra al estar activo */
+}
+
+/* --- GLASS CARD (TARJETAS DE CONTENIDO) --- */
+.rin-glass-card {
+    background: rgba(248, 248, 248, 0.1); /* Fondo con opacidad */
+    backdrop-filter: blur(15px); /* Desenfoque de fondo */
+    border: 0.2px solid rgba(255, 255, 255, 0.136); /* Borde blanco con opacidad */
+    border-radius: 20px; /* Bordes redondeados */
+    padding: 50px ; /* Espaciado interno */
+
+    opacity: 1 ; /* Establece la opacidad al 100% (totalmente visible) */
+    transform: none; /* Elimina cualquier transformación (como desplazamiento o escalado) */
+    transform: translateY(-47px);
+
+}
+.rin-card-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center; }
+
+/* Imágenes de la tarjeta */
+.rin-img-wrapper {  left: -13px ;transform: translateY(-1px);position: relative; border-radius: 16px; overflow: hidden; }
+.rin-img-overlay {   position: absolute; inset: 0; background: linear-gradient(to top right, rgba(198,40,40,0.3), transparent); z-index: 1; }
+.rin-img-wrapper img { width: 100%; height: 400px; object-fit: cover; display: block; position: relative; z-index: 0; }
+.rin-img-badge {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background-color: rgb(206, 0, 13);
+    color: var(--text-white-color, #ffffff);
+    padding: 14px 21px;
+    border-radius: 50px;
+    font-weight: 700;
+    font-size: 1rem;
+    z-index: 2;
+    transform: translateY(15px);
+}
+
+/* Información de la tarjeta */
+.rin-info-wrapper { display: flex; flex-direction: column;transform: translateY(-8px); }
+.rin-info-title { font-size: 2rem; font-weight: 700; margin-bottom: 30px; margin-top: 0 ; color: var(--text-white-color, #ffffff); }
+.rin-specs-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Dos columnas */
+    gap: 15px; /* Espaciado entre las columnas */
+    margin-bottom: 50px;
+}
+
+.rin-spec-item {
+    background: rgba(185, 184, 184, 0.358);
+    backdrop-filter: blur(5px);
+    padding: 20px 10px;
+    border-radius: 12px;
+    width: 250px;
+}
+
+.rin-spec-item svg {
+    margin-bottom: 18px;
+}
+
+.rin-spec-val {
+
+    font-size: 1.5rem;
+    font-weight: 690;
+    margin-bottom: 5px;
+    position: relative; /* Necesario para aplicar transform */
+    transform: translate(12px, -1px)!important;
+    color: var(--text-white-color, #ffffff); /* Utiliza una variable o color blanco */
+}
+
+.rin-spec-label {
+    position: relative; /* Necesario para aplicar transform */
+    transform: translate(12px, -6px);
+    font-size: 0.85rem;
+    color: var(--text-subwhite-color, #E5E7EB); /* Gris claro */
+}
+.rin-features-list { transform: translate(-14px, -20px);display: flex; flex-direction: column; gap: 15px; margin-bottom: 30px; }
+.rin-feature-row { display: flex; align-items: center; gap: 15px; font-size: 16px; color: var(--text-white-color, #ffffff); }
+
+.rin-btn-card { width: fit-content; margin-top: auto; }
+
+/* Lógica de los Tabs */
+.rin-tab-content {
+    display: none;
+    animation: fadeInTab 0.4s ease-in-out;
+}
+.rin-tab-content.active-content {
+    display: block;
+}
+
+@keyframes fadeInTab {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- SECCIÓN TABLA COMPARATIVA --- */
+.rin-table-wrapper {
+    overflow-x: auto;
+    background-color: var(--text-white-color, #ffffff);
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+     width: 1250px;
+     margin-left: -60px;
+      font-size: 15px;
+
+
+}
+.rin-table { width: 100%; min-width: 700px; border-collapse: collapse; }
+.rin-table thead { background-color: rgb(206, 0, 13); color: var(--text-white-color, #ffffff); }
+.rin-table th { padding: 18px; font-size: 1.1rem; font-weight: 700; text-align: center; }
+.rin-table th:first-child { text-align: left; }
+.rin-table td { padding: 20px; text-align: center; border-bottom: 1px solid var(--background-primary, #F3F4F6); color: var(--header-footer-color, #1A2535); }
+.rin-table td:first-child { text-align: left; font-weight: 700; }
+.rin-table tbody tr { transition: background-color 0.3s; }
+.rin-table tbody tr:hover { background-color: var(--background-primary, #F3F4F6); }
+.rin-table td svg { margin: 0 auto; display: block; } /* Asegurar que el icono se centre */
+
+/* --- SECCIÓN BENEFICIOS --- */
+.rin-benefits-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 30px;
+}
+
+.rin-benefit-card {
+    background-color: #fbf9fa;
+    padding: 49px 25px;
+    border-radius: 16px;
+    text-align: center;
+    transition: all 0.3s ease;
+    /* Aseguramos que no haya movimiento */
+    transform: none;
+}
+
+.rin-benefit-card:hover {
+   transform: translateY(0px); /* Eleva ligeramente el div al pasar el cursor */
+    box-shadow: 0 5px 25px rgba(105, 104, 104, 0.2); /* Quitamos el efecto de sombra */
+}
+
+.rin-icon-box {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 20px auto;
+    border-radius: 50%;
+    background-color: rgba(198,40,40,0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+}
+
+.rin-benefit-card h3 {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    margin-top: 0;
+    color: var(--header-footer-color, #1A2535);
+}
+
+.rin-benefit-card p {
+    font-size: 15px;
+    transform: translateY(5px);
+    margin: 0;
+    line-height: 1.3;
+    color: #4a5565 !important;
+}
+/* --- SECCIÓN CTA --- */
+.rin-cta-section {
+    padding: 97px 30px;
+    background: linear-gradient(135deg, rgb(206, 0, 13) 0%, #800000 100%);
+    text-align: center;
+}
+.rin-cta-content { max-width: 800px; margin: 0 auto; }
+.rin-cta-content h2 { font-size: 47px !important; font-weight: 700; margin-bottom: 20px; margin-top: 0; color: var(--text-white-color, #ffffff); }
+.rin-cta-content p { font-size: 1.25rem !important; margin-bottom: 40px; margin-top: 0; opacity: 0.9; color: var(--text-white-color, #ffffff); line-height: 1.6; }
+.rin-btn-group { transform: translateY(-7px)!important;display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; }
+
+.rin-btn-white { transition: background-color 0.3s ease, opacity 0.3s ease !important; background-color: var(--text-white-color, #ffffff) !important; color: var(--secondary-color, #C62828)!important; font-size: 17px!important; padding: 22px 30px !important; transform: translateY(40px)!important;}
+.rin-btn-white:hover { background-color: rgb(240, 239, 239) !important; /* Oscurece el fondo ligeramente */
+    opacity: 0.9 ; /* Reduce la opacidad ligeramente */background-color: var(--background-primary, #0958f7); transform: translateY(0); color: var(--secondary-color, #C62828); }
+.rin-btn-outline-white { font-size: 1.2rem; padding: 20px 40px !important; border-width: 2px; transform:translateY(40px)!important; border-radius: 50px !important;}
+
+/* =========================================
+   RESPONSIVE (MÓVILES Y TABLETS)
+   ========================================= */
+@media (max-width: 992px) {
+    .rin-card-grid { grid-template-columns: 1fr; }
+    .rin-img-wrapper img { height: 300px; }
+    .rin-benefits-grid { grid-template-columns: repeat(2, 1fr); }
+    .rin-title { font-size: 2.8rem; }
+}
+
+@media (max-width: 768px) {
+    .rin-benefits-grid { grid-template-columns: 1fr; }
+    .rin-specs-grid { grid-template-columns: 1fr; }
+    .rin-title { font-size: 2.2rem; }
+    .rin-btn-group { flex-direction: column; }
+    .rin-cta-content h2 { font-size: 2.2rem; }
+    .rin-glass-card { padding: 20px; }
+    .rin-btn-card { width: 100%; }
+}
+
