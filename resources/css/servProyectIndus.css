@@ -1,0 +1,407 @@
+:root {
+    --background-primary: #F3F4F6;
+    --header-footer-color: #1A2535;
+    --text-header-color-nav: #D1D5DC;
+    --text-header-color-nav-hover: #C62828;
+    --secondary-color: #C62828;
+    --button-primary-color: #C62828;
+    --button-primary-color-hover: #b71c1c;
+    --button-serondary-color: transparent;
+    --button-secondary-color-hover: #ffffff;
+    --font-family: 'Inter', sans-serif;
+    --text-white-color: #ffffff;
+    --section-example: #0e1a2b;
+    --text-subwhite-color: #E5E7EB;
+    --text-description-color: #778396;
+}
+
+/* FIRST SECTION FROM PROYECT INDUS */
+
+.first-content-servCalibation.proyectIndus {
+    background: var(--section-example);
+}
+
+.textServCalibration.proyectIndus {
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-start;
+    text-align: left;
+    max-width: 75%;
+}
+
+.textServCalibration.proyectIndus h1 {
+
+    text-align: left;
+    margin: 0 0 24px 0;
+    padding: 0;
+}
+
+.textServCalibration.proyectIndus p {
+    text-align: left;
+    margin: 0 0 32px 0;
+    padding: 0;
+}
+
+
+/* SECOND SECTION FROM PROYECT INDUS */
+.second-sectionProyectIndus {
+    display: flex;
+    flex-direction: column;
+    margin: 0 128px;
+    padding: 0 32px;
+}
+
+.second-sectionProyectIndus h2 {
+    font-size: 34px;
+    font-weight: bolder;
+    margin: 0 0 24px 0;
+    color: var(--section-example);
+}
+
+.second-sectionProyectIndus p {
+    font-size: 19px;
+    margin: 0 0 24px 0;
+    color: var(--header-footer-color);
+    line-height: 1.5;
+}
+
+.firstcontainer-servProyectIndust {
+    position: relative;
+    padding-left: 30px;
+    padding: 30px;
+    background-color: #ffffff;
+    border-left: 6px solid #C62828;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+}
+
+.firstcontainer-servProyectIndust svg {
+    color: var(--button-primary-color);
+}
+
+.firstcontainer-servProyectIndust li {
+    list-style: none;
+}
+
+.firstcontainer-servProyectIndust h3 {
+    font-size: 22px;
+}
+
+.accordion__grid-servProyectIndus {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: start;
+}
+
+.accordion__grid-servProyectIndus ul {
+    padding: 0;
+    display: flex;
+    gap: 16px;
+    flex-direction: column;
+}
+
+.accordion__grid-servProyectIndus li {
+    display: flex;
+    gap: 12px;
+    font-family: var(--font-family);
+    color: var(--header-footer-color)
+}
+
+.accordion__content-servProyectIndus {
+    padding: 0;
+    margin: 0;
+}
+
+/* THIRD SECTION FROM SERVPROYECTINDUS */
+
+/* Section container */
+.section-servProyectIndus {
+    padding: 80px 12%;
+    background-color: transparent;
+    font-family: var(--font-family);
+}
+
+/* Section title */
+.title-servProyectIndus {
+    text-align: center;
+    font-size: 32px;
+    font-weight: 700;
+    margin-bottom: 60px;
+    color: var(--header-footer-color);
+}
+
+/* Grid layout */
+.grid-servProyectIndus {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 40px;
+}
+
+/* Individual card */
+.card-servProyectIndus {
+    background-color: var(--background-primary);
+    padding: 32px;
+    border-radius: 12px;
+
+    /* Soft lateral and bottom shadow */
+    box-shadow:
+        0 8px 18px rgba(0, 0, 0, 0.1),
+        0 2px 4px rgba(0, 0, 0, 0.1);
+
+    text-align: left;
+}
+
+/* Icon red square container */
+.iconBox-servProyectIndus {
+    width: 60px;
+    height: 60px;
+    background-color: #d32f2f;
+    border-radius: 12px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    color: #ffffff;
+    font-size: 12px;
+    text-align: center;
+    margin-bottom: 16px;
+}
+
+/* Card title */
+.cardTitle-servProyectIndus {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: var(--header-footer-color);
+    font-weight: bold;
+}
+
+/* Card text */
+.cardText-servProyectIndus {
+    font-size: 17px;
+    line-height: 1.7;
+    margin: 0;
+    /* max-width: 80%; */
+}
+
+
+/* FOURTH SECTION */
+
+
+.benefitsSection-servProyectIndus {
+    padding: 0 32px 80px;
+    margin: 0 128px;
+    font-family: var(--font-family);
+}
+
+.benefitsTitle-servProyectIndus {
+    text-align: center;
+    font-size: 34px;
+    font-weight: 700;
+    margin-bottom: 70px;
+    color: var(--header-footer-color);
+}
+
+.benefitsGrid-servProyectIndus {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 40px 60px;
+}
+
+.benefitCard-servProyectIndus {
+    display: flex;
+    align-items: flex-start;
+    gap: 25px;
+    padding: 24px;
+    border-radius: 12px;
+    background-color: var(--background-primary);
+}
+
+.benefitIcon-servProyectIndus {
+    width: 60px;
+    height: 60px;
+    min-width: 60px;
+    background-color: #d32f2f;
+    border-radius: 50%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    color: #ffffff;
+    font-size: 12px;
+    text-align: center;
+}
+
+.benefitContent-servProyectIndus {
+    flex: 1;
+}
+
+.benefitHeading-servProyectIndus {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: #0f2742;
+}
+
+.benefitText-servProyectIndus {
+    font-size: 16px;
+    margin: 0;
+    line-height: 1.6;
+    color: #4a4a4a;
+}
+
+
+
+/* PART FIVE */
+.processSection-servProyectIndus {
+    padding: 80px 150px;
+    background-color: var(--section-example);
+    font-family: Arial, Helvetica, sans-serif;
+    text-align: center;
+}
+
+.processTitle-servProyectIndus {
+    font-size: 36px;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0 0 40px 0;
+}
+
+.processGrid-servProyectIndus {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 60px;
+}
+
+.processItem-servProyectIndus {
+    text-align: center;
+}
+
+.processNumber-servProyectIndus {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 30px auto;
+
+    background-color: #d32f2f;
+    border-radius: 50%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 32px;
+    font-weight: 700;
+    color: #ffffff;
+}
+
+/* Step title */
+.processHeading-servProyectIndus {
+    font-size: 22px;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 20px;
+}
+
+/* Step description */
+.processText-servProyectIndus {
+    font-size: 16px;
+    line-height: 1.8;
+    color: #d6dde6;
+}
+
+
+/* PART SIX */
+
+.whyChoose-servProyectIndus {
+    padding: 80px 0;
+}
+
+.whyChoose-title-servProyectIndus {
+    margin: 0 0 48px 0;
+    font-family: var(--font-family);
+    padding: 0;
+    font-size: 38px;
+    font-weight: bold;
+    text-align: center;
+}
+
+.whyChoose-container-servProyectIndus {
+    display: flex;
+    gap: 16px;
+
+    padding: 0 32px;
+    margin: 0px 128px;
+}
+
+.whyChoose-item-servProyectIndus {
+    flex: 1;
+    justify-content: center;
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+}
+
+.whyChoose-heading-servProyectIndus {
+    margin: 0 0 8px 0;
+    font-size: 22px;
+    padding: 0;
+}
+
+.whyChoose-text-servProyectIndus {
+    margin: 0;
+    max-width: 95%;
+    padding: 0;
+    line-height: 1.6;
+    text-align: center;
+}
+
+/* SEVEN PART */
+.firstContent-servProyectIndus {
+    background: var(--section-example);
+    padding: 80px 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.text-servProyectIndus {
+    margin: 0 320px;
+    padding: 0 16px;
+}
+
+.title-servProyectIndus {
+    font-size: 38px;
+    color: var(--text-white-color);
+    margin: 0 0 24px 0;
+}
+
+.description-servProyectIndus {
+    padding: 0;
+    margin: 0 76px 32px;
+    max-width: 100%;
+    color: var(--text-header-color-nav);
+    font-size: 20px;
+    line-height: 1.6;
+    text-align: center;
+}
+
+.buttonsContainer-servProyectIndus {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+}
+
+.buttonSecondary-servProyectIndus {
+    background-color: transparent;
+    border: 2px solid var(--text-subwhite-color);
+    display: flex;
+    gap: 5px;
+}
+
+.buttonSecondary-servProyectIndus:hover {
+    background-color: #ffffff;
+    color: #000000;
+}
