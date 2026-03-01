@@ -1,6 +1,6 @@
 
 @import "./products.css";
-
+@import "./services.css";
 :root{
     --header-footer-color:#1A2535;
     --text-header-color-nav:#D1D5DC;

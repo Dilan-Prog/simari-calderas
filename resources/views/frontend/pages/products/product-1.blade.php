@@ -3,6 +3,7 @@
     <link rel="stylesheet" href="{{ asset('frontend/css/products.css') }}">
 @endsection
 @section('content')
+
     <section class="section-product">
         <div class="container">
             <div class="premiun-title">
