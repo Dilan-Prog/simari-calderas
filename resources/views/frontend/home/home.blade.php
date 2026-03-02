@@ -41,8 +41,9 @@
                         </svg>
                     </button>
 
+                    {{-- CORRIGE EL PVTO BOTON QUE TE DIJE DESDE TODA LA PINCHE SEMANA MOPRIN  --}}
                     <button class="button-secondary">
-                        Soluciones
+                    Soluciones
                     </button>
                 </div>
             </div>
@@ -257,7 +258,7 @@
         <div class="container">
             <div class="cta-box-home">
                 <div class="cta-pattern-home"></div>
-
+                {{-- CORRIGE ESTE PDO MOPRIN NO TIENE EL TAMANO ADECUADO --}}
                 <div class="cta-content-home">
                     <h2 class="cta-title-home">¿Listo para optimizar su planta?</h2>
                     <p class="cta-text-home">
