@@ -16,27 +16,8 @@
     --font-family: 'Inter', sans-serif;
 }
 
-/* =========================================
-   RESETEO Y CLASES GLOBALES
-========================================= */
-main, body {
-    margin: 0;
-    padding: 0;
-    font-family: var(--font-family);
-    box-sizing: border-box;
-}
-
-*, *::before, *::after {
-    box-sizing: inherit;
-}
-
-h1, h2, h3, h4, h5, h6, p, span, a, button {
-    font-family: var(--font-family);
-}
-
-/* Agrupamos contenedores para que funcionen ambas clases */
 .container,
-.container-industrial {
+.container.industrial {
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 20px;
@@ -60,44 +41,6 @@ h1, h2, h3, h4, h5, h6, p, span, a, button {
     font-family: var(--font-family);
 }
 
-/* =========================================
-   BOTONES GLOBALES
-========================================= */
-.button-primary,
-.button-secondary {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 14px 32px;
-    font-size: 16px;
-    font-weight: 600;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    font-family: var(--font-family);
-}
-
-.button-primary {
-    background-color: var(--button-primary-color);
-    color: var(--text-white-color);
-    border: none;
-}
-
-.button-primary:hover {
-    background-color: var(--button-primary-color-hover);
-    transform: translateY(-2px);
-}
-
-.button-secondary {
-    background-color: transparent;
-    color: var(--text-white-color);
-    border: 1px solid var(--text-white-color);
-}
-
-.button-secondary:hover {
-    background-color: rgba(255, 255, 255, 0.1);
-    transform: translateY(-2px);
-}
 
 /* =========================================
    SECCIÓN: HERO (Cabecera Principal)
@@ -129,7 +72,7 @@ h1, h2, h3, h4, h5, h6, p, span, a, button {
     z-index: 2;
 }
 
-.hero-container {
+.container.hero {
     position: relative;
     z-index: 3;
     width: 100%;
@@ -181,73 +124,76 @@ h1, h2, h3, h4, h5, h6, p, span, a, button {
 
 .service-subtitle,
 .service-subtitle-industrial {
-    font-size: 36px;
-    font-weight: 800;
+    font-size: 32px;
+    font-weight: 750;
     color: var(--header-footer-color);
     margin-top: 0;
-    margin-bottom: 24px;
+    margin-bottom: 14px;
     line-height: 1.2;
     font-family: var(--font-family);
 }
 
 .service-text,
 .service-text-industrial {
-    font-size: 16px;
-    color: var(--text-description-color);
-    line-height: 1.8;
-    margin-bottom: 50px;
+    font-size: 17px !important;
+    color: black !important;
+    font-weight:400 !important;
+    padding: 20px;
     font-family: var(--font-family);
 }
-
 .applications-card {
-    background-color: var(--background-primary);
-    border-left: 4px solid var(--secondary-color);
-    border-radius: 4px 12px 12px 4px;
-    padding: 45px 50px;
+    background-color: #F9FAFB; /* Ajustado a un gris muy claro como la imagen */
+    border-left: 4px solid #CE000D; /* Rojo Rinnai */
+    border-radius: 12px; /* Un radio más sutil se ve mejor con border-left */
+    padding: 2px 40px; /* Ajusté el padding para equilibrarlo */
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); /* Sombra suave opcional */
 }
 
 .applications-title {
-    font-size: 20px;
-    font-weight: 800;
-    color: var(--header-footer-color);
-    margin-top: 0;
-    margin-bottom: 30px;
+    font-size: 18px;
+    font-weight: 700;
+    color: #111827; /* Color oscuro fuerte */
     font-family: var(--font-family);
 }
 
 .applications-grid {
     display: grid;
+    /* Esto asegura que si es móvil sea 1 columna, si es escritorio sean 2 */
     grid-template-columns: repeat(2, 1fr);
-    gap: 20px 40px;
 }
 
 .app-item {
     display: flex;
-    align-items: center;
+    align-items: center; /* ESTO centra verticalmente el icono con el texto */
     gap: 12px;
 }
 
-.app-item span {
-    font-size: 16px;
-    color: var(--text-description-color);
+/* --- AQUÍ ESTÁ LA SOLUCIÓN CLAVE --- */
+.app-item p {
+    margin: 1; /* Eliminamos el margen por defecto del párrafo */
+    font-size: 14px;
+    color: #4B5563; /* Gris descripción */
     font-family: var(--font-family);
+    line-height: .8; /* Mejor lectura */
+    font-weight: 400;
 }
 
 .check-circle {
-    width: 22px;
-    height: 22px;
-    border: 2px solid var(--secondary-color);
+    width: 24px; /* Ligeramente más grande para balancear con el texto */
+    height: 24px;
+    border: 2px solid #CE000D; /* Borde rojo */
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--secondary-color);
-    flex-shrink: 0;
+    color: #CE000D; /* Icono rojo */
+    flex-shrink: 0; /* Evita que el círculo se aplaste si el texto es largo */
 }
 
 .check-circle svg {
-    width: 12px;
-    height: 12px;
+    width: 14px;
+    height: 14px;
+    stroke-width: 3; /* Hace el "check" un poco más gordito como en la imagen */
 }
 
 /* =========================================
@@ -367,7 +313,7 @@ h1, h2, h3, h4, h5, h6, p, span, a, button {
 ========================================= */
 .work-process-section {
     background-color: var(--vaner-color);
-    padding: 100px 0;
+    padding: 80px 0;
 }
 
 .process-grid {
@@ -474,23 +420,25 @@ h1, h2, h3, h4, h5, h6, p, span, a, button {
 }
 
 .final-cta-section .container {
-    max-width: 850px;
+    max-width: 550px;
 }
 
-
+.cta-final-title,
 .cta-final-title-industri {
-    font-size: 36px;
-    font-weight: 700;
+    font-size: 45px;
+    font-weight: 600;
     margin-bottom: 24px;
     line-height: 1.2;
     color: var(--text-white-color);
     font-family: var(--font-family);
 }
 
+.cta-final-description,
 .cta-final-description-industri {
-    font-size: 17px !important;
+    font-size: 26px !important;
     color: var(--text-subwhite-color);
-    padding: 25px;
+    padding: 10px;
+    margin-bottom: 45px;
     font-family: var(--font-family);
 }
 
@@ -498,18 +446,12 @@ h1, h2, h3, h4, h5, h6, p, span, a, button {
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: auto;
+    padding: 30px;
     gap: 20px;
 }
 
 .final-cta-section .button-secondary svg {
     margin-right: 8px;
-}
-
-.button-secondary:hover {
-    background-color: var(--text-white-color);
-    color: var(--header-footer-color);
-    transform: translateY(-2px);
 }
 
 /* =========================================

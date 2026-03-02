@@ -1,106 +1,62 @@
 :root {
     --header-footer-color: #1A2535;
     --vaner-color: #0c1b2e;
-    /* Tono más oscuro y sólido para las secciones tipo banner */
+    --text-header-color-nav: #D1D5DC;
+    --text-header-color-nav-hover: #C62828;
     --secondary-color: #C62828;
-    --text-white-color: #ffffff;
-    --text-subwhite-color: #D1D5DC;
-    /* Gris claro brillante para descripciones en fondos oscuros */
-    --text-description-color: #6B7280;
-    /* Gris intermedio para textos sobre fondo claro */
-    --background-primary: #F8F9FA;
-    /* Gris muy claro para secciones */
-
-    /* Botones y Hover */
-    --button-primary-color: var(--secondary-color);
+    --button-primary-color: #C62828;
     --button-primary-color-hover: #b71c1c;
-    --button-secondary-color-hover: var(--text-white-color);
-
+    --button-serondary-color: transparent;
+    --button-secondary-color-hover: #ffffff;
     --font-family: 'Inter', sans-serif;
+
 }
 
-/* --- GENERALES Y BOTONES --- */
-.hero-section,
-.stats-section,
-.solutions-section,
-.why-section,
-.cta-section {
+/* home.css - Estilos específicos para la Home Page */
+
+/* --- GENERALES DE HOME --- */
+/* NOTA: Las variables :root, .container y .button-primary vienen del CSS global */
+
+.hero-section-home,
+.stats-section-home,
+.solutions-section-home,
+.why-section-home,
+.cta-section-home {
     font-family: var(--font-family);
     box-sizing: border-box;
 }
 
-.container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 20px;
-}
-
-.text-center {
+.text-center-home {
     text-align: center;
 }
 
-.btn,
-.btn-white,
-.btn-dark {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    cursor: pointer;
-    padding: 14px 32px;
-    font: 600 16px var(--font-family);
-    border-radius: 4px;
-    text-decoration: none;
-    transition: 0.3s ease;
-    border: 2px solid transparent;
+.mb-16-home {
+    margin-bottom: 64px;
 }
 
-.btn-white {
-    background: var(--text-white-color);
-    color: var(--secondary-color);
-    border-radius: 8px;
-    padding: 16px 36px;
-}
+/* --- BOTONES ESPECÍFICOS DE HOME (Solo los que no son globales) --- */
 
-.btn-white:hover {
-    background: #f1f1f1;
-    transform: translateY(-3px);
-}
-
-.btn-dark {
-    background: var(--header-footer-color);
-    color: var(--text-white-color);
-    border-radius: 8px;
-    padding: 16px 36px;
-}
-
-.btn-dark:hover {
-    background: #0f1620;
-    transform: translateY(-3px);
-}
-
-/* --- HERO SECTION --- */
-.hero-section {
+/* --- HERO SECTION HOME --- */
+.hero-section-home {
     position: relative;
     background: var(--vaner-color);
-    /* Aplicado nuevo color de banner */
     min-height: 85vh;
     display: flex;
     align-items: center;
     overflow: hidden;
 }
 
-.hero-background,
-.hero-overlay {
+.hero-background-home,
+.hero-overlay-home {
     position: absolute;
     inset: 0;
 }
 
-.hero-background {
+.hero-background-home {
     z-index: 1;
 }
 
-.hero-background img {
+.hero-background-home img {
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -108,28 +64,23 @@
     opacity: 0.5;
 }
 
-.hero-overlay {
-    background: linear-gradient(to right,
-            var(--vaner-color) 0%,
-            var(--vaner-color) 5%,
-            rgba(3, 5, 8, 0.7) 75%,
-            transparent 100%);
+.hero-overlay-home {
+    background: linear-gradient(to right, var(--vaner-color) 0%, var(--vaner-color) 5%, rgba(3, 5, 8, 0.7) 75%, transparent 100%);
     z-index: 2;
 }
 
-.hero-container {
+/* Ajuste para que el contenido quede encima del fondo */
+.hero-section-home .container {
     position: relative;
     z-index: 3;
-    width: 100%;
-    padding: 0 100px;
 }
 
-.hero-content {
+.hero-content-home {
     max-width: 700px;
     color: var(--text-white-color);
 }
 
-.badge {
+.badge-home {
     display: inline-flex;
     align-items: center;
     gap: 10px;
@@ -140,7 +91,7 @@
     margin-bottom: 28px;
 }
 
-.badge .dot {
+.badge-home .dot-home {
     width: 8px;
     height: 8px;
     background: var(--secondary-color);
@@ -148,25 +99,25 @@
     box-shadow: 0 0 8px var(--secondary-color);
 }
 
-.badge-text {
+.badge-text-home {
     font-size: 13px;
     font-weight: 600;
     text-transform: uppercase;
     color: var(--text-subwhite-color);
 }
 
-.hero-title {
+.hero-title-home {
     font-size: 64px;
-    font-weight: 2000;
-    margin: 0 0 0px;
+    font-weight: 900;
+    margin: 0;
     color: var(--text-white-color);
 }
 
-.hero-title .text-highlight {
+.hero-title-home .text-highlight-home {
     color: var(--secondary-color);
 }
 
-.hero-description {
+.hero-description-home {
     font-size: 20px;
     line-height: 1.6;
     color: var(--text-subwhite-color);
@@ -174,13 +125,13 @@
     max-width: 700px;
 }
 
-.hero-actions {
+.hero-actions-home {
     display: flex;
     gap: 16px;
 }
 
-/* --- STATS SECTION --- */
-.stats-section {
+/* --- STATS SECTION HOME --- */
+.stats-section-home {
     background: var(--secondary-color);
     width: 95%;
     max-width: 1600px;
@@ -188,43 +139,42 @@
     padding: 45px 20px;
     position: relative;
     z-index: 10;
-    border-radius: 12px 12px 12px 12px;
+    border-radius: 12px;
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
 }
 
-.stats-container {
-    max-width: 1100px;
-    margin: 0 auto;
+.stats-grid-home {
     display: flex;
     justify-content: space-between;
     text-align: center;
     color: var(--text-white-color);
+    width: 100%;
 }
 
-.stat-item {
+.stat-item-home {
     flex: 1;
     position: relative;
 }
 
-.stat-item:not(:last-child)::after {
+.stat-item-home:not(:last-child)::after {
     content: "";
     position: absolute;
-    left: 100%; /* Cambiado para que no se solape con el borde del elemento */
+    left: 100%;
     top: 50%;
-    transform: translate(-50%, -50%); /* Centrado exacto para mantener nitidez de 1px */
+    transform: translate(-50%, -50%);
     height: 50px;
-    width: .5px !important;
+    width: 1px;
     background: rgba(0, 0, 0, 0.3);
 }
 
-.stat-number {
+.stat-number-home {
     font-size: 48px;
     font-weight: 800;
     margin: 0 0 5px;
     line-height: 1;
 }
 
-.stat-label {
+.stat-label-home {
     font-size: 13px;
     font-weight: 600;
     letter-spacing: 1px;
@@ -233,15 +183,15 @@
     margin: 0;
 }
 
-/* --- SOLUTIONS SECTION --- */
-.solutions-section {
+/* --- SOLUTIONS SECTION HOME --- */
+.solutions-section-home {
     background: var(--background-primary);
     padding: 80px 20px 100px;
     position: relative;
     z-index: 1;
 }
 
-.section-subtitle {
+.section-subtitle-home {
     color: var(--secondary-color);
     font-size: 13px;
     font-weight: 700;
@@ -251,58 +201,69 @@
     margin-bottom: 12px;
 }
 
-.section-title {
+.section-title-home {
     color: var(--header-footer-color);
     font-size: 42px;
     font-weight: 800;
     margin: 0 0 20px;
 }
 
-.section-desc {
+.section-desc-home {
     color: var(--text-description-color);
     font-size: 16px;
     line-height: 1.6;
     max-width: 650px;
-    margin: 0 auto 60px;
+    margin: 0 auto;
 }
 
-.solutions-grid {
+.solutions-grid-home {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 30px;
 }
 
-.solution-card {
+/* ESTILOS DE LA TARJETA (CORREGIDOS) */
+.solution-card-home {
     background: var(--text-white-color);
     border-radius: 12px;
     overflow: hidden;
+    /* Mantiene el zoom dentro de los bordes */
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
     transition: 0.3s ease;
+    cursor: pointer;
 }
 
-.solution-card:hover {
-    transform: translateY(-6px);
+.solution-card-home:hover {
+    /* NO movemos la tarjeta (sin transform: translateY) */
     box-shadow: 0 16px 32px rgba(0, 0, 0, 0.1);
 }
 
-.card-img-box {
+.card-img-box-home {
     position: relative;
     height: 220px;
+    overflow: hidden;
 }
 
-.card-img-box img {
+.card-img-box-home img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    transition: transform 0.5s ease;
+    /* Suavidad del zoom */
 }
 
-.card-img-overlay {
+/* ZOOM: Imagen crece al hacer hover */
+.solution-card-home:hover .card-img-box-home img {
+    transform: scale(1.1);
+}
+
+.card-img-overlay-home {
     position: absolute;
     inset: 0;
     background: rgba(3, 5, 8, 0.4);
 }
 
-.card-icon-overlay {
+.card-icon-overlay-home {
     position: absolute;
     bottom: 20px;
     left: 25px;
@@ -310,19 +271,26 @@
     z-index: 2;
 }
 
-.card-body {
+.card-body-home {
     padding: 30px 25px;
     text-align: left;
 }
 
-.card-title {
+.card-title-home {
     color: var(--header-footer-color);
     font-size: 20px;
     font-weight: 800;
     margin: 0 0 12px;
+    transition: color 0.3s ease;
+    /* Suavidad del cambio de color */
 }
 
-.card-text {
+/* COLOR: Título rojo al hacer hover */
+.solution-card-home:hover .card-title-home {
+    color: var(--secondary-color);
+}
+
+.card-text-home {
     color: var(--text-description-color);
     font-size: 15px;
     line-height: 1.6;
@@ -330,7 +298,7 @@
     min-height: 72px;
 }
 
-.card-link {
+.card-link-home {
     color: var(--secondary-color);
     font-size: 15px;
     font-weight: 600;
@@ -341,65 +309,57 @@
     transition: 0.3s ease;
 }
 
-.card-link:hover {
+.card-link-home:hover {
     color: var(--button-primary-color-hover);
 }
 
-.card-link:hover svg {
+.card-link-home:hover svg {
     transform: translateX(4px);
 }
 
-/* --- WHY SECTION --- */
-.why-section {
-    /* Fondo con degradado inclinado usando el nuevo var(--vaner-color) */
-    background: linear-gradient(75deg,
-            var(--vaner-color) 0%,
-            var(--vaner-color) 70%,
-            #212c3a 70%,
-            /* Color gris oscuro de la derecha */
-            #202b39 100%);
+/* --- WHY SECTION HOME --- */
+.why-section-home {
+    background: linear-gradient(75deg, var(--vaner-color) 0%, var(--vaner-color) 70%, #212c3a 70%, #202b39 100%);
     padding: 120px 0;
     color: var(--text-white-color);
 }
 
-.why-grid {
+.why-grid-home {
     display: grid;
     grid-template-columns: 2fr 2fr;
     gap: 80px;
     align-items: center;
-    max-width: 1300px;
-    margin: 0 auto;
 }
 
-.why-title {
+.why-title-home {
     font-size: 52px;
-    font-weight: 650 var(--font-family);
+    font-weight: 700;
     margin: 0 0 24px;
     line-height: 1.1;
     letter-spacing: -1px;
 }
 
-.why-desc {
-    font-size: 18px var(--font-family);
+.why-desc-home {
+    font-size: 18px;
     line-height: 1.7;
     color: var(--text-subwhite-color);
     margin: 0 0 48px;
     max-width: 580px;
 }
 
-.feature-list {
+.feature-list-home {
     display: flex;
     flex-direction: column;
     gap: 32px;
 }
 
-.feature-item {
+.feature-item-home {
     display: flex;
     align-items: flex-start;
     gap: 20px;
 }
 
-.feature-icon {
+.feature-icon-home {
     width: 52px;
     height: 52px;
     border-radius: 50%;
@@ -412,50 +372,44 @@
     color: var(--secondary-color);
 }
 
-.feature-content h4 {
+.feature-content-home h4 {
     margin: 0 0 6px;
     font-size: 20px;
-    font-weight: 700 var(--font-family);
+    font-weight: 700;
     color: var(--text-white-color);
 }
 
-.feature-content p {
+.feature-content-home p {
     margin: 0;
-    font-size: 15px var(--font-family);
+    font-size: 15px;
     line-height: 1.6;
     color: var(--text-subwhite-color);
 }
 
-.content-right {
+.content-right-home {
     position: relative;
     display: flex;
     justify-content: center;
 }
 
-.why-image-wrapper {
+.why-image-wrapper-home {
     position: relative;
     z-index: 1;
     width: 100%;
     max-width: 800px;
 }
 
-/* Resplandor rojo atmosférico */
-/* Ajuste del tono rojizo: mínimo en el borde, sin propagación de luz */
-.blur-backdrop {
+.blur-backdrop-home {
     position: absolute;
     inset: -3px;
-    /* Se reduce de -40px a -3px para que solo asome el borde */
     background: var(--secondary-color);
     filter: blur(8px);
-    /* Desenfoque mínimo (de 100px a 8px) para evitar el efecto nube */
     opacity: 0.6;
-    /* Mayor opacidad al ser más delgado para que se note el borde */
     border-radius: 18px;
-    /* Redondeo acorde a la imagen */
     z-index: -1;
 }
 
-.why-img {
+.why-img-home {
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -466,7 +420,7 @@
     box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6);
 }
 
-.floating-card {
+.floating-card-home {
     position: absolute;
     bottom: -30px;
     left: -40px;
@@ -478,7 +432,7 @@
     z-index: 10;
 }
 
-.floating-number {
+.floating-number-home {
     display: block;
     color: var(--secondary-color);
     font-size: 48px;
@@ -487,27 +441,27 @@
     margin: 0 0 8px;
 }
 
-.floating-text {
+.floating-text-home {
     color: var(--header-footer-color);
     font-size: 18px;
     font-weight: 800;
     margin: 0 0 6px;
 }
 
-.floating-sub {
+.floating-sub-home {
     color: var(--text-description-color);
     font-size: 14px;
     line-height: 1.5;
     margin: 0;
 }
 
-/* --- CTA SECTION --- */
-.cta-section {
+/* --- CTA SECTION HOME --- */
+.cta-section-home {
     background: var(--background-primary);
     padding: 80px 80px;
 }
 
-.cta-box {
+.cta-box-home {
     background: var(--secondary-color);
     max-width: 850px;
     margin: 0 auto;
@@ -518,183 +472,198 @@
     box-shadow: 0 30px 60px rgba(127, 23, 23, 0.4);
 }
 
-.cta-pattern {
+.cta-pattern-home {
     position: absolute;
     inset: 0;
     opacity: 0.1;
     z-index: 1;
 }
 
-.cta-content {
+.cta-content-home {
     position: relative;
     z-index: 2;
     text-align: center;
     color: var(--text-white-color);
 }
 
-.cta-title {
+.cta-title-home {
     font-size: 48px;
     font-weight: 700;
     margin: 0 0 20px;
     line-height: 1.2;
 }
 
-.cta-text {
+.cta-text-home {
     font-size: 20px;
     margin: 0 0 48px;
     color: rgba(255, 255, 255, 0.95);
 }
 
-.cta-buttons {
+/* Contenedor (se queda igual) */
+.cta-buttons-home {
     display: flex;
     justify-content: center;
     align-items: center;
     gap: 24px;
 }
 
-/* =========================================
-   --- RESPONSIVE DESIGN (AGREGADO) ---
-   ========================================= */
+/* --- Modificador Home Blanco (Reemplaza a .btn-white-home) --- */
+.button-primary.home-white {
+    /* Sobreescribimos estilos visuales */
+    background: var(--text-white-color);
+    color: var(--secondary-color);
+    border-radius: 8px;          /* Original .button-primary tiene 4px */
+    padding: 16px 36px;          /* Ajustamos el tamaño */
+    font-size: 16px;             /* Más pequeño que el primary normal (20px) */
+    font-weight: 600;            /* Menos grueso que el primary (700) */
+    font-family: var(--font-family);
 
-/* Pantallas medianas (Tablets y Laptops pequeñas) */
+    /* Opcional: Si quieres borde transparente como tenías antes */
+    border: 2px solid transparent;
+}
+
+.button-primary.home-white:hover {
+    background: #f1f1f1;
+    /* Hereda el transform del primary, o puedes quitarlo con: transform: none; */
+}
+
+/* --- Modificador Home Dark (Reemplaza a .btn-dark-home) --- */
+.button-primary.home-dark {
+    /* Sobreescribimos estilos visuales */
+    background: var(--header-footer-color);
+    color: var(--text-white-color);
+    border-radius: 8px;
+    padding: 16px 36px;
+    font-size: 16px;
+    font-weight: 600;
+    font-family: var(--font-family);
+    border: 2px solid transparent;
+}
+
+.button-primary.home-dark:hover {
+    background: #0f1620;
+}
+
+/* RESPONSIVE */
 @media (max-width: 1024px) {
-    .hero-container {
-        padding: 0 50px;
-    }
-
-    .solutions-grid {
+    .solutions-grid-home {
         grid-template-columns: repeat(2, 1fr);
     }
 
-    .why-grid {
+    .why-grid-home {
         grid-template-columns: 1fr;
         gap: 60px;
-        padding: 0 20px;
     }
 
-    .floating-card {
+    .floating-card-home {
         left: -20px;
     }
 
-    .cta-section {
+    .cta-section-home {
         padding: 60px 40px;
     }
 }
 
-/* Pantallas pequeñas (Móviles y Tablets verticales) */
 @media (max-width: 768px) {
-    .hero-container {
-        padding: 0 20px;
-    }
-
-    .hero-title {
+    .hero-title-home {
         font-size: 42px;
     }
 
-    .hero-description {
+    .hero-description-home {
         font-size: 18px;
     }
 
-    .hero-actions {
+    .hero-actions-home {
         flex-direction: column;
     }
 
-    .btn, .btn-white, .btn-dark {
+    .btn-home {
         width: 100%;
     }
 
-    /* Stats Section */
-    .stats-section {
+    .stats-section-home {
         margin: 20px auto 0;
         width: 90%;
         padding: 40px 20px;
     }
 
-    .stats-container {
+    .stats-grid-home {
         flex-direction: column;
         gap: 40px;
     }
 
-    .stat-item:not(:last-child)::after {
-        /* Cambia la barra separadora a horizontal en móviles */
-        width: 50px !important;
+    .stat-item-home:not(:last-child)::after {
+        width: 50px;
         height: 1px;
         left: 50%;
         top: 100%;
         transform: translate(-50%, 20px);
     }
 
-    /* Solutions Section */
-    .solutions-grid {
+    .solutions-grid-home {
         grid-template-columns: 1fr;
     }
 
-    .section-title {
-        font-size: 32px;
-    }
-
-    /* Why Section */
-    .why-section {
+    .why-section-home {
         padding: 80px 20px;
-        background: var(--vaner-color); /* Fondo sólido en móvil para mejor lectura */
+        background: var(--vaner-color);
     }
 
-    .why-title {
+    .why-title-home {
         font-size: 36px;
     }
 
-    .floating-card {
+    .floating-card-home {
         position: relative;
         bottom: auto;
         left: auto;
-        margin: -40px auto 0; /* Solapa ligeramente la imagen hacia arriba */
+        margin: -40px auto 0;
         max-width: 90%;
         text-align: center;
         padding: 24px;
     }
 
-    /* CTA Section */
-    .cta-section {
+    .cta-section-home {
         padding: 40px 20px;
     }
 
-    .cta-box {
+    .cta-box-home {
         padding: 50px 20px;
     }
 
-    .cta-title {
+    .cta-title-home {
         font-size: 32px;
     }
 
-    .cta-buttons {
+    .cta-buttons-home {
         flex-direction: column;
         gap: 16px;
     }
 }
 
-/* Pantallas muy pequeñas (Móviles pequeños) */
 @media (max-width: 480px) {
-    .hero-title {
+    .hero-title-home {
         font-size: 36px;
     }
 
-    .hero-description {
+    .hero-description-home {
         font-size: 16px;
     }
 
-    .stat-number {
+    .stat-number-home {
         font-size: 36px;
     }
 
-    .section-title, .why-title {
+    .section-title-home,
+    .why-title-home {
         font-size: 28px;
     }
 
-    .cta-title {
+    .cta-title-home {
         font-size: 26px;
     }
 
-    .feature-item {
+    .feature-item-home {
         flex-direction: column;
         align-items: flex-start;
         gap: 12px;
