@@ -18,8 +18,9 @@ use Illuminate\Support\Facades\Route;
 
 Route::controller(HomeController::class)->group(function () {
     Route::get('/', 'index')->name('home');
-    Route::get('/privacy-notice', 'privacyNotice')->name('privacy-notice');
-    Route::get('/terms-of-service', 'termsOfService')->name('terms-of-service');
+    Route::get('/aviso-privacidad', 'privacyNotice')->name('privacy-notice');
+    Route::get('/terminos-condiciones', 'termsOfService')->name('terms-of-service');
+    Route::get('/tanques-almacenamiento', 'storageTanks')->name('storage-tanks');
 });
 
 

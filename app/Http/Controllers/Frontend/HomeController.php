@@ -13,6 +13,19 @@ class HomeController extends Controller
         return view('frontend.pages.products.product-1');
     }
 
+
+
+
+    // SERVICES PAGES
+    public function storageTanks()
+    {
+        return view('frontend.pages.services.storage-tanks');
+    }   
+
+
+
+
+    // LEGAL PAGES
     public function privacyNotice()
     {
         return view('frontend.pages.legal.privacy-notice');

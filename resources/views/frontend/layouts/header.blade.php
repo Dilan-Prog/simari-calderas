@@ -1,28 +1,72 @@
 <header>
-    <nav class="main-nav-header" aria-label="Navegación principal">
+    <nav class="main-nav-header" aria-label="Navegacion principal">
         <a href="/" aria-label="Ir al inicio">
             <img class="header_logo" src="{{ Vite::asset('resources/images/logo/logo_SVG.svg') }}" alt="Logo Simari Calderas">
         </a>
+
         <ul class="nav-link">
             <li><a href="{{ route('home') }}">Inicio</a></li>
             <li><a href="/soluciones">Empresa</a></li>
-            <li><a href="/soluciones">Servicios <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"
-                        viewBox="0 0 14 14"">
-                        <path d="M3.49683 5.24536L6.99367 8.74221L10.4905 5.24536" stroke="#D1D5DC"
-                            stroke-width="1.16561" stroke-linecap="round" stroke-linejoin="round" />
-                    </svg></a></li>
-            <li><a href="/nosotros">Productos <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"
-                        viewBox="0 0 14 14" fill="none">
-                        <path d="M3.49683 5.24536L6.99367 8.74221L10.4905 5.24536" stroke="#D1D5DC"
-                            stroke-width="1.16561" stroke-linecap="round" stroke-linejoin="round" />
-                    </svg></a></li>
-            <li><a href="/proyectos">Masstercal Rinnai <svg xmlns="http://www.w3.org/2000/svg" width="14"
-                        height="14" viewBox="0 0 14 14" fill="none">
-                        <path d="M3.49683 5.24536L6.99367 8.74221L10.4905 5.24536" stroke="#D1D5DC"
-                            stroke-width="1.16561" stroke-linecap="round" stroke-linejoin="round" />
+
+            <li class="has-dropdown">
+                <button class="nav-dropdown-toggle" type="button" aria-expanded="false" aria-controls="dropdown-servicios">
+                    Servicios
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 14 14" fill="none">
+                        <path d="M3.49683 5.24536L6.99367 8.74221L10.4905 5.24536" stroke-width="1.16561"
+                            stroke-linecap="round" stroke-linejoin="round" />
                     </svg>
+                </button>
+                <ul id="dropdown-servicios" class="dropdown-menu" hidden>
+                    <li><a href="/soluciones/industrial">Mantenimiento industrial</a></li>
+                    <li><a href="/soluciones/residencial">Ingenieria Hidraulica</a></li>
+                    <li><a href="/soluciones/residencial">Calibracion de equipos</a></li>
+                    <li><a href="/soluciones/mantenimiento">Conversión de quemadores</a></li>
+                    <li><a href="/soluciones/eficiencia">Fabricación Equipos Periféricos</a></li>
+                    <li><a href="/soluciones/industrial">Mantenimiento de Chillers</a></li>
+                    <li><a href="/soluciones/residencial">Desincrustación de Calderas</a></li>
+                    <li><a href="/soluciones/mantenimiento">Conversión de quemadores</a></li>
+                    <li><a href="/soluciones/eficiencia">Reparación de Secadoras</a></li>
+                </ul>
+            </li>
+
+            <li class="has-dropdown">
+                <button class="nav-dropdown-toggle" type="button" aria-expanded="false" aria-controls="dropdown-productos">
+                    Productos
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 14 14" fill="none">
+                        <path d="M3.49683 5.24536L6.99367 8.74221L10.4905 5.24536" stroke-width="1.16561"
+                            stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                </button>
+                <ul id="dropdown-productos" class="dropdown-menu" hidden>
+                    <li><a href="{{ route('home') }}">Calderas SIMARI</a></li>
+                    <li><a href="/productos/calderas">Calentadores Solares</a></li>
+                    <li><a href="/productos/perifericos">Instrumentacion Industrial</a></li>
+                    <li><a href="/productos/perifericos">Tratamiento de Agua Anti-incrustante</a></li>
+                    <li><a href="/productos/perifericos">Refacciones y Mantenimiento</a></li>
+                </ul>
+            </li>
+
+            <li class="has-dropdown">
+                <button class="nav-dropdown-toggle" type="button" aria-expanded="false" aria-controls="dropdown-mastercal">
+                    Masstercal Rinnai
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 14 14" fill="none">
+                        <path d="M3.49683 5.24536L6.99367 8.74221L10.4905 5.24536" stroke-width="1.16561"
+                            stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                </button>
+                <ul id="dropdown-mastercal" class="dropdown-menu" hidden>
+                    <li><a href="/mastercal-rinnai">Bombas de Calor</a></li>
+                    <li><a href="/mastercal-rinnai/comerciales">Calentadores De Agua</a></li>
+                    <li><a href="/mastercal-rinnai/refacciones">Calentadores Electricos</a></li>
+                    <li><a href="/mastercal-rinnai/soporte">Calentadores de Paso a Gas</a></li>
+                    <li><a href="/mastercal-rinnai/refacciones">Suavizadores y Filtros</a></li>
+                    <li><a href="{{ route('storage-tanks') }}">Tanques de Almacenamiento</a></li>
+                </ul>
+            </li>
+
             <li><a href="/contacto">Contacto</a></li>
         </ul>
+
         <ul class="nav-action">
             <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 20 20" fill="none">
                 <g clip-path="url(#clip0_20_1370)">
@@ -36,9 +80,7 @@
                     </clipPath>
                 </defs>
             </svg>
-            <button class="button-primary header">Solicitar Cotizacion
-
-            </button>
+            <button class="button-primary header">Solicitar Cotizacion</button>
         </ul>
     </nav>
 </header>
