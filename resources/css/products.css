@@ -1,33 +1,51 @@
-:root{
-    --background-primary:#F3F4F6;
-    --header-footer-color:#1A2535;
+:root {
+    /* Primary background color for the site */
+    --background-primary: #F3F4F6;
+    /* Header and footer background color */
+    --header-footer-color: #1A2535;
 
-    --text-header-color-nav:#D1D5DC;
-    --text-header-color-nav-hover:#C62828;
-    --secondary-color:#C62828;
-    --button-primary-color:#C62828;
-    --button-primary-color-hover:#b71c1c;
-    --button-serondary-color: transparent;
-    --button-secondary-color-hover:#ffffff;
-    --font-family:'Inter', sans-serif;
-    --text-white-color:#ffffff;
-    --section-example:#0E1A2B;
-    --text-subwhite-color:#E5E7EB;
-    --text-description-color:#99A1AF;
+    /* Navigation text color */
+    --text-header-color-nav: #D1D5DC;
+    /* Navigation text color on hover */
+    --text-header-color-nav-hover: #C62828;
+    /* Secondary theme color (Red) */
+    --secondary-color: #C62828;
+    /* Primary button background color */
+    --button-primary-color: #C62828;
+    /* Primary button background color on hover */
+    --button-primary-color-hover: #b71c1c;
+    /* Secondary button background color (transparent) */
+    --button-secondary-color: transparent;
+    /* Secondary button background color on hover */
+    --button-secondary-color-hover: #ffffff;
+    /* Global font family */
+    --font-family: 'Inter', sans-serif;
+    /* Standard white text color */
+    --text-white-color: #ffffff;
+    /* Example section background color */
+    --section-example: #0E1A2B;
+    /* Sub-white or off-white text color */
+    --text-subwhite-color: #E5E7EB;
+    /* Description text color (Gray) */
+    --text-description-color: #99A1AF;
 }
-/* comentan todo esto en ingles */
-.section-product{
+
+/* Main wrapper for the product section */
+.section-product {
     font-family: var(--font-family);
     background: var(--section-example);
     width: 100%;
 }
-.container{
+
+/* Container for content alignment and padding */
+.container {
     width: 100%;
     padding: 138px 200px 138px 200px;
     box-sizing: border-box;
 }
-.container > p:not(.product-subdescription){
-    color: var(--text-white-color);
+
+/* Styles for paragraphs directly inside the container, excluding subdescriptions */
+.container > p:not(.product-subdescription) {
     font-size: 30px;
     font-style: normal;
     font-weight: 300;
@@ -35,11 +53,15 @@
     line-height: 36px;
     color: var(--text-subwhite-color);
 }
-.container p strong{
+
+/* Styles for strong tags inside container paragraphs */
+.container p strong {
     color: var(--text-white-color);
-    font-weight:700;
+    font-weight: 700;
 }
-.premiun-title{
+
+/* Premium badge or title styling */
+.premiun-title {
     color: var(--text-white-color);
     background: var(--secondary-color);
     width: fit-content;
@@ -49,7 +71,9 @@
     justify-content: center;
     gap: 7.993px;
 }
-.premiun-title p{
+
+/* Text inside the premium title badge */
+.premiun-title p {
     font-size: 14px;
     font-style: normal;
     font-weight: 700;
@@ -63,7 +87,9 @@
     align-items: normal;
     gap: 8px;
 }
-.product-title{
+
+/* Main product heading styling */
+.product-title {
     color: var(--text-white-color);
     max-width: 895px;
     font-size: 96px;
@@ -73,10 +99,13 @@
     margin: 10px 0px;
 }
 
-.product-title span{
+/* Highlighted span text inside the product title */
+.product-title span {
     color: var(--secondary-color);
 }
-.product-subdescription{
+
+/* Sub-description styling with a left border highlight */
+.product-subdescription {
     color: var(--text-description-color);
     font-size: 18px;
     font-style: normal;
@@ -86,7 +115,9 @@
     padding-left: 20px;
     border-left: 2px solid var(--secondary-color);
 }
-.button-container{
+
+/* Wrapper for primary and secondary buttons */
+.button-container {
     display: flex;
     width: 895.989px;
     height: 69.907px;
@@ -94,7 +125,9 @@
     align-items: center;
     gap: 23.993px;
 }
-.button-primary{
+
+/* Primary action button styling */
+.button-primary {
     background: var(--button-primary-color);
     color: var(--text-white-color);
     display: flex;
@@ -111,13 +144,16 @@
     cursor: pointer;
     transition: all 0.1s ease-in-out;
 }
-.button-primary:hover{
+
+/* Primary action button hover effect */
+.button-primary:hover {
     background: var(--button-primary-color-hover);
     transform: translateY(-2.5px);
 }
-.button-secondary{
-    background: var(--button-serondary-color);
-    border-radius: 1px solid white;
+
+/* Secondary (ghost) action button styling */
+.button-secondary {
+    background: var(--button-secondary-color);
     color: var(--text-white-color);
     display: flex;
     padding: 19.92px 39.994px 21.987px 39.994px;
@@ -132,7 +168,9 @@
     border: 2px solid white;
     cursor: pointer;
 }
-.button-secondary:hover{
+
+/* Secondary action button hover effect */
+.button-secondary:hover {
     background: var(--button-secondary-color-hover);
     color: black;
 }
