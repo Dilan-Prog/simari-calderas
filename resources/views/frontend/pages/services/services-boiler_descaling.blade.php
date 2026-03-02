@@ -6,20 +6,30 @@
     <section class="encabezado">
         <div class="container">
 
+            <div class="cont">
 
 
-            <h1 class="title-page">Desincrustación Química <br> de Calderas Industriales</h1>
+                   <h1 class="title-page">Desincrustación Química de Calderas Industriales</h1>
 
 
 
-            <p class="info"> Eliminación profesional de incrustaciones calcáreas, óxidos metálicos y depósitos que
+                <p id="pc"> Eliminación profesional de incrustaciones calcáreas, óxidos metálicos y depósitos que
                 reducen eficiencia térmica y comprometen la seguridad operacional de calderas. </p>
 
-            <div class=" container-buton-1">
-                <button class="container-buton-primary">Solicitar Cotizacion</button>
-            </div>
 
+                        <div class="button-container1">
+                <button class="button-primary1">
+                Solicitar Cotizacion <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                    viewBox="0 0 24 24" fill="none">
+                    <path d="M4.99866 11.9966H18.9948" stroke="white" stroke-width="1.99945" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                    <path d="M11.9967 4.99854L18.9948 11.9966L11.9967 18.9947" stroke="white" stroke-width="1.99945"
+                        stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+                </button>
 
+                   </div>
+               </div>
         </div>
 
     </section>
@@ -27,11 +37,11 @@
 
 
     <section class="section2">
-         <div class="container">
+        <div class="container">
 
             <h2 class="title2">¿En qué consiste el servicio de Desincrustación?</h2>
 
-            <p class="description">La desincrustación química profesional mediante circulación de soluciones ácidas
+            <p id="de">La desincrustación química profesional mediante circulación de soluciones ácidas
                 inhibidas remueve incrustaciones de carbonato de calcio, sulfato de calcio,
                 óxidos de hierro, sílice y depósitos minerales que actúan como aislantes térmicos,
                 reduciendo la transferencia de calor hasta 30% y generando sobrecalentamiento
@@ -66,7 +76,7 @@
 
         <div class="container">
 
-            <h2 class="title3">¿Qué Incluye el Servicio de Desincrustación?</h2>
+            <h2 class="tit">¿Qué Incluye el Servicio de Desincrustación?</h2>
 
 
 
@@ -110,7 +120,7 @@
                                     fill="none" stroke="white" stroke-width="2" stroke-linecap="round"
                                     stroke-linejoin="round" class="lucide lucide-droplets text-white">
                                     <path d="M7 16.3c2.2 0 4-1.83 4-4.05 0-1.16-.57-2.26-1.71-3.19S7.29 6.75 7 5.3c-.29 1.45-1.14 2.84-2.29
-                            3.76S3 11.1 3 12.25c0 2.22 1.8 4.05 4 4.05z"></path>
+                                3.76S3 11.1 3 12.25c0 2.22 1.8 4.05 4 4.05z"></path>
                                     <path
                                         d="M12.56 6.6A10.97 10.97 0 0 0 14 3.02c.5 2.5 2 4.9 4 6.5s3 3.5 3 5.5a6.98 6.98 0 0 1-11.91 4.97">
                                     </path>
@@ -134,8 +144,8 @@
                                     fill="none" stroke="white" stroke-width="2" stroke-linecap="round"
                                     stroke-linejoin="round" class="lucide lucide-shield text-white">
                                     <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4
-                            13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81
-                            17 5 19 5a1 1 0 0 1 1 1z"></path>
+                                13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81
+                                17 5 19 5a1 1 0 0 1 1 1z"></path>
                                 </svg>
                             </div>
 
@@ -155,9 +165,9 @@
                                     fill="none" stroke="white" stroke-width="2" stroke-linecap="round"
                                     stroke-linejoin="round" class="lucide lucide-sparkles text-white">
                                     <path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5
-                              9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0
-                               0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437
-                               1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"></path>
+                                  9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0
+                                   0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437
+                                   1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"></path>
                                     <path d="M20 3v4">
                                     </path>
                                     <path d="M22 5h-4"></path>
@@ -259,7 +269,13 @@
 
 
                     <div class="logotipo">
-
+                             <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"
+                                    fill="none" stroke="white" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" class="lucide lucide-shield text-white">
+                                    <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4
+                                13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81
+                                17 5 19 5a1 1 0 0 1 1 1z"></path>
+                                </svg>
 
                     </div>
 
@@ -279,7 +295,19 @@
 
 
                     <div class="logotipo">
-
+                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"
+                                    fill="none" stroke="white" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" class="lucide lucide-sparkles text-white">
+                                    <path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5
+                                  9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0
+                                   0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437
+                                   1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"></path>
+                                    <path d="M20 3v4">
+                                    </path>
+                                    <path d="M22 5h-4"></path>
+                                    <path d="M4 17v2"></path>
+                                    <path d="M5 18H3"></path>
+                                </svg>
 
                     </div>
 
@@ -299,7 +327,12 @@
 
 
                     <div class="logotipo">
-
+                         <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"
+                                    fill="none" stroke="white" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" class="lucide lucide-circle-check-big text-white">
+                                    <path d="M21.801 10A10 10 0 1 1 17 3.335"></path>
+                                    <path d="m9 11 3 3L22 4"></path>
+                                </svg>
 
                     </div>
 
@@ -324,7 +357,7 @@
     </section>
 
 
-    <section class="seccion5">
+    <section class="section5">
         <div class="container">
 
             <h2 class="title5">Nuestro Proceso de Trabajo</h2>
@@ -378,62 +411,93 @@
     </section>
 
 
-    <section>
-        <div class="general">
+    <section class="section6">
+        <div class="container">
+        <h2 class="title6">Por qué elegir a SIMARI CALDERAS</h2>
+        
 
-            <div class="recuadro">
+            <div class="general6">
 
-                <div class="numeros">30+</div>
-                <h3>Años de Experiencia</h3>
-                <p>Especialistas en limpieza química de calderas
-                    con protocolos certificados y productos
-                    biodegradables de última generación.</p>
+                <div class="recuadro6">
+
+                    <div class="numeros">30+</div>
+                    <h3>Años de Experiencia</h3>
+                    <p>Especialistas en limpieza química de calderas
+                        con protocolos certificados y productos
+                        biodegradables de última generación.</p>
+
+                </div>
+
+
+                <div class="recuadro6">
+
+                    <div class="numeros">400+</div>
+                    <h3>Calderas Desincrustadas</h3>
+                    <p>Equipos térmicos industriales limpiados
+                        exitosamente sin daño a superficies metálicas
+                        con garantía documentada.</p>
+
+                </div>
+
+
+
+
+                <div class="recuadro6">
+                    <div class="numeros">100%</div>
+                    <h3>Seguridad Operativa</h3>
+                    <p>Protocolos de seguridad industrial
+                        certificados, personal capacitado y
+                        seguros de responsabilidad civil vigentes.</p>
+
+                </div>
+
 
             </div>
-
-
-            <div class="recuadro">
-
-                <div class="numeros">400+</div>
-                <h3>Calderas Desincrustadas</h3>
-                <p>Equipos térmicos industriales limpiados
-                    exitosamente sin daño a superficies metálicas
-                    con garantía documentada.</p>
-
-            </div>
-
-
-
-
-            <div class="recuadro">
-                <div class="numeros">100%</div>
-                <h3>Seguridad Operativa</h3>
-                <p>Protocolos de seguridad industrial
-                    certificados, personal capacitado y
-                    seguros de responsabilidad civil vigentes.</p>
-
-            </div>
-
 
         </div>
-
-
 
     </section>
 
 
-    <section>
+    <section class="section7">
+        <div class="container"> 
 
-        <div class="general">
-            <h2></h2>
-            <p></p>
+            <div class="container2">
+
+                <h2 class="title7">Recupere la Eficiencia de su Caldera Industrial</h2>
+                <p class="description7">Las incrustaciones severas reducen eficiencia hasta 30% y generan riesgo de falla 
+                    catastrófica por sobrecalentamiento. Implemente desincrustación química 
+                    profesional que restaure capacidad térmica en hoteles, hospitales, lavanderías y 
+                    plantas industriales.</p>
+                 <div class="button-container2">
+                <button class="button-primary1">
+                Solicitar  Inspección <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                    viewBox="0 0 24 24" fill="none">
+                    <path d="M4.99866 11.9966H18.9948" stroke="white" stroke-width="1.99945" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                    <path d="M11.9967 4.99854L18.9948 11.9966L11.9967 18.9947" stroke="white" stroke-width="1.99945"
+                        stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+                </button>
+                <button class="button-secondary">
+                    <a href="tel:+524494348018" class="inline-flex items-center 
+                    justify-center gap-2 px-8 py-4 bg-transparent border-2 border-white hover:bg-white 
+                    hover:text-[white] text-white font-semibold rounded text-lg transition-all">
+                    
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" 
+                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" 
+                    stroke-linejoin="round" class="lucide lucide-phone"><path d="M22 16.92v3a2 2 0 0 1-2.18 
+                    2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 
+                    4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 
+                    0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z">
+                   </path></svg> Llamar Ahora</a>
+                </button>
 
 
-            <div class="botones"></div>
+            </div>
 
         </div>
 
 
     </section>
 @endsection
- 
