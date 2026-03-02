@@ -10,6 +10,6 @@ class HomeController extends Controller
     //
     public function index()
     {
-        return view('frontend.pages.products.services.chillers_main');
+        return view('frontend.pages.products.services.preventive_main');
     }
 }

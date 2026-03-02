@@ -19,10 +19,7 @@
     --infomation-list: #364153;
     --text-subdescription: #4A556A;
 }
-.container{
-    width: 100%;
-    padding: 0px 50px 50px 50px;
-}
+
 
 
 .preventive-title{
@@ -41,9 +38,10 @@
     font-style: normal;
     font-size: 24px !important;
     color: var(--information-title);
+    /*
     max-width: 895px;
+    max-width: 1060px;*/
     font-family: var(--font-family);
-    max-width: 1060px;
     letter-spacing: 0.6px; /* Un toque sutil */
     line-height: 1.6;
 
@@ -51,7 +49,7 @@
 .section-preventive{
     background: var(--header-footer-color);
     width: 100%;
-    padding: 2% 6% ;
+    /*padding: 2% 6% ;*/
     
 
 }
@@ -76,7 +74,7 @@
 .section-information{
     background: var(--button-secondary-color-hover);
     width: 100%;
-    padding: 5% 9% ;
+    /*padding: 5% 9% ;*/
     font-family: var(--font-family-secondary) !important;
     max-width: 1500px;
 }
@@ -94,7 +92,7 @@
 }
 
 .title-list-information{
-    padding: 30px !important;
+    /*padding: 30px !important;*/
     background-color: #F9FAFB !important; /* Fondo blanco de la tarjeta */
     border-left: 6px solid #C62828 !important; /* Línea roja gruesa */
     border-radius: 12px !important;
@@ -440,4 +438,10 @@
 .section-protect-investment .call:hover {
     background-color: white;
     color: #0B1F36;
+}
+.section-protect-investment .buttons button {
+    display: inline-flex;          /* clave */
+    align-items: center;           /* centra verticalmente */
+    justify-content: center;       /* centra horizontalmente */
+    gap: 10px;                     /* espacio entre texto e icono */
 }

@@ -23,10 +23,10 @@
 }
 .container{
     width: 100%;
-    padding: 138px 200px 138px 200px;
+    padding: 100px 200px 100px 200px;
     box-sizing: border-box;
 }
-.container > p:not(.product-subdescription){
+/*.container > p:not(.product-subdescription){
     color: var(--text-white-color);
     font-size: 30px;
     font-style: normal;
@@ -38,7 +38,7 @@
 .container p strong{
     color: var(--text-white-color);
     font-weight:700;
-}
+}*/
 .premiun-title{
     color: var(--text-white-color);
     background: var(--secondary-color);
