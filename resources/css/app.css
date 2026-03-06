@@ -1,6 +1,4 @@
 
-@import "./products.css";
-
 :root{
     --text-header-color-nav:#D1D5DC;
     --text-header-color-nav-hover:#C62828;
@@ -194,6 +192,59 @@ header{
     transform: translateY(0.0px);
 }
 
+/* Main content */
+.container{
+    width: 100%;
+    padding: 138px 200px 138px 200px;
+    box-sizing: border-box;
+}
+
+/* buttons */
+
+.button-primary{
+    background: var(--button-primary-color);
+    color: var(--text-white-color);
+    display: flex;
+    padding: 19.92px 39.994px 21.987px 39.994px;
+    justify-content: center;
+    align-items: center;
+    gap: 0.218px;
+    border-radius: 4px;
+    font-size: 20px;
+    font-style: normal;
+    line-height: 28px;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+    transition: all 0.1s ease-in-out;
+}
+.button-primary:hover{
+    background: var(--button-primary-color-hover);
+    transform: translateY(-2.5px);
+}
+.button-secondary{
+    background: var(--button-serondary-color);
+    border-radius: 1px solid white;
+    color: var(--text-white-color);
+    display: flex;
+    padding: 19.92px 39.994px 21.987px 39.994px;
+    justify-content: center;
+    align-items: center;
+    gap: 0.218px;
+    border-radius: 4px;
+    font-size: 20px;
+    font-style: normal;
+    line-height: 28px;
+    font-weight: 700;
+    border: 2px solid white;
+    cursor: pointer;
+}
+.button-secondary:hover{
+    background: var(--button-secondary-color-hover);
+    color: black;
+}
+/* End Buttons */
+
 /* footer start styles */
 footer{
     background: var(--footer-background-color);
@@ -333,7 +384,7 @@ footer{
 .social .social-list a{
     display: inline-flex;
     align-items: center;
-    
+
     transition: color 0.2s ease-in-out;
 }
 
