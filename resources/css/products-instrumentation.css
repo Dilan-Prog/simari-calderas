@@ -1,0 +1,508 @@
+:root {
+    --background-primary: #F3F4F6;
+    --header-footer-color: #1A2535;
+    --text-header-color-nav: #D1D5DC;
+    --text-header-color-nav-hover: #C62828;
+    --secondary-color: #C62828;
+    --button-primary-color: #C62828;
+    --button-primary-color-hover: #b71c1c;
+    --button-serondary-color: transparent;
+    --button-secondary-color-hover: #ffffff;
+    --font-family: 'Inter', sans-serif;
+    --text-white-color: #ffffff;
+    --section-example: #0E1A2B;
+    --text-subwhite-color: #E5E7EB;
+    --text-description-color: #99A1AF;
+}
+
+body {
+    font-family: var(--font-family);
+}
+
+/* GENERAL DESING */
+.main-instrumentation-section {
+    background: var(--section-example);
+    display: flex;
+    justify-content: center;
+}
+
+/* TOP MESSAGE */
+.top-message {
+    display: flex;
+    gap: 12px;
+    border: 0.1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    width: fit-content;
+    height: auto;
+    background-color: #293754;
+    padding: 12px 24px;
+    margin: 0 0 16px;
+}
+
+.top-message h3 {
+    color: var(--text-white-color);
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.top-message p {
+    color: var(--text-header-color-nav);
+    font-size: 12px;
+}
+
+/* TEXT MAIN SECTION */
+.container.instrumentation {
+    margin: auto;
+    max-width: 1400px;
+    padding: 72px 16px;
+}
+
+.container.instrumentation h1 {
+    color: var(--text-white-color);
+    font-weight: bold;
+    font-size: 100px;
+    margin: 0 0 32px;
+}
+
+.container.instrumentation p {
+    margin: 8px 0 0;
+}
+
+.primary-span-instrumentation {
+    color: var(--text-header-color-nav-hover);
+}
+
+.secundary-span-instrumentation {
+    font-size: 52px;
+    color: var(--text-description-color);
+}
+
+.description-text-instrumentation {
+    font-size: 30px;
+    line-height: 1.5;
+    max-width: 87%;
+    color: var(--text-subwhite-color);
+}
+
+/* CARTS */
+.carts-main-instrumentation {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    width: fit-content;
+    flex-wrap: wrap;
+    margin: 48px 0;
+}
+
+.metric-card-instrumentation {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    background-color: #263140;
+    min-width: 220px;
+    transition: transform 0.3s ease;
+    padding: 16px;
+}
+
+.metric-card-instrumentation header {
+    background-color: #263140;
+    width: fit-content;
+}
+
+.super-especial-text-red.calibration {
+    font-size: 32px;
+}
+
+.metric-card__label {
+    margin: 0;
+    color: var(--text-description-color);
+}
+
+/* BUTTONS */
+.buttons-container-industrial {
+    display: flex;
+    align-items: center;
+    margin: 24px 0;
+    gap: 24px;
+}
+
+
+/* CARD OF COLORS */
+.cards-instrumentation-section {
+    background-color: #2e3a46;
+}
+
+.card-instrumentation {
+    min-width: 365px;
+    border-radius: 12px;
+}
+
+.card-instrumentation.card {
+    background-color: var(--background-primary);
+    transition: all 0.3s ease;
+}
+
+.card-instrumentation.card:hover {
+    transform: scale(1.05);
+}
+
+.cards-instrumentation {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 30px;
+    justify-content: space-between;
+}
+
+.card-instrumentation-header {
+    color: var(--text-white-color);
+    padding: 24px;
+    border-radius: 12px 12px 0 0;
+}
+
+/* CARD COLORS */
+.card-instrumentation-header.blue {
+    background-color: #3b82f6;
+}
+
+.card-instrumentation-header.red {
+    background-color: #ef4444;
+}
+
+.card-instrumentation-header.green {
+    background-color: #10B981;
+}
+
+.card-instrumentation-header.purple {
+    background-color: #8B5CF6;
+}
+
+.card-instrumentation-header.yellow {
+    background-color: #F59E0B;
+}
+
+.card-instrumentation-header.pink {
+    background-color: #EC4899;
+}
+
+.card-instrumentation-body {
+    padding: 24px;
+}
+
+.card-instrumentation-body p {
+    color: var(--text-description-color);
+    font-size: 12px;
+}
+
+.item-instrumentation {
+    padding: 0 0 16px 0;
+    margin: 0 0 16px 0;
+}
+
+.item-instrumentation h4 {
+    margin: 0 0 8px;
+}
+
+.especific-card-p-instrumentation {
+    margin: 8px 0 0;
+}
+
+.item-instrumentation-info {
+    display: flex;
+    justify-content: flex-start;
+    gap: 50px;
+    font-size: 14px;
+}
+
+.item-instrumentation-info span {
+    color: #4b4b4b;
+}
+
+hr {
+    border: none;
+    border-top: 1px solid #cbd5e1;
+    margin: 18px 0;
+}
+
+.button-primary.calibration.card {
+    display: flex;
+    width: 100%;
+    height: 40px;
+    font-size: 14px;
+}
+
+
+/* BUTTON COLORS */
+.button-primary.calibration.card.blue {
+    background: #3b82f6;
+}
+
+.button-primary.calibration.card.red {
+    background: #ef4444;
+}
+
+.button-primary.calibration.card.green {
+    background-color: #10B981;
+}
+
+.button-primary.calibration.card.purple {
+    background-color: #8B5CF6;
+}
+
+.button-primary.calibration.card.yellow {
+    background-color: #F59E0B;
+}
+
+.button-primary.calibration.card.pink {
+    background-color: #EC4899;
+}
+
+/* CARD */
+
+.instrumentation-card {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    background: #0b0b0b;
+    border: 1px solid #2a2a2a;
+    border-radius: 20px;
+    padding: 32px;
+    margin: 0 0 24px;
+    flex: 1;
+    transition: all 0.3s ease;
+}
+
+.instrumentation-card:hover {
+    background-color: #1a1a1a;
+}
+
+.aplication-text-instrumentation {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    margin: 0 0 32px;
+}
+
+.aplication-text-instrumentation h2 {
+    color: var(--text-white-color);
+    font-size: 48px;
+    margin: 0 0 16px;
+}
+
+.aplication-text-instrumentation svg {
+    margin: 0 auto 24px;
+}
+
+.aplication-text-instrumentation p {
+    margin: 0;
+    font-size: 18px;
+    color: var(--text-description-color);
+}
+
+.container.black-cards-instrumentation {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    justify-content: center;
+    flex-wrap: wrap;
+    flex: 1;
+    background-color: #000000;
+}
+
+.principal-text-black-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+/* LEFT SIDE */
+
+.instrumentation-info {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.instrumentation-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.instrumentation-header h3 {
+    margin: 0;
+    font-size: 20px;
+    color: var(--text-white-color);
+    min-width: 210px;
+}
+
+.instrumentation-icon {
+    font-size: 28px;
+}
+
+/* BADGES */
+
+.instrumentation-badge {
+    width: fit-content;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: bold;
+    color: var(--text-white-color);
+}
+
+.instrumentation-badge.alta {
+    background: #ff2d2d;
+}
+
+.instrumentation-badge.media {
+    background: #f2b705;
+}
+
+/* NOTE */
+
+.instrumentation-note {
+    margin: 0;
+    color: var(--text-description-color);
+    font-size: 12px;
+}
+
+/* RIGHT SIDE */
+
+.instrumentation-required h4 {
+    margin: 0;
+    font-size: 14px;
+    color: #a3a3a3;
+}
+
+/* TAGS */
+
+.instrumentation-tags {
+    display: flex;
+    gap: 8px;
+    flex: 1;
+}
+
+.instrumentation-tag {
+    padding: 8px;
+    border-radius: 8px;
+
+    background: #1f1f1f;
+    border: 1px solid #3a3a3a;
+    color: var(--text-white-color);
+    font-size: 14px;
+}
+
+
+/* FOURTH SECTION */
+.benefitIcon-servProyectIndus.instrumentation {
+    background-color: #FAEDED;
+    border-radius: 10px;
+    size: 64px;
+}
+
+.benefitsSection-servProyectIndus.instrumentation {
+    background-color: var(--section-example);
+    margin: 0;
+}
+
+.benefitCard-servProyectIndus.instrumentation {
+    background-color: var(--text-white-color);
+    padding: 32px;
+}
+
+/* CARTS TEXT */
+.benefitsTitle-servProyectIndus.instrumentation {
+    margin: 0;
+    color: var(--text-white-color);
+}
+
+.benefitHeading-servProyectIndus {
+    font-size: 25px;
+    margin-bottom: 16px;
+}
+
+
+/* WORLS LEADING BRANDS SECTION */
+.world-leading-brands {
+    background-color: var(--header-footer-color);
+}
+
+.carts-main-instrumentation.leading {
+    color: var(--text-white-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex: 1;
+}
+
+.carts-main-instrumentation.leading.up {
+    margin-top: 0;
+    margin-bottom: 16px;
+}
+
+.carts-main-instrumentation.leading.down {
+    margin-bottom: 0;
+    margin-top: 16px;
+}
+
+.wordl-leanding-position {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.metric-card-instrumentation.calibration {
+    padding: 24px;
+    transform: all 0.3 ease;
+    background-color: #434E58;
+}
+
+.metric-card-instrumentation.calibration h3 {
+    font-size: 23px;
+}
+
+.metric-card-instrumentation.calibration:hover {
+    background-color: #57616B;
+}
+
+/* LAST PART */
+
+.title-servProyectIndus.red {
+    font-size: 60px;
+}
+
+.firstContent-servProyectIndus.instrumentation {
+    background-color: var(--button-primary-color);
+}
+
+.aplication-text-instrumentation.second svg {
+    color: white;
+}
+
+.description-servProyectIndus.second {
+    font-size: 25px;
+}
+
+.button-primary.calibration.color-white {
+    background-color: var(--background-primary);
+    color: var(--button-primary-color);
+}
+
+.button-primary.calibration.color-white svg {
+    color: var(--button-primary-color);
+}
+
+.button-secondary.calibration.color-red {
+    transform: all 0.3 ease;
+}
+
+.button-secondary.calibration.color-red:hover {
+    background-color: var(--button-primary-color-hover);
+    color: var(--text-white-color);
+}

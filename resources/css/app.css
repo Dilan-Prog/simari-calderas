@@ -2,6 +2,7 @@
 @import "./products.css";
 @import "./servCalibration.css";
 @import "./servProyectIndus.css" ;
+@import "./products-instrumentation.css" ;
 
 :root{
     --header-footer-color:#1A2535;
