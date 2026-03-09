@@ -1,4 +1,6 @@
 @extends('frontend.layouts.master')
+@section('styles')
+    @vite(['resources/css/products.css'])
 @section('content')
     <section class="section-product">
         <div class="container">
