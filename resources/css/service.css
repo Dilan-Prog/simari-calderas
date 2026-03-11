@@ -1,8 +1,9 @@
 :root {
+
     --text-header-color-nav:#D1D5DC;
-    --text-header-color-nav-hover:#C62828;
+    --text-header-color-nav-hover:#0054ff;
     --text-header-color-nav-hover-white:#ffffff;
-    --header-background-color:#1A2535;
+    --header-background-color:#141516;
     --border-header-footer-color:#2E3A46;
 
     --footer-background-color:#0E1A2B;
@@ -12,15 +13,19 @@
     --border-footer-color-legal:#2E3A46;
     --toggle-header:#2E3A46;
     --toggle-header-nav:#364153;
-    --secondary-color:#C62828;
-    --button-primary-color:#C62828;
-    --button-primary-color-hover:#b71c1c;
+    --secondary-color:#0054ff;
+    --button-primary-color:#0054ff;
+    --button-primary-color-hover:#0043cc;
+    --secondary-color-rinnai:#C62828;
+    --button-primary-color-rinnai:#C62828;
+    --button-primary-color-hover-rinnai:#b71c1c;
     --button-serondary-color: transparent;
     --button-secondary-color-hover:#ffffff;
     --font-family:'Inter', sans-serif;
+    --background-primary: #141516;
 
-    --bg-dark:#0b1320;
-    --bg-dark-2:#111827;
+    --bg-dark:#141516;
+    --bg-dark-2:#141516;
     --bg-light:#f5f7fa;
     --card-dark:rgba(255, 255, 255, 0.1);
     --card-line:rgba(255, 255, 255, 0.2);
@@ -38,7 +43,7 @@
 }
 
 .st-hero {
-    background: linear-gradient(135deg, #1f2937 0%, #111827 55%, #000000 100%);
+    background: linear-gradient(135deg, var(--background-primary) 0%, var(--background-primary) 55%, #000000 100%);
     color: var(--text-white-color);
     margin: 0;
     padding: 0;
@@ -84,7 +89,7 @@
 }
 
 .st-hero-title .st-accent {
-    color: var(--secondary-color);
+    color: var(--secondary-color-rinnai);
 }
 
 .st-hero-title .st-subtitle {
@@ -121,7 +126,7 @@
 .st-stat-card svg {
     width: 32px;
     height: 32px;
-    color: var(--secondary-color);
+    color: var(--secondary-color-rinnai);
     margin-bottom: 10px;
 }
 
@@ -191,7 +196,7 @@
     align-items: center;
     justify-content: center;
     background: rgba(206, 0, 13, 0.09);
-    color: var(--secondary-color);
+    color: var(--secondary-color-rinnai);
     flex: 0 0 auto;
 }
 
@@ -201,7 +206,7 @@
 }
 
 .st-warranty-card {
-    background: linear-gradient(135deg, var(--button-primary-color) 0%, var(--button-primary-color-hover) 100%);
+    background: linear-gradient(135deg, var(--button-primary-color-rinnai) 0%, var(--button-primary-color-hover-rinnai) 100%);
     color: var(--text-white-color);
     border-radius: var(--radius-md);
     box-shadow: var(--shadow-default);
@@ -239,11 +244,13 @@
     margin-right: 8px;
 }
 .button-primary.st {
+    background-color: var(--button-primary-color-rinnai);
     text-decoration: none;
     border-radius: 40px;
     cursor: pointer;
 }
 .button-primary.st:hover {
+    background-color: var(--button-primary-color-hover-rinnai);
     transform: none;
 }
 
@@ -312,7 +319,7 @@
     height: 44px;
     border-radius: 10px;
     background: rgba(206, 0, 13, 0.09);
-    color: var(--secondary-color);
+    color: var(--secondary-color-rinnai);
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -349,7 +356,7 @@
 }
 
 .st-spec-card:hover {
-    border-color: var(--secondary-color);
+    border-color: var(--secondary-color-rinnai);
 }
 
 .st-spec-card h3 {
@@ -365,7 +372,7 @@
     width: 30px;
     height: 30px;
     border-radius: 8px;
-    background: var(--secondary-color);
+    background: var(--secondary-color-rinnai);
     color: var(--text-white-color);
     display: inline-flex;
     align-items: center;
@@ -409,7 +416,7 @@
     width: 62px;
     height: 62px;
     border-radius: 16px;
-    background: var(--secondary-color);
+    background: var(--secondary-color-rinnai);
     color: var(--text-white-color);
     display: inline-flex;
     align-items: center;
@@ -449,7 +456,7 @@
 
 .st-pill-grid strong {
     display: block;
-    color: var(--secondary-color);
+    color: var(--secondary-color-rinnai);
     font-size: 20px;
     line-height: 1.25;
 }
@@ -470,7 +477,7 @@
 }
 
 .st-table thead tr {
-    border-bottom: 2px solid var(--secondary-color);
+    border-bottom: 2px solid var(--secondary-color-rinnai);
 }
 
 .st-table th,
@@ -492,7 +499,7 @@
 }
 
 .st-table td strong {
-    color: var(--secondary-color);
+    color: var(--secondary-color-rinnai);
     font-size: 18px;
 }
 
@@ -516,7 +523,7 @@
 }
 
 .st-cta h2 .st-accent {
-    color: var(--secondary-color);
+    color: var(--secondary-color-rinnai);
 }
 
 .st-cta > .container > p {
@@ -535,11 +542,16 @@
     gap: 14px;
 }
 .button-primary.st-cta-button,.button-secondary.st-cta-button {
+
     text-decoration: none;
     border-radius: 48px;
     gap: 10px;
 }
+.button-primary.st-cta-button{
+    background-color: var(--button-primary-color-rinnai);
+}
 .button-primary.st-cta-button:hover {
+    background-color: var(--button-primary-color-hover-rinnai);
     transform: none;
 }
 

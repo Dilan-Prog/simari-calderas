@@ -1,21 +1,21 @@
 
 :root{
     --text-header-color-nav:#D1D5DC;
-    --text-header-color-nav-hover:#C62828;
+    --text-header-color-nav-hover:#0054ff;
     --text-header-color-nav-hover-white:#ffffff;
-    --header-background-color:#1A2535;
+    --header-background-color:#141516;
     --border-header-footer-color:#2E3A46;
 
-    --footer-background-color:#0E1A2B;
+    --footer-background-color:#141516;
     --text-footer-color-links:#99A1AF;
     --text-footer-color-links-hover:#ffffff;
     --text-white-color:#ffffff;
     --border-footer-color-legal:#2E3A46;
     --toggle-header:#2E3A46;
     --toggle-header-nav:#364153;
-    --secondary-color:#C62828;
-    --button-primary-color:#C62828;
-    --button-primary-color-hover:#b71c1c;
+    --secondary-color:#0054ff;
+    --button-primary-color:#0054ff;
+    --button-primary-color-hover:#0043cc;
     --button-serondary-color: transparent;
     --button-secondary-color-hover:#ffffff;
     --font-family:'Inter', sans-serif;

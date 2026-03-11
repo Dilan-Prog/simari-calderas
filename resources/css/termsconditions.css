@@ -1,18 +1,20 @@
 :root {
-    --text-header-color-nav: #d1d5dc;
-    --text-header-color-nav-hover: #c62828;
-    --header-background-color: #1a2535;
-    --border-header-footer-color: #2e3a46;
+    --text-header-color-nav:#D1D5DC;
+    --text-header-color-nav-hover:#0054ff;
+    --text-header-color-nav-hover-white:#ffffff;
+    --header-background-color:#141516;
+    --border-header-footer-color:#2E3A46;
     --background : #1a2942;
     --footer-background-color: #0e1a2b;
     --text-footer-color-links: #99a1af;
     --text-footer-color-links-hover: #ffffff;
     --text-white-color: #ffffff;
     --border-footer-color-legal: #2e3a46;
-    --secondary-color: #c62828;
+
     --secondary-color-rgb: 198, 40, 40;
-    --button-primary-color: #c62828;
-    --button-primary-color-hover: #b71c1c;
+    --secondary-color:#0054ff;
+    --button-primary-color:#0054ff;
+    --button-primary-color-hover:#0043cc;
     --button-serondary-color: transparent;
     --button-secondary-color-hover: #ffffff;
     --font-family: "Inter", sans-serif;

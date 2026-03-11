@@ -1,4 +1,4 @@
-@extends('frontend.layouts.master')
+git s@extends('frontend.layouts.master')
 
 @section('styles')
     @vite(['resources/css/service.css'])
