@@ -9,6 +9,7 @@ export default defineConfig({
                 // Js File
                 // NOTAS FUTURAS CUANDO EL SITIO WEB SEA DINAMICO, SE DEBE AGREGAR LOS JS DE CADA PAGINA,
                 'resources/js/app.js',
+                'resources/css/home.css',
                 'resources/css/products.css',
                 'resources/css/service.css',
                 'resources/css/termsconditions.css',

@@ -1,0 +1,701 @@
+:root {
+    --header-footer-color: #1A2535;
+    --vaner-color: #0c1b2e;
+    --text-header-color-nav: #D1D5DC;
+    --text-header-color-nav-hover: #C62828;
+    --secondary-color: #C62828;
+    --button-primary-color: #C62828;
+    --button-primary-color-hover: #b71c1c;
+    --button-serondary-color: transparent;
+    --button-secondary-color-hover: #ffffff;
+    --font-family: 'Inter', sans-serif;
+
+}
+
+.product-hero-section-heat-pumps {
+    background-color: var(--background-primary);
+    padding: 80px 0 80px 0;
+    font-family: var(--font-family);
+}
+
+/* Contenedor del Logotipo Superior */
+.brand-logo-container-heat-pumps {
+    margin-bottom: 40px;
+    display: flex;
+    justify-content: center;
+}
+
+.brand-logo-text-heat-pumps {
+    font-size: 86px;
+    font-weight: 700;
+    color: #CE000D;
+    /* Color Rojo Rinnai específico */
+    margin: 0;
+    letter-spacing: -1px;
+    font-family: var(--font-family);
+}
+
+/* Grid Principal: 2 Columnas en Desktop, 1 en Mobile */
+.product-hero-grid-heat-pumps {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 40px;
+    align-items: center;
+}
+
+@media (min-width: 992px) {
+    .product-hero-grid-heat-pumps {
+        grid-template-columns: 1fr 1fr;
+        gap: 60px;
+    }
+}
+
+/* --- COLUMNA IZQUIERDA: IMAGEN --- */
+.product-image-wrapper-heat-pumps {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.product-image-card-heat-pumps {
+    background-color: var(--text-white-color);
+    border-radius: 24px;
+    padding: 0px 30px 0px 30px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+    border: 1px solid #E5E7EB;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 600px;
+    height: 100%;
+}
+
+.main-product-img-heat-pumps {
+    width: 100%;
+    height: auto;
+    max-height: 900px;
+    object-fit: contain;
+    border-radius: 12px;
+}
+
+/* --- COLUMNA DERECHA: TEXTOS E INFO --- */
+/* --- COLUMNA DERECHA: TEXTOS E INFO (AJUSTADO: COMPACTO Y CENTRADO) --- */
+.product-info-wrapper-heat-pumps {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    height: auto;
+    align-self: center;
+    margin-left: 10px;
+    padding: 50px 0;
+}
+
+/* Ajuste responsive para móviles */
+@media (max-width: 991px) {
+    .product-info-wrapper-heat-pumps {
+        margin-left: 0;
+        align-items: center;
+        text-align: center;
+        padding: 0;
+    }
+}
+
+/* Etiqueta Premium */
+.badge-premium-heat-pumps {
+    display: inline-block;
+    background-color: rgba(206, 0, 13, 0.1);
+    color: #CE000D;
+    /* Rojo Rinnai */
+    padding: 8px 16px;
+    border-radius: 50px;
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    letter-spacing: 0.5px;
+    font-family: var(--font-family);
+}
+
+/* Título y Descripción */
+.product-main-title-heat-pumps {
+    font-size: 60px !important;
+    font-weight: 700;
+    color: #111827;
+    line-height: 1.1;
+    margin-top: 0;
+    margin-bottom: 24px;
+    font-family: var(--font-family);
+}
+
+@media (min-width: 768px) {
+    .product-main-title-heat-pumps {
+        font-size: 56px;
+    }
+}
+
+@media (min-width: 1024px) {
+    .product-main-title-heat-pumps {
+        font-size: 68px;
+    }
+}
+
+.product-main-desc-heat-pumps {
+    font-size: 18px;
+    color: var(--text-description-color);
+    line-height: 1.6;
+    margin-bottom: 40px;
+    font-family: var(--font-family);
+}
+
+/* Grid de Características (Los 4 cuadritos) */
+.product-features-grid-heat-pumps {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin-bottom: 20px;
+    width: 100%;
+}
+
+.feat-card-heat-pumps {
+    background-color: var(--text-white-color);
+    border: 1px solid #E5E7EB;
+    border-radius: 16px;
+    /* Aumenté un poco el padding para que se parezca más a tu imagen (que se ve aireada) */
+    padding: 30px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+    /* --- CAMBIOS IMPORTANTES AQUÍ --- */
+    display: flex;
+    flex-direction: column; /* Apila los elementos verticalmente */
+    align-items: flex-start; /* Alinea todo a la izquierda */
+    justify-content: center;
+    gap: 8px; /* <--- ESTO es lo que controla el espacio entre ícono y texto. Ajústalo a tu gusto (4px, 6px u 8px) */
+}
+
+.feat-icon-heat-pumps {
+    color: #CE000D;
+    /* Eliminamos el margin-bottom porque ahora lo controla el 'gap' del padre */
+    margin-bottom: 0;
+    /* Asegúrate de que el icono tenga un tamaño consistente si es un SVG */
+    width: 24px;
+    height: 24px;
+}
+
+.feat-value-heat-pumps {
+    font-size: 28px;
+    font-weight: 800;
+    color: #111827;
+    line-height: 1;
+    /* Eliminamos márgenes extra para que el gap sea exacto */
+    margin: 0;
+    font-family: var(--font-family);
+}
+
+.feat-label-heat-pumps {
+    font-size: 14px;
+    color: var(--text-description-color);
+    font-weight: 500;
+    font-family: var(--font-family);
+    margin: 0;
+}
+
+/* --- BOTÓN DE ACCIÓN (Modificador de button-primary) --- */
+/* Esta clase se usa junto con la clase global .button-primary */
+/* Estilos base del botón específico */
+.button-primary.heat-pumps {
+    background-color: #CE000D !important;
+    border-radius: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    /* Mantenemos la transición por si quieres suavizar el cambio de color */
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+/* OVERRIDE CLAVE: Esto anula el movimiento heredado */
+.button-primary.heat-pumps:hover {
+    transform: none !important;
+    /* <--- ESTO EVITA QUE SE MUEVA */
+    background-color: #e3000f !important;
+    /* Mantenemos el cambio de color si lo deseas */
+}
+
+/* --- SECCIÓN 2: ¿POR QUÉ ELEGIR RINNAI? --- */
+.why-rinnai-section-heat-pumps {
+    background-color: var(--text-white-color);
+    padding: 80px 0;
+    font-family: var(--font-family);
+}
+
+.why-rinnai-header-heat-pumps {
+    text-align: center;
+    margin-bottom: 64px;
+}
+
+.why-rinnai-title-heat-pumps {
+    font-size: 36px;
+    font-weight: 800;
+    color: #111827;
+    margin-top: 0;
+    margin-bottom: 16px;
+    line-height: 1.2;
+    font-family: var(--font-family);
+}
+
+@media (min-width: 768px) {
+    .why-rinnai-title-heat-pumps {
+        font-size: 48px;
+    }
+}
+
+.why-rinnai-subtitle-heat-pumps {
+    font-size: 20px;
+    color: var(--text-description-color);
+    max-width: 768px;
+    margin: 0 auto;
+    line-height: 1.6;
+    font-family: var(--font-family);
+}
+
+.why-rinnai-grid-heat-pumps {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 32px;
+}
+
+@media (min-width: 768px) {
+    .why-rinnai-grid-heat-pumps {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+.why-rinnai-card-heat-pumps {
+    background-color: var(--background-primary);
+    padding: 32px;
+    border-radius: 16px;
+    transition: all 0.3s ease;
+}
+
+.why-rinnai-card-heat-pumps:hover {
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.why-rinnai-icon-box-heat-pumps {
+    width: 64px;
+    height: 64px;
+    background-color: #CE000D;
+    /* Rojo Rinnai */
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 24px;
+    color: var(--text-white-color);
+}
+
+.why-rinnai-card-title-heat-pumps {
+    font-size: 24px;
+    font-weight: 800;
+    color: #111827;
+    margin-top: 0;
+    margin-bottom: 16px;
+    font-family: var(--font-family);
+}
+
+.why-rinnai-card-text-heat-pumps {
+    font-size: 18px;
+    color: var(--text-description-color);
+    line-height: 1.625;
+    margin: 0;
+    font-family: var(--font-family);
+}
+
+/* --- SECCIÓN 3: APLICACIONES IDEALES --- */
+.ideal-applications-section-heat-pumps {
+    background: linear-gradient(to bottom right, var(--background-primary), var(--text-white-color));
+    padding: 80px 0;
+    font-family: var(--font-family);
+}
+
+.ideal-apps-title-heat-pumps {
+    text-align: center;
+    font-size: 36px;
+    font-weight: 800;
+    color: #111827;
+    margin-top: 0;
+    margin-bottom: 48px;
+    line-height: 1.2;
+    font-family: var(--font-family);
+}
+
+@media (min-width: 768px) {
+    .ideal-apps-title-heat-pumps {
+        font-size: 48px;
+    }
+}
+
+.ideal-apps-grid-heat-pumps {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 24px;
+}
+
+@media (min-width: 768px) {
+    .ideal-apps-grid-heat-pumps {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 1024px) {
+    .ideal-apps-grid-heat-pumps {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+.app-card-heat-pumps {
+    background-color: var(--text-white-color);
+    padding: 24px;
+    border-radius: 16px;
+    border: 2px solid #E5E7EB;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.app-card-heat-pumps:hover {
+    border-color: #CE000D;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.app-card-icon-heat-pumps {
+    color: #CE000D;
+    margin-bottom: 12px;
+    width: 24px;
+    height: 24px;
+}
+
+.app-card-text-heat-pumps {
+    font-size: 16px;
+    font-weight: 600;
+    color: #111827;
+    margin: 0;
+    font-family: var(--font-family);
+}
+
+/* --- SECCIÓN 4: ESPECIFICACIONES TÉCNICAS --- */
+.tech-specs-section-heat-pumps {
+    background-color: var(--text-white-color);
+    padding: 80px 0;
+    font-family: var(--font-family);
+}
+
+.specs-container-heat-pumps {
+    max-width: 1024px;
+    margin: 0 auto;
+}
+
+.tech-specs-title-heat-pumps {
+    text-align: center;
+    font-size: 36px;
+    font-weight: 800;
+    color: #111827;
+    margin-top: 0;
+    margin-bottom: 48px;
+    line-height: 1.2;
+    font-family: var(--font-family);
+}
+
+@media (min-width: 768px) {
+    .tech-specs-title-heat-pumps {
+        font-size: 48px;
+    }
+}
+
+.tech-specs-card-heat-pumps {
+    background-color: var(--background-primary);
+    border-radius: 24px;
+    padding: 32px;
+    border: 1px solid #E5E7EB;
+}
+
+@media (min-width: 768px) {
+    .tech-specs-card-heat-pumps {
+        padding: 48px;
+    }
+}
+
+.tech-specs-grid-heat-pumps {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 32px;
+}
+
+@media (min-width: 768px) {
+    .tech-specs-grid-heat-pumps {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+.specs-column-heat-pumps {
+    display: flex;
+    flex-direction: column;
+}
+
+.specs-col-title-heat-pumps {
+    font-size: 24px;
+    font-weight: 800;
+    color: #111827;
+    margin-top: 0;
+    margin-bottom: 24px;
+    font-family: var(--font-family);
+}
+
+.specs-list-heat-pumps {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.specs-list-item-heat-pumps {
+    display: flex;
+    justify-content: space-between;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #D1D5DB;
+}
+
+.specs-list-item-heat-pumps:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.specs-label-heat-pumps {
+    font-weight: 600;
+    color: #374151;
+    font-size: 16px;
+    font-family: var(--font-family);
+}
+
+.specs-value-heat-pumps {
+    color: #111827;
+    font-size: 16px;
+    font-family: var(--font-family);
+}
+
+/* --- SECCIÓN 5: CTA FINAL (CALIDAD JAPONESA) --- */
+.final-cta-rinnai-heat-pumps {
+    background: linear-gradient(to bottom right, #CE000D, #A00008);
+    /* Rojo Rinnai a oscuro */
+    padding: 80px 0;
+    color: var(--text-white-color);
+    font-family: var(--font-family);
+}
+
+.cta-rinnai-container-heat-pumps {
+    max-width: 896px;
+    margin: 0 auto;
+    text-align: center;
+    padding: 0 20px;
+}
+
+.cta-rinnai-title-heat-pumps {
+    font-size: 36px;
+    font-weight: 800;
+    margin-top: 0;
+    margin-bottom: 24px;
+    line-height: 1.2;
+    font-family: var(--font-family);
+}
+
+@media (min-width: 768px) {
+    .cta-rinnai-title-heat-pumps {
+        font-size: 48px;
+    }
+}
+
+.cta-rinnai-subtitle-heat-pumps {
+    font-size: 20px !important;
+    color: rgba(255, 255, 255, 0.9);
+    line-height: 1.625;
+    margin-top: 0;
+    padding: 0px 0px 40px 0px;
+    font-family: var(--font-family);
+}
+
+.cta-rinnai-buttons-heat-pumps {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    justify-content: center;
+    align-items: center;
+}
+
+@media (min-width: 640px) {
+    .cta-rinnai-buttons-heat-pumps {
+        flex-direction: row;
+    }
+}
+
+/* --- Modificador para el estilo Heat Pumps (Botón Blanco) --- */
+.button-primary.ctn-heat {
+    /* Sobreescribimos geometría y fuente */
+    border-radius: 50px;         /* Original era 4px */
+    padding: 20px 40px;          /* Original tenía decimales */
+    font-size: 18px;             /* Original era 20px */
+    gap: 8px;                    /* Original era 0.218px */
+    transition: all 0.3s ease;   /* Original era 0.1s */
+
+    /* Sobreescribimos colores */
+    background: var(--text-white-color); /* Original era primary-color */
+    color: #CE000D;                      /* Original era white */
+
+    /* Agregamos la sombra que no tenía el original */
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+
+    /* Aseguramos que herede la fuente si es necesario */
+    font-family: var(--font-family);
+}
+
+/* Estado Hover del Heat Pump */
+.button-primary.ctn-heat:hover {
+    background: #F3F4F6;
+
+    /* Importante: El original tiene un transform translateY.
+       Si NO quieres que este botón se mueva al pasar el mouse, usa esto: */
+    transform: none;
+}
+
+/* --- Modificador para la versión Outline (Borde blanco transparente) --- */
+/* Si también necesitas el segundo botón que mostraste, úsalo así: */
+.button-primary.ctn-heat-outline {
+    /* Geometría compartida */
+    border-radius: 50px;
+    padding: 20px 40px;
+    font-size: 18px;
+    gap: 8px;
+    transition: all 0.3s ease;
+
+    /* Estilos específicos de outline */
+    background: transparent;
+    color: var(--text-white-color);
+    border: 2px solid var(--text-white-color); /* Sobreescribe border: none */
+    box-shadow: none;
+}
+
+.button-primary.ctn-heat-outline:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: none;
+}
+
+/* =========================================
+   --- RESPONSIVE DESIGN (MÓVILES Y TABLETS) ---
+   ========================================= */
+
+/* Dispositivos Móviles (Tablets verticales y Teléfonos) */
+@media (max-width: 768px) {
+
+    /* Ajustes generales de padding en secciones */
+    .product-hero-section-heat-pumps,
+    .why-rinnai-section-heat-pumps,
+    .ideal-applications-section-heat-pumps,
+    .tech-specs-section-heat-pumps,
+    .final-cta-rinnai-heat-pumps {
+        padding: 50px 0;
+    }
+
+    /* Logo más pequeño */
+    .brand-logo-text-heat-pumps {
+        font-size: 56px;
+    }
+
+    /* Tarjeta de imagen no tan estirada en móvil */
+    .product-image-card-heat-pumps {
+        min-height: auto;
+        padding: 30px 20px;
+    }
+
+    .main-product-img-heat-pumps {
+        max-height: 350px;
+    }
+
+    /* Textos del producto centrados */
+    .product-info-wrapper-heat-pumps {
+        align-items: center;
+        text-align: center;
+    }
+
+    .product-main-title-heat-pumps {
+        font-size: 38px;
+    }
+
+    .product-main-desc-heat-pumps {
+        font-size: 18px;
+    }
+
+    /* Cuadritos de características en 1 sola columna */
+    .product-features-grid-heat-pumps {
+        grid-template-columns: 1fr;
+    }
+
+    /* Títulos de sección más pequeños */
+    .why-rinnai-title-heat-pumps,
+    .ideal-apps-title-heat-pumps,
+    .tech-specs-title-heat-pumps,
+    .cta-rinnai-title-heat-pumps {
+        font-size: 32px;
+    }
+
+    /* Tarjeta de Especificaciones Técnicas */
+    .tech-specs-card-heat-pumps {
+        padding: 24px;
+    }
+
+    .specs-list-item-heat-pumps {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+    }
+
+    /* Botones a ancho completo en móvil */
+    .btn-cta-heat-pumps,
+    .btn-rinnai-primary-heat-pumps,
+    .btn-rinnai-outline-heat-pumps {
+        width: 100%;
+        padding: 18px 20px;
+        text-align: center;
+    }
+
+    .cta-rinnai-buttons-heat-pumps {
+        width: 100%;
+    }
+}
+
+/* Dispositivos muy pequeños (Smartphones compactos) */
+@media (max-width: 480px) {
+    .brand-logo-text-heat-pumps {
+        font-size: 42px;
+    }
+
+    .product-main-title-heat-pumps {
+        font-size: 32px;
+    }
+
+    .why-rinnai-title-heat-pumps,
+    .ideal-apps-title-heat-pumps,
+    .tech-specs-title-heat-pumps,
+    .cta-rinnai-title-heat-pumps {
+        font-size: 28px;
+    }
+
+    .feat-value-heat-pumps {
+        font-size: 24px;
+    }
+
+    .product-main-desc-heat-pumps {
+        font-size: 16px;
+    }
+}

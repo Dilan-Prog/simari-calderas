@@ -3,7 +3,7 @@
         <section class="footer-top" aria-label="Información general del sitio">
             <div class="footer-grid">
                 <section class="footer-brand" aria-label="Información de la empresa">
-                    <a href="/" aria-label="Ir al inicio" itemprop="url" title="SIMARI Calderas - Inicio">
+                    <a href="{{ route('home') }}" aria-label="Ir al inicio" itemprop="url" title="SIMARI Calderas - Inicio">
                         <img class="footer-logo" src="{{ Vite::asset('resources/images/logo/logo_SVG.svg') }}"
                             alt="SIMARI Calderas - soluciones térmicas industriales y residenciales" itemprop="logo"
                             loading="lazy" decoding="async">

@@ -10,7 +10,9 @@ class HomeController extends Controller
     //
     public function index()
     {
-        return view('frontend.pages.products.product-1');
+        return view('frontend.home.home');
+        //return view('frontend.pages.masstercal-rinnai.heat-pumps');
+        //return view('frontend.pages.services.Industrial-Hair-Dryer-Repair');
     }
 
 
