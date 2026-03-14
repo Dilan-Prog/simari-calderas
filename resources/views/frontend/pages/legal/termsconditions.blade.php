@@ -38,7 +38,7 @@
 </section>
 
 <section class="simari-terms-section">
-  <div class="container">
+  <div class="container simari-terms-section">
     <div class="simari-terms-list">
 
       <!-- Aceptación de los Términos -->

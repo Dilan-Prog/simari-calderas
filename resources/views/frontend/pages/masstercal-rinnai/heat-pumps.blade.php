@@ -1,21 +1,20 @@
 @extends('frontend.layouts.master')
 
 @section('styles')
-    <link rel="stylesheet" href="{{ asset('css/heat-pumps.css') }}" />
+    @vite('resources/css/masstercal-rinnai.css')
 @endsection
 
 @section('content')
     <section class="product-hero-section-heat-pumps">
-        <div class="container">
+        <div class="container heat-pumps">
             <div class="brand-logo-container-heat-pumps">
-                <h1 class="brand-logo-text-heat-pumps">Rinnai</h1>
+                <img src="{{ Vite::asset('resources/images/Rinnai/rinnai-logo.png') }}" alt="Rinnai Logo">
             </div>
-
             <div class="product-hero-grid-heat-pumps">
                 <div class="product-image-wrapper-heat-pumps">
                     <div class="product-image-card-heat-pumps">
-                        <img src="https://images.unsplash.com/photo-1697665896503-8b1fd6a8ff0f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxoZWF0JTIwcHVtcCUyMHdhdGVyJTIwaGVhdGVyJTIwbW9kZXJufGVufDF8fHx8MTc3MjE2MzA1OHww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
-                             alt="Bomba de Calor Rinnai"
+                        <img src="{{ Vite::asset('resources/images/products/Rinnai/Bombas-calor/bomba-de-calor-para-piscina-bcp-50.jpg') }}"
+                             alt="Bombas de Calor Rinnai"
                              class="main-product-img-heat-pumps">
                     </div>
                 </div>
@@ -25,7 +24,7 @@
                         TECNOLOGÍA PREMIUM
                     </div>
 
-                    <h2 class="product-main-title-heat-pumps">Bombas de Calor Rinnai</h2>
+                    <h1 class="product-main-title-heat-pumps">Bombas de Calor Rinnai</h1>
                     <p class="product-main-desc-heat-pumps">
                         Tecnología de última generación que aprovecha la energía del aire para calentar agua de manera eficiente, reduciendo hasta 75% el consumo energético comparado con sistemas convencionales.
                     </p>
@@ -83,7 +82,7 @@
     </section>
 
     <section class="why-rinnai-section-heat-pumps">
-        <div class="container">
+        <div class="container why-rinnai-section-heat-pumps">
             <div class="why-rinnai-header-heat-pumps">
                 <h2 class="why-rinnai-title-heat-pumps">¿Por qué elegir Bombas de Calor Rinnai?</h2>
                 <p class="why-rinnai-subtitle-heat-pumps">
@@ -134,7 +133,7 @@
     </section>
 
     <section class="ideal-applications-section-heat-pumps">
-        <div class="container">
+        <div class="container ideal-applications-section-heat-pumps">
             <h2 class="ideal-apps-title-heat-pumps">Aplicaciones Ideales</h2>
 
             <div class="ideal-apps-grid-heat-pumps">
@@ -267,8 +266,13 @@
                 </button>
 
                 <button class="button-primary ctn-heat-outline">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-phone">
-                        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6 11.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" class="lucide lucide-phone">
+                        <path
+                            d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z">
+                        </path>
                     </svg>
                     Llamar Ahora
                 </button>

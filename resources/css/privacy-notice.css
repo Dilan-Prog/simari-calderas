@@ -4,8 +4,8 @@
     --text-header-color-nav-hover-white:#ffffff;
     --header-background-color:#141516;
     --border-header-footer-color:#2E3A46;
-    --background : #1a2942;
-    --footer-background-color: #0e1a2b;
+    --background-primary: #141516;
+    --footer-background-color: #141516;
     --text-footer-color-links: #99a1af;
     --text-footer-color-links-hover: #ffffff;
     --text-white-color: #ffffff;
@@ -63,7 +63,7 @@ a {
 /* PRESENTATION */
 .simari-privacy-presentation {
     width: 100%;
-    background: var(--background);
+    background: var(--background-primary);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -192,7 +192,7 @@ a {
     background: linear-gradient(
         135deg,
         var(--footer-background-color),
-        var(--border-header-footer-color)
+        var(--background-primary)
     );
 }
 .simari-privacy-cta__title {

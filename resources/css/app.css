@@ -24,7 +24,8 @@
     --vaner-color:#0c1b2e;
     --text-subwhite-color:#D1D5DC;
     --text-description-color:#6B7280;
-    --background-primary:#F8F9FA;
+    --background-primary: #141516;
+    --background-primary-white:#F8F9FA;
 }
 .text-center{
     text-align: center;

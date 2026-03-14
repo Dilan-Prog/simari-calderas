@@ -24,13 +24,16 @@ class HomeController extends Controller
         return view('frontend.pages.services.industrial-hair-repair');
     }
 
+
+    // Masstercal Rinnai
+    public function rinnaiHeatPumps()
+    {
+        return view('frontend.pages.masstercal-rinnai.heat-pumps');
+    }
     public function storageTanks()
     {
         return view('frontend.pages.masstercal-rinnai.storage-tanks');
     }
-
-
-
 
     // LEGAL PAGES
     public function privacyNotice()

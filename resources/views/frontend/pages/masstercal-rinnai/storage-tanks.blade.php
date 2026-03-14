@@ -6,7 +6,7 @@
     <section class="st-hero">
         <div class="container">
             <div class="st-brand-wrap">
-                <img src="{{ Vite::asset('resources/images/Rinnai/rinnai-logo-png.png') }}" alt="Rinnai"
+                <img src="{{ Vite::asset('resources/images/Rinnai/rinnai-logo.png') }}" alt="Rinnai"
                     class="st-brand-logo">
             </div>
 

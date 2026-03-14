@@ -55,7 +55,7 @@
                     </svg>
                 </button>
                 <ul id="dropdown-mastercal" class="dropdown-menu" hidden>
-                    <li><a href="/mastercal-rinnai">Bombas de Calor</a></li>
+                    <li><a href="{{ route('heat-pumps') }}">Bombas de Calor</a></li>
                     <li><a href="/mastercal-rinnai/comerciales">Calentadores De Agua</a></li>
                     <li><a href="/mastercal-rinnai/refacciones">Calentadores Electricos</a></li>
                     <li><a href="/mastercal-rinnai/soporte">Calentadores de Paso a Gas</a></li>

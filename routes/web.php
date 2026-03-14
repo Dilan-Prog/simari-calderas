@@ -20,8 +20,12 @@ Route::controller(HomeController::class)->group(function () {
     Route::get('/', 'index')->name('home');
     Route::get('/aviso-privacidad', 'privacyNotice')->name('privacy-notice');
     Route::get('/terminos-condiciones', 'termsOfService')->name('terms-of-service');
+    // Services
     Route::get('/tanques-almacenamiento', 'storageTanks')->name('storage-tanks');
     Route::get('/reparacion-secadoras', 'hairRepair')->name('hair-repair');
+
+    // Masstercal Rinnai
+    Route::get('/masstercal-rinnai/bombas-de-calor', 'rinnaiHeatPumps')->name('heat-pumps');
 
 });
 
