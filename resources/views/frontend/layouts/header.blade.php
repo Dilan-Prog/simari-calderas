@@ -19,7 +19,7 @@
                 <ul id="dropdown-servicios" class="dropdown-menu" hidden>
                     <li><a href="/soluciones/industrial">Mantenimiento industrial</a></li>
                     <li><a href="/soluciones/residencial">Ingenieria Hidraulica</a></li>
-                    <li><a href="/soluciones/residencial">Calibracion de equipos</a></li>
+                    <li><a href="{{ route('equipement-calibration') }}">Calibracion de equipos</a></li>
                     <li><a href="/soluciones/mantenimiento">Conversión de quemadores</a></li>
                     <li><a href="/soluciones/eficiencia">Fabricación Equipos Periféricos</a></li>
                     <li><a href="/soluciones/industrial">Mantenimiento de Chillers</a></li>
