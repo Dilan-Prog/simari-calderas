@@ -19,10 +19,15 @@ class HomeController extends Controller
 
 
     // SERVICES PAGES
+    public function hairRepair()
+    {
+        return view('frontend.pages.services.industrial-hair-repair');
+    }
+
     public function storageTanks()
     {
-        return view('frontend.pages.services.storage-tanks');
-    }   
+        return view('frontend.pages.masstercal-rinnai.storage-tanks');
+    }
 
 
 

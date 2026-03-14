@@ -19,8 +19,17 @@
     --button-serondary-color: transparent;
     --button-secondary-color-hover:#ffffff;
     --font-family:'Inter', sans-serif;
-
+    /* Variables agregadas del segundo root */
+    --header-footer-color:#1A2535;
+    --vaner-color:#0c1b2e;
+    --text-subwhite-color:#D1D5DC;
+    --text-description-color:#6B7280;
+    --background-primary:#F8F9FA;
 }
+.text-center{
+    text-align: center;
+}
+
 main,body{
     margin: 0;
     padding: 0;
@@ -50,7 +59,6 @@ header{
   padding: 24px 200px;
   box-sizing: border-box;
 }
-
 .main-nav-header ul{
   display: flex;
   align-items: center;

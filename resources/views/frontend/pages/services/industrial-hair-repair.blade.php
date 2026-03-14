@@ -1,22 +1,19 @@
 @extends('frontend.layouts.master')
-
 @section('styles')
-    <!-- Cargamos el CSS de servicios -->
-    <link rel="stylesheet" href="{{ asset('css/industrial-Hair-Dryer-Repair.css') }}" />
+    @vite(['resources/css/service.css'])
 @endsection
-
 @section('content')
     <!-- SECCIÓN: HERO -->
-    <section class="hero-section">
+    <section class="hero-section-hair-repair">
         <div class="hero-background">
             <img src="https://images.unsplash.com/photo-1726967023920-8f04895f11e0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w1NjM2Nzh8MHwxfHNlYXJjaHwxfHxpbmR1c3RyaWFsJTIwZHJ5ZXIlMjBsYXVuZHJ5JTIwbWFjaGluZXxlbnwxfHx8fDE3NzIxNjA1ODd8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
                 alt="Reparación Secadoras">
             <div class="hero-overlay"></div>
         </div>
 
-        <div class="container hero">
+        <div class="container hero-hair-repair">
             <div class="hero-content">
-                <h1 class="hero-title">
+                <h1 class="hero-title text-center">
                     Reparación Especializada de Secadoras Industriales
                 </h1>
 
@@ -42,7 +39,7 @@
 
     <!-- SECCIÓN: Detalle del Servicio y Aplicaciones -->
     <section class="service-description-section-industrial">
-        <div class="container industrial">
+        <div class="container service-description-section">
             <h2 class="service-subtitle-industrial">¿En qué consiste el servicio de Reparación de Secadoras?</h2>
 
             <p class="service-text-industrial">
@@ -128,13 +125,13 @@
 
     <!-- SECCIÓN: ¿Qué Incluye el Servicio? -->
     <section class="what-includes-section">
-        <div class="container industrial">
+        <div class="container what-includes-section">
             <h2 class="section-main-title">¿Qué Incluye el Servicio de Reparación?</h2>
 
             <div class="includes-grid">
                 <div class="include-card">
                     <div class="icon-box">
-                        <svg xmlns="http://www.w3.org/2000/svg"class="lucide lucide-wrench text-white" width="28"
+                        <svg xmlns="http://www.w3.org/2000/svg"class="lucide lucide-wrench" width="28"
                             height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                             stroke-linecap="round" stroke-linejoin="round">
                             <path
@@ -180,7 +177,7 @@
                     <div class="icon-box">
                         <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"
                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                            stroke-linejoin="round" class="lucide lucide-shield text-white">
+                            stroke-linejoin="round" class="lucide lucide-shield ">
                             <path
                                 d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z">
                             </path>
@@ -195,7 +192,7 @@
                     <div class="icon-box">
                         <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"
                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                            stroke-linejoin="round" class="lucide lucide-trending-up text-white">
+                            stroke-linejoin="round" class="lucide lucide-trending-up ">
                             <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline>
                             <polyline points="16 7 22 7 22 13"></polyline>
                         </svg>
@@ -224,7 +221,7 @@
 
     <!-- SECCIÓN: Beneficios Operativos Comprobados -->
     <section class="benefits-section">
-        <div class="container">
+        <div class="container benefits-section">
             <h2 class="section-main-title">Beneficios Operativos Comprobados</h2>
 
             <div class="benefits-grid">
@@ -297,32 +294,32 @@
 
     <!-- SECCIÓN: Nuestro Proceso de Trabajo -->
     <section class="work-process-section">
-        <div class="container">
-            <h2 class="section-main-title text-white">Nuestro Proceso de Trabajo</h2>
+        <div class="container work-process-section">
+            <h2 class="section-main-title">Nuestro Proceso de Trabajo</h2>
 
             <div class="process-grid">
-                <div class="process-step text-center">
+                <div class="process-step ">
                     <p class="step-number-circle">1</p>
                     <h3 class="step-title">Evaluación</h3>
                     <p class="step-desc">Inspección completa de sistemas, identificación de fallas, medición de parámetros
                         operativos y cotización detallada de reparación.</p>
                 </div>
 
-                <div class="process-step text-center">
+                <div class="process-step ">
                     <p class="step-number-circle">2</p>
                     <h3 class="step-title">Reparación</h3>
                     <p class="step-desc">Desmontaje de componentes dañados, instalación de refacciones originales, ajustes
                         mecánicos y calibración de controles.</p>
                 </div>
 
-                <div class="process-step text-center">
+                <div class="process-step ">
                     <p class="step-number-circle">3</p>
                     <h3 class="step-title">Pruebas</h3>
                     <p class="step-desc">Ciclos completos de secado, verificación de temperaturas, tiempos, ruidos
                         anormales y seguridad de operación certificada.</p>
                 </div>
 
-                <div class="process-step text-center">
+                <div class="process-step ">
                     <p class="step-number-circle">4</p>
                     <h3 class="step-title">Entrega</h3>
                     <p class="step-desc">Informe técnico de trabajos, garantía por escrito, recomendaciones de operación y
@@ -334,25 +331,25 @@
 
     <!-- SECCIÓN: Por qué elegir a SIMARI CALDERAS -->
     <section class="why-choose-simari-section">
-        <div class="container">
+        <div class="container why-choose-simari-section">
             <h2 class="section-main-title">Por qué elegir a SIMARI CALDERAS</h2>
 
             <div class="simari-stats-grid">
-                <div class="simari-stat-item text-center">
+                <div class="simari-stat-item ">
                     <div class="stat-big-number">30+</div>
                     <h3 class="stat-small-title">Años de Experiencia</h3>
                     <p class="stat-small-desc">Especialistas certificados en reparación de secadoras industriales de todas
                         las marcas líderes del mercado.</p>
                 </div>
 
-                <div class="simari-stat-item text-center">
+                <div class="simari-stat-item ">
                     <div class="stat-big-number">24/7</div>
                     <h3 class="stat-small-title">Servicio de Emergencia</h3>
                     <p class="stat-small-desc">Disponibilidad inmediata para fallas críticas en lavanderías con tiempos de
                         respuesta garantizados.</p>
                 </div>
 
-                <div class="simari-stat-item text-center">
+                <div class="simari-stat-item ">
                     <div class="stat-big-number">500+</div>
                     <h3 class="stat-small-title">Equipos Reparados</h3>
                     <p class="stat-small-desc">Secadoras industriales restauradas a condición operativa óptima con garantía
@@ -364,16 +361,16 @@
 
     <!-- NUEVA SECCIÓN: CTA FINAL -->
     <section class="work-process-section">
-        <div class="container text-center">
-            <h2 class="cta-final-title-industri">Mantenga su Lavandería Operando sin Interrupciones</h2>
-            <p class="cta-final-description-industri">
+        <div class="container work-process-section">
+            <h2 class="cta-final-title-industrial">Mantenga su Lavandería Operando sin Interrupciones</h2>
+            <p class="cta-final-description-industrial">
                 Cada hora de paro en una secadora industrial representa pérdidas operativas significativas. Confíe en
                 técnicos especializados con refacciones en stock para reparaciones rápidas en lavanderías comerciales,
                 hoteles, hospitales y servicios industriales.
             </p>
 
             <div class="cta-final-actions">
-                <button class="button-primary">
+                <button class="button-primary work-process">
                     Solicitar Reparación
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -383,12 +380,14 @@
                     </svg>
                 </button>
 
-                <button class="button-secondary">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                <button class="button-secondary work-process">
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"
                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                        stroke-linejoin="round" class="mr-2">
+                        stroke-linejoin="round" class="lucide lucide-phone">
                         <path
-                            d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6 11.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+                            d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z">
+                        </path>
                     </svg>
                     Llamar Ahora
                 </button>

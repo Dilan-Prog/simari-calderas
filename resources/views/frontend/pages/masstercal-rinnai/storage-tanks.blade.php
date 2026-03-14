@@ -1,9 +1,7 @@
-git s@extends('frontend.layouts.master')
-
+@extends('frontend.layouts.master')
 @section('styles')
-    @vite(['resources/css/service.css'])
+    @vite(['resources/css/masstercal-rinnai.css'])
 @endsection
-
 @section('content')
     <section class="st-hero">
         <div class="container">
@@ -38,7 +36,6 @@ git s@extends('frontend.layouts.master')
                     <p class="st-stat-value">300-1000L</p>
                     <p class="st-stat-label">Capacidades</p>
                 </article>
-
                 <article class="st-stat-card">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                         <path d="M12 9a4 4 0 0 0-2 7.5"></path>
@@ -73,7 +70,6 @@ git s@extends('frontend.layouts.master')
             </div>
         </div>
     </section>
-
     <section class="st-overview">
         <div class="container st-layout">
             <aside class="st-sidebar">
@@ -302,7 +298,6 @@ git s@extends('frontend.layouts.master')
                             <p><small>Anodo</small><strong>Magnesio de larga duracion</strong></p>
                         </div>
                     </div>
-
                     <div class="st-spec-card">
                         <h3><span>2</span>Rendimiento</h3>
                         <div class="st-spec-grid">
@@ -312,7 +307,6 @@ git s@extends('frontend.layouts.master')
                             <p><small>Tiempo de recuperacion</small><strong>45 a 90 minutos</strong></p>
                         </div>
                     </div>
-
                     <div class="st-spec-card">
                         <h3><span>3</span>Seguridad</h3>
                         <div class="st-spec-grid">
@@ -346,7 +340,6 @@ git s@extends('frontend.layouts.master')
                         </div>
                     </div>
                 </article>
-
                 <article class="st-panel">
                     <h2>Elige tu Capacidad</h2>
                     <div class="st-table-wrap">
@@ -399,7 +392,6 @@ git s@extends('frontend.layouts.master')
                 Cada proyecto es unico. Nuestro equipo de ingenieros disenara el sistema perfecto para tu aplicacion
                 especifica.
             </p>
-
             <div class="st-cta-buttons">
                 <a class="button-primary st-cta-button" href="/contacto">
                     Solicitar Diseño de Ingenieria
@@ -420,7 +412,6 @@ git s@extends('frontend.layouts.master')
                         </path>
                     </svg>Hablar con Ingeniero</a>
             </div>
-
             <article class="st-testimonial">
                 <p class="st-stars">★★★★★</p>
                 <p class="st-quote">
