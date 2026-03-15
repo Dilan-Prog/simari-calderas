@@ -21,8 +21,9 @@ Route::controller(HomeController::class)->group(function () {
     Route::get('/aviso-privacidad', 'privacyNotice')->name('privacy-notice');
     Route::get('/terminos-condiciones', 'termsOfService')->name('terms-of-service');
     // Services
-    Route::get('/reparacion-secadoras', 'hairRepair')->name('hair-repair');
+    Route::get('/proyectos-industriales', 'industrialProject')->name('industrial-project');
     Route::get('/calibracion-equipos', 'equipementCalibration')->name('equipement-calibration');
+    Route::get('/reparacion-secadoras', 'hairRepair')->name('hair-repair');
     // Masstercal Rinnai
     Route::get('/tanques-almacenamiento', 'storageTanks')->name('storage-tanks');
     Route::get('/masstercal-rinnai/bombas-de-calor', 'rinnaiHeatPumps')->name('heat-pumps');

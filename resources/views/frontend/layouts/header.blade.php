@@ -24,7 +24,8 @@
                     <li><a href="/soluciones/eficiencia">Fabricación Equipos Periféricos</a></li>
                     <li><a href="/soluciones/industrial">Mantenimiento de Chillers</a></li>
                     <li><a href="/soluciones/residencial">Desincrustación de Calderas</a></li>
-                    <li><a href="/soluciones/mantenimiento">Conversión de quemadores</a></li>
+                    <li><a href="{{ route('industrial-project') }}">Proyecto Industrial</a></li>
+                    {{-- <li><a href="/soluciones/mantenimiento">Conversión de quemadores</a></li> --}}
                     <li><a href="{{ route('hair-repair')}}">Reparación de Secadoras</a></li>
                 </ul>
             </li>

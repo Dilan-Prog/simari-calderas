@@ -1,14 +1,15 @@
 @extends('frontend.layouts.master')
 
 @section('styles')
-    <link rel="stylesheet" href="{{ asset('frontend/css/servProyectIndus.css') }}">
+    @vite('resources/css/service.css')
+    @vite('resources/css/servProyectIndus.css')
 @endsection
 
 @section('content')
-    <section class="first-content-servCalibation proyectIndus">
+    <section class="first-content-service-calibration proyectIndus">
         <div class="container">
             {{-- main text --}}
-            <div class="textServCalibration proyectIndus">
+            <div class="text-service-calibration proyectIndus">
                 <h1>Proyectos Industriales Integrales Llave en Mano</h1>
                 <p>Diseño, suministro, instalación y puesta en marcha de salas de calderas completas, cuartos de máquinas y
                     sistemas térmicos industriales con garantía total.

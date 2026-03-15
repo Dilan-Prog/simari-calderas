@@ -21,6 +21,14 @@ class HomeController extends Controller
     {
         return view('frontend.pages.services.industrial-hair-repair');
     }
+    public function equipementCalibration()
+    {
+        return view('frontend.pages.services.service-calibration');
+    }
+    public function industrialProject()
+    {
+        return view('frontend.pages.services.service-industrial-project');
+    }
 
 
     // Masstercal Rinnai
