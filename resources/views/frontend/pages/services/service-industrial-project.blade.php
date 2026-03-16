@@ -2,130 +2,140 @@
 
 @section('styles')
     @vite('resources/css/service.css')
-    @vite('resources/css/servProyectIndus.css')
+    {{-- @vite('resources/css/servProyectIndus.css') --}}
 @endsection
 
 @section('content')
-    <section class="first-content-service-calibration proyectIndus">
-        <div class="container">
-            {{-- main text --}}
-            <div class="text-service-calibration proyectIndus">
-                <h1>Proyectos Industriales Integrales Llave en Mano</h1>
-                <p>Diseño, suministro, instalación y puesta en marcha de salas de calderas completas, cuartos de máquinas y
-                    sistemas térmicos industriales con garantía total.
-                </p>
-                {{-- Button declaration --}}
-                <button class="button-primary">Solicitar Cotizacion
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-                        <path d="M4.99866 11.9966H18.9948" stroke="white" stroke-width="1.99945" stroke-linecap="round"
-                            stroke-linejoin="round" />
-                        <path d="M11.9967 4.99854L18.9948 11.9966L11.9967 18.9947" stroke="white" stroke-width="1.99945"
-                            stroke-linecap="round" stroke-linejoin="round" />
-                    </svg>
-                </button>
-            </div>
+    <section class="hero-section-hair-repair">
+        <div class="hero-background">
+            <img src="https://images.unsplash.com/photo-1726967023920-8f04895f11e0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w1NjM2Nzh8MHwxfHNlYXJjaHwxfHxpbmR1c3RyaWFsJTIwZHJ5ZXIlMjBsYXVuZHJ5JTIwbWFjaGluZXxlbnwxfHx8fDE3NzIxNjA1ODd8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
+                alt="Reparación Secadoras">
+            <div class="hero-overlay"></div>
         </div>
-    </section>
 
-    {{-- SECOND --}}
-    <section class="second-sectionProyectIndus">
-        <div class="container">
-            <h2>¿En qué consisten los Proyectos Industriales Integrales?</h2>
-            <p>Desarrollamos proyectos llave en mano que abarcan desde la ingeniería conceptual hasta la capacitación del
-                personal operativo, incluyendo diseño de salas de calderas, cálculos de demanda térmica, dimensionamiento de
-                equipos, ingeniería de detalle, suministro de maquinaria certificada, construcción de obra civil,
-                instalación
-                mecánica, montaje eléctrico, automatización con PLC/SCADA, pruebas de arranque, gestión de permisos y
-                capacitación técnica especializada. Aplicamos estándares de gestión PMI, cronogramas Gantt y entregables
-                documentados en cada etapa del proyecto.</p>
+        <div class="container hero-hair-repair">
+            <div class="hero-content">
+                <h1 class="hero-title">
+                Proyectos Industriales Integrales Llave en Mano
+                </h1>
 
-            <div class="firstcontainer-servProyectIndust">
-                <h3>Aplicaciones Industriales:</h3>
+                <p class="hero-description">
+                    Diseño, suministro, instalación y puesta en marcha de salas de calderas completas, cuartos de máquinas y sistemas térmicos industriales con garantía total.
+                </p>
 
-                <div class="accordion__content-servProyectIndus">
-                    <div class="accordion__grid-servProyectIndus">
-                        <div>
-                            <ul>
-                                <li>
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                        stroke-linecap="round" stroke-linejoin="round"
-                                        class="lucide lucide-circle-check-big text-[#C62828] flex-shrink-0 mt-1">
-                                        <path d="M21.801 10A10 10 0 1 1 17 3.335"></path>
-                                        <path d="m9 11 3 3L22 4"></path>
-                                    </svg>Hoteles y desarrollos turísticos
-                                </li>
-                                <li>
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                        stroke-linecap="round" stroke-linejoin="round"
-                                        class="lucide lucide-circle-check-big text-[#C62828] flex-shrink-0 mt-1">
-                                        <path d="M21.801 10A10 10 0 1 1 17 3.335"></path>
-                                        <path d="m9 11 3 3L22 4"></path>
-                                    </svg>Lavanderías industriales
-                                </li>
-                                <li>
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                        stroke-linecap="round" stroke-linejoin="round"
-                                        class="lucide lucide-circle-check-big text-[#C62828] flex-shrink-0 mt-1">
-                                        <path d="M21.801 10A10 10 0 1 1 17 3.335"></path>
-                                        <path d="m9 11 3 3L22 4"></path>
-                                    </svg>Industria alimentaria y bebidas
-                                </li>
-
-                            </ul>
-                        </div>
-
-                        <div>
-                            <ul>
-                                <li>
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                        stroke-linecap="round" stroke-linejoin="round"
-                                        class="lucide lucide-circle-check-big text-[#C62828] flex-shrink-0 mt-1">
-                                        <path d="M21.801 10A10 10 0 1 1 17 3.335"></path>
-                                        <path d="m9 11 3 3L22 4"></path>
-                                    </svg>Hospitales y clínicas privadas
-                                </li>
-                                <li><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                        stroke-linecap="round" stroke-linejoin="round"
-                                        class="lucide lucide-circle-check-big text-[#C62828] flex-shrink-0 mt-1">
-                                        <path d="M21.801 10A10 10 0 1 1 17 3.335"></path>
-                                        <path d="m9 11 3 3L22 4"></path>
-                                    </svg>Plantas manufactureras
-                                </li>
-                                <li><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                        stroke-linecap="round" stroke-linejoin="round"
-                                        class="lucide lucide-circle-check-big text-[#C62828] flex-shrink-0 mt-1">
-                                        <path d="M21.801 10A10 10 0 1 1 17 3.335"></path>
-                                        <path d="m9 11 3 3L22 4"></path>
-                                    </svg>Procesamiento químico y petroquímico
-                                </li>
-                            </ul>
-                        </div>
-
-                    </div>
+                <div class="hero-actions">
+                    <button class="button-primary">
+                        Solicitar Cotización
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round" style="margin-left: 8px;">
+                            <path d="M5 12h14"></path>
+                            <path d="m12 5 7 7-7 7"></path>
+                        </svg>
+                    </button>
                 </div>
             </div>
         </div>
     </section>
 
-    {{-- THIRD --}}
-    <section class="section-servProyectIndus">
-        <h2 class="title-servProyectIndus">
-            ¿Qué Incluyen Nuestros Proyectos Integrales?
-        </h2>
-        <div class="grid-servProyectIndus">
+    {{-- SECOND --}}
+    <section class="service-description-section-industrial">
+    <div class="container service-description-section">
+        <h2 class="service-subtitle-industrial">¿En qué consisten los Proyectos Industriales Integrales?</h2>
 
-            <!-- Card 1 -->
-            <div class="card-servProyectIndus">
-                <div class="iconBox-servProyectIndus">
+        <p class="service-text-industrial">
+            Desarrollamos proyectos llave en mano que abarcan desde la ingeniería conceptual hasta la capacitación del
+            personal operativo, incluyendo diseño de salas de calderas, cálculos de demanda térmica, dimensionamiento de
+            equipos, ingeniería de detalle, suministro de maquinaria certificada, construcción de obra civil,
+            instalación mecánica, montaje eléctrico, automatización con PLC/SCADA, pruebas de arranque, gestión de permisos y
+            capacitación técnica especializada. Aplicamos estándares de gestión PMI, cronogramas Gantt y entregables
+            documentados en cada etapa del proyecto.
+        </p>
+
+        <div class="applications-card">
+            <h4 class="applications-title">Aplicaciones Industriales:</h4>
+            <div class="applications-grid">
+                <div class="app-item">
+                    <div class="check-circle">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+                            fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"
+                            stroke-linejoin="round">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                    </div>
+                    <p>Hoteles y desarrollos turísticos</p>
+                </div>
+
+                <div class="app-item">
+                    <div class="check-circle">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+                            fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"
+                            stroke-linejoin="round">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                    </div>
+                    <p>Lavanderías industriales</p>
+                </div>
+
+                <div class="app-item">
+                    <div class="check-circle">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+                            fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"
+                            stroke-linejoin="round">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                    </div>
+                    <p>Industria alimentaria y bebidas</p>
+                </div>
+
+                <div class="app-item">
+                    <div class="check-circle">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+                            fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"
+                            stroke-linejoin="round">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                    </div>
+                    <p>Hospitales y clínicas privadas</p>
+                </div>
+
+                <div class="app-item">
+                    <div class="check-circle">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+                            fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"
+                            stroke-linejoin="round">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                    </div>
+                    <p>Plantas manufactureras</p>
+                </div>
+
+                <div class="app-item">
+                    <div class="check-circle">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+                            fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"
+                            stroke-linejoin="round">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                    </div>
+                    <p>Procesamiento químico y petroquímico</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+    {{-- THIRD --}}
+    <section class="what-includes-section">
+    <div class="container what-includes-section">
+        <h2 class="section-main-title">¿Qué Incluyen Nuestros Proyectos Integrales?</h2>
+
+        <div class="includes-grid">
+            <div class="include-card">
+                <div class="icon-box">
                     <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none"
                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                        class="lucide lucide-building2 lucide-building-2 text-white">
+                        class="lucide lucide-building2 lucide-building-2">
                         <path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"></path>
                         <path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"></path>
                         <path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"></path>
@@ -135,19 +145,18 @@
                         <path d="M10 18h4"></path>
                     </svg>
                 </div>
-                <h3 class="cardTitle-servProyectIndus">Ingeniería de Detalle</h3>
-                <p class="cardText-servProyectIndus">
+                <h3 class="include-card-title">Ingeniería de Detalle</h3>
+                <p class="include-card-text">
                     Cálculos térmicos, dimensionamiento de equipos, ingeniería hidráulica, eléctrica,
                     estructural y especificaciones técnicas completas.
                 </p>
             </div>
 
-            <!-- Card 2 -->
-            <div class="card-servProyectIndus">
-                <div class="iconBox-servProyectIndus">
+            <div class="include-card">
+                <div class="icon-box">
                     <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"
                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                        stroke-linejoin="round" class="lucide lucide-cog text-white">
+                        stroke-linejoin="round" class="lucide lucide-cog">
                         <path d="M12 20a8 8 0 1 0 0-16 8 8 0 0 0 0 16Z"></path>
                         <path d="M12 14a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z"></path>
                         <path d="M12 2v2"></path>
@@ -164,37 +173,35 @@
                         <path d="m11 13.73-4 6.93"></path>
                     </svg>
                 </div>
-                <h3 class="cardTitle-servProyectIndus">Suministro de Equipos</h3>
-                <p class="cardText-servProyectIndus">
+                <h3 class="include-card-title">Suministro de Equipos</h3>
+                <p class="include-card-text">
                     Calderas, quemadores, bombas, válvulas, instrumentación, controles y accesorios
                     de marcas certificadas con garantía de fábrica.
                 </p>
             </div>
 
-            <!-- Card 3 -->
-            <div class="card-servProyectIndus">
-                <div class="iconBox-servProyectIndus">
+            <div class="include-card">
+                <div class="icon-box">
                     <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"
                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                        stroke-linejoin="round" class="lucide lucide-shield text-white">
+                        stroke-linejoin="round" class="lucide lucide-shield">
                         <path
                             d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z">
                         </path>
                     </svg>
                 </div>
-                <h3 class="cardTitle-servProyectIndus">Construcción y Montaje</h3>
-                <p class="cardText-servProyectIndus">
+                <h3 class="include-card-title">Construcción y Montaje</h3>
+                <p class="include-card-text">
                     Obra civil, estructuras metálicas, instalación mecánica,
                     montaje eléctrico y acabados según normas de seguridad industrial.
                 </p>
             </div>
 
-            <!-- Card 4 -->
-            <div class="card-servProyectIndus">
-                <div class="iconBox-servProyectIndus">
+            <div class="include-card">
+                <div class="icon-box">
                     <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"
                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                        stroke-linejoin="round" class="lucide lucide-cog text-white">
+                        stroke-linejoin="round" class="lucide lucide-cog">
                         <path d="M12 20a8 8 0 1 0 0-16 8 8 0 0 0 0 16Z"></path>
                         <path d="M12 14a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z"></path>
                         <path d="M12 2v2"></path>
@@ -211,104 +218,89 @@
                         <path d="m11 13.73-4 6.93"></path>
                     </svg>
                 </div>
-                <h3 class="cardTitle-servProyectIndus">Automatización</h3>
-                <p class="cardText-servProyectIndus">
+                <h3 class="include-card-title">Automatización</h3>
+                <p class="include-card-text">
                     Sistemas de control con PLC, pantallas HMI, supervisión SCADA
                     y monitoreo remoto con registro histórico de variables.
                 </p>
             </div>
 
-            <!-- Card 5 -->
-            <div class="card-servProyectIndus">
-                <div class="iconBox-servProyectIndus">
+            <div class="include-card">
+                <div class="icon-box">
                     <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"
                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                        stroke-linejoin="round" class="lucide lucide-trending-up text-white">
+                        stroke-linejoin="round" class="lucide lucide-trending-up">
                         <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline>
                         <polyline points="16 7 22 7 22 13"></polyline>
                     </svg>
                 </div>
-                <h3 class="cardTitle-servProyectIndus">Puesta en Marcha</h3>
-                <p class="cardText-servProyectIndus">
+                <h3 class="include-card-title">Puesta en Marcha</h3>
+                <p class="include-card-text">
                     Arranque supervisado, pruebas de funcionamiento,
                     calibración de equipos y ajuste de parámetros operativos óptimos.
                 </p>
             </div>
 
-            <!-- Card 6 -->
-            <div class="card-servProyectIndus">
-                <div class="iconBox-servProyectIndus">
+            <div class="include-card">
+                <div class="icon-box">
                     <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"
                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                        stroke-linejoin="round" class="lucide lucide-users text-white">
+                        stroke-linejoin="round" class="lucide lucide-users">
                         <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
                         <circle cx="9" cy="7" r="4"></circle>
                         <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
                         <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
                     </svg>
                 </div>
-                <h3 class="cardTitle-servProyectIndus">Capacitación</h3>
-                <p class="cardText-servProyectIndus">
+                <h3 class="include-card-title">Capacitación</h3>
+                <p class="include-card-text">
                     Entrenamiento técnico al personal, manuales de operación,
                     programas de mantenimiento y soporte post-garantía.
                 </p>
             </div>
-
         </div>
-    </section>
+    </div>
+</section>
+    {{-- Benefits Section --}}
+    <section class="benefits-section">
+        <div class="container benefits-section">
+            <h2 class="section-main-title">Beneficios Operativos Comprobados</h2>
 
-    {{-- QUARTER --}}
-    <section class="benefitsSection-servProyectIndus">
-
-        <h2 class="benefitsTitle-servProyectIndus">
-            Beneficios Operativos Comprobados
-        </h2>
-
-        <div class="benefitsGrid-servProyectIndus">
-
-            <!-- Benefit Item 1 -->
-            <div class="benefitCard-servProyectIndus">
-                <div class="benefitIcon-servProyectIndus">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+            <div class="benefits-grid">
+                <div class="benefit-item">
+                    <div class="benefit-icon-box">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                         stroke-linejoin="round" class="lucide lucide-trending-up text-white">
                         <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline>
                         <polyline points="16 7 22 7 22 13"></polyline>
                     </svg>
+                    </div>
+                    <div class="benefit-content">
+                        <h3 class="benefit-title">Único Responsable</h3>
+                        <p class="benefit-text">Llave en mano elimina problemas de coordinación entre múltiples contratistas con un solo interlocutor responsable.</p>
+                    </div>
                 </div>
-                <div class="benefitContent-servProyectIndus">
-                    <h3 class="benefitHeading-servProyectIndus">Único Responsable</h3>
-                    <p class="benefitText-servProyectIndus">
-                        Llave en mano elimina problemas de coordinación entre múltiples
-                        contratistas con un solo interlocutor responsable.
-                    </p>
-                </div>
-            </div>
 
-            <!-- Benefit Item 2 -->
-            <div class="benefitCard-servProyectIndus">
-                <div class="benefitIcon-servProyectIndus">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                <div class="benefit-item">
+                    <div class="benefit-icon-box">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                         stroke-linejoin="round" class="lucide lucide-shield text-white">
                         <path
                             d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z">
                         </path>
                     </svg>
+                    </div>
+                    <div class="benefit-content">
+                        <h3 class="benefit-title">Garantía Total</h3>
+                        <p class="benefit-text">Garantía integral de equipos, instalación y funcionamiento con soporte técnico post-entrega incluido.</p>
+                    </div>
                 </div>
-                <div class="benefitContent-servProyectIndus">
-                    <h3 class="benefitHeading-servProyectIndus">Garantía Total</h3>
-                    <p class="benefitText-servProyectIndus">
-                        Garantía integral de equipos, instalación y funcionamiento
-                        con soporte técnico post-entrega incluido.
-                    </p>
-                </div>
-            </div>
 
-            <!-- Benefit Item 3 -->
-            <div class="benefitCard-servProyectIndus">
-                <div class="benefitIcon-servProyectIndus">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                <div class="benefit-item">
+                    <div class="benefit-icon-box">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                         stroke-linejoin="round" class="lucide lucide-building2 lucide-building-2 text-white">
                         <path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"></path>
@@ -319,165 +311,123 @@
                         <path d="M10 14h4"></path>
                         <path d="M10 18h4"></path>
                     </svg>
+                    </div>
+                    <div class="benefit-content">
+                        <h3 class="benefit-title">Cumplimiento de Plazos</h3>
+                        <p class="benefit-text">
+                        Gestión profesional de proyectos con cronogramas realistas y entrega en tiempo acordado contractualmente.</p>
+                    </div>
                 </div>
-                <div class="benefitContent-servProyectIndus">
-                    <h3 class="benefitHeading-servProyectIndus">Cumplimiento de Plazos</h3>
-                    <p class="benefitText-servProyectIndus">
-                        Gestión profesional de proyectos con cronogramas realistas
-                        y entrega en tiempo acordado contractualmente.
-                    </p>
-                </div>
-            </div>
 
-            <!-- Benefit Item 4 -->
-            <div class="benefitCard-servProyectIndus">
-                <div class="benefitIcon-servProyectIndus">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                <div class="benefit-item">
+                    <div class="benefit-icon-box">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                         stroke-linejoin="round" class="lucide lucide-circle-check-big text-white">
                         <path d="M21.801 10A10 10 0 1 1 17 3.335"></path>
                         <path d="m9 11 3 3L22 4"></path>
                     </svg>
-                </div>
-                <div class="benefitContent-servProyectIndus">
-                    <h3 class="benefitHeading-servProyectIndus">Cumplimiento Normativo</h3>
-                    <p class="benefitText-servProyectIndus">
-                        Diseños conformes a códigos ASME, NOM-020-STPS y normas
-                        ambientales con gestión de permisos incluida.
-                    </p>
+                    </div>
+                    <div class="benefit-content">
+                        <h3 class="benefit-title">Cumplimiento Normativo</h3>
+                        <p class="benefit-text">Diseños conformes a códigos ASME, NOM-020-STPS y normas ambientales con gestión de permisos incluida.</p>
+                    </div>
                 </div>
             </div>
         </div>
     </section>
+    {{-- QUARTER --}}
 
-    {{-- PART FIVE D: --}}
-    <section class="processSection-servProyectIndus">
-
-        <h2 class="processTitle-servProyectIndus">
-            Nuestro Proceso de Trabajo
-        </h2>
-
-        <div class="processGrid-servProyectIndus">
-
-            <!-- Step 1 -->
-            <div class="processItem-servProyectIndus">
-                <div class="processNumber-servProyectIndus">1</div>
-                <h3 class="processHeading-servProyectIndus">Ingeniería</h3>
-                <p class="processText-servProyectIndus">
-                    Levantamiento de campo, cálculos térmicos, diseño de sistemas y
-                    elaboración de planos ejecutivos aprobados.
-                </p>
-            </div>
-
-            <!-- Step 2 -->
-            <div class="processItem-servProyectIndus">
-                <div class="processNumber-servProyectIndus">2</div>
-                <h3 class="processHeading-servProyectIndus">Suministro</h3>
-                <p class="processText-servProyectIndus">
-                    Adquisición de equipos certificados, fabricación de componentes
-                    especiales y logística de entrega coordinada.
-                </p>
-            </div>
-
-            <!-- Step 3 -->
-            <div class="processItem-servProyectIndus">
-                <div class="processNumber-servProyectIndus">3</div>
-                <h3 class="processHeading-servProyectIndus">Construcción</h3>
-                <p class="processText-servProyectIndus">
-                    Obra civil, instalación mecánica, montaje eléctrico,
-                    automatización y pruebas de funcionamiento integral.
-                </p>
-            </div>
-
-            <!-- Step 4 -->
-            <div class="processItem-servProyectIndus">
-                <div class="processNumber-servProyectIndus">4</div>
-                <h3 class="processHeading-servProyectIndus">Entrega</h3>
-                <p class="processText-servProyectIndus">
-                    Puesta en marcha, capacitación al personal, entrega de manuales
-                    y inicio de garantía total del proyecto.
-                </p>
-            </div>
-        </div>
-    </section>
     {{-- PART SIX --}}
-    {{-- PART SIX --}}
-    <section class="whyChoose-servProyectIndus">
+    <section class="work-process-section">
+        <div class="container work-process-section">
+            <h2 class="section-main-title">Nuestro Proceso de Trabajo</h2>
 
-        <h2 class="whyChoose-title-servProyectIndus">
-            Por qué elegir a SIMARI CALDERAS
-        </h2>
+            <div class="process-grid">
+                <div class="process-step ">
+                    <p class="step-number-circle">1</p>
+                    <h3 class="step-title">Ingeniería</h3>
+                    <p class="step-desc">Levantamiento de campo, cálculos térmicos, diseño de sistemas y elaboración de planos ejecutivos aprobados.</p>
+                </div>
 
-        <div class="whyChoose-container-servProyectIndus">
+                <div class="process-step ">
+                    <p class="step-number-circle">2</p>
+                    <h3 class="step-title">Suministro</h3>
+                    <p class="step-desc">Adquisición de equipos certificados, fabricación de componentes
+                        especiales y logística de entrega coordinada.</p>
+                </div>
 
-            {{-- STEP 1 --}}
-            <article class="whyChoose-item-servProyectIndus">
-                <div class="super-especial-text-red">30+</div>
-                <h3 class="whyChoose-heading-servProyectIndus">Años de Experiencia</h3>
-                <p class="whyChoose-text-servProyectIndus">
-                    Trayectoria comprobada en desarrollo de proyectos industriales llave en mano de alta complejidad
-                    técnica.
-                </p>
-            </article>
+                <div class="process-step ">
+                    <p class="step-number-circle">3</p>
+                    <h3 class="step-title">Construcción</h3>
+                    <p class="step-desc">Obra civil, instalación mecánica, montaje eléctrico,
+                        automatización y pruebas de funcionamiento integral.</p>
+                </div>
 
-            {{-- STEP 2 --}}
-            <article class="whyChoose-item-servProyectIndus">
-                <div class="super-especial-text-red">100+</div>
-                <h3 class="whyChoose-heading-servProyectIndus">Proyectos Ejecutados</h3>
-                <p class="whyChoose-text-servProyectIndus">
-                    Salas de calderas, cuartos de máquinas y sistemas térmicos instalados en México y Latinoamérica.
-                </p>
-            </article>
-
-            {{-- STEP 3 --}}
-            <article class="whyChoose-item-servProyectIndus">
-                <div class="super-especial-text-red">100%</div>
-                <h3 class="whyChoose-heading-servProyectIndus">Satisfacción Cliente</h3>
-                <p class="whyChoose-text-servProyectIndus">
-                    Proyectos entregados en tiempo, dentro de presupuesto y con garantía total de funcionamiento operativo.
-                </p>
-            </article>
+                <div class="process-step ">
+                    <p class="step-number-circle">4</p>
+                    <h3 class="step-title">Entrega</h3>
+                    <p class="step-desc">Puesta en marcha, capacitación al personal, entrega de manuales
+                        y inicio de garantía total del proyecto.</p>
+                </div>
+            </div>
         </div>
     </section>
     {{-- SEVEN PART --}}
-    <section class="firstContent-servProyectIndus">
-        <div class="text-servProyectIndus">
+    <section class="why-choose-simari-section">
+        <div class="container why-choose-simari-section">
+            <h2 class="section-main-title">Por qué elegir a SIMARI CALDERAS</h2>
 
-            <h2 class="title-servProyectIndus">
-                Desarrolle su Proyecto Industrial con Expertos
-            </h2>
+            <div class="simari-stats-grid">
+                <div class="simari-stat-item ">
+                    <div class="stat-big-number">30+</div>
+                    <h3 class="stat-small-title">Años de Experiencia</h3>
+                    <p class="stat-small-desc">Trayectoria comprobada en desarrollo de proyectos industriales llave en mano de alta complejidad técnica.</p>
+                </div>
 
-            <p class="description-servProyectIndus">
-                Un proyecto mal ejecutado genera sobrecostos permanentes y problemas operativos crónicos. Confíe en
-                especialistas que entregan proyectos llave en mano para hoteles, hospitales, lavanderías y plantas
-                industriales con garantía total.
+                <div class="simari-stat-item ">
+                    <div class="stat-big-number">100+</div>
+                    <h3 class="stat-small-title">Proyectos Ejecutados</h3>
+                    <p class="stat-small-desc">Salas de calderas, cuartos de máquinas y sistemas térmicos instalados en México y Latinoamérica.</p>
+                </div>
+
+                <div class="simari-stat-item ">
+                    <div class="stat-big-number">100%</div>
+                    <h3 class="stat-small-title">Satisfacción Cliente</h3>
+                    <p class="stat-small-desc">Proyectos entregados en tiempo, dentro de presupuesto y con garantía total de funcionamiento operativo.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="work-process-section">
+        <div class="container work-process-section">
+            <h2 class="cta-final-title-industrial">Desarrolle su Proyecto Industrial con Expertos</h2>
+            <p class="cta-final-description-industrial">
+                Un proyecto mal ejecutado genera sobrecostos permanentes y problemas operativos crónicos. Confíe en especialistas que entregan proyectos llave en mano para hoteles, hospitales, lavanderías y plantas industriales con garantía total.
             </p>
 
-            {{-- Buttons declaration --}}
-            <div class="buttonsContainer-servProyectIndus">
-
-                <button class="button-primary calibration">
+            <div class="cta-final-actions">
+                <button class="button-primary work-process">
                     Solicitar Propuesta
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                        fill="none">
-                        <path d="M4.99866 11.9966H18.9948" stroke="white" stroke-width="1.99945" stroke-linecap="round"
-                            stroke-linejoin="round" />
-                        <path d="M11.9967 4.99854L18.9948 11.9966L11.9967 18.9947" stroke="white" stroke-width="1.99945"
-                            stroke-linecap="round" stroke-linejoin="round" />
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" style="margin-left: 8px;">
+                        <path d="M5 12h14"></path>
+                        <path d="m12 5 7 7-7 7"></path>
                     </svg>
                 </button>
 
-                <button class="button-secondary calibration">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                <button class="button-secondary work-process">
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"
                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                        stroke-linejoin="round">
+                        stroke-linejoin="round" class="lucide lucide-phone">
                         <path
                             d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z">
                         </path>
                     </svg>
                     Llamar Ahora
                 </button>
-
             </div>
         </div>
     </section>

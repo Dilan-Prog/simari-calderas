@@ -17,9 +17,19 @@ class HomeController extends Controller
 
 
     // SERVICES PAGES
+
+    public function industrialMaintenance()
+    {
+        return view('frontend.pages.services.service-industrial-maintenance');
+    }
+    public function hydraulicEngineering()
+    {
+        return view('frontend.pages.services.service-hydraulic-engineering');
+    }
+
     public function hairRepair()
     {
-        return view('frontend.pages.services.industrial-hair-repair');
+        return view('frontend.pages.services.service-industrial-hair-repair');
     }
     public function equipementCalibration()
     {

@@ -58,7 +58,7 @@
                 <nav class="footer-nav" aria-label="Servicios">
                     <h2>Servicios</h2>
                     <ul>
-                        <li><a href="/soluciones/industrial">Mantenimiento industrial</a></li>
+                        <li><a href="{{ route('industrial-maintenance') }}">Mantenimiento industrial</a></li>
                         <li><a href="/soluciones/residencial">Calibración de equipos</a></li>
                         <li><a href="/soluciones/mantenimiento">Conversión de quemadores</a></li>
                         <li><a href="/soluciones/eficiencia">Fabricación Equipos Periféricos</a></li>

@@ -17,13 +17,13 @@
                     </svg>
                 </button>
                 <ul id="dropdown-servicios" class="dropdown-menu" hidden>
-                    <li><a href="/soluciones/industrial">Mantenimiento industrial</a></li>
-                    <li><a href="/soluciones/residencial">Ingenieria Hidraulica</a></li>
+                    <li><a href="{{ route('industrial-maintenance') }}">Mantenimiento industrial</a></li>
+                    <li><a href="{{ route('hydraulic-engineering') }}">Ingenieria Hidraulica</a></li>
                     <li><a href="{{ route('equipement-calibration') }}">Calibracion de equipos</a></li>
-                    <li><a href="/soluciones/mantenimiento">Conversión de quemadores</a></li>
-                    <li><a href="/soluciones/eficiencia">Fabricación Equipos Periféricos</a></li>
-                    <li><a href="/soluciones/industrial">Mantenimiento de Chillers</a></li>
-                    <li><a href="/soluciones/residencial">Desincrustación de Calderas</a></li>
+                    <li><a href="{{ route('water-treatment') }}">Tratamiento de Agua</a></li>
+                    <li><a href="{{ route('automation') }}">Automatizacion</a></li>
+                    <li><a href="{{ route('chiller-maintenance') }}">Mantenimiento de Chillers</a></li>
+                    <li><a href="{{ route('descale-boilers') }}">Desincrustación de Calderas</a></li>
                     <li><a href="{{ route('industrial-project') }}">Proyecto Industrial</a></li>
                     {{-- <li><a href="/soluciones/mantenimiento">Conversión de quemadores</a></li> --}}
                     <li><a href="{{ route('hair-repair')}}">Reparación de Secadoras</a></li>
@@ -39,11 +39,11 @@
                     </svg>
                 </button>
                 <ul id="dropdown-productos" class="dropdown-menu" hidden>
-                    <li><a href="{{ route('home') }}">Calderas SIMARI</a></li>
-                    <li><a href="/productos/calderas">Calentadores Solares</a></li>
-                    <li><a href="/productos/perifericos">Instrumentacion Industrial</a></li>
-                    <li><a href="/productos/perifericos">Tratamiento de Agua Anti-incrustante</a></li>
-                    <li><a href="/productos/perifericos">Refacciones y Mantenimiento</a></li>
+                    <li><a href="{{ route('simari-boilers') }}">Calderas SIMARI</a></li>
+                    <li><a href="{{ route('solar-heaters') }}">Calentadores Solares</a></li>
+                    <li><a href="{{ route('industrial-instrumentation') }}">Instrumentacion Industrial</a></li>
+                    <li><a href="{{ route('water-treatment') }}">Tratamiento de Agua Anti-incrustante</a></li>
+                    <li><a href="{{ route('spare-parts') }}">Refacciones y Mantenimiento</a></li>
                 </ul>
             </li>
 
@@ -57,10 +57,10 @@
                 </button>
                 <ul id="dropdown-mastercal" class="dropdown-menu" hidden>
                     <li><a href="{{ route('heat-pumps') }}">Bombas de Calor</a></li>
-                    <li><a href="/mastercal-rinnai/comerciales">Calentadores De Agua</a></li>
-                    <li><a href="/mastercal-rinnai/refacciones">Calentadores Electricos</a></li>
-                    <li><a href="/mastercal-rinnai/soporte">Calentadores de Paso a Gas</a></li>
-                    <li><a href="/mastercal-rinnai/refacciones">Suavizadores y Filtros</a></li>
+                    <li><a href="{{ route('water-heaters') }}">Calentadores De Agua</a></li>
+                    <li><a href="{{ route('electric-heaters') }}">Calentadores Electricos</a></li>
+                    <li><a href="{{ route('tankless-heaters') }}">Calentadores de Paso a Gas</a></li>
+                    <li><a href="{{ route('softeners-filters') }}">Suavizadores y Filtros</a></li>
                     <li><a href="{{ route('storage-tanks') }}">Tanques de Almacenamiento</a></li>
                 </ul>
             </li>
