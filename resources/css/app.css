@@ -27,9 +27,6 @@
     --background-primary: #141516;
     --background-primary-white:#F8F9FA;
 }
-.text-center{
-    text-align: center;
-}
 
 main,body{
     margin: 0;

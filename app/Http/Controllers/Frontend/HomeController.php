@@ -14,8 +14,6 @@ class HomeController extends Controller
     }
 
 
-
-
     // SERVICES PAGES
 
     public function industrialMaintenance()

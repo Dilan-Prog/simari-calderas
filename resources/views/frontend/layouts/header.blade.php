@@ -5,7 +5,7 @@
         </a>
 
         <ul class="nav-link">
-            <li><a href="{{ route('home') }}">Inicio</a></li>
+            <li><a href="{{ route('profile.edit') }}">Inicio</a></li>
             <li><a href="/soluciones">Empresa</a></li>
 
             <li class="has-dropdown">

@@ -13,7 +13,7 @@
 
         <div class="container hero-hair-repair">
             <div class="hero-content">
-                <h1 class="hero-title text-center">
+                <h1 class="hero-title">
                     Ingeniería Hidráulica Industrial y de Proceso
                 </h1>
 
@@ -38,292 +38,255 @@
     </section>
 
     <!-- SECCIÓN: Detalle del Servicio y Aplicaciones -->
-    <section class="service-description-section-industrial">
-        <div class="container service-description-section">
-            <h2 class="service-subtitle-industrial">¿En qué consiste el servicio de Reparación de Secadoras?</h2>
+        <section class="second-content-service-calibration">
+        <div class="container second-section-service-calibration">
+            <div class="second-text-service-calibration">
+                <h2>¿En qué consiste el servicio de Ingeniería Hidráulica?</h2>
+                <p>Nuestro servicio de ingeniería hidráulica especializada abarca el diseño completo de redes de distribución de vapor saturado y sobrecalentado, sistemas de retorno de condensado, líneas de alimentación de agua a calderas y circuitos de fluidos térmicos.</p>
 
-            <p class="service-text-industrial">
-                El servicio técnico especializado en secadoras industriales abarca diagnóstico de fallas mecánicas,
-                eléctricas y térmicas,
-                reparación de sistemas de transmisión (motores, poleas, correas, rodamientos), sistemas de calentamiento
-                (quemadores de gas,
-                serpentines eléctricos, intercambiadores de vapor), sistemas de control (termostatos, temporizadores,
-                controles de seguridad),
-                sistemas de extracción de aire, filtros de pelusa y válvulas de gas. Trabajamos con marcas líderes como
-                Electrolux, Girbau,
-                Alliance, Huebsch, Speed Queen y Primus, manteniendo refacciones originales certificadas en stock para
-                reducir tiempos de paro.
-            </p>
-
-            <div class="applications-card">
-                <h4 class="applications-title">Aplicaciones Industriales:</h4>
-                <div class="applications-grid">
-                    <div class="app-item">
-                        <div class="check-circle">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"
-                                stroke-linejoin="round">
-                                <polyline points="20 6 9 17 4 12"></polyline>
-                            </svg>
-                        </div>
-                        <p>Lavanderías industriales comerciales</p>
-                    </div>
-                    <div class="app-item">
-                        <div class="check-circle">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"
-                                stroke-linejoin="round">
-                                <polyline points="20 6 9 17 4 12"></polyline>
-                            </svg>
-                        </div>
-                        <p>Hoteles y complejos hoteleros</p>
-                    </div>
-                    <div class="app-item">
-                        <div class="check-circle">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"
-                                stroke-linejoin="round">
-                                <polyline points="20 6 9 17 4 12"></polyline>
-                            </svg>
-                        </div>
-                        <p>Hospitales y clínicas</p>
-                    </div>
-                    <div class="app-item">
-                        <div class="check-circle">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"
-                                stroke-linejoin="round">
-                                <polyline points="20 6 9 17 4 12"></polyline>
-                            </svg>
-                        </div>
-                        <p>Autoservicio de Lavanderías</p>
-                    </div>
-                    <div class="app-item">
-                        <div class="check-circle">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"
-                                stroke-linejoin="round">
-                                <polyline points="20 6 9 17 4 12"></polyline>
-                            </svg>
-                        </div>
-                        <p>Gimnasios y clubes deportivos</p>
-                    </div>
-                    <div class="app-item">
-                        <div class="check-circle">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"
-                                stroke-linejoin="round">
-                                <polyline points="20 6 9 17 4 12"></polyline>
-                            </svg>
-                        </div>
-                        <p>Servicios de lavandería a domicilio</p>
-                    </div>
-                </div>
+                <p>Realizamos cálculos de caída de presión, dimensionamiento de tuberías según normas ASME B31.1, selección de válvulas de control y especificación de aislamiento térmico optimizado para máxima eficiencia energética.</p>
             </div>
-        </div>
+
+            <div class="service-calibration-table-aplication">
+                <h2>Aplicaciones Industriales</h2>
+                <ul class="applications__list">
+                    <li class="applications__item">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round" class="lucide lucide-circle-check-big">
+                            <path d="M21.801 10A10 10 0 1 1 17 3.335"></path>
+                            <path d="m9 11 3 3L22 4"></path>
+                        </svg>
+                        <p class="applications__item-des">Plantas de generación de vapor</p>
+                    </li>
+                    <li class="applications__item"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round" class="lucide lucide-circle-check-big">
+                            <path d="M21.801 10A10 10 0 1 1 17 3.335"></path>
+                            <path d="m9 11 3 3L22 4"></path>
+                        </svg>
+                        <p class="applications__item-des">Sistemas de calefacción industrial</p>
+                    </li>
+                    <li class="applications__item"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round" class="lucide lucide-circle-check-big">
+                            <path d="M21.801 10A10 10 0 1 1 17 3.335"></path>
+                            <path d="m9 11 3 3L22 4"></path>
+                        </svg>
+                        <p class="applications__item-des">Redes de distribución en complejos hoteleros</p>
+                    </li>
+                    <li class="applications__item"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round" class="lucide lucide-circle-check-big">
+                            <path d="M21.801 10A10 10 0 1 1 17 3.335"></path>
+                            <path d="m9 11 3 3L22 4"></path>
+                        </svg>
+                        <p class="applications__item-des">Circuitos de proceso en industria química</p>
+                    </li>
+                    <li class="applications__item"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round" class="lucide lucide-circle-check-big">
+                            <path d="M21.801 10A10 10 0 1 1 17 3.335"></path>
+                            <path d="m9 11 3 3L22 4"></path>
+                        </svg>
+                        <p class="applications__item-des">Sistemas de recuperación de condensado</p>
+                    </li>
+                    <li class="applications__item"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round" class="lucide lucide-circle-check-big">
+                            <path d="M21.801 10A10 10 0 1 1 17 3.335"></path>
+                            <path d="m9 11 3 3L22 4"></path>
+                        </svg>
+                        <p class="applications__item-des">Instalaciones de fluidos térmicos</p>
+                    </li>
+                </ul>
+            </div>
     </section>
 
-    <!-- SECCIÓN: ¿Qué Incluye el Servicio? -->
-    <section class="what-includes-section">
-        <div class="container what-includes-section">
-            <h2 class="section-main-title">¿Qué Incluye el Servicio de Reparación?</h2>
+    <!-- SECCIÓN: Todo lo que necesitas saber -->
+    <!-- TERCER SECTION -->
+    <section class="hydraulic-info-section" id="que-incluye-ingenieria-hidraulica" aria-labelledby="hydraulic-info-title">
+        <div class="container hydraulic-info">
+            <header class="hydraulic-info-header">
+                <h2 class="hydraulic-info-title" id="hydraulic-info-title">
+                    Todo lo que necesita saber sobre ingeniería hidráulica
+                </h2>
+            </header>
 
-            <div class="includes-grid">
-                <div class="include-card">
-                    <div class="icon-box">
-                        <svg xmlns="http://www.w3.org/2000/svg"class="lucide lucide-wrench" width="28"
-                            height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round">
-                            <path
-                                d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
-                        </svg>
-                    </div>
-                    <h3 class="include-card-title">Diagnóstico Técnico</h3>
-                    <p class="include-card-text">Evaluación completa de sistemas mecánicos, eléctricos, térmicos y
-                        controles con equipos de medición especializados para identificación precisa de fallas.</p>
-                </div>
+            <nav class="hydraulic-info-tabs" aria-label="Contenido del servicio">
+                <button class="hydraulic-info-tab hydraulic-info-tab--active" type="button" data-tab="incluye">
+                    ¿Qué incluye?
+                </button>
+                <button class="hydraulic-info-tab" type="button" data-tab="beneficios">
+                    Beneficios
+                </button>
+                <button class="hydraulic-info-tab" type="button" data-tab="proceso">
+                    Proceso
+                </button>
+            </nav>
 
-                <div class="include-card">
-                    <div class="icon-box">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"
-                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                            stroke-linejoin="round">
-                            <circle cx="12" cy="12" r="3" />
-                            <path d="m12 14 4-4" />
-                            <path d="M3.34 19a10 10 0 1 1 17.32 0" />
-                        </svg>
-                    </div>
-                    <h3 class="include-card-title">Reparación de Motores</h3>
-                    <p class="include-card-text">Revisión de rodamientos, reemplazo de carbones, verificación de
-                        aislamiento eléctrico, balanceo dinámico y ajuste de tensión de correas.</p>
-                </div>
+            <!-- TAB 1 -->
+            <div class="hydraulic-info-panel hydraulic-info-panel--active" id="hydraulic-panel-incluye">
+                <div class="hydraulic-info-grid">
+                    <article class="hydraulic-info-card">
+                        <div class="hydraulic-info-icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-gauge text-[#0054ff] mb-4"><path d="m12 14 4-4"></path><path d="M3.34 19a10 10 0 1 1 17.32 0"></path></svg></div>
+                        <h3 class="hydraulic-info-card-title">Cálculos Hidráulicos Especializados</h3>
+                        <p class="hydraulic-info-card-text">
+                            Dimensionamiento de tuberías, cálculo de pérdidas por fricción,
+                            determinación de velocidades óptimas y balance hidráulico del sistema completo.
+                        </p>
+                    </article>
 
-                <div class="include-card">
-                    <div class="icon-box">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"
-                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                            stroke-linejoin="round">
-                            <path d="M12.8 19.6A2 2 0 1 0 14 16H2" />
-                            <path d="M17.5 8a2.5 2.5 0 1 1 2 4H2" />
-                            <path d="M9.8 4.4A2 2 0 1 1 11 8H2" />
-                        </svg>
-                    </div>
-                    <h3 class="include-card-title">Sistema de Calentamiento</h3>
-                    <p class="include-card-text">Calibración de quemadores, limpieza de serpentines, verificación de
-                        válvulas de gas, termostatos y sistemas de ignición electrónica.</p>
-                </div>
+                    <article class="hydraulic-info-card">
+                        <div class="hydraulic-info-icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-droplets text-[#0054ff] mb-4"><path d="M7 16.3c2.2 0 4-1.83 4-4.05 0-1.16-.57-2.26-1.71-3.19S7.29 6.75 7 5.3c-.29 1.45-1.14 2.84-2.29 3.76S3 11.1 3 12.25c0 2.22 1.8 4.05 4 4.05z"></path><path d="M12.56 6.6A10.97 10.97 0 0 0 14 3.02c.5 2.5 2 4.9 4 6.5s3 3.5 3 5.5a6.98 6.98 0 0 1-11.91 4.97"></path></svg></div>
+                        <h3 class="hydraulic-info-card-title">Diseño de Redes de Vapor</h3>
+                        <p class="hydraulic-info-card-text">
+                            Trazado óptimo de líneas principales y ramales, pendientes adecuadas,
+                            ubicación de trampas de vapor y purgas automáticas.
+                        </p>
+                    </article>
 
-                <div class="include-card">
-                    <div class="icon-box">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"
-                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                            stroke-linejoin="round" class="lucide lucide-shield ">
-                            <path
-                                d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z">
-                            </path>
-                        </svg>
-                    </div>
-                    <h3 class="include-card-title">Sistemas de Seguridad</h3>
-                    <p class="include-card-text">Verificación de termostatos de límite, presostatos, interruptores de
-                        puerta, fusibles térmicos y válvulas de corte de emergencia.</p>
-                </div>
+                    <article class="hydraulic-info-card">
+                        <div class="hydraulic-info-icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shield text-[#0054ff] mb-4"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"></path></svg></div>
+                        <h3 class="hydraulic-info-card-title">Selección de Componentes</h3>
+                        <p class="hydraulic-info-card-text">
+                            Especificación técnica de válvulas, reductoras de presión, válvulas de seguridad,
+                            filtros y separadores de humedad certificados.
+                        </p>
+                    </article>
 
-                <div class="include-card">
-                    <div class="icon-box">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"
-                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                            stroke-linejoin="round" class="lucide lucide-trending-up ">
-                            <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline>
-                            <polyline points="16 7 22 7 22 13"></polyline>
-                        </svg>
-                    </div>
-                    <h3 class="include-card-title">Refacciones Originales</h3>
-                    <p class="include-card-text">Suministro e instalación de partes originales certificadas: rodamientos,
-                        correas, poleas, sensores, válvulas y componentes electrónicos.</p>
-                </div>
+                    <article class="hydraulic-info-card">
+                        <div class="hydraulic-info-icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shield text-[#0054ff] mb-4"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"></path></svg></div>
+                        <h3 class="hydraulic-info-card-title">Planos y Especificaciones</h3>
+                        <p class="hydraulic-info-card-text">
+                            Elaboración de isométricos, planos de instalación, memorias de cálculo
+                            y especificaciones técnicas para licitaciones.
+                        </p>
+                    </article>
 
-                <div class="include-card">
-                    <div class="icon-box">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"
-                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                            stroke-linejoin="round">
-                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-                            <polyline points="22 4 12 14.01 9 11.01" />
-                        </svg>
-                    </div>
-                    <h3 class="include-card-title">Pruebas de Funcionamiento</h3>
-                    <p class="include-card-text">Ciclos de prueba completos, verificación de temperaturas, tiempos de
-                        secado, ruidos anormales y calibración de controles finales.</p>
+                    <article class="hydraulic-info-card">
+                        <div class="hydraulic-info-icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-zap text-[#0054ff] mb-4"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"></path></svg></div>
+                        <h3 class="hydraulic-info-card-title">Aislamiento Térmico</h3>
+                        <p class="hydraulic-info-card-text">
+                            Especificación de materiales aislantes, cálculo de espesores según
+                            temperatura de operación y diseño de soportes térmicos.
+                        </p>
+                    </article>
+
+                    <article class="hydraulic-info-card">
+                        <div class="hydraulic-info-icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-check-big text-[#0054ff] mb-4"><path d="M21.801 10A10 10 0 1 1 17 3.335"></path><path d="m9 11 3 3L22 4"></path></svg></div>
+                        <h3 class="hydraulic-info-card-title">Supervisión de Obra</h3>
+                        <p class="hydraulic-info-card-text">
+                            Acompañamiento técnico durante la construcción, verificación de materiales,
+                            pruebas hidrostáticas y puesta en marcha.
+                        </p>
+                    </article>
                 </div>
             </div>
-        </div>
-    </section>
 
-    <!-- SECCIÓN: Beneficios Operativos Comprobados -->
-    <section class="benefits-section">
-        <div class="container benefits-section">
-            <h2 class="section-main-title">Beneficios Operativos Comprobados</h2>
+            <!-- TAB 2 -->
+            <div class="hydraulic-info-panel" id="hydraulic-panel-beneficios">
+                <div class="hydraulic-benefits-grid">
+                    <article class="hydraulic-benefit-card">
+                        <div class="hydraulic-benefit-inner">
+                            <div class="hydraulic-benefit-icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trending-up text-white"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline><polyline points="16 7 22 7 22 13"></polyline></svg></div>
+                            <div class="hydraulic-benefit-content">
+                                <h3 class="hydraulic-benefit-title">Optimización Energética del 20-30%</h3>
+                                <p class="hydraulic-benefit-text">
+                                    Reducción de pérdidas térmicas mediante diseño óptimo de trazados,
+                                    aislamiento adecuado y recuperación eficiente de condensado.
+                                </p>
+                            </div>
+                        </div>
+                    </article>
 
-            <div class="benefits-grid">
-                <div class="benefit-item">
-                    <div class="benefit-icon-box">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                            stroke-linejoin="round">
-                            <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
-                            <polyline points="17 6 23 6 23 12"></polyline>
-                        </svg>
-                    </div>
-                    <div class="benefit-content">
-                        <h3 class="benefit-title">Reducción de Tiempos de Paro</h3>
-                        <p class="benefit-text">Stock de refacciones críticas y técnicos especializados disponibles para
-                            atención inmediata y reparaciones en sitio el mismo día.</p>
-                    </div>
-                </div>
+                    <article class="hydraulic-benefit-card">
+                        <div class="hydraulic-benefit-inner">
+                            <div class="hydraulic-benefit-icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shield text-white"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"></path></svg></div>
+                            <div class="hydraulic-benefit-content">
+                                <h3 class="hydraulic-benefit-title">Seguridad Operacional Garantizada</h3>
+                                <p class="hydraulic-benefit-text">
+                                    Cumplimiento de códigos ASME, NOM-020-STPS y estándares internacionales
+                                    para instalaciones de vapor de alta presión.
+                                </p>
+                            </div>
+                        </div>
+                    </article>
 
-                <div class="benefit-item">
-                    <div class="benefit-icon-box">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                            stroke-linejoin="round">
-                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-                        </svg>
-                    </div>
-                    <div class="benefit-content">
-                        <h3 class="benefit-title">Eficiencia Energética Restaurada</h3>
-                        <p class="benefit-text">Calibración de controles y limpieza de sistemas de calentamiento recuperan
-                            tiempos de secado óptimos reduciendo consumo de gas/electricidad.</p>
-                    </div>
-                </div>
+                    <article class="hydraulic-benefit-card">
+                        <div class="hydraulic-benefit-inner">
+                            <div class="hydraulic-benefit-icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-droplets text-white"><path d="M7 16.3c2.2 0 4-1.83 4-4.05 0-1.16-.57-2.26-1.71-3.19S7.29 6.75 7 5.3c-.29 1.45-1.14 2.84-2.29 3.76S3 11.1 3 12.25c0 2.22 1.8 4.05 4 4.05z"></path><path d="M12.56 6.6A10.97 10.97 0 0 0 14 3.02c.5 2.5 2 4.9 4 6.5s3 3.5 3 5.5a6.98 6.98 0 0 1-11.91 4.97"></path></svg></div>
+                            <div class="hydraulic-benefit-content">
+                                <h3 class="hydraulic-benefit-title">Menor Tiempo de Construcción</h3>
+                                <p class="hydraulic-benefit-text">
+                                    Planos detallados y especificaciones precisas que facilitan la ejecución
+                                    rápida y sin improvisaciones costosas durante la obra.
+                                </p>
+                            </div>
+                        </div>
+                    </article>
 
-                <div class="benefit-item">
-                    <div class="benefit-icon-box">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                            stroke-linejoin="round">
-                            <path
-                                d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2">
-                            </path>
-                        </svg>
-                    </div>
-                    <div class="benefit-content">
-                        <h3 class="benefit-title">Extensión de Vida Útil +30%</h3>
-                        <p class="benefit-text">Mantenimiento preventivo programado y reparaciones profesionales prolongan
-                            significativamente la vida operativa de equipos costosos.</p>
-                    </div>
-                </div>
-
-                <div class="benefit-item">
-                    <div class="benefit-icon-box">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                            stroke-linejoin="round">
-                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                        </svg>
-                    </div>
-                    <div class="benefit-content">
-                        <h3 class="benefit-title">Garantía de Reparaciones</h3>
-                        <p class="benefit-text">Todas las reparaciones incluyen garantía por escrito de mano de obra y
-                            refacciones instaladas con respaldo técnico post-servicio.</p>
-                    </div>
+                    <article class="hydraulic-benefit-card">
+                        <div class="hydraulic-benefit-inner">
+                            <div class="hydraulic-benefit-icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-check-big text-white"><path d="M21.801 10A10 10 0 1 1 17 3.335"></path><path d="m9 11 3 3L22 4"></path></svg></div>
+                            <div class="hydraulic-benefit-content">
+                                <h3 class="hydraulic-benefit-title">Retorno de Inversión Acelerado</h3>
+                                <p class="hydraulic-benefit-text">
+                                    Recuperación de la inversión en 18-24 meses gracias a ahorros
+                                    en combustible y reducción de mantenimientos correctivos.
+                                </p>
+                            </div>
+                        </div>
+                    </article>
                 </div>
             </div>
-        </div>
-    </section>
 
-    <!-- SECCIÓN: Nuestro Proceso de Trabajo -->
-    <section class="work-process-section">
-        <div class="container work-process-section">
-            <h2 class="section-main-title">Nuestro Proceso de Trabajo</h2>
+            <!-- TAB 3 -->
+            <div class="hydraulic-info-panel" id="hydraulic-panel-proceso">
+                <div class="hydraulic-process-list">
+                    <article class="hydraulic-process-card">
+                        <div class="hydraulic-process-number">1</div>
+                        <div class="hydraulic-process-content">
+                            <h3 class="hydraulic-process-title">Levantamiento de Campo</h3>
+                            <p class="hydraulic-process-text">
+                                Visita técnica para identificar puntos de consumo, cargas térmicas,
+                                espacios disponibles y condiciones de operación.
+                            </p>
+                        </div>
+                    </article>
 
-            <div class="process-grid">
-                <div class="process-step ">
-                    <p class="step-number-circle">1</p>
-                    <h3 class="step-title">Evaluación</h3>
-                    <p class="step-desc">Inspección completa de sistemas, identificación de fallas, medición de parámetros
-                        operativos y cotización detallada de reparación.</p>
-                </div>
+                    <article class="hydraulic-process-card">
+                        <div class="hydraulic-process-number">2</div>
+                        <div class="hydraulic-process-content">
+                            <h3 class="hydraulic-process-title">Ingeniería de Detalle</h3>
+                            <p class="hydraulic-process-text">
+                                Desarrollo de cálculos hidráulicos, dimensionamiento de tuberías,
+                                selección de componentes y elaboración de planos ejecutivos.
+                            </p>
+                        </div>
+                    </article>
 
-                <div class="process-step ">
-                    <p class="step-number-circle">2</p>
-                    <h3 class="step-title">Reparación</h3>
-                    <p class="step-desc">Desmontaje de componentes dañados, instalación de refacciones originales, ajustes
-                        mecánicos y calibración de controles.</p>
-                </div>
+                    <article class="hydraulic-process-card">
+                        <div class="hydraulic-process-number">3</div>
+                        <div class="hydraulic-process-content">
+                            <h3 class="hydraulic-process-title">Implementación Controlada</h3>
+                            <p class="hydraulic-process-text">
+                                Supervisión de montaje, verificación de materiales, control de calidad
+                                de soldaduras y pruebas hidrostáticas certificadas.
+                            </p>
+                        </div>
+                    </article>
 
-                <div class="process-step ">
-                    <p class="step-number-circle">3</p>
-                    <h3 class="step-title">Pruebas</h3>
-                    <p class="step-desc">Ciclos completos de secado, verificación de temperaturas, tiempos, ruidos
-                        anormales y seguridad de operación certificada.</p>
-                </div>
-
-                <div class="process-step ">
-                    <p class="step-number-circle">4</p>
-                    <h3 class="step-title">Entrega</h3>
-                    <p class="step-desc">Informe técnico de trabajos, garantía por escrito, recomendaciones de operación y
-                        programa de mantenimiento preventivo.</p>
+                    <article class="hydraulic-process-card">
+                        <div class="hydraulic-process-number">4</div>
+                        <div class="hydraulic-process-content">
+                            <h3 class="hydraulic-process-title">Puesta en Marcha</h3>
+                            <p class="hydraulic-process-text">
+                                Arranque supervisado, ajuste de válvulas reguladoras, verificación
+                                de parámetros y entrega de manuales de operación.
+                            </p>
+                        </div>
+                    </article>
                 </div>
             </div>
         </div>

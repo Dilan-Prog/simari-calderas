@@ -1,5 +1,7 @@
 import './bootstrap';
 
+// header
+
 // Dropdowns del header en JavaScript puro (sin Alpine/Vue/React).
 // Comportamiento soportado:
 // - Hover: abre al entrar y cierra al salir.
@@ -137,3 +139,36 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
+
+// end header
+
+
+// hydraulic engineering 
+
+document.addEventListener("DOMContentLoaded", function () {
+    const tabs = document.querySelectorAll(".hydraulic-info-tab");
+    const panels = {
+        incluye: document.getElementById("hydraulic-panel-incluye"),
+        beneficios: document.getElementById("hydraulic-panel-beneficios"),
+        proceso: document.getElementById("hydraulic-panel-proceso")
+    };
+
+    tabs.forEach((tab) => {
+        tab.addEventListener("click", function () {
+            const target = this.getAttribute("data-tab");
+
+            tabs.forEach((item) => item.classList.remove("hydraulic-info-tab--active"));
+            this.classList.add("hydraulic-info-tab--active");
+
+            Object.values(panels).forEach((panel) => {
+                panel.classList.remove("hydraulic-info-panel--active");
+            });
+
+            if (panels[target]) {
+                panels[target].classList.add("hydraulic-info-panel--active");
+            }
+        });
+    });
+});
+
+// end hydraulic engineering

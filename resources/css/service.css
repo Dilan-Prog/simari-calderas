@@ -881,6 +881,362 @@
     color: var(--text-black);
 }
 
+
+/* =========================================
+   TERCER SECTION - INGENIERÍA HIDRÁULICA
+   NUEVO BLOQUE AISLADO - NO MODIFICA CLASES GLOBALES
+========================================= */
+/* =========================================
+   TERCER SECTION - INGENIERÍA HIDRÁULICA
+   BLOQUE AISLADO
+========================================= */
+
+.hydraulic-info-section {
+    background-color: var(--bg-light);
+    margin: 0;
+}
+
+.container.hydraulic-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.hydraulic-info-header {
+    max-width: 900px;
+    background: none;
+    flex-direction: column;
+    display: flex;
+    border: none;
+    text-align: center;
+}
+
+.hydraulic-info-title {
+    text-align: center;
+    font-size: 40px;
+    font-weight: 800;
+    margin: 0 0 16px 0;
+    color: var(--text-black);
+    line-height: 1.2;
+    font-family: var(--font-family);
+}
+
+.hydraulic-info-description {
+    margin: 0 auto;
+    max-width: 760px;
+    font-size: 17px;
+    line-height: 1.7;
+    color: var(--text-body);
+    font-family: var(--font-family);
+}
+
+.hydraulic-info-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 16px;
+    margin: 0 0 48px 0;
+}
+
+.hydraulic-info-tab {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 14px 28px;
+    border-radius: 999px;
+    background-color: var(--background--white);
+    color: var(--text-body);
+    border: 1px solid var(--border-color);
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: 600;
+    font-family: var(--font-family);
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+
+.hydraulic-info-tab:hover {
+    background-color: var(--button-secondary-color-hover);
+    color: var(--text-black);
+    border-color: var(--secondary-color);
+}
+
+.hydraulic-info-tab--active {
+    background-color: var(--secondary-color);
+    color: var(--text-white-color);
+    border-color: var(--secondary-color);
+    box-shadow: 0 10px 25px rgba(0, 84, 255, 0.18);
+}
+
+.hydraulic-info-tab--active:hover {
+    background-color: var(--button-primary-color-hover);
+    color: var(--text-white-color);
+}
+
+.hydraulic-info-panel {
+    display: none;
+}
+
+.hydraulic-info-panel--active {
+    display: block;
+}
+
+/* TAB 1 - INCLUYE */
+.hydraulic-info-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+}
+
+.hydraulic-info-card {
+    background-color: var(--background--white);
+    border-radius: var(--radius-sm);
+    padding: 32px 28px;
+    box-shadow: var(--shadow-default);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.hydraulic-info-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.12);
+}
+
+.hydraulic-info-icon {
+    width: 56px;
+    height: 56px;
+    background-color: var(--secondary-color);
+    color: var(--text-white-color);
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 22px;
+    font-size: 24px;
+    line-height: 1;
+}
+
+.hydraulic-info-card-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text-black);
+    margin: 0 0 14px 0;
+    line-height: 1.3;
+    font-family: var(--font-family);
+}
+
+.hydraulic-info-card-text {
+    font-size: 16px;
+    color: var(--text-body);
+    line-height: 1.7;
+    margin: 0;
+    font-family: var(--font-family);
+}
+
+/* TAB 2 - BENEFICIOS */
+.hydraulic-benefits-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 32px;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.hydraulic-benefit-card {
+    background-color: var(--background--white);
+    border-left: 4px solid var(--secondary-color);
+    border-radius: 16px;
+    padding: 32px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+}
+
+.hydraulic-benefit-inner {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+}
+
+.hydraulic-benefit-icon {
+    width: 64px;
+    height: 64px;
+    background-color: var(--secondary-color);
+    color: var(--text-white-color);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 28px;
+}
+
+.hydraulic-benefit-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.hydraulic-benefit-title {
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--text-black);
+    margin: 0 0 12px 0;
+    line-height: 1.2;
+    font-family: var(--font-family);
+}
+
+.hydraulic-benefit-text {
+    font-size: 18px;
+    color: var(--text-body);
+    line-height: 1.7;
+    margin: 0;
+    font-family: var(--font-family);
+}
+
+/* TAB 3 - PROCESO */
+.hydraulic-process-list {
+    max-width: 960px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.hydraulic-process-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 24px;
+    background-color: var(--background--white);
+    padding: 32px;
+    border-radius: 16px;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+}
+
+.hydraulic-process-number {
+    width: 80px;
+    height: 80px;
+    background-color: var(--secondary-color);
+    color: var(--text-white-color);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 32px;
+    font-weight: 700;
+    font-family: var(--font-family);
+}
+
+.hydraulic-process-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.hydraulic-process-title {
+    font-size: 30px;
+    font-weight: 700;
+    color: var(--text-black);
+    margin: 0 0 12px 0;
+    line-height: 1.2;
+    font-family: var(--font-family);
+}
+
+.hydraulic-process-text {
+    font-size: 18px;
+    color: var(--text-body);
+    line-height: 1.7;
+    margin: 0;
+    font-family: var(--font-family);
+}
+
+/* RESPONSIVE */
+@media (max-width: 1024px) {
+    .hydraulic-info-container {
+        padding: 70px 60px;
+    }
+
+    .hydraulic-info-title {
+        font-size: 34px;
+    }
+
+    .hydraulic-info-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .hydraulic-benefits-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .hydraulic-benefit-title,
+    .hydraulic-process-title {
+        font-size: 24px;
+    }
+
+    .hydraulic-benefit-text,
+    .hydraulic-process-text {
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 768px) {
+    .hydraulic-info-container {
+        padding: 60px 20px;
+    }
+
+    .hydraulic-info-title {
+        font-size: 30px;
+        margin-bottom: 14px;
+    }
+
+    .hydraulic-info-description {
+        font-size: 15px;
+    }
+
+    .hydraulic-info-tabs {
+        gap: 12px;
+        margin-bottom: 32px;
+    }
+
+    .hydraulic-info-tab {
+        width: 100%;
+        padding: 14px 18px;
+    }
+
+    .hydraulic-info-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .hydraulic-info-card,
+    .hydraulic-benefit-card,
+    .hydraulic-process-card {
+        padding: 24px 20px;
+    }
+
+    .hydraulic-benefit-inner,
+    .hydraulic-process-card {
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .hydraulic-process-number {
+        width: 68px;
+        height: 68px;
+        font-size: 26px;
+    }
+
+    .hydraulic-benefit-title,
+    .hydraulic-process-title,
+    .hydraulic-info-card-title {
+        font-size: 20px;
+    }
+
+    .hydraulic-benefit-text,
+    .hydraulic-process-text,
+    .hydraulic-info-card-text {
+        font-size: 15px;
+    }
+}
 /* =========================================
    MEDIA QUERIES (DISEÑO RESPONSIVO GLOBAL)
 ========================================= */

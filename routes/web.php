@@ -15,6 +15,8 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+Route::get('/',[HomeController::class,'index'])->name('home');
+
 
 Route::controller(HomeController::class)->group(function () {
     Route::get('/', 'index')->name('home');
@@ -47,16 +49,6 @@ Route::controller(HomeController::class)->group(function () {
     Route::get('masstercal-rinnai/tanques-almacenamiento', 'storageTanks')->name('storage-tanks');
 
 });
-
-Route::get('/',[HomeController::class,'index'])->name('home');
-
-
-// les hago el comentario de que toda la documentacion la quiero en Ingles
-// otra parte si es que van a tocar las rutas requiero que  la parte del /ruta que sea en español
-// si no no la toquen y diganme /nombrerutaespanol y va a llevar un difernete nombre
-
-
-
 
 Route::get('/dashboard', function () {
     return view('dashboard');

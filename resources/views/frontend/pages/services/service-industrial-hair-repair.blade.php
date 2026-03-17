@@ -13,7 +13,7 @@
 
         <div class="container hero-hair-repair">
             <div class="hero-content">
-                <h1 class="hero-title text-center">
+                <h1 class="hero-title">
                     Reparación Especializada de Secadoras Industriales
                 </h1>
 
