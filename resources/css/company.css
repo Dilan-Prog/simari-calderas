@@ -1,12 +1,14 @@
 :root{
-    --background-primary:#F3F4F6;
+    --background-primary: #141516;
+    --background-primary-white:#F8F9FA;
+    --background--white:#ffffff;
     --header-footer-color:#1A2535;
 
     --text-header-color-nav:#D1D5DC;
     --text-header-color-nav-hover:#C62828;
-    --secondary-color:#C62828;
-    --button-primary-color:#C62828;
-    --button-primary-color-hover:#b71c1c;
+    --secondary-color:#0054ff;
+    --button-primary-color:#0054ff;
+    --button-primary-color-hover:#0043cc;
     --button-serondary-color: transparent;
     --button-secondary-color-hover:#ffffff;
     --font-family:'Inter', sans-serif;
@@ -15,36 +17,15 @@
     --text-subwhite-color:#E5E7EB;
     --text-description-color:#99A1AF;
 }
-.company-page {
-    font-family: var(--font-family);
-    background-color: var(--text-white-color);
-}
-
-.company-page .container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 20px;
-}
-
-/* Colores auxiliares */
-.company-page .text-white { color: var(--text-white-color); }
-.company-page .text-dark { color: var(--header-footer-color); }
-.company-page .text-gray { color: var(--text-description-color); }
-.company-page .text-red { color: var(--secondary-color);  }
-.company-page .bg-light { background-color: #ffffff; }
-.company-page .bg-light1 { background-color: #f8f8f8df; transform: translateY(-76px);}
 
 /* --- 1. HERO SECTION --- */
 .company-hero {
     position: relative;
-    height: 60vh;
-    min-height: 400px;
     display: flex;
     align-items: center;
     justify-content: center;
     background-color: var(--section-example);
 }
-
 .company-hero-bg {
     position: absolute;
     inset: 0;
@@ -64,16 +45,12 @@
     background: linear-gradient(to top, var(--section-example), rgba(14, 26, 43, 0.6), transparent);
     z-index: 2; /* El filtro oscuro va en medio (Capa 2) */
 }
-
-.company-hero .container {
-    position: relative;
-    z-index: 10; /* El texto salta al frente de todo (Capa 10) */
-    text-align: center; /* Aseguramos que se centre */
-    transform: translateY(-20px);
+.container.company-hero-content {
+    text-align: center;
+    z-index: 2;
 }
-
 .company-title-main {
-    font-size: 3.8rem ;
+    font-size: 64px;
     font-weight: 700;
     font-family: var(--font-family);
     margin-bottom: 15px;
@@ -82,68 +59,52 @@
     color: var(--text-white-color); /* Forzamos el blanco puro absoluto */
 }
 
-.company-title-main .text-red {
+.company-title-main {
     color: var(--secondary-color); /* Forzamos el rojo vivo */
 }
 
-p.company-hero-desc {
-
-    font-size: 18px !important;
-
+.company-hero-desc {
+    font-size: 18px;
     color: var(--text-subwhite-color);
-    max-width: 800px;
-
-
-    margin: 0 auto !important;
-
-    text-align: center;
+    margin: 0;
 }
 /* --- 2. SECCIONES COMUNES --- */
 .company-section {
-    padding: 100px 0;
-    ;
+    background: var(--background--white);
 }
 .company-badge {
-    font-size: 0.85rem;
-    font-weight: bold;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--secondary-color);
     text-transform: uppercase;
     letter-spacing: 1.5px;
-    display: block;
-    margin-bottom: 30px;
+    margin:0;
 
 }
 .company-section-title {
-    font-size: 2.5rem;
-    font-weight: bold;
-    margin-bottom: 30px;
+    font-size: 40px;
+    font-weight: 700;
+    margin: 0;
+    padding: 0;
     line-height: 1.2;
-    transform: translateY(-27px);
+
+}
+.company-section-desc {
+    font-size: 20px;
+    color: #4B5563;
+    font-style: normal;
+    font-weight: 400;
+    margin: 15px 0 0 0;
 }
 
 /* --- 3. SECCIÓN HISTORIA --- */
 .company-grid-history {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 70px;
+    gap: 30px;
     align-items: center;
 }
-.company-paragraphs {
-    font-size: 16px!important;
-    line-height: 1.6;
-    color: #4B5563; /* Gris intermedio para buena lectura */
-    display: flex;
-    flex-direction: column;
-    gap: -9px;
-     word-wrap: break-word;
 
-      width: 110%; /* Puedes ajustar el valor aquí según el ancho que desees */
-    max-width: 800px;
-    transform: translateY(-52px);
-}
-.company-paragraphs strong {
-    font-weight: 700;
-
-}
 .company-history-img {
     position: relative;
     transform: translateX(40px);
@@ -170,6 +131,9 @@ p.company-hero-desc {
 
 /* --- 4. SECCIÓN VALORES --- */
 /* --- SECCIÓN NUESTROS PILARES --- */
+.company-section-pillars{
+    background-color: var(--background-primary-white);
+}
 .company-section-header {
     margin-bottom: 30px; /* Ajusta el margen inferior para acercar los elementos */
     display: flex;

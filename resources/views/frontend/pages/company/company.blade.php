@@ -5,8 +5,6 @@
 @endsection
 
 @section('content')
-    <div class="company-page">
-
         <section class="company-hero">
             <div class="company-hero-bg">
                 <img src="https://images.unsplash.com/photo-1707330266686-109c087163eb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxpbmR1c3RyaWFsJTIwZW5naW5lZXJpbmclMjBjb3Jwb3JhdGUlMjBidWlsZGluZyUyMHRlYW18ZW58MXx8fHwxNzcxNTQzMDgzfDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
@@ -14,7 +12,7 @@
                 <div class="company-hero-overlay"></div>
             </div>
 
-            <div class="container relative z-10 text-center">
+            <div class="container company-hero-content">
                 <h1 class="company-title-main">
                     Más de Tres Décadas <br>
                     <span class="text-red">Impulsando la Industria</span>
@@ -23,45 +21,38 @@
             </div>
         </section>
 
-        <section class="company-section bg-light">
-            <div class="container">
-                <div class="company-grid-history">
+        <section class="company-section">
+            <div class="container company-grid-history">
+                <div class="company-history-text">
+                    <p class="company-badge">¿Quiénes Somos?</p>
+                    <h2 class="company-section-title">Historia de Crecimiento y Excelencia</h2>
+                        <p class="company-section-desc">Somos una empresa hidrocálida fundada en 1992, con más de 35 años de experiencia. Comenzamos
+                            con una persona y hemos crecido hasta formar una estructura sólida y profesional.</p>
+                        <p class="company-section-desc">Nos dedicamos a la gestión completa de sistemas para calentar, filtrar y controlar
+                            transferencias térmicas, ofreciendo soluciones eficientes a sectores como el <strong
+                            >industrial, alimentario, metalmecánico, hotelero y deportivo</strong>.
+                        </p>
+                        <p class="company-section-desc">Nuestra experiencia nos permite realizar estudios profundos para mejorar el uso de energía y
+                            reducir costos operativos tanto en la industria como en servicios comerciales.</p>
+                        <p class="company-section-desc">Ofrecemos soluciones avanzadas, incluyendo la actualización de calentadores de agua
+                            convencionales a sistemas de alto rendimiento. Como <strong class="text-red">Centro de
+                                Servicio y Distribuidor Autorizado</strong>, brindamos atención completa para minimizar
+                            tiempos de inactividad y optimizar sus gastos.</p>
+                </div>
 
-                    <div class="company-history-text">
-                        <span class="company-badge text-red">¿Quiénes Somos?</span>
-                        <h2 class="company-section-title text-dark">Historia de Crecimiento y Excelencia</h2>
-
-                        <div class="company-paragraphs">
-                            <p>Somos una empresa hidrocálida fundada en 1992, con más de 35 años de experiencia. Comenzamos
-                                con una persona y hemos crecido hasta formar una estructura sólida y profesional.</p>
-                            <p>Nos dedicamos a la gestión completa de sistemas para calentar, filtrar y controlar
-                                transferencias térmicas, ofreciendo soluciones eficientes a sectores como el <strong
-                                    class="text-dark">industrial, alimentario, metalmecánico, hotelero y deportivo</strong>.
-                            </p>
-                            <p>Nuestra experiencia nos permite realizar estudios profundos para mejorar el uso de energía y
-                                reducir costos operativos tanto en la industria como en servicios comerciales.</p>
-                            <p>Ofrecemos soluciones avanzadas, incluyendo la actualización de calentadores de agua
-                                convencionales a sistemas de alto rendimiento. Como <strong class="text-red">Centro de
-                                    Servicio y Distribuidor Autorizado</strong>, brindamos atención completa para minimizar
-                                tiempos de inactividad y optimizar sus gastos.</p>
-                        </div>
-                    </div>
-
-                    <div class="company-history-img">
-                        <div class="company-img-decor"></div>
-                        <img src="https://images.unsplash.com/photo-1631583087046-13c813d34e90?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxpbmR1c3RyaWFsJTIwZW5naW5lZXJpbmclMjB0ZWFtJTIwc2FmZXR5JTIwaGVsbWV0c3xlbnwxfHx8fDE3NzE1MjI0Mzd8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
-                            alt="Ingenieros SIMARI">
-                    </div>
-
+                <div class="company-history-img">
+                    <div class="company-img-decor"></div>
+                    <img src="https://images.unsplash.com/photo-1631583087046-13c813d34e90?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxpbmR1c3RyaWFsJTIwZW5naW5lZXJpbmclMjB0ZWFtJTIwc2FmZXR5JTIwaGVsbWV0c3xlbnwxfHx8fDE3NzE1MjI0Mzd8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
+                        alt="Ingenieros SIMARI">
                 </div>
             </div>
         </section>
 
-        <section class="company-section bg-light1">
+        <section class="company-section-pillars">
             <div class="container">
-                <div class="company-section-header text-center">
-                    <span class="company-badge text-red">Nuestros Pilares</span>
-                    <h2 class="company-section-title text-dark">Valores que nos Definen</h2>
+                <div class="company-section-header">
+                    <p class="company-badge">Nuestros Pilares</p>
+                    <h2 class="company-section-title">Valores que nos Definen</h2>
                 </div>
 
                 <div class="company-grid-values">
@@ -76,8 +67,8 @@
                                 <path d="m9 12 2 2 4-4"></path>
                             </svg>
                         </div>
-                        <h4 class="text-dark">Confianza</h4>
-                        <p class="text-gray">Construimos relaciones duraderas basadas en la transparencia y el cumplimiento
+                        <h4 class="">Confianza</h4>
+                        <p class="">Construimos relaciones duraderas basadas en la transparencia y el cumplimiento
                             de nuestros compromisos.</p>
                     </div>
 
@@ -92,8 +83,8 @@
                                 <path d="m9 12 2 2 4-4"></path>
                             </svg>
                         </div>
-                        <h4 class="text-dark">Seguridad</h4>
-                        <p class="text-gray">Priorizamos la integridad de su personal y sus instalaciones con protocolos
+                        <h4 class="">Seguridad</h4>
+                        <p class="">Priorizamos la integridad de su personal y sus instalaciones con protocolos
                             rigurosos.</p>
                     </div>
 
@@ -108,8 +99,8 @@
                                 <circle cx="12" cy="8" r="6"></circle>
                             </svg>
                         </div>
-                        <h4 class="text-dark">Especialización</h4>
-                        <p class="text-gray">Nuestro equipo técnico cuenta con certificaciones internacionales y
+                        <h4 class="">Especialización</h4>
+                        <p class="">Nuestro equipo técnico cuenta con certificaciones internacionales y
                             capacitación continua.</p>
                     </div>
 
@@ -123,8 +114,8 @@
                                 </path>
                             </svg>
                         </div>
-                        <h4 class="text-dark">Integridad en el Servicio</h4>
-                        <p class="text-gray">Honestidad en diagnósticos y soluciones. Nunca recomendaremos algo que no
+                        <h4 class="">Integridad en el Servicio</h4>
+                        <p class="">Honestidad en diagnósticos y soluciones. Nunca recomendaremos algo que no
                             necesite.</p>
                     </div>
 
@@ -140,13 +131,11 @@
                                 <path d="M10 22h4"></path>
                             </svg>
                         </div>
-                        <h4 class="text-dark">Innovación</h4>
-                        <p class="text-gray">Adoptamos las últimas tecnologías para maximizar la eficiencia energética de
+                        <h4 class="">Innovación</h4>
+                        <p class="">Adoptamos las últimas tecnologías para maximizar la eficiencia energética de
                             sus procesos.</p>
                     </div>
                 </div>
             </div>
         </section>
-
-    </div>
 @endsection
