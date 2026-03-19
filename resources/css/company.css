@@ -1,0 +1,269 @@
+:root{
+    --background-primary:#F3F4F6;
+    --header-footer-color:#1A2535;
+
+    --text-header-color-nav:#D1D5DC;
+    --text-header-color-nav-hover:#C62828;
+    --secondary-color:#C62828;
+    --button-primary-color:#C62828;
+    --button-primary-color-hover:#b71c1c;
+    --button-serondary-color: transparent;
+    --button-secondary-color-hover:#ffffff;
+    --font-family:'Inter', sans-serif;
+    --text-white-color:#ffffff;
+    --section-example:#0E1A2B;
+    --text-subwhite-color:#E5E7EB;
+    --text-description-color:#99A1AF;
+}
+.company-page {
+    font-family: var(--font-family);
+    background-color: var(--text-white-color);
+}
+
+.company-page .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* Colores auxiliares */
+.company-page .text-white { color: var(--text-white-color); }
+.company-page .text-dark { color: var(--header-footer-color); }
+.company-page .text-gray { color: var(--text-description-color); }
+.company-page .text-red { color: var(--secondary-color);  }
+.company-page .bg-light { background-color: #ffffff; }
+.company-page .bg-light1 { background-color: #f8f8f8df; transform: translateY(-76px);}
+
+/* --- 1. HERO SECTION --- */
+.company-hero {
+    position: relative;
+    height: 60vh;
+    min-height: 400px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--section-example);
+}
+
+.company-hero-bg {
+    position: absolute;
+    inset: 0;
+    z-index: 1; /* La imagen se va al fondo (Capa 1) */
+}
+
+.company-hero-bg img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.3;
+}
+
+.company-hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, var(--section-example), rgba(14, 26, 43, 0.6), transparent);
+    z-index: 2; /* El filtro oscuro va en medio (Capa 2) */
+}
+
+.company-hero .container {
+    position: relative;
+    z-index: 10; /* El texto salta al frente de todo (Capa 10) */
+    text-align: center; /* Aseguramos que se centre */
+    transform: translateY(-20px);
+}
+
+.company-title-main {
+    font-size: 3.8rem ;
+    font-weight: 700;
+    font-family: var(--font-family);
+    margin-bottom: 15px;
+    line-height: 1.1;
+    font-style: normal;
+    color: var(--text-white-color); /* Forzamos el blanco puro absoluto */
+}
+
+.company-title-main .text-red {
+    color: var(--secondary-color); /* Forzamos el rojo vivo */
+}
+
+p.company-hero-desc {
+
+    font-size: 18px !important;
+
+    color: var(--text-subwhite-color);
+    max-width: 800px;
+
+
+    margin: 0 auto !important;
+
+    text-align: center;
+}
+/* --- 2. SECCIONES COMUNES --- */
+.company-section {
+    padding: 100px 0;
+    ;
+}
+.company-badge {
+    font-size: 0.85rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    display: block;
+    margin-bottom: 30px;
+
+}
+.company-section-title {
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin-bottom: 30px;
+    line-height: 1.2;
+    transform: translateY(-27px);
+}
+
+/* --- 3. SECCIÓN HISTORIA --- */
+.company-grid-history {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 70px;
+    align-items: center;
+}
+.company-paragraphs {
+    font-size: 16px!important;
+    line-height: 1.6;
+    color: #4B5563; /* Gris intermedio para buena lectura */
+    display: flex;
+    flex-direction: column;
+    gap: -9px;
+     word-wrap: break-word;
+
+      width: 110%; /* Puedes ajustar el valor aquí según el ancho que desees */
+    max-width: 800px;
+    transform: translateY(-52px);
+}
+.company-paragraphs strong {
+    font-weight: 700;
+
+}
+.company-history-img {
+    position: relative;
+    transform: translateX(40px);
+}
+.company-img-decor {
+    position: absolute;
+    top: -15px;
+    bottom: -12px;
+    left: -15px;
+    right: -15px;
+   background-color: rgb(232, 231, 230);
+    border-radius: 26px;
+    transform: rotate(3deg);
+    z-index: 0;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+}
+.company-history-img img {
+    position: relative;
+    z-index: 10;
+    width: 600px;
+    border-radius: 12px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+}
+
+/* --- 4. SECCIÓN VALORES --- */
+/* --- SECCIÓN NUESTROS PILARES --- */
+.company-section-header {
+    margin-bottom: 30px; /* Ajusta el margen inferior para acercar los elementos */
+    display: flex;
+    flex-direction: column; /* Cambiar la dirección a columna para que los elementos estén apilados */
+    justify-content: center; /* Asegura que los elementos estén centrados verticalmente */
+    align-items: center; /* Centra los elementos horizontalmente */
+}
+
+.company-section-header .company-badge {
+    margin-bottom: 10px; /* Ajusta el espacio entre el badge y el título */
+}
+
+.company-section-header .company-section-title {
+    font-size: 2.5rem; /* Ajusta el tamaño del título según lo necesites */
+    text-align: center; /* Centra el texto */
+}
+.company-grid-values {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* Controla el número de columnas */
+    gap: 30px;
+    max-width: 1200px; /* Ajusta el ancho máximo del contenedor */
+    width: 107%; /* Ocupa el 100% del ancho disponible */
+    margin: 0 auto;
+
+}
+/* Forzamos que los dos últimos valores se centren si hay 5 en total */
+.company-grid-values > div:nth-child(4) {
+    grid-column: span 1 / 2; /* Inicia en la segunda columna (centrado) */
+}
+.company-grid-values > div:nth-child(5) {
+    grid-column: span 1 / 3; /* Inicia en la tercera columna */
+}
+
+.company-value-card {
+    background-color: var(--text-white-color);
+    padding: 25px;
+    border-radius: 16px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+    border: 0.5px solid #F3F4F6;
+    transition: all 0.3s ease;
+}
+.company-value-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+}
+.company-icon-box {
+    width: 56px;
+    height: 56px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+.company-value-card h4 {
+    font-size: 1.25rem;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+.company-value-card p {
+    font-size: 15px;
+    line-height: 1.6;
+    color: #6a6969 !important;
+}
+
+/* Colores para los iconos de valores */
+.icon-blue { background-color: #DBEAFE; color: #2563EB; }
+.icon-red-light { background-color: #FEE2E2; color: #DC2626; }
+.icon-yellow { background-color: #FEF3C7; color: #D97706; }
+.icon-green { background-color: #DCFCE7; color: #16A34A; }
+.icon-purple { background-color: #F3E8FF; color: #9333EA; }
+
+/* =========================================
+   RESPONSIVE (MÓVILES Y TABLETS)
+   ========================================= */
+@media (max-width: 992px) {
+    .company-grid-history {
+        grid-template-columns: 1fr;
+        gap: 50px;
+    }
+    .company-img-decor { transform: rotate(0); }
+
+    .company-grid-values {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    /* Reiniciamos el centrado forzado para tablets */
+    .company-grid-values > div:nth-child(4),
+    .company-grid-values > div:nth-child(5) {
+        grid-column: auto;
+    }
+}
+
+@media (max-width: 768px) {
+    .company-title-main { font-size: 2.5rem; }
+    .company-section-title { font-size: 2rem; }
+    .company-grid-values { grid-template-columns: 1fr; }
+}

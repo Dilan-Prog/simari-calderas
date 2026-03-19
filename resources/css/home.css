@@ -15,8 +15,8 @@
     --border-footer-color-legal:#2E3A46;
     --toggle-header:#2E3A46;
     --toggle-header-nav:#364153;
-    --secondary-color:#08296b;
-    --button-primary-color:#08296b;
+    --secondary-color:#0054ff;
+    --button-primary-color:#0054ff;
     --button-primary-color-hover:#0043cc;
     --button-serondary-color: transparent;
     --button-secondary-color-hover:#ffffff;
@@ -156,7 +156,7 @@
     position: relative;
     z-index: 1;
     border-radius: 12px;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    /* box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3); */
 }
 
 .container.stats-grid-home {
@@ -168,6 +168,7 @@
     display: flex;
     text-align: center;
     color: var(--text-white-color);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
 }
 
 .stat-item-home {
@@ -556,9 +557,9 @@ padding: 0;
     background: var(--text-white-color);
     color: var(--secondary-color);
     border-radius: 12px;
-    padding: 10px 28px;         
-    font-size: 14px;             
-    font-weight: 700;            
+    padding: 10px 28px;
+    font-size: 14px;
+    font-weight: 700;
     font-family: var(--font-family);
     border: 2px solid transparent;
 }

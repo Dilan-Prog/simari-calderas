@@ -5,8 +5,8 @@
         </a>
 
         <ul class="nav-link">
-            <li><a href="{{ route('profile.edit') }}">Inicio</a></li>
-            <li><a href="/soluciones">Empresa</a></li>
+            <li><a href="{{ route('home') }}">Inicio</a></li>
+            <li><a href="{{ route('company') }}">Empresa</a></li>
 
             <li class="has-dropdown">
                 <button class="nav-dropdown-toggle" type="button" aria-expanded="false" aria-controls="dropdown-servicios">

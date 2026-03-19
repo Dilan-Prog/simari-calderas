@@ -20,7 +20,7 @@ Route::get('/',[HomeController::class,'index'])->name('home');
 
 Route::controller(HomeController::class)->group(function () {
     Route::get('/', 'index')->name('home');
-    Route::get('/nuestra-empresa', 'business')->name('bussiness');
+    Route::get('/nuestra-empresa', 'company')->name('company');
     Route::get('/contacto', 'contact')->name('contact');
     Route::get('/aviso-privacidad', 'privacyNotice')->name('privacy-notice');
     Route::get('/terminos-condiciones', 'termsOfService')->name('terms-of-service');
