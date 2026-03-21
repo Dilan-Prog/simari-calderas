@@ -38,8 +38,9 @@
     --radius-lg:24px;
     --shadow-default:0 14px 38px rgba(0, 0, 0, 0.16);
 
-    --background-primary-white:#F8F9FA;
-    --background--white:#ffffff;
+
+
+    
 }
 /* service calibration */
 
@@ -414,7 +415,7 @@
 
     .service-calibration-des-sub {
         color: var(--text-white-color);
-        
+
         font-size: 20px;
     }
 
@@ -541,7 +542,7 @@
 .applications-title {
     font-size: 16px;
     font-weight: 800;
-    color: var(--text-black); 
+    color: var(--text-black);
     font-family: var(--font-family);
 }
 
@@ -661,7 +662,7 @@
 
 }
 .container.benefits-section{
-    padding: 60px 200px; 
+    padding: 60px 200px;
 }
 
 .benefits-grid {

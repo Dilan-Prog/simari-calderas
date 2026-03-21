@@ -50,16 +50,17 @@
     z-index: 2;
 }
 .company-title-main {
+    /* max-width: 900px; */
     font-size: 64px;
     font-weight: 700;
     font-family: var(--font-family);
-    margin-bottom: 15px;
+    margin:  0 0 15px 0;
     line-height: 1.1;
     font-style: normal;
     color: var(--text-white-color); /* Forzamos el blanco puro absoluto */
 }
 
-.company-title-main {
+.company-title-span {
     color: var(--secondary-color); /* Forzamos el rojo vivo */
 }
 

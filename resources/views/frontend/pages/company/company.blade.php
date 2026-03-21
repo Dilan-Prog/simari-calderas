@@ -12,10 +12,10 @@
                 <div class="company-hero-overlay"></div>
             </div>
 
-            <div class="container company-hero-content">
+            <div class="container company-hero-content">s
                 <h1 class="company-title-main">
-                    Más de Tres Décadas <br>
-                    <span class="text-red">Impulsando la Industria</span>
+                    Más de Tres Décadas
+                    <span class="company-title-span">Impulsando la Industria</span>
                 </h1>
                 <p class="company-hero-desc">Líderes en soluciones térmicas desde 1992.</p>
             </div>
@@ -67,8 +67,8 @@
                                 <path d="m9 12 2 2 4-4"></path>
                             </svg>
                         </div>
-                        <h4 class="">Confianza</h4>
-                        <p class="">Construimos relaciones duraderas basadas en la transparencia y el cumplimiento
+                        <h4 >Confianza</h4>
+                        <p >Construimos relaciones duraderas basadas en la transparencia y el cumplimiento
                             de nuestros compromisos.</p>
                     </div>
 
@@ -83,8 +83,8 @@
                                 <path d="m9 12 2 2 4-4"></path>
                             </svg>
                         </div>
-                        <h4 class="">Seguridad</h4>
-                        <p class="">Priorizamos la integridad de su personal y sus instalaciones con protocolos
+                        <h4 >Seguridad</h4>
+                        <p >Priorizamos la integridad de su personal y sus instalaciones con protocolos
                             rigurosos.</p>
                     </div>
 
@@ -99,8 +99,8 @@
                                 <circle cx="12" cy="8" r="6"></circle>
                             </svg>
                         </div>
-                        <h4 class="">Especialización</h4>
-                        <p class="">Nuestro equipo técnico cuenta con certificaciones internacionales y
+                        <h4 >Especialización</h4>
+                        <p >Nuestro equipo técnico cuenta con certificaciones internacionales y
                             capacitación continua.</p>
                     </div>
 
@@ -114,8 +114,8 @@
                                 </path>
                             </svg>
                         </div>
-                        <h4 class="">Integridad en el Servicio</h4>
-                        <p class="">Honestidad en diagnósticos y soluciones. Nunca recomendaremos algo que no
+                        <h4 >Integridad en el Servicio</h4>
+                        <p >Honestidad en diagnósticos y soluciones. Nunca recomendaremos algo que no
                             necesite.</p>
                     </div>
 
@@ -131,8 +131,8 @@
                                 <path d="M10 22h4"></path>
                             </svg>
                         </div>
-                        <h4 class="">Innovación</h4>
-                        <p class="">Adoptamos las últimas tecnologías para maximizar la eficiencia energética de
+                        <h4 >Innovación</h4>
+                        <p >Adoptamos las últimas tecnologías para maximizar la eficiencia energética de
                             sus procesos.</p>
                     </div>
                 </div>
