@@ -23,7 +23,7 @@
                 </p>
 
                 <div class="hero-actions">
-                    <button class="button-primary">
+                    <a class="button-primary">
                         Solicitar Cotización
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -31,7 +31,7 @@
                             <path d="M5 12h14"></path>
                             <path d="m12 5 7 7-7 7"></path>
                         </svg>
-                    </button>
+                    </a>
                 </div>
             </div>
         </div>
@@ -333,7 +333,7 @@
             </p>
 
             <div class="cta-final-actions">
-                <button class="button-primary work-process">
+                <a class="button-primary work-process">
                     Solicitar Reparación
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -341,9 +341,9 @@
                         <path d="M5 12h14"></path>
                         <path d="m12 5 7 7-7 7"></path>
                     </svg>
-                </button>
+                </a>
 
-                <button class="button-secondary work-process">
+                <a class="button-secondary work-process">
                     <svg
                         xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"
                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -353,7 +353,7 @@
                         </path>
                     </svg>
                     Llamar Ahora
-                </button>
+                </a>
             </div>
         </div>
     </section>

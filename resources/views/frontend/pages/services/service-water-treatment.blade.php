@@ -5,7 +5,7 @@
 @endsection
 
 @section('content')
-<div class="water-treatment-page">
+
   <section class="hero-water-treatment">
     <div class="hero-water-treatment__bg">
       <img
@@ -25,9 +25,9 @@
           Proteja su inversión con tratamiento químico especializado que previene
           incrustaciones, corrosión y deterioro prematuro de equipos térmicos críticos.
         </p>
-        <a class="btn btn-primary" href="/contacto" aria-label="Solicitar análisis gratuito de tratamiento de agua">
+        <a class="button-primary hero-water-treatment-button" href="/contacto" aria-label="Solicitar análisis gratuito de tratamiento de agua">
           Solicitar Análisis Gratuito
-          <span aria-hidden="true">→</span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-right"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
         </a>
       </div>
     </div>
@@ -87,7 +87,7 @@
 
       <div class="timeline">
         <article class="timeline-item">
-          <div class="timeline-item__marker" aria-hidden="true">1</div>
+          <div class="timeline-item__marker" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-beaker text-white"><path d="M4.5 3h15"></path><path d="M6 3v16a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V3"></path><path d="M6 14h12"></path></svg></div>
           <div class="timeline-item__content">
             <h3>Análisis fisicoquímico completo</h3>
             <p>
@@ -98,7 +98,7 @@
         </article>
 
         <article class="timeline-item timeline-item--reverse">
-          <div class="timeline-item__marker" aria-hidden="true">2</div>
+          <div class="timeline-item__marker" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-flask-conical text-white"><path d="M14 2v6a2 2 0 0 0 .245.96l5.51 10.08A2 2 0 0 1 18 22H6a2 2 0 0 1-1.755-2.96l5.51-10.08A2 2 0 0 0 10 8V2"></path><path d="M6.453 15h11.094"></path><path d="M8.5 2h7"></path></svg></div>
           <div class="timeline-item__content">
             <h3>Programa de dosificación química</h3>
             <p>
@@ -109,7 +109,7 @@
         </article>
 
         <article class="timeline-item">
-          <div class="timeline-item__marker" aria-hidden="true">3</div>
+          <div class="timeline-item__marker" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shield text-white"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"></path></svg></div>
           <div class="timeline-item__content">
             <h3>Control de purgas</h3>
             <p>
@@ -120,7 +120,7 @@
         </article>
 
         <article class="timeline-item timeline-item--reverse">
-          <div class="timeline-item__marker" aria-hidden="true">4</div>
+          <div class="timeline-item__marker" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-droplet text-white"><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"></path></svg></div>
           <div class="timeline-item__content">
             <h3>Suministro de químicos</h3>
             <p>
@@ -131,7 +131,7 @@
         </article>
 
         <article class="timeline-item">
-          <div class="timeline-item__marker" aria-hidden="true">5</div>
+          <div class="timeline-item__marker" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trending-up text-white"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline><polyline points="16 7 22 7 22 13"></polyline></svg></div>
           <div class="timeline-item__content">
             <h3>Monitoreo periódico</h3>
             <p>
@@ -142,7 +142,7 @@
         </article>
 
         <article class="timeline-item timeline-item--reverse">
-          <div class="timeline-item__marker" aria-hidden="true">6</div>
+          <div class="timeline-item__marker" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-check-big text-white"><path d="M21.801 10A10 10 0 1 1 17 3.335"></path><path d="m9 11 3 3L22 4"></path></svg></div>
           <div class="timeline-item__content">
             <h3>Reportes técnicos</h3>
             <p>
@@ -297,17 +297,17 @@
         </p>
 
         <div class="final-cta__actions">
-          <a class="btn btn-primary" href="/contacto">
+          <a class="button-primary final-cta__actions-water" href="/contacto">
             Solicitar Análisis Gratuito
-            <span aria-hidden="true">→</span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-right"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
           </a>
 
-          <a class="btn btn-outline" href="tel:+524494348018">
+          <a class="button-secondary final-cta__actions-water" href="tel:+524494348018">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-phone"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
             Llamar Ahora
           </a>
         </div>
       </div>
     </div>
   </section>
-</div>
 @endsection

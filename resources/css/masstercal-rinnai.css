@@ -785,7 +785,7 @@
     border: 1px solid rgba(255, 255, 255, 0.2);
     font-size: 12px;
     font-weight: 800;
-    letter-spacing: 0.08em;
+    letter-spacing: 1.28px;
     text-transform: uppercase;
 }
 
@@ -993,13 +993,13 @@
 
 .st-media-overlay h2 {
     margin: 0 0 6px;
-    font-size: clamp(30px, 3.8vw, 48px);
+    font-size: 48px;
     line-height: 1.1;
 }
 
 .st-media-overlay p {
     margin: 0;
-    font-size: clamp(16px, 2vw, 24px);
+    font-size: 24px;
     color: #e5e7eb;
 }
 
@@ -1138,7 +1138,7 @@
 
 .st-hybrid-content h3 {
     margin: 0 0 10px;
-    font-size: clamp(28px, 3vw, 40px);
+    font-size: 40px;
     line-height: 1.2;
 }
 
@@ -1227,7 +1227,7 @@
     margin: 0 auto;
     max-width: 780px;
     color: var(--text-soft);
-    font-size: clamp(18px, 2.2vw, 28px);
+    font-size: 28px;
     line-height: 1.6;
 }
 .st-cta-buttons {

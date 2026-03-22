@@ -6,23 +6,23 @@
     <!-- SECCIÓN: HERO -->
     <section class="hero-section-hair-repair">
         <div class="hero-background">
-            <img src="https://images.unsplash.com/photo-1570086625762-7c1396540ac5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxpbmR1c3RyaWFsJTIwbWFpbnRlbmFuY2UlMjBib2lsZXIlMjB0ZWNobmljaWFufGVufDF8fHx8MTc3MjE2MDU4NXww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
-                alt="Mantenimiento Industrial">
+            <img src="https://images.unsplash.com/photo-1744123146393-4b5438a5d98f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxpbmR1c3RyaWFsJTIwY2hpbGxlciUyMGh2YWMlMjBzeXN0ZW18ZW58MXx8fHwxNzcyMTYwNTg2fDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
+                alt="Mantenimiento Chillers">
             <div class="hero-overlay"></div>
         </div>
 
         <div class="container hero-hair-repair">
             <div class="hero-content">
                 <h1 class="hero-title">
-                Mantenimiento Industrial Preventivo y Correctivo
+                Mantenimiento Especializado de Chillers Industriales
                 </h1>
 
                 <p class="hero-description">
-                Maximice la eficiencia operativa y reduzca paros no programados con nuestro servicio técnico especializado en calderas, generadores de vapor y sistemas térmicos industriales.
+                Servicio técnico preventivo y correctivo para enfriadores de agua industriales, chillers de expansión directa y sistemas HVAC críticos con garantía de continuidad operativa.
                 </p>
 
                 <div class="hero-actions">
-                    <a class="button-primary">
+                    <button class="button-primary">
                         Solicitar Cotización
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -30,7 +30,7 @@
                             <path d="M5 12h14"></path>
                             <path d="m12 5 7 7-7 7"></path>
                         </svg>
-                    </a>
+                    </button>
                 </div>
             </div>
         </div>
@@ -39,10 +39,10 @@
     <!-- SECCIÓN: Detalle del Servicio y Aplicaciones -->
     <section class="service-description-section-industrial">
         <div class="container service-description-section">
-            <h2 class="service-subtitle-industrial">¿En qué consiste el servicio de Mantenimiento Industrial?</h2>
+            <h2 class="service-subtitle-industrial">¿En qué consiste el servicio de Mantenimiento de Chillers?</h2>
 
             <p class="service-text-industrial">
-                Nuestro servicio de mantenimiento industrial especializado garantiza la continuidad operativa de sus sistemas térmicos mediante intervenciones preventivas programadas y correctivas de emergencia. Aplicamos protocolos técnicos certificados que aseguran el cumplimiento normativo, la seguridad del personal y la optimización del consumo energético en calderas pirotubulares, acuotubulares, generadores de vapor e intercambiadores de calor.
+                El mantenimiento especializado de chillers industriales garantiza eficiencia energética, confiabilidad operativa y prolongación de vida útil mediante inspecciones programadas de compresores, evaporadores, condensadores, sistemas de control, circuitos refrigerantes y torres de enfriamiento. Implementamos protocolos técnicos que incluyen análisis de aceite lubricante, detección de fugas de refrigerante con equipos electrónicos, medición de presiones de succión y descarga, verificación de aislamiento eléctrico de motores y limpieza química de intercambiadores con productos biodegradables certificados.
             </p>
 
             <div class="applications-card">
@@ -68,7 +68,7 @@
                                 <path d="m9 11 3 3L22 4"></path>
                             </svg>
                         </div>
-                        <p>Hospitales y centros de salud</p>
+                        <p>Hospitales y centros médicos</p>
                     </div>
                     <div class="app-item">
                         <div class="check-circle">
@@ -79,7 +79,7 @@
                                 <path d="m9 11 3 3L22 4"></path>
                             </svg>
                         </div>
-                        <p>Lavanderías industriales</p>
+                        <p>Centros comerciales y oficinas</p>
                     </div>
                     <div class="app-item">
                         <div class="check-circle">
@@ -90,7 +90,7 @@
                                 <path d="m9 11 3 3L22 4"></path>
                             </svg>
                         </div>
-                        <p>Plantas manufactureras</p>
+                        <p>Industria plástica y farmacéutica</p>
                     </div>
                     <div class="app-item">
                         <div class="check-circle">
@@ -101,7 +101,7 @@
                                 <path d="m9 11 3 3L22 4"></path>
                             </svg>
                         </div>
-                        <p>Industria alimentaria</p>
+                        <p>Data centers y cuartos de servidores</p>
                     </div>
                     <div class="app-item">
                         <div class="check-circle">
@@ -112,7 +112,7 @@
                                 <path d="m9 11 3 3L22 4"></path>
                             </svg>
                         </div>
-                        <p>Procesamiento químico</p>
+                        <p>Plantas de proceso con enfriamiento crítico</p>
                     </div>
                 </div>
             </div>
@@ -122,7 +122,7 @@
     <!-- SECCIÓN: ¿Qué Incluye el Servicio? -->
     <section class="what-includes-section">
         <div class="container what-includes-section">
-            <h2 class="section-main-title">¿Qué Incluye el Servicio de Mantenimiento?</h2>
+            <h2 class="section-main-title">¿Qué Incluye el Servicio de Mantenimiento de Chillers?</h2>
 
             <div class="includes-grid">
                 <div class="include-card">
@@ -130,11 +130,22 @@
                         <svg xmlns="http://www.w3.org/2000/svg" class="lucide lucide-wrench" width="28"
                             height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                             stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path>
+                            <path d="m10 20-1.25-2.5L6 18"></path>
+                            <path d="M10 4 8.75 6.5 6 6"></path>
+                            <path d="m14 20 1.25-2.5L18 18"></path>
+                            <path d="m14 4 1.25 2.5L18 6"></path>
+                            <path d="m17 21-3-6h-4"></path>
+                            <path d="m17 3-3 6 1.5 3"></path>
+                            <path d="M2 12h6.5L10 9"></path>
+                            <path d="m20 10-1.5 2 1.5 2"></path>
+                            <path d="M22 12h-6.5L14 15"></path>
+                            <path d="m4 10 1.5 2L4 14"></path>
+                            <path d="m7 21 3-6-1.5-3"></path>
+                            <path d="m7 3 3 6h4"></path>
                         </svg>
                     </div>
-                    <h3 class="include-card-title">Inspección Técnica Completa</h3>
-                    <p class="include-card-text">Evaluación exhaustiva de componentes críticos: tubos, quemadores, controles de nivel, manómetros, válvulas de seguridad y sistemas de combustión.</p>
+                    <h3 class="include-card-title">Inspección de Compresores</h3>
+                    <p class="include-card-text">Verificación de presiones, temperatura de aceite, aislamiento eléctrico, rodamientos y vibraciones con equipos especializados.</p>
                 </div>
 
                 <div class="include-card">
@@ -142,12 +153,13 @@
                         <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"
                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                             stroke-linejoin="round" class="lucide lucide-clock">
-                            <circle cx="12" cy="12" r="10"></circle>
-                            <polyline points="12 6 12 12 16 14"></polyline>
+                            <path d="M12.8 19.6A2 2 0 1 0 14 16H2"></path>
+                            <path d="M17.5 8a2.5 2.5 0 1 1 2 4H2"></path>
+                            <path d="M9.8 4.4A2 2 0 1 1 11 8H2"></path>
                         </svg>
                     </div>
-                    <h3 class="include-card-title">Lubricación y Ajustes</h3>
-                    <p class="include-card-text">Lubricación de rodamientos, ajuste de tensión en correas, calibración de presostatos y verificación de alineación de bombas centrífugas.</p>
+                    <h3 class="include-card-title">Limpieza de Intercambiadores</h3>
+                    <p class="include-card-text">Limpieza química de evaporadores y condensadores, eliminación de incrustaciones calcáreas y lodos biológicos.</p>
                 </div>
 
                 <div class="include-card">
@@ -158,8 +170,8 @@
                             <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"></path>
                         </svg>
                     </div>
-                    <h3 class="include-card-title">Análisis de Combustión</h3>
-                    <p class="include-card-text">Medición de eficiencia de combustión, análisis de gases, ajuste de relación aire-combustible y optimización de rendimiento térmico.</p>
+                    <h3 class="include-card-title">Detección de Fugas</h3>
+                    <p class="include-card-text">Búsqueda electrónica de fugas de refrigerante, reparación de sellos, carga de gas y vacío con bomba certificada.</p>
                 </div>
 
                 <div class="include-card">
@@ -167,12 +179,11 @@
                         <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"
                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                             stroke-linejoin="round" class="lucide lucide-trending-up">
-                            <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline>
-                            <polyline points="16 7 22 7 22 13"></polyline>
+                            <path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z"></path>
                         </svg>
                     </div>
-                    <h3 class="include-card-title">Limpieza de Componentes</h3>
-                    <p class="include-card-text">Limpieza de superficies de transferencia de calor, eliminación de hollín, inspección de refractarios y limpieza de filtros de combustible.</p>
+                    <h3 class="include-card-title">Análisis de Refrigerante</h3>
+                    <p class="include-card-text">Medición de sobrecalentamiento, subenfriamiento, análisis de aceite y verificación de niveles de carga óptimos.</p>
                 </div>
 
                 <div class="include-card">
@@ -180,12 +191,12 @@
                         <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"
                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                             stroke-linejoin="round" class="lucide lucide-circle-check-big">
-                            <path d="M21.801 10A10 10 0 1 1 17 3.335"></path>
-                            <path d="m9 11 3 3L22 4"></path>
+                            <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline>
+                            <polyline points="16 7 22 7 22 13"></polyline>
                         </svg>
                     </div>
-                    <h3 class="include-card-title">Reemplazo de Refacciones</h3>
-                    <p class="include-card-text">Sustitución de empaques, juntas, electrodos de ignición, fotoceldas y componentes desgastados con refacciones originales certificadas.</p>
+                    <h3 class="include-card-title">Calibración de Controles</h3>
+                    <p class="include-card-text">Ajuste de termostatos, presostatos, válvulas de expansión, controles de capacidad y sistemas de deshielo.</p>
                 </div>
 
                 <div class="include-card">
@@ -193,14 +204,12 @@
                         <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"
                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                             stroke-linejoin="round" class="lucide lucide-users">
-                            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
-                            <circle cx="9" cy="7" r="4"></circle>
-                            <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
-                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                            <path d="M21.801 10A10 10 0 1 1 17 3.335"></path>
+                            <path d="m9 11 3 3L22 4"></path>
                         </svg>
                     </div>
-                    <h3 class="include-card-title">Informe Técnico Detallado</h3>
-                    <p class="include-card-text">Documentación fotográfica, reporte de hallazgos, recomendaciones técnicas y registro de parámetros operativos para trazabilidad.</p>
+                    <h3 class="include-card-title">Reporte Técnico</h3>
+                    <p class="include-card-text">Informe detallado con parámetros operativos, evidencias fotográficas, recomendaciones y programa preventivo.</p>
                 </div>
             </div>
         </div>
@@ -222,8 +231,8 @@
                         </svg>
                     </div>
                     <div class="benefit-content">
-                        <h3 class="benefit-title">Ahorro Energético del 15-25%</h3>
-                        <p class="benefit-text">Reducción significativa en consumo de combustible mediante optimización de combustión y limpieza regular de superficies de intercambio térmico.</p>
+                        <h3 class="benefit-title">Ahorro Energético del 20-30%</h3>
+                        <p class="benefit-text">Intercambiadores limpios y presiones óptimas reducen consumo eléctrico del compresor significativamente.</p>
                     </div>
                 </div>
 
@@ -236,8 +245,8 @@
                         </svg>
                     </div>
                     <div class="benefit-content">
-                        <h3 class="benefit-title">Reducción de Fallas del 70%</h3>
-                        <p class="benefit-text">Disminución drástica de paros no programados gracias a la detección temprana de anomalías y reemplazo preventivo de componentes críticos.</p>
+                        <h3 class="benefit-title">Prevención de Fallas Críticas</h3>
+                        <p class="benefit-text">Detección temprana de fugas, desgastes y anomalías evita paros no programados costosos en temporada alta.</p>
                     </div>
                 </div>
 
@@ -246,13 +255,23 @@
                         <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"
                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                             stroke-linejoin="round" class="lucide lucide-clock">
-                            <circle cx="12" cy="12" r="10"></circle>
-                            <polyline points="12 6 12 12 16 14"></polyline>
+                            <path d="m10 20-1.25-2.5L6 18"></path>
+                            <path d="M10 4 8.75 6.5 6 6"></path>
+                            <path d="m14 20 1.25-2.5L18 18"></path>
+                            <path d="m14 4 1.25 2.5L18 6"></path>
+                            <path d="m17 21-3-6h-4"></path>
+                            <path d="m17 3-3 6 1.5 3"></path>
+                            <path d="M2 12h6.5L10 9"></path>
+                            <path d="m20 10-1.5 2 1.5 2"></path>
+                            <path d="M22 12h-6.5L14 15"></path>
+                            <path d="m4 10 1.5 2L4 14"></path>
+                            <path d="m7 21 3-6-1.5-3"></path>
+                            <path d="m7 3 3 6h4"></path>
                         </svg>
                     </div>
                     <div class="benefit-content">
-                        <h3 class="benefit-title">Extensión de Vida Útil +40%</h3>
-                        <p class="benefit-text">Prolongación significativa de la vida operativa del equipo mediante mantenimiento predictivo y uso de refacciones originales certificadas.</p>
+                        <h3 class="benefit-title">Extensión de Vida Útil +50%</h3>
+                        <p class="benefit-text">Mantenimiento preventivo duplica la vida operativa de compresores, evaporadores y componentes electrónicos.</p>
                     </div>
                 </div>
 
@@ -266,8 +285,8 @@
                         </svg>
                     </div>
                     <div class="benefit-content">
-                        <h3 class="benefit-title">Cumplimiento Normativo 100%</h3>
-                        <p class="benefit-text">Garantía de cumplimiento con NOM-020-STPS, normas ambientales y certificaciones de seguridad industrial requeridas por autoridades.</p>
+                        <h3 class="benefit-title">Cumplimiento Ambiental</h3>
+                        <p class="benefit-text">Control de fugas de refrigerante cumple con Protocolo de Montreal y normativas ambientales vigentes.</p>
                     </div>
                 </div>
             </div>
@@ -282,26 +301,26 @@
             <div class="process-grid">
                 <div class="process-step ">
                     <p class="step-number-circle">1</p>
-                        <h3 class="step-title">Diagnóstico Inicial</h3>
-                        <p class="step-desc">Inspección visual, pruebas de funcionamiento, medición de parámetros y evaluación del estado general del sistema térmico.</p>
+                        <h3 class="step-title">Diagnóstico Completo</h3>
+                        <p class="step-desc">Inspección visual, medición de parámetros operativos, detección de fugas y evaluación del estado general del sistema.</p>
                 </div>
 
                 <div class="process-step ">
                     <p class="step-number-circle">2</p>
                         <h3 class="step-title">Intervención Técnica</h3>
-                        <p class="step-desc">Ejecución de actividades de mantenimiento preventivo o correctivo según protocolo técnico y plan de trabajo autorizado.</p>
+                        <p class="step-desc">Limpieza de intercambiadores, lubricación de componentes, ajuste de controles y reemplazo de refacciones críticas.</p>
                 </div>
 
                 <div class="process-step ">
                     <p class="step-number-circle">3</p>
-                        <h3 class="step-title">Pruebas de Validación</h3>
-                        <p class="step-desc">Verificación de presiones, temperaturas, análisis de combustión y pruebas de seguridad para garantizar operación óptima.</p>
+                        <h3 class="step-title">Pruebas de Operación</h3>
+                        <p class="step-desc">Verificación de presiones, temperaturas, amperajes, análisis de eficiencia y pruebas de seguridad certificadas.</p>
                 </div>
 
                 <div class="process-step ">
                     <p class="step-number-circle">4</p>
                         <h3 class="step-title">Entrega de Informe</h3>
-                        <p class="step-desc">Documentación completa de trabajos realizados, evidencias fotográficas, recomendaciones y programa de seguimiento.</p>
+                        <p class="step-desc">Documentación fotográfica, registro de hallazgos, recomendaciones técnicas y programa de mantenimiento preventivo.</p>
                 </div>
             </div>
         </div>
@@ -316,19 +335,19 @@
                 <div class="simari-stat-item ">
                     <div class="stat-big-number">30+</div>
                         <h3 class="stat-small-title">Años de Experiencia</h3>
-                        <p class="stat-small-desc">Tres décadas de trayectoria en ingeniería térmica industrial y mantenimiento especializado de calderas.</p>
+                        <p class="stat-small-desc">Especialistas certificados en refrigeración industrial y aire acondicionado comercial de gran capacidad.</p>
                 </div>
 
                 <div class="simari-stat-item ">
                     <div class="stat-big-number">24/7</div>
-                        <h3 class="stat-small-title">Soporte Técnico</h3>
-                        <p class="stat-small-desc">Disponibilidad permanente para emergencias, asistencia remota y atención inmediata a fallas críticas.</p>
+                        <h3 class="stat-small-title">Servicio de Emergencia</h3>
+                        <p class="stat-small-desc">Disponibilidad permanente para fallas críticas, atención inmediata y tiempos de respuesta garantizados.</p>
                 </div>
 
                 <div class="simari-stat-item ">
-                    <div class="stat-big-number">500+</div>
-                        <h3 class="stat-small-title">Clientes Industriales</h3>
-                        <p class="stat-small-desc">Confianza de empresas líderes en hotelería, salud, manufactura y servicios industriales de alto desempeño.</p>
+                    <div class="stat-big-number">300+</div>
+                        <h3 class="stat-small-title">Chillers Mantenidos</h3>
+                        <p class="stat-small-desc">Sistemas de enfriamiento industrial operando con nuestros programas de mantenimiento preventivo especializado.</p>
                 </div>
             </div>
         </div>
@@ -337,14 +356,14 @@
     <!-- NUEVA SECCIÓN: CTA FINAL -->
     <section class="work-process-section">
         <div class="container work-process-section">
-            <h2 class="cta-final-title-industrial">Proteja su Inversión Industrial</h2>
+            <h2 class="cta-final-title-industrial">Proteja su Sistema de Enfriamiento Industrial</h2>
             <p class="cta-final-description-industrial">
-                No espere a que una falla crítica paralice sus operaciones. Nuestros técnicos especializados están listos para implementar un programa de mantenimiento que garantice la continuidad de sus procesos productivos en hoteles, hospitales, fábricas y lavanderías industriales.
+                Un chiller sin mantenimiento consume hasta 40% más energía y tiene 3 veces más probabilidad de fallas críticas. Implemente un programa preventivo profesional que garantice confort y continuidad operativa en hoteles, hospitales, oficinas y plantas industriales.
             </p>
 
             <div class="cta-final-actions">
                 <a class="button-primary work-process">
-                    Solicitar Reparación
+                    Solicitar Mantenimiento
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                         stroke-linejoin="round" style="margin-left: 8px;">

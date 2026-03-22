@@ -38,7 +38,7 @@ Route::controller(HomeController::class)->group(function () {
     Route::get('productos/calderas-simari', 'simariBoilers')->name('simari-boilers');
     Route::get('productos/calentadores-solares', 'solarHeaters')->name('solar-heaters');
     Route::get('productos/instrumentacion-industrial', 'industrialInstrumentation')->name('industrial-instrumentation');
-    Route::get('productos/tratamiento-agua', 'waterTreatment')->name('water-treatment');
+    Route::get('productos/tratamiento-agua-antiincrustante', 'waterTreatmentAnti')->name('water-treatment-Anti');
     Route::get('productos/refacciones-mantenimiento', 'spareParts')->name('spare-parts');
     // Masstercal Rinnai
     Route::get('masstercal-rinnai/bombas-de-calor', 'rinnaiHeatPumps')->name('heat-pumps');

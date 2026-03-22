@@ -61,9 +61,10 @@
                     <div class="app-item">
                         <div class="check-circle">
                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                 stroke-linejoin="round">
-                                <polyline points="20 6 9 17 4 12"></polyline>
+                                <path d="M21.801 10A10 10 0 1 1 17 3.335"></path>
+                                <path d="m9 11 3 3L22 4"></path>
                             </svg>
                         </div>
                         <p>Lavanderías industriales comerciales</p>
@@ -71,9 +72,10 @@
                     <div class="app-item">
                         <div class="check-circle">
                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                 stroke-linejoin="round">
-                                <polyline points="20 6 9 17 4 12"></polyline>
+                                <path d="M21.801 10A10 10 0 1 1 17 3.335"></path>
+                                <path d="m9 11 3 3L22 4"></path>
                             </svg>
                         </div>
                         <p>Hoteles y complejos hoteleros</p>
@@ -81,9 +83,10 @@
                     <div class="app-item">
                         <div class="check-circle">
                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                 stroke-linejoin="round">
-                                <polyline points="20 6 9 17 4 12"></polyline>
+                                <path d="M21.801 10A10 10 0 1 1 17 3.335"></path>
+                                <path d="m9 11 3 3L22 4"></path>
                             </svg>
                         </div>
                         <p>Hospitales y clínicas</p>
@@ -91,9 +94,10 @@
                     <div class="app-item">
                         <div class="check-circle">
                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                 stroke-linejoin="round">
-                                <polyline points="20 6 9 17 4 12"></polyline>
+                                <path d="M21.801 10A10 10 0 1 1 17 3.335"></path>
+                                <path d="m9 11 3 3L22 4"></path>
                             </svg>
                         </div>
                         <p>Autoservicio de Lavanderías</p>
@@ -101,9 +105,10 @@
                     <div class="app-item">
                         <div class="check-circle">
                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                 stroke-linejoin="round">
-                                <polyline points="20 6 9 17 4 12"></polyline>
+                                <path d="M21.801 10A10 10 0 1 1 17 3.335"></path>
+                                <path d="m9 11 3 3L22 4"></path>
                             </svg>
                         </div>
                         <p>Gimnasios y clubes deportivos</p>
@@ -111,9 +116,10 @@
                     <div class="app-item">
                         <div class="check-circle">
                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                 stroke-linejoin="round">
-                                <polyline points="20 6 9 17 4 12"></polyline>
+                                <path d="M21.801 10A10 10 0 1 1 17 3.335"></path>
+                                <path d="m9 11 3 3L22 4"></path>
                             </svg>
                         </div>
                         <p>Servicios de lavandería a domicilio</p>
@@ -370,7 +376,7 @@
             </p>
 
             <div class="cta-final-actions">
-                <button class="button-primary work-process">
+                <a class="button-primary work-process">
                     Solicitar Reparación
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -378,9 +384,9 @@
                         <path d="M5 12h14"></path>
                         <path d="m12 5 7 7-7 7"></path>
                     </svg>
-                </button>
+                </a>
 
-                <button class="button-secondary work-process">
+                <a class="button-secondary work-process">
                     <svg
                         xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"
                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -390,7 +396,7 @@
                         </path>
                     </svg>
                     Llamar Ahora
-                </button>
+                </a>
             </div>
         </div>
     </section>

@@ -1,77 +1,698 @@
-:root{
-    --background-primary:#F3F4F6;
-    --header-footer-color:#1A2535;
+
+:root {
     --text-header-color-nav:#D1D5DC;
-    --text-header-color-nav-hover:#C62828;
-    --secondary-color:#C62828;
-    --button-primary-color:#C62828;
-    --button-primary-color-hover:#b71c1c;
+    --text-header-color-nav-hover:#0054ff;
+    --text-header-color-nav-hover-white:#ffffff;
+    --header-background-color:#141516;
+    --border-header-footer-color:#2E3A46;
+    --footer-background-color:#141516;
+    --text-footer-color-links:#99A1AF;
+    --text-footer-color-links-hover:#ffffff;
+    --text-white-color:#ffffff;
+    --border-footer-color-legal:#2E3A46;
+    --toggle-header:#2E3A46;
+    --toggle-header-nav:#364153;
+    --secondary-color:#0054ff;
+    --button-primary-color:#0054ff;
+    --button-primary-color-hover:#0043cc;
+    --secondary-color-rinnai:#C62828;
+    --button-primary-color-rinnai:#C62828;
+    --button-primary-color-hover-rinnai:#b71c1c;
     --button-serondary-color: transparent;
     --button-secondary-color-hover:#ffffff;
     --font-family:'Inter', sans-serif;
-    --text-white-color:#ffffff;
-    --section-example:#0E1A2B;
-    --text-subwhite-color:#E5E7EB;
-    --text-description-color:#99A1AF;
-}
-/* comentan todo esto en ingles */
-.section-product{
-    font-family: var(--font-family);
-    background: var(--section-example);
-    width: 100%;
-}
-.premiun-title{
-    color: var(--text-white-color);
-    background: var(--secondary-color);
-    width: fit-content;
-    border-radius: 4px;
-    display: flex;
-    align-items: flex-start;
-    justify-content: center;
-    gap: 7.993px;
-}
-.premiun-title p{
-    font-size: 14px;
-    font-style: normal;
-    font-weight: 700;
-    letter-spacing: 1.4px;
-    line-height: 20px;
-    padding: 8px 24px;
-    margin: 0px;
-    text-transform: uppercase;
-    display: flex;
-    justify-content: center;
-    align-items: normal;
-    gap: 8px;
-}
-.product-title{
-    color: var(--text-white-color);
-    max-width: 895px;
-    font-size: 96px;
-    font-style: normal;
-    line-height: 120px;
-    font-weight: 700;
-    margin: 10px 0px;
+    --background-primary: #141516;
+    --text-black: #000000;
+    --bg-dark:#141516;
+    --bg-dark-2:#141516;
+    --bg-light:#f5f7fa;
+    --card-dark:rgba(255, 255, 255, 0.1);
+    --card-line:rgba(255, 255, 255, 0.2);
+    --text-soft:#d1d5db;
+    --text-muted:#9ca3af;
+    --text-body:#4b5563;
+    --border-color:#e5e7eb;
+    --radius-sm:12px;
+    --radius-md:18px;
+    --radius-lg:24px;
+    --shadow-default:0 14px 38px rgba(0, 0, 0, 0.16);
 }
 
-.product-title span{
+/* =========================
+   Hero
+========================= */
+.boilers-hero {
+    position: relative;
+    min-height: 90vh;
+    display: flex;
+    align-items: center;
+    background: var(--bg-dark);
+    overflow: hidden;
+}
+
+.boilers-hero__media {
+    position: absolute;
+    inset: 0;
+}
+
+.boilers-hero__media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    opacity: 0.3;
+}
+
+.boilers-hero__overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        90deg,
+        rgba(20, 21, 22, 1) 0%,
+        rgba(20, 21, 22, 0.95) 52%,
+        rgba(20, 21, 22, 0.7) 100%
+    );
+}
+
+.boilers-hero__container {
+    position: relative;
+    z-index: 2;
+}
+
+.boilers-hero__content {
+    max-width: 1200px;
+    color: var(--text-white-color);
+}
+
+.boilers-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 22px;
+    margin-bottom: 32px;
+    border-radius: 999px;
+    background: var(--card-dark);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--card-line);
+    font-size: 0.875rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.boilers-badge__icon {
+    color: var(--secondary-color);
+    font-size: 1.125rem;
+}
+
+.boilers-hero__content h1 {
+    margin: 0 0 24px;
+    font-size: clamp(3rem, 8vw, 6.5rem);
+    line-height: 0.95;
+    font-weight: 800;
+    color: var(--text-white-color);
+}
+
+.boilers-hero__highlight {
+    display: block;
     color: var(--secondary-color);
 }
-.product-subdescription{
-    color: var(--text-description-color);
-    font-size: 18px;
-    font-style: normal;
-    line-height: 29.25px;
-    font-weight: 400;
-    width: 626px;
-    padding-left: 20px;
-    border-left: 2px solid var(--secondary-color);
+
+.boilers-hero__brand {
+    display: block;
+    margin-top: 10px;
+    font-size: clamp(2.2rem, 5vw, 4.25rem);
+    color: var(--text-soft);
 }
-.button-container{
+
+.boilers-hero__content p {
+    max-width: 760px;
+    margin: 0 0 40px;
+    font-size: clamp(1.125rem, 2vw, 1.5rem);
+    line-height: 1.7;
+    color: var(--text-soft);
+}
+
+.boilers-hero__stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+    margin-bottom: 40px;
+}
+
+.hero-stat-card {
+    padding: 28px 24px;
+    border-radius: var(--radius-md);
+    background: var(--card-dark);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--card-line);
+}
+
+.hero-stat-card strong {
+    display: block;
+    margin-bottom: 8px;
+    font-size: clamp(1.8rem, 3vw, 2.5rem);
+    line-height: 1;
+    font-weight: 800;
+    color: var(--text-white-color);
+}
+
+.hero-stat-card:first-child strong {
+    color: var(--secondary-color);
+}
+
+.hero-stat-card span {
+    display: block;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+.boilers-hero__actions {
     display: flex;
-    width: 895.989px;
-    height: 69.907px;
-    justify-content: start;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+.button-primary.simari-caldera{
+    text-decoration: none;
+    gap: 8px;
+}
+.button-primary.simari-caldera:hover{
+    transform: none;
+}
+.button-secondary.simari-caldera{
+    text-decoration: none;
+    gap: 8px;
+}
+
+
+/* =========================
+   Models
+========================= */
+.boilers-models {
+    background: var(--bg-light);
+}
+.section-heading-boilers-models{
+    text-align: center;
+    margin: 0 0 48px 0;
+}
+.section-heading-boilers-models h2{
+    font-size: 80px;
+    margin: 0;
+}
+.section-heading-boilers-models p{
+    font-size: 20px;
+    color: var(--text-body);
+    margin: 8px 0 0 0;
+}
+
+.boilers-models__grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 32px;
+}
+
+.boiler-model-card {
+    display: flex;
+    flex-direction: column;
+    background: var(--text-white-color);
+    border-radius: var(--radius-lg);
+    border: 2px solid var(--border-color);
+    overflow: hidden;
+    box-shadow: var(--shadow-default);
+    transition: all 0.3s ease;
+}
+
+.boiler-model-card:hover {
+    border-color: var(--secondary-color);
+    transform: translateY(-4px);
+}
+
+.boiler-model-card__top {
+    padding: 24px;
+    background: #eff6ff;
+}
+
+.boiler-model-card__top-row {
+    display: flex;
     align-items: center;
-    gap: 23.993px;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 18px;
+}
+
+.boiler-model-card__icon {
+    color: var(--secondary-color);
+    font-size: 2rem;
+    line-height: 1;
+}
+
+.boiler-model-card__tag {
+    padding: 8px 12px;
+    border-radius: 999px;
+    background: var(--text-white-color);
+    color: var(--bg-dark);
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.boiler-model-card h3 {
+    margin: 0 0 8px;
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: var(--bg-dark);
+}
+
+.boiler-model-card__capacity {
+    margin: 0;
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--secondary-color);
+}
+
+.boiler-model-card__body {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    flex-grow: 1;
+}
+
+.boiler-model-card__specs,
+.boiler-model-card__applications ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.boiler-model-card__specs {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.boiler-model-card__specs li {
+    color: var(--text-body);
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+.boiler-model-card__specs li svg {
+    margin-right: 8px;
+    color: var(--secondary-color);
+}
+
+.boiler-model-card__applications {
+    padding-top: 16px;
+    border-top: 1px solid var(--border-color);
+}
+
+.boiler-model-card__applications span {
+    display: block;
+    margin-bottom: 10px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: var(--text-body);
+}
+
+.boiler-model-card__applications ul {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.boiler-model-card__applications li {
+    font-size: 0.85rem;
+    color: var(--text-body);
+    position: relative;
+    padding-left: 14px;
+}
+
+.boiler-model-card__applications li::before {
+    content: "•";
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+
+.boiler-model-card__footer {
+    padding: 40px;
+}
+
+.boiler-model-card__footer a {
+    display: block;
+    width: 100%;
+    padding: 16px 0px;
+    text-align: center;
+    border-radius: var(--radius-sm);
+    background: #eff6ff;
+    color: var(--secondary-color);
+    text-decoration: none;
+    font-weight: 800;
+    transition: all 0.3s ease;
+}
+
+.boiler-model-card__footer a:hover {
+    background: var(--secondary-color);
+    color: var(--text-white-color);
+}
+
+/* =========================
+   Features
+========================= */
+.boilers-features {
+    background: var(--text-white-color);
+}
+
+.boilers-features__grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 32px;
+}
+
+.feature-box {
+    padding: 32px;
+    background: #f9fafb;
+    border-radius: var(--radius-lg);
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.feature-box:hover {
+    border-color: var(--border-color);
+    box-shadow: var(--shadow-default);
+}
+
+.feature-box__icon {
+    width: 64px;
+    height: 64px;
+    margin-bottom: 24px;
+    border-radius: 16px;
+    background: #dbeafe;
+    color: var(--secondary-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+}
+
+.feature-box h3 {
+    margin: 0 0 16px;
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: var(--bg-dark);
+}
+
+.feature-box p {
+    margin: 0;
+    line-height: 1.8;
+    color: var(--text-body);
+}
+
+/* =========================
+   Industries
+========================= */
+.boilers-industries {
+    background: var(--border-header-footer-color);
+}
+.section-heading-boilers-models.industries h2, .section-heading-boilers-models.industries p{
+    color: var(--text-white-color);
+}
+.boilers-industries__grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 32px;
+}
+
+.industry-card {
+    background: var(--text-white-color);
+    border-radius: var(--radius-lg);
+    padding: 32px;
+    box-shadow: var(--shadow-default);
+    transition: all 0.3s ease;
+}
+
+.industry-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 18px 42px rgba(0, 0, 0, 0.2);
+}
+
+.industry-card__header {
+    display: flex;
+    align-items: flex-start;
+    gap: 24px;
+    margin-bottom: 24px;
+}
+
+.industry-card__icon {
+    width: 80px;
+    height: 80px;
+    flex-shrink: 0;
+    border-radius: 20px;
+    background: #dbeafe;
+    color: var(--secondary-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+}
+
+.industry-card h3 {
+    margin: 0;
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--bg-dark);
+}
+
+.industry-card__label {
+    display: block;
+    margin-bottom: 14px;
+    font-size: 0.8rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: var(--text-black);
+}
+
+.industry-card__body ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.industry-card__body li {
+    position: relative;
+    padding-left: 18px;
+    font-size: 20px;
+    line-height: 1.6;
+    color: #374151;
+}
+
+.industry-card__body li::before {
+    content: "•";
+    position: absolute;
+    left: 0;
+    top: 0;
+    color: var(--secondary-color);
+    font-weight: 800;
+}
+
+.industry-card__recommendation {
+    display: inline-flex;
+    align-items: center;
+    margin-top: 24px;
+    padding: 12px 16px;
+    border-radius: var(--radius-sm);
+    background: #eff6ff;
+    color: var(--bg-dark);
+    font-size: 0.9rem;
+    font-weight: 800;
+}
+.industry-card__recommendation svg {
+    margin-right: 8px;
+    color: var(--secondary-color);
+}
+/* =========================
+   Why choose
+========================= */
+.boilers-why {
+    background: linear-gradient(135deg, #111827 0%, #000000 100%);
+    color: var(--text-white-color);
+}
+
+.boilers-why__grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+}
+
+.why-card {
+    padding: 28px 24px;
+    text-align: center;
+    border-radius: var(--radius-md);
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+}
+
+.why-card:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.why-card__icon {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 16px;
+    border-radius: 50%;
+    background: rgba(0, 84, 255, 0.2);
+    color: var(--secondary-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+}
+
+.why-card h3 {
+    margin: 0 0 12px;
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--text-white-color);
+}
+
+.why-card p {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    line-height: 1.7;
+}
+
+/* =========================
+   CTA
+========================= */
+.boilers-cta {
+    background: linear-gradient(135deg, var(--button-primary-color) 0%, var(--button-primary-color-hover) 100%);
+    color: var(--text-white-color);
+}
+
+.boilers-cta__content {
+    max-width: 900px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.boilers-cta__content h2 {
+    margin: 0 0 24px;
+    font-size: clamp(2.4rem, 5vw, 4rem);
+    line-height: 1.1;
+    font-weight: 800;
+    color: var(--text-white-color);
+}
+
+.boilers-cta__content p {
+    max-width: 760px;
+    margin: 0 auto 40px;
+    font-size: 1.25rem;
+    line-height: 1.8;
+    color: rgba(255, 255, 255, 0.92);
+}
+
+.boilers-cta__actions {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    flex-wrap: wrap;
+}
+
+.button-primary.simari-caldera.button-first{
+    background-color: var(--text-white-color);
+    color: var(--secondary-color);
+}
+
+/* =========================
+   Responsive
+========================= */
+@media (max-width: 1200px) {
+    .container {
+        padding: 110px 100px;
+    }
+
+    .boilers-models__grid,
+    .boilers-why__grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .boilers-features__grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .boilers-hero__stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 992px) {
+    .container {
+        padding: 90px 48px;
+    }
+
+    .boilers-industries__grid {
+        grid-template-columns: 1fr;
+    }
+
+    .boilers-models__grid,
+    .boilers-features__grid,
+    .boilers-why__grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 72px 24px;
+    }
+
+    .boilers-hero {
+        min-height: auto;
+    }
+
+    .boilers-hero__stats,
+    .boilers-models__grid,
+    .boilers-features__grid,
+    .boilers-why__grid {
+        grid-template-columns: 1fr;
+    }
+
+    .boilers-hero__content h1 {
+        font-size: 2.8rem;
+    }
+
+    .boilers-hero__brand {
+        font-size: 2rem;
+    }
+
+    .boilers-hero__content p,
+    .boilers-cta__content p {
+        font-size: 1rem;
+    }
+
+    .feature-box,
+    .industry-card,
+    .why-card,
+    .hero-stat-card {
+        padding: 24px;
+    }
+
+    .industry-card__header {
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .industry-card__icon {
+        width: 64px;
+        height: 64px;
+        font-size: 1.6rem;
+    }
 }

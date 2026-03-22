@@ -29,18 +29,44 @@ class HomeController extends Controller
         return view('frontend.pages.services.service-hydraulic-engineering');
     }
 
-    public function hairRepair()
-    {
-        return view('frontend.pages.services.service-industrial-hair-repair');
-    }
     public function equipementCalibration()
     {
         return view('frontend.pages.services.service-calibration');
+    }
+    public function waterTreatment()
+    {
+        return view('frontend.pages.services.service-water-treatment');
+    }
+    public function automation()
+    {
+        return view('frontend.pages.services.service-automation');
+    }
+    public function chillerMaintenance()
+    {
+        return view('frontend.pages.services.service-chillers-maintenance');
+    }
+    public function descaleBoilers()
+    {
+        return view('frontend.pages.services.service-descale-boilers');
     }
     public function industrialProject()
     {
         return view('frontend.pages.services.service-industrial-project');
     }
+      public function hairRepair()
+    {
+        return view('frontend.pages.services.service-industrial-hair-repair');
+    }
+    // Products
+    public function simariBoilers()
+    {
+        return view('frontend.pages.products.products-simari-boilers');
+    }
+    public function solarHeaters()
+    {
+        return view('frontend.pages.products.products-simari-solar-heaters');
+    }
+
 
 
     // Masstercal Rinnai
