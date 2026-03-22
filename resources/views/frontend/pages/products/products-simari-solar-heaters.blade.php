@@ -5,453 +5,462 @@
 @endsection
 @section('content')
 
-<section class="boilers-hero">
-    <div class="boilers-hero__media">
-      <img
-        src="https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1920"
-        alt="Caldera industrial SIMARI en instalación de proceso térmico"
-        width="1920"
-        height="1280"
-        loading="eager"
-        decoding="async"
-      />
-      <div class="boilers-hero__overlay"></div>
-    </div>
-
-    <div class="container boilers-hero__container">
-      <div class="boilers-hero__content">
-        <div class="boilers-badge">
-          <span class="boilers-badge__icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-flame text-[#0054ff]"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path></svg></span>
-          <span>Tecnología de combustión avanzada</span>
+<section class="solar-hero" aria-label="Calentadores Solares Industriales SIMARI">
+  <div class="container solar-hero__container">
+    <div class="solar-hero__grid">
+      <!-- Text column -->
+      <div>
+        <div class="solar-badge" aria-label="Categoría del producto">
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+          Energía Solar Térmica
         </div>
-
-        <h1>
-          Calderas
-          <span class="boilers-hero__highlight">Industriales</span>
-          <span class="boilers-hero__brand">SIMARI</span>
+ 
+        <h1 class="solar-hero__title">
+          Calentadores<br>
+          <span class="accent">Solares</span>
+          <span class="sub">Industriales</span>
         </h1>
-
-        <p>
-          Soluciones térmicas de alta eficiencia para generación de vapor y agua caliente.
-          Diseño robusto, operación continua 24/7, cumplimiento normativo total.
+ 
+        <p class="solar-hero__desc">
+          Reduce hasta <strong>80% tu consumo de gas</strong> con tecnología solar térmica de última generación.
+          Sistemas de tubos evacuados y placa plana para aplicaciones comerciales e industriales.
         </p>
-
-        <div class="boilers-hero__stats">
-          <article class="hero-stat-card">
-            <strong>50-1000</strong>
-            <span>HP Capacidad</span>
-          </article>
-
-          <article class="hero-stat-card">
-            <strong>95%</strong>
-            <span>Eficiencia máx</span>
-          </article>
-
-          <article class="hero-stat-card">
-            <strong>600 PSI</strong>
-            <span>Presión máx</span>
-          </article>
-
-          <article class="hero-stat-card">
-            <strong>20+</strong>
-            <span>Años vida útil</span>
-          </article>
+ 
+        <!-- Stats -->
+        <div class="solar-hero__stats" role="list" aria-label="Beneficios clave">
+          <div class="solar-stat" role="listitem">
+            <div class="solar-stat__num" aria-label="80%">80%</div>
+            <div class="solar-stat__label">Ahorro en gas</div>
+          </div>
+          <div class="solar-stat" role="listitem">
+            <div class="solar-stat__num" aria-label="2 a 3 años">2-3</div>
+            <div class="solar-stat__label">Años ROI</div>
+          </div>
+          <div class="solar-stat" role="listitem">
+            <div class="solar-stat__num" aria-label="Más de 20 años">20+</div>
+            <div class="solar-stat__label">Años vida útil</div>
+          </div>
         </div>
-
-        <div class="boilers-hero__actions">
-          <a class="button-primary simari-caldera" href="/contacto" aria-label="Solicitar cotización técnica de calderas industriales">
-            Solicitar Cotización Técnica
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                            stroke-linejoin="round" style="margin-left: 8px;">
-                            <path d="M5 12h14"></path>
-                            <path d="m12 5 7 7-7 7"></path>
-                        </svg>
-          </a>
-
-          <a class="button-secondary simari-caldera" href="tel:+524494348018">
-            <svg
-                        xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"
-                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                        stroke-linejoin="round" class="lucide lucide-phone">
-                        <path
-                            d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.79 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z">
-                        </path>
-                    </svg>
-            Llamar Ahora
-          </a>
+ 
+        <!-- Certs -->
+        <div class="solar-cert">
+          <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15.477 12.89 1.515 8.526a.5.5 0 0 1-.81.47l-3.58-2.687a1 1 0 0 0-1.197 0l-3.586 2.686a.5.5 0 0 1-.81-.469l1.514-8.526"/><circle cx="12" cy="8" r="6"/></svg>
+          <div>
+            <div class="solar-cert__title">Certificaciones Oficiales</div>
+            <div class="solar-cert__norms">NOM-003-ENER · NOM-027-ENER · ANCE</div>
+          </div>
         </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="boilers-models">
-    <div class="container ">
-      <div class="section-heading-boilers-models">
-        <h2>Modelos Disponibles</h2>
-        <p>Desde 50 hasta más de 1000 HP. Pirotubulares y acuotubulares.</p>
-      </div>
-
-      <div class="boilers-models__grid">
-        <article class="boiler-model-card">
-          <div class="boiler-model-card__top">
-            <div class="boiler-model-card__top-row">
-              <span class="boiler-model-card__icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-flame text-[#0054ff]"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path></svg></span>
-              <span class="boiler-model-card__tag">Pirotubular</span>
-            </div>
-            <h3>PIRO-300</h3>
-            <p class="boiler-model-card__capacity">50-300 HP</p>
-          </div>
-
-          <div class="boiler-model-card__body">
-            <ul class="boiler-model-card__specs">
-              <li><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-gauge text-[#0054ff]"><path d="m12 14 4-4"></path><path d="M3.34 19a10 10 0 1 1 17.32 0"></path></svg>Presión: <strong>Hasta 150 PSI</strong></li>
-              <li><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trending-up text-[#0054ff]"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline><polyline points="16 7 22 7 22 13"></polyline></svg>Eficiencia: <strong>85-88%</strong></li>
-            </ul>
-
-            <div class="boiler-model-card__applications">
-              <span>Aplicaciones:</span>
-              <ul>
-                <li>Hoteles medianos</li>
-                <li>Lavanderías industriales</li>
-              </ul>
-            </div>
-          </div>
-
-          <div class="boiler-model-card__footer">
-            <a href="/contacto">Consultar</a>
-          </div>
-        </article>
-
-        <article class="boiler-model-card">
-          <div class="boiler-model-card__top">
-            <div class="boiler-model-card__top-row">
-              <span class="boiler-model-card__icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-flame text-[#0054ff]"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path></svg></span>
-              <span class="boiler-model-card__tag">Pirotubular</span>
-            </div>
-            <h3>PIRO-500</h3>
-            <p class="boiler-model-card__capacity">300-500 HP</p>
-          </div>
-
-          <div class="boiler-model-card__body">
-            <ul class="boiler-model-card__specs">
-              <li><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-gauge text-[#0054ff]"><path d="m12 14 4-4"></path><path d="M3.34 19a10 10 0 1 1 17.32 0"></path></svg>Presión: <strong>Hasta 200 PSI</strong></li>
-              <li><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trending-up text-[#0054ff]"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline><polyline points="16 7 22 7 22 13"></polyline></svg>Eficiencia: <strong>88-91%</strong></li>
-            </ul>
-
-            <div class="boiler-model-card__applications">
-              <span>Aplicaciones:</span>
-              <ul>
-                <li>Industria alimentaria</li>
-                <li>Textil</li>
-              </ul>
-            </div>
-          </div>
-
-          <div class="boiler-model-card__footer">
-            <a href="/contacto">Consultar</a>
-          </div>
-        </article>
-
-        <article class="boiler-model-card">
-          <div class="boiler-model-card__top">
-            <div class="boiler-model-card__top-row">
-              <span class="boiler-model-card__icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-flame text-[#0054ff]"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path></svg></span>
-              <span class="boiler-model-card__tag">Pirotubular</span>
-            </div>
-            <h3>PIRO-750</h3>
-            <p class="boiler-model-card__capacity">500-750 HP</p>
-          </div>
-
-          <div class="boiler-model-card__body">
-            <ul class="boiler-model-card__specs">
-              <li><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-gauge text-[#0054ff]"><path d="m12 14 4-4"></path><path d="M3.34 19a10 10 0 1 1 17.32 0"></path></svg>Presión: <strong>Hasta 250 PSI</strong></li>
-              <li><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trending-up text-[#0054ff]"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline><polyline points="16 7 22 7 22 13"></polyline></svg>Eficiencia: <strong>90-93%</strong></li>
-            </ul>
-
-            <div class="boiler-model-card__applications">
-              <span>Aplicaciones:</span>
-              <ul>
-                <li>Hospitales grandes</li>
-                <li>Complejos hoteleros</li>
-              </ul>
-            </div>
-          </div>
-
-          <div class="boiler-model-card__footer">
-            <a href="/contacto">Consultar</a>
-          </div>
-        </article>
-
-        <article class="boiler-model-card">
-          <div class="boiler-model-card__top">
-            <div class="boiler-model-card__top-row">
-              <span class="boiler-model-card__icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-flame text-[#0054ff]"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path></svg></span>
-              <span class="boiler-model-card__tag">Acuotubular</span>
-            </div>
-            <h3>ACUO-1000</h3>
-            <p class="boiler-model-card__capacity">750-1000+ HP</p>
-          </div>
-
-          <div class="boiler-model-card__body">
-            <ul class="boiler-model-card__specs">
-              <li><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-gauge text-[#0054ff]"><path d="m12 14 4-4"></path><path d="M3.34 19a10 10 0 1 1 17.32 0"></path></svg>Presión: <strong>Hasta 600 PSI</strong></li>
-              <li><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trending-up text-[#0054ff]"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline><polyline points="16 7 22 7 22 13"></polyline></svg>Eficiencia: <strong>92-95%</strong></li>
-            </ul>
-
-            <div class="boiler-model-card__applications">
-              <span>Aplicaciones:</span>
-              <ul>
-                <li>Petroquímica</li>
-                <li>Generación eléctrica</li>
-              </ul>
-            </div>
-          </div>
-
-          <div class="boiler-model-card__footer">
-            <a href="/contacto">Consultar</a>
-          </div>
-        </article>
-      </div>
-    </div>
-  </section>
-
-  <section class="boilers-features">
-    <div class="container">
-      <div class="section-heading-boilers-models">
-        <h2>Características Técnicas Superiores</h2>
-        <p>
-          Diseño optimizado para operación continua, eficiencia energética y bajo mantenimiento
-        </p>
-      </div>
-
-      <div class="boilers-features__grid">
-        <article class="feature-box">
-          <div class="feature-box__icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-flame text-[#0054ff]"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path></svg></div>
-          <h3>Quemadores Modulantes</h3>
-          <p>
-            Combustión inteligente que se adapta a la demanda real, optimizando consumo de combustible.
-          </p>
-        </article>
-
-        <article class="feature-box">
-          <div class="feature-box__icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-gauge text-[#0054ff]"><path d="m12 14 4-4"></path><path d="M3.34 19a10 10 0 1 1 17.32 0"></path></svg></div>
-          <h3>Control Automático</h3>
-          <p>
-            PLC integrado con pantalla táctil. Monitoreo en tiempo real y ajustes precisos de parámetros.
-          </p>
-        </article>
-
-        <article class="feature-box">
-          <div class="feature-box__icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shield text-[#0054ff]"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"></path></svg></div>
-          <h3>Seguridad Multinivel</h3>
-          <p>
-            Válvulas de alivio, control de flama, bajo nivel de agua. Cumple NOM-020-STPS.
-          </p>
-        </article>
-
-        <article class="feature-box">
-          <div class="feature-box__icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trending-up text-[#0054ff]"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline><polyline points="16 7 22 7 22 13"></polyline></svg></div>
-          <h3>Alta Eficiencia</h3>
-          <p>
-            Diseño optimizado de tubos de fuego y economizador para máximo aprovechamiento energético.
-          </p>
-        </article>
-
-        <article class="feature-box">
-          <div class="feature-box__icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-wrench text-[#0054ff]"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg></div>
-          <h3>Mantenimiento Simplificado</h3>
-          <p>
-            Puertas de inspección amplias, fácil acceso a componentes críticos. Reduce tiempos de paro.
-          </p>
-        </article>
-
-        <article class="feature-box">
-          <div class="feature-box__icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clock text-[#0054ff]"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg></div>
-          <h3>Disponibilidad Rápida</h3>
-          <p>
-            Entrega en 4-6 semanas. Stock de refacciones críticas en almacén Aguascalientes.
-          </p>
-        </article>
-      </div>
-    </div>
-  </section>
-
-  <section class="boilers-industries">
-    <div class="container">
-      <div class="section-heading-boilers-models industries">
-        <h2>Aplicaciones por Sector Industrial</h2>
-        <p>Soluciones especializadas para cada industria con requerimientos específicos</p>
-      </div>
-
-      <div class="boilers-industries__grid">
-        <article class="industry-card">
-          <div class="industry-card__header">
-            <div class="industry-card__icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-hotel text-[#0054ff]"><path d="M10 22v-6.57"></path><path d="M12 11h.01"></path><path d="M12 7h.01"></path><path d="M14 15.43V22"></path><path d="M15 16a5 5 0 0 0-6 0"></path><path d="M16 11h.01"></path><path d="M16 7h.01"></path><path d="M8 11h.01"></path><path d="M8 7h.01"></path><rect x="4" y="2" width="16" height="20" rx="2"></rect></svg></div>
-            <div>
-              <h3>Hotelería</h3>
-            </div>
-          </div>
-
-          <div class="industry-card__body">
-            <span class="industry-card__label">Necesidades típicas:</span>
-            <ul>
-              <li>Agua caliente sanitaria 24/7</li>
-              <li>Calefacción de albercas</li>
-              <li>Lavandería industrial</li>
-              <li>Calefacción HVAC</li>
-            </ul>
-          </div>
-
-          <div class="industry-card__recommendation">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-award text-[#0054ff]"><path d="m15.477 12.89 1.515 8.526a.5.5 0 0 1-.81.47l-3.58-2.687a1 1 0 0 0-1.197 0l-3.586 2.686a.5.5 0 0 1-.81-.469l1.514-8.526"></path><circle cx="12" cy="8" r="6"></circle></svg>
-            Recomendado: Serie PIRO 300-500 HP
-          </div>
-        </article>
-
-        <article class="industry-card">
-          <div class="industry-card__header">
-            <div class="industry-card__icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-hospital text-[#0054ff]"><path d="M12 6v4"></path><path d="M14 14h-4"></path><path d="M14 18h-4"></path><path d="M14 8h-4"></path><path d="M18 12h2a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-9a2 2 0 0 1 2-2h2"></path><path d="M18 22V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v18"></path></svg></div>
-            <div>
-              <h3>Hospitales</h3>
-            </div>
-          </div>
-
-          <div class="industry-card__body">
-            <span class="industry-card__label">Necesidades típicas:</span>
-            <ul>
-              <li>Esterilización de instrumental</li>
-              <li>Agua caliente sanitaria crítica</li>
-              <li>Calefacción áreas pacientes</li>
-              <li>Lavandería hospitalaria</li>
-            </ul>
-          </div>
-
-          <div class="industry-card__recommendation">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-award text-[#0054ff]"><path d="m15.477 12.89 1.515 8.526a.5.5 0 0 1-.81.47l-3.58-2.687a1 1 0 0 0-1.197 0l-3.586 2.686a.5.5 0 0 1-.81-.469l1.514-8.526"></path><circle cx="12" cy="8" r="6"></circle></svg>
-            Recomendado: Serie PIRO 500-750 HP
-          </div>
-        </article>
-
-        <article class="industry-card">
-          <div class="industry-card__header">
-            <div class="industry-card__icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-factory text-[#0054ff]"><path d="M2 20a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8l-7 5V8l-7 5V4a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"></path><path d="M17 18h1"></path><path d="M12 18h1"></path><path d="M7 18h1"></path></svg></div>
-            <div>
-              <h3>Industria Alimentaria</h3>
-            </div>
-          </div>
-
-          <div class="industry-card__body">
-            <span class="industry-card__label">Necesidades típicas:</span>
-            <ul>
-              <li>Cocción y pasteurización</li>
-              <li>Limpieza CIP/SIP</li>
-              <li>Esterilización envases</li>
-              <li>Procesos térmicos</li>
-            </ul>
-          </div>
-
-          <div class="industry-card__recommendation">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-award text-[#0054ff]"><path d="m15.477 12.89 1.515 8.526a.5.5 0 0 1-.81.47l-3.58-2.687a1 1 0 0 0-1.197 0l-3.586 2.686a.5.5 0 0 1-.81-.469l1.514-8.526"></path><circle cx="12" cy="8" r="6"></circle></svg>
-            Recomendado: Serie PIRO 500+ HP
-          </div>
-        </article>
-
-        <article class="industry-card">
-          <div class="industry-card__header">
-            <div class="industry-card__icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-building2 lucide-building-2 text-[#0054ff]"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"></path><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"></path><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"></path><path d="M10 6h4"></path><path d="M10 10h4"></path><path d="M10 14h4"></path><path d="M10 18h4"></path></svg></div>
-            <div>
-              <h3>Textil &amp; Química</h3>
-            </div>
-          </div>
-
-          <div class="industry-card__body">
-            <span class="industry-card__label">Necesidades típicas:</span>
-            <ul>
-              <li>Teñido y acabado textil</li>
-              <li>Reactores químicos</li>
-              <li>Secado industrial</li>
-              <li>Destilación</li>
-            </ul>
-          </div>
-
-          <div class="industry-card__recommendation">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-award text-[#0054ff]"><path d="m15.477 12.89 1.515 8.526a.5.5 0 0 1-.81.47l-3.58-2.687a1 1 0 0 0-1.197 0l-3.586 2.686a.5.5 0 0 1-.81-.469l1.514-8.526"></path><circle cx="12" cy="8" r="6"></circle></svg>
-            Recomendado: Serie ACUO 750-1000+ HP
-          </div>
-        </article>
-      </div>
-    </div>
-  </section>
-
-  <section class="boilers-why">
-    <div class="container">
-      <div class="section-heading-boilers-models industries">
-        <h2>¿Por Qué Elegir SIMARI?</h2>
-        <p>Más de 30 años de experiencia en el sector térmico industrial</p>
-      </div>
-
-      <div class="boilers-why__grid">
-        <article class="why-card">
-          <div class="why-card__icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shield text-[#0054ff]"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"></path></svg></div>
-          <h3>Garantía Extendida</h3>
-          <p>2 años en equipos completos, 5 años en caldera</p>
-        </article>
-
-        <article class="why-card">
-          <div class="why-card__icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-building2 lucide-building-2 text-[#0054ff]"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"></path><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"></path><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"></path><path d="M10 6h4"></path><path d="M10 10h4"></path><path d="M10 14h4"></path><path d="M10 18h4"></path></svg></div>
-          <h3>Stock Local</h3>
-          <p>Almacén en Aguascalientes con refacciones críticas</p>
-        </article>
-
-        <article class="why-card">
-          <div class="why-card__icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clock text-[#0054ff]"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg></div>
-          <h3>Servicio 24/7</h3>
-          <p>Soporte técnico telefónico y visitas de emergencia</p>
-        </article>
-
-        <article class="why-card">
-          <div class="why-card__icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-award text-[#0054ff]"><path d="m15.477 12.89 1.515 8.526a.5.5 0 0 1-.81.47l-3.58-2.687a1 1 0 0 0-1.197 0l-3.586 2.686a.5.5 0 0 1-.81-.469l1.514-8.526"></path><circle cx="12" cy="8" r="6"></circle></svg></div>
-          <h3>Financiamiento</h3>
-          <p>Planes de pago flexibles para proyectos grandes</p>
-        </article>
-      </div>
-    </div>
-  </section>
-
-  <section class="boilers-cta">
-    <div class="container">
-      <div class="boilers-cta__content">
-        <h2>Cotiza tu Proyecto Térmico</h2>
-        <p>
-          Nuestros ingenieros analizarán tus necesidades y diseñarán la solución óptima
-          en capacidad, eficiencia y presupuesto.
-        </p>
-
-        <div class="boilers-cta__actions">
-          <a class="button-primary simari-caldera button-first" href="/contacto">
-            Solicitar Visita de Ingeniería
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                            stroke-linejoin="round" style="margin-left: 8px;">
-                            <path d="M5 12h14"></path>
-                            <path d="m12 5 7 7-7 7"></path>
-                        </svg>
+ 
+        <!-- CTAs -->
+        <nav class="solar-hero__cta" aria-label="Acciones principales">
+          <a href="/contacto" class="btn btn-primary" rel="noopener">
+            Calcular Mi Ahorro
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 9h10M9 5l4 4-4 4"/></svg>
           </a>
-
-          <a class="button-secondary simari-caldera" href="tel:+524494348018">
-            <svg
-                        xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"
-                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                        stroke-linejoin="round" class="lucide lucide-phone">
-                        <path
-                            d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.79 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z">
-                        </path>
-                    </svg>
-            Llamar Ahora
+          <a href="tel:+524494348018" class="btn btn-outline-blue">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+            Llamar
           </a>
+        </nav>
+      </div>
+ 
+      <!-- Image column -->
+      <div class="solar-hero__img-wrap" aria-hidden="true">
+        <div class="solar-hero__img-frame">
+          <img
+            src="https://images.unsplash.com/photo-1509391366360-2e959784a276?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1200"
+            alt="Instalación de calentadores solares industriales SIMARI"
+            width="600"
+            height="560"
+          />
+          <div class="solar-hero__img-overlay">
+            <div class="solar-hero__img-stats">
+              <div class="img-stat">
+                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+                <div class="img-stat__label">Eficiencia</div>
+                <div class="img-stat__val">Hasta 92%</div>
+              </div>
+              <div class="img-stat">
+                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 9a4 4 0 0 0-2 7.5"/><path d="M12 3v2"/><path d="m6.6 18.4-1.4 1.4"/><path d="M20 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z"/><path d="M4 13H2"/><path d="M6.34 7.34 4.93 5.93"/></svg>
+                <div class="img-stat__label">Temperatura</div>
+                <div class="img-stat__val">60–80°C</div>
+              </div>
+            </div>
+          </div>
+          <div class="solar-eco-badge" role="img" aria-label="100% Limpio, Energía Renovable">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>
+            <span>100%<br>LIMPIO</span>
+          </div>
         </div>
       </div>
+ 
     </div>
-  </section>
+  </div>
+</section>
+ 
+<section class="solar-products section-pad" id="sistemas" aria-labelledby="products-heading">
+  <div class="container">
+    <div class="section-header">
+      <h2 id="products-heading">Sistemas Solares Térmicos</h2>
+      <p>Tecnología adaptada a cada necesidad industrial</p>
+    </div>
+ 
+    <div class="solar-products__grid">
+ 
+      <!-- Tubos evacuados -->
+      <article class="product-card" aria-labelledby="prod-tubos">
+        <div class="product-card__header">
+          <svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+          <h3 id="prod-tubos">Tubos Evacuados</h3>
+          <p>Agua caliente sanitaria</p>
+        </div>
+        <div class="product-card__body">
+          <div class="product-card__meta"><span>Capacidad</span><strong>150–500 litros/día</strong></div>
+          <div class="product-card__meta"><span>Eficiencia</span><strong class="eff">85–92%</strong></div>
+          <hr class="product-card__divider">
+          <p class="product-card__feat-label">Ventajas</p>
+          <ul class="product-card__features">
+            <li><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>Mayor eficiencia en climas fríos</li>
+            <li><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>Resiste heladas</li>
+            <li><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>Operación hasta -20°C</li>
+          </ul>
+        </div>
+        <div class="product-card__footer">
+          <div class="product-card__price">desde $35,000 MXN</div>
+          <a href="/contacto" class="product-card__btn" rel="noopener">Solicitar Información</a>
+        </div>
+      </article>
+ 
+      <!-- Placa plana -->
+      <article class="product-card" aria-labelledby="prod-placa">
+        <div class="product-card__header">
+          <svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+          <h3 id="prod-placa">Placa Plana</h3>
+          <p>Precalentamiento industrial</p>
+        </div>
+        <div class="product-card__body">
+          <div class="product-card__meta"><span>Capacidad</span><strong>200–400 litros/día</strong></div>
+          <div class="product-card__meta"><span>Eficiencia</span><strong class="eff">75–85%</strong></div>
+          <hr class="product-card__divider">
+          <p class="product-card__feat-label">Ventajas</p>
+          <ul class="product-card__features">
+            <li><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>Más económico</li>
+            <li><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>Instalación simple</li>
+            <li><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>Mantenimiento mínimo</li>
+          </ul>
+        </div>
+        <div class="product-card__footer">
+          <div class="product-card__price">desde $28,000 MXN</div>
+          <a href="/contacto" class="product-card__btn" rel="noopener">Solicitar Información</a>
+        </div>
+      </article>
+ 
+      <!-- Sistema Híbrido -->
+      <article class="product-card" aria-labelledby="prod-hibrido">
+        <div class="product-card__header">
+          <svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+          <h3 id="prod-hibrido">Sistema Híbrido</h3>
+          <p>Comercial e industrial</p>
+        </div>
+        <div class="product-card__body">
+          <div class="product-card__meta"><span>Capacidad</span><strong>500–2,000 litros/día</strong></div>
+          <div class="product-card__meta"><span>Eficiencia</span><strong class="eff">90–95%</strong></div>
+          <hr class="product-card__divider">
+          <p class="product-card__feat-label">Ventajas</p>
+          <ul class="product-card__features">
+            <li><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>Solar + Respaldo gas</li>
+            <li><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>Máximo ahorro garantizado</li>
+            <li><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>Agua caliente 24/7</li>
+          </ul>
+        </div>
+        <div class="product-card__footer">
+          <div class="product-card__price">Cotización a medida</div>
+          <a href="/contacto" class="product-card__btn" rel="noopener">Solicitar Información</a>
+        </div>
+      </article>
+ 
+    </div>
+  </div>
+</section>
+ 
+ 
+<!-- ═══════════════════════════════════════
+     TIMELINE – AHORRO
+═══════════════════════════════════════ -->
+<section class="solar-timeline section-pad" id="ahorro" aria-labelledby="timeline-heading">
+  <div class="container">
+    <header class="section-header">
+      <h2 id="timeline-heading">Tu Viaje Hacia el Ahorro</h2>
+      <p>Cómo evoluciona tu ahorro con el sistema solar</p>
+    </header>
+ 
+    <div class="timeline" role="list">
+ 
+      <div class="timeline-item" role="listitem">
+        <div class="timeline-dot" aria-hidden="true">1</div>
+        <div class="timeline-card">
+          <div class="timeline-card__top">
+            <div>
+              <div class="timeline-card__period">Mes 1–3</div>
+              <div class="timeline-card__title">Instalación y puesta en marcha</div>
+            </div>
+            <div class="timeline-card__saving">
+              <div class="timeline-card__pct">60–70%</div>
+              <div class="timeline-card__saving-label">Ahorro vs gas</div>
+            </div>
+          </div>
+          <p>Primeros ahorros visibles en factura de gas desde el primer mes de operación.</p>
+        </div>
+      </div>
+ 
+      <div class="timeline-item" role="listitem">
+        <div class="timeline-dot" aria-hidden="true">2</div>
+        <div class="timeline-card">
+          <div class="timeline-card__top">
+            <div>
+              <div class="timeline-card__period">Mes 4–12</div>
+              <div class="timeline-card__title">Optimización del sistema</div>
+            </div>
+            <div class="timeline-card__saving">
+              <div class="timeline-card__pct">70–80%</div>
+              <div class="timeline-card__saving-label">Ahorro vs gas</div>
+            </div>
+          </div>
+          <p>El sistema alcanza su máxima eficiencia operativa y rendimiento estacional.</p>
+        </div>
+      </div>
+ 
+      <div class="timeline-item" role="listitem">
+        <div class="timeline-dot" aria-hidden="true">3</div>
+        <div class="timeline-card">
+          <div class="timeline-card__top">
+            <div>
+              <div class="timeline-card__period">Año 2–3</div>
+              <div class="timeline-card__title">Retorno de inversión</div>
+            </div>
+            <div class="timeline-card__saving">
+              <div class="timeline-card__pct">75–85%</div>
+              <div class="timeline-card__saving-label">Ahorro vs gas</div>
+            </div>
+          </div>
+          <p>Recuperación completa de la inversión inicial mediante el ahorro acumulado en gas.</p>
+        </div>
+      </div>
+ 
+      <div class="timeline-item" role="listitem">
+        <div class="timeline-dot" aria-hidden="true">4</div>
+        <div class="timeline-card">
+          <div class="timeline-card__top">
+            <div>
+              <div class="timeline-card__period">Año 4+</div>
+              <div class="timeline-card__title">Ganancia neta</div>
+            </div>
+            <div class="timeline-card__saving">
+              <div class="timeline-card__pct">80%+</div>
+              <div class="timeline-card__saving-label">Ahorro vs gas</div>
+            </div>
+          </div>
+          <p>Ahorro puro año tras año con mínimo mantenimiento preventivo.</p>
+        </div>
+      </div>
+ 
+    </div>
+  </div>
+</section>
+ 
+ 
+<!-- ═══════════════════════════════════════
+     INDUSTRIES
+═══════════════════════════════════════ -->
+<section class="solar-industries section-pad" id="aplicaciones" aria-labelledby="industries-heading">
+  <div class="container">
+    <header class="section-header">
+      <h2 id="industries-heading">Aplicaciones Comerciales e Industriales</h2>
+      <p>Casos de éxito y retornos de inversión reales</p>
+    </header>
+ 
+    <div class="industries-grid">
+ 
+      <!-- Hoteles -->
+      <article class="industry-row" aria-labelledby="ind-hoteles">
+        <div class="industry-row__inner">
+          <div class="industry-row__info">
+            <svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect width="16" height="20" x="4" y="2" rx="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01"/><path d="M16 6h.01"/><path d="M12 6h.01"/><path d="M12 10h.01"/><path d="M12 14h.01"/><path d="M16 10h.01"/><path d="M16 14h.01"/><path d="M8 10h.01"/><path d="M8 14h.01"/></svg>
+            <h3 id="ind-hoteles">Hoteles &amp; Resorts</h3>
+            <p>Agua caliente para habitaciones, albercas, spa, lavandería. Sistema híbrido garantiza disponibilidad 24/7.</p>
+          </div>
+          <div class="industry-metric orange">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="orange" aria-hidden="true"><path d="M7 16.3c2.2 0 4-1.83 4-4.05 0-1.16-.57-2.26-1.71-3.19S7.29 6.75 7 5.3c-.29 1.45-1.14 2.84-2.29 3.76S3 11.1 3 12.25c0 2.22 1.8 4.05 4 4.05z"/><path d="M12.56 6.6A10.97 10.97 0 0 0 14 3.02c.5 2.5 2 4.9 4 6.5s3 3.5 3 5.5a6.98 6.98 0 0 1-11.91 4.97"/></svg>
+            <div class="industry-metric__label">Consumo diario</div>
+            <div class="industry-metric__val blue-val">5,000–20,000 L/día</div>
+          </div>
+          <div class="industry-metric green">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="green" aria-hidden="true"><line x1="12" x2="12" y1="2" y2="22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            <div class="industry-metric__label">Ahorro anual</div>
+            <div class="industry-metric__val green-val">$80,000–$250,000/año</div>
+          </div>
+          <div class="industry-metric blue">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="blueico" aria-hidden="true"><polyline points="22 17 13.5 8.5 8.5 13.5 2 7"/><polyline points="16 17 22 17 22 11"/></svg>
+            <div class="industry-metric__label">Retorno inversión</div>
+            <div class="industry-metric__val orange-val">2–3 años</div>
+          </div>
+        </div>
+      </article>
+ 
+      <!-- Hospitales -->
+      <article class="industry-row" aria-labelledby="ind-hosp">
+        <div class="industry-row__inner">
+          <div class="industry-row__info">
+            <svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect width="16" height="20" x="4" y="2" rx="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01"/><path d="M16 6h.01"/><path d="M12 6h.01"/><path d="M12 10h.01"/><path d="M12 14h.01"/><path d="M16 10h.01"/><path d="M16 14h.01"/><path d="M8 10h.01"/><path d="M8 14h.01"/></svg>
+            <h3 id="ind-hosp">Hospitales</h3>
+            <p>Precalentamiento para esterilización, lavandería hospitalaria, agua sanitaria. Cumple normativa NOM-003-ENER.</p>
+          </div>
+          <div class="industry-metric orange">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="orange" aria-hidden="true"><path d="M7 16.3c2.2 0 4-1.83 4-4.05 0-1.16-.57-2.26-1.71-3.19S7.29 6.75 7 5.3c-.29 1.45-1.14 2.84-2.29 3.76S3 11.1 3 12.25c0 2.22 1.8 4.05 4 4.05z"/><path d="M12.56 6.6A10.97 10.97 0 0 0 14 3.02c.5 2.5 2 4.9 4 6.5s3 3.5 3 5.5a6.98 6.98 0 0 1-11.91 4.97"/></svg>
+            <div class="industry-metric__label">Consumo diario</div>
+            <div class="industry-metric__val blue-val">10,000–30,000 L/día</div>
+          </div>
+          <div class="industry-metric green">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="green" aria-hidden="true"><line x1="12" x2="12" y1="2" y2="22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            <div class="industry-metric__label">Ahorro anual</div>
+            <div class="industry-metric__val green-val">$150,000–$400,000/año</div>
+          </div>
+          <div class="industry-metric blue">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="blueico" aria-hidden="true"><polyline points="22 17 13.5 8.5 8.5 13.5 2 7"/><polyline points="16 17 22 17 22 11"/></svg>
+            <div class="industry-metric__label">Retorno inversión</div>
+            <div class="industry-metric__val orange-val">2.5–3.5 años</div>
+          </div>
+        </div>
+      </article>
+ 
+      <!-- Industria Alimentaria -->
+      <article class="industry-row" aria-labelledby="ind-alim">
+        <div class="industry-row__inner">
+          <div class="industry-row__info">
+            <svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect width="16" height="20" x="4" y="2" rx="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01"/><path d="M16 6h.01"/><path d="M12 6h.01"/><path d="M12 10h.01"/><path d="M12 14h.01"/><path d="M16 10h.01"/><path d="M16 14h.01"/><path d="M8 10h.01"/><path d="M8 14h.01"/></svg>
+            <h3 id="ind-alim">Industria Alimentaria</h3>
+            <p>Limpieza CIP, pasteurización, procesos térmicos. Compatible con sistemas existentes.</p>
+          </div>
+          <div class="industry-metric orange">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="orange" aria-hidden="true"><path d="M7 16.3c2.2 0 4-1.83 4-4.05 0-1.16-.57-2.26-1.71-3.19S7.29 6.75 7 5.3c-.29 1.45-1.14 2.84-2.29 3.76S3 11.1 3 12.25c0 2.22 1.8 4.05 4 4.05z"/><path d="M12.56 6.6A10.97 10.97 0 0 0 14 3.02c.5 2.5 2 4.9 4 6.5s3 3.5 3 5.5a6.98 6.98 0 0 1-11.91 4.97"/></svg>
+            <div class="industry-metric__label">Consumo diario</div>
+            <div class="industry-metric__val blue-val">8,000–25,000 L/día</div>
+          </div>
+          <div class="industry-metric green">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="green" aria-hidden="true"><line x1="12" x2="12" y1="2" y2="22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            <div class="industry-metric__label">Ahorro anual</div>
+            <div class="industry-metric__val green-val">$120,000–$350,000/año</div>
+          </div>
+          <div class="industry-metric blue">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="blueico" aria-hidden="true"><polyline points="22 17 13.5 8.5 8.5 13.5 2 7"/><polyline points="16 17 22 17 22 11"/></svg>
+            <div class="industry-metric__label">Retorno inversión</div>
+            <div class="industry-metric__val orange-val">2–3 años</div>
+          </div>
+        </div>
+      </article>
+ 
+      <!-- Gimnasios -->
+      <article class="industry-row" aria-labelledby="ind-gym">
+        <div class="industry-row__inner">
+          <div class="industry-row__info">
+            <svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect width="16" height="20" x="4" y="2" rx="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01"/><path d="M16 6h.01"/><path d="M12 6h.01"/><path d="M12 10h.01"/><path d="M12 14h.01"/><path d="M16 10h.01"/><path d="M16 14h.01"/><path d="M8 10h.01"/><path d="M8 14h.01"/></svg>
+            <h3 id="ind-gym">Gimnasios &amp; Clubes</h3>
+            <p>Regaderas, vapor, calefacción de alberca. Instalación modular escalable.</p>
+          </div>
+          <div class="industry-metric orange">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="orange" aria-hidden="true"><path d="M7 16.3c2.2 0 4-1.83 4-4.05 0-1.16-.57-2.26-1.71-3.19S7.29 6.75 7 5.3c-.29 1.45-1.14 2.84-2.29 3.76S3 11.1 3 12.25c0 2.22 1.8 4.05 4 4.05z"/><path d="M12.56 6.6A10.97 10.97 0 0 0 14 3.02c.5 2.5 2 4.9 4 6.5s3 3.5 3 5.5a6.98 6.98 0 0 1-11.91 4.97"/></svg>
+            <div class="industry-metric__label">Consumo diario</div>
+            <div class="industry-metric__val blue-val">3,000–10,000 L/día</div>
+          </div>
+          <div class="industry-metric green">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="green" aria-hidden="true"><line x1="12" x2="12" y1="2" y2="22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            <div class="industry-metric__label">Ahorro anual</div>
+            <div class="industry-metric__val green-val">$50,000–$150,000/año</div>
+          </div>
+          <div class="industry-metric blue">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="blueico" aria-hidden="true"><polyline points="22 17 13.5 8.5 8.5 13.5 2 7"/><polyline points="16 17 22 17 22 11"/></svg>
+            <div class="industry-metric__label">Retorno inversión</div>
+            <div class="industry-metric__val orange-val">1.5–2.5 años</div>
+          </div>
+        </div>
+      </article>
+ 
+    </div>
+  </div>
+</section>
+ 
+ 
+<!-- ═══════════════════════════════════════
+     ENVIRONMENTAL IMPACT
+═══════════════════════════════════════ -->
+<section class="solar-env section-pad" id="impacto-ambiental" aria-labelledby="env-heading">
+  <div class="container">
+    <header class="section-header">
+      <svg xmlns="http://www.w3.org/2000/svg" width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:rgb(34,197,94);margin:0 auto 16px;display:block;" aria-hidden="true"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>
+      <h2 id="env-heading">Impacto Ambiental Positivo</h2>
+      <p>Más que ahorro: contribución real a la sostenibilidad</p>
+    </header>
+ 
+    <div class="solar-env__grid">
+      <article class="env-card">
+        <div class="env-card__emoji" aria-hidden="true">🌍</div>
+        <h3>Cero Emisiones CO₂</h3>
+        <div class="env-card__num">4–6 ton/año</div>
+        <p>Un sistema promedio evita la emisión de 4 a 6 toneladas de CO₂ anuales, equivalente a plantar 200 árboles.</p>
+      </article>
+      <article class="env-card">
+        <div class="env-card__emoji" aria-hidden="true">💨</div>
+        <h3>Reducción NOx y SOx</h3>
+        <div class="env-card__num">100%</div>
+        <p>Al no quemar gas, eliminas completamente las emisiones de óxidos nitrosos y azufre dañinos para el aire.</p>
+      </article>
+      <article class="env-card">
+        <div class="env-card__emoji" aria-hidden="true">♻️</div>
+        <h3>Energía Renovable</h3>
+        <div class="env-card__num">100%</div>
+        <p>La radiación solar es inagotable. Tu sistema operará décadas sin consumir recursos no renovables.</p>
+      </article>
+    </div>
+  </div>
+</section>
+ 
+ 
+<!-- ═══════════════════════════════════════
+     CTA
+═══════════════════════════════════════ -->
+<section class="solar-cta section-pad" id="calcular-ahorro" aria-labelledby="cta-heading">
+  <div class="container">
+    <div class="solar-cta__inner">
+      <h2 id="cta-heading">Calcula Tu Ahorro en 2 Minutos</h2>
+      <p>Ingresa tus datos y recibe una estimación personalizada de inversión, ahorro y ROI</p>
+ 
+      <div class="solar-cta__steps" role="list" aria-label="Pasos para obtener tu cotización">
+        <div class="cta-step" role="listitem">
+          <div class="cta-step__num">1</div>
+          <div class="cta-step__text">Consumo actual de gas</div>
+        </div>
+        <div class="cta-step" role="listitem">
+          <div class="cta-step__num">2</div>
+          <div class="cta-step__text">Litros agua caliente/día</div>
+        </div>
+        <div class="cta-step" role="listitem">
+          <div class="cta-step__num">3</div>
+          <div class="cta-step__text">Recibe propuesta</div>
+        </div>
+      </div>
+ 
+      <nav class="solar-cta__btns" aria-label="Solicitar cotización">
+        <a href="/contacto" class="btn btn-white" rel="noopener">
+          Solicitar Cálculo Gratuito
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 10h10M10 5l5 5-5 5"/></svg>
+        </a>
+        <a href="tel:+524494348018" class="btn btn-outline-white">
+          <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+          449 434 8018
+        </a>
+      </nav>
+    </div>
+  </div>
+</section>
+
   @endsection
