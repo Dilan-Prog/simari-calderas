@@ -1,4 +1,4 @@
-<header>
+<header class="header-first">
     <nav class="main-nav-header" aria-label="Navegacion principal">
         <a href="/" aria-label="Ir al inicio">
             <img class="header_logo" src="{{ Vite::asset('resources/images/logo/logo_SVG.svg') }}" alt="Logo Simari Calderas">

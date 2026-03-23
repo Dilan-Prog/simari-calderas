@@ -34,7 +34,7 @@ main,body{
     font-family: var(--font-family);
 }
 
-header{
+.header-first{
     font-family: var(--font-family);
     background: var(--header-background-color);
     width: 100%;

@@ -1,5 +1,6 @@
 import './bootstrap';
 
+
 // header
 
 // Dropdowns del header en JavaScript puro (sin Alpine/Vue/React).

@@ -57,10 +57,25 @@ class HomeController extends Controller
     {
         return view('frontend.pages.services.service-industrial-hair-repair');
     }
+
+
+    
     // Products
     public function simariBoilers()
     {
         return view('frontend.pages.products.products-simari-boilers');
+    }
+    public function industrialInstrumentation()
+    {
+        return view('frontend.pages.products.products-industrial-instrumentation');
+    }
+    public function waterTreatmentAnti()
+    {
+        return view('frontend.pages.products.products-water-treatment-antiincrustante');
+    }
+    public function spareParts()
+    {
+        return view('frontend.pages.products.products-spare-parts');
     }
     public function solarHeaters()
     {
@@ -73,6 +88,22 @@ class HomeController extends Controller
     public function rinnaiHeatPumps()
     {
         return view('frontend.pages.masstercal-rinnai.heat-pumps');
+    }
+    public function waterHeaters()
+    {
+        return view('frontend.pages.masstercal-rinnai.water-heaters');
+    }
+    public function electricHeaters()
+    {
+        return view('frontend.pages.masstercal-rinnai.electric-heaters');
+    }
+    public function tanklessHeaters()
+    {
+        return view('frontend.pages.masstercal-rinnai.tankless-heaters');
+    }
+    public function softenersFilters()
+    {
+        return view('frontend.pages.masstercal-rinnai.softeners-filters');
     }
     public function storageTanks()
     {

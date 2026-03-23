@@ -59,6 +59,15 @@
     --orange: rgb(255, 140, 0);
     --blue: rgb(0, 84, 255);
     --green: rgb(34, 197, 94);
+
+        /* ── Nuevas: Instrumentación Industrial ── */
+    --bg-section: #2e3a46;                      /* fondo oscuro de secciones (= --border-header-footer-color) */
+    --inst-red: #c62828;                         /* rojo instrumental (= --secondary-color-rinnai) */
+    --inst-red-dark: #8b0000;                    /* rojo oscuro para gradientes CTA */
+    --inst-red-alpha: rgba(198, 40, 40, 0.082);  /* fondo tenue de íconos */
+    --inst-red-alpha-lg: rgba(198, 40, 40, 0.19);/* fondo tenue mayor para badges */
+    --inst-blue: #0054ff;                        /* azul instrumento (= --secondary-color) */
+    --inst-blue-dark: #0043cc;                   /* azul oscuro hover (= --button-primary-color-hover) */
 }
 
 /* =========================
@@ -1105,7 +1114,7 @@
 }
  
 .product-card__footer {
-    padding: 24px 28px;
+    padding: 30px;
     border-top: 1px solid #f3f4f6;
 }
 .product-card__price {
@@ -1118,7 +1127,7 @@
     display: block;
     width: 100%;
     text-align: center;
-    padding: 14px;
+    padding: 14px 0;
     border-radius: var(--radius-sm);
     background: var(--orange);
     color: #fff;
@@ -1995,4 +2004,608 @@
         padding-left: 48px;
     }
 }
+.ii-container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 24px;
+}
  
+.ii-section-pad { padding: 80px 0; }
+ 
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+}
+ 
+ 
+/* ============================================================
+   HERO AZUL CON GRID PATTERN
+   React: section "relative min-h-[85vh] bg-[#0054ff] overflow-hidden"
+============================================================ */
+.ii-hero {
+    position: relative;
+    min-height: 85vh;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    background-color: var(--background-primary);
+}
+ 
+/* React: absolute inset-0 opacity-10 grid lines */
+.ii-hero__pattern {
+    position: absolute;
+    inset: 0;
+    opacity: .1;
+    background-image:
+        linear-gradient(#fff 1px, transparent 1px),
+        linear-gradient(90deg, #fff 1px, transparent 1px);
+    background-size: 50px 50px;
+    pointer-events: none;
+}
+ 
+/* React: absolute inset-0 bg-gradient-to-br from-blue-900/50 via-transparent to-red-900/30 */
+.ii-hero__overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        135deg,
+        rgba(30, 58, 138, 0.5) 0%,
+        transparent 55%,
+        rgba(127, 29, 29, 0.3) 100%
+    );
+    pointer-events: none;
+}
+ 
+/* React: relative z-10 max-w-7xl mx-auto px-4 py-20 */
+.ii-hero__inner {
+    position: relative;
+    z-index: 2;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 80px 24px;
+}
+ 
+/* React: max-w-4xl */
+.ii-hero__content { max-width: 900px; }
+ 
+/* React: inline-flex items-center gap-3 px-6 py-3 bg-white/10 backdrop-blur-md border border-white/20 rounded-lg mb-8 */
+.ii-hero__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 24px;
+    background: var(--card-dark);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--card-line);
+    border-radius: var(--radius-sm);
+    margin-bottom: 32px;
+}
+ 
+.ii-hero__badge svg { color: var(--inst-red); flex-shrink: 0; }
+.ii-hero__badge-title { color: var(--text-white-color); font-weight: 700; font-size: .85rem; text-transform: uppercase; letter-spacing: .04em; }
+.ii-hero__badge-sub   { color: var(--text-soft); font-size: .75rem; }
+ 
+/* React: text-6xl md:text-8xl font-bold text-white leading-tight mb-8 */
+.ii-hero__title {
+    font-size: clamp(3.2rem, 8vw, 6rem);
+    font-weight: 800;
+    color: var(--text-white-color);
+    line-height: 1.02;
+    margin-bottom: 32px;
+}
+ 
+.ii-hero__title .ii-accent { color: var(--inst-red); }
+ 
+/* React: text-5xl text-gray-400 */
+.ii-hero__title .ii-sub {
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    color: var(--text-muted);
+}
+ 
+/* React: text-2xl text-gray-300 leading-relaxed mb-12 max-w-3xl */
+.ii-hero__desc {
+    font-size: 1.2rem;
+    color: var(--text-soft);
+    line-height: 1.75;
+    margin-bottom: 48px;
+    max-width: 780px;
+}
+ 
+/* React: grid grid-cols-2 md:grid-cols-4 gap-4 mb-12 */
+.ii-hero__stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 48px;
+}
+ 
+/* React: bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg p-4 text-center hover:bg-white/10 */
+.ii-stat {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(4px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius-sm);
+    padding: 16px;
+    text-align: center;
+    transition: background .2s;
+}
+.ii-stat:hover { background: var(--card-dark); }
+ 
+/* React: text-3xl font-bold mb-1 color inst-red */
+.ii-stat__num {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: var(--inst-red);
+    margin-bottom: 4px;
+    line-height: 1;
+}
+/* React: text-xs text-gray-400 */
+.ii-stat__label { font-size: .72rem; color: var(--text-muted); }
+ 
+/* CTAs */
+.ii-hero__btns { display: flex; gap: 16px; flex-wrap: wrap; }
+ 
+/* React: inline-flex px-10 py-5 bg-[#C62828] text-white font-bold rounded-lg text-lg */
+.ii-btn-red {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 18px 40px;
+    background: var(--inst-red);
+    color: var(--text-white-color);
+    border-radius: var(--radius-sm);
+    font-weight: 700;
+    font-size: 1.05rem;
+    box-shadow: 0 8px 24px rgba(198, 40, 40, 0.4);
+    transition: opacity .2s;
+}
+.ii-btn-red:hover { opacity: .88; }
+ 
+/* React: inline-flex border-2 border-white text-white rounded-lg hover:bg-white/10 */
+.ii-btn-outline-white {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 16px 38px;
+    border: 2px solid var(--text-white-color);
+    color: var(--text-white-color);
+    border-radius: var(--radius-sm);
+    font-weight: 700;
+    font-size: 1.05rem;
+    background: transparent;
+    transition: background .2s;
+}
+.ii-btn-outline-white:hover { background: var(--card-dark); }
+ 
+ 
+/* ============================================================
+   CATÁLOGO – 4 CARDS CON HEADER DE COLOR
+   React: section bg-[#2E3A46]
+============================================================ */
+.ii-catalog {
+    background: var(--bg-section);
+    padding: 80px 0;
+}
+ 
+.ii-catalog__header { text-align: center; margin-bottom: 64px; }
+ 
+/* React: text-5xl font-bold text-white mb-6 */
+.ii-catalog__title {
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 800;
+    color: var(--text-white-color);
+    margin-bottom: 16px;
+}
+/* React: text-xl text-gray-300 */
+.ii-catalog__sub { font-size: 1.1rem; color: var(--text-soft); }
+ 
+/* React: grid md:grid-cols-2 gap-8 */
+.ii-catalog__grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 32px;
+}
+ 
+/* React: bg-white rounded-2xl shadow-2xl overflow-hidden hover:scale-105 */
+.ii-cat-card {
+    background: var(--text-white-color);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+    transition: transform .25s, box-shadow .25s;
+}
+.ii-cat-card:hover {
+    transform: scale(1.03);
+    box-shadow: 0 28px 70px rgba(0, 0, 0, 0.4);
+}
+ 
+/* Header de color por categoría */
+.ii-cat-card__header { padding: 24px; }
+.ii-cat-card__header svg   { margin-bottom: 14px; color: var(--text-white-color); display: block; }
+.ii-cat-card__header h3    { font-size: 1.4rem; font-weight: 800; color: var(--text-white-color); }
+ 
+.ii-cat-card__header--blue  { background: #3B82F6; }
+.ii-cat-card__header--red   { background: #EF4444; }
+.ii-cat-card__header--amber { background: #F59E0B; }
+.ii-cat-card__header--pink  { background: #EC4899; }
+ 
+/* Body */
+.ii-cat-card__body { padding: 24px; }
+ 
+/* Lista de productos */
+.ii-product-list { display: flex; flex-direction: column; }
+ 
+.ii-product-item {
+    padding: 16px 0;
+    border-bottom: 1px solid var(--border-color);
+}
+.ii-product-item:last-child { border-bottom: none; padding-bottom: 0; }
+ 
+/* React: font-bold text-lg mb-2 color #0054ff */
+.ii-product-item__name {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--secondary-color);
+    margin-bottom: 8px;
+}
+ 
+/* React: grid grid-cols-2 gap-2 text-sm */
+.ii-product-item__specs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    font-size: .82rem;
+    color: var(--text-body);
+    margin-bottom: 6px;
+}
+.ii-product-item__specs span { font-weight: 600; color: #374151; }
+ 
+/* React: text-xs text-gray-500 mt-2 */
+.ii-product-item__app { font-size: .75rem; color: var(--text-muted); }
+ 
+/* CTA de card */
+.ii-cat-card__btn {
+    display: block;
+    width: 100%;
+    text-align: center;
+    padding: 12px;
+    border-radius: var(--radius-sm);
+    font-weight: 700;
+    font-size: .9rem;
+    color: var(--text-white-color);
+    margin-top: 20px;
+    transition: opacity .2s;
+}
+.ii-cat-card__btn:hover { opacity: .88; }
+ 
+.ii-cat-card__btn--blue  { background: #3B82F6; }
+.ii-cat-card__btn--red   { background: #EF4444; }
+.ii-cat-card__btn--amber { background: #F59E0B; }
+.ii-cat-card__btn--pink  { background: #EC4899; }
+ 
+ 
+/* ============================================================
+   APLICACIONES CRÍTICAS – SECCIÓN NEGRA
+   React: section "py-20 bg-black text-white"
+============================================================ */
+.ii-apps {
+    background: var(--bg-dark);
+    padding: 80px 0;
+    color: var(--text-white-color);
+}
+ 
+.ii-apps__header { text-align: center; margin-bottom: 64px; }
+.ii-apps__header svg { color: var(--inst-red); margin: 0 auto 24px; display: block; }
+ 
+/* React: text-5xl font-bold mb-6 */
+.ii-apps__title {
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 800;
+    margin-bottom: 16px;
+    color: var(--text-white-color);
+}
+/* React: text-xl text-gray-400 */
+.ii-apps__sub { font-size: 1.1rem; color: var(--text-muted); }
+ 
+/* stack de filas */
+.ii-apps__list { display: flex; flex-direction: column; gap: 24px; }
+ 
+/* React: bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-8 hover:bg-white/10 */
+.ii-app-row {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius-lg);
+    padding: 32px;
+    transition: background .2s;
+}
+.ii-app-row:hover { background: var(--card-dark); }
+ 
+/* React: grid lg:grid-cols-4 gap-8 items-center → 1fr 3fr */
+.ii-app-row__inner {
+    display: grid;
+    grid-template-columns: 1fr 3fr;
+    gap: 32px;
+    align-items: center;
+}
+ 
+.ii-app-row__info-top { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+.ii-app-row__info-top svg { color: var(--inst-red); flex-shrink: 0; }
+ 
+/* React: text-2xl font-bold */
+.ii-app-row__name { font-size: 1.4rem; font-weight: 800; color: var(--text-white-color); }
+ 
+/* Badges de criticidad */
+.ii-criticality {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-size: .72rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    margin-top: 8px;
+}
+.ii-criticality--alta  { background: #EF4444; color: var(--text-white-color); }
+.ii-criticality--media { background: #F59E0B; color: var(--text-white-color); }
+ 
+.ii-app-row__norm { font-size: .82rem; color: var(--text-muted); margin-top: 12px; }
+ 
+.ii-app-row__req-label {
+    font-size: .75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+    letter-spacing: .05em;
+}
+ 
+/* React: flex flex-wrap gap-2 */
+.ii-chips { display: flex; flex-wrap: wrap; gap: 10px; }
+ 
+/* React: px-4 py-2 bg-white/10 rounded-lg text-sm border border-white/20 */
+.ii-chip {
+    padding: 8px 16px;
+    background: var(--card-dark);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--card-line);
+    font-size: .82rem;
+    color: var(--text-white-color);
+}
+ 
+ 
+/* ============================================================
+   SERVICIO TÉCNICO – SECCIÓN AZUL
+   React: section bg-[#0054ff]
+============================================================ */
+.ii-service {
+    background: var(--inst-blue);
+    padding: 80px 0;
+    color: var(--text-white-color);
+}
+ 
+.ii-service__header { text-align: center; margin-bottom: 64px; }
+ 
+/* React: text-5xl font-bold text-white mb-6 */
+.ii-service__title {
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 800;
+    color: var(--text-white-color);
+    margin-bottom: 16px;
+}
+/* React: text-xl text-gray-300 */
+.ii-service__sub { font-size: 1.1rem; color: var(--text-soft); }
+ 
+/* React: grid md:grid-cols-2 gap-8 */
+.ii-service__grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 32px;
+}
+ 
+/* React: bg-white rounded-2xl p-8 shadow-xl hover:shadow-2xl */
+.ii-service-card {
+    background: var(--text-white-color);
+    border-radius: var(--radius-lg);
+    padding: 32px;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.2);
+    transition: box-shadow .25s, transform .25s;
+}
+.ii-service-card:hover {
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.3);
+    transform: translateY(-3px);
+}
+ 
+/* React: flex items-start gap-6 */
+.ii-service-card__body { display: flex; align-items: flex-start; gap: 20px; }
+ 
+/* React: w-16 h-16 flex-shrink-0 rounded-xl bg-[#C62828]/08 */
+.ii-service-card__icon {
+    width: 60px;
+    height: 60px;
+    flex-shrink: 0;
+    border-radius: 14px;
+    background: var(--inst-red-alpha);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.ii-service-card__icon svg { color: var(--inst-red); }
+ 
+/* React: text-2xl font-bold mb-4 color #0054ff */
+.ii-service-card h3 {
+    font-size: 1.3rem;
+    font-weight: 800;
+    margin-bottom: 12px;
+    color: var(--secondary-color);
+}
+/* React: text-gray-600 leading-relaxed */
+.ii-service-card p {
+    font-size: .95rem;
+    color: var(--text-body);
+    line-height: 1.75;
+    margin: 0;
+}
+ 
+ 
+/* ============================================================
+   MARCAS – SECCIÓN DARK
+   React: section bg-[#2E3A46]
+============================================================ */
+.ii-brands {
+    background: var(--bg-section);
+    padding: 80px 0;
+}
+ 
+/* React: text-4xl font-bold text-white mb-12 text-center */
+.ii-brands__title {
+    font-size: clamp(1.8rem, 4vw, 2.6rem);
+    font-weight: 800;
+    color: var(--text-white-color);
+    text-align: center;
+    margin-bottom: 48px;
+}
+ 
+/* React: grid grid-cols-2 md:grid-cols-4 gap-8 */
+.ii-brands__grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+}
+ 
+/* React: bg-white/10 backdrop-blur border border-white/20 rounded-xl p-6 hover:bg-white/20 */
+.ii-brand-tile {
+    background: var(--card-dark);
+    backdrop-filter: blur(8px);
+    border: 1px solid var(--card-line);
+    border-radius: var(--radius-md);
+    padding: 24px;
+    text-align: center;
+    transition: background .2s, transform .2s;
+}
+.ii-brand-tile:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+}
+ 
+/* React: text-2xl font-bold text-white */
+.ii-brand-tile__name { font-size: 1.2rem; font-weight: 800; color: var(--text-white-color); }
+ 
+ 
+/* ============================================================
+   CTA ROJO FINAL
+   React: section "py-24 bg-gradient from-[#C62828] to-[#8B0000]"
+============================================================ */
+.ii-cta {
+    background: linear-gradient(135deg, var(--inst-red) 0%, var(--inst-red-dark) 100%);
+    padding: 96px 0;
+    color: var(--text-white-color);
+}
+ 
+.ii-cta__inner {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 24px;
+    text-align: center;
+}
+ 
+.ii-cta__inner svg { color: var(--text-white-color); margin: 0 auto 32px; display: block; }
+ 
+/* React: text-5xl md:text-6xl font-bold mb-8 */
+.ii-cta__inner h2 {
+    font-size: clamp(2.2rem, 5vw, 3.8rem);
+    font-weight: 800;
+    margin-bottom: 28px;
+    line-height: 1.1;
+}
+ 
+/* React: text-2xl text-white/90 mb-12 max-w-3xl mx-auto */
+.ii-cta__inner p {
+    font-size: 1.2rem;
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 48px;
+    line-height: 1.75;
+    max-width: 760px;
+    margin-left: auto;
+    margin-right: auto;
+}
+ 
+/* React: flex flex-col sm:flex-row gap-6 justify-center */
+.ii-cta__btns { display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; }
+ 
+/* React: inline-flex px-12 py-6 bg-white text-[#C62828] font-bold rounded-lg text-xl shadow-2xl */
+.ii-btn-white-cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 20px 48px;
+    background: var(--text-white-color);
+    color: var(--inst-red);
+    border-radius: var(--radius-sm);
+    font-weight: 800;
+    font-size: 1.1rem;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.25);
+    transition: background .2s;
+}
+.ii-btn-white-cta:hover { background: var(--bg-light); }
+ 
+/* React: inline-flex px-12 py-6 border-2 border-white text-white rounded-lg hover:bg-white/10 */
+.ii-btn-outline-cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 20px 48px;
+    border: 2px solid var(--text-white-color);
+    color: var(--text-white-color);
+    border-radius: var(--radius-sm);
+    font-weight: 700;
+    font-size: 1.1rem;
+    background: transparent;
+    transition: background .2s;
+}
+.ii-btn-outline-cta:hover { background: var(--card-dark); }
+ 
+ 
+/* ============================================================
+   RESPONSIVE
+============================================================ */
+ 
+/* ── 1024px ── */
+@media (max-width: 1024px) {
+    .ii-brands__grid { grid-template-columns: repeat(4, 1fr); }
+}
+ 
+/* ── 900px ── */
+@media (max-width: 900px) {
+    .ii-service__grid    { grid-template-columns: 1fr; }
+    .ii-catalog__grid    { grid-template-columns: 1fr; max-width: 600px; margin: 0 auto; }
+    .ii-app-row__inner   { grid-template-columns: 1fr; gap: 20px; }
+}
+ 
+/* ── 768px ── */
+@media (max-width: 768px) {
+    .ii-hero             { min-height: auto; }
+    .ii-hero__stats      { grid-template-columns: repeat(2, 1fr); }
+    .ii-hero__btns       { flex-direction: column; }
+    .ii-btn-red,
+    .ii-btn-outline-white { justify-content: center; }
+    .ii-brands__grid     { grid-template-columns: repeat(2, 1fr); }
+    .ii-catalog__grid    { grid-template-columns: 1fr; max-width: 100%; }
+    .ii-cta__btns        { flex-direction: column; align-items: center; }
+    .ii-btn-white-cta,
+    .ii-btn-outline-cta  { justify-content: center; width: 100%; padding: 18px 32px; }
+}
+ 
+/* ── 480px ── */
+@media (max-width: 480px) {
+    .ii-hero__stats   { grid-template-columns: repeat(2, 1fr); }
+    .ii-brands__grid  { grid-template-columns: repeat(2, 1fr); }
+    .ii-service-card__body { flex-direction: column; gap: 14px; }
+}

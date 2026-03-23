@@ -6,7 +6,7 @@
     <section class="st-hero">
         <div class="container">
             <div class="st-brand-wrap">
-                <img src="{{ Vite::asset('resources/images/Rinnai/rinnai-logo.png') }}" alt="Rinnai"
+                <img src="{{ asset('images/Rinnai/rinnai-logo.png') }}" alt="Rinnai"
                     class="st-brand-logo">
             </div>
 
@@ -150,7 +150,7 @@
 
             <div class="st-content">
                 <article class="st-media-card">
-                    <img src="https://rinnai.mx/wp-content/uploads/2025/11/6.png" alt="Tanques Rinnai">
+                    <img src="{{ asset('images/products/Rinnai/Tanques-Almacenamiento/Tanque-Carbon_Negro--Epoxicos.png') }}" alt="Tanques Rinnai">
                     <div class="st-media-overlay">
                         <h2>Construccion Premium</h2>
                         <p>Acero vitrificado con aislamiento termico de alta densidad</p>

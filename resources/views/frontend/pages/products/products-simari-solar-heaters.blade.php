@@ -182,17 +182,12 @@
     </div>
   </div>
 </section>
- 
- 
-<!-- ═══════════════════════════════════════
-     TIMELINE – AHORRO
-═══════════════════════════════════════ -->
 <section class="solar-timeline section-pad" id="ahorro" aria-labelledby="timeline-heading">
   <div class="container">
-    <header class="section-header">
+    <div class="section-header">
       <h2 id="timeline-heading">Tu Viaje Hacia el Ahorro</h2>
       <p>Cómo evoluciona tu ahorro con el sistema solar</p>
-    </header>
+    </div>
  
     <div class="timeline" role="list">
  
@@ -274,10 +269,10 @@
 ═══════════════════════════════════════ -->
 <section class="solar-industries section-pad" id="aplicaciones" aria-labelledby="industries-heading">
   <div class="container">
-    <header class="section-header">
+    <div class="section-header">
       <h2 id="industries-heading">Aplicaciones Comerciales e Industriales</h2>
       <p>Casos de éxito y retornos de inversión reales</p>
-    </header>
+    </div>
  
     <div class="industries-grid">
  
@@ -395,11 +390,11 @@
 ═══════════════════════════════════════ -->
 <section class="solar-env section-pad" id="impacto-ambiental" aria-labelledby="env-heading">
   <div class="container">
-    <header class="section-header">
+    <div class="section-header">
       <svg xmlns="http://www.w3.org/2000/svg" width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:rgb(34,197,94);margin:0 auto 16px;display:block;" aria-hidden="true"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>
       <h2 id="env-heading">Impacto Ambiental Positivo</h2>
       <p>Más que ahorro: contribución real a la sostenibilidad</p>
-    </header>
+    </div>
  
     <div class="solar-env__grid">
       <article class="env-card">
