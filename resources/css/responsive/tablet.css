@@ -1,0 +1,64 @@
+/* ============================================================
+   responsive/tablet.css — 769px – 1024px
+   ============================================================ */
+
+/* ------------------------------------------------------------------ */
+/* min-width: 768px — Rejillas de 2 columnas en contenido legal        */
+/* ------------------------------------------------------------------ */
+@media (min-width: 768px) {
+    .simari-privacy-cta__grid,
+    .simari-terms-cta__grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+/* ------------------------------------------------------------------ */
+/* max-width: 1024px — Tablet landscape / desktop pequeño              */
+/* ------------------------------------------------------------------ */
+@media (max-width: 1024px) {
+
+    /* Header */
+    .main-nav-header {
+        padding: 18px 40px;
+    }
+    .main-nav-header ul.nav-link {
+        gap: 20px;
+    }
+    .main-nav-header ul li a,
+    .main-nav-header ul li .nav-dropdown-toggle {
+        font-size: 13px;
+    }
+    .button-primary.header {
+        padding: 9px 18px;
+        font-size: 14px;
+    }
+
+    /* Layout */
+    footer      { padding: 60px 40px 0 40px; }
+    .container  { padding: 80px 40px; }
+    .footer-grid { flex-wrap: wrap; gap: 40px; }
+
+    /* Home */
+    .solutions-grid-home    { grid-template-columns: repeat(2, 1fr); }
+    .why-grid-home          { grid-template-columns: 1fr; gap: 60px; }
+    .floating-card-home     { left: -20px; }
+    .cta-section-home       { padding: 60px 40px; }
+}
+
+/* ------------------------------------------------------------------ */
+/* max-width: 992px — Tablet portrait                                   */
+/* ------------------------------------------------------------------ */
+@media (max-width: 992px) {
+
+    /* Company */
+    .company-grid-history {
+        grid-template-columns: 1fr;
+        gap: 50px;
+    }
+    .company-img-decor { transform: rotate(0); }
+    .company-grid-values { grid-template-columns: repeat(2, 1fr); }
+    .company-grid-values > div:nth-child(4),
+    .company-grid-values > div:nth-child(5) {
+        grid-column: auto;
+    }
+}

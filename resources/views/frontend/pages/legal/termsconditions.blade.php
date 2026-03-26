@@ -1,7 +1,6 @@
 @extends('frontend.layouts.master')
 
 @section('styles')
-  @vite(['resources/css/termsconditions.css'])
 @endsection
 
 @section('content')

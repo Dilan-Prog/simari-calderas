@@ -144,6 +144,53 @@ document.addEventListener('DOMContentLoaded', () => {
 // end header
 
 
+// mobile hamburger menu
+
+document.addEventListener('DOMContentLoaded', () => {
+    const hamburger  = document.getElementById('nav-hamburger');
+    const mobileMenu = document.getElementById('mobile-menu');
+    const closeBtn   = document.getElementById('mobile-menu-close');
+    const backdrop   = document.getElementById('mobile-menu-backdrop');
+
+    if (!hamburger || !mobileMenu) return;
+
+    const openMenu = () => {
+        mobileMenu.classList.add('is-open');
+        mobileMenu.setAttribute('aria-hidden', 'false');
+        hamburger.setAttribute('aria-expanded', 'true');
+        document.body.classList.add('mobile-menu-open');
+    };
+
+    const closeMenu = () => {
+        mobileMenu.classList.remove('is-open');
+        mobileMenu.setAttribute('aria-hidden', 'true');
+        hamburger.setAttribute('aria-expanded', 'false');
+        document.body.classList.remove('mobile-menu-open');
+    };
+
+    hamburger.addEventListener('click', openMenu);
+    if (closeBtn)   closeBtn.addEventListener('click', closeMenu);
+    if (backdrop)   backdrop.addEventListener('click', closeMenu);
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeMenu();
+    });
+
+    // Submenús del panel móvil
+    const mobileToggles = mobileMenu.querySelectorAll('.mobile-dropdown-toggle');
+    mobileToggles.forEach((toggle) => {
+        toggle.addEventListener('click', () => {
+            const submenu  = toggle.nextElementSibling;
+            const isOpen   = toggle.getAttribute('aria-expanded') === 'true';
+            toggle.setAttribute('aria-expanded', isOpen ? 'false' : 'true');
+            if (submenu) submenu.hidden = isOpen;
+        });
+    });
+});
+
+// end mobile hamburger menu
+
+
 // hydraulic engineering 
 
 document.addEventListener("DOMContentLoaded", function () {

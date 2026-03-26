@@ -1,8 +1,6 @@
 @extends('frontend.layouts.master')
 
 @section('styles')
-    @vite('resources/css/service.css')
-    {{-- @vite('resources/css/servProyectIndus.css') --}}
 @endsection
 
 @section('content')

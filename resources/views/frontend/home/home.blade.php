@@ -1,7 +1,6 @@
 @extends('frontend.layouts.master')
 
 @section('styles')
-    @vite(['resources/css/home.css'])
 @endsection
 
 @section('content')

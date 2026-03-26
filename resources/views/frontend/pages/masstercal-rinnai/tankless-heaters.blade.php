@@ -1,6 +1,5 @@
 @extends('frontend.layouts.master')
 @section('styles')
-    @vite(['resources/css/masstercal-rinnai.css'])
 @endsection
 @section('content')
 <section class="rp-hero" aria-labelledby="rp-hero-title">
