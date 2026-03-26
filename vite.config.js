@@ -11,6 +11,7 @@ export default defineConfig({
                 'resources/js/app.js',
                 'resources/css/home.css',
                 'resources/css/company.css',
+                'resources/css/contact.css',
                 'resources/css/products.css',
                 'resources/css/masstercal-rinnai.css',
                 'resources/css/service.css',

@@ -44,6 +44,11 @@ main,body{
     justify-content: center;
     align-items: center;
     border-bottom: 1px solid var(--border-header-footer-color);
+    position: sticky;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
 }
 .header_logo{
     width: 125px;
@@ -195,7 +200,169 @@ main,body{
 }
 
 .button-primary.header:hover{
-    transform: translateY(0.0px);
+    transform: none;
+}
+
+.wa-float {
+    position: fixed;
+    z-index: 60;
+    bottom: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 10px;
+}
+
+.wa-float--right {
+    right: 24px;
+}
+
+.wa-float--left {
+    left: 24px;
+    align-items: flex-start;
+}
+
+.wa-tooltip {
+    width: 250px;
+    background: #ffffff;
+    border: 1px solid #f0f0f0;
+    border-radius: 12px;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.14);
+    padding: 14px;
+    opacity: 0;
+    transform: translateY(8px) scale(0.96);
+    transition: opacity 0.25s ease, transform 0.25s ease;
+    pointer-events: none;
+}
+
+.wa-float:hover .wa-tooltip {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
+.wa-tooltip__title {
+    margin: 0 0 6px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #1f2937;
+}
+
+.wa-tooltip__message {
+    margin: 0;
+    font-size: 12px;
+    line-height: 1.45;
+    color: #4b5563;
+}
+
+.wa-tooltip__footer {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid #f1f5f9;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    font-size: 11px;
+}
+
+.wa-tooltip__online {
+    color: #16a34a;
+    font-weight: 700;
+}
+
+.wa-tooltip__schedule {
+    color: #6b7280;
+}
+
+.wa-button {
+    position: relative;
+    width: 62px;
+    height: 62px;
+    border-radius: 999px;
+    background: #25D366;
+    color: #ffffff;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    text-decoration: none;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.2);
+    transition: transform 0.25s ease, background-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.wa-button:hover {
+    background: #20bd5a;
+    transform: scale(1.08);
+    box-shadow: 0 14px 28px rgba(0, 0, 0, 0.24);
+}
+
+.wa-icon {
+    width: 30px;
+    height: 30px;
+    animation: waPulseIcon 1.6s ease-in-out infinite;
+}
+
+.wa-notify {
+    position: absolute;
+    right: -2px;
+    top: -2px;
+    width: 12px;
+    height: 12px;
+}
+
+.wa-notify__ping,
+.wa-notify__dot {
+    position: absolute;
+    border-radius: 999px;
+}
+
+.wa-notify__ping {
+    inset: 0;
+    background: #4ade80;
+    opacity: 0.7;
+    animation: waPing 1.4s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+.wa-notify__dot {
+    inset: 0;
+    background: #16a34a;
+}
+
+@keyframes waPulseIcon {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.08); }
+}
+
+@keyframes waPing {
+    75%, 100% {
+        transform: scale(1.7);
+        opacity: 0;
+    }
+}
+
+@media (max-width: 768px) {
+    .wa-float--right {
+        right: 16px;
+        bottom: 16px;
+    }
+
+    .wa-float--left {
+        left: 16px;
+        bottom: 16px;
+    }
+
+    .wa-tooltip {
+        width: 220px;
+    }
+
+    .wa-button {
+        width: 56px;
+        height: 56px;
+    }
+
+    .wa-icon {
+        width: 26px;
+        height: 26px;
+    }
 }
 
 /* Main content */

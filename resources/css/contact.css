@@ -1,0 +1,646 @@
+:root {
+    /* ── Navegación / Header ── */
+    --text-header-color-nav: #d1d5dc;
+    --text-header-color-nav-hover: #0054ff;
+    --text-header-color-nav-hover-white: #ffffff;
+    --header-background-color: #141516;
+    --border-header-footer-color: #2e3a46;
+
+    /* ── Footer ── */
+    --footer-background-color: #141516;
+    --text-footer-color-links: #99a1af;
+    --text-footer-color-links-hover: #ffffff;
+    --border-footer-color-legal: #2e3a46;
+
+    /* ── Colores base ── */
+    --background-primary: #141516;
+    --bg-dark: #141516;
+    --bg-dark-2: #141516;
+    --bg-light: #f5f7fa;
+    --section-example: #0E1A2B;
+    --header-footer-color: #1A2535;
+
+    /* ── Botones principales ── */
+    --button-primary-color: #0054ff;
+    --button-primary-color-hover: #0043cc;
+    --button-serondary-color: transparent;
+    --button-secondary-color-hover: #ffffff;
+
+    /* ── Variante Rinnai ── */
+    --secondary-color-rinnai: #c62828;
+    --button-primary-color-rinnai: #c62828;
+    --button-primary-color-hover-rinnai: #b71c1c;
+
+    /* ── Toggle / Nav dark ── */
+    --toggle-header: #2e3a46;
+    --toggle-header-nav: #364153;
+
+    /* ── Tipografía ── */
+    --font-family: "Inter", sans-serif;
+
+    /* ── Cards dark ── */
+    --card-dark: rgba(255, 255, 255, 0.1);
+    --card-line: rgba(255, 255, 255, 0.2);
+
+    /* ── Texto ── */
+    --text-soft: #d1d5db;
+    --text-muted: #9ca3af;
+    --text-body: #4b5563;
+
+    /* ── Bordes / Radios / Sombras ── */
+    --border-color: #e5e7eb;
+    --radius-sm: 12px;
+    --radius-md: 18px;
+    --radius-lg: 24px;
+    --shadow-default: 0 14px 38px rgba(0, 0, 0, 0.16);
+
+    /* ── Colores de acento (Solar) ── */
+    --orange: rgb(255, 140, 0);
+    --blue: rgb(0, 84, 255);
+    --green: rgb(34, 197, 94);
+
+        /* ── Nuevas: Instrumentación Industrial ── */
+    --bg-section: #2e3a46;                      /* fondo oscuro de secciones (= --border-header-footer-color) */
+    --inst-red: #c62828;                         /* rojo instrumental (= --secondary-color-rinnai) */
+    --inst-red-dark: #8b0000;                    /* rojo oscuro para gradientes CTA */
+    --inst-red-alpha: rgba(198, 40, 40, 0.082);  /* fondo tenue de íconos */
+    --inst-red-alpha-lg: rgba(198, 40, 40, 0.19);/* fondo tenue mayor para badges */
+    --inst-blue: #0054ff;                        /* azul instrumento (= --secondary-color) */
+    --inst-blue-dark: #0043cc;                   /* azul oscuro hover (= --button-primary-color-hover) */
+}
+
+/* ==============================
+   HERO SECTION STYLES
+   ============================== */
+
+.hero-contact {
+    background: var(--header-background-color);
+    color: var(--text-white-color);
+    position: relative;
+    font-family: var(--font-family);
+    overflow: hidden;
+}
+.container.hero-container{
+    padding: 30px 200px;
+}
+
+.hero-overlay {
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 40%;
+    height: 100%;
+    background: var(--secondary-color);
+    opacity: 0.1;
+    transform: skewX(20deg);
+    z-index: 1;
+}
+
+.hero-container {
+    position: relative;
+    z-index: 10;
+    padding: 0 !important;
+}
+
+.hero-title {
+    font-size: 48px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    line-height: 1.2;
+}
+
+.hero-description {
+    font-size: 20px;
+    color: var(--text-description-color);
+    max-width: 600px;
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* ==============================
+   CTA SECTION STYLES
+   ============================== */
+.cta-section {
+    background: var(--secondary-color);
+    color: var(--text-white-color);
+    padding: 60px 20px;
+    position: relative;
+    overflow: hidden;
+}
+
+.cta-section::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect fill="%23000000" width="100" height="100"/><circle cx="50" cy="50" r="40" fill="none" stroke="%23ffffff" stroke-width="0.5" opacity="0.1"/></svg>');
+    opacity: 0.05;
+    pointer-events: none;
+}
+
+.cta-container {
+    position: relative;
+    z-index: 10;
+    text-align: center;
+    padding: 0 !important;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.cta-title {
+    font-size: 36px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    line-height: 1.2;
+}
+
+.cta-subtitle {
+    font-size: 18px;
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 32px;
+    line-height: 1.5;
+}
+
+.btn-whatsapp {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    background: #25D366;
+    color: var(--text-white-color);
+    padding: 18px 36px;
+    border-radius: 50px;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 18px;
+    border: 4px solid rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    cursor: pointer;
+}
+
+.btn-whatsapp:hover {
+    background: #20bd5a;
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
+}
+
+.btn-whatsapp svg {
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+}
+
+/* ==============================
+   CONTACT INFO SECTION STYLES
+   ============================== */
+.contact-info-section {
+    background: var(--background-primary-white);
+}
+.container.contact-info-container{
+    display: flex;
+    padding: 40px 200px;
+    justify-content: space-between;
+    align-items: start;
+}
+.cotact-info{
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.info-header {
+    max-width: 600px;
+}
+
+.info-title {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--header-background-color);
+    margin-bottom: 12px;
+}
+
+.title-underline {
+    width: 80px;
+    height: 4px;
+    background: var(--secondary-color);
+    border-radius: 2px;
+    margin-bottom: 24px;
+}
+
+.info-subtitle {
+    font-size: 16px;
+    color: var(--text-body);
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* Contact Grid - 2 columns, responsive */
+.contact-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+/* Contact Card Styles */
+.contact-card {
+    width: 50%;
+    display: flex;
+    gap: 20px;
+    padding: 24px;
+
+    transition: all 0.3s ease;
+}
+
+.contact-card:hover {
+    box-shadow: var(--shadow-default);
+    transform: translateY(-4px);
+    border-color: var(--secondary-color);
+}
+
+.contact-icon-wrapper {
+    flex-shrink: 0;
+    width: 56px;
+    height: 56px;
+    background: #E3F2FD;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--secondary-color);
+}
+
+.contact-icon-wrapper svg {
+    width: 24px;
+    height: 24px;
+    stroke-width: 2;
+}
+
+.contact-content h3 {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--header-background-color);
+    margin: 0 0 12px 0;
+    line-height: 1.4;
+}
+
+.contact-content {
+    flex-grow: 1;
+}
+
+.contact-content address {
+    font-style: normal;
+    font-size: 14px;
+    color: var(--text-body);
+    line-height: 1.7;
+}
+
+.phone-list,
+.email-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.phone-list a,
+.email-list a,
+.contact-content a {
+    color: var(--text-body);
+    text-decoration: none;
+    font-size: 14px;
+    transition: color 0.2s ease;
+    font-weight: 500;
+}
+
+.phone-list a:hover,
+.email-list a:hover,
+.contact-content a:hover {
+    color: var(--secondary-color);
+}
+
+/* Additional Features Section */
+.additional-features {
+    max-width: 500px;
+    padding-top: 22px;
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+    gap: 8%;
+    border-top: 1px solid var(--border-color);
+}
+
+.feature-item {
+    width: 100%;
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+}
+
+.feature-item svg {
+    width: 24px;
+    height: 24px;
+    color: var(--secondary-color);
+    margin-top: 4px;
+    flex-shrink: 0;
+}
+
+.feature-item strong {
+    display: block;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--header-background-color);
+    margin-bottom: 4px;
+}
+
+.feature-item p {
+    font-size: 14px;
+    color: var(--text-body);
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* ==============================
+   FORM SECTION STYLES
+   ============================== */
+.contact-form-section {
+    padding: 80px 20px;
+    background: var(--background-primary-white);
+}
+
+.form-container {
+    padding: 0 !important;
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.form-wrapper {
+    width: 80%;
+    background: var(--bg-light);
+    padding: 52px;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-default);
+    border: 1px solid var(--border-color);
+    font-family: var(--font-family);
+}
+
+.form-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--header-background-color);
+    margin-bottom: 32px;
+    line-height: 1.3;
+}
+
+.contact-form {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 20px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form-group.full-width {
+    grid-column: 1 / -1;
+}
+
+.contact-form label {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--header-background-color);
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-family: var(--font-family);
+}
+
+.contact-form input,
+.contact-form select,
+.contact-form textarea {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-family: var(--font-family);
+    font-size: 14px;
+    color: var(--text-body);
+    background: var(--bg-light);
+    transition: all 0.2s ease;
+    box-sizing: border-box;
+    font-family: var(--font-family);
+}
+
+.contact-form input:focus,
+.contact-form select:focus,
+.contact-form textarea:focus {
+    outline: none;
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 0 3px rgba(0, 84, 255, 0.1);
+    background: var(--bg-light);
+}
+
+.contact-form textarea {
+    resize: vertical;
+    min-height: 120px;
+    font-family: var(--font-family);
+}
+
+.contact-form select {
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23141516' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 36px;
+}
+
+.form-submit {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 16px 24px;
+    font-size: 16px;
+    font-weight: 600;
+    margin-top: 8px;
+    font-family: var(--font-family);
+}
+
+.form-submit:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.form-submit svg {
+    width: 20px;
+    height: 20px;
+}
+
+.form-privacy {
+    font-size: 12px;
+    color: var(--text-description-color);
+    text-align: center;
+    margin-top: 16px;
+    line-height: 1.6;
+}
+
+/* ==============================
+   MAP SECTION STYLES
+   ============================== */
+.map-section {
+    width: 100%;
+    min-height: 400px;
+}
+
+.map-placeholder {
+    width: 100%;
+    height: 100%;
+    min-height: 400px;
+    background: linear-gradient(135deg, #2E3A46 0%, #1A2535 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.map-placeholder svg {
+    width: 48px;
+    height: 48px;
+    color: var(--secondary-color);
+}
+
+.map-text {
+    font-size: 20px;
+    font-weight: 600;
+    margin: 0;
+    color: var(--text-white-color);
+}
+
+.map-subtext {
+    font-size: 14px;
+    margin: 0;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+/* ==============================
+   SCREEN READER ONLY CLASS
+   ============================== */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+}
+
+/* ==============================
+   RESPONSIVE DESIGN
+   ============================== */
+@media (max-width: 768px) {
+    .hero-title {
+        font-size: 32px;
+    }
+
+    .hero-description {
+        font-size: 16px;
+    }
+
+    .cta-title {
+        font-size: 24px;
+    }
+
+    .cta-subtitle {
+        font-size: 16px;
+    }
+
+    .info-title {
+        font-size: 24px;
+    }
+
+    .contact-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .additional-features {
+        grid-template-columns: 1fr;
+    }
+
+    .form-wrapper {
+        padding: 32px 24px;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .hero {
+        padding: 60px 0;
+    }
+
+    .contact-info-section,
+    .contact-form-section {
+        padding: 60px 20px;
+    }
+
+    .map-placeholder {
+        min-height: 300px;
+    }
+}
+
+@media (max-width: 480px) {
+    .hero-title {
+        font-size: 24px;
+    }
+
+    .hero-description {
+        font-size: 14px;
+    }
+
+    .cta-title {
+        font-size: 20px;
+    }
+
+    .btn-whatsapp {
+        flex-direction: column;
+        padding: 16px 24px;
+        font-size: 16px;
+    }
+
+    .contact-card {
+        gap: 16px;
+    }
+
+    .info-title {
+        font-size: 20px;
+    }
+
+    .form-wrapper {
+        padding: 24px 16px;
+    }
+
+    .form-title {
+        font-size: 24px;
+    }
+
+    .contact-icon-wrapper {
+        width: 48px;
+        height: 48px;
+    }
+}

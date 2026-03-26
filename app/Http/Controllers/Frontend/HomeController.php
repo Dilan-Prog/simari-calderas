@@ -16,6 +16,10 @@ class HomeController extends Controller
     {
         return view('frontend.pages.company.company');
     }
+    public function contact()
+    {
+        return view('frontend.pages.contact');
+    }
 
 
     // SERVICES PAGES
