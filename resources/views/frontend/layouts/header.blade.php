@@ -25,7 +25,6 @@
                     <li><a href="{{ route('chiller-maintenance') }}">Mantenimiento de Chillers</a></li>
                     <li><a href="{{ route('descale-boilers') }}">Desincrustación de Calderas</a></li>
                     <li><a href="{{ route('industrial-project') }}">Proyecto Industrial</a></li>
-                    {{-- <li><a href="/soluciones/mantenimiento">Conversión de quemadores</a></li> --}}
                     <li><a href="{{ route('hair-repair')}}">Reparación de Secadoras</a></li>
                 </ul>
             </li>
@@ -83,5 +82,95 @@
             </svg>
             <button class="button-primary header">Solicitar Cotizacion</button>
         </ul>
+
+        <!-- Hamburger button (mobile only) -->
+        <button class="nav-hamburger" id="nav-hamburger" type="button" aria-label="Abrir menú" aria-expanded="false" aria-controls="mobile-menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
     </nav>
+
+    <!-- Mobile menu -->
+    <div class="mobile-menu" id="mobile-menu" aria-hidden="true">
+        <div class="mobile-menu-backdrop" id="mobile-menu-backdrop"></div>
+        <div class="mobile-menu-panel">
+            <div class="mobile-menu-header">
+                <a href="/" aria-label="Ir al inicio">
+                    <img class="header_logo" src="{{ Vite::asset('resources/images/logo/logo_SVG.svg') }}" alt="Logo Simari Calderas">
+                </a>
+                <button class="mobile-menu-close" id="mobile-menu-close" type="button" aria-label="Cerrar menú">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 22 22" fill="none">
+                        <path d="M17 5L5 17M5 5l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                </button>
+            </div>
+
+            <nav class="mobile-nav">
+                <ul>
+                    <li><a href="{{ route('home') }}">Inicio</a></li>
+                    <li><a href="{{ route('company') }}">Empresa</a></li>
+
+                    <li>
+                        <button class="mobile-dropdown-toggle" type="button" aria-expanded="false">
+                            Servicios
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 14 14" fill="none">
+                                <path d="M3.49683 5.24536L6.99367 8.74221L10.4905 5.24536" stroke="currentColor" stroke-width="1.16561" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </button>
+                        <ul class="mobile-dropdown" hidden>
+                            <li><a href="{{ route('industrial-maintenance') }}">Mantenimiento Industrial</a></li>
+                            <li><a href="{{ route('hydraulic-engineering') }}">Ingeniería Hidráulica</a></li>
+                            <li><a href="{{ route('water-treatment') }}">Tratamiento de Agua</a></li>
+                            <li><a href="{{ route('equipement-calibration') }}">Calibración de Equipos</a></li>
+                            <li><a href="{{ route('automation') }}">Automatización</a></li>
+                            <li><a href="{{ route('chiller-maintenance') }}">Mantenimiento de Chillers</a></li>
+                            <li><a href="{{ route('industrial-project') }}">Proyectos Industriales</a></li>
+                            <li><a href="{{ route('descale-boilers') }}">Desincrustación de Calderas</a></li>
+                            <li><a href="{{ route('hair-repair') }}">Reparación de Secadoras</a></li>
+                        </ul>
+                    </li>
+
+                    <li>
+                        <button class="mobile-dropdown-toggle" type="button" aria-expanded="false">
+                            Productos
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 14 14" fill="none">
+                                <path d="M3.49683 5.24536L6.99367 8.74221L10.4905 5.24536" stroke="currentColor" stroke-width="1.16561" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </button>
+                        <ul class="mobile-dropdown" hidden>
+                            <li><a href="{{ route('simari-boilers') }}">Calderas SIMARI</a></li>
+                            <li><a href="{{ route('solar-heaters') }}">Calentadores Solares</a></li>
+                            <li><a href="{{ route('industrial-instrumentation') }}">Instrumentación Industrial</a></li>
+                            <li><a href="{{ route('water-treatment') }}">Tratamiento de Agua Anti-incrustante</a></li>
+                            <li><a href="{{ route('spare-parts') }}">Refacciones y Mantenimiento</a></li>
+                        </ul>
+                    </li>
+
+                    <li>
+                        <button class="mobile-dropdown-toggle" type="button" aria-expanded="false">
+                            Masstercal Rinnai
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 14 14" fill="none">
+                                <path d="M3.49683 5.24536L6.99367 8.74221L10.4905 5.24536" stroke="currentColor" stroke-width="1.16561" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </button>
+                        <ul class="mobile-dropdown" hidden>
+                            <li><a href="{{ route('heat-pumps') }}">Bombas de Calor</a></li>
+                            <li><a href="{{ route('water-heaters') }}">Calentadores De Agua</a></li>
+                            <li><a href="{{ route('electric-heaters') }}">Calentadores Eléctricos</a></li>
+                            <li><a href="{{ route('tankless-heaters') }}">Calentadores de Paso a Gas</a></li>
+                            <li><a href="{{ route('softeners-filters') }}">Suavizadores y Filtros</a></li>
+                            <li><a href="{{ route('storage-tanks') }}">Tanques de Almacenamiento</a></li>
+                        </ul>
+                    </li>
+
+                    <li><a href="/contacto">Contacto</a></li>
+                </ul>
+            </nav>
+
+            <div class="mobile-menu-actions">
+                <a href="/contacto" class="button-primary">Solicitar Cotización</a>
+            </div>
+        </div>
+    </div>
 </header>
