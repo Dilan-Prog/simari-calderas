@@ -1,6 +1,5 @@
 @extends('frontend.layouts.master')
 @section('styles')
-    @vite(['resources/css/privacy-notice.css'])
 @endsection
 @section('content')
     <section class="simari-privacy-body" aria-label="Contenido del aviso">

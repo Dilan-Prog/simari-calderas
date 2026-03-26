@@ -1,0 +1,19 @@
+/* ============================================================
+   responsive/desktop.css — Ajustes para pantallas grandes
+   Aplica a: max-width: 1200px (escritorios medianos)
+   ============================================================ */
+
+@media (max-width: 1200px) {
+    .main-nav-header {
+        padding: 20px 80px;
+    }
+    .main-nav-header ul.nav-link {
+        gap: 32px;
+    }
+    footer {
+        padding: 64px 80px 0 80px;
+    }
+    .container {
+        padding: 100px 80px;
+    }
+}

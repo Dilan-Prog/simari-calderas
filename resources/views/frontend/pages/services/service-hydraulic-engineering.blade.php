@@ -1,6 +1,5 @@
 @extends('frontend.layouts.master')
 @section('styles')
-    @vite(['resources/css/service.css'])
 @endsection
 @section('content')
     <!-- SECCIÓN: HERO -->
