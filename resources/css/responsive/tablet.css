@@ -62,3 +62,42 @@
         grid-column: auto;
     }
 }
+
+/* ================================================================== */
+/* PÁGINAS — Company (tablet)                                          */
+/* ================================================================== */
+
+/* ------------------------------------------------------------------ */
+/* max-width: 1024px — Company cards y encabezados                    */
+/* ------------------------------------------------------------------ */
+@media (max-width: 1024px) {
+    .company-section-header     { text-align: center; }
+    .company-value-card         { padding: 28px 20px; }
+    .company-hero               { min-height: 480px; }
+}
+
+/* ------------------------------------------------------------------ */
+/* max-width: 992px — Calibración segunda sección                     */
+/* ------------------------------------------------------------------ */
+@media (max-width: 992px) {
+    .second-section-service-calibration { gap: 40px; }
+    .article-container-fourth-service-calibration {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+    }
+}
+
+/* ================================================================== */
+/* PÁGINAS — Productos SIMARI (tablet)                                 */
+/* ================================================================== */
+
+/* ------------------------------------------------------------------ */
+/* max-width: 1024px — Boilers hero                                    */
+/* ------------------------------------------------------------------ */
+@media (max-width: 1024px) {
+    .boilers-hero__actions {
+        gap: 16px;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+}

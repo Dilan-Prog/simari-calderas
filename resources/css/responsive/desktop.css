@@ -17,3 +17,19 @@
         padding: 100px 80px;
     }
 }
+
+/* ================================================================== */
+/* PÁGINAS — Company (desktop grande)                                  */
+/* ================================================================== */
+@media (max-width: 1200px) {
+    .company-grid-values    { grid-template-columns: repeat(3, 1fr); }
+    .company-hero           { min-height: 520px; }
+    .company-hero-desc      { font-size: 18px; }
+}
+
+/* ================================================================== */
+/* PÁGINAS — Productos SIMARI (desktop grande)                         */
+/* ================================================================== */
+@media (max-width: 1200px) {
+    .boilers-hero__actions  { gap: 20px; }
+}
