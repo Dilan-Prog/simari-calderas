@@ -7,6 +7,7 @@
 /* BOTÓN FLOTANTE WHATSAPP                                              */
 /* HTML: resources/views/frontend/layouts/footer.blade.php (al final)  */
 /* ------------------------------------------------------------------ */
+/* Contenedor flotante */
 .wa-float {
   position: fixed;
   right: 24px;
@@ -42,7 +43,7 @@
 
 .wa-tooltip__message {
   margin: 0 0 10px;
-  font-size: 12px;
+  font-size: 17px;
   line-height: 1.3;
   color: #4b5563;
 }

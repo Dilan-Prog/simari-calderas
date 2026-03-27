@@ -180,3 +180,99 @@
     footer                  { padding: 32px 12px 0 12px; }
     .mobile-menu-panel      { max-width: 100%; }
 }
+
+/* ================================================================== */
+/* PÁGINAS — Company                                                    */
+/* ================================================================== */
+
+/* ------------------------------------------------------------------ */
+/* 768px — Company hero y tarjetas de valores                          */
+/* ------------------------------------------------------------------ */
+@media (max-width: 768px) {
+    .company-hero           { min-height: 400px; }
+    .company-hero-desc      { font-size: 17px; }
+    .company-section-header { text-align: center; }
+    .company-section-header .company-badge { margin: 0 auto 12px; }
+    .company-value-card     { padding: 24px 20px; }
+}
+
+/* ------------------------------------------------------------------ */
+/* 480px — Company ajustes compactos                                   */
+/* ------------------------------------------------------------------ */
+@media (max-width: 480px) {
+    .company-value-card     { padding: 20px 16px; }
+}
+
+/* ================================================================== */
+/* PÁGINAS — Servicios (hero compartido)                               */
+/* ================================================================== */
+
+/* ------------------------------------------------------------------ */
+/* 768px — Hero de servicios (mantenimiento, chillers, etc.)           */
+/* ------------------------------------------------------------------ */
+@media (max-width: 768px) {
+    .hero-section-hair-repair   { min-height: 400px; }
+    .hero-hair-repair           { padding: 32px 0; }
+    .hero-content               { text-align: left; }
+
+    /* Calibración — segunda sección con grid de 2 columnas */
+    .second-section-service-calibration { grid-template-columns: 1fr; gap: 40px; }
+    .service-calibration-table-aplication { padding: 24px 20px; }
+    .buttons-container-service-calibration { flex-direction: column; gap: 12px; }
+    .article-container-fourth-service-calibration { grid-template-columns: 1fr; gap: 20px; }
+
+    /* Calibración — accordion grid */
+    .accordion__grid    { grid-template-columns: 1fr; gap: 20px; }
+}
+
+/* ------------------------------------------------------------------ */
+/* 480px — Servicios ajustes compactos                                 */
+/* ------------------------------------------------------------------ */
+@media (max-width: 480px) {
+    .hero-section-hair-repair   { min-height: 360px; }
+    .first-content-service-calibration { padding: 60px 0; }
+}
+
+/* ================================================================== */
+/* PÁGINAS — Productos SIMARI                                          */
+/* ================================================================== */
+
+/* ------------------------------------------------------------------ */
+/* 768px — Boilers hero acciones                                       */
+/* ------------------------------------------------------------------ */
+@media (max-width: 768px) {
+    .boilers-hero__actions {
+        flex-direction: column;
+        gap: 12px;
+        align-items: stretch;
+    }
+    .boilers-hero__actions a,
+    .boilers-hero__actions button {
+        width: 100%;
+        justify-content: center;
+        text-align: center;
+    }
+}
+
+/* ================================================================== */
+/* COMPONENTES — WhatsApp flotante                                     */
+/* ================================================================== */
+
+/* ------------------------------------------------------------------ */
+/* 480px — Botón WhatsApp compacto                                     */
+/* ------------------------------------------------------------------ */
+@media (max-width: 480px) {
+    .wa-float           { bottom: 12px; right: 12px; }
+    .wa-button          { width: 52px; height: 52px; }
+    .wa-tooltip         { width: 230px; font-size: 13px; }
+}
+
+/* ------------------------------------------------------------------ */
+/* 360px — Botón WhatsApp mínimo                                       */
+/* ------------------------------------------------------------------ */
+@media (max-width: 360px) {
+    .wa-float           { bottom: 8px; right: 8px; }
+    .wa-button          { width: 48px; height: 48px; }
+    .wa-tooltip         { width: 200px; font-size: 12px; }
+    .wa-tooltip__title  { font-size: 13px; }
+}

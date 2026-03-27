@@ -203,6 +203,7 @@
      Ubicación: resources/views/frontend/layouts/footer.blade.php (al final)
      Estilos:   resources/css/components/navbar.css → .whatsapp-float
 ====================================================== -->
+<!-- WhatsApp Float Button -->
 <div class="wa-float wa-float--right" aria-label="Chat de WhatsApp">
 
     <div class="wa-tooltip" role="status" aria-live="polite">
