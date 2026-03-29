@@ -5,15 +5,21 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <!-- SEO BASICS -->
     <title>Calderas industriales y mantenimiento 24/7 | SIMARI Calderas</title>
+    
+    <link rel="preconnect" href="https://www.googletagmanager.com">
+    <link rel="preconnect" href="https://www.google-analytics.com">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
     <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-QRCNC1DEYM"></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-065DGYYW1C"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
 
-      gtag('config', 'G-QRCNC1DEYM');
+      gtag('config', 'G-065DGYYW1C');
     </script>
     <meta
       name="description"
@@ -40,11 +46,11 @@
       content="Diseño, instalación y mantenimiento de calderas industriales. Auditorías de eficiencia energética y soporte 24/7."
     />
     <meta name="twitter:image" content="https://tudominio.com/og-home.jpg" />
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" media="print" onload="this.media='all'">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @yield('styles')
+   
 
     <!-- JSON-LD: LocalBusiness / Organization -->
     <script type="application/ld+json">

@@ -8,7 +8,9 @@
     <section class="hero-section-home">
         <div class="hero-background-home">
             <img src="https://images.unsplash.com/photo-1707596830261-9c6138a6dd3b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w1NjM2Nzh8MHwxfHNlYXJjaHwxfHxpbmR1c3RyaWFsJTIwYm9pbGVyfGVufDB8fHx8MTcwNzU5NjgzMHww&ixlib=rb-4.0.3&q=80&w=1080"
-                alt="Caldera industrial">
+                alt="Sistema de calderas industriales operando en planta en México"
+                fetchpriority="high"
+                >
             <div class="hero-overlay-home"></div>
         </div>
 
@@ -49,7 +51,7 @@
     <section class="stats-section-home">
         <div class="container stats-grid-home">
             <div class="stat-item-home">
-                <p class="stat-number-home">25+</p>
+                <p class="stat-number-home">35+</p>
                 <p class="stat-label-home">Años de Experiencia</p>
             </div>
 
@@ -85,7 +87,9 @@
                 <div class="solution-card-home">
                     <div class="card-img-box-home">
                         <img src="https://images.unsplash.com/photo-1707596830261-9c6138a6dd3b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w1NjM2Nzh8MHwxfHNlYXJjaHwxfHxpbmR1c3RyaWFsJTIwYm9pbGVyfGVufDB8fHx8MTcwNzU5NjgzMHww&ixlib=rb-4.0.3&q=80&w=1080"
-                            alt="Calderas Industriales">
+                            alt="Calderas Industriales"
+                            loading="lazy"
+                            >
                         <div class="card-img-overlay-home"></div>
                         <div class="card-icon-overlay-home">
                             <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
@@ -116,7 +120,9 @@
                 <div class="solution-card-home">
                     <div class="card-img-box-home">
                         <img src="https://images.unsplash.com/photo-1759847552281-60e45956124d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxpbmR1c3RyaWFsJTIwd2VsZGluZyUyMG1hbnVmYWN0dXJpbmclMjBzcGFya3N8ZW58MXx8fDE3NzE1MjI0Mzd8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
-                            alt="Mantenimiento Integral">
+                            alt="Mantenimiento Integral"
+                            loading="lazy"
+                            >
                         <div class="card-img-overlay-home"></div>
                         <div class="card-icon-overlay-home">
                             <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
@@ -145,7 +151,9 @@
                 <div class="solution-card-home">
                     <div class="card-img-box-home">
                         <img src="https://images.unsplash.com/photo-1769152683420-f4eff91cb30b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx0ZWNobmljYWwlMjBibHVlcHJpbnQlMjBzY2hlbWF0aWNzJTIwZHJhd2luZ3xlbnwxfHx8fDE3NzE1MjI0Mzd8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
-                            alt="Eficiencia Energética">
+                            alt="Eficiencia Energética"
+                            loading="lazy"
+                            >
                         <div class="card-img-overlay-home"></div>
                         <div class="card-icon-overlay-home">
                             <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
@@ -236,7 +244,9 @@
                     <div class="blur-backdrop-home"></div>
                     <img class="why-img-home"
                         src="https://images.unsplash.com/photo-1631583087046-13c813d34e90?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080"
-                        alt="Engineering Team">
+                        alt="Engineering Team"
+                        loading="lazy"
+                        >
 
                     <div class="floating-card-home">
                         <p class="floating-number-home">100%</p>
@@ -279,5 +289,6 @@
 @endsection
 
 <script>
-    document.getElementById("year").textContent = new Date().getFullYear();
+    document.getElementById("year").textContent = new Date().getFullYear(); 
+    // QUITAR ESTO
 </script>

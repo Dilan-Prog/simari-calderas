@@ -144,8 +144,6 @@ document.addEventListener('DOMContentLoaded', () => {
 // end header
 
 
-// mobile hamburger menu
-
 document.addEventListener('DOMContentLoaded', () => {
     const hamburger  = document.getElementById('nav-hamburger');
     const mobileMenu = document.getElementById('mobile-menu');
@@ -168,9 +166,14 @@ document.addEventListener('DOMContentLoaded', () => {
         document.body.classList.remove('mobile-menu-open');
     };
 
-    hamburger.addEventListener('click', openMenu);
-    if (closeBtn)   closeBtn.addEventListener('click', closeMenu);
-    if (backdrop)   backdrop.addEventListener('click', closeMenu);
+    // ✅ Toggle en lugar de solo openMenu
+    hamburger.addEventListener('click', () => {
+        const isOpen = mobileMenu.classList.contains('is-open');
+        isOpen ? closeMenu() : openMenu();
+    });
+
+    if (closeBtn) closeBtn.addEventListener('click', closeMenu);
+    if (backdrop) backdrop.addEventListener('click', closeMenu);
 
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') closeMenu();
@@ -180,15 +183,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const mobileToggles = mobileMenu.querySelectorAll('.mobile-dropdown-toggle');
     mobileToggles.forEach((toggle) => {
         toggle.addEventListener('click', () => {
-            const submenu  = toggle.nextElementSibling;
-            const isOpen   = toggle.getAttribute('aria-expanded') === 'true';
+            const submenu = toggle.nextElementSibling;
+            const isOpen  = toggle.getAttribute('aria-expanded') === 'true';
             toggle.setAttribute('aria-expanded', isOpen ? 'false' : 'true');
             if (submenu) submenu.hidden = isOpen;
         });
     });
 });
-
-// end mobile hamburger menu
 
 
 // hydraulic engineering 

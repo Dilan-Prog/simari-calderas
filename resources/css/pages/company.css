@@ -123,7 +123,7 @@
     grid-template-columns: repeat(3, 1fr);
     gap: 30px;
     max-width: 1200px;
-    width: 107%;
+    width: 100%;
     margin: 0 auto;
 }
 .company-grid-values > div:nth-child(4) { grid-column: span 1 / 2; }

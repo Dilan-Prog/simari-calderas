@@ -11,7 +11,7 @@
                 <div class="company-hero-overlay"></div>
             </div>
 
-            <div class="container company-hero-content">s
+            <div class="container company-hero-content">
                 <h1 class="company-title-main">
                     Más de Tres Décadas
                     <span class="company-title-span">Impulsando la Industria</span>

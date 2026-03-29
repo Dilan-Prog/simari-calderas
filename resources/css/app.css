@@ -20,6 +20,7 @@
 /* 5. Páginas */
 @import "./pages/home.css";
 @import "./pages/company.css";
+@import "./contact.css";
 @import "./pages/products.css";
 @import "./pages/service.css";
 @import "./pages/masstercal-rinnai.css";

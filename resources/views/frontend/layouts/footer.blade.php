@@ -5,7 +5,7 @@
                 <section class="footer-brand" aria-label="Información de la empresa">
                     <a href="{{ route('home') }}" aria-label="Ir al inicio" itemprop="url" title="SIMARI Calderas - Inicio">
                         <img class="footer-logo" src="{{ Vite::asset('resources/images/logo/logo_SVG.svg') }}"
-                            alt="SIMARI Calderas - soluciones térmicas industriales y residenciales" itemprop="logo"
+                            alt="Industria Simari - soluciones térmicas industriales y residenciales" itemprop="logo"
                             loading="lazy" decoding="async">
                     </a>
                     <p itemprop="description">
@@ -73,9 +73,9 @@
                 <nav class="footer-nav" aria-label="Empresa">
                     <h2>Empresa</h2>
                     <ul>
-                        <li><a href="/empresa">Inicio</a></li>
-                        <li><a href="/empresa">Nosotros</a></li>
-                        <li><a href="/proyectos">Contacto</a></li>
+                        <li><a href="{{ route('home') }}">Inicio</a></li>
+                        <li><a href="{{ route('company') }}">Nosotros</a></li>
+                        <li><a href="{{ route('contact') }}">Contacto</a></li>
                     </ul>
                 </nav>
 

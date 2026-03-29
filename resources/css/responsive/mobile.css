@@ -20,7 +20,12 @@
     }
 
     /* Container */
-    .container {
+    .container,
+    .container.hero-content-home,
+    .container.stats-grid-home,
+    .container.solutions-section-home,
+    .container.why-grid-home,
+    .container.cta-box-home {
         padding: 60px 20px;
     }
 
@@ -73,8 +78,8 @@
     .hero-description-home  { font-size: 18px; }
     .hero-actions-home      { flex-direction: column; }
     .btn-home               { width: 100%; }
-    .stats-section-home     { margin: 20px auto 0; width: 90%; padding: 40px 20px; }
-    .stats-grid-home        { flex-direction: column; gap: 40px; }
+    .stats-section-home     { width: 90%; padding: 40px 20px; }
+    .stats-grid-home        { flex-direction: column;  gap: 40px; }
     .stat-item-home:not(:last-child)::after {
         width: 50px;
         height: 1px;
@@ -99,11 +104,6 @@
     .cta-title-home         { font-size: 32px; }
     .cta-buttons-home       { flex-direction: column; gap: 16px; }
 
-    /* Company */
-    .company-title-main     { font-size: 40px; }
-    .company-section-title  { font-size: 32px; }
-    .company-grid-values    { grid-template-columns: 1fr; }
-
     /* Terms & Conditions */
     .simari-terms-section   { padding: 64px 0; }
     .simari-terms-list      { gap: 32px; }
@@ -124,6 +124,9 @@
     .simari-privacy-card__row   { gap: 12px; }
     .simari-privacy-card__title { font-size: 22px; }
     .simari-privacy-cta     { padding: 24px; }
+    
+    /* company*/
+    .company-history-img { transform: none;}
 }
 
 /* ------------------------------------------------------------------ */
@@ -144,7 +147,10 @@
 @media (max-width: 480px) {
     .main-nav-header    { padding: 12px 16px; }
     .header_logo        { width: 100px; }
-    .container          { padding: 48px 16px; }
+    .container,
+    .container.hero-content-home {
+        padding: 48px 16px;
+    }
     .button-primary,
     .button-secondary {
         font-size: 15px;
@@ -155,10 +161,31 @@
     footer              { padding: 40px 16px 0 16px; }
     .footer-top         { padding: 0; }
     .footer-container   { gap: 28px; }
+    .footer-bottom p {
+      font-size: 10px;
+    }
+    .footer-brand .footer-logo{
+        width: 400px;
+    }
 
     /* Home */
-    .hero-title-home    { font-size: 36px; }
+    .hero-title-home    { font-size: 30px; }
     .hero-description-home { font-size: 16px; }
+    .stats-grid-home        {display: flex; flex-direction: row; flex-wrap: wrap;  gap: 40px; }
+    /* Container */
+    .container,
+    .container.hero-content-home,
+    .container.stats-grid-home,
+    .container.solutions-section-home,
+    .container.why-grid-home,
+    .container.cta-box-home {
+        padding: 40px 20px;
+    }
+    .container.cta-box-home{
+        width: 90%;
+    }
+
+
     .stat-number-home   { font-size: 36px; }
     .section-title-home,
     .why-title-home     { font-size: 28px; }
@@ -174,9 +201,18 @@
 /* 360px — Teléfonos muy pequeños                                       */
 /* ------------------------------------------------------------------ */
 @media (max-width: 360px) {
+
+
     .main-nav-header        { padding: 10px 12px; }
     .header_logo            { width: 90px; }
-    .container              { padding: 40px 12px; }
+    .container,
+    .container.hero-content-home {
+        padding: 40px 12px !important;
+    }
+    /* Home */
+    .hero-title-home    { font-size: 30px; }
+
+
     footer                  { padding: 32px 12px 0 12px; }
     .mobile-menu-panel      { max-width: 100%; }
 }
@@ -194,6 +230,14 @@
     .company-section-header { text-align: center; }
     .company-section-header .company-badge { margin: 0 auto 12px; }
     .company-value-card     { padding: 24px 20px; }
+    .container.company-hero-content,
+    .container.company-grid-history{
+        padding: 60px 20px;
+
+    }
+    .company-title-main     { font-size: 40px; }
+    .company-section-title  { font-size: 32px; }
+    .company-grid-values    { grid-template-columns: 1fr; }
 }
 
 /* ------------------------------------------------------------------ */
@@ -201,6 +245,13 @@
 /* ------------------------------------------------------------------ */
 @media (max-width: 480px) {
     .company-value-card     { padding: 20px 16px; }
+}
+
+/* ------------------------------------------------------------------ */
+/* 360px — Company Teléfonos muy pequeños                                       */
+/* ------------------------------------------------------------------ */
+@media (max-width: 360px) {
+    .company-value-card     { padding: 10px 8px; }
 }
 
 /* ================================================================== */

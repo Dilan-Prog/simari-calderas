@@ -1,7 +1,7 @@
 @extends('frontend.layouts.master')
 
 @section('styles')
-    @vite(['resources/css/contact.css'])
+     @vite(['resources/css/contact.css']) 
 @endsection
 
 @section('content')
