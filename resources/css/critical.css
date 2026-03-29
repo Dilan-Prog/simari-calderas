@@ -1,0 +1,558 @@
+/* ============================================================
+   critical.css — CSS Crítico para First Contentful Paint (FCP)
+   Incluye: design tokens, reset, layout, header/nav, hero, stats y botones.
+   Excluye: footer, secciones below-the-fold, páginas secundarias,
+            mobile drawer, WhatsApp flotante y responsive no crítico.
+   ============================================================ */
+
+
+/* ============================================================
+   1. DESIGN TOKENS — variables.css
+   ============================================================ */
+:root {
+    /* Colores principales */
+    --background-primary:                #141516;
+    --background-primary-white:          #F8F9FA;
+    --background--white:                 #ffffff;
+    --vaner-color:                       #0c1b2e;
+    --section-example:                   #0E1A2B;
+    --header-footer-color:               #1A2535;
+
+    /* Header / Nav */
+    --header-background-color:           #141516;
+    --border-header-footer-color:        #2E3A46;
+    --toggle-header:                     #2E3A46;
+    --toggle-header-nav:                 #364153;
+    --text-header-color-nav:             #D1D5DC;
+    --text-header-color-nav-hover:       #0054ff;
+    --text-header-color-nav-hover-white: #ffffff;
+
+    /* Footer */
+    --footer-background-color:           #141516;
+    --border-footer-color-legal:         #2E3A46;
+    --text-footer-color-links:           #99A1AF;
+    --text-footer-color-links-hover:     #ffffff;
+
+    /* Texto */
+    --text-white-color:                  #ffffff;
+    --text-white:                        #ffffff;
+    --text-black:                        #000000;
+    --text-subwhite-color:               #D1D5DC;
+    --text-description-color:            #6B7280;
+
+    /* Colores de acción / marca */
+    --secondary-color:                   #0054ff;
+    --secondary-color-rgb:               0, 84, 255;
+
+    /* Botones */
+    --button-primary-color:              #0054ff;
+    --button-primary-color-hover:        #0043cc;
+    --button-serondary-color:            transparent;
+    --button-secondary-color-hover:      #ffffff;
+
+    /* Tipografía */
+    --font-family:                       'Inter', sans-serif;
+
+    /* Sombras */
+    --shadow-sm:                         0 1px 2px rgba(0, 0, 0, 0.06);
+    --shadow-md:                         0 10px 20px rgba(0, 0, 0, 0.1);
+    --shadow-red-md:                     0 10px 20px rgba(127, 29, 29, 0.2);
+}
+
+
+/* ============================================================
+   2. RESET & BASE — base.css
+   ============================================================ */
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+main, body {
+    margin: 0;
+    padding: 0;
+    font-family: var(--font-family);
+}
+
+body {
+    color: #111827;
+}
+
+a {
+    color: inherit;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+body.mobile-menu-open {
+    overflow: hidden;
+}
+
+
+/* ============================================================
+   3. LAYOUT — layout.css
+   ============================================================ */
+.container {
+    width: 100%;
+    padding: 138px 200px;
+    box-sizing: border-box;
+}
+
+
+/* ============================================================
+   4. HEADER / NAVBAR — components/navbar.css (solo partes críticas)
+   Excluye: WhatsApp flotante, mobile drawer (.mobile-menu*)
+   ============================================================ */
+
+/* Header wrapper */
+.header-first {
+    font-family: var(--font-family);
+    background: var(--header-background-color);
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-bottom: 1px solid var(--border-header-footer-color);
+}
+
+.header_logo {
+    width: 125px;
+    height: auto;
+}
+
+/* Nav principal desktop */
+.main-nav-header {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px 200px;
+    box-sizing: border-box;
+}
+
+.main-nav-header ul {
+    display: flex;
+    align-items: center;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.main-nav-header ul.nav-link   { gap: 50px; }
+.main-nav-header ul.nav-action { gap: 26px; }
+
+.main-nav-header ul.nav-action svg {
+    width: 30px;
+    height: 30px;
+    display: inline-block;
+    vertical-align: middle;
+    color: var(--text-header-color-nav);
+    cursor: pointer;
+    transition: color 0.2s ease-in-out;
+}
+.main-nav-header ul.nav-action svg path {
+    stroke: currentColor;
+}
+.main-nav-header ul.nav-action svg:hover {
+    color: var(--text-header-color-nav-hover);
+}
+
+.main-nav-header ul li a {
+    color: var(--text-header-color-nav);
+    text-decoration: none;
+    font-size: 15px;
+    font-weight: 550;
+    letter-spacing: 0.2px;
+    line-height: 20px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: color 0.2s ease-in-out;
+}
+.main-nav-header ul li a svg {
+    width: 14px;
+    height: 14px;
+    display: inline-block;
+    vertical-align: middle;
+    color: inherit;
+}
+.main-nav-header ul li a svg path,
+.main-nav-header ul li a svg circle,
+.main-nav-header ul li a svg rect,
+.main-nav-header ul li a svg line {
+    stroke: currentColor;
+    fill: none;
+    transition: stroke 0.2s ease-in-out, fill 0.2s ease-in-out;
+}
+.main-nav-header ul li a:hover {
+    color: var(--text-header-color-nav-hover-white);
+}
+.main-nav-header ul li a svg use,
+.main-nav-header ul li a svg [fill] {
+    fill: currentColor;
+}
+
+/* Dropdown desktop */
+.has-dropdown {
+    position: relative;
+}
+
+.main-nav-header ul li .nav-dropdown-toggle {
+    background: transparent;
+    border: 0;
+    color: var(--text-header-color-nav);
+    font-size: 15px;
+    font-weight: 550;
+    letter-spacing: 0.2px;
+    line-height: 20px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    transition: color 0.2s ease-in-out;
+    padding: 0;
+    font-family: var(--font-family);
+}
+.main-nav-header ul li .nav-dropdown-toggle:hover,
+.main-nav-header ul li .nav-dropdown-toggle[aria-expanded="true"] {
+    color: var(--text-header-color-nav-hover-white);
+}
+.main-nav-header ul li .nav-dropdown-toggle svg {
+    width: 14px;
+    height: 14px;
+    color: currentColor;
+    transition: transform 0.2s ease-in-out;
+}
+.main-nav-header ul li .nav-dropdown-toggle svg path {
+    stroke: currentColor;
+}
+.main-nav-header ul li .nav-dropdown-toggle[aria-expanded="true"] svg {
+    transform: rotate(180deg);
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    min-width: 230px;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    padding: 8px 0;
+    background: var(--toggle-header);
+    border-radius: 8px;
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.18);
+    z-index: 40;
+}
+.dropdown-menu[hidden] {
+    display: none;
+}
+.dropdown-menu li {
+    width: 100%;
+}
+.main-nav-header ul li .dropdown-menu a {
+    color: var(--text-header-color-nav);
+    display: block;
+    font-size: 14px;
+    font-weight: 300;
+    line-height: 20px;
+    padding: 10px 14px;
+}
+.main-nav-header ul li .dropdown-menu a:hover {
+    color: var(--text-header-color-nav-hover-white);
+    background: var(--toggle-header-nav);
+    border-radius: 8px;
+}
+
+/* Botón CTA en header desktop */
+.button-primary.header {
+    padding: 10px 28px;
+    font-size: 18px;
+    border-radius: 6px;
+}
+.button-primary.header:hover {
+    transform: translateY(0px);
+}
+
+/* Hamburger (oculto en desktop, visible en móvil) */
+.nav-hamburger {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    width: 40px;
+    height: 40px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 6px;
+    transition: background 0.2s;
+    z-index: 60;
+}
+.nav-hamburger:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+.nav-hamburger span {
+    display: block;
+    width: 24px;
+    height: 2px;
+    background: #D1D5DC;
+    border-radius: 2px;
+}
+
+/* Mobile menu (oculto por defecto — no bloquea FCP) */
+.mobile-menu {
+    display: none;
+}
+
+
+/* ============================================================
+   5. BOTONES GLOBALES — components/buttons.css
+   ============================================================ */
+.button-primary {
+    background: var(--button-primary-color);
+    color: var(--text-white-color);
+    display: flex;
+    padding: 19.92px 39.994px 21.987px 39.994px;
+    justify-content: center;
+    align-items: center;
+    gap: 0.218px;
+    border-radius: 4px;
+    font-size: 20px;
+    font-style: normal;
+    line-height: 28px;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+    transition: all 0.1s ease-in-out;
+    font-family: var(--font-family);
+}
+.button-primary:hover {
+    background: var(--button-primary-color-hover);
+    transform: translateY(-2.5px);
+}
+
+.button-secondary {
+    background: var(--button-serondary-color);
+    color: var(--text-white-color);
+    display: flex;
+    padding: 19.92px 39.994px 21.987px 39.994px;
+    justify-content: center;
+    align-items: center;
+    gap: 0.218px;
+    border-radius: 4px;
+    font-size: 20px;
+    font-style: normal;
+    line-height: 28px;
+    font-weight: 700;
+    border: 2px solid white;
+    cursor: pointer;
+    font-family: var(--font-family);
+}
+.button-secondary:hover {
+    background: var(--button-secondary-color-hover);
+    color: black;
+}
+
+
+/* ============================================================
+   6. HERO SECTION — pages/home.css (sección above-the-fold)
+   ============================================================ */
+.hero-section-home,
+.stats-section-home {
+    font-family: var(--font-family);
+    box-sizing: border-box;
+}
+
+/* Hero */
+.hero-section-home {
+    position: relative;
+    background: var(--vaner-color);
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+}
+
+.hero-background-home,
+.hero-overlay-home {
+    position: absolute;
+    inset: 0;
+}
+.hero-background-home { z-index: 1; }
+.hero-background-home img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: right center;
+    opacity: 0.5;
+}
+.hero-overlay-home {
+    background: linear-gradient(to right, var(--background-primary) 0%, var(--background-primary) 5%, var(--background-primary) 50%, transparent 100%);
+    z-index: 2;
+}
+
+.container.hero-content-home {
+    padding: 75px 200px 130px 200px;
+    position: relative;
+    z-index: 3;
+}
+.hero-content-home { color: var(--text-white-color); }
+
+.badge-home {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 18px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 50px;
+    background: rgba(255, 255, 255, 0.03);
+    margin-bottom: 8px;
+}
+.badge-home .dot-home {
+    width: 8px;
+    height: 8px;
+    margin: 0;
+    padding: 0;
+    background: var(--secondary-color);
+    border-radius: 50%;
+    box-shadow: 0 0 8px var(--secondary-color);
+}
+.badge-text-home {
+    font-size: 13px;
+    font-weight: 600;
+    margin: 0;
+    text-transform: uppercase;
+    color: var(--text-subwhite-color);
+}
+
+.hero-title-home {
+    font-size: 64px;
+    font-weight: 700;
+    margin: 0;
+    color: var(--text-white-color);
+}
+.hero-title-home .text-highlight-home { color: var(--secondary-color); }
+
+.hero-description-home {
+    font-size: 20px;
+    line-height: 1.6;
+    color: var(--text-subwhite-color);
+    margin: 0 0 40px;
+    max-width: 700px;
+}
+
+.hero-actions-home {
+    display: flex;
+    gap: 16px;
+}
+
+
+/* ============================================================
+   7. STATS SECTION — pages/home.css (justo debajo del hero)
+   ============================================================ */
+.stats-section-home {
+    width: 100%;
+    margin: -50px auto 0;
+    display: flex;
+    justify-content: center;
+    position: relative;
+    z-index: 1;
+    border-radius: 12px;
+}
+.container.stats-grid-home {
+    background-color: var(--secondary-color);
+    width: 95%;
+    padding: 40px 200px;
+    gap: 60px;
+    margin: 0;
+    display: flex;
+    text-align: center;
+    color: var(--text-white-color);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+}
+.stat-item-home {
+    flex: 1;
+    position: relative;
+}
+.stat-item-home:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    left: 100%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    height: 50px;
+    width: 0.5px;
+    background: rgba(0, 0, 0, 0.2);
+}
+.stat-number-home {
+    font-size: 35px;
+    font-weight: 700;
+    margin: 0 0 5px;
+    line-height: 1;
+}
+.stat-label-home {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.9);
+    margin: 0;
+}
+
+
+/* ============================================================
+   8. RESPONSIVE CRÍTICO — mobile 768px (header + hero + stats)
+   ============================================================ */
+@media (max-width: 768px) {
+
+    /* Header */
+    .main-nav-header {
+        padding: 16px 20px;
+    }
+    .main-nav-header .nav-link,
+    .main-nav-header .nav-action {
+        display: none !important;
+    }
+    .nav-hamburger {
+        display: flex;
+    }
+
+    /* Container y hero */
+    .container,
+    .container.hero-content-home,
+    .container.stats-grid-home {
+        padding: 60px 20px;
+    }
+
+    /* Botones */
+    .button-primary,
+    .button-secondary {
+        font-size: 16px;
+        padding: 14px 28px;
+    }
+
+    /* Hero */
+    .hero-title-home       { font-size: 42px; }
+    .hero-description-home { font-size: 18px; }
+    .hero-actions-home     { flex-direction: column; }
+    .btn-home              { width: 100%; }
+
+    /* Stats */
+    .stats-section-home  { width: 90%; padding: 40px 20px; }
+    .stats-grid-home     { flex-direction: column; gap: 40px; }
+    .stat-item-home:not(:last-child)::after {
+        width: 50px;
+        height: 1px;
+        left: 50%;
+        top: 100%;
+        transform: translate(-50%, 20px);
+    }
+}
