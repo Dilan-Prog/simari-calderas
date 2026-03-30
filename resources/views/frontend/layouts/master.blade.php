@@ -21,6 +21,15 @@
 
       gtag('config', 'G-065DGYYW1C');
     </script>
+    {{-- @php SEE TO NEED TO OPTIMIZE THIS, MAYBE COMBINE WITH OTHER CRITICAL CSS OR INLINE ONLY THE MOST IMPORTANT PARTS
+         OR USE A TOOL TO EXTRACT CRITICAL CSS AUTOMATICALLY
+        $critical = file_get_contents(resource_path('css/critical.css'));
+    @endphp
+
+    <style>
+        {!! $critical !!}
+    </style> --}}
+
     <meta
       name="description"
       content="Diseño, instalación y mantenimiento de calderas industriales. Auditorías de eficiencia energética, soporte 24/7 y cumplimiento NOM/ASME."

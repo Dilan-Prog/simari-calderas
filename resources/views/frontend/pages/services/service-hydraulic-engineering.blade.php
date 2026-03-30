@@ -37,7 +37,7 @@
     </section>
 
     <!-- SECCIÓN: Detalle del Servicio y Aplicaciones -->
-        <section class="second-content-service-calibration">
+    <section class="second-content-service-calibration">
         <div class="container second-section-service-calibration">
             <div class="second-text-service-calibration">
                 <h2>¿En qué consiste el servicio de Ingeniería Hidráulica?</h2>

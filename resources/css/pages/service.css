@@ -1167,190 +1167,6 @@
     margin: 0;
     font-family: var(--font-family);
 }
-
-/* RESPONSIVE */
-@media (max-width: 1024px) {
-    .hydraulic-info-container {
-        padding: 70px 60px;
-    }
-
-    .hydraulic-info-title {
-        font-size: 34px;
-    }
-
-    .hydraulic-info-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-
-    .hydraulic-benefits-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .hydraulic-benefit-title,
-    .hydraulic-process-title {
-        font-size: 24px;
-    }
-
-    .hydraulic-benefit-text,
-    .hydraulic-process-text {
-        font-size: 16px;
-    }
-}
-
-@media (max-width: 768px) {
-    .hydraulic-info-container {
-        padding: 60px 20px;
-    }
-
-    .hydraulic-info-title {
-        font-size: 30px;
-        margin-bottom: 14px;
-    }
-
-    .hydraulic-info-description {
-        font-size: 15px;
-    }
-
-    .hydraulic-info-tabs {
-        gap: 12px;
-        margin-bottom: 32px;
-    }
-
-    .hydraulic-info-tab {
-        width: 100%;
-        padding: 14px 18px;
-    }
-
-    .hydraulic-info-grid {
-        grid-template-columns: 1fr;
-        gap: 20px;
-    }
-
-    .hydraulic-info-card,
-    .hydraulic-benefit-card,
-    .hydraulic-process-card {
-        padding: 24px 20px;
-    }
-
-    .hydraulic-benefit-inner,
-    .hydraulic-process-card {
-        flex-direction: column;
-        gap: 16px;
-    }
-
-    .hydraulic-process-number {
-        width: 68px;
-        height: 68px;
-        font-size: 26px;
-    }
-
-    .hydraulic-benefit-title,
-    .hydraulic-process-title,
-    .hydraulic-info-card-title {
-        font-size: 20px;
-    }
-
-    .hydraulic-benefit-text,
-    .hydraulic-process-text,
-    .hydraulic-info-card-text {
-        font-size: 15px;
-    }
-}
-/* =========================================
-   MEDIA QUERIES (DISEÑO RESPONSIVO GLOBAL)
-========================================= */
-
-/* Tablets / Pantallas medianas */
-@media (max-width: 1024px) {
-    .includes-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-
-@media (max-width: 992px) {
-    .hero-title {
-        font-size: 45px;
-    }
-    .stat-big-number {
-        font-size: 45px;
-    }
-    .process-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 50px 30px;
-    }
-    .benefits-grid {
-        gap: 20px;
-    }
-    .benefit-item {
-        padding: 25px 20px;
-    }
-}
-
-/* Dispositivos Móviles */
-@media (max-width: 768px) {
-    /* Ajustes de Padding General para Secciones en Móvil (Agrupados) */
-    .hero-section { min-height: 540px; }
-
-    .why-choose-simari-section,
-    .service-description-section-industrial,
-    .what-includes-section,
-    .benefits-section,
-    .work-process-section,
-    .final-cta-section {
-        padding: 60px 0;
-    }
-
-    .hero-title {
-        font-size: 38px;
-    }
-
-    .service-subtitle-industrial,
-    .cta-final-title,
-    .cta-final-title-industri {
-        font-size: 30px;
-        margin-bottom: 40px;
-    }
-
-    .cta-final-title,
-    .cta-final-title-industri {
-        font-size: 28px;
-    }
-
-    /* Cambio a 1 Columna en móviles */
-    .simari-stats-grid,
-    .applications-grid,
-    .includes-grid,
-    .benefits-grid,
-    .process-grid {
-        grid-template-columns: 1fr;
-    }
-
-    /* Ajustes específicos de espaciado en grillas móviles */
-    .simari-stats-grid { gap: 50px; }
-    .applications-grid { gap: 15px; }
-    .process-grid { gap: 40px; }
-
-    .applications-card {
-        padding: 30px 20px;
-    }
-
-    .include-card {
-        padding: 30px 25px;
-    }
-
-    /* Ajuste de Botones en Móviles */
-    .hero-actions,
-    .cta-final-actions {
-        flex-direction: column;
-        gap: 15px;
-    }
-
-    .button-primary,
-    .button-secondary {
-        width: 100%;
-    }
-}
-
 /* water treatment */
 /* =========================
    Global helpers
@@ -2303,6 +2119,17 @@
     .automation-process .process-grid {
         grid-template-columns: repeat(2, 1fr);
     }
+}
+.button-primary.li-cta svg,
+.button-secondary.li-cta svg {
+    margin: 0;
+}
+.button-primary.li-cta{
+    background-color: var(--button-secondary-color-hover);
+    color: var(--text-black);
+}
+.button-primary.li-cta svg{
+    color: var(--text-black);
 }
 
 @media (max-width: 992px) {
