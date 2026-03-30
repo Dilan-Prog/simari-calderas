@@ -40,12 +40,12 @@ Route::controller(HomeController::class)->group(function () {
     Route::get('productos/tratamiento-agua-antiincrustante', 'waterTreatmentAnti')->name('water-treatment-Anti');
     Route::get('productos/refacciones-mantenimiento', 'spareParts')->name('spare-parts');
     // Masstercal Rinnai
-    Route::get('masstercal-rinnai/bombas-de-calor', 'rinnaiHeatPumps')->name('heat-pumps');
-    Route::get('masstercal-rinnai/calentadores-agua', 'waterHeaters')->name('water-heaters');
-    Route::get('masstercal-rinnai/calentadores-electricos', 'electricHeaters')->name('electric-heaters');
-    Route::get('masstercal-rinnai/calentadores-paso-gas', 'tanklessHeaters')->name('tankless-heaters');
-    Route::get('masstercal-rinnai/suavizadores-filtros', 'softenersFilters')->name('softeners-filters');
-    Route::get('masstercal-rinnai/tanques-almacenamiento', 'storageTanks')->name('storage-tanks');
+    Route::get('masstercal-rinnai/bombas-de-calor-rinnai', 'rinnaiHeatPumps')->name('heat-pumps');
+    Route::get('masstercal-rinnai/calentadores-agua-rinnai', 'waterHeaters')->name('water-heaters');
+    Route::get('masstercal-rinnai/calentadores-electricos-rinnai', 'electricHeaters')->name('electric-heaters');
+    Route::get('masstercal-rinnai/calentadores-paso-gas-rinnai', 'tanklessHeaters')->name('tankless-heaters');
+    Route::get('masstercal-rinnai/suavizadores-filtros-rinnai', 'softenersFilters')->name('softeners-filters');
+    Route::get('masstercal-rinnai/tanques-almacenamiento-rinnai', 'storageTanks')->name('storage-tanks');
 
 });
 

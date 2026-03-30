@@ -1,5 +1,5 @@
 @extends('frontend.layouts.master')
-@section('styles')
+@section('title')
 @endsection
 @section('content')
 <section class="rp-hero" aria-labelledby="rp-hero-title">

@@ -1,5 +1,5 @@
 @extends('frontend.layouts.master')
-@section('styles')
+@section('title')
 @endsection
 @section('content')
 <section class="wf-hero" aria-labelledby="wf-hero-title">

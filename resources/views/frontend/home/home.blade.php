@@ -1,10 +1,10 @@
 @extends('frontend.layouts.master')
 
-@section('styles')
+@section('title')
+    Inicio | Industria Simari
 @endsection
 
 @section('content')
-
     <section class="hero-section-home">
         <div class="hero-background-home">
             <img src="https://images.unsplash.com/photo-1707596830261-9c6138a6dd3b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w1NjM2Nzh8MHwxfHNlYXJjaHwxfHxpbmR1c3RyaWFsJTIwYm9pbGVyfGVufDB8fHx8MTcwNzU5NjgzMHww&ixlib=rb-4.0.3&q=80&w=1080"
@@ -47,7 +47,6 @@
                 </div>
             </div>
     </section>
-
     <section class="stats-section-home">
         <div class="container stats-grid-home">
             <div class="stat-item-home">
@@ -71,7 +70,6 @@
             </div>
         </div>
     </section>
-
     <section class="solutions-section-home">
         <div class="container solutions-section-home">
             <div class="text-center-home mb-16-home">
@@ -82,7 +80,6 @@
                     adaptados a las necesidades específicas de su planta.
                 </p>
             </div>
-
             <div class="solutions-grid-home">
                 <div class="solution-card-home">
                     <div class="card-img-box-home">
