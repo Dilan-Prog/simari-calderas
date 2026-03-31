@@ -50,6 +50,7 @@ footer {
     color: var(--text-footer-color-links);
     font-size: 14px;
     line-height: 22px;
+    gap: 10px;
 }
 .footer-brand a {
     text-decoration: none;
@@ -63,7 +64,11 @@ footer {
     text-decoration: none;
     display: inline-flex;
     align-items: center;
-    gap: 10px;
+}
+.footer-info-contact-address{
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
 }
 
 /* --- Navegación del footer --- */
@@ -110,7 +115,9 @@ footer {
     border: 0.962px solid #364153;
     background: #2E3A46;
     margin-bottom: 8px;
-    color: var(--text-footer-color-links);
+}
+.footer-newsletter #newsletter-email::placeholder {
+    color: #E8ECF0;
 }
 .form-footer .button_footer {
     width: 100%;

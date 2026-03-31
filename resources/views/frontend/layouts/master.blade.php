@@ -79,8 +79,5 @@
         @yield('content')
     </main>
     @include('frontend.layouts.footer')
-    <script>
-      document.getElementById("year").textContent = new Date().getFullYear();
-    </script>
   </body>
   </html>

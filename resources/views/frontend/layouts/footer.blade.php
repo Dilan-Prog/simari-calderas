@@ -12,9 +12,9 @@
                         Líderes en soluciones térmicas industriales y residenciales. Innovación, eficiencia y confianza
                         técnica desde 1995.
                     </p>
-                    <address aria-label="Datos de contacto">
+                    <address class="footer-info-contact-address" aria-label="Datos de contacto">
                         <p>
-                            <a href="mailto:contacto@simari.com" itemprop="email"
+                            <a href="mailto:administracion@industriasimari.com.mx" itemprop="email"
                                 aria-label="Enviar correo a SIMARI Calderas">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
                                     viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -22,11 +22,11 @@
                                     <rect width="20" height="16" x="2" y="4" rx="2"></rect>
                                     <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
                                 </svg>
-                                <span>contacto@simari.com</span>
+                                <span>administracion@industriasimari.com.mx</span>
                             </a>
                         </p>
                         <p>
-                            <a href="tel:+525512345678" itemprop="telephone" aria-label="Llamar a SIMARI Calderas">
+                            <a href="tel:+524494348018" itemprop="telephone" aria-label="Llamar a Industria Simari">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
                                     viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                     stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -34,7 +34,7 @@
                                         d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z">
                                     </path>
                                 </svg>
-                                <span>+52 55 1234 5678</span>
+                                <span>+52 449 434 8018</span>
                             </a>
                         </p>
                         {{-- Addres Info --}}
@@ -59,13 +59,14 @@
                     <h2>Servicios</h2>
                     <ul>
                         <li><a href="{{ route('industrial-maintenance') }}">Mantenimiento industrial</a></li>
-                        <li><a href="/soluciones/residencial">Calibración de equipos</a></li>
-                        <li><a href="/soluciones/mantenimiento">Conversión de quemadores</a></li>
-                        <li><a href="/soluciones/eficiencia">Fabricación Equipos Periféricos</a></li>
-                        <li><a href="/ingenieria">Automatización de Sistemas</a></li>
-                        <li><a href="/soluciones/residencial">Mantenimiento de Chillers</a></li>
-                        <li><a href="/soluciones/mantenimiento">Desincrustación de Calderas</a></li>
-                        <li><a href="{{ route ('hair-repair') }}">Reparación de Secadoras</a></li>
+                        <li><a href="{{ route('hydraulic-engineering') }}">Ingenieria Hidraulica</a></li>
+                        <li><a href="{{ route('equipement-calibration') }}">Calibracion de equipos</a></li>
+                        <li><a href="{{ route('water-treatment') }}">Tratamiento de Agua</a></li>
+                        <li><a href="{{ route('automation') }}">Automatizacion</a></li>
+                        <li><a href="{{ route('chiller-maintenance') }}">Mantenimiento de Chillers</a></li>
+                        <li><a href="{{ route('descale-boilers') }}">Desincrustación de Calderas</a></li>
+                        <li><a href="{{ route('industrial-project') }}">Proyecto Industrial</a></li>
+                        <li><a href="{{ route('hair-repair')}}">Reparación de Secadoras</a></li>
                     </ul>
                 </nav>
 
@@ -165,39 +166,6 @@
         </section>
     </div>
 </footer>
-
-<!-- JSON-LD structured data for SEO -->
-{{-- <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "Organization",
-    "name": "SIMARI Calderas S.A. de C.V.",
-    "url": "{{ url('/') }}",
-    "logo": "{{ asset('images/logo-footer.png') }}",
-    "sameAs": [
-      "https://www.linkedin.com/company/simari-calderas",
-      "https://www.facebook.com/simaricalderas",
-      "https://twitter.com/simari_calderas",
-      "https://www.instagram.com/simari_calderas"
-    ],
-    "contactPoint": [
-      {
-        "@type": "ContactPoint",
-        "telephone": "+52 55 1234 5678",
-        "contactType": "customer service",
-        "areaServed": "MX",
-        "availableLanguage": ["Spanish", "English"]
-      }
-    ],
-    "address": {
-      "@type": "PostalAddress",
-      "streetAddress": "Av. Industrial 500, Parque Tecnológico",
-      "addressLocality": "CDMX",
-      "addressCountry": "MX"
-    }
-  }
-  </script> --}}
-
 <!-- =====================================================
      BOTÓN FLOTANTE DE WHATSAPP
      Ubicación: resources/views/frontend/layouts/footer.blade.php (al final)
