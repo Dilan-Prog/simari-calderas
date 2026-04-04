@@ -1,8 +1,14 @@
 @extends('frontend.layouts.master')
 
 @section('title')
+Servicio de Automatización de Sistemas Térmicos Industriales - Industria Simari
 @endsection
-
+@section('description')
+Servicio de automatización de sistemas térmicos industriales con PLC, HMI y SCADA para control remoto total.
+@endsection
+@section('canonical')
+  
+@endsection
 @section('content')
   <section class="automation-hero">
     <div class="automation-hero__bg">

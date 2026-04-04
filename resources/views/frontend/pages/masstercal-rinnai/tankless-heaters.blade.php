@@ -1,5 +1,6 @@
 @extends('frontend.layouts.master')
 @section('title')
+Calentadores de Paso a Gas Rinnai - Industria Simari
 @endsection
 @section('content')
 <section class="rp-hero" aria-labelledby="rp-hero-title">

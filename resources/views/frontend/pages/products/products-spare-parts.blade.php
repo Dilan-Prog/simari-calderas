@@ -1,6 +1,7 @@
 @extends('frontend.layouts.master')
 
 @section('title')
+Refacciones para Calderas Industriales - Industria Simari
 @endsection
 @section('content')
 

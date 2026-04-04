@@ -1,6 +1,7 @@
 @extends('frontend.layouts.master')
 
 @section('title')
+Tratamiento de Agua para Calderas - Industria Simari
 @endsection
 @section('content')
 

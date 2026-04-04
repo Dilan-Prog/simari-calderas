@@ -112,12 +112,13 @@ footer {
     width: 100%;
     padding: 8px 10px;
     border-radius: 4px;
-    border: 0.962px solid #364153;
+    border: 0.962px solid #6B7B8D;
     background: #2E3A46;
+    color: #E8ECF0;
     margin-bottom: 8px;
 }
 .footer-newsletter #newsletter-email::placeholder {
-    color: #E8ECF0;
+    color: #A0ADB8;
 }
 .form-footer .button_footer {
     width: 100%;

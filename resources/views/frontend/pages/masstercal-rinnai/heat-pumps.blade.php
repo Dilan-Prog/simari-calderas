@@ -1,8 +1,7 @@
 @extends('frontend.layouts.master')
-
-@section('title')
-@endsection
-
+@section('title', 'Bombas de Calor Rinnai - Industria Simari')
+@section('description', 'Bombas de Calor Rinnai: Agua caliente instantánea sin gas. Tecnología eléctrica de alta eficiencia para máxima seguridad y comodidad en tu hogar.')
+@section('canonical', config('app.url') . '/masstercal-rinnai/bombas-de-calor-rinnai')
 @section('content')
     <section class="product-hero-section-heat-pumps">
         <div class="container heat-pumps">

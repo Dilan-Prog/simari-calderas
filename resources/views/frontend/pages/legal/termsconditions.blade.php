@@ -1,6 +1,7 @@
 @extends('frontend.layouts.master')
 
 @section('title')
+Industria Simari Terminos y Condiciones
 @endsection
 
 @section('content')

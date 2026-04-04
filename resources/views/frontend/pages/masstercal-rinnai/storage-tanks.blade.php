@@ -1,5 +1,6 @@
 @extends('frontend.layouts.master')
 @section('title')
+Tanques de Almacenamiento Rinnai - Industria Simari
 @endsection
 @section('content')
     <section class="st-hero">

@@ -1,6 +1,7 @@
 @extends('frontend.layouts.master')
 
 @section('title')
+Calentadores Solares Industriales - Industria Simari
 @endsection
 @section('content')
 

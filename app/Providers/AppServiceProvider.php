@@ -11,7 +11,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+
+    // SEO Helper
+        require_once app_path('Helpers/SeoHelper.php');
     }
 
     /**

@@ -1,6 +1,8 @@
 @extends('frontend.layouts.master')
-@section('title')
-@endsection
+@section('title', 'Calentadores Eléctricos Rinnai - Industria Simari')
+@section('description', 'Calentadores Electricos Rinnai: Agua caliente instantánea sin gas. Tecnología eléctrica de alta eficiencia para máxima seguridad y comodidad en tu hogar.')
+@section('canonical', config('app.url') . '/masstercal-rinnai/calentadores-electricos-rinnai')
+
 @section('content')
     <section class="re-hero" aria-labelledby="re-hero-title">
   <div class="re-hero__inner">

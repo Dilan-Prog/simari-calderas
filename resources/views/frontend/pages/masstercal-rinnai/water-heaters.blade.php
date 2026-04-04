@@ -1,5 +1,6 @@
 @extends('frontend.layouts.master')
 @section('title')
+Calentadores de Agua Rinnai - Industria Simari
 @endsection
 @section('content')
 <section class="rd-hero" aria-labelledby="rd-title">
