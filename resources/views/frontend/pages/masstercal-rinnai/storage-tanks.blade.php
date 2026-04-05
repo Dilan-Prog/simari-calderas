@@ -1,11 +1,12 @@
 @extends('frontend.layouts.master')
-@section('title')
-@endsection
+@section('title', 'Tanques de Almacenamiento Rinnai - Industria Simari')
+@section('description', 'Tanques de Almacenamiento Rinnai: Soluciones de alta capacidad para aplicaciones comerciales e industriales.')
+@section('canonical', config('app.url') . '/masstercal-rinnai/tanques-de-almacenamiento-rinnai')
 @section('content')
     <section class="st-hero">
         <div class="container">
             <div class="st-brand-wrap">
-                <img src="{{ asset('images/Rinnai/rinnai-logo.png') }}" alt="Rinnai"
+                <img src="{{ asset('images/Rinnai/rinnai-logo.png') }}" alt="Rinnai" title="Rinnai" width="200" height="60" loading="eager" fetchpriority="high" decoding="async"
                     class="st-brand-logo">
             </div>
 
@@ -55,7 +56,7 @@
                         </path>
                     </svg>
                     <p class="st-stat-value">10 años</p>
-                    <p class="st-stat-label">Garantia</p>
+                    <p class="st-stat-label">Garantía</p>
                 </article>
 
                 <article class="st-stat-card">

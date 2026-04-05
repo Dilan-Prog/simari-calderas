@@ -1,20 +1,25 @@
 @extends('frontend.layouts.master')
-
-@section('title')
-@endsection
-
+@section('title', 'Bombas de Calor Rinnai - Industria Simari')
+@section('description', 'Bombas de Calor Rinnai: Agua caliente instantánea sin gas. Tecnología eléctrica de alta eficiencia para máxima seguridad y comodidad en tu hogar.')
+@section('canonical', config('app.url') . '/masstercal-rinnai/bombas-de-calor-rinnai')
 @section('content')
     <section class="product-hero-section-heat-pumps">
         <div class="container heat-pumps">
             <div class="brand-logo-container-heat-pumps">
-                <img src="{{ asset('images/Rinnai/rinnai-logo.png') }}" alt="Rinnai Logo">
+                <img src="{{ asset('images/Rinnai/rinnai-logo.png') }}" alt="Rinnai" title="Rinnai" width="200" height="60" loading="eager" fetchpriority="high" decoding="async">
             </div>
             <div class="product-hero-grid-heat-pumps">
                 <div class="product-image-wrapper-heat-pumps">
                     <div class="product-image-card-heat-pumps">
-                        <img src="{{ asset('images/products/Rinnai/Bombas-calor/bomba-de-calor-para-piscina-bcp-50.jpg') }}"
-                             alt="Bombas de Calor Rinnai"
-                             class="main-product-img-heat-pumps">
+                        <img src="{{ asset('images/products/Rinnai/Bombas-calor/bomba-de-calor-para-piscina-bcp-50.webp') }}"
+                            alt="Bombas de Calor Rinnai para piscina bcp-50"
+                            title="Bomba de Calor Rinnai BCP-50"
+                            width="1200"
+                            height="1200"
+                            loading="eager"
+                            fetchpriority="high"
+                            decoding="async"
+                            class="main-product-img-heat-pumps">
                     </div>
                 </div>
 

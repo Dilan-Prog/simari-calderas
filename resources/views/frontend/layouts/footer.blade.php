@@ -6,6 +6,7 @@
                     <a href="{{ route('home') }}" aria-label="Ir al inicio" itemprop="url" title="SIMARI Calderas - Inicio">
                         <img class="footer-logo" src="{{ Vite::asset('resources/images/logo/logo_SVG.svg') }}"
                             alt="Industria Simari - soluciones térmicas industriales y residenciales" itemprop="logo"
+                            width="268" height="60"
                             loading="lazy" decoding="async">
                     </a>
                     <p itemprop="description">

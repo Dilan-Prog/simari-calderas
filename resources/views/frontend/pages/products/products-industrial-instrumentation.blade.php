@@ -1,6 +1,7 @@
 @extends('frontend.layouts.master')
 
 @section('title')
+Instrumentación Industrial - Industria Simari
 @endsection
 @section('content')
 <section class="ii-hero" aria-labelledby="ii-hero-title">

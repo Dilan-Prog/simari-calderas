@@ -1,6 +1,7 @@
 @extends('frontend.layouts.master')
-@section('title')
-@endsection
+@section('title', 'Calentadores Eléctricos Rinnai - Industria Simari')
+@section('description', 'Calentadores Electricos Rinnai: Agua caliente instantánea sin gas. Tecnología eléctrica de alta eficiencia para máxima seguridad y comodidad en tu hogar.')
+@section('canonical', config('app.url') . '/masstercal-rinnai/calentadores-electricos-rinnai')
 @section('content')
     <section class="re-hero" aria-labelledby="re-hero-title">
   <div class="re-hero__inner">
@@ -10,15 +11,7 @@
       <div>
         <!-- Logo alineado a la izquierda -->
         <div class="re-hero__logo">
-          <img
-            src="/_assets/v11/c52d6ebf603813924afaaac8334daee3d33523d1.png"
-            alt="Rinnai"
-            width="160"
-            height="64"
-            loading="eager"
-            fetchpriority="high"
-            onerror="this.outerHTML='<span style=\'font-size:2.5rem;font-weight:800;color:#CE000D;letter-spacing:-2px\'>Rinnai</span>'"
-          />
+          <img src="{{ asset('images/Rinnai/rinnai-logo.png') }}" alt="Rinnai" title="Rinnai" width="200" height="60" loading="eager" fetchpriority="high" decoding="async">
         </div>
  
         <div class="re-hero__badge">Electricidad Eficiente</div>
@@ -66,11 +59,14 @@
       <div class="re-hero__img-wrap" aria-hidden="true">
         <div class="re-hero__img-frame">
           <img
-            src="https://images.unsplash.com/photo-1585704032915-c3400ca199e7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1200"
+            src="{{ asset('images/products/Rinnai/Calentamiento-electrico/Calentador-electrico-rinnai.webp') }}"
             alt="Calentador Eléctrico Rinnai instalado"
+            title="Calentador Eléctrico Rinnai"
             width="1200"
-            height="600"
+            height="1200"
             loading="eager"
+            fetchpriority="high"
+            decoding="async"
           />
           <!-- Overlay con 3 stats -->
           <div class="re-hero__img-overlay">

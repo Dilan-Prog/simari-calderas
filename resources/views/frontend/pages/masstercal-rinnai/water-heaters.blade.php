@@ -1,6 +1,8 @@
 @extends('frontend.layouts.master')
-@section('title')
-@endsection
+
+@section('title', 'Calentadores de Agua Rinnai - Industria Simari')
+@section('description', 'Calentadores Electricos Rinnai: Agua caliente instantánea sin gas. Tecnología eléctrica de alta eficiencia para máxima seguridad y comodidad en tu hogar.')
+@section('canonical', config('app.url') . '/masstercal-rinnai/calentadores-electricos-rinnai')
 @section('content')
 <section class="rd-hero" aria-labelledby="rd-title">
   <div class="rd-hero__inner">
@@ -45,11 +47,14 @@
         <div class="rd-showcase__img-wrap">
           <div class="rd-showcase__img-tint" aria-hidden="true"></div>
           <img
-            src="https://images.unsplash.com/photo-1600585154526-990dced4db0d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800"
+            src="{{ asset('images/products/Rinnai/Calentamiento/Residencial/Calentador-de-agua-rinnai-residencial.webp') }}"
             alt="Calentador de agua de depósito Rinnai modelo residencial instalado en hogar"
-            width="800"
-            height="400"
+            title="Calentador de Agua Rinnai Residencial"
+            width="1200"
+            height="1200"
             loading="eager"
+            fetchpriority="high"
+            decoding="async"
           />
           <div class="rd-showcase__cap-badge" aria-label="Capacidad 50 a 80 litros">50-80L</div>
         </div>

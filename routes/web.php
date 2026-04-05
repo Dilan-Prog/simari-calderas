@@ -15,10 +15,7 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
-
-Route::get('/',[HomeController::class,'index'])->name('home');
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
-
 Route::controller(HomeController::class)->group(function () {
     Route::get('/', 'index')->name('home');
     Route::get('/nuestra-empresa', 'company')->name('company');
@@ -30,7 +27,7 @@ Route::controller(HomeController::class)->group(function () {
     Route::get('servicios/ingenieria-hidraulica', 'hydraulicEngineering')->name('hydraulic-engineering');
     Route::get('servicios/calibracion-equipos', 'equipementCalibration')->name('equipement-calibration');
     Route::get('servicios/tratamiento-agua', 'waterTreatment')->name('water-treatment');
-    Route::get('servicios/automatizacion', 'automation')->name('automation');
+    Route::get('servicios/automatizacion-industrial', 'automation')->name('automation');
     Route::get('servicios/mantenimiento-chillers', 'chillerMaintenance')->name('chiller-maintenance');
     Route::get('servicios/proyectos-industriales', 'industrialProject')->name('industrial-project');
     Route::get('servicios/desincrustacion-calderas', 'descaleBoilers')->name('descale-boilers');
@@ -48,13 +45,10 @@ Route::controller(HomeController::class)->group(function () {
     Route::get('masstercal-rinnai/calentadores-paso-gas-rinnai', 'tanklessHeaters')->name('tankless-heaters');
     Route::get('masstercal-rinnai/suavizadores-filtros-rinnai', 'softenersFilters')->name('softeners-filters');
     Route::get('masstercal-rinnai/tanques-almacenamiento-rinnai', 'storageTanks')->name('storage-tanks');
-
 });
-
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
-
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

@@ -1,6 +1,7 @@
 @extends('frontend.layouts.master')
-@section('title')
-@endsection
+@section('title', 'Suavisadores y Filtros Rinnai - Industria Simari')
+@section('description', 'Suavisadores y Filtros Rinnai: Transforma el agua de tu hogar. Elimina sarro, cloro, sedimentos y bacterias con tecnología Rinnai de grado industrial.')
+@section('canonical', config('app.url') . '/masstercal-rinnai/suavisadores-y-filtros-rinnai')
 @section('content')
 <section class="wf-hero" aria-labelledby="wf-hero-title">
  

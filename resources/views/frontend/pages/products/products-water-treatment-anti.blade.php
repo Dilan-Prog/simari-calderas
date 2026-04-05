@@ -1,9 +1,10 @@
 @extends('frontend.layouts.master')
 
 @section('title')
+Tratamiento de Agua para Calderas - Industria Simari
 @endsection
 @section('content')
-
+{{-- CORREGIR ESTA SECCION --}}
 <section class="boilers-hero">
     <div class="boilers-hero__media">
       <img

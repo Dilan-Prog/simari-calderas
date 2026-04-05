@@ -1,7 +1,7 @@
 <header class="header-first">
     <nav class="main-nav-header" aria-label="Navegacion principal">
         <a href="/" aria-label="Ir al inicio">
-            <img class="header_logo" src="{{ Vite::asset('resources/images/logo/logo_SVG.svg') }}" alt="Logo Simari Calderas">
+            <img class="header_logo" src="{{ Vite::asset('resources/images/logo/logo_SVG.svg') }}" alt="Logo Simari Calderas" width="160" height="50">
         </a>
 
         <ul class="nav-link">
@@ -41,7 +41,7 @@
                     <li><a href="{{ route('simari-boilers') }}">Calderas SIMARI</a></li>
                     <li><a href="{{ route('solar-heaters') }}">Calentadores Solares</a></li>
                     <li><a href="{{ route('industrial-instrumentation') }}">Instrumentacion Industrial</a></li>
-                    <li><a href="{{ route('water-treatment') }}">Tratamiento de Agua Anti-incrustante</a></li>
+                    <li><a href="{{ route('water-treatment-Anti') }}">Tratamiento de Agua Anti-incrustante</a></li>
                     <li><a href="{{ route('spare-parts') }}">Refacciones y Mantenimiento</a></li>
                 </ul>
             </li>
@@ -101,7 +101,7 @@
         <div class="mobile-menu-panel">
             <div class="mobile-menu-header">
                 <a href="/" aria-label="Ir al inicio">
-                    <img class="header_logo" src="{{ Vite::asset('resources/images/logo/logo_SVG.svg') }}" alt="Logo Simari Calderas">
+                    <img class="header_logo" src="{{ Vite::asset('resources/images/logo/logo_SVG.svg') }}" alt="Logo Simari Calderas" width="160" height="50">
                 </a>
                 <button class="mobile-menu-close" id="mobile-menu-close" type="button" aria-label="Cerrar menú">
                     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 22 22" fill="none">

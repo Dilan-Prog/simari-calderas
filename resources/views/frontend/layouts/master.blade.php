@@ -6,7 +6,13 @@
     <title>@yield('title')</title>
     <meta name="description" content="@yield('description', 'Industria Simari con 35 años de experiencia en ingeniería térmica industrial. Diseñamos, instalamos y mantenemos sistemas de calderas, calentadores y tratamiento de agua para los sectores industrial, alimentario, hotelero y metalmecánico. Soporte técnico especializado disponible 24/7.')" />
     <meta name="robots" content="index,follow" />
+    <meta name="author" content="Industria Simari" />
+    <meta name="theme-color" content="#1a2940" />
     <link rel="canonical" href="@yield('canonical', 'https://industriasimari.com.mx/')" />
+    <link rel="icon" type="image/x-icon"  href="/favicon.ico" />
+    <link rel="icon" type="image/png" sizes="16x16"  href="/favicon-16x16.png" />
+    <link rel="icon" type="image/png" sizes="32x32"  href="/favicon-32x32.png" />
+    <link rel="apple-touch-icon"    sizes="180x180"  href="/apple-touch-icon.png" />
     <meta property="og:type"        content="website" />
     <meta property="og:locale"      content="es_MX" />
     <meta property="og:site_name"   content="Industria Simari" />
@@ -14,7 +20,8 @@
     <meta property="og:description" content="@yield('og_description', 'Diseñamos, instalamos y mantenemos sistemas de calderas, calentadores y tratamiento de agua para los sectores industrial, alimentario, hotelero y metalmecánico. Soporte técnico especializado disponible 24/7')" />
     <meta property="og:url"         content="@yield('og_url', 'https://industriasimari.com.mx/')" />
     <meta property="og:image"       content="@yield('og_image', 'https://industriasimari.com.mx/images/og-home.jpg')" />
-
+    <meta property="og:image:width"  content="1200" />
+    <meta property="og:image:height" content="630" />
     <link rel="preconnect" href="https://www.googletagmanager.com">
     <link rel="preconnect" href="https://www.google-analytics.com">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -47,9 +54,6 @@
     <style>
         {!! $critical !!}
     </style> --}}
-
-    <!-- JSON-LD: LocalBusiness / Organization -->
-    <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-065DGYYW1C"></script>
     <script>
       window.dataLayer = window.dataLayer || [];

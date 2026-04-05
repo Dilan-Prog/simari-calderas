@@ -1,6 +1,7 @@
 @extends('frontend.layouts.master')
 
 @section('title')
+Industria Simari Empresa
 @endsection
 
 @section('content')
