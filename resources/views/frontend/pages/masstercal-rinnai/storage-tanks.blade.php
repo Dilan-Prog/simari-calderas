@@ -1,7 +1,7 @@
 @extends('frontend.layouts.master')
-@section('title')
-Tanques de Almacenamiento Rinnai - Industria Simari
-@endsection
+@section('title', 'Tanques de Almacenamiento Rinnai - Industria Simari')
+@section('description', 'Tanques de Almacenamiento Rinnai: Soluciones de alta capacidad para aplicaciones comerciales e industriales.')
+@section('canonical', config('app.url') . '/masstercal-rinnai/tanques-de-almacenamiento-rinnai')
 @section('content')
     <section class="st-hero">
         <div class="container">

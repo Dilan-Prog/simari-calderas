@@ -1,7 +1,7 @@
 @extends('frontend.layouts.master')
-@section('title')
-Calentadores de Paso a Gas Rinnai - Industria Simari
-@endsection
+@section('title', 'Calentadores de Paso a Gas Rinnai - Industria Simari')
+@section('description', 'Calentadores de Paso a Gas Rinnai: Agua caliente instantánea sin gas. Tecnología de alta eficiencia para máxima seguridad y comodidad en tu hogar.')
+@section('canonical', config('app.url') . '/masstercal-rinnai/calentadores-de-paso-a-gas-rinnai')
 @section('content')
 <section class="rp-hero" aria-labelledby="rp-hero-title">
  
@@ -118,11 +118,14 @@ Calentadores de Paso a Gas Rinnai - Industria Simari
         </div>
         <div class="rp-step-img" aria-hidden="true">
           <img
-            src="https://images.unsplash.com/photo-1563207153-f403bf289096?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=600"
-            alt=""
-            width="600"
-            height="260"
-            loading="lazy"
+            src="{{ asset('images/products/Rinnai/Calentador-de-paso/Calentador-de-paso-rinnai-agua-fria.webp') }}"
+            alt="Calentador Eléctrico Rinnai instalado"
+            title="Calentador Eléctrico Rinnai"
+            width="1200"
+            height="1200"
+            loading="eager"
+            fetchpriority="high"
+            decoding="async"
           />
         </div>
       </div>
@@ -142,11 +145,14 @@ Calentadores de Paso a Gas Rinnai - Industria Simari
         </div>
         <div class="rp-step-img" aria-hidden="true">
           <img
-            src="https://images.unsplash.com/photo-1602080858428-57174f9431cf?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=600"
-            alt=""
-            width="600"
-            height="260"
-            loading="lazy"
+            src="{{ asset('images/products/Rinnai/Calentador-de-paso/Calentador-de-paso-ignicion-automatica.webp') }}"
+            alt="Calentador Eléctrico Rinnai instalado"
+            title="Calentador Eléctrico Rinnai"
+            width="1200"
+            height="1200"
+            loading="eager"
+            fetchpriority="high"
+            decoding="async"
           />
         </div>
       </div>
@@ -166,11 +172,14 @@ Calentadores de Paso a Gas Rinnai - Industria Simari
         </div>
         <div class="rp-step-img" aria-hidden="true">
           <img
-            src="https://images.unsplash.com/photo-1607400201889-565b1ee75f8e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=600"
-            alt=""
-            width="600"
-            height="260"
-            loading="lazy"
+            src="{{ asset('images/products/Rinnai/Calentador-de-paso/Calentamineto-instantanio-en-calentador-de-paso-rinnai.webp') }}"
+            alt="Calentador Instantáneo en Calentador de Paso Rinnai instalado"
+            title="Calentador Instantáneo en Calentador de Paso Rinnai"
+            width="1200"
+            height="1200"
+            loading="eager"
+            fetchpriority="high"
+            decoding="async"
           />
         </div>
       </div>
@@ -190,11 +199,14 @@ Calentadores de Paso a Gas Rinnai - Industria Simari
         </div>
         <div class="rp-step-img" aria-hidden="true">
           <img
-            src="https://images.unsplash.com/photo-1584622650111-993a426fbf0a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=600"
-            alt=""
-            width="600"
-            height="260"
-            loading="lazy"
+            src="{{ asset('images/products/Rinnai/Calentador-de-paso/Calentador-de-paso-temperatura-perfecta-rinnai.webp') }}"
+            alt="Temperatura Perfecta en Calentador de Paso Rinnai instalado"
+            title="Temperatura Perfecta en Calentador de Paso Rinnai"
+            width="1200"
+            height="1200"
+            loading="eager"
+            fetchpriority="high"
+            decoding="async"
           />
         </div>
       </div>

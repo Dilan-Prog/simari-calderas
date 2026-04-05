@@ -75,7 +75,7 @@ class HomeController extends Controller
     }
     public function waterTreatmentAnti()
     {
-        return view('frontend.pages.products.products-water-treatment-antiincrustante');
+        return view('frontend.pages.products.products-water-treatment-anti');
     }
     public function spareParts()
     {

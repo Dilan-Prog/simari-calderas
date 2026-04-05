@@ -41,7 +41,7 @@
                     <li><a href="{{ route('simari-boilers') }}">Calderas SIMARI</a></li>
                     <li><a href="{{ route('solar-heaters') }}">Calentadores Solares</a></li>
                     <li><a href="{{ route('industrial-instrumentation') }}">Instrumentacion Industrial</a></li>
-                    <li><a href="{{ route('water-treatment') }}">Tratamiento de Agua Anti-incrustante</a></li>
+                    <li><a href="{{ route('water-treatment-Anti') }}">Tratamiento de Agua Anti-incrustante</a></li>
                     <li><a href="{{ route('spare-parts') }}">Refacciones y Mantenimiento</a></li>
                 </ul>
             </li>
