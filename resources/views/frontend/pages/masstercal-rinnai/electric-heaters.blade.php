@@ -11,15 +11,7 @@
       <div>
         <!-- Logo alineado a la izquierda -->
         <div class="re-hero__logo">
-          <img
-            src="/_assets/v11/c52d6ebf603813924afaaac8334daee3d33523d1.png"
-            alt="Rinnai"
-            width="160"
-            height="64"
-            loading="eager"
-            fetchpriority="high"
-            onerror="this.outerHTML='<span style=\'font-size:2.5rem;font-weight:800;color:#CE000D;letter-spacing:-2px\'>Rinnai</span>'"
-          />
+          <img src="{{ asset('images/Rinnai/rinnai-logo.png') }}" alt="Rinnai" title="Rinnai" width="200" height="60" loading="eager" fetchpriority="high" decoding="async">
         </div>
  
         <div class="re-hero__badge">Electricidad Eficiente</div>

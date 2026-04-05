@@ -6,7 +6,7 @@
     <section class="st-hero">
         <div class="container">
             <div class="st-brand-wrap">
-                <img src="{{ asset('images/Rinnai/rinnai-logo.png') }}" alt="Rinnai"
+                <img src="{{ asset('images/Rinnai/rinnai-logo.png') }}" alt="Rinnai" title="Rinnai" width="200" height="60" loading="eager" fetchpriority="high" decoding="async"
                     class="st-brand-logo">
             </div>
 
@@ -56,7 +56,7 @@
                         </path>
                     </svg>
                     <p class="st-stat-value">10 años</p>
-                    <p class="st-stat-label">Garantia</p>
+                    <p class="st-stat-label">Garantía</p>
                 </article>
 
                 <article class="st-stat-card">
