@@ -102,7 +102,7 @@
         max-width: 58%;
         line-height: 1.6;
     }
-
+p
     .button-primary.service-calibration {
         border-radius: 14px;
     }
@@ -589,7 +589,7 @@
 }
 
 .check-circle {
-    width: 24px; 
+    width: 24px;
     height: 24px;
     display: flex;
     align-items: center;
@@ -1742,7 +1742,7 @@
     grid-template-columns: 2fr 1fr;
     gap: 32px;
     align-items: start;
-    
+
 }
 
 .automation-overview__intro {

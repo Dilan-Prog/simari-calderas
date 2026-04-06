@@ -27,5 +27,8 @@
 @import "./pages/privacy-notice.css";
 @import "./pages/termsconditions.css";
 
-/* 6. Responsive (siempre al final) */
+/*6. Admin*/
+@import "./pages/admin.css";
+
+/* 7. Responsive (siempre al final) */
 @import "./responsive.css";

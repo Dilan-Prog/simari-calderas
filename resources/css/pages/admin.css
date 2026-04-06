@@ -1,0 +1,373 @@
+:root {
+    /* Typography */
+    --font-family: 'Inter', sans-serif;
+
+    /* Core colors */
+    --text-black: #000000;
+    --text-white-color: #ffffff;
+
+    /* Header */
+    --border-header-footer-color: #2E3A46;
+    --header-background-color: #141516;
+    --header-footer-color: #1A2535;
+    --text-header-color-nav: #D1D5DC;
+    --text-header-color-nav-hover: #0054ff;
+    --text-header-color-nav-hover-white: #ffffff;
+    --toggle-header: #2E3A46;
+    --toggle-header-nav: #364153;
+
+    /* Footer */
+    --border-footer-color-legal: #2E3A46;
+    --footer-background-color: #141516;
+    --text-footer-color-links: #99A1AF;
+    --text-footer-color-links-hover: #ffffff;
+
+    /* Brand primary (SIMARI / azul) */
+    --button-primary-color: #0054ff;
+    --button-primary-color-hover: #0043cc;
+    --secondary-color: #0054ff;
+
+    /* Brand secondary (Rinnai / rojo) */
+    --button-primary-color-hover-rinnai: #b71c1c;
+    --button-primary-color-rinnai: #C62828;
+    --secondary-color-rinnai: #C62828;
+
+    /* Buttons */
+    --button-secondary-color-hover: #ffffff;
+    --button-serondary-color: transparent;
+
+    /* Backgrounds */
+    --background-primary: #141516;
+    --bg-dark: #141516;
+    --bg-dark-2: #141516;
+    --bg-light: #f5f7fa;
+    --section-example: #0E1A2B;
+
+    /* Text */
+    --text-body: #4b5563;
+    --text-description-color: #99A1AF;
+    --text-muted: #9ca3af;
+    --text-soft: #d1d5db;
+    --text-subwhite-color: #E5E7EB;
+
+    /* Cards / borders */
+    --border-color: #e5e7eb;
+    --card-dark: rgba(255, 255, 255, 0.1);
+    --card-line: rgba(255, 255, 255, 0.2);
+
+    /* Radius */
+    --radius-lg: 24px;
+    --radius-md: 18px;
+    --radius-sm: 12px;
+
+    /* Shadows */
+    --shadow-default: 0 14px 38px rgba(0, 0, 0, 0.16);
+}
+
+.container.user-manager {
+    margin-top: 0;
+    padding-top: 0;
+    font-family: var(--font-family);
+}
+
+/* General header */
+
+.user-manager-header {
+    align-items: center;
+    box-shadow: var(--shadow-default);
+    display: flex;
+    justify-content: space-between;
+    padding: 20px 40px;
+}
+
+/* Header right user manager */
+.header-right-user-manager {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    justify-items: center;
+}
+
+.notification-dot-user-manager {
+    background-color: #ef4444;
+    border-radius: 50%;
+    height: 8px;
+    position: absolute;
+    right: 6px;
+    top: 6px;
+    width: 8px;
+}
+
+.notification-btn-user-manager {
+    align-items: center;
+    background: transparent;
+    border: none;
+    display: flex;
+    height: 36px;
+    justify-content: center;
+    position: relative;
+    width: 36px;
+}
+
+.avatar-user-manager {
+    align-items: center;
+    background-color: rgb(230, 230, 230);
+    border-radius: 50%;
+    display: flex;
+    font-size: 14px;
+    font-weight: bold;
+    height: 36px;
+    justify-content: center;
+    width: 36px;
+}
+
+/* Header left user manager */
+.breadcrumb-users-manager {
+    color: var(--text-body);
+    font-size: 14px;
+    margin: 0;
+}
+
+/* Manager's content */
+
+/* Text */
+.clients-manager-section,
+.users-manager-section {
+    padding: 32px;
+}
+
+.clients-manager-main,
+.users-manager-main {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.breadcrumb-clients-manager {
+    color: var(--text-body);
+    font-size: 14px;
+    margin: 0;
+}
+
+.breadcrumb-users-manager.main {
+    font-size: 16px;
+}
+
+/* Button adjust */
+.button-primary.size-adjustment {
+    border-radius: 12px;
+    font-size: 16px;
+    padding: 12px 32px;
+}
+
+/* Table */
+.table-container-users-manager,
+.table-container-clients-manager {
+    border-color: var(--border);
+    border-radius: 12px;
+    box-shadow: var(--shadow-default);
+    max-height: 460px;
+    overflow: hidden;
+    overflow-y: auto;
+}
+
+.users-manager-table,
+.clients-manager-table {
+    border-collapse: separate;
+    border-spacing: 0;
+    width: 100%;
+}
+
+.users-manager-table thead,
+.clients-manager-table thead {
+    background-color: var(--bg-light);
+    position: sticky;
+    top: 0;
+}
+
+.users-manager-table th,
+.clients-manager-table th {
+    color: #6b7280;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 16px;
+    text-align: left;
+}
+
+.users-manager-table td,
+.clients-manager-table td {
+    border-top: 1px solid #cccccc;
+    font-size: 12px;
+    padding: 16px;
+}
+
+.user-manager-table-cell,
+.clients-manager-table-cell {
+    align-items: center;
+    display: flex;
+    gap: 12px;
+}
+
+.users-manager-name-user,
+.clients-manager-name-client {
+    font-size: 16px;
+    font-weight: 700;
+    margin: 0;
+}
+
+.users-manager-date-user,
+.clients-manager-ubication-client {
+    color: var(--text-description-color);
+    font-size: 12px;
+}
+
+.users-manager-badge {
+    border-radius: 999px;
+    font-size: 12px;
+    padding: 5px 10px;
+}
+
+.users-manager-badge.role-admin {
+    background: #f9dbfe;
+    color: rgb(151, 0, 151);
+    font-weight: 500;
+}
+
+.users-manager-badge.role-employee {
+    background: #dcfce7;
+    color: #1d4ed8;
+}
+
+.users-manager-badge.status {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.users-manager-badge.status-inactive {
+    background: #e3e3e3;
+    color: #3f3f3f;
+}
+
+.table-users-manager-action-btn {
+    align-items: center;
+    background: #ffffff;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    display: flex;
+    height: 32px;
+    justify-content: center;
+    width: 32px;
+}
+
+/* Color changes */
+.table-users-manager-action-btn.delete:hover {
+    background-color: #ffdede;
+}
+
+.table-users-manager-action-btn.delete:hover svg {
+    color: var(--secondary-color-rinnai);
+}
+
+.table-users-manager-action-btn.edit:hover {
+    background-color: #dcfce7;
+}
+
+.table-users-manager-action-btn.edit:hover svg {
+    color: var(--secondary-color);
+}
+
+/* General content */
+.filters-clients-manager {
+    display: flex;
+    gap: 16px;
+    margin: 24px 0;
+}
+
+/* Search */
+.filters-clients-manager-search {
+    font-family: var(--font-family);
+    flex: 1;
+    position: relative;
+}
+
+.filters-clients-manager-search input {
+    border: 1px solid var(--border-header-footer-color);
+    border-color: var(--border-color);
+    border-radius: 10px;
+    font-size: 14px;
+    outline: none;
+    padding: 12px 16px 12px 40px;
+    transition: all 0.2s ease;
+    width: 100%;
+}
+
+.filters-clients-manager-search input:focus {
+    border-color: #0051ff;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+}
+
+/* Icon */
+.search-icon-clients-manager {
+    color: #9ca3af;
+    font-size: 16px;
+    left: 12px;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+/* Filter */
+.filters-clients-manager-select select {
+    background: #fff;
+    border: 1px solid var(--border-header-footer-color);
+    border-color: var(--border-color);
+    border-radius: 10px;
+    color: var(--text-body);
+    font-family: var(--font-family);
+    font-size: 14px;
+    padding: 12px 24px;
+    transition: all 0.2s ease;
+}
+
+.filters-clients-manager-select select:focus {
+    border-color: #0039b4;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+    color: var(--text-body);
+}
+
+/* Slider */
+
+.custom-slider {
+    position: relative;
+    width: 250px;
+    height: 6px;
+    background-color: #e3e6ec;
+    border-radius: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+}
+
+.slider-handle {
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    background-color: white;
+    border: 2px solid #cbd2db;
+    border-radius: 50%;
+    z-index: 2;
+    transition: border-color 0.2s;
+    /* Evita que se seleccione texto al arrastrar */
+    user-select: none;
+}
+
+/* Esta es la barra azul que crece */
+.slider-track-fill {
+    position: absolute;
+    height: 100%;
+    background-color: #e3e6ec;
+    border-radius: 10px;
+    width: 0%; /* Empieza en 0 */
+}
+

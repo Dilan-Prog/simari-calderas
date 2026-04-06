@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Route;
 */
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 Route::controller(HomeController::class)->group(function () {
+
     Route::get('/', 'index')->name('home');
     Route::get('/nuestra-empresa', 'company')->name('company');
     Route::get('/contacto', 'contact')->name('contact');
@@ -45,6 +46,12 @@ Route::controller(HomeController::class)->group(function () {
     Route::get('masstercal-rinnai/calentadores-paso-gas-rinnai', 'tanklessHeaters')->name('tankless-heaters');
     Route::get('masstercal-rinnai/suavizadores-filtros-rinnai', 'softenersFilters')->name('softeners-filters');
     Route::get('masstercal-rinnai/tanques-almacenamiento-rinnai', 'storageTanks')->name('storage-tanks');
+    // Admin
+    Route::get('/admin/users', [HomeController::class, 'users'])->name('admin');
+    Route::get('admin/clients',[HomeController::class,'clients'])->name('clients');
+    Route::get('admin/supliers',[HomeController::class,'supliers'])->name('supliers');
+
+
 });
 Route::get('/dashboard', function () {
     return view('dashboard');
