@@ -1,0 +1,32 @@
+/* ============================================================
+   base.css — Reset, normalización y estilos globales de HTML
+   ============================================================ */
+
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+main, body {
+    margin: 0;
+    padding: 0;
+    font-family: var(--font-family);
+}
+
+body {
+    color: #111827;
+}
+
+a {
+    color: inherit;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* Bloquea el scroll cuando el menú móvil está abierto */
+body.mobile-menu-open {
+    overflow: hidden;
+}

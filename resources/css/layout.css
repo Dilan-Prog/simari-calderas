@@ -1,0 +1,9 @@
+/* ============================================================
+   layout.css — Contenedor principal y estructura de página
+   ============================================================ */
+
+.container {
+    width: 100%;
+    padding: 138px 200px;
+    box-sizing: border-box;
+}

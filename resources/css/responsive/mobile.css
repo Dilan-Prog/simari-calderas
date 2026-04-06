@@ -1,0 +1,781 @@
+/* ============================================================
+   responsive/mobile.css — max-width: 768px y menores
+   ============================================================ */
+
+/* ------------------------------------------------------------------ */
+/* 768px — Mobile menu activa, header y layout se ajustan              */
+/* ------------------------------------------------------------------ */
+@media (max-width: 768px) {
+
+    /* Header */
+    .main-nav-header {
+        padding: 16px 20px;
+    }
+    .main-nav-header .nav-link,
+    .main-nav-header .nav-action {
+        display: none !important;
+    }
+    .nav-hamburger {
+        display: flex;
+    }
+
+    /* Container */
+    .container,
+    .container.hero-content-home,
+    .container.stats-grid-home,
+    .container.solutions-section-home,
+    .container.why-grid-home,
+    .container.cta-box-home {
+        padding: 60px 20px;
+    }
+
+    /* Buttons */
+    .button-primary,
+    .button-secondary {
+        font-size: 16px;
+        padding: 14px 28px;
+    }
+
+    /* Footer */
+    footer {
+        padding: 48px 20px 0 20px;
+    }
+    .footer-container {
+        padding: 0;
+        gap: 32px;
+    }
+    .footer-grid {
+        flex-direction: column;
+        gap: 32px;
+    }
+    .footer-brand,
+    .footer-nav,
+    .footer-newsletter {
+        max-width: 100%;
+        width: 100%;
+    }
+    .footer-brand .footer-logo {
+        width: 180px;
+    }
+    .footer-bottom {
+        flex-direction: column;
+        gap: 12px;
+        text-align: center;
+        align-items: center;
+    }
+    .footer-bottom p {
+        white-space: normal;
+        text-align: center;
+        justify-content: center;
+    }
+    .footer-legal ul {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    /* Home */
+    .hero-title-home        { font-size: 42px; }
+    .hero-description-home  { font-size: 18px; }
+    .hero-actions-home      { flex-direction: column; }
+    .btn-home               { width: 100%; }
+    .stats-section-home     { width: 90%; padding: 40px 20px; }
+    .stats-grid-home        { flex-direction: column;  gap: 40px; }
+    .stat-item-home:not(:last-child)::after {
+        width: 50px;
+        height: 1px;
+        left: 50%;
+        top: 100%;
+        transform: translate(-50%, 20px);
+    }
+    .solutions-grid-home    { grid-template-columns: 1fr; }
+    .why-section-home       { padding: 80px 20px; background: var(--vaner-color); }
+    .why-title-home         { font-size: 36px; }
+    .floating-card-home {
+        position: relative;
+        bottom: auto;
+        left: auto;
+        margin: -40px auto 0;
+        max-width: 90%;
+        text-align: center;
+        padding: 24px;
+    }
+    .cta-section-home       { padding: 40px 20px; }
+    .cta-box-home           { padding: 50px 20px; }
+    .cta-title-home         { font-size: 32px; }
+    .cta-buttons-home       { flex-direction: column; gap: 16px; }
+
+    /* Terms & Conditions */
+    .simari-terms-section   { padding: 64px 0; }
+    .simari-terms-list      { gap: 32px; }
+    .simari-terms-card      { padding: 24px; }
+    .simari-terms-card__row { gap: 14px; }
+    .simari-terms-card__title   { font-size: 26px; }
+    .simari-privacy-cta__title  { font-size: 26px; }
+}
+
+/* ------------------------------------------------------------------ */
+/* 640px — Ajustes para teléfonos medianos                             */
+/* ------------------------------------------------------------------ */
+@media (max-width: 640px) {
+
+    /* Privacy Notice */
+    .simari-privacy-hero    { padding: 72px 0; }
+    .simari-privacy-card    { padding: 24px; }
+    .simari-privacy-card__row   { gap: 12px; }
+    .simari-privacy-card__title { font-size: 22px; }
+    .simari-privacy-cta     { padding: 24px; }
+    
+    /* company*/
+    .company-history-img { transform: none;}
+}
+
+/* ------------------------------------------------------------------ */
+/* 576px — Teléfonos pequeños                                           */
+/* ------------------------------------------------------------------ */
+@media (max-width: 576px) {
+
+    /* Terms */
+    .simari-terms-card__row { flex-direction: column; }
+    .simari-terms-card__icon    { flex: none; }
+    .simari-terms-card__title   { font-size: 24px; }
+    .simari-privacy-cta__title  { font-size: 24px; }
+}
+
+/* ------------------------------------------------------------------ */
+/* 480px — Teléfonos compactos                                          */
+/* ------------------------------------------------------------------ */
+@media (max-width: 480px) {
+    .main-nav-header    { padding: 12px 16px; }
+    .header_logo        { width: 100px; }
+    .container,
+    .container.hero-content-home {
+        padding: 48px 16px;
+    }
+    .button-primary,
+    .button-secondary {
+        font-size: 15px;
+        padding: 13px 22px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+    footer              { padding: 40px 16px 0 16px; }
+    .footer-top         { padding: 0; }
+    .footer-container   { gap: 28px; }
+    .footer-bottom p {
+      font-size: 10px;
+    }
+    .footer-brand .footer-logo{
+        width: 400px;
+    }
+
+    /* Home */
+    .hero-title-home    { font-size: 30px; }
+    .hero-description-home { font-size: 16px; }
+    .stats-grid-home        {display: flex; flex-direction: row; flex-wrap: wrap;  gap: 40px; }
+    /* Container */
+    .container,
+    .container.hero-content-home,
+    .container.stats-grid-home,
+    .container.solutions-section-home,
+    .container.why-grid-home,
+    .container.cta-box-home {
+        padding: 40px 20px;
+    }
+    .container.cta-box-home{
+        width: 90%;
+    }
+
+
+    .stat-number-home   { font-size: 36px; }
+    .section-title-home,
+    .why-title-home     { font-size: 28px; }
+    .cta-title-home     { font-size: 26px; }
+    .feature-item-home {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+}
+
+/* ------------------------------------------------------------------ */
+/* 360px — Teléfonos muy pequeños                                       */
+/* ------------------------------------------------------------------ */
+@media (max-width: 360px) {
+
+
+    .main-nav-header        { padding: 10px 12px; }
+    .header_logo            { width: 90px; }
+    .container,
+    .container.hero-content-home {
+        padding: 40px 12px !important;
+    }
+    /* Home */
+    .hero-title-home    { font-size: 30px; }
+
+
+    footer                  { padding: 32px 12px 0 12px; }
+    .mobile-menu-panel      { max-width: 100%; }
+}
+
+/* ================================================================== */
+/* PÁGINAS — Company                                                    */
+/* ================================================================== */
+
+/* ------------------------------------------------------------------ */
+/* 768px — Company hero y tarjetas de valores                          */
+/* ------------------------------------------------------------------ */
+@media (max-width: 768px) {
+    .company-hero           { min-height: 400px; }
+    .company-hero-desc      { font-size: 17px; }
+    .company-section-header { text-align: center; }
+    .company-section-header .company-badge { margin: 0 auto 12px; }
+    .company-value-card     { padding: 24px 20px; }
+    .container.company-hero-content,
+    .container.company-grid-history{
+        padding: 60px 20px;
+
+    }
+    .company-title-main     { font-size: 40px; }
+    .company-section-title  { font-size: 32px; }
+    .company-grid-values    { grid-template-columns: 1fr; }
+}
+
+/* ------------------------------------------------------------------ */
+/* 480px — Company ajustes compactos                                   */
+/* ------------------------------------------------------------------ */
+@media (max-width: 480px) {
+    .company-value-card     { padding: 20px 16px; }
+}
+
+/* ------------------------------------------------------------------ */
+/* 360px — Company Teléfonos muy pequeños                                       */
+/* ------------------------------------------------------------------ */
+@media (max-width: 360px) {
+    .company-value-card     { padding: 10px 8px; }
+}
+
+/* ================================================================== */
+/* PÁGINAS — Servicios (hero compartido)                               */
+/* ================================================================== */
+
+/* ------------------------------------------------------------------ */
+/* 992px — 1024px — Hero de servicios (mantenimiento, chillers, etc.)           */
+/* ------------------------------------------------------------------ */
+
+@media (min-width: 992px) and (max-width: 1024px) {
+    .hero-title {
+        font-size: 45px;
+    }
+    .stat-big-number {
+        font-size: 45px;
+    }
+    .process-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 50px 30px;
+    }
+    .benefits-grid {
+        gap: 20px;
+    }
+    .benefit-item {
+        padding: 25px 20px;
+    }
+    .includes-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .hydraulic-info-container {
+        padding: 70px 60px;
+    }
+
+    .hydraulic-info-title {
+        font-size: 34px;
+    }
+
+    .hydraulic-info-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .hydraulic-benefits-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .hydraulic-benefit-title,
+    .hydraulic-process-title {
+        font-size: 24px;
+    }
+
+    .hydraulic-benefit-text,
+    .hydraulic-process-text {
+        font-size: 16px;
+    }
+}
+/* ------------------------------------------------------------------ */
+/* 768px — Hero de servicios (mantenimiento, chillers, etc.)           */
+/* ------------------------------------------------------------------ */
+@media (max-width: 768px) {
+    .hero-section-hair-repair   { min-height: 400px; }
+    .container.hero-hair-repair,
+    .container.service-description-section,
+    .container.what-includes-section,
+    .container.benefits-section,
+    .container.work-process-section,
+    .container.why-choose-simari-section,
+    .container.second-section-service-calibration,
+    .container.service-calibration-accordion,
+    .container.text-service-calibration.sub,
+    .container.solar-hero__container
+    { 
+        padding: 60px 20px; 
+    }
+    .container.second-section-service-calibration{
+        flex-direction: column;
+    }
+    .container.second-section-service-calibration .second-text-service-calibration h2{
+        font-size: 32px;
+    }
+    .hero-content { text-align: left; }
+
+    /* Calibración — segunda sección con grid de 2 columnas */
+    .second-section-service-calibration { grid-template-columns: 1fr; gap: 40px; }
+    .service-calibration-table-aplication { padding: 30px 50px; }
+    .buttons-container-service-calibration { margin:12px 0 0 0; flex-direction: column; gap: 12px; }
+    .article-container-fourth-service-calibration { grid-template-columns: 1fr; gap: 20px; }
+
+    /* Calibración — accordion grid */
+    .accordion__grid    { grid-template-columns: 1fr; gap: 20px; }
+
+    .hydraulic-info-container {
+        padding: 60px 20px;
+    }
+
+    .hydraulic-info-title {
+        font-size: 30px;
+        margin-bottom: 14px;
+    }
+
+    .hydraulic-info-description {
+        font-size: 15px;
+    }
+
+    .hydraulic-info-tabs {
+        gap: 12px;
+        margin-bottom: 32px;
+    }
+
+    .hydraulic-info-tab {
+        width: 100%;
+        padding: 14px 18px;
+    }
+
+    .hydraulic-info-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .hydraulic-info-card,
+    .hydraulic-benefit-card,
+    .hydraulic-process-card {
+        padding: 24px 20px;
+    }
+
+    .hydraulic-benefit-inner,
+    .hydraulic-process-card {
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .hydraulic-process-number {
+        width: 68px;
+        height: 68px;
+        font-size: 26px;
+    }
+
+    .hydraulic-benefit-title,
+    .hydraulic-process-title,
+    .hydraulic-info-card-title {
+        font-size: 20px;
+    }
+
+    .hydraulic-benefit-text,
+    .hydraulic-process-text,
+    .hydraulic-info-card-text {
+        font-size: 15px;
+    }
+    /* Ajustes de Padding General para Secciones en Móvil (Agrupados) */
+    .hero-section { min-height: 540px; }
+
+    /* .why-choose-simari-section,
+    .service-description-section-industrial,
+    .what-includes-section,
+    .benefits-section,
+    .work-process-section,
+    .final-cta-section {
+        padding: 60px 0;
+    } */
+
+    .hero-title {
+        font-size: 38px;
+    }
+
+    .service-subtitle-industrial,
+    .cta-final-title,
+    .cta-final-title-industri {
+        font-size: 30px;
+        margin-bottom: 40px;
+    }
+
+    .cta-final-title,
+    .cta-final-title-industri {
+        font-size: 28px;
+    }
+
+    /* Cambio a 1 Columna en móviles */
+    .simari-stats-grid,
+    .applications-grid,
+    .includes-grid,
+    .benefits-grid,
+    .process-grid {
+        grid-template-columns: 1fr;
+    }
+
+    /* Ajustes específicos de espaciado en grillas móviles */
+    .simari-stats-grid { gap: 50px; }
+    .applications-grid { gap: 15px; }
+    .process-grid { gap: 40px; }
+
+    .applications-card {
+        padding: 30px 20px;
+    }
+
+    .include-card {
+        padding: 30px 25px;
+    }
+
+    /* Ajuste de Botones en Móviles */
+    .hero-actions,
+    .cta-final-actions {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .button-primary,
+    .button-secondary {
+        width: 100%;
+    }
+}
+
+/* ------------------------------------------------------------------ */
+/* 480px — Servicios ajustes compactos                                 */
+/* ------------------------------------------------------------------ */
+@media (max-width: 480px) {
+    .hero-section-hair-repair   { min-height: 360px; }
+    .second-content-service-calibration,
+    .first-content-service-calibration
+    {
+        margin: 0;
+    }
+    .container.second-section-service-calibration .second-text-service-calibration h2{
+        font-size: 26px;
+    }
+    
+    .service-calibration-table-aplication { padding: 24px 16px; min-width: fit-content;}
+    .service-calibration-table-aplication h2{
+        font-size: 22px;
+    }
+    .service-calibration-table-aplication p{
+        font-size: 18px;
+    }
+    .main-content-service-calibration h1,
+    .hero-water-treatment__content h1{
+        font-size: 28px;
+    }
+    .main-content-service-calibration p, 
+    .text-service-calibration.proyect-industrial p{
+        font-size: 18px;
+        max-width: 100%;
+    }
+    
+    .section-heading h2,
+    .final-cta__content h2,
+    .service-calibration-accordion h2,
+    .service-calibration-title-sub,
+    .section-heading-boilers-models h2
+    {
+        font-size: 28px;
+    }
+
+    .accordion__item {
+        overflow: hidden;
+        width: 100%;
+    }
+
+    .accordion__header {
+        width: 100%;
+        box-sizing: border-box;
+        overflow: hidden;
+    }
+
+    /* El título no debe desbordar */
+    .accordion__title {
+        font-size: 15px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap; /* o normal si quieres que haga wrap */
+    }
+
+    /* El grid de 2 columnas pasa a 1 columna */
+    .accordion__grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    /* El contenido no se desborda */
+    .accordion__content {
+        overflow: hidden;
+        width: 100%;
+        box-sizing: border-box;
+        padding: 16px;
+    }
+
+    /* Textos del contenido no desbordan */
+    .accordion__content p,
+    .accordion__content h4 {
+        overflow-wrap: break-word;
+        word-break: break-word;
+    }
+    .ii-brands__grid{
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    .ii-brand-tile{
+        padding: 16px;
+    }
+    
+}
+
+/* ================================================================== */
+/* PÁGINAS — Productos SIMARI                                          */
+/* ================================================================== */
+
+/* ------------------------------------------------------------------ */
+/* 768px — Boilers hero acciones                                       */
+/* ------------------------------------------------------------------ */
+@media (max-width: 768px) {
+    .boilers-hero__actions {
+        flex-direction: column;
+        gap: 12px;
+        align-items: stretch;
+    }
+    .boilers-hero__actions a,
+    .boilers-hero__actions button {
+        width: 100%;
+        justify-content: center;
+        text-align: center;
+    }
+     .st-layout {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .st-sidebar {
+        width: 100%;
+    }
+
+    .st-content {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* Grid de aplicaciones en 1 columna */
+    .st-app-grid {
+        grid-template-columns: 1fr;
+    }
+
+    /* Tarjeta híbrida */
+    .st-hybrid-card {
+        flex-direction: column;
+    }
+
+    .st-hybrid-content h3 {
+        font-size: 22px;
+    }
+
+    .st-hybrid-content p {
+        font-size: 15px;
+    }
+
+    /* Pills en columna */
+    .st-pill-grid {
+        grid-template-columns: 1fr;
+    }
+
+    /* CTA responsive */
+    .st-cta h2 {
+        font-size: 32px;
+    }
+
+    .st-cta > .container > p {
+        font-size: 16px;
+    }
+    
+}
+
+/* ------------------------------------------------------------------ */
+/* 480px — Boilers hero acciones                                       */
+/* ------------------------------------------------------------------ */
+
+@media (max-width: 480px) {
+    .container.heat-pumps,
+    .container.why-rinnai-section-heat-pumps,
+    .container.ideal-applications-section-heat-pumps,
+    .container.st-layout{
+        padding: 40px 20px;
+    }
+    .st-hero-title{
+        font-size: 42px;
+    }
+    .st-hero-title .st-subtitle {
+        font-size: 36px;
+    }
+    .st-panel {
+        padding: 24px 16px;
+    }
+    .st-panel {
+        padding: 24px 16px;
+    }
+
+    .st-panel h2 {
+        font-size: 22px;
+        margin: 0 0 16px;
+    }
+
+    /* Feature list: evita desbordamiento */
+    .st-feature-list li {
+        overflow: hidden;
+    }
+
+    .st-feature-list li span:last-child {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;  /* o normal si quieres que haga wrap */
+    }
+
+    /* Layout: una columna */
+    .st-layout {
+        grid-template-columns: 1fr;
+    }
+
+    /* Warranty card */
+    .st-warranty-card {
+        padding: 20px 16px;
+    }
+
+    .st-warranty-card h3 {
+        font-size: 20px;
+    }
+
+    /* Media overlay */
+    .st-media-overlay h2 {
+        font-size: 24px;
+    }
+
+    .st-media-overlay p {
+        font-size: 16px;
+    }
+
+    /* App grid: 1 columna */
+    .st-app-grid {
+        grid-template-columns: 1fr;
+    }
+
+    /* Hybrid card */
+    .st-hybrid-content h3 {
+        font-size: 22px;
+    }
+
+    .st-hybrid-content p {
+        font-size: 15px;
+    }
+
+    /* Pill grid: 1 columna */
+    .st-pill-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+
+
+/* ================================================================== */
+/* Contact Page                                                       */
+/* ================================================================== */
+@media (max-width: 768px) {
+    .container.contact-info-container {
+        flex-direction: column;
+        padding: 24px 16px;
+        gap: 32px;
+    }
+
+    /* Hero container */
+    .container.hero-container {
+        padding: 30px 16px;
+    }
+
+    /* Contact card: quita el width fijo */
+    .contact-card {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 16px;
+    }
+
+    /* Form wrapper: quita el width fijo */
+    .form-wrapper {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 24px 16px;
+    }
+
+    /* cotact-info ocupa todo el ancho */
+    .cotact-info {
+        width: 100%;
+    }
+
+    /* Additional features: columna en móvil */
+    .additional-features {
+        flex-direction: column;
+        gap: 16px;
+        max-width: 100%;
+    }
+}
+
+
+@media (max-width: 480px) {
+    .container.contact-info-container{
+        padding: 60px 20px;
+    }
+}
+
+
+
+/* ================================================================== */
+/* COMPONENTES — WhatsApp flotante                                     */
+/* ================================================================== */
+
+/* ------------------------------------------------------------------ */
+/* 480px — Botón WhatsApp compacto                                     */
+/* ------------------------------------------------------------------ */
+@media (max-width: 480px) {
+    .wa-float           { bottom: 12px; right: 12px; }
+    .wa-button          { width: 52px; height: 52px; }
+    .wa-tooltip         { width: 230px; font-size: 13px; }
+}
+
+/* ------------------------------------------------------------------ */
+/* 360px — Botón WhatsApp mínimo                                       */
+/* ------------------------------------------------------------------ */
+@media (max-width: 360px) {
+    .wa-float           { bottom: 8px; right: 8px; }
+    .wa-button          { width: 48px; height: 48px; }
+    .wa-tooltip         { width: 200px; font-size: 12px; }
+    .wa-tooltip__title  { font-size: 13px; }
+}

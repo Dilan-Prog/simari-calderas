@@ -1,2 +1,9 @@
 User-agent: *
-Disallow:
+Allow: /
+Disallow: /admin
+Disallow: /login
+Disallow: /register
+Disallow: /dashboard
+Disallow: /api/
+# Sitemap
+Sitemap: https://industriasimari.com.mx/sitemap.xml

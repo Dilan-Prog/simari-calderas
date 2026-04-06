@@ -1,0 +1,8 @@
+/* ============================================================
+   responsive.css — Punto de entrada responsivo
+   Importa los tres archivos de breakpoints en orden correcto.
+   ============================================================ */
+
+@import "./responsive/desktop.css";
+@import "./responsive/tablet.css";
+@import "./responsive/mobile.css";

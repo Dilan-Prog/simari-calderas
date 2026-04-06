@@ -1,0 +1,61 @@
+/* ============================================================
+   responsive/desktop.css — Ajustes para pantallas grandes
+   Aplica a: max-width: 1200px (escritorios medianos)
+   ============================================================ */
+@media (min-width: 1280px) and (max-width: 1500px) {
+    /* header */
+    .main-nav-header ul.nav-link {
+        gap: 18px;
+        font-size: 12px;
+    }
+    .button-primary.header{
+        padding: 8px 10px;
+        font-size: 14px;
+    }
+    .main-nav-header ul.nav-action {
+        gap: 10px;
+    }
+    /* end header */
+    /* footer */
+    .site-footer{
+        padding: 30px 10px;
+    }
+    /* end footer */
+
+}
+
+
+@media (min-width: 768px) and (max-width: 1280px) {
+    .main-nav-header ul.nav-link {
+        gap: 18px;
+        font-size: 12px;
+    }
+    .button-primary.header{
+        padding: 8px 10px;
+        font-size: 14px;
+    }
+    .main-nav-header ul.nav-action {
+        gap: 10px;
+    }
+    /* end header */
+    /* footer */
+    .site-footer{
+        padding: 30px 10px;
+    }
+}
+
+/* ================================================================== */
+/* PÁGINAS — Company (desktop grande)                                  */
+/* ================================================================== */
+@media (max-width: 1200px) {
+    .company-grid-values    { grid-template-columns: repeat(3, 1fr); }
+    .company-hero           { min-height: 520px; }
+    .company-hero-desc      { font-size: 18px; }
+}
+
+/* ================================================================== */
+/* PÁGINAS — Productos SIMARI (desktop grande)                         */
+/* ================================================================== */
+@media (max-width: 1200px) {
+    .boilers-hero__actions  { gap: 20px; }
+}

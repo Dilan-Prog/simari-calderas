@@ -1,0 +1,2611 @@
+:root {
+    /* ── Navegación / Header ── */
+    --text-header-color-nav: #d1d5dc;
+    --text-header-color-nav-hover: #0054ff;
+    --text-header-color-nav-hover-white: #ffffff;
+    --header-background-color: #141516;
+    --border-header-footer-color: #2e3a46;
+
+    /* ── Footer ── */
+    --footer-background-color: #141516;
+    --text-footer-color-links: #99a1af;
+    --text-footer-color-links-hover: #ffffff;
+    --border-footer-color-legal: #2e3a46;
+
+    /* ── Colores base ── */
+    --text-white-color: #ffffff;
+    --text-black: #000000;
+    --secondary-color: #0054ff;
+    --background-primary: #141516;
+    --bg-dark: #141516;
+    --bg-dark-2: #141516;
+    --bg-light: #f5f7fa;
+
+    /* ── Botones principales ── */
+    --button-primary-color: #0054ff;
+    --button-primary-color-hover: #0043cc;
+    --button-serondary-color: transparent;
+    --button-secondary-color-hover: #ffffff;
+
+    /* ── Variante Rinnai ── */
+    --secondary-color-rinnai: #c62828;
+    --button-primary-color-rinnai: #c62828;
+    --button-primary-color-hover-rinnai: #b71c1c;
+
+    /* ── Toggle / Nav dark ── */
+    --toggle-header: #2e3a46;
+    --toggle-header-nav: #364153;
+
+    /* ── Tipografía ── */
+    --font-family: "Inter", sans-serif;
+
+    /* ── Cards dark ── */
+    --card-dark: rgba(255, 255, 255, 0.1);
+    --card-line: rgba(255, 255, 255, 0.2);
+
+    /* ── Texto ── */
+    --text-soft: #d1d5db;
+    --text-muted: #9ca3af;
+    --text-body: #4b5563;
+
+    /* ── Bordes / Radios / Sombras ── */
+    --border-color: #e5e7eb;
+    --radius-sm: 12px;
+    --radius-md: 18px;
+    --radius-lg: 24px;
+    --shadow-default: 0 14px 38px rgba(0, 0, 0, 0.16);
+
+    /* ── Colores de acento (Solar) ── */
+    --orange: rgb(255, 140, 0);
+    --blue: rgb(0, 84, 255);
+    --green: rgb(34, 197, 94);
+
+        /* ── Nuevas: Instrumentación Industrial ── */
+    --bg-section: #2e3a46;                      /* fondo oscuro de secciones (= --border-header-footer-color) */
+    --inst-red: #c62828;                         /* rojo instrumental (= --secondary-color-rinnai) */
+    --inst-red-dark: #8b0000;                    /* rojo oscuro para gradientes CTA */
+    --inst-red-alpha: rgba(198, 40, 40, 0.082);  /* fondo tenue de íconos */
+    --inst-red-alpha-lg: rgba(198, 40, 40, 0.19);/* fondo tenue mayor para badges */
+    --inst-blue: #0054ff;                        /* azul instrumento (= --secondary-color) */
+    --inst-blue-dark: #0043cc;                   /* azul oscuro hover (= --button-primary-color-hover) */
+}
+
+/* =========================
+   Hero
+========================= */
+.boilers-hero {
+    position: relative;
+    min-height: 90vh;
+    display: flex;
+    align-items: center;
+    background: var(--bg-dark);
+    overflow: hidden;
+}
+
+.boilers-hero__media {
+    position: absolute;
+    inset: 0;
+}
+
+.boilers-hero__media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    opacity: 0.3;
+}
+
+.boilers-hero__overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        90deg,
+        rgba(20, 21, 22, 1) 0%,
+        rgba(20, 21, 22, 0.95) 52%,
+        rgba(20, 21, 22, 0.7) 100%
+    );
+}
+
+.boilers-hero__container {
+    position: relative;
+    z-index: 2;
+}
+
+.boilers-hero__content {
+    max-width: 1200px;
+    color: var(--text-white-color);
+}
+
+.boilers-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 22px;
+    margin-bottom: 32px;
+    border-radius: 999px;
+    background: var(--card-dark);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--card-line);
+    font-size: 0.875rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.boilers-badge__icon {
+    color: var(--secondary-color);
+    font-size: 1.125rem;
+}
+
+.boilers-hero__content h1 {
+    margin: 0 0 24px;
+    font-size: clamp(3rem, 8vw, 6.5rem);
+    line-height: 0.95;
+    font-weight: 800;
+    color: var(--text-white-color);
+}
+
+.boilers-hero__highlight {
+    display: block;
+    color: var(--secondary-color);
+}
+
+.boilers-hero__brand {
+    display: block;
+    margin-top: 10px;
+    font-size: clamp(2.2rem, 5vw, 4.25rem);
+    color: var(--text-soft);
+}
+
+.boilers-hero__content p {
+    max-width: 760px;
+    margin: 0 0 40px;
+    font-size: clamp(1.125rem, 2vw, 1.5rem);
+    line-height: 1.7;
+    color: var(--text-soft);
+}
+
+.boilers-hero__stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+    margin-bottom: 40px;
+}
+
+.hero-stat-card {
+    padding: 28px 24px;
+    border-radius: var(--radius-md);
+    background: var(--card-dark);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--card-line);
+}
+
+.hero-stat-card strong {
+    display: block;
+    margin-bottom: 8px;
+    font-size: clamp(1.8rem, 3vw, 2.5rem);
+    line-height: 1;
+    font-weight: 800;
+    color: var(--text-white-color);
+}
+
+.hero-stat-card:first-child strong {
+    color: var(--secondary-color);
+}
+
+.hero-stat-card span {
+    display: block;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+.boilers-hero__actions {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+.button-primary.simari-caldera {
+    text-decoration: none;
+    gap: 8px;
+}
+.button-primary.simari-caldera:hover {
+    transform: none;
+}
+.button-secondary.simari-caldera {
+    text-decoration: none;
+    gap: 8px;
+}
+
+/* =========================
+   Models
+========================= */
+.boilers-models {
+    background: var(--bg-light);
+}
+.section-heading-boilers-models {
+    text-align: center;
+    margin: 0 0 48px 0;
+}
+.section-heading-boilers-models h2 {
+    font-size: 80px;
+    margin: 0;
+}
+.section-heading-boilers-models p {
+    font-size: 20px;
+    color: var(--text-body);
+    margin: 8px 0 0 0;
+}
+
+.boilers-models__grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 32px;
+}
+
+.boiler-model-card {
+    display: flex;
+    flex-direction: column;
+    background: var(--text-white-color);
+    border-radius: var(--radius-lg);
+    border: 2px solid var(--border-color);
+    overflow: hidden;
+    box-shadow: var(--shadow-default);
+    transition: all 0.3s ease;
+}
+
+.boiler-model-card:hover {
+    border-color: var(--secondary-color);
+    transform: translateY(-4px);
+}
+
+.boiler-model-card__top {
+    padding: 24px;
+    background: #eff6ff;
+}
+
+.boiler-model-card__top-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 18px;
+}
+
+.boiler-model-card__icon {
+    color: var(--secondary-color);
+    font-size: 2rem;
+    line-height: 1;
+}
+
+.boiler-model-card__tag {
+    padding: 8px 12px;
+    border-radius: 999px;
+    background: var(--text-white-color);
+    color: var(--bg-dark);
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.boiler-model-card h3 {
+    margin: 0 0 8px;
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: var(--bg-dark);
+}
+
+.boiler-model-card__capacity {
+    margin: 0;
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--secondary-color);
+}
+
+.boiler-model-card__body {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    flex-grow: 1;
+}
+
+.boiler-model-card__specs,
+.boiler-model-card__applications ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.boiler-model-card__specs {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.boiler-model-card__specs li {
+    color: var(--text-body);
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+.boiler-model-card__specs li svg {
+    margin-right: 8px;
+    color: var(--secondary-color);
+}
+
+.boiler-model-card__applications {
+    padding-top: 16px;
+    border-top: 1px solid var(--border-color);
+}
+
+.boiler-model-card__applications span {
+    display: block;
+    margin-bottom: 10px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: var(--text-body);
+}
+
+.boiler-model-card__applications ul {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.boiler-model-card__applications li {
+    font-size: 0.85rem;
+    color: var(--text-body);
+    position: relative;
+    padding-left: 14px;
+}
+
+.boiler-model-card__applications li::before {
+    content: "•";
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+
+.boiler-model-card__footer {
+    padding: 40px;
+}
+
+.boiler-model-card__footer a {
+    display: block;
+    width: 100%;
+    padding: 16px 0px;
+    text-align: center;
+    border-radius: var(--radius-sm);
+    background: #eff6ff;
+    color: var(--secondary-color);
+    text-decoration: none;
+    font-weight: 800;
+    transition: all 0.3s ease;
+}
+
+.boiler-model-card__footer a:hover {
+    background: var(--secondary-color);
+    color: var(--text-white-color);
+}
+
+/* =========================
+   Features
+========================= */
+.boilers-features {
+    background: var(--text-white-color);
+}
+
+.boilers-features__grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 32px;
+}
+
+.feature-box {
+    padding: 32px;
+    background: #f9fafb;
+    border-radius: var(--radius-lg);
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.feature-box:hover {
+    border-color: var(--border-color);
+    box-shadow: var(--shadow-default);
+}
+
+.feature-box__icon {
+    width: 64px;
+    height: 64px;
+    margin-bottom: 24px;
+    border-radius: 16px;
+    background: #dbeafe;
+    color: var(--secondary-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+}
+
+.feature-box h3 {
+    margin: 0 0 16px;
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: var(--bg-dark);
+}
+
+.feature-box p {
+    margin: 0;
+    line-height: 1.8;
+    color: var(--text-body);
+}
+
+/* =========================
+   Industries
+========================= */
+.boilers-industries {
+    background: var(--border-header-footer-color);
+}
+.section-heading-boilers-models.industries h2,
+.section-heading-boilers-models.industries p {
+    color: var(--text-white-color);
+}
+.boilers-industries__grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 32px;
+}
+
+.industry-card {
+    background: var(--text-white-color);
+    border-radius: var(--radius-lg);
+    padding: 32px;
+    box-shadow: var(--shadow-default);
+    transition: all 0.3s ease;
+}
+
+.industry-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 18px 42px rgba(0, 0, 0, 0.2);
+}
+
+.industry-card__header {
+    display: flex;
+    align-items: flex-start;
+    gap: 24px;
+    margin-bottom: 24px;
+}
+
+.industry-card__icon {
+    width: 80px;
+    height: 80px;
+    flex-shrink: 0;
+    border-radius: 20px;
+    background: #dbeafe;
+    color: var(--secondary-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+}
+
+.industry-card h3 {
+    margin: 0;
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--bg-dark);
+}
+
+.industry-card__label {
+    display: block;
+    margin-bottom: 14px;
+    font-size: 0.8rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: var(--text-black);
+}
+
+.industry-card__body ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.industry-card__body li {
+    position: relative;
+    padding-left: 18px;
+    font-size: 20px;
+    line-height: 1.6;
+    color: #374151;
+}
+
+.industry-card__body li::before {
+    content: "•";
+    position: absolute;
+    left: 0;
+    top: 0;
+    color: var(--secondary-color);
+    font-weight: 800;
+}
+
+.industry-card__recommendation {
+    display: inline-flex;
+    align-items: center;
+    margin-top: 24px;
+    padding: 12px 16px;
+    border-radius: var(--radius-sm);
+    background: #eff6ff;
+    color: var(--bg-dark);
+    font-size: 0.9rem;
+    font-weight: 800;
+}
+.industry-card__recommendation svg {
+    margin-right: 8px;
+    color: var(--secondary-color);
+}
+/* =========================
+   Why choose
+========================= */
+.boilers-why {
+    background: linear-gradient(135deg, #111827 0%, #000000 100%);
+    color: var(--text-white-color);
+}
+
+.boilers-why__grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+}
+
+.why-card {
+    padding: 28px 24px;
+    text-align: center;
+    border-radius: var(--radius-md);
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+}
+
+.why-card:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.why-card__icon {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 16px;
+    border-radius: 50%;
+    background: rgba(0, 84, 255, 0.2);
+    color: var(--secondary-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+}
+
+.why-card h3 {
+    margin: 0 0 12px;
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--text-white-color);
+}
+
+.why-card p {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    line-height: 1.7;
+}
+
+/* =========================
+   CTA
+========================= */
+.boilers-cta {
+    background: linear-gradient(
+        135deg,
+        var(--button-primary-color) 0%,
+        var(--button-primary-color-hover) 100%
+    );
+    color: var(--text-white-color);
+}
+
+.boilers-cta__content {
+    max-width: 900px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.boilers-cta__content h2 {
+    margin: 0 0 24px;
+    font-size: clamp(2.4rem, 5vw, 4rem);
+    line-height: 1.1;
+    font-weight: 800;
+    color: var(--text-white-color);
+}
+
+.boilers-cta__content p {
+    max-width: 760px;
+    margin: 0 auto 40px;
+    font-size: 1.25rem;
+    line-height: 1.8;
+    color: rgba(255, 255, 255, 0.92);
+}
+
+.boilers-cta__actions {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    flex-wrap: wrap;
+}
+
+.button-primary.simari-caldera.button-first {
+    background-color: var(--text-white-color);
+    color: var(--secondary-color);
+}
+
+/* =========================
+   Responsive
+========================= */
+@media (max-width: 1200px) {
+    .boilers-models__grid,
+    .boilers-why__grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .boilers-features__grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .boilers-hero__stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 992px) {
+    .boilers-industries__grid {
+        grid-template-columns: 1fr;
+    }
+
+    .boilers-models__grid,
+    .boilers-features__grid,
+    .boilers-why__grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .boilers-hero {
+        min-height: auto;
+    }
+
+    .boilers-hero__stats,
+    .boilers-models__grid,
+    .boilers-features__grid,
+    .boilers-why__grid {
+        grid-template-columns: 1fr;
+    }
+
+    .boilers-hero__content h1 {
+        font-size: 2.8rem;
+    }
+
+    .boilers-hero__brand {
+        font-size: 2rem;
+    }
+
+    .boilers-hero__content p,
+    .boilers-cta__content p {
+        font-size: 1rem;
+    }
+
+    .feature-box,
+    .industry-card,
+    .why-card,
+    .hero-stat-card {
+        padding: 24px;
+    }
+
+    .industry-card__header {
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .industry-card__icon {
+        width: 64px;
+        height: 64px;
+        font-size: 1.6rem;
+    }
+}
+/* ============================================================
+   BOTONES
+   ============================================================ */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 18px 36px;
+    border-radius: var(--radius-sm);
+    font-weight: 700;
+    font-size: 1.05rem;
+    cursor: pointer;
+    transition: opacity .2s, background .2s, color .2s;
+    border: 2px solid transparent;
+    text-decoration: none;
+}
+ 
+.btn-primary {
+    background: var(--orange);
+    color: #fff;
+}
+.btn-primary:hover {
+    opacity: .9;
+}
+ 
+.btn-outline-blue {
+    border-color: var(--blue);
+    color: var(--blue);
+    background: transparent;
+}
+.btn-outline-blue:hover {
+    background: rgba(0, 84, 255, .07);
+}
+ 
+.btn-outline-white {
+    border-color: #fff;
+    color: #fff;
+    background: transparent;
+}
+.btn-outline-white:hover {
+    background: rgba(255, 255, 255, .1);
+}
+ 
+.btn-white {
+    background: #fff;
+    color: var(--orange);
+}
+.btn-white:hover {
+    background: #f9fafb;
+}
+ 
+/* Compatibilidad con clases antiguas de calderas */
+.button-primary.simari-caldera {
+    text-decoration: none;
+    gap: 8px;
+}
+.button-primary.simari-caldera:hover {
+    transform: none;
+}
+.button-secondary.simari-caldera {
+    text-decoration: none;
+    gap: 8px;
+}
+.button-primary.simari-caldera.button-first {
+    background-color: var(--text-white-color);
+    color: var(--secondary-color);
+}
+ 
+ 
+/* ============================================================
+   HERO – CALENTADORES SOLARES
+   ============================================================ */
+.solar-hero {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #fff7ed 100%, #fefce8 100%);
+    overflow: hidden;
+}
+ 
+.solar-hero__media {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+}
+.solar-hero__media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: .18;
+}
+.container.solar-hero__container{
+    padding: 50px 200px;
+}
+ 
+.solar-hero__grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 64px;
+    align-items: center;
+    margin: 50px 0;
+}
+ 
+/* Badge */
+.solar-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 20px;
+    background: #ffedd5;
+    border: 2px solid #fdba74;
+    border-radius: 999px;
+    margin-bottom: 32px;
+    font-weight: 800;
+    font-size: .85rem;
+    color: var(--blue);
+    text-transform: uppercase;
+    letter-spacing: .04em;
+}
+.solar-badge svg {
+    color: var(--orange);
+    flex-shrink: 0;
+}
+ 
+/* Título */
+.solar-hero__title {
+    font-size: clamp(3rem, 6vw, 5.5rem);
+    font-weight: 800;
+    line-height: .95;
+    margin-bottom: 32px;
+    color: var(--blue);
+}
+.solar-hero__title .accent {
+    color: var(--orange);
+}
+.solar-hero__title .sub {
+    display: block;
+    font-size: clamp(2rem, 4vw, 3.5rem);
+    color: #4b5563;
+    margin-top: 8px;
+}
+ 
+/* Descripción */
+.solar-hero__desc {
+    font-size: 1.25rem;
+    color: #374151;
+    line-height: 1.75;
+    margin-bottom: 32px;
+}
+.solar-hero__desc strong {
+    color: var(--orange);
+}
+ 
+/* Stat cards */
+.solar-hero__stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 40px;
+}
+.solar-stat {
+    text-align: center;
+    padding: 20px 16px;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, .1);
+}
+.solar-stat__num {
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: var(--orange);
+    line-height: 1;
+}
+.solar-stat__label {
+    font-size: .8rem;
+    color: #6b7280;
+    margin-top: 4px;
+}
+ 
+/* Certificaciones */
+.solar-cert {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 20px 24px;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, .08);
+    margin-bottom: 40px;
+}
+.solar-cert svg {
+    color: var(--orange);
+    flex-shrink: 0;
+}
+.solar-cert__title {
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--blue);
+}
+.solar-cert__norms {
+    font-size: .85rem;
+    color: #6b7280;
+}
+ 
+/* CTAs */
+.solar-hero__cta {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+ 
+/* Columna imagen */
+.solar-hero__img-wrap {
+    position: relative;
+}
+.solar-hero__img-frame {
+    position: relative;
+    border-radius: 28px;
+    overflow: hidden;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, .25);
+}
+.solar-hero__img-frame img {
+    width: 100%;
+    height: 560px;
+    object-fit: cover;
+}
+ 
+.solar-hero__img-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(to top, rgba(0,0,0,.9) 0%, rgba(0,0,0,.55) 50%, transparent 100%);
+    padding: 32px;
+    color: #fff;
+}
+.solar-hero__img-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+}
+.img-stat svg {
+    color: var(--orange);
+    margin-bottom: 6px;
+}
+.img-stat__label {
+    font-size: .8rem;
+    opacity: .8;
+}
+.img-stat__val {
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+ 
+.solar-eco-badge {
+    position: absolute;
+    top: -20px;
+    right: -20px;
+    width: 112px;
+    height: 112px;
+    background: linear-gradient(135deg, #16a34a, #15803d);
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, .3);
+    text-align: center;
+}
+.solar-eco-badge svg {
+    margin-bottom: 4px;
+}
+.solar-eco-badge span {
+    font-size: .65rem;
+    font-weight: 800;
+    line-height: 1.3;
+}
+ 
+ 
+/* ============================================================
+   PRODUCTOS
+   ============================================================ */
+.solar-products {
+    background: #fff;
+}
+ 
+.section-header {
+    text-align: center;
+    margin-bottom: 64px;
+}
+.section-header h2 {
+    font-size: clamp(2.2rem, 5vw, 3.5rem);
+    font-weight: 800;
+    color: var(--blue);
+    margin-bottom: 12px;
+}
+.section-header p {
+    font-size: 1.15rem;
+    color: #6b7280;
+}
+ 
+.solar-products__grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 32px;
+}
+ 
+.product-card {
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    border: 2px solid #e5e7eb;
+    box-shadow: var(--shadow-default);
+    transition: border-color .25s, transform .25s;
+    display: flex;
+    flex-direction: column;
+}
+.product-card:hover {
+    border-color: var(--orange);
+    transform: translateY(-4px);
+}
+ 
+.product-card__header {
+    padding: 32px;
+    background: linear-gradient(135deg, #f97316, #eab308);
+    color: #fff;
+}
+.product-card__header svg {
+    margin-bottom: 16px;
+}
+.product-card__header h3 {
+    font-size: 1.8rem;
+    font-weight: 800;
+    margin-bottom: 4px;
+}
+.product-card__header p {
+    font-size: .9rem;
+    opacity: .9;
+}
+ 
+.product-card__body {
+    padding: 28px;
+    flex: 1;
+}
+.product-card__meta {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    font-size: .9rem;
+}
+.product-card__meta span {
+    color: #6b7280;
+}
+.product-card__meta strong {
+    color: #111;
+}
+.product-card__meta .eff {
+    color: var(--orange);
+}
+.product-card__divider {
+    border: 0;
+    border-top: 1px solid #f3f4f6;
+    margin: 16px 0;
+}
+.product-card__feat-label {
+    font-size: .75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: #9ca3af;
+    margin-bottom: 12px;
+}
+.product-card__features {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.product-card__features li {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: .9rem;
+    color: #374151;
+}
+.product-card__features li svg {
+    color: var(--orange);
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+ 
+.product-card__footer {
+    padding: 30px;
+    border-top: 1px solid #f3f4f6;
+}
+.product-card__price {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--orange);
+    margin-bottom: 16px;
+}
+.product-card__btn {
+    display: block;
+    width: 100%;
+    text-align: center;
+    padding: 14px 0;
+    border-radius: var(--radius-sm);
+    background: var(--orange);
+    color: #fff;
+    font-weight: 700;
+    transition: opacity .2s;
+    text-decoration: none;
+}
+.product-card__btn:hover {
+    opacity: .88;
+}
+ 
+ 
+/* ============================================================
+   TIMELINE – AHORRO
+   ============================================================ */
+.solar-timeline {
+    background: linear-gradient(135deg, #eff6ff 0%, #f0fdf4 100%);
+}
+ 
+.timeline {
+    position: relative;
+    padding-left: 60px;
+}
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 16px;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: linear-gradient(to bottom, var(--orange), #eab308, var(--green));
+    border-radius: 4px;
+}
+ 
+.timeline-item {
+    position: relative;
+    margin-bottom: 48px;
+}
+.timeline-item:last-child {
+    margin-bottom: 0;
+}
+ 
+.timeline-dot {
+    position: absolute;
+    left: -52px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--orange), #eab308);
+    border: 4px solid #fff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, .15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-weight: 800;
+    font-size: .85rem;
+}
+ 
+.timeline-card {
+    background: #fff;
+    border-radius: var(--radius-md);
+    padding: 32px;
+    box-shadow: 0 8px 28px rgba(0, 0, 0, .08);
+    border: 2px solid #f3f4f6;
+    transition: border-color .25s;
+}
+.timeline-card:hover {
+    border-color: var(--orange);
+}
+ 
+.timeline-card__top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
+}
+.timeline-card__period {
+    font-size: .8rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: #9ca3af;
+}
+.timeline-card__title {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: var(--blue);
+    margin-top: 4px;
+}
+.timeline-card__saving {
+    text-align: right;
+}
+.timeline-card__pct {
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: var(--orange);
+    line-height: 1;
+}
+.timeline-card__saving-label {
+    font-size: .75rem;
+    color: #9ca3af;
+}
+.timeline-card p {
+    color: #6b7280;
+    font-size: .95rem;
+}
+ 
+ 
+/* ============================================================
+   APLICACIONES INDUSTRIALES
+   ============================================================ */
+.solar-industries {
+    background: var(--blue);
+}
+.solar-industries .section-header h2 {
+    color: #fff;
+}
+.solar-industries .section-header p {
+    color: rgba(255, 255, 255, .75);
+}
+ 
+.industries-grid {
+    display: grid;
+    gap: 24px;
+}
+ 
+.industry-row {
+    background: #fff;
+    border-radius: var(--radius-lg);
+    padding: 32px;
+    box-shadow: var(--shadow-default);
+    transition: box-shadow .25s;
+}
+.industry-row:hover {
+    box-shadow: 0 18px 48px rgba(0, 0, 0, .22);
+}
+ 
+.industry-row__inner {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr 1fr 1fr;
+    gap: 32px;
+    align-items: center;
+}
+ 
+.industry-row__info svg {
+    color: var(--orange);
+    margin-bottom: 16px;
+}
+.industry-row__info h3 {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--blue);
+    margin-bottom: 8px;
+}
+.industry-row__info p {
+    font-size: .9rem;
+    color: #6b7280;
+}
+ 
+.industry-metric {
+    text-align: center;
+    padding: 20px;
+    border-radius: 16px;
+}
+.industry-metric.orange { background: #fff7ed; }
+.industry-metric.green  { background: #f0fdf4; }
+.industry-metric.blue   { background: #eff6ff; }
+ 
+.industry-metric svg {
+    margin: 0 auto 8px;
+    display: block;
+}
+.industry-metric svg.orange  { color: var(--orange); }
+.industry-metric svg.green   { color: var(--green); }
+.industry-metric svg.blueico { color: var(--orange); }
+ 
+.industry-metric__label {
+    font-size: .8rem;
+    color: #6b7280;
+    margin-bottom: 4px;
+}
+.industry-metric__val {
+    font-size: 1.05rem;
+    font-weight: 800;
+}
+.industry-metric__val.blue-val   { color: var(--blue); }
+.industry-metric__val.green-val  { color: #16a34a; }
+.industry-metric__val.orange-val { color: var(--orange); }
+ 
+ 
+/* ============================================================
+   IMPACTO AMBIENTAL
+   ============================================================ */
+.solar-env {
+    background: #fff;
+}
+.solar-env__grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 32px;
+}
+ 
+.env-card {
+    background: linear-gradient(135deg, #f0fdf4, #eff6ff);
+    border-radius: var(--radius-lg);
+    padding: 40px 32px;
+    text-align: center;
+    transition: box-shadow .25s;
+}
+.env-card:hover {
+    box-shadow: 0 16px 40px rgba(0, 0, 0, .1);
+}
+.env-card__emoji {
+    font-size: 3.5rem;
+    margin-bottom: 16px;
+    line-height: 1;
+}
+.env-card h3 {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: var(--blue);
+    margin-bottom: 12px;
+}
+.env-card__num {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--green);
+    margin-bottom: 16px;
+}
+.env-card p {
+    color: #6b7280;
+    font-size: .95rem;
+    line-height: 1.75;
+}
+ 
+ 
+/* ============================================================
+   CTA FINAL
+   ============================================================ */
+.solar-cta {
+    background: linear-gradient(135deg, var(--orange) 0%, #d97706 100%);
+    color: #fff;
+}
+.solar-cta__inner {
+    max-width: 860px;
+    margin: 0 auto;
+    text-align: center;
+}
+.solar-cta__inner h2 {
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 800;
+    margin-bottom: 16px;
+}
+.solar-cta__inner p {
+    font-size: 1.2rem;
+    opacity: .92;
+    margin-bottom: 48px;
+}
+ 
+.solar-cta__steps {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 32px;
+    margin-bottom: 48px;
+    background: rgba(255, 255, 255, .12);
+    border: 2px solid rgba(255, 255, 255, .3);
+    border-radius: var(--radius-md);
+    padding: 40px;
+}
+.cta-step__num {
+    font-size: 4rem;
+    font-weight: 800;
+    line-height: 1;
+    margin-bottom: 8px;
+}
+.cta-step__text {
+    font-size: 1rem;
+    opacity: .9;
+}
+ 
+.solar-cta__btns {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+ 
+ 
+/* ============================================================
+   SECCIÓN CALDERAS (legacy – no modificar)
+   ============================================================ */
+.boilers-hero {
+    position: relative;
+    min-height: 90vh;
+    display: flex;
+    align-items: center;
+    background: var(--bg-dark);
+    overflow: hidden;
+}
+.boilers-hero__media {
+    position: absolute;
+    inset: 0;
+}
+.boilers-hero__media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    opacity: 0.3;
+}
+.boilers-hero__overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, rgba(20,21,22,1) 0%, rgba(20,21,22,0.95) 52%, rgba(20,21,22,0.7) 100%);
+}
+.boilers-hero__container {
+    position: relative;
+    z-index: 2;
+}
+.boilers-hero__content {
+    max-width: 1200px;
+    color: var(--text-white-color);
+}
+.boilers-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 22px;
+    margin-bottom: 32px;
+    border-radius: 999px;
+    background: var(--card-dark);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--card-line);
+    font-size: 0.875rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+.boilers-badge__icon {
+    color: var(--secondary-color);
+    font-size: 1.125rem;
+}
+.boilers-hero__content h1 {
+    margin: 0 0 24px;
+    font-size: clamp(3rem, 8vw, 6.5rem);
+    line-height: 0.95;
+    font-weight: 800;
+    color: var(--text-white-color);
+}
+.boilers-hero__highlight {
+    display: block;
+    color: var(--secondary-color);
+}
+.boilers-hero__brand {
+    display: block;
+    margin-top: 10px;
+    font-size: clamp(2.2rem, 5vw, 4.25rem);
+    color: var(--text-soft);
+}
+.boilers-hero__content p {
+    max-width: 760px;
+    margin: 0 0 40px;
+    font-size: clamp(1.125rem, 2vw, 1.5rem);
+    line-height: 1.7;
+    color: var(--text-soft);
+}
+.boilers-hero__stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+    margin-bottom: 40px;
+}
+.hero-stat-card {
+    padding: 28px 24px;
+    border-radius: var(--radius-md);
+    background: var(--card-dark);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--card-line);
+}
+.hero-stat-card strong {
+    display: block;
+    margin-bottom: 8px;
+    font-size: clamp(1.8rem, 3vw, 2.5rem);
+    line-height: 1;
+    font-weight: 800;
+    color: var(--text-white-color);
+}
+.hero-stat-card:first-child strong {
+    color: var(--secondary-color);
+}
+.hero-stat-card span {
+    display: block;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+.boilers-hero__actions {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+.boilers-models {
+    background: var(--bg-light);
+}
+.section-heading-boilers-models {
+    text-align: center;
+    margin: 0 0 48px 0;
+}
+.section-heading-boilers-models h2 {
+    font-size: 80px;
+    margin: 0;
+}
+.section-heading-boilers-models p {
+    font-size: 20px;
+    color: var(--text-body);
+    margin: 8px 0 0 0;
+}
+.boilers-models__grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 32px;
+}
+.boiler-model-card {
+    display: flex;
+    flex-direction: column;
+    background: var(--text-white-color);
+    border-radius: var(--radius-lg);
+    border: 2px solid var(--border-color);
+    overflow: hidden;
+    box-shadow: var(--shadow-default);
+    transition: all 0.3s ease;
+}
+.boiler-model-card:hover {
+    border-color: var(--secondary-color);
+    transform: translateY(-4px);
+}
+.boiler-model-card__top {
+    padding: 24px;
+    background: #eff6ff;
+}
+.boiler-model-card__top-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 18px;
+}
+.boiler-model-card__icon {
+    color: var(--secondary-color);
+    font-size: 2rem;
+    line-height: 1;
+}
+.boiler-model-card__tag {
+    padding: 8px 12px;
+    border-radius: 999px;
+    background: var(--text-white-color);
+    color: var(--bg-dark);
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+.boiler-model-card h3 {
+    margin: 0 0 8px;
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: var(--bg-dark);
+}
+.boiler-model-card__capacity {
+    margin: 0;
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--secondary-color);
+}
+.boiler-model-card__body {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    flex-grow: 1;
+}
+.boiler-model-card__specs,
+.boiler-model-card__applications ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+.boiler-model-card__specs {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.boiler-model-card__specs li {
+    color: var(--text-body);
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+.boiler-model-card__specs li svg {
+    margin-right: 8px;
+    color: var(--secondary-color);
+}
+.boiler-model-card__applications {
+    padding-top: 16px;
+    border-top: 1px solid var(--border-color);
+}
+.boiler-model-card__applications span {
+    display: block;
+    margin-bottom: 10px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: var(--text-body);
+}
+.boiler-model-card__applications ul {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.boiler-model-card__applications li {
+    font-size: 0.85rem;
+    color: var(--text-body);
+    position: relative;
+    padding-left: 14px;
+}
+.boiler-model-card__applications li::before {
+    content: "•";
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+.boiler-model-card__footer {
+    padding: 40px;
+}
+.boiler-model-card__footer a {
+    display: block;
+    width: 100%;
+    padding: 16px 0;
+    text-align: center;
+    border-radius: var(--radius-sm);
+    background: #eff6ff;
+    color: var(--secondary-color);
+    text-decoration: none;
+    font-weight: 800;
+    transition: all 0.3s ease;
+}
+.boiler-model-card__footer a:hover {
+    background: var(--secondary-color);
+    color: var(--text-white-color);
+}
+.boilers-features {
+    background: var(--text-white-color);
+}
+.boilers-features__grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 32px;
+}
+.feature-box {
+    padding: 32px;
+    background: #f9fafb;
+    border-radius: var(--radius-lg);
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+}
+.feature-box:hover {
+    border-color: var(--border-color);
+    box-shadow: var(--shadow-default);
+}
+.feature-box__icon {
+    width: 64px;
+    height: 64px;
+    margin-bottom: 24px;
+    border-radius: 16px;
+    background: #dbeafe;
+    color: var(--secondary-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+}
+.feature-box h3 {
+    margin: 0 0 16px;
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: var(--bg-dark);
+}
+.feature-box p {
+    margin: 0;
+    line-height: 1.8;
+    color: var(--text-body);
+}
+.boilers-industries {
+    background: var(--border-header-footer-color);
+}
+.section-heading-boilers-models.industries h2,
+.section-heading-boilers-models.industries p {
+    color: var(--text-white-color);
+}
+.boilers-industries__grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 32px;
+}
+.industry-card {
+    background: var(--text-white-color);
+    border-radius: var(--radius-lg);
+    padding: 32px;
+    box-shadow: var(--shadow-default);
+    transition: all 0.3s ease;
+}
+.industry-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 18px 42px rgba(0, 0, 0, 0.2);
+}
+.industry-card__header {
+    display: flex;
+    align-items: flex-start;
+    gap: 24px;
+    margin-bottom: 24px;
+}
+.industry-card__icon {
+    width: 80px;
+    height: 80px;
+    flex-shrink: 0;
+    border-radius: 20px;
+    background: #dbeafe;
+    color: var(--secondary-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+}
+.industry-card h3 {
+    margin: 0;
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--bg-dark);
+}
+.industry-card__label {
+    display: block;
+    margin-bottom: 14px;
+    font-size: 0.8rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: var(--text-black);
+}
+.industry-card__body ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.industry-card__body li {
+    position: relative;
+    padding-left: 18px;
+    font-size: 20px;
+    line-height: 1.6;
+    color: #374151;
+}
+.industry-card__body li::before {
+    content: "•";
+    position: absolute;
+    left: 0;
+    top: 0;
+    color: var(--secondary-color);
+    font-weight: 800;
+}
+.industry-card__recommendation {
+    display: inline-flex;
+    align-items: center;
+    margin-top: 24px;
+    padding: 12px 16px;
+    border-radius: var(--radius-sm);
+    background: #eff6ff;
+    color: var(--bg-dark);
+    font-size: 0.9rem;
+    font-weight: 800;
+}
+.industry-card__recommendation svg {
+    margin-right: 8px;
+    color: var(--secondary-color);
+}
+.boilers-why {
+    background: linear-gradient(135deg, #111827 0%, #000000 100%);
+    color: var(--text-white-color);
+}
+.boilers-why__grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+}
+.why-card {
+    padding: 28px 24px;
+    text-align: center;
+    border-radius: var(--radius-md);
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+}
+.why-card:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+.why-card__icon {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 16px;
+    border-radius: 50%;
+    background: rgba(0, 84, 255, 0.2);
+    color: var(--secondary-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+}
+.why-card h3 {
+    margin: 0 0 12px;
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--text-white-color);
+}
+.why-card p {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    line-height: 1.7;
+}
+.boilers-cta {
+    background: linear-gradient(135deg, var(--button-primary-color) 0%, var(--button-primary-color-hover) 100%);
+    color: var(--text-white-color);
+}
+.boilers-cta__content {
+    max-width: 900px;
+    margin: 0 auto;
+    text-align: center;
+}
+.boilers-cta__content h2 {
+    margin: 0 0 24px;
+    font-size: clamp(2.4rem, 5vw, 4rem);
+    line-height: 1.1;
+    font-weight: 800;
+    color: var(--text-white-color);
+}
+.boilers-cta__content p {
+    max-width: 760px;
+    margin: 0 auto 40px;
+    font-size: 1.25rem;
+    line-height: 1.8;
+    color: rgba(255, 255, 255, 0.92);
+}
+.boilers-cta__actions {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    flex-wrap: wrap;
+}
+ 
+ 
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+ 
+/* ── 1200px ── */
+@media (max-width: 1200px) {
+    .container {
+        padding: 110px 100px;
+    }
+    .boilers-models__grid,
+    .boilers-why__grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .boilers-features__grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .boilers-hero__stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+ 
+/* ── 1100px (Solar) ── */
+@media (max-width: 1100px) {
+    .solar-hero__grid {
+        grid-template-columns: 1fr;
+        gap: 48px;
+    }
+    .solar-hero__img-wrap {
+        display: none;
+    }
+    .solar-products__grid {
+        grid-template-columns: 1fr 1fr;
+    }
+    .industry-row__inner {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+ 
+/* ── 992px ── */
+@media (max-width: 992px) {
+    .container {
+        padding: 90px 48px;
+    }
+    .boilers-industries__grid {
+        grid-template-columns: 1fr;
+    }
+    .boilers-models__grid,
+    .boilers-features__grid,
+    .boilers-why__grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+ 
+/* ── 768px ── */
+@media (max-width: 768px) {
+    .container {
+        padding: 72px 24px;
+    }
+    .section-pad {
+        padding: 56px 0;
+    }
+    .boilers-hero {
+        min-height: auto;
+    }
+    .boilers-hero__stats,
+    .boilers-models__grid,
+    .boilers-features__grid,
+    .boilers-why__grid {
+        grid-template-columns: 1fr;
+    }
+    .boilers-hero__content h1 {
+        font-size: 2.8rem;
+    }
+    .boilers-hero__brand {
+        font-size: 2rem;
+    }
+    .boilers-hero__content p,
+    .boilers-cta__content p {
+        font-size: 1rem;
+    }
+    .feature-box,
+    .industry-card,
+    .why-card,
+    .hero-stat-card {
+        padding: 24px;
+    }
+    .industry-card__header {
+        flex-direction: column;
+        gap: 16px;
+    }
+    .industry-card__icon {
+        width: 64px;
+        height: 64px;
+        font-size: 1.6rem;
+    }
+    .solar-hero__stats {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    .solar-hero__cta {
+        flex-direction: column;
+    }
+    .solar-products__grid {
+        grid-template-columns: 1fr;
+    }
+    .solar-cta__steps {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    .industry-row__inner {
+        grid-template-columns: 1fr;
+    }
+    .solar-env__grid {
+        grid-template-columns: 1fr;
+    }
+    .timeline {
+        padding-left: 48px;
+    }
+}
+.ii-container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 24px;
+}
+ 
+.ii-section-pad { padding: 80px 0; }
+ 
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+}
+ 
+ 
+/* ============================================================
+   HERO AZUL CON GRID PATTERN
+   React: section "relative min-h-[85vh] bg-[#0054ff] overflow-hidden"
+============================================================ */
+.ii-hero {
+    position: relative;
+    min-height: 85vh;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    background-color: var(--background-primary);
+}
+ 
+/* React: absolute inset-0 opacity-10 grid lines */
+.ii-hero__pattern {
+    position: absolute;
+    inset: 0;
+    opacity: .1;
+    background-image:
+        linear-gradient(#fff 1px, transparent 1px),
+        linear-gradient(90deg, #fff 1px, transparent 1px);
+    background-size: 50px 50px;
+    pointer-events: none;
+}
+ 
+/* React: absolute inset-0 bg-gradient-to-br from-blue-900/50 via-transparent to-red-900/30 */
+.ii-hero__overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        135deg,
+        rgba(30, 58, 138, 0.5) 0%,
+        transparent 55%,
+        rgba(127, 29, 29, 0.3) 100%
+    );
+    pointer-events: none;
+}
+ 
+/* React: relative z-10 max-w-7xl mx-auto px-4 py-20 */
+.ii-hero__inner {
+    position: relative;
+    z-index: 2;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 80px 24px;
+}
+ 
+/* React: max-w-4xl */
+.ii-hero__content { max-width: 900px; }
+ 
+/* React: inline-flex items-center gap-3 px-6 py-3 bg-white/10 backdrop-blur-md border border-white/20 rounded-lg mb-8 */
+.ii-hero__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 24px;
+    background: var(--card-dark);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--card-line);
+    border-radius: var(--radius-sm);
+    margin-bottom: 32px;
+}
+ 
+.ii-hero__badge svg { color: var(--inst-red); flex-shrink: 0; }
+.ii-hero__badge-title { color: var(--text-white-color); font-weight: 700; font-size: .85rem; text-transform: uppercase; letter-spacing: .04em; }
+.ii-hero__badge-sub   { color: var(--text-soft); font-size: .75rem; }
+ 
+/* React: text-6xl md:text-8xl font-bold text-white leading-tight mb-8 */
+.ii-hero__title {
+    font-size: clamp(3.2rem, 8vw, 6rem);
+    font-weight: 800;
+    color: var(--text-white-color);
+    line-height: 1.02;
+    margin-bottom: 32px;
+}
+ 
+.ii-hero__title .ii-accent { color: var(--inst-red); }
+ 
+/* React: text-5xl text-gray-400 */
+.ii-hero__title .ii-sub {
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    color: var(--text-muted);
+}
+ 
+/* React: text-2xl text-gray-300 leading-relaxed mb-12 max-w-3xl */
+.ii-hero__desc {
+    font-size: 1.2rem;
+    color: var(--text-soft);
+    line-height: 1.75;
+    margin-bottom: 48px;
+    max-width: 780px;
+}
+ 
+/* React: grid grid-cols-2 md:grid-cols-4 gap-4 mb-12 */
+.ii-hero__stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 48px;
+}
+ 
+/* React: bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg p-4 text-center hover:bg-white/10 */
+.ii-stat {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(4px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius-sm);
+    padding: 16px;
+    text-align: center;
+    transition: background .2s;
+}
+.ii-stat:hover { background: var(--card-dark); }
+ 
+/* React: text-3xl font-bold mb-1 color inst-red */
+.ii-stat__num {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: var(--inst-red);
+    margin-bottom: 4px;
+    line-height: 1;
+}
+/* React: text-xs text-gray-400 */
+.ii-stat__label { font-size: .72rem; color: var(--text-muted); }
+ 
+/* CTAs */
+.ii-hero__btns { display: flex; gap: 16px; flex-wrap: wrap; }
+ 
+/* React: inline-flex px-10 py-5 bg-[#C62828] text-white font-bold rounded-lg text-lg */
+.ii-btn-red {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 18px 40px;
+    background: var(--inst-red);
+    color: var(--text-white-color);
+    border-radius: var(--radius-sm);
+    font-weight: 700;
+    font-size: 1.05rem;
+    box-shadow: 0 8px 24px rgba(198, 40, 40, 0.4);
+    transition: opacity .2s;
+}
+.ii-btn-red:hover { opacity: .88; }
+ 
+/* React: inline-flex border-2 border-white text-white rounded-lg hover:bg-white/10 */
+.ii-btn-outline-white {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 16px 38px;
+    border: 2px solid var(--text-white-color);
+    color: var(--text-white-color);
+    border-radius: var(--radius-sm);
+    font-weight: 700;
+    font-size: 1.05rem;
+    background: transparent;
+    transition: background .2s;
+}
+.ii-btn-outline-white:hover { background: var(--card-dark); }
+ 
+ 
+/* ============================================================
+   CATÁLOGO – 4 CARDS CON HEADER DE COLOR
+   React: section bg-[#2E3A46]
+============================================================ */
+.ii-catalog {
+    background: var(--bg-section);
+    padding: 80px 0;
+}
+ 
+.ii-catalog__header { text-align: center; margin-bottom: 64px; }
+ 
+/* React: text-5xl font-bold text-white mb-6 */
+.ii-catalog__title {
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 800;
+    color: var(--text-white-color);
+    margin-bottom: 16px;
+}
+/* React: text-xl text-gray-300 */
+.ii-catalog__sub { font-size: 1.1rem; color: var(--text-soft); }
+ 
+/* React: grid md:grid-cols-2 gap-8 */
+.ii-catalog__grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 32px;
+}
+ 
+/* React: bg-white rounded-2xl shadow-2xl overflow-hidden hover:scale-105 */
+.ii-cat-card {
+    background: var(--text-white-color);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+    transition: transform .25s, box-shadow .25s;
+}
+.ii-cat-card:hover {
+    transform: scale(1.03);
+    box-shadow: 0 28px 70px rgba(0, 0, 0, 0.4);
+}
+ 
+/* Header de color por categoría */
+.ii-cat-card__header { padding: 24px; }
+.ii-cat-card__header svg   { margin-bottom: 14px; color: var(--text-white-color); display: block; }
+.ii-cat-card__header h3    { font-size: 1.4rem; font-weight: 800; color: var(--text-white-color); }
+ 
+.ii-cat-card__header--blue  { background: #3B82F6; }
+.ii-cat-card__header--red   { background: #EF4444; }
+.ii-cat-card__header--amber { background: #F59E0B; }
+.ii-cat-card__header--pink  { background: #EC4899; }
+ 
+/* Body */
+.ii-cat-card__body { padding: 24px; }
+ 
+/* Lista de productos */
+.ii-product-list { display: flex; flex-direction: column; }
+ 
+.ii-product-item {
+    padding: 16px 0;
+    border-bottom: 1px solid var(--border-color);
+}
+.ii-product-item:last-child { border-bottom: none; padding-bottom: 0; }
+ 
+/* React: font-bold text-lg mb-2 color #0054ff */
+.ii-product-item__name {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--secondary-color);
+    margin-bottom: 8px;
+}
+ 
+/* React: grid grid-cols-2 gap-2 text-sm */
+.ii-product-item__specs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    font-size: .82rem;
+    color: var(--text-body);
+    margin-bottom: 6px;
+}
+.ii-product-item__specs span { font-weight: 600; color: #374151; }
+ 
+/* React: text-xs text-gray-500 mt-2 */
+.ii-product-item__app { font-size: .75rem; color: var(--text-muted); }
+ 
+/* CTA de card */
+.ii-cat-card__btn {
+    display: block;
+    width: 100%;
+    text-align: center;
+    padding: 12px;
+    border-radius: var(--radius-sm);
+    font-weight: 700;
+    font-size: .9rem;
+    color: var(--text-white-color);
+    margin-top: 20px;
+    transition: opacity .2s;
+}
+.ii-cat-card__btn:hover { opacity: .88; }
+ 
+.ii-cat-card__btn--blue  { background: #3B82F6; }
+.ii-cat-card__btn--red   { background: #EF4444; }
+.ii-cat-card__btn--amber { background: #F59E0B; }
+.ii-cat-card__btn--pink  { background: #EC4899; }
+ 
+ 
+/* ============================================================
+   APLICACIONES CRÍTICAS – SECCIÓN NEGRA
+   React: section "py-20 bg-black text-white"
+============================================================ */
+.ii-apps {
+    background: var(--bg-dark);
+    padding: 80px 0;
+    color: var(--text-white-color);
+}
+ 
+.ii-apps__header { text-align: center; margin-bottom: 64px; }
+.ii-apps__header svg { color: var(--inst-red); margin: 0 auto 24px; display: block; }
+ 
+/* React: text-5xl font-bold mb-6 */
+.ii-apps__title {
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 800;
+    margin-bottom: 16px;
+    color: var(--text-white-color);
+}
+/* React: text-xl text-gray-400 */
+.ii-apps__sub { font-size: 1.1rem; color: var(--text-muted); }
+ 
+/* stack de filas */
+.ii-apps__list { display: flex; flex-direction: column; gap: 24px; }
+ 
+/* React: bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-8 hover:bg-white/10 */
+.ii-app-row {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius-lg);
+    padding: 32px;
+    transition: background .2s;
+}
+.ii-app-row:hover { background: var(--card-dark); }
+ 
+/* React: grid lg:grid-cols-4 gap-8 items-center → 1fr 3fr */
+.ii-app-row__inner {
+    display: grid;
+    grid-template-columns: 1fr 3fr;
+    gap: 32px;
+    align-items: center;
+}
+ 
+.ii-app-row__info-top { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+.ii-app-row__info-top svg { color: var(--inst-red); flex-shrink: 0; }
+ 
+/* React: text-2xl font-bold */
+.ii-app-row__name { font-size: 1.4rem; font-weight: 800; color: var(--text-white-color); }
+ 
+/* Badges de criticidad */
+.ii-criticality {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-size: .72rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    margin-top: 8px;
+}
+.ii-criticality--alta  { background: #EF4444; color: var(--text-white-color); }
+.ii-criticality--media { background: #F59E0B; color: var(--text-white-color); }
+ 
+.ii-app-row__norm { font-size: .82rem; color: var(--text-muted); margin-top: 12px; }
+ 
+.ii-app-row__req-label {
+    font-size: .75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+    letter-spacing: .05em;
+}
+ 
+/* React: flex flex-wrap gap-2 */
+.ii-chips { display: flex; flex-wrap: wrap; gap: 10px; }
+ 
+/* React: px-4 py-2 bg-white/10 rounded-lg text-sm border border-white/20 */
+.ii-chip {
+    padding: 8px 16px;
+    background: var(--card-dark);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--card-line);
+    font-size: .82rem;
+    color: var(--text-white-color);
+}
+ 
+ 
+/* ============================================================
+   SERVICIO TÉCNICO – SECCIÓN AZUL
+   React: section bg-[#0054ff]
+============================================================ */
+.ii-service {
+    background: var(--inst-blue);
+    padding: 80px 0;
+    color: var(--text-white-color);
+}
+ 
+.ii-service__header { text-align: center; margin-bottom: 64px; }
+ 
+/* React: text-5xl font-bold text-white mb-6 */
+.ii-service__title {
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 800;
+    color: var(--text-white-color);
+    margin-bottom: 16px;
+}
+/* React: text-xl text-gray-300 */
+.ii-service__sub { font-size: 1.1rem; color: var(--text-soft); }
+ 
+/* React: grid md:grid-cols-2 gap-8 */
+.ii-service__grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 32px;
+}
+ 
+/* React: bg-white rounded-2xl p-8 shadow-xl hover:shadow-2xl */
+.ii-service-card {
+    background: var(--text-white-color);
+    border-radius: var(--radius-lg);
+    padding: 32px;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.2);
+    transition: box-shadow .25s, transform .25s;
+}
+.ii-service-card:hover {
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.3);
+    transform: translateY(-3px);
+}
+ 
+/* React: flex items-start gap-6 */
+.ii-service-card__body { display: flex; align-items: flex-start; gap: 20px; }
+ 
+/* React: w-16 h-16 flex-shrink-0 rounded-xl bg-[#C62828]/08 */
+.ii-service-card__icon {
+    width: 60px;
+    height: 60px;
+    flex-shrink: 0;
+    border-radius: 14px;
+    background: var(--inst-red-alpha);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.ii-service-card__icon svg { color: var(--inst-red); }
+ 
+/* React: text-2xl font-bold mb-4 color #0054ff */
+.ii-service-card h3 {
+    font-size: 1.3rem;
+    font-weight: 800;
+    margin-bottom: 12px;
+    color: var(--secondary-color);
+}
+/* React: text-gray-600 leading-relaxed */
+.ii-service-card p {
+    font-size: .95rem;
+    color: var(--text-body);
+    line-height: 1.75;
+    margin: 0;
+}
+ 
+ 
+/* ============================================================
+   MARCAS – SECCIÓN DARK
+   React: section bg-[#2E3A46]
+============================================================ */
+.ii-brands {
+    background: var(--bg-section);
+    padding: 80px 0;
+}
+ 
+/* React: text-4xl font-bold text-white mb-12 text-center */
+.ii-brands__title {
+    font-size: clamp(1.8rem, 4vw, 2.6rem);
+    font-weight: 800;
+    color: var(--text-white-color);
+    text-align: center;
+    margin-bottom: 48px;
+}
+ 
+/* React: grid grid-cols-2 md:grid-cols-4 gap-8 */
+.ii-brands__grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+}
+ 
+/* React: bg-white/10 backdrop-blur border border-white/20 rounded-xl p-6 hover:bg-white/20 */
+.ii-brand-tile {
+    background: var(--card-dark);
+    backdrop-filter: blur(8px);
+    border: 1px solid var(--card-line);
+    border-radius: var(--radius-md);
+    padding: 24px;
+    text-align: center;
+    transition: background .2s, transform .2s;
+}
+.ii-brand-tile:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+}
+ 
+/* React: text-2xl font-bold text-white */
+.ii-brand-tile__name { font-size: 1.2rem; font-weight: 800; color: var(--text-white-color); }
+ 
+ 
+/* ============================================================
+   CTA ROJO FINAL
+   React: section "py-24 bg-gradient from-[#C62828] to-[#8B0000]"
+============================================================ */
+.ii-cta {
+    background: linear-gradient(135deg, var(--inst-red) 0%, var(--inst-red-dark) 100%);
+    padding: 96px 0;
+    color: var(--text-white-color);
+}
+ 
+.ii-cta__inner {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 24px;
+    text-align: center;
+}
+ 
+.ii-cta__inner svg { color: var(--text-white-color); margin: 0 auto 32px; display: block; }
+ 
+/* React: text-5xl md:text-6xl font-bold mb-8 */
+.ii-cta__inner h2 {
+    font-size: clamp(2.2rem, 5vw, 3.8rem);
+    font-weight: 800;
+    margin-bottom: 28px;
+    line-height: 1.1;
+}
+ 
+/* React: text-2xl text-white/90 mb-12 max-w-3xl mx-auto */
+.ii-cta__inner p {
+    font-size: 1.2rem;
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 48px;
+    line-height: 1.75;
+    max-width: 760px;
+    margin-left: auto;
+    margin-right: auto;
+}
+ 
+/* React: flex flex-col sm:flex-row gap-6 justify-center */
+.ii-cta__btns { display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; }
+ 
+/* React: inline-flex px-12 py-6 bg-white text-[#C62828] font-bold rounded-lg text-xl shadow-2xl */
+.ii-btn-white-cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 20px 48px;
+    background: var(--text-white-color);
+    color: var(--inst-red);
+    border-radius: var(--radius-sm);
+    font-weight: 800;
+    font-size: 1.1rem;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.25);
+    transition: background .2s;
+}
+.ii-btn-white-cta:hover { background: var(--bg-light); }
+ 
+/* React: inline-flex px-12 py-6 border-2 border-white text-white rounded-lg hover:bg-white/10 */
+.ii-btn-outline-cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 20px 48px;
+    border: 2px solid var(--text-white-color);
+    color: var(--text-white-color);
+    border-radius: var(--radius-sm);
+    font-weight: 700;
+    font-size: 1.1rem;
+    background: transparent;
+    transition: background .2s;
+}
+.ii-btn-outline-cta:hover { background: var(--card-dark); }
+ 
+ 
+/* ============================================================
+   RESPONSIVE
+============================================================ */
+ 
+/* ── 1024px ── */
+@media (max-width: 1024px) {
+    .ii-brands__grid { grid-template-columns: repeat(4, 1fr); }
+}
+ 
+/* ── 900px ── */
+@media (max-width: 900px) {
+    .ii-service__grid    { grid-template-columns: 1fr; }
+    .ii-catalog__grid    { grid-template-columns: 1fr; max-width: 600px; margin: 0 auto; }
+    .ii-app-row__inner   { grid-template-columns: 1fr; gap: 20px; }
+}
+ 
+/* ── 768px ── */
+@media (max-width: 768px) {
+    .ii-hero             { min-height: auto; }
+    .ii-hero__stats      { grid-template-columns: repeat(2, 1fr); }
+    .ii-hero__btns       { flex-direction: column; }
+    .ii-btn-red,
+    .ii-btn-outline-white { justify-content: center; }
+    .ii-brands__grid     { grid-template-columns: repeat(2, 1fr); }
+    .ii-catalog__grid    { grid-template-columns: 1fr; max-width: 100%; }
+    .ii-cta__btns        { flex-direction: column; align-items: center; }
+    .ii-btn-white-cta,
+    .ii-btn-outline-cta  { justify-content: center; width: 100%; padding: 18px 32px; }
+}
+ 
+/* ── 480px ── */
+@media (max-width: 480px) {
+    .ii-hero__stats   { grid-template-columns: repeat(2, 1fr); }
+    .ii-brands__grid  { grid-template-columns: repeat(2, 1fr); }
+    .ii-service-card__body { flex-direction: column; gap: 14px; }
+}
