@@ -166,6 +166,9 @@
             </nav>
         </section>
     </div>
+    <a href="{{ route('login') }}">
+        <h1 style="font-size:28px; color:white;">Iniciar Sesion</h1>
+    </a>
 </footer>
 <!-- =====================================================
      BOTÓN FLOTANTE DE WHATSAPP

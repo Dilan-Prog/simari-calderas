@@ -18,11 +18,12 @@ return new class extends Migration
             $table->string('avatar_url', 255)->after('password')->nullable();
             $table->string('phone', 30)->after('email');
             $table->enum('status', ['active', 'inactive', 'suspended'])->after('avatar_url')->default('inactive');
-            $table->string('rfc', 15)->after('status');
-            $table->string('curp', 18)->after('rfc')->nullable();
-            $table->string('social_segurity_number', 20)->after('curp')->nullable();
+            $table->string('rfc', 15)->after('status')->unique();
+            $table->string('curp', 18)->after('rfc')->nullable()->unique();
+            $table->string('social_segurity_number', 20)->after('curp')->nullable()->unique();
             $table->date('birthdate')->after('social_segurity_number')->nullable();
             $table->integer('id_contact_emergency')->after('birthdate')->nullable();
+            $table->integer('role_id')->after('id_contact_emergency');
         });
     }
     /**
