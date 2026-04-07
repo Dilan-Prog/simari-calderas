@@ -10,7 +10,7 @@
     <!-- Logo centrado -->
     <div class="rd-hero__logo">
       <img
-        src="/_assets/v11/c52d6ebf603813924afaaac8334daee3d33523d1.png"
+        src="{{ asset('images/masstercal-rinnai/rinnai-logo.png') }}"
         alt="Calentadores de Agua Rinnai"
         title="Calentador de agua Rinnai"
         width="180"
@@ -49,7 +49,7 @@
         <div class="rd-showcase__img-wrap">
           <div class="rd-showcase__img-tint" aria-hidden="true"></div>
           <img
-            src="{{ asset('images/products/Rinnai/Calentamiento/Residencial/Calentador-de-agua-rinnai-residencial.webp') }}"
+            src="{{ asset('images/masstercal-rinnai/productos-rinnai/calentamiento/residencial/calentador-de-agua-rinnai-residencial.webp') }}"
             alt="Calentador de agua de depósito Rinnai modelo residencial instalado en hogar"
             title="Calentador de Agua Rinnai Residencial"
             width="1200"

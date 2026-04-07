@@ -1,16 +1,14 @@
 @extends('frontend.layouts.master')
-
-@section('title')
-     
-@endsection
-
+@section('title', 'Contacto - Industria Simari')
+@section('description', 'Contacta con nosotros para obtener más información sobre nuestros productos y servicios.')
+@section('canonical', config('app.url') . '/contacto')
 @section('content')
 <!-- Hero Section -->
 <header class="hero-contact">
     <div class="container">
         <div class="hero-overlay"></div>
         <div class="container hero-container">
-            <h1 class="hero-title">Contacto</h1>
+            <h1 class="hero-title">Contactanos Ahora</h1>
             <p class="hero-description">
                 Soluciones térmicas a medida para su industria.
                 Nuestro equipo técnico está listo para atender su requerimiento con máxima eficiencia.

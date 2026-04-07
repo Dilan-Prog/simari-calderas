@@ -6,7 +6,7 @@
     <section class="st-hero">
         <div class="container">
             <div class="st-brand-wrap">
-                <img src="{{ asset('images/Rinnai/rinnai-logo.png') }}" alt="Rinnai" title="Rinnai" width="200" height="60" loading="eager" fetchpriority="high" decoding="async"
+                <img src="{{ asset('images/masstercal-rinnai/rinnai-logo.png') }}" alt="Rinnai" title="Rinnai" width="200" height="60" loading="eager" fetchpriority="high" decoding="async"
                     class="st-brand-logo">
             </div>
 
@@ -15,7 +15,7 @@
                 <h1 class="st-hero-title">
                     Tanques de
                     <span class="st-accent">Almacenamiento</span><br>
-                    <span class="st-subtitle">Alta Capacidad</span>
+                    <span class="st-subtitle">Alta Capacidad Rinnai</span>
                 </h1>
                 <p class="st-hero-text">
                     Sistemas termo-aislados de grado industrial para aplicaciones de alta demanda y uso continuo.
@@ -150,7 +150,13 @@
 
             <div class="st-content">
                 <article class="st-media-card">
-                    <img src="{{ asset('images/products/Rinnai/Tanques-Almacenamiento/Tanque-Carbon_Negro--Epoxicos.png') }}" alt="Tanques Rinnai">
+                    <img src="{{ asset('images/masstercal-rinnai/productos-rinnai/tanques-almacenamiento/tanque-galvanizado-de-acero-inoxidable.png') }}" 
+                    alt="Tanques de almacenamiento Rinnai"
+                    title="Tanques de almacenamiento Rinnai"
+                    fetchpriority="low"
+                    loading="lazy"
+                    decoding="async"
+                    >
                     <div class="st-media-overlay">
                         <h2>Construccion Premium</h2>
                         <p>Acero vitrificado con aislamiento termico de alta densidad</p>

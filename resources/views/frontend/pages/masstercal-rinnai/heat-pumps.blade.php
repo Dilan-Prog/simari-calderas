@@ -6,12 +6,12 @@
     <section class="product-hero-section-heat-pumps">
         <div class="container heat-pumps">
             <div class="brand-logo-container-heat-pumps">
-                <img src="{{ asset('images/Rinnai/rinnai-logo.png') }}" alt="Rinnai" title="Rinnai" width="200" height="60" loading="eager" fetchpriority="high" decoding="async">
+                <img src="{{ asset('images/masstercal-rinnai/rinnai-logo.png') }}" alt="Rinnai" title="Rinnai" width="200" height="60" loading="eager" fetchpriority="high" decoding="async">
             </div>
             <div class="product-hero-grid-heat-pumps">
                 <div class="product-image-wrapper-heat-pumps">
                     <div class="product-image-card-heat-pumps">
-                        <img src="{{ asset('images/masstercal-rinnai/productos-rinnai/Bombas-calor/bomba-de-calor-para-piscina-bcp-50.jpg') }}"
+                        <img src="{{ asset('images/masstercal-rinnai/productos-rinnai/bombas-calor/bomba-de-calor-para-piscina-bcp-50.jpg') }}"
                             alt="Bombas de Calor Rinnai para piscina bcp-50"
                             title="Bomba de Calor Rinnai BCP-50"
                             width="1200"

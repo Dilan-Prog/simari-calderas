@@ -11,12 +11,14 @@
       <!-- Logo -->
       <div class="wf-hero__logo">
         <img
-          src="/_assets/v11/c52d6ebf603813924afaaac8334daee3d33523d1.png"
+          src="{{ asset('images/masstercal-rinnai/rinnai-logo.png') }}"
           alt="Rinnai"
+          title="Rinnai logo"
           width="160"
           height="72"
           loading="eager"
           fetchpriority="high"
+          decoding="async"
           onerror="this.outerHTML='<span style=\'font-size:2.5rem;font-weight:800;color:#FFD700;letter-spacing:-2px\'>Rinnai</span>'"
         />
       </div>
@@ -161,12 +163,15 @@
             <div class="wf-accordion__grid">
               <div>
                 <img
-                  src="https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800"
-                  alt="Suavizador de Agua Rinnai instalado"
+                  src="{{ asset('images/masstercal-rinnai/productos-rinnai/tratamiento-de-agua/filtracion/filtros-de-agua-aquaplus.jpg') }}"
+                  alt="Suavizador y filtros de Agua Rinnai en acción, mostrando la eliminación de sarro y dureza del agua"
+                  title="Suavizador y filtros de Agua Rinnai en acción, mostrando la eliminación de sarro y dureza del agua"
                   class="wf-accordion__img"
                   loading="lazy"
                   width="800"
                   height="260"
+                  decoding="async"
+                  fetchpriority="low"
                 />
                 <p class="wf-accordion__text">
                   Sistema de intercambio iónico que elimina calcio y magnesio del agua, protegiendo tus tuberías y electrodomésticos.
@@ -178,7 +183,7 @@
                 </div>
               </div>
               <div>
-                <h4 class="wf-accordion__benefits-title">Beneficios Clave</h4>
+                <h2 class="wf-accordion__benefits-title">Beneficios Clave Filtros y Suavizadores</h2>
                 <ul class="wf-checklist" aria-label="Beneficios del suavizador">
                   <li><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>Elimina 99% del sarro y cal</li>
                   <li><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>Protege calentadores y lavadoras</li>
@@ -232,7 +237,7 @@
                 <p class="wf-accordion__text">Elimina partículas sólidas, óxido y sedimentos del agua. Protege tus equipos y mejora la claridad del agua visible.</p>
               </div>
               <div>
-                <h4 class="wf-accordion__benefits-title">Beneficios</h4>
+                <h2 class="wf-accordion__benefits-title">Beneficios</h4>
                 <ul class="wf-checklist">
                   <li><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>Agua visiblemente más limpia</li>
                   <li><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>Protege válvulas y tuberías</li>
@@ -279,7 +284,7 @@
                 <p class="wf-accordion__text">Elimina cloro, sabores y olores desagradables con tecnología de carbón activado de alta densidad.</p>
               </div>
               <div>
-                <h4 class="wf-accordion__benefits-title">Beneficios</h4>
+                <h2 class="wf-accordion__benefits-title">Beneficios</h2>
                 <ul class="wf-checklist">
                   <li><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>Elimina sabor a cloro</li>
                   <li><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>Agua con sabor natural</li>
@@ -326,7 +331,7 @@
                 <p class="wf-accordion__text">Elimina bacterias, virus y microorganismos con luz ultravioleta sin usar químicos ni alterar el sabor del agua.</p>
               </div>
               <div>
-                <h4 class="wf-accordion__benefits-title">Beneficios</h4>
+                <h2 class="wf-accordion__benefits-title">Beneficios</h2>
                 <ul class="wf-checklist">
                   <li><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>Elimina 99.99% de bacterias y virus</li>
                   <li><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>Sin cloro ni químicos adicionales</li>
@@ -373,7 +378,7 @@
                 <p class="wf-accordion__text">Combinación personalizada de suavizador + filtros + UV. Diseñado a medida según el análisis de tu agua. La solución total para tu hogar o negocio.</p>
               </div>
               <div>
-                <h4 class="wf-accordion__benefits-title">Incluye Todo</h4>
+                <h2 class="wf-accordion__benefits-title">Incluye Todo</h2>
                 <ul class="wf-checklist">
                   <li><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>Análisis de agua gratuito</li>
                   <li><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>Diseño personalizado del sistema</li>

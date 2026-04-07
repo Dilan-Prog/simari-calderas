@@ -8,10 +8,12 @@
   <!-- Imagen de fondo + overlay -->
   <div class="rp-hero__bg" aria-hidden="true">
     <img
-      src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1920"
-      alt=""
+      src="{{ asset('images/masstercal-rinnai/productos-rinnai/calentador-de-paso/calentadores-de-paso-a-gas-rinnai-hoteles.jpg') }}"
+      alt="calentadores de paso a gas Rinnai instalados en hoteles"
+      title="calentadores de paso a gas Rinnai instalados en hoteles"
       loading="eager"
       fetchpriority="high"
+      decoding="async"
     />
     <div class="rp-hero__bg-overlay"></div>
   </div>
@@ -22,11 +24,14 @@
       <!-- Logo -->
       <div class="rp-hero__logo">
         <img
-          src="/_assets/v11/c52d6ebf603813924afaaac8334daee3d33523d1.png"
+          src="{{ asset('images/masstercal-rinnai/rinnai-logo.png') }}"
           alt="Rinnai"
+          title="Rinnai"
           width="160"
           height="72"
           loading="eager"
+          fetchpriority="high"
+          decoding="async"
           onerror="this.outerHTML='<span style=\'font-size:2.5rem;font-weight:800;color:#CE000D;letter-spacing:-2px\'>Rinnai</span>'"
         />
       </div>

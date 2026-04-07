@@ -12,7 +12,7 @@
                 <div>
                     <!-- Logo alineado a la izquierda -->
                     <div class="re-hero__logo">
-                        <img src="{{ asset('images/Rinnai/rinnai-logo.png') }}" 
+                        <img src="{{ asset('images/masstercal-rinnai/rinnai-logo.png') }}" 
                           alt="Rinnai Logo" 
                           title="Rinnai" 
                           width="200"
@@ -74,7 +74,7 @@
                 <!-- Columna derecha: imagen con overlay y badge circular -->
                 <div class="re-hero__img-wrap" aria-hidden="true">
                     <div class="re-hero__img-frame">
-                        <img src="{{ asset('images/products/Rinnai/Calentamiento-electrico/Calentador-electrico-rinnai.webp') }}"
+                        <img src="{{ asset('images/masstercal-rinnai/productos-rinnai/calentamiento-electrico/calentador-electrico-rinnai.webp') }}"
                             alt="Calentador Eléctrico Rinnai" title="Calentador Eléctrico Rinnai" width="1200"
                             height="1200" loading="eager" fetchpriority="high" decoding="async" />
                         <!-- Overlay con 3 stats -->
