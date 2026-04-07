@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('roles', function (Blueprint $table) {
             $table->id();
-            $table->string('name_role', 50)->notNull()->unique();
+            $table->string('name_role', 50)->nullable()->unique();
             $table->string('description_role', 255)->nullable();
             $table->timestamp('created_at')->nullable();
         });
