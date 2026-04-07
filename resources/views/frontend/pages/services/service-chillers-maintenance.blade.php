@@ -1,19 +1,27 @@
 @extends('frontend.layouts.master')
-@section('title')
-@endsection
+@section('title', 'Servicio de Mantenimiento de Chillers Industriales')
+@section('description', 'Servicio de mantenimiento especializado de chillers industriales con PLC, HMI y SCADA para control remoto total.')
+@section('canonical', config('app.url') . '/servicios/desincrustacion-calderas')
 @section('content')
     <!-- SECCIÓN: HERO -->
     <section class="hero-section-hair-repair">
         <div class="hero-background">
-            <img src="https://images.unsplash.com/photo-1744123146393-4b5438a5d98f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxpbmR1c3RyaWFsJTIwY2hpbGxlciUyMGh2YWMlMjBzeXN0ZW18ZW58MXx8fHwxNzcyMTYwNTg2fDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
-                alt="Mantenimiento Chillers">
+            <img src="{{ asset('images/services/mantenimiento-chillers/servicio-de-mantenimiento-chillers.jpg') }}"
+                alt="Servicio de Mantenimiento de Chillers Industriales"
+                title="Servicio de Mantenimiento de Chillers Industriales"
+                width="1080"
+                height="720"
+                loading="eager"
+                fetchpriority="high"
+                decoding="async"
+                >
             <div class="hero-overlay"></div>
         </div>
 
         <div class="container hero-hair-repair">
             <div class="hero-content">
                 <h1 class="hero-title">
-                Mantenimiento Especializado de Chillers Industriales
+                Servicio de Mantenimiento Especializado de Chillers Industriales
                 </h1>
 
                 <p class="hero-description">
@@ -45,7 +53,7 @@
             </p>
 
             <div class="applications-card">
-                <h4 class="applications-title">Aplicaciones Industriales:</h4>
+                <h3 class="applications-title">Aplicaciones Industriales:</h3>
                 <div class="applications-grid">
                     <div class="app-item">
                         <div class="check-circle">

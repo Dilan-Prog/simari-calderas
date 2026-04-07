@@ -1,25 +1,26 @@
 @extends('frontend.layouts.master')
-
-@section('title')
-@endsection
-
+@section('title', 'Servicio de Tratamiento de Agua para Calderas Industriales')
+@section('description', 'Servicio técnico experto en tratamiento de agua para calderas industriales, preveniendo incrustaciones, corrosión y deterioro prematuro.')
+@section('canonical', config('app.url') . '/servicios/tratamiento-agua')
 @section('content')
 
   <section class="hero-water-treatment">
     <div class="hero-water-treatment__bg">
       <img
-        src="https://images.unsplash.com/photo-1770048924540-e6311d4308ce?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx3YXRlciUyMHRyZWF0bWVudCUyMGluZHVzdHJpYWwlMjBzeXN0ZW18ZW58MXx8fHwxNzcyMTYwNTg1fDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
-        alt="Sistema industrial para tratamiento de agua en calderas"
+        src="{{ asset('images/services/tratamiento-agua-calderas/servicio-de-tratamiento-de-agua-para-calderas-industriales.jpg') }}"
+        alt="Servicio de Tratamiento de Agua para Calderas Industriales"
+        title="Servicio de Tratamiento de Agua para Calderas Industriales"
         width="1080"
         height="720"
         loading="eager"
+        fetchpriority="high"
         decoding="async"
       />
     </div>
 
     <div class="container hero-water-treatment__container">
       <div class="hero-water-treatment__content">
-        <h1>Tratamiento de Agua para Calderas Industriales</h1>
+        <h1>Servicio de Tratamiento de Agua para Calderas Industriales</h1>
         <p>
           Proteja su inversión con tratamiento químico especializado que previene
           incrustaciones, corrosión y deterioro prematuro de equipos térmicos críticos.

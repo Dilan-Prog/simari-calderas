@@ -1,30 +1,25 @@
 @extends('frontend.layouts.master')
-
-@section('title')
-Servicio de Automatización de Sistemas Térmicos Industriales - Industria Simari
-@endsection
-@section('description')
-Servicio de automatización de sistemas térmicos industriales con PLC, HMI y SCADA para control remoto total.
-@endsection
-@section('canonical')
-  
-@endsection
+@section('title', 'Servicio de Automatización de Sistemas Térmicos Industriales')
+@section('description', 'Servicio de automatización de sistemas térmicos industriales con PLC, HMI y SCADA para control remoto total.')
+@section('canonical', config('app.url') . '/servicios/automatizacion-industrial')
 @section('content')
   <section class="automation-hero">
     <div class="automation-hero__bg">
       <img
-        src="https://images.unsplash.com/photo-1763296479464-fe8bee23eb65?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxpbmR1c3RyaWFsJTIwYXV0b21hdGlvbiUyMGNvbnRyb2wlMjBwYW5lbHxlbnwxfHx8fDE3NzIxNjA1ODZ8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
-        alt="Panel de control para automatización de sistemas térmicos industriales"
+        src="{{ asset('images/services/automatizacion-industrial/servicio-de-automatizacion-industrial.jpg') }}"
+        alt="Servicio de Automatización de Sistemas Térmicos Industriales"
+        title="Servicio de Automatización de Sistemas Térmicos Industriales"
         width="1080"
         height="720"
         loading="eager"
+        fetchpriority="high"
         decoding="async"
       />
     </div>
 
     <div class="container automation-hero__container">
       <div class="automation-hero__content">
-        <h1>Automatización de Sistemas Térmicos Industriales</h1>
+        <h1>Servicio de Automatización de Sistemas Térmicos Industriales</h1>
         <p>Modernización inteligente con PLC, HMI y SCADA para control remoto total</p>
         <a class="button-primary automation" href="/contacto" aria-label="Solicitar cotización de automatización industrial">
           Solicitar Cotización

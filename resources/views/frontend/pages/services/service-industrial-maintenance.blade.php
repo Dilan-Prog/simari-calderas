@@ -1,19 +1,27 @@
 @extends('frontend.layouts.master')
-@section('title')
-@endsection
+@section('title', 'Servicio deMantenimiento Industrial - Industria Simari')
+@section('description', 'Servicio Mantenimiento industrial preventivo y correctivo para calderas, generadores de vapor e intercambiadores de calor. Maximice la eficiencia operativa y reduzca paros no programados con nuestro servicio técnico especializado en sistemas térmicos industriales.')
+@section('canonical', config('app.url') . '/servicios/mantenimiento-industrial')
 @section('content')
     <!-- SECCIÓN: HERO -->
     <section class="hero-section-hair-repair">
         <div class="hero-background">
-            <img src="https://images.unsplash.com/photo-1570086625762-7c1396540ac5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxpbmR1c3RyaWFsJTIwbWFpbnRlbmFuY2UlMjBib2lsZXIlMjB0ZWNobmljaWFufGVufDF8fHx8MTc3MjE2MDU4NXww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
-                alt="Mantenimiento Industrial">
+            <img src="{{ asset('images/services/mantenimiento-industrial/servicio-mantenimiento-calderas-industriales.jpg') }}"
+                alt="Servicio de Mantenimiento Industrial Preventivo y Correctivo para Calderas y Generadores de Vapor"
+                title="Servicio de Mantenimiento Industrial Preventivo y Correctivo para Calderas y Generadores de Vapor"
+                width="1200"
+                height="1200"
+                loading="eager"
+                fetchpriority="high"
+                decoding="async"
+                >
             <div class="hero-overlay"></div>
         </div>
 
         <div class="container hero-hair-repair">
             <div class="hero-content">
                 <h1 class="hero-title">
-                Mantenimiento Industrial Preventivo y Correctivo
+                Servicio de Mantenimiento Industrial Preventivo y Correctivo
                 </h1>
 
                 <p class="hero-description">
@@ -45,7 +53,7 @@
             </p>
 
             <div class="applications-card">
-                <h4 class="applications-title">Aplicaciones Industriales:</h4>
+                <h3 class="applications-title">Aplicaciones Industriales:</h3>
                 <div class="applications-grid">
                     <div class="app-item">
                         <div class="check-circle">

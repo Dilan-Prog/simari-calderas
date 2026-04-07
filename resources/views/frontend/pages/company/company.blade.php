@@ -1,14 +1,19 @@
 @extends('frontend.layouts.master')
-
-@section('title')
-Industria Simari Empresa
-@endsection
-
+@section('title', 'Industria Simari Empresa')
+@section('description', 'Industria Simari es una empresa hidrocálida con más de 35 años de experiencia en soluciones térmicas para sectores industriales, alimentarios, metalmecánicos, hoteleros y deportivos. Ofrecemos servicios de gestión completa de sistemas térmicos.')
+@section('canonical', config('app.url') . '/nuestra-empresa')
 @section('content')
         <section class="company-hero">
             <div class="company-hero-bg">
                 <img src="https://images.unsplash.com/photo-1707330266686-109c087163eb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxpbmR1c3RyaWFsJTIwZW5naW5lZXJpbmclMjBjb3Jwb3JhdGUlMjBidWlsZGluZyUyMHRlYW18ZW58MXx8fHwxNzcxNTQzMDgzfDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
-                    alt="Equipo SIMARI Calderas">
+                    alt="Equipo de Industria Simari trabajando en soluciones térmicas"
+                    title="Equipo de Industria Simari trabajando en soluciones térmicas"
+                    width="1200"
+                    height="1200"
+                    loading="eager"
+                    fetchpriority="high"
+                    decoding="async"
+                    >
                 <div class="company-hero-overlay"></div>
             </div>
 
@@ -42,8 +47,15 @@ Industria Simari Empresa
 
                 <div class="company-history-img">
                     <div class="company-img-decor"></div>
-                    <img src="https://images.unsplash.com/photo-1631583087046-13c813d34e90?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxpbmR1c3RyaWFsJTIwZW5naW5lZXJpbmclMjB0ZWFtJTIwc2FmZXR5JTIwaGVsbWV0c3xlbnwxfHx8fDE3NzE1MjI0Mzd8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
-                        alt="Ingenieros SIMARI">
+                    <img src="{{ asset('images/company/team/equipo_industria_simari.jpg') }}"
+                        alt="Ingenieros Industriales de Industria Simari trabajando en soluciones térmicas"
+                        title="Equipo de Industria Simari trabajando en soluciones térmicas"
+                        width="1200"
+                        height="1200"
+                        loading="eager"
+                        fetchpriority="high"
+                        decoding="async"
+                        >
                 </div>
             </div>
         </section>
@@ -67,7 +79,7 @@ Industria Simari Empresa
                                 <path d="m9 12 2 2 4-4"></path>
                             </svg>
                         </div>
-                        <h4 >Confianza</h4>
+                        <h3 class="company-grid-values-title-card">Confianza</h3>
                         <p >Construimos relaciones duraderas basadas en la transparencia y el cumplimiento
                             de nuestros compromisos.</p>
                     </div>
@@ -83,7 +95,7 @@ Industria Simari Empresa
                                 <path d="m9 12 2 2 4-4"></path>
                             </svg>
                         </div>
-                        <h4 >Seguridad</h4>
+                        <h3 class="company-grid-values-title-card">Seguridad</h3>
                         <p >Priorizamos la integridad de su personal y sus instalaciones con protocolos
                             rigurosos.</p>
                     </div>
@@ -99,7 +111,7 @@ Industria Simari Empresa
                                 <circle cx="12" cy="8" r="6"></circle>
                             </svg>
                         </div>
-                        <h4 >Especialización</h4>
+                        <h3 class="company-grid-values-title-card">Especialización</h3>
                         <p >Nuestro equipo técnico cuenta con certificaciones internacionales y
                             capacitación continua.</p>
                     </div>
@@ -114,7 +126,7 @@ Industria Simari Empresa
                                 </path>
                             </svg>
                         </div>
-                        <h4 >Integridad en el Servicio</h4>
+                        <h3 class="company-grid-values-title-card">Integridad en el Servicio</h3>
                         <p >Honestidad en diagnósticos y soluciones. Nunca recomendaremos algo que no
                             necesite.</p>
                     </div>
@@ -131,7 +143,7 @@ Industria Simari Empresa
                                 <path d="M10 22h4"></path>
                             </svg>
                         </div>
-                        <h4 >Innovación</h4>
+                        <h3 class="company-grid-values-title-card">Innovación</h3>
                         <p >Adoptamos las últimas tecnologías para maximizar la eficiencia energética de
                             sus procesos.</p>
                     </div>

@@ -1,19 +1,27 @@
 @extends('frontend.layouts.master')
-@section('title')
-@endsection
+@section('title', 'Servicio de Reparación Especializada de Secadoras Industriales')
+@section('description', 'Servicio técnico experto en mantenimiento correctivo y preventivo de secadoras de tambor industrial, túneles de secado y equipos de lavanderías comerciales de alta capacidad')
+@section('canonical', config('app.url') . '/servicios/reparacion-secadoras')
 @section('content')
     <!-- SECCIÓN: HERO -->
     <section class="hero-section-hair-repair">
         <div class="hero-background">
-            <img src="https://images.unsplash.com/photo-1726967023920-8f04895f11e0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w1NjM2Nzh8MHwxfHNlYXJjaHwxfHxpbmR1c3RyaWFsJTIwZHJ5ZXIlMjBsYXVuZHJ5JTIwbWFjaGluZXxlbnwxfHx8fDE3NzIxNjA1ODd8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
-                alt="Reparación Secadoras">
+            <img src="{{ asset('images/services/secadoras-industriales/servicio-de-reparacion-de-secadoras-industriales.jpg') }}"
+                alt="Servicio de Reparación Especializada de Secadoras Industriales"
+                title="Servicio de Reparación Especializada de Secadoras Industriales"
+                width="1080"
+                height="720"
+                loading="eager"
+                fetchpriority="high"
+                decoding="async"
+                >
             <div class="hero-overlay"></div>
         </div>
 
         <div class="container hero-hair-repair">
             <div class="hero-content">
                 <h1 class="hero-title">
-                    Reparación Especializada de Secadoras Industriales
+                    Servicio de Reparación Especializada de Secadoras Industriales
                 </h1>
 
                 <p class="hero-description">
@@ -55,7 +63,7 @@
             </p>
 
             <div class="applications-card">
-                <h4 class="applications-title">Aplicaciones Industriales:</h4>
+                <h3 class="applications-title">Aplicaciones Industriales:</h3>
                 <div class="applications-grid">
                     <div class="app-item">
                         <div class="check-circle">

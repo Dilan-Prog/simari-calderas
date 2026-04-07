@@ -1,21 +1,20 @@
 @extends('frontend.layouts.master')
-
-@section('title')
-@endsection
-
+@section('title', 'Servicio de Calibración de Equipos - Industria Simari')
+@section('description', 'Servicio técnico experto en calibración de equipos industriales y quemadores para optimizar la eficiencia energética y reducir emisiones contaminantes.')
+@section('canonical', config('app.url') . '/servicios/calibracion-equipos')
 @section('content')
     {{-- Main section --}}
     <section class="first-content-service-calibration">
         <div class="container service-calibration">
             {{-- main text --}}
             <div class="main-content-service-calibration">
-                <h1>Calibración de Equipos y Quemadores Industriales</h1>
+                <h1>Servicio de Calibración de Equipos y Quemadores Industriales</h1>
                 <p>Optimización precisa de parámetros de combustión y
                     calibración certificada de instrumentos para máxima
                     eficiencia energética.
                 </p>
                 {{-- Button declaration --}}
-                <button class="button-primary service-calibration">Solicitar Cotizacion
+                <button class="button-primary service-calibration">Solicitar Cotización
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
                         <path d="M4.99866 11.9966H18.9948" stroke="white" stroke-width="1.99945" stroke-linecap="round"
                             stroke-linejoin="round" />

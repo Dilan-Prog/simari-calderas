@@ -1,8 +1,7 @@
 @extends('frontend.layouts.master')
-
-@section('title')
-Calentadores Solares Industriales - Industria Simari
-@endsection
+@section('title', 'Calentadores Solares Industriales SIMARI')
+@section('description', 'Calentadores solares industriales de alta eficiencia para generación de vapor y agua caliente. Diseño robusto, operación continua 24/7, cumplimiento normativo total.')
+@section('canonical', config('app.url') . '/productos/calentadores-solares')
 @section('content')
 
 <section class="solar-hero" aria-label="Calentadores Solares Industriales SIMARI">
@@ -68,10 +67,14 @@ Calentadores Solares Industriales - Industria Simari
       <div class="solar-hero__img-wrap" aria-hidden="true">
         <div class="solar-hero__img-frame">
           <img
-            src="https://images.unsplash.com/photo-1509391366360-2e959784a276?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1200"
-            alt="Instalación de calentadores solares industriales SIMARI"
+            src="{{ asset('images/products/calentadores-solares/calentadores-solares-simari.jpg') }}"
+            alt="Calentador solar industrial instalado en techo de fábrica, con cielo despejado y sol brillante"
+            title="Calentador solar industrial instalado en techo de fábrica, con cielo despejado y sol brillante"
             width="600"
-            height="560"
+            height="500"
+            loading="eager"
+            fetchpriority="high"
+            decoding="async"
           />
           <div class="solar-hero__img-overlay">
             <div class="solar-hero__img-stats">

@@ -10,6 +10,7 @@ Refacciones para Calderas Industriales - Industria Simari
       <img
         src="https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1920"
         alt="Caldera industrial SIMARI en instalación de proceso térmico"
+        title="Caldera industrial SIMARI en instalación de proceso térmico"
         width="1920"
         height="1280"
         loading="eager"

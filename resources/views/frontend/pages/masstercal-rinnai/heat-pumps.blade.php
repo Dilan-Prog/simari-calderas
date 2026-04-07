@@ -11,7 +11,7 @@
             <div class="product-hero-grid-heat-pumps">
                 <div class="product-image-wrapper-heat-pumps">
                     <div class="product-image-card-heat-pumps">
-                        <img src="{{ asset('images/products/Rinnai/Bombas-calor/bomba-de-calor-para-piscina-bcp-50.webp') }}"
+                        <img src="{{ asset('images/masstercal-rinnai/productos-rinnai/Bombas-calor/bomba-de-calor-para-piscina-bcp-50.jpg') }}"
                             alt="Bombas de Calor Rinnai para piscina bcp-50"
                             title="Bomba de Calor Rinnai BCP-50"
                             width="1200"

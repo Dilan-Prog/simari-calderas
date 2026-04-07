@@ -1,19 +1,27 @@
 @extends('frontend.layouts.master')
-@section('title')
-@endsection
+@section('title', 'Servicio de Desincrustación Química de Calderas Industriales')
+@section('description', 'Servicio de desincrustación química profesional para calderas industriales con incrustaciones severas.')
+@section('canonical', config('app.url') . '/servicios/desincrustacion-calderas')
 @section('content')
     <!-- SECCIÓN: HERO -->
     <section class="hero-section-hair-repair">
         <div class="hero-background">
-            <img src="https://images.unsplash.com/photo-1564605504543-1833fef7c1c9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxib2lsZXIlMjBjbGVhbmluZyUyMGRlc2NhbGluZyUyMGluZHVzdHJpYWx8ZW58MXx8fHwxNzcyMTYwNTg3fDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
-                alt="Desincrustación">
+            <img src="{{ asset('images/services/desincrustacion-calderas/servicio-de-desincrustacion-de-calderas.jpg') }}"
+                alt="Servicio de Desincrustación Química de Calderas Industriales"
+                title="Servicio de Desincrustación Química de Calderas Industriales"
+                width="1080"
+                height="720"
+                loading="eager"
+                fetchpriority="high"
+                decoding="async"
+                >
             <div class="hero-overlay"></div>
         </div>
 
         <div class="container hero-hair-repair">
             <div class="hero-content">
                 <h1 class="hero-title">
-                Desincrustación Química de Calderas Industriales
+                Servicio de Desincrustación Química de Calderas Industriales
                 </h1>
 
                 <p class="hero-description">

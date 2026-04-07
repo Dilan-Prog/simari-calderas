@@ -1,18 +1,19 @@
 @extends('frontend.layouts.master')
-
-@section('title')
-Calderas Industriales - Industria Simari
-@endsection
+@section('title', 'Calderas Industriales SIMARI')
+@section('description', 'Calderas industriales de alta eficiencia para generación de vapor y agua caliente. Diseño robusto, operación continua 24/7, cumplimiento normativo total.')
+@section('canonical', config('app.url') . '/productos/calderas-industriales-simari')
 @section('content')
 
 <section class="boilers-hero">
     <div class="boilers-hero__media">
       <img
-        src="https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1920"
+        src="{{ asset('images/products/calderas-industriales-simari/caldera-industrial-simari.jpg') }}"
         alt="Caldera industrial SIMARI en instalación de proceso térmico"
+        title="Caldera industrial SIMARI en instalación de proceso térmico"
         width="1920"
         height="1280"
         loading="eager"
+        fetchpriority="high"
         decoding="async"
       />
       <div class="boilers-hero__overlay"></div>

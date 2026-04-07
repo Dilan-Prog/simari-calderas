@@ -1,19 +1,27 @@
 @extends('frontend.layouts.master')
-@section('title')
-@endsection
+@section('title', 'Servicio de Ingeniería Hidráulica - Industria Simari')
+@section('description', 'Servicio técnico experto en ingeniería hidráulica industrial y de proceso para secadoras de tambor, túneles de secado y equipos de lavanderías comerciales.')
+@section('canonical', config('app.url') . '/servicios/ingenieria-hidraulica')
 @section('content')
     <!-- SECCIÓN: HERO -->
     <section class="hero-section-hair-repair">
         <div class="hero-background">
-            <img src="https://images.unsplash.com/photo-1726967023920-8f04895f11e0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w1NjM2Nzh8MHwxfHNlYXJjaHwxfHxpbmR1c3RyaWFsJTIwZHJ5ZXIlMjBsYXVuZHJ5JTIwbWFjaGluZXxlbnwxfHx8fDE3NzIxNjA1ODd8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
-                alt="Reparación Secadoras">
+            <img src="{{ asset('images/services/ingenieria-hidraulica/servicio-ingenieria-hidraulica.jpg') }}"
+                alt="Servicio de Ingeniería Hidráulica Industrial y de Proceso"
+                title="Servicio de Ingeniería Hidráulica Industrial y de Proceso"
+                width="1200"
+                height="1200"
+                loading="eager"
+                fetchpriority="high"
+                decoding="async"
+                >
             <div class="hero-overlay"></div>
         </div>
 
         <div class="container hero-hair-repair">
             <div class="hero-content">
                 <h1 class="hero-title">
-                    Ingeniería Hidráulica Industrial y de Proceso
+                    Servicio de Ingeniería Hidráulica Industrial y de Proceso
                 </h1>
 
                 <p class="hero-description">

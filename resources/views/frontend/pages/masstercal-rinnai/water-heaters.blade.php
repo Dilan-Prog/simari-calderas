@@ -11,11 +11,13 @@
     <div class="rd-hero__logo">
       <img
         src="/_assets/v11/c52d6ebf603813924afaaac8334daee3d33523d1.png"
-        alt="Rinnai"
+        alt="Calentadores de Agua Rinnai"
+        title="Calentador de agua Rinnai"
         width="180"
         height="72"
         loading="eager"
         fetchpriority="high"
+        decoding="async"
         onerror="this.outerHTML='<span style=\'font-size:3rem;font-weight:800;color:#CE000D;letter-spacing:-2px\'>Rinnai</span>'"
       />
     </div>
