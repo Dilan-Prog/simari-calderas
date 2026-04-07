@@ -166,7 +166,7 @@
             </nav>
         </section>
     </div>
-    <a href="{{ route('login') }}">
+    <a href="{{ route('admin.users.index') }}">
         <h1 style="font-size:28px; color:white;">Iniciar Sesion</h1>
     </a>
 </footer>

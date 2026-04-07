@@ -6,30 +6,23 @@
 
 @section('content')
     <div class="container user-manager">
-
         {{-- Main content --}}
         <section class="users-manager-section">
-
             {{-- User manager section --}}
             <header class="users-manager-main">
                 <div>
                     <h1>Gestión de Usuarios</h1>
-
                     <p class="breadcrumb-users-manager main">
                         Administrar roles y permisos del sistema
                     </p>
                 </div>
-
                 <button class="button-primary size-adjustment">
                     + Nuevo Usuario
                 </button>
             </header>
-
             <!-- TABLE -->
             <main class="table-container-users-manager">
-
                 <table class="users-manager-table">
-
                     <thead>
                         <tr>
                             <th>USUARIO</th>
@@ -39,9 +32,7 @@
                             <th>ACCIONES</th>
                         </tr>
                     </thead>
-
                     <tbody>
-
                         {{-- Rows --}}
                         <tr class="table-row-user-manager">
                             <td class="user-manager-table-cell">
@@ -53,19 +44,15 @@
                                     <span class="users-manager-date-user">9 feb 2024</span>
                                 </div>
                             </td>
-
                             <td>
                                 <p class="breadcrumb-users-manager main">maria.gonzalez@simari.com</p>
                             </td>
-
                             <td>
                                 <span class="users-manager-badge role-admin">Administrador</span>
                             </td>
-
                             <td>
                                 <span class="users-manager-badge status">Activo</span>
                             </td>
-
                             <td>
                                 <div class="header-right-user-manager">
                                     <button class="table-users-manager-action-btn edit">
@@ -91,7 +78,6 @@
                                 </div>
                             </td>
                         </tr>
-
                         @for ($i = 0; $i <= 12; $i++)
                             <tr>
                                 <td class="user-manager-table-cell">
@@ -144,39 +130,45 @@
                                 </td>
                             </tr>
                         @endfor
-
                     </tbody>
-
                 </table>
-
             </main>
-
         </section>
-
-
         {{-- Create user --}}
         <div id="userModal" class="user-manager-modal">
-
             <div class="user-manager-modal-content">
+                @if ($errors->any())
+                    <div class="alert alert-danger" style="margin-bottom: 12px;">
+                        <ul style="margin: 0; padding-left: 18px;">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
                 <!-- Header -->
                 <div class="user-manager-modal-header">
                     <h2>Nuevo Usuario</h2>
                     <button class="table-users-manager-action-btn cancel" id="closeModal">X</button>
                 </div>
-
+                @if ($errors->any())
+                    <div style="background:#fee2e2;border:1px solid #f87171;border-radius:6px;padding:12px 16px;margin:12px 16px 0;">
+                        <ul style="margin:0;padding-left:16px;color:#b91c1c;font-size:0.875rem;">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
                 <div class="user-manager-photo-container">
                     <div class="user-manager-icon-container">
-
                     </div>
                 </div>
-
                 <!-- Form Body -->
-                <form class="user-manager-modal-body">
-
+                <form class="user-manager-modal-body" action="{{ route('admin.users.store') }}"  method="POST" enctype="multipart/form-data">
+                    @csrf
                     <h3>Información Personal</h3>
-
                     <div class="user-manager-avatar-upload-container">
-
                         <div class="user-manager-avatar-upload">
                             <span class="user-manager-avatar-upload-icon">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
@@ -189,105 +181,93 @@
                                 </svg>
                             </span>
                         </div>
-
-                        <button class="user-manager-avatar-upload-btn">+</button>
-
+                        <button type="button" class="user-manager-avatar-upload-btn">+</button>
                     </div>
-
                     <div class="user-manager-form">
                         <div>
-                            <label class="supliers-manager-slider-label">Nombre(s)*</label>
-                            <input class="users-manager-input" type="text">
+                            <label class="supliers-manager-slider-label">Nombre</label>
+                            <input class="users-manager-input" type="text" name="first_name">
                         </div>
 
                         <div>
                             <label class="supliers-manager-slider-label">Apellidos*</label>
-                            <input class="users-manager-input" type="text">
+                            <input class="users-manager-input" type="text" name="last_name">
                         </div>
 
                         <div>
                             <label class="supliers-manager-slider-label">Fecha de Nacimiento</label>
-                            <input class="users-manager-input" type="date">
+                            <input class="users-manager-input" type="date" name="birthdate">
                         </div>
 
                         <div>
                             <label class="supliers-manager-slider-label">RFC</label>
-                            <input class="users-manager-input" type="text" placeholder="XAXX010101000">
+                            <input class="users-manager-input" type="text" placeholder="XAXX010101000" name="rfc">
                         </div>
 
                         <div>
                             <label class="supliers-manager-slider-label">CURP</label>
-                            <input class="users-manager-input" type="text" placeholder="XEXX010101HNEXXXA4">
+                            <input class="users-manager-input" type="text" placeholder="XEXX010101HNEXXXA4" name="curp">
                         </div>
-
                         <div>
                             <label class="supliers-manager-slider-label">Número de Seguridad Social</label>
-                            <input class="users-manager-input" type="text" placeholder="12345678901">
+                            <input class="users-manager-input" type="text" placeholder="12345678901" name="social_segurity_number">
                         </div>
                     </div>
-
                     <h3>Contacto</h3>
-
                     <div class="user-manager-form">
                         <div class="users-manager-email-camp">
                             <label class="supliers-manager-slider-label email">Email*</label>
-                            <input class="users-manager-input" type="email">
+                            <input class="users-manager-input" type="email" name="email">
                         </div>
-
                         <div>
                             <label class="supliers-manager-slider-label">Teléfono</label>
-                            <input class="users-manager-input" type="text" placeholder="(049) 123-4567">
+                            <input class="users-manager-input" type="text" placeholder="(049) 123-4567" name="phone">
                         </div>
                         <div>
                             <label class="supliers-manager-slider-label">Puesto / Cargo</label>
-                            <input class="users-manager-input" type="text" placeholder="Ej. Técnico de Mantenimiento">
+                            <input class="users-manager-input" type="text" placeholder="Ej. Técnico de Mantenimiento" name="position">
                         </div>
                     </div>
-
                     <h3>Contacto de Emergencia</h3>
-
                     <div class="user-manager-form user-manager-form-3">
-
                         <div>
                             <label class="supliers-manager-slider-label email">Nombre del Contacto</label>
-                            <input type="text" class="users-manager-input">
+                            <input type="text" class="users-manager-input" name="emergency_contact_name" placeholder="Ej: Juan Pérez">
                         </div>
-
+                        {{-- revisar --}}
                         <div>
                             <label class="supliers-manager-slider-label email">Teléfono</label>
-                            <input type="text" class="users-manager-input" placeholder="(449) 123-4567">
+                            <input type="text" class="users-manager-input" name="emergency_phone" placeholder="(449) 123-4567">
                         </div>
-
                         <div>
                             <label class="supliers-manager-slider-label email">Parentesco</label>
-                            <input type="text" class="users-manager-input" placeholder="Ej: Hermano/a, Esposo/a">
+                            <input type="text" class="users-manager-input" name="relationship" placeholder="Ej: Hermano/a, Esposo/a">
                         </div>
-
+                        {{-- revisar --}}
                     </div>
-
                     <h3>Acceso al Sistema</h3>
-
                     <div class="user-manager-form access-sistem-form">
                         <div>
-                            <label class="supliers-manager-slider-label">Rol*</label>
-                            <select class="users-manager-select">
-                                <option>Administrador</option>
-                                <option>Empleado</option>
-                                <option>Técnico</option>
+                            <label class="supliers-manager-slider-label">Role</label>
+                            <select class="users-manager-select" name="role_id">
+                                <option value="">Seleccionar</option>
+                                @foreach ($roles as $role)
+                                <option value="{{ $role->id }}">{{ $role->name }}</option>
+                                @endforeach
                             </select>
                         </div>
-
                         <div>
                             <label class="supliers-manager-slider-label">Estado*</label>
-                            <select class="users-manager-select">
-                                <option>Activo</option>
-                                <option>Inactivo</option>
+                            <select class="users-manager-select" name="status">
+                                <option value="">Seleccionar</option>
+                                <option value="active">Activo</option>
+                                <option value="inactive">Inactivo</option>
+                                <option value="suspended">Suspendido</option>
                             </select>
                         </div>
-
                         <div>
                             <label class="supliers-manager-slider-label">Contraseña*</label>
-                            <input class="users-manager-input password" type="password">
+                            <input class="users-manager-input password" type="password" name="password">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                 stroke-linejoin="round" class="lucide lucide-eye">
@@ -297,10 +277,9 @@
                                 <circle cx="12" cy="12" r="3"></circle>
                             </svg>
                         </div>
-
                         <div>
                             <label class="supliers-manager-slider-label">Confirmar Contraseña*</label>
-                            <input class="users-manager-input password" type="password" id="password">
+                            <input class="users-manager-input password" type="password" name="password_confirmation" id="password_confirmation">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                 stroke-linejoin="round" class="lucide lucide-eye">
@@ -309,16 +288,11 @@
                                 </path>
                                 <circle cx="12" cy="12" r="3"></circle>
                             </svg>
-
                         </div>
-
                     </div>
-
                     {{-- Permissions  --}}
                     <h3>Permisos por Módulo</h3>
-
                     <div class="user-manager-permissions-grid">
-
                         <!-- ITEM -->
                         <div class="user-manager-permission-item">
                             <div class="user-manager-permission-left-section">
@@ -338,7 +312,6 @@
                                 <span class="slider"></span>
                             </label>
                         </div>
-
                         <div class="user-manager-permission-item">
                             <div class="user-manager-permission-left-section">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
@@ -360,7 +333,6 @@
                                 <span class="slider"></span>
                             </label>
                         </div>
-
                         <div class="user-manager-permission-item">
                             <div class="user-manager-permission-left-section">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
@@ -610,6 +582,11 @@
                 modal.style.display = 'flex';
             });
 
+            // Abrir modal si hay errores de validación
+            @if ($errors->any())
+                modal.style.display = 'flex';
+            @endif
+
             // CERRAR (X)
             closeBtn.addEventListener('click', () => {
                 modal.style.display = 'none';
@@ -626,6 +603,11 @@
                     modal.style.display = 'none';
                 }
             });
+
+            // Si hay errores de validacion, reabre el modal automaticamente
+            @if ($errors->any())
+                modal.style.display = 'flex';
+            @endif
         </script>
     </div>
 @endsection
