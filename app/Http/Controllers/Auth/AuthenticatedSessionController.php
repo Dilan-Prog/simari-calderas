@@ -9,6 +9,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\Response;
 
 class AuthenticatedSessionController extends Controller
 {
@@ -29,7 +30,14 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()->intended(RouteServiceProvider::HOME);
+        $user = Auth::user();
+        $roleName = $user->role?->name_role;
+
+        return match($roleName) {
+            'admin'   => redirect()->route('admin.users.index'),
+            'employe' => redirect()->route('employee.dashboard'),
+            default   => redirect()->intended(RouteServiceProvider::HOME),
+        };
     }
 
     /**

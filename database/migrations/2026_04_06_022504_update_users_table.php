@@ -23,7 +23,7 @@ return new class extends Migration
             $table->string('social_segurity_number', 20)->after('curp')->nullable()->unique();
             $table->date('birthdate')->after('social_segurity_number')->nullable();
             $table->integer('id_contact_emergency')->after('birthdate')->nullable();
-            $table->integer('role_id')->after('id_contact_emergency');
+            $table->unsignedBigInteger('role_id')->after('id_contact_emergency');
         });
     }
     /**
