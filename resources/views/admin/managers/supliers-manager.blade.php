@@ -62,11 +62,11 @@
             </section>
 
             {{-- slider --}}
-            <section>
-                    <label id="rating-label">Rating mínimo: 0/5</label>
-                    <div class="custom-slider" id="slider-container">
-                        <div class="slider-track-fill" id="slider-fill"></div>
-                        <div class="slider-handle" id="slider-handle"></div>
+            <section class="supliers-manager-slider-section">
+                    <label class="supliers-manager-slider-label" id="rating-label">Rating mínimo: 0/5</label>
+                    <div class="supliers-manager-custom-slider" id="slider-container">
+                        <div class="supliers-manager-slider-track-fill" id="slider-fill"></div>
+                        <div class="supliers-manager-slider-handle" id="slider-handle"></div>
                     </div>
             </section>
 
