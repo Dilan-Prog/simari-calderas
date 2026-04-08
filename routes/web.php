@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Backend\AdminController;
 use App\Http\Controllers\Frontend\HomeController;
 use App\Http\Controllers\Frontend\SitemapController;
 use App\Http\Controllers\ProfileController;
@@ -46,13 +47,31 @@ Route::controller(HomeController::class)->group(function () {
     Route::get('masstercal-rinnai/calentadores-paso-gas-rinnai', 'tanklessHeaters')->name('tankless-heaters');
     Route::get('masstercal-rinnai/suavizadores-filtros-rinnai', 'softenersFilters')->name('softeners-filters');
     Route::get('masstercal-rinnai/tanques-almacenamiento-rinnai', 'storageTanks')->name('storage-tanks');
-    // Admin
+    // Admin (rutas legacy del HomeController — no modificar)
     Route::get('/admin/users', [HomeController::class, 'users'])->name('admin');
     Route::get('admin/clients',[HomeController::class,'clients'])->name('clients');
     Route::get('admin/supliers',[HomeController::class,'supliers'])->name('supliers');
-
-
 });
+
+// ─── Panel administrativo ────────────────────────────────────────────────────
+
+// Dashboard principal (sidebar + contenido dinámico)
+Route::get('/admin', function () {
+    return view('admin.dashboard');
+})->name('admin.panel');
+
+// Partial de Usuarios — devuelve solo el HTML del contenido (para fetch desde el dashboard)
+Route::get('/admin/usuarios-partial', function () {
+    $roles = \App\Models\Role::all();
+    return view('admin.users.partial', compact('roles'));
+})->name('admin.users.partial');
+
+// Vista completa de Usuarios (con layout propio)
+Route::get('/admin/usuarios', [AdminController::class, 'index'])->name('admin.users.index');
+
+// Crear usuario
+Route::post('/admin/usuarios', [AdminController::class, 'store'])->name('admin.users.store');
+
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');

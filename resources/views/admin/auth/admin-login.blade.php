@@ -1,114 +1,122 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es-MX">
 <head>
-  <meta charset="UTF-8">
-  <meta content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no" name="viewport">
-  <title>Login &mdash; Stisla</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesión — SIMARI Calderas</title>
+    <meta name="robots" content="noindex, nofollow">
 
-  <!-- General CSS Files -->
-  <link rel="stylesheet" href="{{asset("backend/assets/modules/bootstrap/css/bootstrap.min.css")}}">
-  <link rel="stylesheet" href="{{asset("backend/assets/modules/fontawesome/css/all.min.css")}}">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
 
-  <!-- CSS Libraries -->
-  <link rel="stylesheet" href="{{asset("backend/assets/modules/bootstrap-social/bootstrap-social.css")}}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
 
-  <!-- Template CSS -->
-  <link rel="stylesheet" href="{{asset("backend/assets/css/style.css")}}">
-  <link rel="stylesheet" href="{{asset("backend/assets/css/components.css")}}">
-<!-- Start GA -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=UA-94034622-3"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+    <link rel="stylesheet" href="{{ asset('css/login.css') }}">
+</head>
 
-  gtag('config', 'UA-94034622-3');
-</script>
-<!-- /END GA --></head>
+<body class="login-body">
 
-<body>
-  <div id="app">
-    <section class="section">
-      <div class="container mt-5">
-        <div class="row">
-          <div class="col-12 col-sm-8 offset-sm-2 col-md-6 offset-md-3 col-lg-6 offset-lg-3 col-xl-4 offset-xl-4">
-            <div class="login-brand">
-              <img src="{{asset("backend/assets/img/stisla-fill.svg")}}" alt="logo" width="100" class="shadow-light rounded-circle">
-            </div>
+    {{-- Destellos decorativos de fondo --}}
+    <div class="login-bg-glow top-right"></div>
+    <div class="login-bg-glow bottom-left"></div>
 
-            <div class="card card-primary">
-              <div class="card-header"><h4>Login</h4></div>
+    <div class="login-wrapper">
 
-              <div class="card-body">
-
-                <form method="POST" action="{{ route('login') }}" class="needs-validation" novalidate="">
-                    @csrf
-                  <div class="form-group">
-                    <label for="email">Email</label>
-                    <input id="email" type="email" class="form-control" name="email" tabindex="1" required autofocus value="{{old('email')}}">
-                    @if ($errors->has('email'))
-                        <code>{{$errors->first('email')}}</code>
-                    @endif
-                  </div>
-
-
-                  <div class="form-group">
-                    <div class="d-block">
-                    	<label for="password" class="control-label">Password</label>
-                      <div class="float-right">
-                        <a href="auth-forgot-password.html" class="text-small">
-                          Forgot Password?
-                        </a>
-                      </div>
-                    </div>
-                    <input id="password" type="password" class="form-control" name="password" tabindex="2" required>
-                    @if ($errors->has('password'))
-                        <code>{{$errors->first('password')}}</code>
-                    @endif
-                  </div>
-
-                  <div class="form-group">
-                    <div class="custom-control custom-checkbox">
-                      <input type="checkbox" name="remember" class="custom-control-input" tabindex="3" id="remember-me">
-                      <label class="custom-control-label" for="remember-me">Remember Me</label>
-                    </div>
-                  </div>
-
-                  
-
-                  <div class="form-group">
-                    <button type="submit" class="btn btn-primary btn-lg btn-block" tabindex="4">
-                      Login
-                    </button>
-                  </div>
-                </form>
-               
-
-              </div>
-            </div>
-           
-            
-          </div>
+        {{-- Logo --}}
+        <div class="login-logo">
+            <img src="{{ asset('images/logo/Logo_blanco.png') }}"
+                 alt="SIMARI Calderas"
+                 onerror="this.style.display='none'">
         </div>
-      </div>
-    </section>
-  </div>
 
-  <!-- General JS Scripts -->
-  <script src="{{asset("backend/assets/modules/jquery.min.js")}}"></script>
-  <script src="{{asset("backend/assets/modules/popper.js")}}"></script>
-  <script src="{{asset("backend/assets/modules/tooltip.js")}}"></script>
-  <script src="{{asset("backend/assets/modules/bootstrap/js/bootstrap.min.js")}}"></script>
-  <script src="{{asset("backend/assets/modules/nicescroll/jquery.nicescroll.min.js")}}"></script>
-  <script src="{{asset("backend/assets/modules/moment.min.js")}}"></script>
-  <script src="{{asset("backend/assets/js/stisla.js")}}"></script>
-  
-  <!-- JS Libraies -->
+        {{-- Tarjeta --}}
+        <div class="login-card">
 
-  <!-- Page Specific JS File -->
-  
-  <!-- Template JS File -->
-  <script src="{{asset("backend/assets/js/scripts.js")}}"></script>
-  <script src="{{asset("backend/assets/js/custom.js")}}"></script>
+            <div class="login-card-header">
+                <span class="login-role-badge">Panel Administrativo</span>
+                <h1 class="login-card-title">Bienvenido de nuevo</h1>
+                <p class="login-card-subtitle">Ingresa tus credenciales para continuar</p>
+            </div>
+
+            {{-- Estado de sesión --}}
+            @if (session('status'))
+                <div class="login-session-status">
+                    {{ session('status') }}
+                </div>
+            @endif
+
+            <form method="POST" action="{{ route('login') }}" novalidate>
+                @csrf
+
+                {{-- Email --}}
+                <div class="login-form-group">
+                    <label class="login-label" for="email">Correo electrónico</label>
+                    <div class="login-input-wrapper">
+                        <input
+                            id="email"
+                            type="email"
+                            name="email"
+                            class="login-input {{ $errors->has('email') ? 'error' : '' }}"
+                            value="{{ old('email') }}"
+                            placeholder="admin@simari.com"
+                            required
+                            autofocus
+                            autocomplete="username">
+                    </div>
+                    @if ($errors->has('email'))
+                        <span class="login-error-msg">{{ $errors->first('email') }}</span>
+                    @endif
+                </div>
+
+                {{-- Contraseña --}}
+                <div class="login-form-group">
+                    <div class="login-row">
+                        <label class="login-label" for="password" style="margin-bottom:0">
+                            Contraseña
+                        </label>
+                        <a href="{{ route('password.request') }}" class="login-forgot-link">
+                            ¿Olvidaste tu contraseña?
+                        </a>
+                    </div>
+                    <div class="login-input-wrapper" style="margin-top:8px">
+                        <input
+                            id="password"
+                            type="password"
+                            name="password"
+                            class="login-input {{ $errors->has('password') ? 'error' : '' }}"
+                            placeholder="••••••••"
+                            required
+                            autocomplete="current-password">
+                    </div>
+                    @if ($errors->has('password'))
+                        <span class="login-error-msg">{{ $errors->first('password') }}</span>
+                    @endif
+                </div>
+
+                {{-- Recordarme --}}
+                <div class="login-remember">
+                    <input type="checkbox" id="remember" name="remember">
+                    <label for="remember">Mantener sesión iniciada</label>
+                </div>
+
+                {{-- Submit --}}
+                <button type="submit" class="login-btn">
+                    Iniciar sesión
+                </button>
+
+            </form>
+
+        </div>
+
+        {{-- Pie --}}
+        <p class="login-footer-text">
+            ¿No tienes acceso?
+            <a href="mailto:soporte@simari.com">Contacta al administrador</a>
+        </p>
+
+    </div>
+
 </body>
 </html>
