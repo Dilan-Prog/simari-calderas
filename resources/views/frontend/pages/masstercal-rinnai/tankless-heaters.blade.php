@@ -78,11 +78,18 @@
  
       <!-- CTAs -->
       <nav class="rp-hero__btns" aria-label="Acciones principales">
-        <a href="/contacto" class="rp-btn-red" rel="noopener">
+        <a 
+        href="https://wa.me/524494348018?text=Hola%2C%20me%20interesa%20una%20cotizaci%C3%B3n."
+        target="_blank"
+        aria-label="Abrir chat de WhatsApp"
+        class="rp-btn-red">
           Cotizar Sistema Tankless
           <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
         </a>
-        <a href="tel:+524494348018" class="rp-btn-outline-white">
+        <a 
+        href="tel:+524494348018"
+        aria-label="Llamar a Industria Simari"
+        class="rp-btn-outline-white">
           <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
           Llamar Experto
         </a>
@@ -251,7 +258,9 @@
             Regadera + Lavabo
           </li>
         </ul>
-        <a href="/contacto" class="rp-model-card__btn" rel="noopener">Ver más</a>
+        <a href="https://wa.me/524494348018?text=Hola%2C%20me%20interesa%20una%20cotizaci%C3%B3n."
+             target="_blank"
+             aria-label="Abrir chat de WhatsApp"class="rp-model-card__btn">Ver más</a>
       </article>
  
       <!-- V94i -->
@@ -273,7 +282,9 @@
             2 Regaderas simultáneas
           </li>
         </ul>
-        <a href="/contacto" class="rp-model-card__btn" rel="noopener">Ver más</a>
+        <a href="https://wa.me/524494348018?text=Hola%2C%20me%20interesa%20una%20cotizaci%C3%B3n."
+             target="_blank"
+             aria-label="Abrir chat de WhatsApp"class="rp-model-card__btn">Ver más</a>
       </article>
  
       <!-- RL94i -->
@@ -295,7 +306,9 @@
             Casa completa
           </li>
         </ul>
-        <a href="/contacto" class="rp-model-card__btn" rel="noopener">Ver más</a>
+        <a href="https://wa.me/524494348018?text=Hola%2C%20me%20interesa%20una%20cotizaci%C3%B3n."
+             target="_blank"
+             aria-label="Abrir chat de WhatsApp"class="rp-model-card__btn">Ver más</a>
       </article>
  
       <!-- RU160i -->
@@ -317,7 +330,9 @@
             Uso comercial
           </li>
         </ul>
-        <a href="/contacto" class="rp-model-card__btn" rel="noopener">Ver más</a>
+        <a href="https://wa.me/524494348018?text=Hola%2C%20me%20interesa%20una%20cotizaci%C3%B3n."
+             target="_blank"
+             aria-label="Abrir chat de WhatsApp"class="rp-model-card__btn">Ver más</a>
       </article>
  
     </div>
@@ -417,11 +432,14 @@
           Únete a millones de hogares en el mundo que ya disfrutan de agua caliente ilimitada, ahorro energético y máxima comodidad.
         </p>
         <nav class="rp-cta__btns" aria-label="Opciones de contacto">
-          <a href="/contacto" class="rp-btn-white-cta" rel="noopener">
+          <a href="https://wa.me/524494348018?text=Hola%2C%20me%20interesa%20una%20cotizaci%C3%B3n."
+                    target="_blank"
+                    aria-label="Abrir chat de WhatsApp" class="rp-btn-white-cta">
             Solicitar Cotización
             <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
           </a>
-          <a href="tel:+524494348018" class="rp-btn-outline-cta">
+          <a href="tel:+524494348018"
+                aria-label="Llamar a Industria Simari" class="rp-btn-outline-cta">
             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
             449 434 8018
           </a>

@@ -162,7 +162,7 @@ body.mobile-menu-open {
     color: var(--text-header-color-nav-hover);
 }
 
-.main-nav-header ul li a {
+.main-nav-header ul li a:not(.button-primary.header) {
     color: var(--text-header-color-nav);
     text-decoration: none;
     font-size: 15px;
@@ -272,9 +272,9 @@ body.mobile-menu-open {
 
 /* Botón CTA en header desktop */
 .button-primary.header {
-    padding: 10px 28px;
-    font-size: 18px;
-    border-radius: 6px;
+    padding: 10px 28px !important;
+    font-size: 18px !important;
+    border-radius: 6px !important;
 }
 .button-primary.header:hover {
     transform: translateY(0px);

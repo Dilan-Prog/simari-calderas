@@ -53,14 +53,23 @@
 
                     <!-- CTAs -->
                     <nav class="re-hero__btns" aria-label="Acciones principales">
-                        <a href="/contacto" class="re-btn-primary" rel="noopener">
+                        <a 
+                          href="https://wa.me/524494348018?text=Hola%2C%20me%20interesa%20una%20cotizaci%C3%B3n."
+                          target="_blank"
+                          aria-label="Abrir chat de WhatsApp"
+                          class="re-btn-primary"
+                          >
                             Cotizar Ahora
                             <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
                                 aria-hidden="true">
                                 <path d="M5 12h14M12 5l7 7-7 7" />
                             </svg>
                         </a>
-                        <a href="tel:+524494348018" class="re-btn-outline-rinnai">
+                        <a
+                          href="tel:+524494348018"
+                          aria-label="Llamar a Industria Simari"
+                          class="re-btn-outline-rinnai"
+                          >
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                                 fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                                 <path
@@ -167,7 +176,10 @@
                                 <path d="M20 6 9 17l-5-5" />
                             </svg>Instalación incluida</li>
                     </ul>
-                    <a href="/contacto" class="re-price-card__btn re-price-card__btn--dark" rel="noopener">Solicitar
+                    <a href="https://wa.me/524494348018?text=Hola%2C%20me%20interesa%20una%20cotizaci%C3%B3n."
+                        target="_blank"
+                        aria-label="Abrir chat de WhatsApp" 
+                        class="re-price-card__btn re-price-card__btn--dark" >Solicitar
                         Básico</a>
                 </article>
 
@@ -205,7 +217,9 @@
                                 <path d="M20 6 9 17l-5-5" />
                             </svg>Mantenimiento gratis 1 año</li>
                     </ul>
-                    <a href="/contacto" class="re-price-card__btn re-price-card__btn--light" rel="noopener">Solicitar
+                    <a href="https://wa.me/524494348018?text=Hola%2C%20me%20interesa%20una%20cotizaci%C3%B3n."
+             target="_blank"
+             aria-label="Abrir chat de WhatsApp" class="re-price-card__btn re-price-card__btn--light">Solicitar
                         Premium</a>
                 </article>
 
@@ -242,7 +256,9 @@
                                 <path d="M20 6 9 17l-5-5" />
                             </svg>Servicio prioritario</li>
                     </ul>
-                    <a href="/contacto" class="re-price-card__btn re-price-card__btn--dark" rel="noopener">Solicitar
+                    <a href="https://wa.me/524494348018?text=Hola%2C%20me%20interesa%20una%20cotizaci%C3%B3n."
+             target="_blank"
+             aria-label="Abrir chat de WhatsApp" class="re-price-card__btn re-price-card__btn--dark" >Solicitar
                         Elite</a>
                 </article>
 
@@ -372,14 +388,23 @@
             <p>Sin gas, sin riesgos, sin emisiones. Solo agua caliente eficiente y confiable.</p>
 
             <nav class="re-cta-black__btns" aria-label="Opciones de contacto">
-                <a href="/contacto" class="re-btn-cta-red" rel="noopener">
+                <a 
+                  href="https://wa.me/524494348018?text=Hola%2C%20me%20interesa%20una%20cotizaci%C3%B3n."
+                  target="_blank"
+                  aria-label="Abrir chat de WhatsApp"
+                  class="re-btn-cta-red"
+                  >
                     Solicitar Cotización Personalizada
                     <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"
                         aria-hidden="true">
                         <path d="M5 12h14M12 5l7 7-7 7" />
                     </svg>
                 </a>
-                <a href="tel:+524494348018" class="re-btn-cta-outline">
+                <a 
+                  href="tel:+524494348018"
+                  aria-label="Llamar a Industria Simari"
+                  class="re-btn-cta-outline"
+                  >
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
                         fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                         <path

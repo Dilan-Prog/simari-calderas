@@ -161,7 +161,7 @@
     color: var(--text-header-color-nav-hover);
 }
 
-.main-nav-header ul li a {
+.main-nav-header ul li a:not(.button-primary.header) {
     color: var(--text-header-color-nav);
     text-decoration: none;
     font-size: 15px;

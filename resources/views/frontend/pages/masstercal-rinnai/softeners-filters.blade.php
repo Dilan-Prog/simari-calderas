@@ -201,7 +201,9 @@
                     ✓ Soporte técnico vitalicio
                   </div>
                 </div>
-                <a href="/contacto" class="wf-accordion__cta" rel="noopener">Solicitar Cotización</a>
+                <a href="https://wa.me/524494348018?text=Hola%2C%20me%20interesa%20una%20cotizaci%C3%B3n."
+                    target="_blank"
+                    aria-label="Abrir chat de WhatsApp" class="wf-accordion__cta">Solicitar Cotización</a>
               </div>
             </div>
           </div>
@@ -248,7 +250,14 @@
                   <div class="wf-price-block__price">desde $3,500 MXN</div>
                   <div class="wf-price-block__info">✓ Instalación incluida · ✓ Garantía de fábrica</div>
                 </div>
-                <a href="/contacto" class="wf-accordion__cta" rel="noopener">Solicitar Cotización</a>
+                <a href="https://wa.me/524494348018?text=Hola%2C%20me%20interesa%20una%20cotizaci%C3%B3n."
+                    target="_blank"
+                    aria-label="Abrir chat de WhatsApp"
+                    class="wf-accordion__cta"
+                    rel="noopener"
+                >
+                    Solicitar Cotización
+                </a>
               </div>
             </div>
           </div>
@@ -295,7 +304,14 @@
                   <div class="wf-price-block__price">desde $4,900 MXN</div>
                   <div class="wf-price-block__info">✓ Instalación incluida · ✓ Garantía de fábrica</div>
                 </div>
-                <a href="/contacto" class="wf-accordion__cta" rel="noopener">Solicitar Cotización</a>
+                <a href="https://wa.me/524494348018?text=Hola%2C%20me%20interesa%20una%20cotizaci%C3%B3n."
+                    target="_blank"
+                    aria-label="Abrir chat de WhatsApp"
+                    class="wf-accordion__cta"
+                    rel="noopener"
+                >
+                    Solicitar Cotización
+                </a>
               </div>
             </div>
           </div>
@@ -342,7 +358,14 @@
                   <div class="wf-price-block__price">desde $8,900 MXN</div>
                   <div class="wf-price-block__info">✓ Instalación incluida · ✓ Garantía de fábrica</div>
                 </div>
-                <a href="/contacto" class="wf-accordion__cta" rel="noopener">Solicitar Cotización</a>
+                <a href="https://wa.me/524494348018?text=Hola%2C%20me%20interesa%20una%20cotizaci%C3%B3n."
+                    target="_blank"
+                    aria-label="Abrir chat de WhatsApp"
+                    class="wf-accordion__cta"
+                    rel="noopener"
+                >
+                    Solicitar Cotización
+                </a>
               </div>
             </div>
           </div>
@@ -390,7 +413,14 @@
                   <div class="wf-price-block__price">Cotización personalizada</div>
                   <div class="wf-price-block__info">✓ Análisis de agua gratis · ✓ Instalación incluida</div>
                 </div>
-                <a href="/contacto" class="wf-accordion__cta" rel="noopener">Solicitar Análisis Gratis</a>
+                <a href="https://wa.me/524494348018?text=Hola%2C%20me%20interesa%20una%20cotizaci%C3%B3n."
+                    target="_blank"
+                    aria-label="Abrir chat de WhatsApp"
+                    class="wf-accordion__cta"
+                    rel="noopener"
+                >
+                    Solicitar Cotización
+                </a>
               </div>
             </div>
           </div>
@@ -498,11 +528,12 @@
     <p>Nuestros expertos analizarán tu agua gratis y diseñarán el sistema perfecto para tu hogar</p>
  
     <nav class="wf-cta__btns" aria-label="Opciones de contacto">
-      <a href="/contacto" class="wf-btn-white" rel="noopener">
+      <a href="https://wa.me/524494348018?text=Hola%2C%20me%20interesa%20una%20cotizaci%C3%B3n." target="_blank" aria-label="Abrir chat de WhatsApp" class="wf-btn-white" rel="noopener">
         Análisis de Agua Gratis
         <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
       </a>
-      <a href="tel:+524494348018" class="wf-btn-outline-white">
+      <a href="tel:+524494348018"
+                aria-label="Llamar a Industria Simari" class="wf-btn-outline-white">
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
         Llamar Ahora
       </a>

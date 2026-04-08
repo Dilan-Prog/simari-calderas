@@ -145,7 +145,9 @@
                     </ul>
                 </article>
 
-                <a class="button-primary st" href="/contacto">Cotizar Proyecto</a>
+                <a href="https://wa.me/524494348018?text=Hola%2C%20me%20interesa%20una%20cotizaci%C3%B3n."
+             target="_blank"
+             aria-label="Abrir chat de WhatsApp" class="button-primary st">Cotizar Proyecto</a>
             </aside>
 
             <div class="st-content">
@@ -399,7 +401,11 @@
                 especifica.
             </p>
             <div class="st-cta-buttons">
-                <a class="button-primary st-cta-button" href="/contacto">
+                <a 
+                href="https://wa.me/524494348018?text=Hola%2C%20me%20interesa%20una%20cotizaci%C3%B3n."
+                target="_blank"
+                aria-label="Abrir chat de WhatsApp"
+                class="button-primary st-cta-button">
                     Solicitar Diseño de Ingenieria
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
                         fill="none">
@@ -409,7 +415,10 @@
                             stroke-linecap="round" stroke-linejoin="round" />
                     </svg>
                 </a>
-                <a class="button-secondary st-cta-button" href="tel:+524494348018"><svg
+                <a 
+                href="tel:+524494348018"
+                aria-label="Llamar a Industria Simari"
+                class="button-secondary st-cta-button"><svg
                         xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"
                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                         stroke-linejoin="round" class="lucide lucide-phone">

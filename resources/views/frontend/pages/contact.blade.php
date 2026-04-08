@@ -68,8 +68,8 @@
                     <div class="contact-content">
                         <h3>Central Telefónica</h3>
                         <ul class="phone-list">
-                            <li><a href="tel:+524494348018">+52 (449) 434-8018</a></li>
-                            <li><a href="tel:+524498068894">+52 (449) 806-8894</a></li>
+                            <li><a href="tel:+524494348018" aria-label="Llamar a Industria Simari">+52 (449) 434-8018</a></li>
+                            <li><a href="tel:+524498068894" aria-label="Llamar a Industria Simari">+52 (449) 806-8894</a></li>
                         </ul>
                     </div>
                 </article>
@@ -85,8 +85,8 @@
                     <div class="contact-content">
                         <h3>Recepción y Cotizaciones</h3>
                         <ul class="email-list">
-                            <li><a href="mailto:servicios@simaricalderas.com">servicios@simaricalderas.com</a></li>
-                            <li><a href="tel:+524493968406">+52 (449) 396-8406</a></li>
+                            <li><a href="mailto:administracion@industriasimari.com" aria-label="Enviar correo a Industria Simari">administracion@industriasimari.com.mx</a></li>
+                            <li><a href="tel:+524493968406" aria-label="Llamar a Industria Simari">+52 (449) 396-8406</a></li>
                         </ul>
                     </div>
                 </article>
@@ -104,7 +104,7 @@
                     </div>
                     <div class="contact-content">
                         <h3>Facturación</h3>
-                        <a href="mailto:facturacion@simaricalderas.com">facturacion@simaricalderas.com</a>
+                        <a href="mailto:facturacion@industriasimari.com" aria-label="Enviar correo a Industria Simari">facturacion@industriasimari.com.mx</a>
                     </div>
                 </article>
                 <div class="additional-features">

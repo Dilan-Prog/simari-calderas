@@ -74,12 +74,16 @@
                         </div>
                     </div>
 
-                    <button class="button-primary heat-pumps">
+                    <a 
+                    href="https://wa.me/524494348018?text=Hola%2C%20me%20interesa%20una%20cotizaci%C3%B3n."
+                    target="_blank"
+                    aria-label="Abrir chat de WhatsApp"
+                    class="button-primary heat-pumps">
                         Cotizar Equipo Rinnai
                         <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M5 12h14M12 5l7 7-7 7"></path>
                         </svg>
-                    </button>
+                    </a>
                 </div>
             </div>
         </div>
@@ -262,14 +266,20 @@
             </p>
 
             <div class="cta-rinnai-buttons-heat-pumps">
-                <button class="button-primary ctn-heat">
+                <a 
+                href="https://wa.me/524494348018?text=Hola%2C%20me%20interesa%20una%20cotizaci%C3%B3n."
+                target="_blank"
+                aria-label="Abrir chat de WhatsApp"
+                class="button-primary ctn-heat">
                     Solicitar Cotización
                     <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M5 12h14M12 5l7 7-7 7"></path>
                     </svg>
-                </button>
-
-                <button class="button-primary ctn-heat-outline">
+                </a>
+                <a 
+                href="tel:+524494348018"
+                aria-label="Llamar a Industria Simari"
+                class="button-primary ctn-heat-outline">
                     <svg
                         xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"
                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -279,7 +289,7 @@
                         </path>
                     </svg>
                     Llamar Ahora
-                </button>
+                </a>
             </div>
         </div>
     </section>

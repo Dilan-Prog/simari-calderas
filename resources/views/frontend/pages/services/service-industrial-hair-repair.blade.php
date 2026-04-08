@@ -30,7 +30,11 @@
                 </p>
 
                 <div class="hero-actions">
-                    <button class="button-primary">
+                    <a 
+                    href="https://wa.me/524494348018?text=Hola%2C%20me%20interesa%20una%20cotizaci%C3%B3n."
+                    target="_blank"
+                    aria-label="Abrir chat de WhatsApp"
+                    class="button-primary">
                         Solicitar Cotización
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -38,7 +42,7 @@
                             <path d="M5 12h14"></path>
                             <path d="m12 5 7 7-7 7"></path>
                         </svg>
-                    </button>
+                    </a>
                 </div>
             </div>
         </div>
@@ -383,7 +387,11 @@
             </p>
 
             <div class="cta-final-actions">
-                <a class="button-primary work-process">
+                <a 
+                href="https://wa.me/524494348018?text=Hola%2C%20me%20interesa%20una%20cotizaci%C3%B3n."
+                target="_blank"
+                aria-label="Abrir chat de WhatsApp"
+                class="button-primary work-process">
                     Solicitar Reparación
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -393,7 +401,10 @@
                     </svg>
                 </a>
 
-                <a class="button-secondary work-process">
+                <a 
+                href="tel:+524494348018"
+                aria-label="Llamar a Industria Simari"
+                class="button-secondary work-process">
                     <svg
                         xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"
                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
