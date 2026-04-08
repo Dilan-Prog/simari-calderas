@@ -166,9 +166,21 @@
             </nav>
         </section>
     </div>
-    <a href="{{ route('admin.users.index') }}">
-        <h1 style="font-size:28px; color:white;">Iniciar Sesion</h1>
-    </a>
+@auth
+    @php $rol = auth()->user()->role?->name_role @endphp
+
+    @if ($rol === 'admin')
+        <a style="font-size:28px; color:white;"  href="{{ route('admin.dashboard') }}">Panel Admin</a>
+
+    @elseif ($rol === 'employe')
+        <a style="font-size:28px; color:white;" href="{{ route('employee.dashboard') }}">Mi Dashboard</a>
+
+    @else
+        <a style="font-size:28px; color:white;" href="{{ route('profile.edit') }}">Mi Cuenta</a>
+    @endif
+@else
+    <a style="font-size:28px; color:white;" href="{{ route('login') }}">Iniciar Sesión</a>
+@endauth
 </footer>
 <!-- =====================================================
      BOTÓN FLOTANTE DE WHATSAPP

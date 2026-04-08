@@ -13,7 +13,7 @@ use App\Http\Controllers\Backend\AdminController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('guest')->group(function () {
-    Route::get('admin/login', [AdminController::class, 'login'])
+    Route::get('administrador/iniciar-sesion', [AdminController::class, 'login'])
                 ->name('admin.login');
 
     Route::get('register', [RegisteredUserController::class, 'create'])

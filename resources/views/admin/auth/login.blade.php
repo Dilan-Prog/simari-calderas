@@ -49,7 +49,6 @@
 
             <form method="POST" action="{{ route('login') }}" novalidate>
                 @csrf
-
                 {{-- Email --}}
                 <div class="login-form-group">
                     <label class="login-label" for="email">Correo electrónico</label>

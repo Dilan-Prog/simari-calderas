@@ -15,12 +15,18 @@ class RoleMiddleware
      */
     public function handle(Request $request, Closure $next, string $role): Response
     {
-        $user = $request->user();
+        $userRole = $request->user()->role?->name_role; // accede al string del name_role
 
-        if (!$user || !$user->role || $user->role->name_role !== $role) {
-            abort(403, 'No autorizado');
+        if ($userRole !== $role) {
+            // El usuario no tiene el rol requerido, redirige según lo que SÍ es
+            return match($userRole) {
+                'admin'   => redirect()->route('admin'),
+                'employe' => redirect()->route('employee.dashboard'),
+                default   => abort(403, 'No autorizado'),
+            };
         }
 
         return $next($request);
     }
+
 }

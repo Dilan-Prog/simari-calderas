@@ -9,9 +9,13 @@ use Log;
 
 class AdminController extends Controller
 {
-    public function index()
+    public function dashboard()
     {
-        return view('admin.users.index');
+        return view('admin.dashboard');
+    }
+
+    public function login() {
+        return view('admin.auth.login');
     }
     
     public function store(Request $request)

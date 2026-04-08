@@ -1,9 +1,7 @@
 @extends('admin.layouts.master')
-
 @section('title')
     Gestor de usuarios - Admin
 @endsection
-
 @section('content')
     <div class="container user-manager">
         {{-- Main content --}}

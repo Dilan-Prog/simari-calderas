@@ -1,42 +1,21 @@
-<!DOCTYPE html>
-<html lang="es-MX">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Panel de Administración — SIMARI Calderas</title>
-    <meta name="robots" content="noindex, nofollow">
-    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+@extends('admin.layouts.master')
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
-
-    @vite(['resources/css/app.css'])
-    <link rel="stylesheet" href="{{ asset('css/admin/navbar.css') }}">
-</head>
-
-<body class="admin-panel-body">
-
+@section('content')
 <div class="admin-panel-layout">
-
     {{-- ══════════════════════════════
          SIDEBAR
     ══════════════════════════════ --}}
     <aside class="admin-sidebar">
-
         {{-- Logo --}}
         <div class="sidebar-logo">
             <img src="{{ asset('images/logo/Logo_blanco.png') }}"
-                 alt="SIMARI Calderas"
+                 alt="Industria Simari"
                  onerror="this.style.display='none'">
         </div>
-
         {{-- Navegación --}}
         <nav class="sidebar-nav" id="sidebarNav">
-
             {{-- Dashboard --}}
-            <button class="sidebar-nav-item" data-section="dashboard">
+            <button class="sidebar-nav-item active" data-section="dashboard">
                 <div class="sidebar-nav-item-left">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                          fill="none" stroke="currentColor" stroke-width="2"
@@ -49,7 +28,7 @@
             </button>
 
             {{-- Usuarios --}}
-            <button class="sidebar-nav-item active" data-section="usuarios">
+            <button class="sidebar-nav-item" data-section="usuarios">
                 <div class="sidebar-nav-item-left">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                          fill="none" stroke="currentColor" stroke-width="2"
@@ -381,7 +360,6 @@
     {{-- /ÁREA PRINCIPAL --}}
 
 </div>
-
 <script>
 (function () {
     'use strict';
@@ -517,13 +495,11 @@
     });
 
     // ── Carga inicial: Usuarios ──
-    const usuariosBtn = document.querySelector('[data-section="usuarios"]');
+    const usuariosBtn = document.querySelector('[data-section="dashboard"]');
     if (usuariosBtn) {
-        loadSection('usuarios', usuariosBtn, 'Usuarios');
+        loadSection('dashboard', usuariosBtn, 'Dashboard');
     }
 
 })();
 </script>
-
-</body>
-</html>
+@endsection

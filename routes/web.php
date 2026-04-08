@@ -53,24 +53,6 @@ Route::controller(HomeController::class)->group(function () {
     Route::get('admin/supliers',[HomeController::class,'supliers'])->name('supliers');
 });
 
-// ─── Panel administrativo ────────────────────────────────────────────────────
-
-// Dashboard principal (sidebar + contenido dinámico)
-Route::get('/admin', function () {
-    return view('admin.dashboard');
-})->name('admin.panel');
-
-// Partial de Usuarios — devuelve solo el HTML del contenido (para fetch desde el dashboard)
-Route::get('/admin/usuarios-partial', function () {
-    $roles = \App\Models\Role::all();
-    return view('admin.users.partial', compact('roles'));
-})->name('admin.users.partial');
-
-// Vista completa de Usuarios (con layout propio)
-Route::get('/admin/usuarios', [AdminController::class, 'index'])->name('admin.users.index');
-
-// Crear usuario
-Route::post('/admin/usuarios', [AdminController::class, 'store'])->name('admin.users.store');
 
 Route::get('/dashboard', function () {
     return view('dashboard');
