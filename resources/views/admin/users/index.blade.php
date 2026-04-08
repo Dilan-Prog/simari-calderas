@@ -31,52 +31,66 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {{-- Rows --}}
-                        <tr class="table-row-user-manager">
-                            <td class="user-manager-table-cell">
-                                <div class="avatar-user-manager">
-                                    M
-                                </div>
-                                <div>
-                                    <p class="users-manager-name-user">María González</p>
-                                    <span class="users-manager-date-user">9 feb 2024</span>
-                                </div>
-                            </td>
-                            <td>
-                                <p class="breadcrumb-users-manager main">maria.gonzalez@simari.com</p>
-                            </td>
-                            <td>
-                                <span class="users-manager-badge role-admin">Administrador</span>
-                            </td>
-                            <td>
-                                <span class="users-manager-badge status">Activo</span>
-                            </td>
-                            <td>
-                                <div class="header-right-user-manager">
-                                    <button class="table-users-manager-action-btn edit">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
-                                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                            stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pen">
-                                            <path
-                                                d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z">
-                                            </path>
-                                        </svg>
-                                    </button>
-                                    <button class="table-users-manager-action-btn delete">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
-                                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                            stroke-linecap="round" stroke-linejoin="round"
-                                            class="lucide lucide-trash2 lucide-trash-2">
-                                            <path d="M3 6h18"></path>
-                                            <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
-                                            <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
-                                            <line x1="10" x2="10" y1="11" y2="17"></line>
-                                            <line x1="14" x2="14" y1="11" y2="17"></line>
-                                        </svg></button>
-                                </div>
-                            </td>
-                        </tr>
-                        @for ($i = 0; $i <= 12; $i++)
+                        @foreach ($users as $user)
+                            <tr class="table-row-user-manager">
+                                <td class="user-manager-table-cell">
+                                    <div class="avatar-user-manager">
+                                        M
+                                    </div>
+                                    <div>
+                                        <p class="users-manager-name-user">{{ $user->first_name }} {{ $user->last_name }}</p>
+                                        <span class="users-manager-date-user">9 feb 2024</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <p class="breadcrumb-users-manager main">{{ $user->email }}</p>
+                                </td>
+                                <td>
+                                    <span class="users-manager-badge role-admin">{{ $user->role->name_role_es }}</span>
+                                </td>
+                                <td>
+                                    <span class="users-manager-badge status">@switch($user->status)
+                                                                            @case('active')
+                                                                                Activo
+                                                                                @break
+                                                                            @case('inactive')
+                                                                                Inactivo
+                                                                                @break
+                                                                            @case('suspended')
+                                                                                Suspendido
+                                                                                @break
+                                                                            @default
+                                                                                Desconocido
+                                                                        @endswitch
+                                </span>
+                                </td>
+                                <td>
+                                    <div class="header-right-user-manager">
+                                        <button class="table-users-manager-action-btn edit">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+                                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pen">
+                                                <path
+                                                    d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z">
+                                                </path>
+                                            </svg>
+                                        </button>
+                                        <button class="table-users-manager-action-btn delete">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+                                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                stroke-linecap="round" stroke-linejoin="round"
+                                                class="lucide lucide-trash2 lucide-trash-2">
+                                                <path d="M3 6h18"></path>
+                                                <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+                                                <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+                                                <line x1="10" x2="10" y1="11" y2="17"></line>
+                                                <line x1="14" x2="14" y1="11" y2="17"></line>
+                                            </svg></button>
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforeach
+                        {{-- @for ($i = 0; $i <= 12; $i++)
                             <tr>
                                 <td class="user-manager-table-cell">
                                     <div class="avatar-user-manager">
@@ -127,11 +141,19 @@
                                     </div>
                                 </td>
                             </tr>
-                        @endfor
+                        @endfor --}}
                     </tbody>
                 </table>
             </main>
         </section>
+
+
+
+
+
+
+
+
         {{-- Create user --}}
         <div id="userModal" class="user-manager-modal">
             <div class="user-manager-modal-content">
@@ -162,6 +184,9 @@
                     <div class="user-manager-icon-container">
                     </div>
                 </div>
+
+
+
                 <!-- Form Body -->
                 <form class="user-manager-modal-body" action="{{ route('admin.users.store') }}"  method="POST" enctype="multipart/form-data">
                     @csrf
@@ -249,9 +274,12 @@
                             <label class="supliers-manager-slider-label">Role</label>
                             <select class="users-manager-select" name="role_id">
                                 <option value="">Seleccionar</option>
-                                @foreach ($roles as $role)
+                                <option value="1">Administrador</option>
+                                <option value="2">Empleado</option>
+                                <option value="3">Editor</option>
+                                {{-- @foreach ($roles as $role)
                                 <option value="{{ $role->id }}">{{ $role->name }}</option>
-                                @endforeach
+                                @endforeach --}}
                             </select>
                         </div>
                         <div>

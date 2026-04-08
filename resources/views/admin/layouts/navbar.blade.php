@@ -1,5 +1,3 @@
-<div class="admin-main">
-
     {{-- Cabecera superior --}}
     <header class="admin-top-header">
         <div class="admin-breadcrumb">
@@ -20,14 +18,3 @@
             <div class="admin-header-avatar">AD</div>
         </div>
     </header>
-
-    {{-- Contenido dinámico --}}
-    <main class="admin-content-area" id="mainContent">
-        <div class="admin-loading-state" id="loadingState">
-            <div class="admin-spinner"></div>
-            <span>Cargando...</span>
-        </div>
-    </main>
-
-</div>
-{{-- /ÁREA PRINCIPAL --}}

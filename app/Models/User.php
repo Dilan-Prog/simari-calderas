@@ -19,10 +19,19 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $fillable = [
-        'name',
-        'email',
-        'password',
         'role_id',
+        'first_name',
+        'last_name',
+        'position',
+        'email',
+        'phone',
+        'password',
+        'avatar_url',
+        'status',
+        'rfc',
+        'curp',
+        'social_segurity_number',
+        'birthdate',
     ];
 
     /**
@@ -49,4 +58,10 @@ class User extends Authenticatable
     {
         return $this->belongsTo(Role::class, 'role_id');
     }
+
+    public function contactEmergency()
+    {
+        return $this->hasMany(ContactEmergency::class, 'user_id');
+    }
+
 }

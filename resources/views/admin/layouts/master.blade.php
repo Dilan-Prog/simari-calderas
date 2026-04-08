@@ -14,15 +14,15 @@
         media="print" onload="this.media='all'">
     {{-- @vite(['resources/css/app.css', 'resources/js/app.js']) --}}
     @vite(['resources\css\admin\app.css'])
+    @vite(['resources\js\admin\sidebar.js'])
     
 </head>
 
 <body>
-    {{-- @include('admin.layouts.header') --}}
-    <main>
+    @include('admin.layouts.sidebar')
+    <section class="admin-main">
+        @include('admin.layouts.navbar')
         @yield('content')
-
-    </main>
+    </section>
 </body>
-
 </html>
