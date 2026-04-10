@@ -9,6 +9,7 @@ Route::get('/', [AdminController::class, 'dashboard'])->name('dashboard');
 Route::controller(UserManageController::class)->group(function () {
     Route::get('/usuarios', 'index')->name('users.index');
     Route::post('/crear-usuarios', action: 'store')->name('users.store');
+    Route::put('/usuarios/{id}', 'update')->name('users.update');
 });
 
 Route::controller(ClientManageController::class)->group(function () {

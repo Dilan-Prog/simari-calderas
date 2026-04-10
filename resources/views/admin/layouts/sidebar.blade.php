@@ -8,6 +8,7 @@
         $activeSection = match(true) {
             request()->routeIs('admin.dashboard')  => 'dashboard',
             request()->routeIs('admin.users.*')    => 'usuarios',
+            request()->routeIs('admin.clients.*')  => 'clientes',
             default                                => '',
         };
     @endphp
@@ -41,8 +42,7 @@
                 <path d="m9 18 6-6-6-6"/>
             </svg>
         </a>
-        <a class="sidebar-nav-item" data-section="coming-soon" data-label="Clientes">
-        <a class="sidebar-nav-item" data-section="clientes" href="{{ route('admin.clients.index') }}" data-label="Clientes">
+        <a class="sidebar-nav-item {{ $activeSection === 'clientes' ? 'active' : '' }}" data-section="clientes" href="{{ route('admin.clients.index') }}" data-label="Clientes">
             <div class="sidebar-nav-item-left">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                         fill="none" stroke="currentColor" stroke-width="2"
@@ -57,7 +57,7 @@
         </a>
 
     
-        <button class="sidebar-nav-item" data-section="coming-soon" data-label="Proveedores">
+        <a class="sidebar-nav-item" data-section="coming-soon" data-label="Proveedores">
             <div class="sidebar-nav-item-left">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                         fill="none" stroke="currentColor" stroke-width="2"
@@ -112,7 +112,7 @@
         </a>
 
         
-        <button class="sidebar-nav-item" data-section="coming-soon" data-label="Servicios Técnicos">
+        <a class="sidebar-nav-item" data-section="coming-soon" data-label="Servicios Técnicos">
             <div class="sidebar-nav-item-left">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                         fill="none" stroke="currentColor" stroke-width="2"
@@ -151,7 +151,7 @@
         </a>
 
     
-        <button class="sidebar-nav-item" data-section="coming-soon" data-label="Paqueterías">
+        <a class="sidebar-nav-item" data-section="coming-soon" data-label="Paqueterías">
             <div class="sidebar-nav-item-left">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                         fill="none" stroke="currentColor" stroke-width="2"
@@ -165,7 +165,7 @@
         </a>
 
         
-        <button class="sidebar-nav-item" data-section="coming-soon" data-label="Métodos de Pago">
+        <a class="sidebar-nav-item" data-section="coming-soon" data-label="Métodos de Pago">
             <div class="sidebar-nav-item-left">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                         fill="none" stroke="currentColor" stroke-width="2"
@@ -178,7 +178,7 @@
         </a>
 
         
-        <button class="sidebar-nav-item" data-section="coming-soon" data-label="Email Marketing">
+        <a class="sidebar-nav-item" data-section="coming-soon" data-label="Email Marketing">
             <div class="sidebar-nav-item-left">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                         fill="none" stroke="currentColor" stroke-width="2"
@@ -204,7 +204,7 @@
         </a>
 
         
-        <button class="sidebar-nav-item" data-section="coming-soon" data-label="Auditoría Sistema">
+        <a class="sidebar-nav-item" data-section="coming-soon" data-label="Auditoría Sistema">
             <div class="sidebar-nav-item-left">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                         fill="none" stroke="currentColor" stroke-width="2"
@@ -265,7 +265,7 @@
         </a>
 
         
-        <button class="sidebar-nav-item" data-section="coming-soon" data-label="Configuración">
+        <a class="sidebar-nav-item" data-section="coming-soon" data-label="Configuración">
             <div class="sidebar-nav-item-left">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                         fill="none" stroke="currentColor" stroke-width="2"
