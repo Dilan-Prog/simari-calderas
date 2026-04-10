@@ -257,7 +257,6 @@
                             <label class="supliers-manager-slider-label email">Nombre del Contacto</label>
                             <input type="text" class="users-manager-input" name="emergency_contact_name" placeholder="Ej: Juan Pérez">
                         </div>
-                        {{-- revisar --}}
                         <div>
                             <label class="supliers-manager-slider-label email">Teléfono</label>
                             <input type="text" class="users-manager-input" name="emergency_phone" placeholder="(449) 123-4567">
@@ -266,20 +265,16 @@
                             <label class="supliers-manager-slider-label email">Parentesco</label>
                             <input type="text" class="users-manager-input" name="relationship" placeholder="Ej: Hermano/a, Esposo/a">
                         </div>
-                        {{-- revisar --}}
                     </div>
                     <h3>Acceso al Sistema</h3>
                     <div class="user-manager-form access-sistem-form">
                         <div>
                             <label class="supliers-manager-slider-label">Role</label>
-                            <select class="users-manager-select" name="role_id">
+                            <select class="users-manager-select" style="text-transform: capitalize;" name="role_id">
                                 <option value="">Seleccionar</option>
-                                <option value="1">Administrador</option>
-                                <option value="2">Empleado</option>
-                                <option value="3">Editor</option>
-                                {{-- @foreach ($roles as $role)
-                                <option value="{{ $role->id }}">{{ $role->name }}</option>
-                                @endforeach --}}
+                                @foreach($roles as $role)
+                                    <option value="{{ $role->id }}">{{ $role->name_role_es }}</option>
+                                @endforeach
                             </select>
                         </div>
                         <div>
@@ -316,7 +311,6 @@
                             </svg>
                         </div>
                     </div>
-                    {{-- Permissions  --}}
                     <h3>Permisos por Módulo</h3>
                     <div class="user-manager-permissions-grid">
                         <!-- ITEM -->

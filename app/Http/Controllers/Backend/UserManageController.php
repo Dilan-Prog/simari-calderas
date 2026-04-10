@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Backend;
 
 use App\Http\Controllers\Controller;
 use App\Models\ContactEmergency;
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -17,8 +18,10 @@ class UserManageController extends Controller
     {   
         $users = User::with('role:id,name_role_es')
         ->get(['id', 'first_name', 'last_name', 'email', 'role_id', 'status']);
+
+        $roles = Role::select('id', 'name_role_es')->get();
         
-        return view('admin.users.index', compact('users'));
+        return view('admin.users.index', compact('users', 'roles'));
     }
 
     /**
@@ -46,44 +49,37 @@ class UserManageController extends Controller
             'curp' => 'nullable|string|max:18|unique:users,curp',
             'social_segurity_number' => 'nullable|string|max:20|unique:users,social_segurity_number',
             'birthdate' => 'nullable|date',
-            // 'id_contact_emergency' => 'nullable|integer|exists:users,id',
             'role_id' => 'required|integer|exists:roles,id',
-            'password' => 'required|string|min:8|confirmed'
+            'password' => 'required|string|min:8|confirmed',
+            // contact emergency
+            'emergency_contact_name' => 'nullable|string|max:100',
+            'emergency_contact_phone' => 'nullable|string|max:30',
+            'emergency_contact_relationship' => 'nullable|string|max:50',
         ]);
 
         $user = new User();
-        $contactEmergency = ContactEmergency::create([
-            'name' => $request->first_name,
-            'phone' => $request->phone,
-            'relationship' => $request->relationship,
-        ]);
         $user->name = trim($request->first_name . ' ' . $request->last_name);
         $user->first_name = $request->first_name;
         $user->last_name = $request->last_name;
         $user->email = $request->email;
         $user->position = $request->position;
-        // $user->avatar_url = $request->avatar_url;
         $user->phone = $request->phone;
-
-        $statusMap = [
-            '1' => 'active',
-            '2' => 'inactive',
-            '3' => 'suspended',
-            'active' => 'active',
-            'inactive' => 'inactive',
-            'suspended' => 'suspended',
-        ];
-
-        $user->status = $statusMap[(string) $request->status] ?? 'inactive';
+        $user->status = $request->status;
         $user->rfc = $request->rfc;
         $user->curp = $request->curp;
         $user->social_segurity_number = $request->social_segurity_number;
         $user->birthdate = $request->birthdate;
-        // $user->id_contact_emergency = $request->id_contact_emergency;
         $user->role_id = $request->role_id;
         $user->password = bcrypt($request->password);
-        // dd($request->all());
         $user->save();
+        if($request->filled('emergency_contact_name') || $request->filled('emergency_contact_phone') || $request->filled('emergency_contact_relationship')){
+            $contactEmergency = new ContactEmergency();
+            $contactEmergency->user_id = $user->id;
+            $contactEmergency->name = $request->emergency_contact_name;
+            $contactEmergency->phone = $request->emergency_contact_phone;
+            $contactEmergency->relationship = $request->emergency_contact_relationship;
+            $contactEmergency->save();
+        }
         Log::info('Usuario creado: ' . $user->id . ' - ' . $user->first_name . ' ' . $user->last_name);
 
         return redirect()->route('admin.users.index')->with('success', 'Usuario creado correctamente.');
