@@ -15,7 +15,7 @@ class UserManageController extends Controller
      * Display a listing of the resource.
      */
     public function index()
-    {   
+    {
         $users = User::with('role:id,name_role_es')
         ->get(['id', 'first_name', 'last_name', 'email', 'role_id', 'status']);
 
@@ -58,6 +58,11 @@ class UserManageController extends Controller
         ]);
 
         $user = new User();
+        $contactEmergency = ContactEmergency::create([
+            'name' => $request->first_name,
+            'phone' => $request->phone,
+            'relationship' => $request->relationship,
+        ]);
         $user->name = trim($request->first_name . ' ' . $request->last_name);
         $user->first_name = $request->first_name;
         $user->last_name = $request->last_name;

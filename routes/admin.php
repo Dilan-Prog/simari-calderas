@@ -1,18 +1,19 @@
 <?php
 
 use App\Http\Controllers\Backend\AdminController;
+use App\Http\Controllers\Backend\ClientManageController;
 use App\Http\Controllers\Backend\UserManageController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/',[AdminController::class,'dashboard'])->name('dashboard');
+Route::get('/', [AdminController::class, 'dashboard'])->name('dashboard');
 Route::controller(UserManageController::class)->group(function () {
     Route::get('/usuarios', 'index')->name('users.index');
     Route::post('/crear-usuarios', action: 'store')->name('users.store');
 });
 
-
-
-
+Route::controller(ClientManageController::class)->group(function () {
+    Route::get('/clientes', 'index')->name('clients.index');
+});
 
 // // Partial de Usuarios — devuelve solo el HTML del contenido (para fetch desde el dashboard)
 // Route::get('/usuarios-partial', function () {
@@ -24,7 +25,6 @@ Route::controller(UserManageController::class)->group(function () {
 
 // // Crear usuario
 // Route::post('/admin/usuarios', [UserManageController::class, 'store'])->name('admin.users.store');
-
 
 // Route::controller(AdminController::class)->group(function () {
 //     Route::get('/gestion-usuarios', 'index')->name('users.index');
