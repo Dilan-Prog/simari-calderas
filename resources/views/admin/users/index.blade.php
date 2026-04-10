@@ -30,120 +30,133 @@
                             <th>ACCIONES</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        @foreach ($users as $user)
-                            <tr class="table-row-user-manager">
-                                <td class="user-manager-table-cell">
-                                    <div class="avatar-user-manager">
-                                        M
-                                    </div>
-                                    <div>
-                                        <p class="users-manager-name-user">{{ $user->first_name }} {{ $user->last_name }}</p>
-                                        <span class="users-manager-date-user">9 feb 2024</span>
-                                    </div>
-                                </td>
-                                <td>
-                                    <p class="breadcrumb-users-manager main">{{ $user->email }}</p>
-                                </td>
-                                <td>
-                                    <span class="users-manager-badge role-admin">{{ $user->role->name_role_es }}</span>
-                                </td>
-                                <td>
-                                    <span class="users-manager-badge status">@switch($user->status)
-                                                                            @case('active')
-                                                                                Activo
-                                                                                @break
-                                                                            @case('inactive')
-                                                                                Inactivo
-                                                                                @break
-                                                                            @case('suspended')
-                                                                                Suspendido
-                                                                                @break
-                                                                            @default
-                                                                                Desconocido
-                                                                        @endswitch
-                                </span>
-                                </td>
-                                <td>
-                                    <div class="header-right-user-manager">
-                                        <button class="table-users-manager-action-btn edit">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
-                                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                                stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pen">
-                                                <path
-                                                    d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z">
-                                                </path>
-                                            </svg>
-                                        </button>
-                                        <button class="table-users-manager-action-btn delete">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
-                                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                                stroke-linecap="round" stroke-linejoin="round"
-                                                class="lucide lucide-trash2 lucide-trash-2">
-                                                <path d="M3 6h18"></path>
-                                                <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
-                                                <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
-                                                <line x1="10" x2="10" y1="11" y2="17"></line>
-                                                <line x1="14" x2="14" y1="11" y2="17"></line>
-                                            </svg></button>
-                                    </div>
-                                </td>
-                            </tr>
-                        @endforeach
-                        {{-- @for ($i = 0; $i <= 12; $i++)
-                            <tr>
-                                <td class="user-manager-table-cell">
-                                    <div class="avatar-user-manager">
-                                        A
-                                    </div>
-                                    <div>
-                                        <p class="users-manager-name-user">Ana Torres</p>
-                                        <span class="users-manager-date-user">9 may 2024</span>
-                                    </div>
-                                </td>
-
-                                <td>
-                                    <p class="breadcrumb-users-manager main">ana.torres@simari.com</p>
-                                </td>
-
-                                <td>
-                                    <span class="users-manager-badge role-employee">Empleado</span>
-                                </td>
-
-                                <td>
-                                    <span class="users-manager-badge status">Activo</span>
-                                </td>
-
-                                <td>
-                                    <div class="header-right-user-manager">
-                                        <button class="table-users-manager-action-btn edit">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
-                                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                                stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pen">
-                                                <path
-                                                    d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z">
-                                                </path>
-                                            </svg>
-                                        </button>
-                                        <button class="table-users-manager-action-btn delete">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
-                                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                                stroke-linecap="round" stroke-linejoin="round"
-                                                class="lucide lucide-trash2 lucide-trash-2">
-                                                <path d="M3 6h18"></path>
-                                                <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
-                                                <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
-                                                <line x1="10" x2="10" y1="11" y2="17">
-                                                </line>
-                                                <line x1="14" x2="14" y1="11" y2="17">
-                                                </line>
-                                            </svg></button>
-                                    </div>
-                                </td>
-                            </tr>
-                        @endfor --}}
-                    </tbody>
                 </table>
+                <div class="table-scroll">
+                    <table class="users-manager-table">
+                        <tbody>
+                            @foreach ($users as $user)
+                                <tr class="table-row-user-manager">
+                                    <td class="user-manager-table-cell">
+                                        <div class="avatar-user-manager">
+                                            M
+                                        </div>
+                                        <div>
+                                            <p class="users-manager-name-user">{{ $user->first_name }}
+                                                {{ $user->last_name }}</p>
+                                            <span class="users-manager-date-user">9 feb 2024</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <p class="breadcrumb-users-manager main">{{ $user->email }}</p>
+                                    </td>
+                                    <td>
+                                        <span class="users-manager-badge role-admin">{{ $user->role->name_role_es }}</span>
+                                    </td>
+                                    <td>
+                                        <span class="users-manager-badge status">
+                                            @switch($user->status)
+                                                @case('active')
+                                                    Activo
+                                                @break
+
+                                                @case('inactive')
+                                                    Inactivo
+                                                @break
+
+                                                @case('suspended')
+                                                    Suspendido
+                                                @break
+
+                                                @default
+                                                    Desconocido
+                                            @endswitch
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="header-right-user-manager">
+                                            <button class="table-users-manager-action-btn edit">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+                                                    viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                                    class="lucide lucide-pen">
+                                                    <path
+                                                        d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z">
+                                                    </path>
+                                                </svg>
+                                            </button>
+                                            <button class="table-users-manager-action-btn delete">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+                                                    viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                                    class="lucide lucide-trash2 lucide-trash-2">
+                                                    <path d="M3 6h18"></path>
+                                                    <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+                                                    <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+                                                    <line x1="10" x2="10" y1="11" y2="17">
+                                                    </line>
+                                                    <line x1="14" x2="14" y1="11" y2="17">
+                                                    </line>
+                                                </svg></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endforeach
+                            {{-- @for ($i = 0; $i <= 12; $i++)
+                                <tr>
+                                    <td class="user-manager-table-cell">
+                                        <div class="avatar-user-manager">
+                                            A
+                                        </div>
+                                        <div>
+                                            <p class="users-manager-name-user">Ana Torres</p>
+                                            <span class="users-manager-date-user">9 may 2024</span>
+                                        </div>
+                                    </td>
+
+                                    <td>
+                                        <p class="breadcrumb-users-manager main">ana.torres@simari.com</p>
+                                    </td>
+
+                                    <td>
+                                        <span class="users-manager-badge role-employee">Empleado</span>
+                                    </td>
+
+                                    <td>
+                                        <span class="users-manager-badge status">Activo</span>
+                                    </td>
+
+                                    <td>
+                                        <div class="header-right-user-manager">
+                                            <button class="table-users-manager-action-btn edit">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+                                                    viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                                    class="lucide lucide-pen">
+                                                    <path
+                                                        d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z">
+                                                    </path>
+                                                </svg>
+                                            </button>
+                                            <button class="table-users-manager-action-btn delete">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+                                                    viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                                    class="lucide lucide-trash2 lucide-trash-2">
+                                                    <path d="M3 6h18"></path>
+                                                    <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+                                                    <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+                                                    <line x1="10" x2="10" y1="11" y2="17">
+                                                    </line>
+                                                    <line x1="14" x2="14" y1="11" y2="17">
+                                                    </line>
+                                                </svg></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endfor --}}
+                        </tbody>
+                    </table>
+                </div>
             </main>
         </section>
 
@@ -169,10 +182,11 @@
                 <!-- Header -->
                 <div class="user-manager-modal-header">
                     <h2>Nuevo Usuario</h2>
-                    <button class="table-users-manager-action-btn cancel" id="closeModal">X</button>
+                    <button class="table-users-manager-action-btn cancel" id="closeModal">x</button>
                 </div>
                 @if ($errors->any())
-                    <div style="background:#fee2e2;border:1px solid #f87171;border-radius:6px;padding:12px 16px;margin:12px 16px 0;">
+                    <div
+                        style="background:#fee2e2;border:1px solid #f87171;border-radius:6px;padding:12px 16px;margin:12px 16px 0;">
                         <ul style="margin:0;padding-left:16px;color:#b91c1c;font-size:0.875rem;">
                             @foreach ($errors->all() as $error)
                                 <li>{{ $error }}</li>
@@ -188,15 +202,17 @@
 
 
                 <!-- Form Body -->
-                <form class="user-manager-modal-body" action="{{ route('admin.users.store') }}"  method="POST" enctype="multipart/form-data">
+                <form class="user-manager-modal-body" action="{{ route('admin.users.store') }}" method="POST"
+                    enctype="multipart/form-data">
                     @csrf
                     <h3>Información Personal</h3>
                     <div class="user-manager-avatar-upload-container">
                         <div class="user-manager-avatar-upload">
                             <span class="user-manager-avatar-upload-icon">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
-                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round" class="lucide lucide-camera text-gray-400">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32"
+                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round"
+                                    class="lucide lucide-camera text-gray-400">
                                     <path
                                         d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z">
                                     </path>
@@ -221,19 +237,20 @@
                             <label class="supliers-manager-slider-label">Fecha de Nacimiento</label>
                             <input class="users-manager-input" type="date" name="birthdate">
                         </div>
-
                         <div>
                             <label class="supliers-manager-slider-label">RFC</label>
-                            <input class="users-manager-input" type="text" placeholder="XAXX010101000" name="rfc">
+                            <input class="users-manager-input" type="text" placeholder="XAXX010101000"
+                                name="rfc">
                         </div>
-
                         <div>
                             <label class="supliers-manager-slider-label">CURP</label>
-                            <input class="users-manager-input" type="text" placeholder="XEXX010101HNEXXXA4" name="curp">
+                            <input class="users-manager-input" type="text" placeholder="XEXX010101HNEXXXA4"
+                                name="curp">
                         </div>
                         <div>
                             <label class="supliers-manager-slider-label">Número de Seguridad Social</label>
-                            <input class="users-manager-input" type="text" placeholder="12345678901" name="social_segurity_number">
+                            <input class="users-manager-input" type="text" placeholder="12345678901"
+                                name="social_segurity_number">
                         </div>
                     </div>
                     <h3>Contacto</h3>
@@ -244,27 +261,32 @@
                         </div>
                         <div>
                             <label class="supliers-manager-slider-label">Teléfono</label>
-                            <input class="users-manager-input" type="text" placeholder="(049) 123-4567" name="phone">
+                            <input class="users-manager-input" type="text" placeholder="(049) 123-4567"
+                                name="phone">
                         </div>
                         <div>
                             <label class="supliers-manager-slider-label">Puesto / Cargo</label>
-                            <input class="users-manager-input" type="text" placeholder="Ej. Técnico de Mantenimiento" name="position">
+                            <input class="users-manager-input" type="text" placeholder="Ej. Técnico de Mantenimiento"
+                                name="position">
                         </div>
                     </div>
                     <h3>Contacto de Emergencia</h3>
                     <div class="user-manager-form user-manager-form-3">
                         <div>
                             <label class="supliers-manager-slider-label email">Nombre del Contacto</label>
-                            <input type="text" class="users-manager-input" name="emergency_contact_name" placeholder="Ej: Juan Pérez">
+                            <input type="text" class="users-manager-input" name="emergency_contact_name"
+                                placeholder="Ej: Juan Pérez">
                         </div>
                         {{-- revisar --}}
                         <div>
                             <label class="supliers-manager-slider-label email">Teléfono</label>
-                            <input type="text" class="users-manager-input" name="emergency_phone" placeholder="(449) 123-4567">
+                            <input type="text" class="users-manager-input" name="emergency_phone"
+                                placeholder="(449) 123-4567">
                         </div>
                         <div>
                             <label class="supliers-manager-slider-label email">Parentesco</label>
-                            <input type="text" class="users-manager-input" name="relationship" placeholder="Ej: Hermano/a, Esposo/a">
+                            <input type="text" class="users-manager-input" name="relationship"
+                                placeholder="Ej: Hermano/a, Esposo/a">
                         </div>
                         {{-- revisar --}}
                     </div>
@@ -305,7 +327,8 @@
                         </div>
                         <div>
                             <label class="supliers-manager-slider-label">Confirmar Contraseña*</label>
-                            <input class="users-manager-input password" type="password" name="password_confirmation" id="password_confirmation">
+                            <input class="users-manager-input password" type="password" name="password_confirmation"
+                                id="password_confirmation">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                 stroke-linejoin="round" class="lucide lucide-eye">
@@ -380,7 +403,7 @@
                                 <span>Proveedores</span>
                             </div>
                             <label class="user-manager-switch">
-                                <input type="checkbox" >
+                                <input type="checkbox">
                                 <span class="slider"></span>
                             </label>
                         </div>
@@ -587,7 +610,8 @@
                     </div>
 
                     <div class="user-manager-modal-footer">
-                        <button type="button" id="cancelModal" class="button-secondary size-adjustment">Cancelar</button>
+                        <button type="button" id="cancelModal"
+                            class="button-secondary size-adjustment">Cancelar</button>
                         <button type="submit" class="button-primary size-adjustment create-user">Guardar Usuario</button>
                     </div>
 
@@ -600,40 +624,31 @@
         <script>
             const openBtn = document.querySelector('.button-primary');
             const modal = document.getElementById('userModal');
+            const modalContent = modal.querySelector('.user-manager-modal-content');
             const closeBtn = document.getElementById('closeModal');
             const cancelBtn = document.getElementById('cancelModal');
-
-            // ABRIR
-            openBtn.addEventListener('click', () => {
+            const openModal = () => {
                 modal.style.display = 'flex';
-            });
-
-            // Abrir modal si hay errores de validación
-            @if ($errors->any())
-                modal.style.display = 'flex';
-            @endif
-
-            // CERRAR (X)
-            closeBtn.addEventListener('click', () => {
-                modal.style.display = 'none';
-            });
-
-            // CERRAR (Cancelar)
-            cancelBtn.addEventListener('click', () => {
-                modal.style.display = 'none';
-            });
-
-            // CERRAR si das click fuera
+            };
+            const closeModalWithAnim = () => {
+                modalContent.style.transform = 'translateX(100%)';
+                modalContent.style.transition = 'transform 0.2s ease-in';
+                modal.style.transition = 'opacity 0.2s ease-in';
+                setTimeout(() => {
+                    modal.style.display = 'none';
+                    modalContent.style.transform = '';
+                    modalContent.style.transition = '';
+                    modal.style.transition = '';
+                }, 300);
+            };
+            if (openBtn) openBtn.addEventListener('click', openModal);
+            if (closeBtn) closeBtn.addEventListener('click', closeModalWithAnim);
+            if (cancelBtn) cancelBtn.addEventListener('click', closeModalWithAnim);
             window.addEventListener('click', (e) => {
                 if (e.target === modal) {
-                    modal.style.display = 'none';
+                    closeModalWithAnim();
                 }
             });
-
-            // Si hay errores de validacion, reabre el modal automaticamente
-            @if ($errors->any())
-                modal.style.display = 'flex';
-            @endif
         </script>
     </div>
 @endsection

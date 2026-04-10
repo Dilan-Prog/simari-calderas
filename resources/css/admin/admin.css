@@ -642,7 +642,7 @@
     background-color: #0054ff;
 }
 
-.button-secondary.size-adjustment{
+.button-secondary.size-adjustment {
     border: 2px solid rgb(218, 218, 218);
     color: var(--text-body);
     height: 52px;
@@ -650,15 +650,16 @@
     font-size: 16px;
 }
 
-.button-secondary.size-adjustment:hover{
+.button-secondary.size-adjustment:hover {
     cursor: default;
     background-color: rgb(229, 229, 229);
 }
-.button-primary.size-adjustment.create-user{
+
+.button-primary.size-adjustment.create-user {
     height: 52px;
 }
 
-.button-primary.size-adjustment:hover{
+.button-primary.size-adjustment:hover {
     transform: translateY(0);
     cursor: default;
 }

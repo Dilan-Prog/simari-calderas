@@ -34,7 +34,7 @@
                 <path d="m9 18 6-6-6-6"/>
             </svg>
         </a>
-        <button class="sidebar-nav-item" data-section="coming-soon" data-label="Clientes">
+        <a class="sidebar-nav-item" data-section="clientes" href="{{ route('admin.clients.index') }}" data-label="Clientes">
             <div class="sidebar-nav-item-left">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                         fill="none" stroke="currentColor" stroke-width="2"
@@ -46,9 +46,9 @@
                 </svg>
                 <span class="sidebar-nav-item-label">Clientes</span>
             </div>
-        </button>
+        </a>
 
-    
+
         <button class="sidebar-nav-item" data-section="coming-soon" data-label="Proveedores">
             <div class="sidebar-nav-item-left">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
@@ -103,7 +103,7 @@
             </div>
         </button>
 
-        
+
         <button class="sidebar-nav-item" data-section="coming-soon" data-label="Servicios Técnicos">
             <div class="sidebar-nav-item-left">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
@@ -142,7 +142,7 @@
             </div>
         </button>
 
-    
+
         <button class="sidebar-nav-item" data-section="coming-soon" data-label="Paqueterías">
             <div class="sidebar-nav-item-left">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
@@ -156,7 +156,7 @@
             </div>
         </button>
 
-        
+
         <button class="sidebar-nav-item" data-section="coming-soon" data-label="Métodos de Pago">
             <div class="sidebar-nav-item-left">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
@@ -169,7 +169,7 @@
             </div>
         </button>
 
-        
+
         <button class="sidebar-nav-item" data-section="coming-soon" data-label="Email Marketing">
             <div class="sidebar-nav-item-left">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
@@ -195,7 +195,7 @@
             </div>
         </button>
 
-        
+
         <button class="sidebar-nav-item" data-section="coming-soon" data-label="Auditoría Sistema">
             <div class="sidebar-nav-item-left">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
@@ -256,7 +256,7 @@
             </div>
         </button>
 
-        
+
         <button class="sidebar-nav-item" data-section="coming-soon" data-label="Configuración">
             <div class="sidebar-nav-item-left">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
@@ -292,4 +292,4 @@
             </button>
         </form>
     </div>
-</aside> 
+</aside>

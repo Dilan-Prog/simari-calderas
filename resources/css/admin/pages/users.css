@@ -63,6 +63,7 @@
     /* Shadows */
     --shadow-default: 0 14px 38px rgba(0, 0, 0, 0.16);
 }
+
 .container.user-manager {
     margin: 0;
     padding: 0;
@@ -82,7 +83,6 @@
 /* Header right user manager */
 .header-right-user-manager {
     display: flex;
-    /* gap: 16px; */
     justify-content: left;
 }
 
@@ -144,7 +144,7 @@
 
 .breadcrumb-clients-manager {
     color: var(--text-body);
-    font-size: 14px;
+    font-size: 12px;
     margin: 0;
 }
 
@@ -165,9 +165,6 @@
     border-color: var(--border);
     border-radius: 12px;
     box-shadow: var(--shadow-default);
-    max-height: 460px;
-    overflow: hidden;
-    overflow-y: auto;
 }
 
 .users-manager-table,
@@ -175,13 +172,17 @@
     border-collapse: separate;
     border-spacing: 0;
     width: 100%;
+    table-layout: fixed;
+}
+
+.table-scroll {
+    max-height: 420px;
+    overflow-y: auto;
 }
 
 .users-manager-table thead,
 .clients-manager-table thead {
-    background-color: var(--bg-light);
-    position: sticky;
-    top: 0;
+    z-index: 2;
 }
 
 .users-manager-table th,
@@ -191,6 +192,10 @@
     font-weight: 600;
     padding: 16px;
     text-align: left;
+    z-index: 2;
+    background-color: var(--bg-light);
+    position: sticky;
+    top: 0;
 }
 
 .users-manager-table td,
@@ -253,10 +258,21 @@
     background: #ffffff;
     border: 1px solid var(--border);
     border-radius: 12px;
-    display: flex;
+    display: inline-flex;
     height: 32px;
+    position: relative;
+    padding: 0;
+    overflow: hidden;
     justify-content: center;
     width: 32px;
+}
+
+.table-users-manager-action-btn svg {
+    display: block;
+    position: static;
+    margin: auto;
+    cursor: default;
+    color: var(--background-primary);
 }
 
 .table-users-manager-action-btn.cancel {
@@ -306,7 +322,7 @@
     outline: none;
     padding: 12px 16px 12px 40px;
     transition: all 0.2s ease;
-    width: 100%;
+    width:95%;
 }
 
 .filters-clients-manager-search input:focus {
@@ -411,6 +427,8 @@
     background: #fff;
     overflow-y: auto;
     box-shadow: var(--shadow-default);
+    animation: slideFromRight 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+
 }
 
 /* Header */
@@ -497,6 +515,7 @@
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 15px;
+    margin: 16px 0;
 }
 
 .user-manager-form-3 {
@@ -642,7 +661,7 @@
     background-color: #0054ff;
 }
 
-.button-secondary.size-adjustment{
+.button-secondary.size-adjustment {
     border: 2px solid rgb(218, 218, 218);
     color: var(--text-body);
     height: 52px;
@@ -650,15 +669,37 @@
     font-size: 16px;
 }
 
-.button-secondary.size-adjustment:hover{
+.button-secondary.size-adjustment:hover {
     cursor: default;
     background-color: rgb(229, 229, 229);
 }
-.button-primary.size-adjustment.create-user{
+
+.button-primary.size-adjustment.create-user {
     height: 52px;
 }
 
-.button-primary.size-adjustment:hover{
+.button-primary.size-adjustment:hover {
     transform: translateY(0);
     cursor: default;
+}
+
+/* Animation */
+
+@keyframes fadeInBg {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideFromRight {
+    from {
+        transform: translateX(100%);
+    }
+    to {
+        transform: translateX(0);
+    }
 }
