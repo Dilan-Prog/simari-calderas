@@ -52,29 +52,49 @@
                                     <td>
                                         <span class="users-manager-badge role-admin">{{ $user->role->name_role_es }}</span>
                                     </td>
+
                                     <td>
-                                        <span class="users-manager-badge status">
-                                            @switch($user->status)
-                                                @case('active')
-                                                    Activo
-                                                @break
+                                        @php
+                                            $roleClass = '';
+                                            $roleName = strtolower($user->role->name_role_es);
 
-                                                @case('inactive')
-                                                    Inactivo
-                                                @break
+                                            if ($roleName == 'administrador' || $roleName == 'admin') {
+                                                $roleClass = 'role-admin';
+                                            } else {
+                                                $roleClass = 'role-employee';
+                                            }
+                                        @endphp
 
-                                                @case('suspended')
-                                                    Suspendido
-                                                @break
-
-                                                @default
-                                                    Desconocido
-                                            @endswitch
+                                        <span class="users-manager-badge {{ $roleClass }}">
+                                            {{ $user->role->name_role_es }}
                                         </span>
                                     </td>
                                     <td>
                                         <div class="header-right-user-manager">
+                                            {{-- edit --}}
+                                            @php $ec = $user->contactEmergency->first(); @endphp
                                             <button class="table-users-manager-action-btn edit">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+                                                    viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                                    class="lucide lucide-eye">
+                                                    <path
+                                                        d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0">
+                                                    </path>
+                                                    <circle cx="12" cy="12" r="3"></circle>
+                                                </svg>
+                                            </button>
+                                            <button type="button" class="table-users-manager-action-btn edit btn-edit-user"
+                                                data-id="{{ $user->id }}" data-first-name="{{ $user->first_name }}"
+                                                data-last-name="{{ $user->last_name }}" data-email="{{ $user->email }}"
+                                                data-phone="{{ $user->phone }}" data-position="{{ $user->position }}"
+                                                data-birthdate="{{ $user->birthdate }}" data-rfc="{{ $user->rfc }}"
+                                                data-curp="{{ $user->curp }}"
+                                                data-ssn="{{ $user->social_segurity_number }}"
+                                                data-role-id="{{ $user->role_id }}" data-status="{{ $user->status }}"
+                                                data-emergency-name="{{ $ec?->name ?? '' }}"
+                                                data-emergency-phone="{{ $ec?->phone ?? '' }}"
+                                                data-emergency-relationship="{{ $ec?->relationship ?? '' }}">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
                                                     viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
@@ -84,6 +104,7 @@
                                                     </path>
                                                 </svg>
                                             </button>
+                                            {{-- delete --}}
                                             <button class="table-users-manager-action-btn delete">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
                                                     viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -96,76 +117,17 @@
                                                     </line>
                                                     <line x1="14" x2="14" y1="11" y2="17">
                                                     </line>
-                                                </svg></button>
+                                                </svg>
+                                            </button>
                                         </div>
                                     </td>
                                 </tr>
                             @endforeach
-                            {{-- @for ($i = 0; $i <= 12; $i++)
-                                <tr>
-                                    <td class="user-manager-table-cell">
-                                        <div class="avatar-user-manager">
-                                            A
-                                        </div>
-                                        <div>
-                                            <p class="users-manager-name-user">Ana Torres</p>
-                                            <span class="users-manager-date-user">9 may 2024</span>
-                                        </div>
-                                    </td>
-
-                                    <td>
-                                        <p class="breadcrumb-users-manager main">ana.torres@simari.com</p>
-                                    </td>
-
-                                    <td>
-                                        <span class="users-manager-badge role-employee">Empleado</span>
-                                    </td>
-
-                                    <td>
-                                        <span class="users-manager-badge status">Activo</span>
-                                    </td>
-
-                                    <td>
-                                        <div class="header-right-user-manager">
-                                            <button class="table-users-manager-action-btn edit">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
-                                                    viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                                                    class="lucide lucide-pen">
-                                                    <path
-                                                        d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z">
-                                                    </path>
-                                                </svg>
-                                            </button>
-                                            <button class="table-users-manager-action-btn delete">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
-                                                    viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                                                    class="lucide lucide-trash2 lucide-trash-2">
-                                                    <path d="M3 6h18"></path>
-                                                    <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
-                                                    <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
-                                                    <line x1="10" x2="10" y1="11" y2="17">
-                                                    </line>
-                                                    <line x1="14" x2="14" y1="11" y2="17">
-                                                    </line>
-                                                </svg></button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            @endfor --}}
                         </tbody>
                     </table>
                 </div>
             </main>
         </section>
-
-
-
-
-
-
-
 
         {{-- Create user --}}
         <div id="userModal" class="user-manager-modal">
@@ -209,10 +171,9 @@
                     <div class="user-manager-avatar-upload-container">
                         <div class="user-manager-avatar-upload">
                             <span class="user-manager-avatar-upload-icon">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32"
-                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                    stroke-linecap="round" stroke-linejoin="round"
-                                    class="lucide lucide-camera text-gray-400">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" class="lucide lucide-camera text-gray-400">
                                     <path
                                         d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z">
                                     </path>
@@ -271,42 +232,177 @@
                         </div>
                     </div>
                     <h3>Contacto de Emergencia</h3>
+
+                    <div id="emergency-contacts-container">
+
+                        <div class="user-manager-form user-manager-form-3 emergency-contact-item">
+                            <div>
+                                <label class="supliers-manager-slider-label email">Nombre del Contacto</label>
+                                <input type="text" class="users-manager-input" name="emergency_contact_name[]"
+                                    placeholder="Ej: Juan Pérez">
+                            </div>
+                            <div>
+                                <label class="supliers-manager-slider-label email">Teléfono</label>
+                                <input type="text" class="users-manager-input" name="emergency_phone[]"
+                                    placeholder="(449) 123-4567">
+                            </div>
+                            <div>
+                                <label class="supliers-manager-slider-label email">Parentesco</label>
+                                <input type="text" class="users-manager-input" name="relationship[]"
+                                    placeholder="Ej: Hermano/a, Esposo/a">
+                            </div>
+
+                            <button type="button" class="table-users-manager-action-btn delete delete-emergency-btn">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round"
+                                    class="lucide lucide-trash2 lucide-trash-2">
+                                    <path d="M3 6h18"></path>
+                                    <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+                                    <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+                                    <line x1="10" x2="10" y1="11" y2="17">
+                                    </line>
+                                    <line x1="14" x2="14" y1="11" y2="17">
+                                    </line>
+                                </svg>
+                            </button>
+                        </div>
+
+                    </div>
+
+                    <!-- BUTTON -->
+                    <div id="emergency-buttons-container">
+                        <button type="button" id="addEmergencyContact" class="emergency-add-btn">
+                            <span class="icon">+</span>
+                            <span id="emergencyText">Agregar otro contacto de emergencia (1/5)</span>
+                        </button>
+                    </div>
+
+
+                    <div class="user-manager-modal-footer">
+                        <button type="button" id="cancelModal"
+                            class="button-secondary size-adjustment">Cancelar</button>
+                        <button type="submit" class="button-primary size-adjustment create-user">Guardar Usuario</button>
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+
+        {{-- Edit user --}}
+        <div id="editUserModal" class="user-manager-modal">
+            <div class="user-manager-modal-content">
+                <!-- Header -->
+                <div class="user-manager-modal-header">
+                    <h2>Editar Usuario</h2>
+                    <button class="table-users-manager-action-btn cancel" id="closeEditModal">x</button>
+                </div>
+                <div class="user-manager-photo-container">
+                    <div class="user-manager-icon-container"></div>
+                </div>
+
+                <!-- Form Body -->
+                <form id="editUserForm" class="user-manager-modal-body" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    @method('PUT')
+                    <h3>Información Personal</h3>
+                    <div class="user-manager-avatar-upload-container">
+                        <div class="user-manager-avatar-upload">
+                            <span class="user-manager-avatar-upload-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32"
+                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round"
+                                    class="lucide lucide-camera text-gray-400">
+                                    <path
+                                        d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z">
+                                    </path>
+                                    <circle cx="12" cy="13" r="3"></circle>
+                                </svg>
+                            </span>
+                        </div>
+                        <button type="button" class="user-manager-avatar-upload-btn">+</button>
+                    </div>
+                    <div class="user-manager-form">
+                        <div>
+                            <label class="supliers-manager-slider-label">Nombre</label>
+                            <input class="users-manager-input" type="text" name="first_name" id="edit_first_name">
+                        </div>
+                        <div>
+                            <label class="supliers-manager-slider-label">Apellidos*</label>
+                            <input class="users-manager-input" type="text" name="last_name" id="edit_last_name">
+                        </div>
+                        <div>
+                            <label class="supliers-manager-slider-label">Fecha de Nacimiento</label>
+                            <input class="users-manager-input" type="date" name="birthdate" id="edit_birthdate">
+                        </div>
+                        <div>
+                            <label class="supliers-manager-slider-label">RFC</label>
+                            <input class="users-manager-input" type="text" placeholder="XAXX010101000" name="rfc"
+                                id="edit_rfc">
+                        </div>
+                        <div>
+                            <label class="supliers-manager-slider-label">CURP</label>
+                            <input class="users-manager-input" type="text" placeholder="XEXX010101HNEXXXA4"
+                                name="curp" id="edit_curp">
+                        </div>
+                        <div>
+                            <label class="supliers-manager-slider-label">Número de Seguridad Social</label>
+                            <input class="users-manager-input" type="text" placeholder="12345678901"
+                                name="social_segurity_number" id="edit_social_segurity_number">
+                        </div>
+                    </div>
+                    <h3>Contacto</h3>
+                    <div class="user-manager-form">
+                        <div class="users-manager-email-camp">
+                            <label class="supliers-manager-slider-label email">Email*</label>
+                            <input class="users-manager-input" type="email" name="email" id="edit_email">
+                        </div>
+                        <div>
+                            <label class="supliers-manager-slider-label">Teléfono</label>
+                            <input class="users-manager-input" type="text" placeholder="(049) 123-4567"
+                                name="phone" id="edit_phone">
+                        </div>
+                        <div>
+                            <label class="supliers-manager-slider-label">Puesto / Cargo</label>
+                            <input class="users-manager-input" type="text" placeholder="Ej. Técnico de Mantenimiento"
+                                name="position" id="edit_position">
+                        </div>
+                    </div>
+                    <h3>Contacto de Emergencia</h3>
                     <div class="user-manager-form user-manager-form-3">
                         <div>
                             <label class="supliers-manager-slider-label email">Nombre del Contacto</label>
                             <input type="text" class="users-manager-input" name="emergency_contact_name"
-                                placeholder="Ej: Juan Pérez">
+                                id="edit_emergency_contact_name" placeholder="Ej: Juan Pérez">
                         </div>
-                        {{-- revisar --}}
                         <div>
                             <label class="supliers-manager-slider-label email">Teléfono</label>
                             <input type="text" class="users-manager-input" name="emergency_phone"
-                                placeholder="(449) 123-4567">
+                                id="edit_emergency_phone" placeholder="(449) 123-4567">
                         </div>
                         <div>
                             <label class="supliers-manager-slider-label email">Parentesco</label>
-                            <input type="text" class="users-manager-input" name="relationship"
+                            <input type="text" class="users-manager-input" name="relationship" id="edit_relationship"
                                 placeholder="Ej: Hermano/a, Esposo/a">
                         </div>
-                        {{-- revisar --}}
                     </div>
                     <h3>Acceso al Sistema</h3>
                     <div class="user-manager-form access-sistem-form">
                         <div>
                             <label class="supliers-manager-slider-label">Role</label>
-                            <select class="users-manager-select" name="role_id">
+                            <select class="users-manager-select" style="text-transform: capitalize;" name="role_id"
+                                id="edit_role_id">
                                 <option value="">Seleccionar</option>
-                                <option value="1">Administrador</option>
-                                <option value="2">Empleado</option>
-                                <option value="3">Editor</option>
-                                {{-- @foreach ($roles as $role)
-                                <option value="{{ $role->id }}">{{ $role->name }}</option>
-                                @endforeach --}}
+                                @foreach ($roles as $role)
+                                    <option value="{{ $role->id }}">{{ $role->name_role_es }}</option>
+                                @endforeach
                             </select>
                         </div>
                         <div>
                             <label class="supliers-manager-slider-label">Estado*</label>
-                            <select class="users-manager-select" name="status">
+                            <select class="users-manager-select" name="status" id="edit_status">
                                 <option value="">Seleccionar</option>
                                 <option value="active">Activo</option>
                                 <option value="inactive">Inactivo</option>
@@ -314,8 +410,9 @@
                             </select>
                         </div>
                         <div>
-                            <label class="supliers-manager-slider-label">Contraseña*</label>
-                            <input class="users-manager-input password" type="password" name="password">
+                            <label class="supliers-manager-slider-label">Nueva Contraseña</label>
+                            <input class="users-manager-input password" type="password" name="password"
+                                id="edit_password">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                 stroke-linejoin="round" class="lucide lucide-eye">
@@ -326,9 +423,9 @@
                             </svg>
                         </div>
                         <div>
-                            <label class="supliers-manager-slider-label">Confirmar Contraseña*</label>
+                            <label class="supliers-manager-slider-label">Confirmar Contraseña</label>
                             <input class="users-manager-input password" type="password" name="password_confirmation"
-                                id="password_confirmation">
+                                id="edit_password_confirmation">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                 stroke-linejoin="round" class="lucide lucide-eye">
@@ -339,10 +436,8 @@
                             </svg>
                         </div>
                     </div>
-                    {{-- Permissions  --}}
                     <h3>Permisos por Módulo</h3>
                     <div class="user-manager-permissions-grid">
-                        <!-- ITEM -->
                         <div class="user-manager-permission-item">
                             <div class="user-manager-permission-left-section">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
@@ -610,45 +705,151 @@
                     </div>
 
                     <div class="user-manager-modal-footer">
-                        <button type="button" id="cancelModal"
+                        <button type="button" id="cancelEditModal"
                             class="button-secondary size-adjustment">Cancelar</button>
-                        <button type="submit" class="button-primary size-adjustment create-user">Guardar Usuario</button>
+                        <button type="submit" class="button-primary size-adjustment update-user">Actualizar
+                            Usuario</button>
                     </div>
-
                 </form>
-
             </div>
-
         </div>
 
         <script>
+            // --- Create modal ---
             const openBtn = document.querySelector('.button-primary');
             const modal = document.getElementById('userModal');
             const modalContent = modal.querySelector('.user-manager-modal-content');
             const closeBtn = document.getElementById('closeModal');
             const cancelBtn = document.getElementById('cancelModal');
-            const openModal = () => {
-                modal.style.display = 'flex';
-            };
-            const closeModalWithAnim = () => {
-                modalContent.style.transform = 'translateX(100%)';
-                modalContent.style.transition = 'transform 0.2s ease-in';
-                modal.style.transition = 'opacity 0.2s ease-in';
+
+            const closeModalWithAnim = (m) => {
+                const mc = m.querySelector('.user-manager-modal-content');
+                mc.style.transform = 'translateX(100%)';
+                mc.style.transition = 'transform 0.2s ease-in';
+                m.style.transition = 'opacity 0.2s ease-in';
                 setTimeout(() => {
-                    modal.style.display = 'none';
-                    modalContent.style.transform = '';
-                    modalContent.style.transition = '';
-                    modal.style.transition = '';
+                    m.style.display = 'none';
+                    mc.style.transform = '';
+                    mc.style.transition = '';
+                    m.style.transition = '';
                 }, 300);
             };
-            if (openBtn) openBtn.addEventListener('click', openModal);
-            if (closeBtn) closeBtn.addEventListener('click', closeModalWithAnim);
-            if (cancelBtn) cancelBtn.addEventListener('click', closeModalWithAnim);
-            window.addEventListener('click', (e) => {
-                if (e.target === modal) {
-                    closeModalWithAnim();
-                }
+
+            if (openBtn) openBtn.addEventListener('click', () => {
+                modal.style.display = 'flex';
             });
+            if (closeBtn) closeBtn.addEventListener('click', () => closeModalWithAnim(modal));
+            if (cancelBtn) cancelBtn.addEventListener('click', () => closeModalWithAnim(modal));
+            let clickStartedOutside = false;
+
+            window.addEventListener('mousedown', (e) => {
+                clickStartedOutside = (e.target === modal || e.target === editModal);
+            });
+
+            window.addEventListener('mouseup', (e) => {
+                if (clickStartedOutside && (e.target === modal || e.target === editModal)) {
+                    if (e.target === modal) closeModalWithAnim(modal);
+                    if (e.target === editModal) closeModalWithAnim(editModal);
+                }
+                clickStartedOutside = false;
+            });
+
+            // --- Edit modal ---
+            const editModal = document.getElementById('editUserModal');
+            const closeEditBtn = document.getElementById('closeEditModal');
+            const cancelEditBtn = document.getElementById('cancelEditModal');
+            const editForm = document.getElementById('editUserForm');
+            const editBaseUrl = '{{ url('/admin/usuarios') }}';
+
+            const openEditModal = (d) => {
+                editForm.action = editBaseUrl + '/' + d.id;
+
+                document.getElementById('edit_first_name').value = d.firstName || '';
+                document.getElementById('edit_last_name').value = d.lastName || '';
+                document.getElementById('edit_birthdate').value = d.birthdate || '';
+                document.getElementById('edit_rfc').value = d.rfc || '';
+                document.getElementById('edit_curp').value = d.curp || '';
+                document.getElementById('edit_social_segurity_number').value = d.ssn || '';
+                document.getElementById('edit_email').value = d.email || '';
+                document.getElementById('edit_phone').value = d.phone || '';
+                document.getElementById('edit_position').value = d.position || '';
+                document.getElementById('edit_emergency_contact_name').value = d.emergencyName || '';
+                document.getElementById('edit_emergency_phone').value = d.emergencyPhone || '';
+                document.getElementById('edit_relationship').value = d.emergencyRelationship || '';
+                document.getElementById('edit_role_id').value = d.roleId || '';
+                document.getElementById('edit_status').value = d.status || '';
+                document.getElementById('edit_password').value = '';
+                document.getElementById('edit_password_confirmation').value = '';
+
+                editModal.style.display = 'flex';
+            };
+
+            document.querySelectorAll('.btn-edit-user').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    openEditModal(btn.dataset);
+                });
+            });
+
+            if (closeEditBtn) closeEditBtn.addEventListener('click', () => closeModalWithAnim(editModal));
+            if (cancelEditBtn) cancelEditBtn.addEventListener('click', () => closeModalWithAnim(editModal));
+            window.addEventListener('click', (e) => {
+                if (e.target === editModal) closeModalWithAnim(editModal);
+            });
+
+
+
+
+
+            const addBtn = document.getElementById('addEmergencyContact');
+            const container = document.getElementById('emergency-contacts-container');
+            const textCounter = document.getElementById('emergencyText');
+
+            const maxContacts = 5;
+
+            function updateUI() {
+                const contacts = document.querySelectorAll('.emergency-contact-item');
+                const total = contacts.length;
+
+                textCounter.textContent = `Agregar otro contacto de emergencia (${total}/${maxContacts})`;
+
+                contacts.forEach((contact, index) => {
+                    const deleteBtn = contact.querySelector('.delete-emergency-btn');
+                    deleteBtn.style.display = total > 1 ? 'block' : 'none';
+                });
+
+                addBtn.style.display = total >= maxContacts ? 'none' : 'flex';
+            }
+
+            addBtn.addEventListener('click', () => {
+                const contacts = document.querySelectorAll('.emergency-contact-item');
+                const total = contacts.length;
+
+                if (total >= maxContacts) return;
+
+                const newContact = contacts[0].cloneNode(true);
+
+                newContact.querySelectorAll('input').forEach(input => input.value = '');
+
+                const deleteBtn = newContact.querySelector('.delete-emergency-btn');
+                deleteBtn.addEventListener('click', () => {
+                    newContact.remove();
+                    updateUI();
+                });
+
+                container.appendChild(newContact);
+
+                updateUI();
+            });
+
+            document.querySelectorAll('.delete-emergency-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const contact = e.target.closest('.emergency-contact-item');
+                    contact.remove();
+                    updateUI();
+                });
+            });
+
+            updateUI();
         </script>
     </div>
 @endsection

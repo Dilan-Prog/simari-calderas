@@ -4,8 +4,16 @@
                 alt="Industria Simari"
                 onerror="this.style.display='none'">
     </div>
+    @php
+        $activeSection = match(true) {
+            request()->routeIs('admin.dashboard')  => 'dashboard',
+            request()->routeIs('admin.users.*')    => 'usuarios',
+            request()->routeIs('admin.clients.*')  => 'clientes',
+            default                                => '',
+        };
+    @endphp
     <nav class="sidebar-nav" id="sidebarNav">
-        <a class="sidebar-nav-item active" href="{{ route('admin.dashboard') }}" data-section="dashboard">
+        <a class="sidebar-nav-item {{ $activeSection === 'dashboard' ? 'active' : '' }}" href="{{ route('admin.dashboard') }}" data-section="dashboard" data-label="Dashboard">
             <div class="sidebar-nav-item-left">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                         fill="none" stroke="currentColor" stroke-width="2"
@@ -16,7 +24,7 @@
                 <span class="sidebar-nav-item-label">Dashboard</span>
             </div>
         </a>
-        <a class="sidebar-nav-item" data-section="usuarios" href="{{ route('admin.users.index') }}" data-label="Usuarios">
+        <a class="sidebar-nav-item {{ $activeSection === 'usuarios' ? 'active' : '' }}" data-section="usuarios" data-label="Usuarios" href="{{ route('admin.users.index') }}">
             <div class="sidebar-nav-item-left">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                         fill="none" stroke="currentColor" stroke-width="2"
@@ -34,7 +42,7 @@
                 <path d="m9 18 6-6-6-6"/>
             </svg>
         </a>
-        <a class="sidebar-nav-item" data-section="clientes" href="{{ route('admin.clients.index') }}" data-label="Clientes">
+        <a class="sidebar-nav-item {{ $activeSection === 'clientes' ? 'active' : '' }}" data-section="clientes" href="{{ route('admin.clients.index') }}" data-label="Clientes">
             <div class="sidebar-nav-item-left">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                         fill="none" stroke="currentColor" stroke-width="2"
@@ -47,7 +55,6 @@
                 <span class="sidebar-nav-item-label">Clientes</span>
             </div>
         </a>
-
 
         <a class="sidebar-nav-item" data-section="coming-soon" data-label="Proveedores">
             <div class="sidebar-nav-item-left">
@@ -64,7 +71,6 @@
                 <span class="sidebar-nav-item-label">Proveedores</span>
             </div>
         </a>
-
 
         <a class="sidebar-nav-item" data-section="coming-soon" data-label="Productos">
             <div class="sidebar-nav-item-left">
@@ -257,7 +263,7 @@
         </a>
 
 
-        <a class="sidebar-nav-item" data-section="coming-soon" data-label="Configuración">
+        <button class="sidebar-nav-item" data-section="coming-soon" data-label="Configuración">
             <div class="sidebar-nav-item-left">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                         fill="none" stroke="currentColor" stroke-width="2"

@@ -162,6 +162,28 @@
     to { transform: rotate(360deg); }
 }
 
+/* ── Overlay de navegación ── */
+.admin-nav-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: rgba(20, 21, 22, 0.55);
+    backdrop-filter: blur(2px);
+    align-items: center;
+    justify-content: center;
+}
+
+.admin-nav-overlay.is-visible {
+    display: flex;
+}
+
+.admin-nav-overlay .admin-spinner {
+    width: 36px;
+    height: 36px;
+    border-width: 3px;
+}
+
 /* ── Pantalla de bienvenida (Dashboard) ── */
 .admin-welcome-section {
     padding: 40px;

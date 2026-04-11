@@ -19,6 +19,10 @@
 </head>
 
 <body>
+    <div class="admin-nav-overlay" id="adminNavOverlay">
+        <div class="admin-spinner"></div>
+    </div>
+
     @include('admin.layouts.sidebar')
     <section class="admin-main">
         @include('admin.layouts.navbar')
