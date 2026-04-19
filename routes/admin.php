@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Backend\AdminController;
 use App\Http\Controllers\Backend\ClientManageController;
+use App\Http\Controllers\Backend\ProductController;
 use App\Http\Controllers\Backend\UserManageController;
 use Illuminate\Support\Facades\Route;
 
@@ -14,6 +15,11 @@ Route::controller(UserManageController::class)->group(function () {
 
 Route::controller(ClientManageController::class)->group(function () {
     Route::get('/clientes', 'index')->name('clients.index');
+});
+
+Route::controller(ProductController::class)->group(function () {
+    Route::get('/productos', 'index')->name('products.index');
+    Route::get('/productos/crear-producto', 'create')->name('products.create');
 });
 
 // // Partial de Usuarios — devuelve solo el HTML del contenido (para fetch desde el dashboard)
