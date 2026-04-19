@@ -34,7 +34,7 @@ class UserManageController extends Controller
             'email' => 'required|email|max:255|unique:users,email',
             'position' => 'nullable|string|max:150',
             'phone' => 'required|string|max:30',
-            'status' => 'required|in:1,2,3,active,inactive,suspended',
+            'status' => 'required|in:active,inactive,suspended',
             'rfc' => 'required|string|max:15|unique:users,rfc',
             'curp' => 'nullable|string|max:18|unique:users,curp',
             'social_segurity_number' => 'nullable|string|max:20|unique:users,social_segurity_number',
@@ -49,7 +49,6 @@ class UserManageController extends Controller
             'relationship.*' => 'nullable|string|max:50',
         ]);
         $user = new User;
-        $user->name = trim($request->first_name.' '.$request->last_name);
         $user->first_name = $request->first_name;
         $user->last_name = $request->last_name;
         $user->email = $request->email;
@@ -65,12 +64,11 @@ class UserManageController extends Controller
         $user->save();
         if ($request->has('emergency_contact_name')) {
             foreach ($request->emergency_contact_name as $index => $name) {
-                // Solo guardamos si al menos el nombre del contacto tiene valor
+
                 if (! empty($name)) {
                     $contactEmergency = new ContactEmergency;
                     $contactEmergency->user_id = $user->id;
                     $contactEmergency->name = $name;
-                    // Accedemos al teléfono y parentesco usando el mismo índice ($index)
                     $contactEmergency->phone = $request->emergency_phone[$index] ?? null;
                     $contactEmergency->relationship = $request->relationship[$index] ?? null;
                     $contactEmergency->save();
@@ -93,7 +91,6 @@ class UserManageController extends Controller
     public function update(Request $request, string $id)
     {
         $user = User::findOrFail($id);
-
         $request->validate([
             'first_name' => 'required|string|max:100',
             'last_name' => 'required|string|max:100',
@@ -114,8 +111,6 @@ class UserManageController extends Controller
             'relationship' => 'nullable|array',
             'relationship.*' => 'nullable|string|max:50',
         ]);
-
-        $user->name = trim($request->first_name.' '.$request->last_name);
         $user->first_name = $request->first_name;
         $user->last_name = $request->last_name;
         $user->email = $request->email;
@@ -127,13 +122,10 @@ class UserManageController extends Controller
         $user->social_segurity_number = $request->social_segurity_number;
         $user->birthdate = $request->birthdate;
         $user->role_id = $request->role_id;
-
         if ($request->filled('password')) {
             $user->password = bcrypt($request->password);
         }
-
         $user->save();
-
         $user->contactEmergency()->delete();
 
         if ($request->has('emergency_contact_name')) {
@@ -148,7 +140,10 @@ class UserManageController extends Controller
             }
         }
 
-        return redirect()->route('admin.users.index')->with('success', 'Usuario actualizado correctamente.');
+        return response()->json([
+            'success' => true,
+            'user' => $user->load(['role:id,name_role_es', 'contactEmergency']),
+        ]);
     }
 
     public function destroy(string $id)
