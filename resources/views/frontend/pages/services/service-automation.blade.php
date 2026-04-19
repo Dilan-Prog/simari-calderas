@@ -1,32 +1,31 @@
 @extends('frontend.layouts.master')
-
-@section('title')
-Servicio de Automatización de Sistemas Térmicos Industriales - Industria Simari
-@endsection
-@section('description')
-Servicio de automatización de sistemas térmicos industriales con PLC, HMI y SCADA para control remoto total.
-@endsection
-@section('canonical')
-  
-@endsection
+@section('title', 'Servicio de Automatización de Sistemas Térmicos Industriales')
+@section('description', 'Servicio de automatización de sistemas térmicos industriales con PLC, HMI y SCADA para control remoto total.')
+@section('canonical', config('app.url') . '/servicios/automatizacion-industrial')
 @section('content')
   <section class="automation-hero">
     <div class="automation-hero__bg">
       <img
-        src="https://images.unsplash.com/photo-1763296479464-fe8bee23eb65?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxpbmR1c3RyaWFsJTIwYXV0b21hdGlvbiUyMGNvbnRyb2wlMjBwYW5lbHxlbnwxfHx8fDE3NzIxNjA1ODZ8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
-        alt="Panel de control para automatización de sistemas térmicos industriales"
+        src="{{ asset('images/services/automatizacion-industrial/servicio-de-automatizacion-industrial.jpg') }}"
+        alt="Servicio de Automatización de Sistemas Térmicos Industriales"
+        title="Servicio de Automatización de Sistemas Térmicos Industriales"
         width="1080"
         height="720"
         loading="eager"
+        fetchpriority="high"
         decoding="async"
       />
     </div>
 
     <div class="container automation-hero__container">
       <div class="automation-hero__content">
-        <h1>Automatización de Sistemas Térmicos Industriales</h1>
+        <h1>Servicio de Automatización de Sistemas Térmicos Industriales</h1>
         <p>Modernización inteligente con PLC, HMI y SCADA para control remoto total</p>
-        <a class="button-primary automation" href="/contacto" aria-label="Solicitar cotización de automatización industrial">
+        <a 
+        href="https://wa.me/524494348018?text=Hola%2C%20me%20interesa%20una%20cotizaci%C3%B3n."
+        target="_blank"
+        aria-label="Abrir chat de WhatsApp"
+        class="button-primary automation">
           Solicitar Cotización
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-right"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
         </a>
@@ -244,12 +243,19 @@ Servicio de automatización de sistemas térmicos industriales con PLC, HMI y SC
         </p>
 
         <div class="automation-cta__actions">
-          <a class="button-primary final-cta__actions-water" href="/contacto">
+          <a 
+          href="https://wa.me/524494348018?text=Hola%2C%20me%20interesa%20una%20cotizaci%C3%B3n."
+          target="_blank"
+          aria-label="Abrir chat de WhatsApp"
+          class="button-primary final-cta__actions-water">
             Solicitar Cotización
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-right"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
           </a>
 
-          <a class="button-secondary final-cta__actions-water" href="tel:+524494348018">
+          <a 
+          href="tel:+524494348018"
+          aria-label="Llamar a Industria Simari"
+          class="button-secondary final-cta__actions-water">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-phone"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
             Llamar Ahora
           </a>

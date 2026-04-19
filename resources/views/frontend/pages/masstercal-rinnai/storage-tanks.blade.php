@@ -6,7 +6,7 @@
     <section class="st-hero">
         <div class="container">
             <div class="st-brand-wrap">
-                <img src="{{ asset('images/Rinnai/rinnai-logo.png') }}" alt="Rinnai" title="Rinnai" width="200" height="60" loading="eager" fetchpriority="high" decoding="async"
+                <img src="{{ asset('images/masstercal-rinnai/rinnai-logo.png') }}" alt="Rinnai" title="Rinnai" width="200" height="60" loading="eager" fetchpriority="high" decoding="async"
                     class="st-brand-logo">
             </div>
 
@@ -15,7 +15,7 @@
                 <h1 class="st-hero-title">
                     Tanques de
                     <span class="st-accent">Almacenamiento</span><br>
-                    <span class="st-subtitle">Alta Capacidad</span>
+                    <span class="st-subtitle">Alta Capacidad Rinnai</span>
                 </h1>
                 <p class="st-hero-text">
                     Sistemas termo-aislados de grado industrial para aplicaciones de alta demanda y uso continuo.
@@ -145,12 +145,20 @@
                     </ul>
                 </article>
 
-                <a class="button-primary st" href="/contacto">Cotizar Proyecto</a>
+                <a href="https://wa.me/524494348018?text=Hola%2C%20me%20interesa%20una%20cotizaci%C3%B3n."
+             target="_blank"
+             aria-label="Abrir chat de WhatsApp" class="button-primary st">Cotizar Proyecto</a>
             </aside>
 
             <div class="st-content">
                 <article class="st-media-card">
-                    <img src="{{ asset('images/products/Rinnai/Tanques-Almacenamiento/Tanque-Carbon_Negro--Epoxicos.png') }}" alt="Tanques Rinnai">
+                    <img src="{{ asset('images/masstercal-rinnai/productos-rinnai/tanques-almacenamiento/tanque-galvanizado-de-acero-inoxidable.png') }}" 
+                    alt="Tanques de almacenamiento Rinnai"
+                    title="Tanques de almacenamiento Rinnai"
+                    fetchpriority="low"
+                    loading="lazy"
+                    decoding="async"
+                    >
                     <div class="st-media-overlay">
                         <h2>Construccion Premium</h2>
                         <p>Acero vitrificado con aislamiento termico de alta densidad</p>
@@ -393,7 +401,11 @@
                 especifica.
             </p>
             <div class="st-cta-buttons">
-                <a class="button-primary st-cta-button" href="/contacto">
+                <a 
+                href="https://wa.me/524494348018?text=Hola%2C%20me%20interesa%20una%20cotizaci%C3%B3n."
+                target="_blank"
+                aria-label="Abrir chat de WhatsApp"
+                class="button-primary st-cta-button">
                     Solicitar Diseño de Ingenieria
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
                         fill="none">
@@ -403,7 +415,10 @@
                             stroke-linecap="round" stroke-linejoin="round" />
                     </svg>
                 </a>
-                <a class="button-secondary st-cta-button" href="tel:+524494348018"><svg
+                <a 
+                href="tel:+524494348018"
+                aria-label="Llamar a Industria Simari"
+                class="button-secondary st-cta-button"><svg
                         xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"
                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                         stroke-linejoin="round" class="lucide lucide-phone">

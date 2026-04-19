@@ -1,28 +1,27 @@
 @extends('frontend.layouts.master')
-
-@section('title')
-@endsection
-
+@section('title', 'Servicio de Calibración de Equipos - Industria Simari')
+@section('description', 'Servicio técnico experto en calibración de equipos industriales y quemadores para optimizar la eficiencia energética y reducir emisiones contaminantes.')
+@section('canonical', config('app.url') . '/servicios/calibracion-equipos')
 @section('content')
     {{-- Main section --}}
     <section class="first-content-service-calibration">
         <div class="container service-calibration">
             {{-- main text --}}
             <div class="main-content-service-calibration">
-                <h1>Calibración de Equipos y Quemadores Industriales</h1>
+                <h1>Servicio de Calibración de Equipos y Quemadores Industriales</h1>
                 <p>Optimización precisa de parámetros de combustión y
                     calibración certificada de instrumentos para máxima
                     eficiencia energética.
                 </p>
                 {{-- Button declaration --}}
-                <button class="button-primary service-calibration">Solicitar Cotizacion
+                <a href="https://wa.me/524494348018?text=Hola%2C%20me%20interesa%20una%20cotizaci%C3%B3n." target="_blank" aria-label="Abrir chat de WhatsApp" class="button-primary service-calibration">Solicitar Cotización
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
                         <path d="M4.99866 11.9966H18.9948" stroke="white" stroke-width="1.99945" stroke-linecap="round"
                             stroke-linejoin="round" />
                         <path d="M11.9967 4.99854L18.9948 11.9966L11.9967 18.9947" stroke="white" stroke-width="1.99945"
                             stroke-linecap="round" stroke-linejoin="round" />
                     </svg>
-                </button>
+                </a>
             </div>
         </div>
     </section>
@@ -356,7 +355,7 @@
             </p>
             {{-- Buttons declaration --}}
             <div class="buttons-container-service-calibration">
-                <button class="button-primary calibration">Solicitar Calibracion
+                <a href="https://wa.me/524494348018?text=Hola%2C%20me%20interesa%20una%20cotizaci%C3%B3n." target="_blank" aria-label="Abrir chat de WhatsApp" class="button-primary calibration">Solicitar Calibracion
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
                         fill="none">
                         <path d="M4.99866 11.9966H18.9948" stroke="white" stroke-width="1.99945" stroke-linecap="round"
@@ -364,8 +363,8 @@
                         <path d="M11.9967 4.99854L18.9948 11.9966L11.9967 18.9947" stroke="white" stroke-width="1.99945"
                             stroke-linecap="round" stroke-linejoin="round" />
                     </svg>
-                </button>
-                <button class="button-secondary calibration">
+                </a>
+                <a href="tel:+524494348018" aria-label="Llamar a Industria Simari" class="button-secondary calibration">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                         stroke-linejoin="round" class="lucide lucide-phone">
@@ -373,7 +372,7 @@
                             d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z">
                         </path>
                     </svg>Llamar Ahora
-                </button>
+                </a>
             </div>
         </div>
     </section>

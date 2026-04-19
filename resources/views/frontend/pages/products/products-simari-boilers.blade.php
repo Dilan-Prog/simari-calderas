@@ -1,18 +1,19 @@
 @extends('frontend.layouts.master')
-
-@section('title')
-Calderas Industriales - Industria Simari
-@endsection
+@section('title', 'Calderas Industriales SIMARI')
+@section('description', 'Calderas industriales de alta eficiencia para generación de vapor y agua caliente. Diseño robusto, operación continua 24/7, cumplimiento normativo total.')
+@section('canonical', config('app.url') . '/productos/calderas-industriales-simari')
 @section('content')
 
 <section class="boilers-hero">
     <div class="boilers-hero__media">
       <img
-        src="https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1920"
+        src="{{ asset('images/products/calderas-industriales-simari/caldera-industrial-simari.jpg') }}"
         alt="Caldera industrial SIMARI en instalación de proceso térmico"
+        title="Caldera industrial SIMARI en instalación de proceso térmico"
         width="1920"
         height="1280"
         loading="eager"
+        fetchpriority="high"
         decoding="async"
       />
       <div class="boilers-hero__overlay"></div>
@@ -59,7 +60,11 @@ Calderas Industriales - Industria Simari
         </div>
 
         <div class="boilers-hero__actions">
-          <a class="button-primary simari-caldera" href="/contacto" aria-label="Solicitar cotización técnica de calderas industriales">
+          <a
+          href="https://wa.me/524494348018?text=Hola%2C%20me%20interesa%20una%20cotizaci%C3%B3n."
+          target="_blank"
+          aria-label="Abrir chat de WhatsApp" 
+          class="button-primary simari-caldera">
             Solicitar Cotización Técnica
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -69,7 +74,10 @@ Calderas Industriales - Industria Simari
                         </svg>
           </a>
 
-          <a class="button-secondary simari-caldera" href="tel:+524494348018">
+          <a 
+          href="tel:+524494348018"
+          aria-label="Llamar a Industria Simari"
+          class="button-secondary simari-caldera">
             <svg
                         xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"
                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -429,7 +437,11 @@ Calderas Industriales - Industria Simari
         </p>
 
         <div class="boilers-cta__actions">
-          <a class="button-primary simari-caldera button-first" href="/contacto">
+          <a 
+          href="https://wa.me/524494348018?text=Hola%2C%20me%20interesa%20una%20cotizaci%C3%B3n."
+          target="_blank"
+          aria-label="Abrir chat de WhatsApp"
+          class="button-primary simari-caldera button-first">
             Solicitar Visita de Ingeniería
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -439,7 +451,10 @@ Calderas Industriales - Industria Simari
                         </svg>
           </a>
 
-          <a class="button-secondary simari-caldera" href="tel:+524494348018">
+          <a 
+          href="tel:+524494348018"
+          aria-label="Llamar a Industria Simari"
+          class="button-secondary simari-caldera">
             <svg
                         xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"
                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"

@@ -10,12 +10,14 @@
     <!-- Logo centrado -->
     <div class="rd-hero__logo">
       <img
-        src="/_assets/v11/c52d6ebf603813924afaaac8334daee3d33523d1.png"
-        alt="Rinnai"
+        src="{{ asset('images/masstercal-rinnai/rinnai-logo.png') }}"
+        alt="Calentadores de Agua Rinnai"
+        title="Calentador de agua Rinnai"
         width="180"
         height="72"
         loading="eager"
         fetchpriority="high"
+        decoding="async"
         onerror="this.outerHTML='<span style=\'font-size:3rem;font-weight:800;color:#CE000D;letter-spacing:-2px\'>Rinnai</span>'"
       />
     </div>
@@ -47,7 +49,7 @@
         <div class="rd-showcase__img-wrap">
           <div class="rd-showcase__img-tint" aria-hidden="true"></div>
           <img
-            src="{{ asset('images/products/Rinnai/Calentamiento/Residencial/Calentador-de-agua-rinnai-residencial.webp') }}"
+            src="{{ asset('images/masstercal-rinnai/productos-rinnai/calentamiento/residencial/calentador-de-agua-rinnai-residencial.webp') }}"
             alt="Calentador de agua de depósito Rinnai modelo residencial instalado en hogar"
             title="Calentador de Agua Rinnai Residencial"
             width="1200"
@@ -112,7 +114,10 @@
             </li>
           </ul>
  
-          <a href="/contacto" class="rd-btn-primary" rel="noopener">
+          <a 
+          href="https://wa.me/524494348018?text=Hola%2C%20me%20interesa%20una%20cotizaci%C3%B3n."
+          target="_blank"
+             aria-label="Abrir chat de WhatsApp" class="rd-btn-primary">
             Cotizar Residencial
             <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
           </a>
@@ -250,11 +255,18 @@
     <p>Nuestros expertos te ayudarán a elegir el modelo perfecto para tus necesidades</p>
  
     <nav class="rd-cta__btns" aria-label="Opciones de contacto">
-      <a href="/contacto" class="rd-btn-white" rel="noopener">
+      <a 
+      href="https://wa.me/524494348018?text=Hola%2C%20me%20interesa%20una%20cotizaci%C3%B3n."
+      target="_blank"
+      aria-label="Abrir chat de WhatsApp"
+      class="rd-btn-white">
         Solicitar Asesoría Gratuita
         <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
       </a>
-      <a href="tel:+524494348018" class="rd-btn-outline-white">
+      <a
+      href="tel:+524494348018"
+      aria-label="Llamar a Industria Simari"
+      class="rd-btn-outline-white">
         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
         Llamar Ahora
       </a>

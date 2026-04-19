@@ -1,15 +1,16 @@
 @extends('frontend.layouts.master')
-
-@section('title')
-    Inicio | Industria Simari
-@endsection
-
+@section('title', 'Industria Simari')
+@section('description', 'Diseñamos, instalamos y mantenemos sistemas de calderas, calentadores y tratamiento de agua para los sectores industrial, alimentario, hotelero y metalmecánico. Soporte técnico especializado disponible 24/7.')
+@section('canonical', config('app.url') . '/')
 @section('content')
     <section class="hero-section-home">
         <div class="hero-background-home">
-            <img src="https://images.unsplash.com/photo-1707596830261-9c6138a6dd3b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w1NjM2Nzh8MHwxfHNlYXJjaHwxfHxpbmR1c3RyaWFsJTIwYm9pbGVyfGVufDB8fHx8MTcwNzU5NjgzMHww&ixlib=rb-4.0.3&q=80&w=1080"
-                alt="Sistema de calderas industriales operando en planta en México"
+            <img src="{{ asset('images/home/servicios-para-planta-petroquimica.jpg') }}"
+                alt="Servicios para planta petroquímica en México"
+                title="Servicios para planta petroquímica en México"
                 fetchpriority="high"
+                loading="eager"
+                decoding="async"
                 >
             <div class="hero-overlay-home"></div>
         </div>
@@ -30,7 +31,11 @@
                 </p>
 
                 <div class="hero-actions-home">
-                    <button class="button-primary">
+                    <a
+                    href="https://wa.me/524494348018?text=Hola%2C%20me%20interesa%20una%20cotizaci%C3%B3n."
+                    target="_blank"
+                    aria-label="Abrir chat de WhatsApp" 
+                    class="button-primary">
                         Solicitar Cotización
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -38,12 +43,14 @@
                             <path d="M5 12h14"></path>
                             <path d="m12 5 7 7-7 7"></path>
                         </svg>
-                    </button>
+                    </a>
 
-                    {{-- CORRIGE EL PVTO BOTON QUE TE DIJE DESDE TODA LA PINCHE SEMANA MOPRIN  --}}
-                    <button class="button-secondary">
-                    Soluciones
-                    </button>
+                    <a
+                    href="tel:+524494348018"
+                    aria-label="Llamar a Industria Simari"
+                    class="button-secondary">
+                    Llamar Ahora
+                    </a>
                 </div>
             </div>
     </section>
@@ -73,8 +80,8 @@
     <section class="solutions-section-home">
         <div class="container solutions-section-home">
             <div class="text-center-home mb-16-home">
-                <p class="section-subtitle-home">Nuestras Soluciones</p>
-                <h2 class="section-title-home">Ingeniería que Impulsa su Industria</h2>
+                <p class="section-subtitle-home">Nuestras Servicios más solicitados</p>
+                <h2 class="section-title-home">Servicios Industriales</h2>
                 <p class="section-desc-home">
                     Diseñamos, instalamos y mantenemos sistemas térmicos de alto rendimiento
                     adaptados a las necesidades específicas de su planta.
@@ -83,9 +90,12 @@
             <div class="solutions-grid-home">
                 <div class="solution-card-home">
                     <div class="card-img-box-home">
-                        <img src="https://images.unsplash.com/photo-1707596830261-9c6138a6dd3b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w1NjM2Nzh8MHwxfHNlYXJjaHwxfHxpbmR1c3RyaWFsJTIwYm9pbGVyfGVufDB8fHx8MTcwNzU5NjgzMHww&ixlib=rb-4.0.3&q=80&w=1080"
-                            alt="Calderas Industriales"
+                        <img src="{{ asset('images/products/calderas-industriales-simari/caldera-industrial-simari.jpg') }}"
+                            alt="Instalacion, venta y mantenimiento de Calderas industriales."
+                            title="calderas industriales mantenimiento, venta y instalacion"
+                            fetchpriority="low"
                             loading="lazy"
+                            decoding="async"
                             >
                         <div class="card-img-overlay-home"></div>
                         <div class="card-icon-overlay-home">
@@ -100,9 +110,9 @@
                         </div>
                     </div>
                     <div class="card-body-home">
-                        <h4 class="card-title-home">Calderas Industriales</h4>
-                        <p class="card-text-home">Sistemas de generación de vapor y agua caliente de alta eficiencia para procesos críticos.</p>
-                        <a href="#" class="card-link-home">
+                        <h3 class="card-title-home">Calderas Industriales - Simari</h3>
+                        <p class="card-text-home">Venta, Fabricacion y Servicios de Calderas Industriales</p>
+                        <a href="{{ route('simari-boilers') }}" class="card-link-home">
                             Más Información
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -116,9 +126,12 @@
 
                 <div class="solution-card-home">
                     <div class="card-img-box-home">
-                        <img src="https://images.unsplash.com/photo-1759847552281-60e45956124d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxpbmR1c3RyaWFsJTIwd2VsZGluZyUyMG1hbnVmYWN0dXJpbmclMjBzcGFya3N8ZW58MXx8fDE3NzE1MjI0Mzd8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
-                            alt="Mantenimiento Integral"
+                        <img src="{{ asset('images/masstercal-rinnai/productos-rinnai/Calentamiento/Comercial/Calentador-de-agua-rinnai-comercial.webp') }}"
+                            alt="Instalacion, venta y mantenimiento de calentadores de agua Rinnai."
+                            title="Calentadores de agua Rinnai"
+                            fetchpriority="low"
                             loading="lazy"
+                            decoding="async"
                             >
                         <div class="card-img-overlay-home"></div>
                         <div class="card-icon-overlay-home">
@@ -131,9 +144,9 @@
                         </div>
                     </div>
                     <div class="card-body-home">
-                        <h4 class="card-title-home">Mantenimiento Integral</h4>
-                        <p class="card-text-home">Programas preventivos y correctivos para asegurar la continuidad operativa y seguridad.</p>
-                        <a href="#" class="card-link-home">
+                        <h3 class="card-title-home">Calentadores de agua Rinnai</h3>
+                        <p class="card-text-home">Instalación, venta y mantenimiento de calentadores de agua Rinnai.</p>
+                        <a href="{{ route('water-heaters') }}" class="card-link-home">
                             Más Información
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -147,9 +160,12 @@
 
                 <div class="solution-card-home">
                     <div class="card-img-box-home">
-                        <img src="https://images.unsplash.com/photo-1769152683420-f4eff91cb30b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx0ZWNobmljYWwlMjBibHVlcHJpbnQlMjBzY2hlbWF0aWNzJTIwZHJhd2luZ3xlbnwxfHx8fDE3NzE1MjI0Mzd8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
-                            alt="Eficiencia Energética"
+                        <img src="{{ asset('images/services/tratamiento-agua-calderas/servicio-de-tratamiento-de-agua-para-calderas-industriales.jpg') }}"
+                            alt="Mantenimiento de sistemas de tratamiento de agua para la industria en México"
+                            title="Mantenimiento de sistemas de tratamiento de agua para la industria en México"
+                            fetchpriority="low"
                             loading="lazy"
+                            decoding="async"
                             >
                         <div class="card-img-overlay-home"></div>
                         <div class="card-icon-overlay-home">
@@ -161,9 +177,9 @@
                         </div>
                     </div>
                     <div class="card-body-home">
-                        <h4 class="card-title-home">Eficiencia Energética</h4>
-                        <p class="card-text-home">Auditorías y modernización de equipos para reducir consumo de combustible y emisiones.</p>
-                        <a href="#" class="card-link-home">
+                        <h3 class="card-title-home">Tratamiento de Agua industriales</h3>
+                        <p class="card-text-home">Servicio y mantenimiento de sistemas de tratamiento de agua para toda la industria.</p>
+                        <a href="{{ route('water-treatment') }}" class="card-link-home">
                             Más Información
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -240,9 +256,12 @@
                 <div class="why-image-wrapper-home">
                     <div class="blur-backdrop-home"></div>
                     <img class="why-img-home"
-                        src="https://images.unsplash.com/photo-1631583087046-13c813d34e90?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080"
-                        alt="Engineering Team"
+                        src="{{ asset('images/company/team/equipo_industria_simari.jpg') }}"
+                        alt="Equipo Industria Simari"
+                        title="Equipo Industria Simari"
+                        fetchpriority="low"
                         loading="lazy"
+                        decoding="async"
                         >
 
                     <div class="floating-card-home">
@@ -265,11 +284,19 @@
                 </p>
 
                 <div class="cta-buttons-home">
-                    <button class="button-primary cta-section-home">
+                    
+                    <a
+                    href="https://wa.me/524494348018?text=Hola%2C%20me%20interesa%20una%20cotizaci%C3%B3n."
+                    target="_blank"
+                    aria-label="Abrir chat de WhatsApp" 
+                    class="button-primary cta-section-home">
                         Solicitar Asesoría
-                    </button>
+                    </a>
 
-                    <button class="button-secondary cta-section-home">
+                    <a
+                    href="tel:+524494348018"
+                    aria-label="Llamar a Industria Simari"
+                    class="button-secondary cta-section-home">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
                             <g clip-path="url(#clip0_20_1370)">
                                 <path
@@ -283,7 +310,8 @@
                             </defs>
                         </svg>
                          +52 (449) 434-8018
-                    </button>
+                    </a>
+                    
                 </div>
             </div>
         </div>
