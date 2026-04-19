@@ -4,3 +4,6 @@
 @import "./components/sidebar.css";
 @import "./components/buttons.css";
 @import "./pages/users.css";
+@import "./pages/dashboard.css";
+@import "./pages/products.css";
+@import "./pages/product-form.css";

@@ -63,7 +63,6 @@ class UserManageController extends Controller
         $user->role_id = $request->role_id;
         $user->password = bcrypt($request->password);
         $user->save();
-
         if ($request->has('emergency_contact_name')) {
             foreach ($request->emergency_contact_name as $index => $name) {
                 // Solo guardamos si al menos el nombre del contacto tiene valor
@@ -78,7 +77,6 @@ class UserManageController extends Controller
                 }
             }
         }
-
         return redirect()->route('admin.users.index')->with('success', 'Usuario creado correctamente.');
     }
 
