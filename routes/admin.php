@@ -10,9 +10,9 @@ Route::get('/', [AdminController::class, 'dashboard'])->name('dashboard');
 
 Route::controller(UserManageController::class)->group(function () {
     Route::get('/usuarios', 'index')->name('users.index');
+    Route::get('/usuarios/{id}', 'show')->name('users.show');
     Route::post('/usuarios/crear-usuario', action: 'store')->name('users.store');
     Route::put('/usuarios/editar-usuario/{id}', 'update')->name('users.update');
-    // Route::delete('/usuarios/eliminar-usuario/{id}', 'destroy')->name('users.destroy');
 });
 
 Route::controller(ClientManageController::class)->group(function () {

@@ -21,11 +21,6 @@ class UserManageController extends Controller
         return view('admin.users.index', compact('users', 'roles'));
     }
 
-    public function create()
-    {
-        //
-    }
-
     public function store(Request $request)
     {
         $request->validate([
@@ -80,12 +75,8 @@ class UserManageController extends Controller
 
     public function show(string $id)
     {
-        //
-    }
-
-    public function edit(string $id)
-    {
-        //
+        $user = User::with(['role:id,name_role_es', 'contactEmergency'])->findOrFail($id);
+        return response()->json($user);
     }
 
     public function update(Request $request, string $id)

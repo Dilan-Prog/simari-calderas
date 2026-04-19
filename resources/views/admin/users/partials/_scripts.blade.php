@@ -1,6 +1,7 @@
 @push('scripts')
 <script>
     const updateUserUrl = '{{ route('admin.users.update', ':id') }}';
+    const showUserUrl = '{{ route('admin.users.show', ':id') }}';
     // --- Helpers ---
     const closeModalWithAnim = (m) => {
         const mc = m.querySelector('.user-manager-modal-content');
@@ -148,40 +149,54 @@
 
     let currentUserId = null;
 
-    const openEditModal = (d) => {
-        currentUserId = d.id;
-
-        editForm.querySelector('[name="first_name"]').value = d.firstName || '';
-        editForm.querySelector('[name="last_name"]').value = d.lastName || '';
-        editForm.querySelector('[name="birthdate"]').value = d.birthdate || '';
-        editForm.querySelector('[name="rfc"]').value = d.rfc || '';
-        editForm.querySelector('[name="curp"]').value = d.curp || '';
-        editForm.querySelector('[name="social_segurity_number"]').value = d.ssn || '';
-        editForm.querySelector('[name="email"]').value = d.email || '';
-        editForm.querySelector('[name="phone"]').value = d.phone || '';
-        editForm.querySelector('[name="position"]').value = d.position || '';
-        editForm.querySelector('[name="role_id"]').value = d.roleId || '';
-        editForm.querySelector('[name="status"]').value = d.status || '';
-        editForm.querySelector('[name="password"]').value = '';
-        editForm.querySelector('[name="password_confirmation"]').value = '';
+    const openEditModal = async (id) => {
+        currentUserId = id;
 
         const errorsContainer = document.getElementById('edit-errors-container');
         errorsContainer.style.display = 'none';
         errorsContainer.innerHTML = '';
-
         editEcContainer.innerHTML = '';
-        const contacts = JSON.parse(d.contacts || '[]');
-        if (contacts.length === 0) {
-            addEditContactRow();
-        } else {
-            contacts.forEach(c => addEditContactRow({
-                name: c.name,
-                phone: c.phone,
-                relationship: c.relationship
-            }));
-        }
-
         editModal.style.display = 'flex';
+
+        try {
+            const response = await fetch(showUserUrl.replace(':id', id), {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                },
+            });
+
+            if (!response.ok) throw new Error('No se pudo cargar el usuario');
+
+            const user = await response.json();
+
+            editForm.querySelector('[name="first_name"]').value = user.first_name || '';
+            editForm.querySelector('[name="last_name"]').value = user.last_name || '';
+            editForm.querySelector('[name="birthdate"]').value = user.birthdate || '';
+            editForm.querySelector('[name="rfc"]').value = user.rfc || '';
+            editForm.querySelector('[name="curp"]').value = user.curp || '';
+            editForm.querySelector('[name="social_segurity_number"]').value = user.social_segurity_number || '';
+            editForm.querySelector('[name="email"]').value = user.email || '';
+            editForm.querySelector('[name="phone"]').value = user.phone || '';
+            editForm.querySelector('[name="position"]').value = user.position || '';
+            editForm.querySelector('[name="role_id"]').value = user.role_id || '';
+            editForm.querySelector('[name="status"]').value = user.status || '';
+            editForm.querySelector('[name="password"]').value = '';
+            editForm.querySelector('[name="password_confirmation"]').value = '';
+
+            const contacts = user.contact_emergency || [];
+            if (contacts.length === 0) {
+                addEditContactRow();
+            } else {
+                contacts.forEach(c => addEditContactRow({
+                    name: c.name,
+                    phone: c.phone,
+                    relationship: c.relationship,
+                }));
+            }
+        } catch (err) {
+            console.error('Error al cargar usuario:', err);
+        }
     };
 
     editForm.addEventListener('submit', async (e) => {
@@ -250,24 +265,6 @@
             }
         }
 
-        const contacts = user.contact_emergency || [];
-        const contactsJson = JSON.stringify(
-            contacts.map(c => ({ name: c.name, phone: c.phone, relationship: c.relationship }))
-        );
-
-        editBtn.dataset.firstName = user.first_name;
-        editBtn.dataset.lastName = user.last_name;
-        editBtn.dataset.email = user.email;
-        editBtn.dataset.phone = user.phone || '';
-        editBtn.dataset.position = user.position || '';
-        editBtn.dataset.birthdate = user.birthdate || '';
-        editBtn.dataset.rfc = user.rfc || '';
-        editBtn.dataset.curp = user.curp || '';
-        editBtn.dataset.ssn = user.social_segurity_number || '';
-        editBtn.dataset.roleId = user.role_id || '';
-        editBtn.dataset.status = user.status || '';
-        editBtn.dataset.contacts = contactsJson;
-
         const deleteBtn = row.querySelector('.btn-delete-user');
         if (deleteBtn) {
             deleteBtn.dataset.name = `${user.first_name} ${user.last_name}`;
@@ -285,7 +282,7 @@
     }
 
     document.querySelectorAll('.btn-edit-user').forEach(btn => {
-        btn.addEventListener('click', () => openEditModal(btn.dataset));
+        btn.addEventListener('click', () => openEditModal(btn.dataset.id));
     });
 
     if (closeEditBtn) closeEditBtn.addEventListener('click', () => closeModalWithAnim(editModal));

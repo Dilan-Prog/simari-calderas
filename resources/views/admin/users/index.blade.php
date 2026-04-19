@@ -75,7 +75,6 @@
                                     <td>
                                         <div class="header-right-user-manager">
                                             {{-- view --}}
-                                            @php $ec = $user->contactEmergency->first(); @endphp
                                             <button class="table-users-manager-action-btn edit">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
                                                     viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -90,14 +89,7 @@
 
                                             {{-- Edit --}}
                                             <button type="button" class="table-users-manager-action-btn edit btn-edit-user"
-                                                data-id="{{ $user->id }}" data-first-name="{{ $user->first_name }}"
-                                                data-last-name="{{ $user->last_name }}" data-email="{{ $user->email }}"
-                                                data-phone="{{ $user->phone }}" data-position="{{ $user->position }}"
-                                                data-birthdate="{{ $user->birthdate }}" data-rfc="{{ $user->rfc }}"
-                                                data-curp="{{ $user->curp }}"
-                                                data-ssn="{{ $user->social_segurity_number }}"
-                                                data-role-id="{{ $user->role_id }}" data-status="{{ $user->status }}"
-                                                data-contacts="{{ json_encode($user->contactEmergency->map(fn($c) => ['name' => $c->name, 'phone' => $c->phone, 'relationship' => $c->relationship])->values()) }}">
+                                                data-id="{{ $user->id }}">
                                                 {{-- edit svg --}}
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
                                                     viewBox="0 0 24 24" fill="none" stroke="currentColor"
