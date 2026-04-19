@@ -23,7 +23,6 @@ class User extends Authenticatable
         'first_name',
         'last_name',
         'position',
-        'name',
         'email',
         'phone',
         'password',
@@ -64,5 +63,4 @@ class User extends Authenticatable
     {
         return $this->hasMany(ContactEmergency::class, 'user_id');
     }
-
 }

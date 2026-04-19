@@ -49,7 +49,7 @@ class UserManageController extends Controller
             'relationship.*' => 'nullable|string|max:50',
         ]);
         $user = new User;
-        $user->name = trim($request->first_name.' '.$request->last_name);
+        // $user->name = trim($request->first_name.' '.$request->last_name);
         $user->first_name = $request->first_name;
         $user->last_name = $request->last_name;
         $user->email = $request->email;

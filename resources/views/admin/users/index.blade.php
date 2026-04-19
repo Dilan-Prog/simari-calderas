@@ -4,6 +4,43 @@
 @endsection
 @section('content')
     <div class="container user-manager">
+        {{-- Toast notifications --}}
+        @if (session('success'))
+            <div class="toast-notification toast-success" id="toastNotification">
+                <div class="toast-icon-wrap">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="#16a34a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                        <path d="m9 11 3 3L22 4"></path>
+                    </svg>
+                </div>
+                <div class="toast-body">
+                    <p class="toast-title">Accion realizada</p>
+                    <p class="toast-message">{{ session('success') }}</p>
+                </div>
+                <button class="toast-close"
+                    onclick="const t=this.closest('.toast-notification');t.style.animation='toastOut 0.3s ease forwards';setTimeout(()=>t.remove(),300)">✕</button>
+            </div>
+        @endif
+
+        @if (session('error'))
+            <div class="toast-notification toast-error" id="toastNotification">
+                <div class="toast-icon-wrap">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="#dc2626" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" x2="12" y1="8" y2="12"></line>
+                        <line x1="12" x2="12.01" y1="16" y2="16"></line>
+                    </svg>
+                </div>
+                <div class="toast-body">
+                    <p class="toast-title">Error</p>
+                    <p class="toast-message">{{ session('error') }}</p>
+                </div>
+                <button class="toast-close" <button class="toast-close"
+                    onclick="const t=this.closest('.toast-notification');t.style.animation='toastOut 0.3s ease forwards';setTimeout(()=>t.remove(),300)">✕</button>
+            </div>
+        @endif
         {{-- Main content --}}
         <section class="users-manager-section">
             {{-- User manager section --}}
@@ -523,6 +560,42 @@
                 </form>
             </div>
         </div>
+
+
+
+        {{-- Delete confirmation modal --}}
+        <div id="deleteUserModal" class="del-confirm-overlay">
+            <div class="del-confirm-box">
+                <div class="del-confirm-icon-wrap">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
+                        fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path>
+                        <path d="M12 9v4"></path>
+                        <path d="M12 17h.01"></path>
+                    </svg>
+                </div>
+                <h2 class="del-confirm-title">¿Eliminar usuario?</h2>
+                <p class="del-confirm-desc">Esta acción no se puede deshacer. El usuario perderá acceso al sistema
+                    permanentemente.</p>
+                <div class="del-confirm-user-card">
+                    <div class="del-confirm-avatar" id="delConfirmAvatar">U</div>
+                    <div>
+                        <p class="del-confirm-user-name" id="delConfirmName">Nombre Usuario</p>
+                        <p class="del-confirm-user-email" id="delConfirmEmail">email@ejemplo.com</p>
+                    </div>
+                </div>
+                <div class="del-confirm-actions">
+                    <button type="button" class="button-secondary size-adjustment"
+                        id="delConfirmCancel">Cancelar</button>
+                    <form id="deleteUserForm" method="POST">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="del-confirm-btn-delete">Eliminar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
         <script>
             // --- Helpers ---
             const closeModalWithAnim = (m) => {
@@ -571,7 +644,7 @@
             const closeEditBtn = document.getElementById('closeEditModal');
             const cancelEditBtn = document.getElementById('cancelEditModal');
             const editForm = document.getElementById('editUserForm');
-            const editBaseUrl = '{{ url('/usuarios') }}';
+            const editBaseUrl = '{{ url('admin/usuarios') }}';
 
             // Contenedor de contactos del modal editar
             const editEcContainer = document.getElementById('edit-emergency-contacts-container');
@@ -628,7 +701,10 @@
                 updateEditUI();
             });
 
-            const openEditModal = (d) => {
+            const openEditModal = (d, btn) => {
+
+                const roleSelect = document.getElementById('edit_role_id');
+                const statusSelect = document.getElementById('edit_status');
                 editForm.action = editBaseUrl + '/' + d.id;
 
                 document.getElementById('edit_first_name').value = d.firstName || '';
@@ -640,22 +716,26 @@
                 document.getElementById('edit_email').value = d.email || '';
                 document.getElementById('edit_phone').value = d.phone || '';
                 document.getElementById('edit_position').value = d.position || '';
-                document.getElementById('edit_role_id').value = d.roleId || '';
-                document.getElementById('edit_status').value = d.status || '';
+                Array.from(roleSelect.options).forEach(opt => {
+                    opt.selected = opt.value == d.roleId;
+                });
+                Array.from(statusSelect.options).forEach(opt => {
+                    opt.selected = opt.value == d.status;
+                });
                 document.getElementById('edit_password').value = '';
                 document.getElementById('edit_password_confirmation').value = '';
-                // Limpiar contactos existentes y cargar los del usuario
+
                 editEcContainer.innerHTML = '';
-                const count = parseInt(d.ecCount || '0');
+                const count = parseInt(btn.getAttribute('data-ec-count') || '0');
 
                 if (count === 0) {
                     editEcContainer.appendChild(buildEditContactRow());
                 } else {
                     for (let i = 0; i < count; i++) {
                         editEcContainer.appendChild(buildEditContactRow({
-                            name: d['ecName' + i] || '',
-                            phone: d['ecPhone' + i] || '',
-                            relationship: d['ecRel' + i] || ''
+                            name: btn.getAttribute('data-ec-name-' + i) || '',
+                            phone: btn.getAttribute('data-ec-phone-' + i) || '',
+                            relationship: btn.getAttribute('data-ec-rel-' + i) || ''
                         }));
                     }
                 }
@@ -665,7 +745,7 @@
             };
 
             document.querySelectorAll('.btn-edit-user').forEach(btn => {
-                btn.addEventListener('click', () => openEditModal(btn.dataset));
+                btn.addEventListener('click', () => openEditModal(btn.dataset, btn));
             });
 
             if (closeEditBtn) closeEditBtn.addEventListener('click', () => closeModalWithAnim(editModal));
@@ -681,7 +761,8 @@
                 const total = contacts.length;
                 textCounter.textContent = `Agregar otro contacto de emergencia (${total}/${maxContacts})`;
                 contacts.forEach(contact => {
-                    contact.querySelector('.delete-emergency-btn').style.display = total > 1 ? 'block' : 'none';
+                    contact.querySelector('.delete-emergency-btn').style.display = total > 1 ? 'block' :
+                        'none';
                 });
                 addBtn.style.display = total >= maxContacts ? 'none' : 'flex';
             }
@@ -711,7 +792,6 @@
             const deleteModal = document.getElementById('deleteUserModal');
             const deleteForm = document.getElementById('deleteUserForm');
             const delCancelBtn = document.getElementById('delConfirmCancel');
-            const deleteBaseUrl = '{{ url('/admin/usuarios') }}';
 
             document.querySelectorAll('.btn-delete-user').forEach(btn => {
                 btn.addEventListener('click', () => {
@@ -724,46 +804,23 @@
                     document.getElementById('delConfirmEmail').textContent = email;
                     document.getElementById('delConfirmAvatar').textContent = initial;
 
-                    deleteForm.action = "{{ url('/usuarios') }}/" + id;
+                    deleteForm.action = "{{ url('admin/usuarios') }}/" + id;
                     deleteModal.classList.add('active');
                 });
             });
 
             delCancelBtn.addEventListener('click', () => deleteModal.classList.remove('active'));
-            deleteModal.addEventListener('click', (e) => {
-                if (e.target === deleteModal) deleteModal.classList.remove('active');
+            deleteModal
+                .addEventListener('click', (e) => {
+                    if (e.target === deleteModal) deleteModal.classList.remove('active');
+                });
+
+            document.querySelectorAll('.toast-notification').forEach(toast => {
+                setTimeout(() => {
+                    toast.style.animation = 'toastOut 0.3s ease forwards';
+                    setTimeout(() => toast.remove(), 300);
+                }, 4000);
             });
         </script>
-    </div>
-    {{-- Delete confirmation modal --}}
-    <div id="deleteUserModal" class="del-confirm-overlay">
-        <div class="del-confirm-box">
-            <div class="del-confirm-icon-wrap">
-                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
-                    fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path>
-                    <path d="M12 9v4"></path>
-                    <path d="M12 17h.01"></path>
-                </svg>
-            </div>
-            <h2 class="del-confirm-title">¿Eliminar usuario?</h2>
-            <p class="del-confirm-desc">Esta acción no se puede deshacer. El usuario perderá acceso al sistema
-                permanentemente.</p>
-            <div class="del-confirm-user-card">
-                <div class="del-confirm-avatar" id="delConfirmAvatar">U</div>
-                <div>
-                    <p class="del-confirm-user-name" id="delConfirmName">Nombre Usuario</p>
-                    <p class="del-confirm-user-email" id="delConfirmEmail">email@ejemplo.com</p>
-                </div>
-            </div>
-            <div class="del-confirm-actions">
-                <button type="button" class="button-secondary size-adjustment" id="delConfirmCancel">Cancelar</button>
-                <form id="deleteUserForm" method="POST">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" class="del-confirm-btn-delete">Eliminar</button>
-                </form>
-            </div>
-        </div>
     </div>
 @endsection
