@@ -15,9 +15,14 @@ class ClientManageController extends Controller
      */
     public function index()
     {
-        $users = User::where('role_id',2)
-        ->get(['id', ]);
+        // $users = User::where('role_id',2)
+        // ->get(['id', ]);
         return view('admin.client.index');
+    }
+
+    public function information()
+    {
+        return view('admin.client.show');
     }
 
     /**

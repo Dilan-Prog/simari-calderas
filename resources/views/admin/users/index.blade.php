@@ -50,49 +50,58 @@
                                         <p class="breadcrumb-users-manager main">{{ $user->email }}</p>
                                     </td>
                                     <td>
-                                        <span class="users-manager-badge role-admin">{{ $user->role->name_role_es }}</span>
+                                        @php
+                                            $roleClass = '';
+                                            $roleName = strtolower($user->role->name_role_es);
+
+                                            if ($roleName == 'administrador' || $roleName == 'admin') {
+                                                $roleClass = 'role-admin';
+                                            } else {
+                                                $roleClass = 'role-employee';
+                                            }
+                                        @endphp
+
+                                        <span class="users-manager-badge {{ $roleClass }}">
+                                            {{ $user->role->name_role_es }}
+                                        </span>
                                     </td>
                                     <td>
-                                        <span class="users-manager-badge status">
-                                            @switch($user->status)
-                                                @case('active')
-                                                    Activo
-                                                @break
-
-                                                @case('inactive')
-                                                    Inactivo
-                                                @break
-
-                                                @case('suspended')
-                                                    Suspendido
-                                                @break
-
-                                                @default
-                                                    Desconocido
-                                            @endswitch
-                                        </span>
+                                        @if ($user->status == 'active')
+                                            <span class="users-manager-badge status">Activo</span>
+                                        @else
+                                            <span class="users-manager-badge status-inactive">Inactivo</span>
+                                        @endif
                                     </td>
                                     <td>
                                         <div class="header-right-user-manager">
                                             {{-- edit --}}
                                             @php $ec = $user->contactEmergency->first(); @endphp
-                                            <button type="button"
-                                                class="table-users-manager-action-btn edit btn-edit-user"
-                                                data-id="{{ $user->id }}"
-                                                data-first-name="{{ $user->first_name }}"
-                                                data-last-name="{{ $user->last_name }}"
-                                                data-email="{{ $user->email }}"
-                                                data-phone="{{ $user->phone }}"
-                                                data-position="{{ $user->position }}"
-                                                data-birthdate="{{ $user->birthdate }}"
-                                                data-rfc="{{ $user->rfc }}"
+                                            <button class="table-users-manager-action-btn edit">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+                                                    viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                                    class="lucide lucide-eye">
+                                                    <path
+                                                        d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0">
+                                                    </path>
+                                                    <circle cx="12" cy="12" r="3"></circle>
+                                                </svg>
+                                            </button>
+
+                                            {{-- Edit --}}
+                                            <button type="button" class="table-users-manager-action-btn edit btn-edit-user"
+                                                data-id="{{ $user->id }}" data-first-name="{{ $user->first_name }}"
+                                                data-last-name="{{ $user->last_name }}" data-email="{{ $user->email }}"
+                                                data-phone="{{ $user->phone }}" data-position="{{ $user->position }}"
+                                                data-birthdate="{{ $user->birthdate }}" data-rfc="{{ $user->rfc }}"
                                                 data-curp="{{ $user->curp }}"
                                                 data-ssn="{{ $user->social_segurity_number }}"
-                                                data-role-id="{{ $user->role_id }}"
-                                                data-status="{{ $user->status }}"
-                                                data-emergency-name="{{ $ec?->name ?? '' }}"
-                                                data-emergency-phone="{{ $ec?->phone ?? '' }}"
-                                                data-emergency-relationship="{{ $ec?->relationship ?? '' }}">
+                                                data-role-id="{{ $user->role_id }}" data-status="{{ $user->status }}"
+                                                @foreach ($user->contactEmergency as $i => $ec)
+                                                data-ec-name-{{ $i }}="{{ $ec->name }}"
+                                                data-ec-phone-{{ $i }}="{{ $ec->phone }}"
+                                                data-ec-rel-{{ $i }}="{{ $ec->relationship }}" @endforeach
+                                                data-ec-count="{{ $user->contactEmergency->count() }}">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
                                                     viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
@@ -103,7 +112,12 @@
                                                 </svg>
                                             </button>
                                             {{-- delete --}}
-                                            <button class="table-users-manager-action-btn delete">
+                                            <button type="button"
+                                                class="table-users-manager-action-btn delete btn-delete-user"
+                                                data-id="{{ $user->id }}"
+                                                data-name="{{ $user->first_name }} {{ $user->last_name }}"
+                                                data-email="{{ $user->email }}"
+                                                data-initial="{{ strtoupper(substr($user->first_name, 0, 1)) }}">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
                                                     viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
@@ -158,6 +172,18 @@
                     <div class="user-manager-icon-container">
                     </div>
                 </div>
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -231,37 +257,63 @@
                         </div>
                     </div>
                     <h3>Contacto de Emergencia</h3>
-                    <div class="user-manager-form user-manager-form-3">
-                        <div>
-                            <label class="supliers-manager-slider-label email">Nombre del Contacto</label>
-                            <input type="text" class="users-manager-input" name="emergency_contact_name"
-                                placeholder="Ej: Juan Pérez">
-                        </div>
-                        <div>
-                            <label class="supliers-manager-slider-label email">Teléfono</label>
-                            <input type="text" class="users-manager-input" name="emergency_phone"
-                                placeholder="(449) 123-4567">
-                        </div>
-                        <div>
-                            <label class="supliers-manager-slider-label email">Parentesco</label>
-                            <input type="text" class="users-manager-input" name="relationship"
-                                placeholder="Ej: Hermano/a, Esposo/a">
+
+                    <div id="emergency-contacts-container">
+
+                        <div class="user-manager-form user-manager-form-3 emergency-contact-item">
+                            <div>
+                                <label class="supliers-manager-slider-label email">Nombre del Contacto</label>
+                                <input type="text" class="users-manager-input" name="emergency_contact_name[]"
+                                    placeholder="Ej: Juan Pérez">
+                            </div>
+                            <div>
+                                <label class="supliers-manager-slider-label email">Teléfono</label>
+                                <input type="text" class="users-manager-input" name="emergency_phone[]"
+                                    placeholder="(449) 123-4567">
+                            </div>
+                            <div>
+                                <label class="supliers-manager-slider-label email">Parentesco</label>
+                                <input type="text" class="users-manager-input" name="relationship[]"
+                                    placeholder="Ej: Hermano/a, Esposo/a">
+                            </div>
+
+                            <button type="button" class="table-users-manager-action-btn delete delete-emergency-btn">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round"
+                                    class="lucide lucide-trash2 lucide-trash-2">
+                                    <path d="M3 6h18"></path>
+                                    <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+                                    <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+                                    <line x1="10" x2="10" y1="11" y2="17">
+                                    </line>
+                                    <line x1="14" x2="14" y1="11" y2="17">
+                                    </line>
+                                </svg>
+                            </button>
                         </div>
                     </div>
-                    <h3>Acceso al Sistema</h3>
+                    <div id="emergency-buttons-container">
+                        <button type="button" id="addEmergencyContact" class="emergency-add-btn">
+                            <span class="icon">+</span>
+                            <span id="emergencyText">Agregar otro contacto de emergencia (1/5)</span>
+                        </button>
+                    </div>
+
                     <div class="user-manager-form access-sistem-form">
                         <div>
                             <label class="supliers-manager-slider-label">Role</label>
-                            <select class="users-manager-select" style="text-transform: capitalize;" name="role_id">
+                            <select class="users-manager-select" style="text-transform: capitalize;" name="role_id"
+                                id="edit_role_id">
                                 <option value="">Seleccionar</option>
-                                @foreach($roles as $role)
+                                @foreach ($roles as $role)
                                     <option value="{{ $role->id }}">{{ $role->name_role_es }}</option>
                                 @endforeach
                             </select>
                         </div>
                         <div>
                             <label class="supliers-manager-slider-label">Estado*</label>
-                            <select class="users-manager-select" name="status">
+                            <select class="users-manager-select" name="status" id="edit_status">
                                 <option value="">Seleccionar</option>
                                 <option value="active">Activo</option>
                                 <option value="inactive">Inactivo</option>
@@ -269,8 +321,9 @@
                             </select>
                         </div>
                         <div>
-                            <label class="supliers-manager-slider-label">Contraseña*</label>
-                            <input class="users-manager-input password" type="password" name="password">
+                            <label class="supliers-manager-slider-label">Nueva Contraseña</label>
+                            <input class="users-manager-input password" type="password" name="password"
+                                id="edit_password">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                 stroke-linejoin="round" class="lucide lucide-eye">
@@ -281,9 +334,9 @@
                             </svg>
                         </div>
                         <div>
-                            <label class="supliers-manager-slider-label">Confirmar Contraseña*</label>
+                            <label class="supliers-manager-slider-label">Confirmar Contraseña</label>
                             <input class="users-manager-input password" type="password" name="password_confirmation"
-                                id="password_confirmation">
+                                id="edit_password_confirmation">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                 stroke-linejoin="round" class="lucide lucide-eye">
@@ -294,286 +347,36 @@
                             </svg>
                         </div>
                     </div>
-                    <h3>Permisos por Módulo</h3>
-                    <div class="user-manager-permissions-grid">
-                        <!-- ITEM -->
-                        <div class="user-manager-permission-item">
-                            <div class="user-manager-permission-left-section">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                    stroke-linecap="round" stroke-linejoin="round"
-                                    class="lucide lucide-layout-dashboard text-gray-600">
-                                    <rect width="7" height="9" x="3" y="3" rx="1"></rect>
-                                    <rect width="7" height="5" x="14" y="3" rx="1"></rect>
-                                    <rect width="7" height="9" x="14" y="12" rx="1"></rect>
-                                    <rect width="7" height="5" x="3" y="16" rx="1"></rect>
-                                </svg>
-                                <span>Dashboard</span>
-                            </div>
-                            <label class="user-manager-switch">
-                                <input type="checkbox" checked>
-                                <span class="slider"></span>
-                            </label>
-                        </div>
-                        <div class="user-manager-permission-item">
-                            <div class="user-manager-permission-left-section">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                    stroke-linecap="round" stroke-linejoin="round"
-                                    class="lucide lucide-building2 lucide-building-2 text-gray-600">
-                                    <path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"></path>
-                                    <path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"></path>
-                                    <path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"></path>
-                                    <path d="M10 6h4"></path>
-                                    <path d="M10 10h4"></path>
-                                    <path d="M10 14h4"></path>
-                                    <path d="M10 18h4"></path>
-                                </svg>
-                                <span>Clientes</span>
-                            </div>
-                            <label class="user-manager-switch">
-                                <input type="checkbox">
-                                <span class="slider"></span>
-                            </label>
-                        </div>
-                        <div class="user-manager-permission-item">
-                            <div class="user-manager-permission-left-section">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                    stroke-linecap="round" stroke-linejoin="round"
-                                    class="lucide lucide-user-cog text-gray-600">
-                                    <circle cx="18" cy="15" r="3"></circle>
-                                    <circle cx="9" cy="7" r="4"></circle>
-                                    <path d="M10 15H6a4 4 0 0 0-4 4v2"></path>
-                                    <path d="m21.7 16.4-.9-.3"></path>
-                                    <path d="m15.2 13.9-.9-.3"></path>
-                                    <path d="m16.6 18.7.3-.9"></path>
-                                    <path d="m19.1 12.2.3-.9"></path>
-                                    <path d="m19.6 18.7-.4-1"></path>
-                                    <path d="m16.8 12.3-.4-1"></path>
-                                    <path d="m14.3 16.6 1-.4"></path>
-                                    <path d="m20.7 13.8 1-.4"></path>
-                                </svg>
-                                <span>Proveedores</span>
-                            </div>
-                            <label class="user-manager-switch">
-                                <input type="checkbox">
-                                <span class="slider"></span>
-                            </label>
-                        </div>
-                        <div class="user-manager-permission-item">
-                            <div class="user-manager-permission-left-section">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                    stroke-linecap="round" stroke-linejoin="round"
-                                    class="lucide lucide-shopping-bag text-gray-600">
-                                    <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"></path>
-                                    <path d="M3 6h18"></path>
-                                    <path d="M16 10a4 4 0 0 1-8 0"></path>
-                                </svg>
-                                <span>Productos</span>
-                            </div>
-                            <label class="user-manager-switch">
-                                <input type="checkbox">
-                                <span class="slider"></span>
-                            </label>
-                        </div>
-                        <div class="user-manager-permission-item">
-                            <div class="user-manager-permission-left-section">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                    stroke-linecap="round" stroke-linejoin="round"
-                                    class="lucide lucide-folder-tree text-gray-600">
-                                    <path
-                                        d="M20 10a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1h-2.5a1 1 0 0 1-.8-.4l-.9-1.2A1 1 0 0 0 15 3h-2a1 1 0 0 0-1 1v5a1 1 0 0 0 1 1Z">
-                                    </path>
-                                    <path
-                                        d="M20 21a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1h-2.9a1 1 0 0 1-.88-.55l-.42-.85a1 1 0 0 0-.92-.6H13a1 1 0 0 0-1 1v5a1 1 0 0 0 1 1Z">
-                                    </path>
-                                    <path d="M3 5a2 2 0 0 0 2 2h3"></path>
-                                    <path d="M3 3v13a2 2 0 0 0 2 2h3"></path>
-                                </svg>
-                                <span>Categorías</span>
-                            </div>
-                            <label class="user-manager-switch">
-                                <input type="checkbox">
-                                <span class="slider"></span>
-                            </label>
-                        </div>
-                        <div class="user-manager-permission-item">
-                            <div class="user-manager-permission-left-section">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                    stroke-linecap="round" stroke-linejoin="round"
-                                    class="lucide lucide-shopping-cart text-gray-600">
-                                    <circle cx="8" cy="21" r="1"></circle>
-                                    <circle cx="19" cy="21" r="1"></circle>
-                                    <path
-                                        d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12">
-                                    </path>
-                                </svg>
-                                <span>Órdenes</span>
-                            </div>
-                            <label class="user-manager-switch">
-                                <input type="checkbox">
-                                <span class="slider"></span>
-                            </label>
-                        </div>
-                        <div class="user-manager-permission-item">
-                            <div class="user-manager-permission-left-section">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                    stroke-linecap="round" stroke-linejoin="round"
-                                    class="lucide lucide-wrench text-gray-600">
-                                    <path
-                                        d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z">
-                                    </path>
-                                </svg>
-                                <span>Servicios Técnicos</span>
-                            </div>
-                            <label class="user-manager-switch">
-                                <input type="checkbox">
-                                <span class="slider"></span>
-                            </label>
-                        </div>
-                        <div class="user-manager-permission-item">
-                            <div class="user-manager-permission-left-section">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                    stroke-linecap="round" stroke-linejoin="round"
-                                    class="lucide lucide-archive text-gray-600">
-                                    <rect width="20" height="5" x="2" y="3" rx="1"></rect>
-                                    <path d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8"></path>
-                                    <path d="M10 12h4"></path>
-                                </svg>
-                                <span>Inventario</span>
-                            </div>
-                            <label class="user-manager-switch">
-                                <input type="checkbox">
-                                <span class="slider"></span>
-                            </label>
-                        </div>
-                        <div class="user-manager-permission-item">
-                            <div class="user-manager-permission-left-section">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                    stroke-linecap="round" stroke-linejoin="round"
-                                    class="lucide lucide-truck text-gray-600">
-                                    <path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"></path>
-                                    <path d="M15 18H9"></path>
-                                    <path
-                                        d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14">
-                                    </path>
-                                    <circle cx="17" cy="18" r="2"></circle>
-                                    <circle cx="7" cy="18" r="2"></circle>
-                                </svg>
-                                <span>Envíos</span>
-                            </div>
-                            <label class="user-manager-switch">
-                                <input type="checkbox">
-                                <span class="slider"></span>
-                            </label>
-                        </div>
-                        <div class="user-manager-permission-item">
-                            <div class="user-manager-permission-left-section">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                    stroke-linecap="round" stroke-linejoin="round"
-                                    class="lucide lucide-package text-gray-600">
-                                    <path
-                                        d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z">
-                                    </path>
-                                    <path d="M12 22V12"></path>
-                                    <polyline points="3.29 7 12 12 20.71 7"></polyline>
-                                    <path d="m7.5 4.27 9 5.15"></path>
-                                </svg>
-                                <span>Paqueterías</span>
-                            </div>
-                            <label class="user-manager-switch">
-                                <input type="checkbox">
-                                <span class="slider"></span>
-                            </label>
-                        </div>
-                        <div class="user-manager-permission-item">
-                            <div class="user-manager-permission-left-section">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                    stroke-linecap="round" stroke-linejoin="round"
-                                    class="lucide lucide-credit-card text-gray-600">
-                                    <rect width="20" height="14" x="2" y="5" rx="2"></rect>
-                                    <line x1="2" x2="22" y1="10" y2="10"></line>
-                                </svg>
-                                <span>Métodos de Pago</span>
-                            </div>
-                            <label class="user-manager-switch">
-                                <input type="checkbox">
-                                <span class="slider"></span>
-                            </label>
-                        </div>
-                        <div class="user-manager-permission-item">
-                            <div class="user-manager-permission-left-section">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                    stroke-linecap="round" stroke-linejoin="round"
-                                    class="lucide lucide-mail text-gray-600">
-                                    <rect width="20" height="16" x="2" y="4" rx="2"></rect>
-                                    <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
-                                </svg>
-                                <span>Email Marketing</span>
-                            </div>
-                            <label class="user-manager-switch">
-                                <input type="checkbox">
-                                <span class="slider"></span>
-                            </label>
-                        </div>
-                        <div class="user-manager-permission-item">
-                            <div class="user-manager-permission-left-section">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                    stroke-linecap="round" stroke-linejoin="round"
-                                    class="lucide lucide-chart-column text-gray-600">
-                                    <path d="M3 3v16a2 2 0 0 0 2 2h16"></path>
-                                    <path d="M18 17V9"></path>
-                                    <path d="M13 17V5"></path>
-                                    <path d="M8 17v-3"></path>
-                                </svg>
-                                <span>Analíticas</span>
-                            </div>
-                            <label class="user-manager-switch">
-                                <input type="checkbox">
-                                <span class="slider"></span>
-                            </label>
-                        </div>
-                        <div class="user-manager-permission-item">
-                            <div class="user-manager-permission-left-section">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                    stroke-linecap="round" stroke-linejoin="round"
-                                    class="lucide lucide-activity text-gray-600">
-                                    <path
-                                        d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2">
-                                    </path>
-                                </svg>
-                                <span>Auditoría Sistema</span>
-                            </div>
-                            <label class="user-manager-switch">
-                                <input type="checkbox">
-                                <span class="slider"></span>
-                            </label>
-                        </div>
-                    </div>
 
+                    <!-- BUTTON -->
                     <div class="user-manager-modal-footer">
                         <button type="button" id="cancelModal"
                             class="button-secondary size-adjustment">Cancelar</button>
-                        <button type="submit" class="button-primary size-adjustment create-user">Guardar Usuario</button>
+                        <button type="submit" class="button-primary size-adjustment create-user">Guardar
+                            Usuario</button>
                     </div>
-
                 </form>
 
             </div>
 
         </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
         {{-- Edit user --}}
         <div id="editUserModal" class="user-manager-modal">
@@ -588,8 +391,7 @@
                 </div>
 
                 <!-- Form Body -->
-                <form id="editUserForm" class="user-manager-modal-body" method="POST"
-                    enctype="multipart/form-data">
+                <form id="editUserForm" class="user-manager-modal-body" method="POST" enctype="multipart/form-data">
                     @csrf
                     @method('PUT')
                     <h3>Información Personal</h3>
@@ -624,8 +426,8 @@
                         </div>
                         <div>
                             <label class="supliers-manager-slider-label">RFC</label>
-                            <input class="users-manager-input" type="text" placeholder="XAXX010101000"
-                                name="rfc" id="edit_rfc">
+                            <input class="users-manager-input" type="text" placeholder="XAXX010101000" name="rfc"
+                                id="edit_rfc">
                         </div>
                         <div>
                             <label class="supliers-manager-slider-label">CURP</label>
@@ -656,31 +458,22 @@
                         </div>
                     </div>
                     <h3>Contacto de Emergencia</h3>
-                    <div class="user-manager-form user-manager-form-3">
-                        <div>
-                            <label class="supliers-manager-slider-label email">Nombre del Contacto</label>
-                            <input type="text" class="users-manager-input" name="emergency_contact_name"
-                                id="edit_emergency_contact_name" placeholder="Ej: Juan Pérez">
-                        </div>
-                        <div>
-                            <label class="supliers-manager-slider-label email">Teléfono</label>
-                            <input type="text" class="users-manager-input" name="emergency_phone"
-                                id="edit_emergency_phone" placeholder="(449) 123-4567">
-                        </div>
-                        <div>
-                            <label class="supliers-manager-slider-label email">Parentesco</label>
-                            <input type="text" class="users-manager-input" name="relationship"
-                                id="edit_relationship" placeholder="Ej: Hermano/a, Esposo/a">
-                        </div>
+                    <div id="edit-emergency-contacts-container">
+                    </div>
+                    <div id="emergency-buttons-container">
+                        <button type="button" id="editAddEmergencyContact" class="emergency-add-btn">
+                            <span class="icon">+</span>
+                            <span id="editEmergencyText">Agregar otro contacto de emergencia (1/5)</span>
+                        </button>
                     </div>
                     <h3>Acceso al Sistema</h3>
                     <div class="user-manager-form access-sistem-form">
                         <div>
                             <label class="supliers-manager-slider-label">Role</label>
-                            <select class="users-manager-select" style="text-transform: capitalize;"
-                                name="role_id" id="edit_role_id">
+                            <select class="users-manager-select" style="text-transform: capitalize;" name="role_id"
+                                id="edit_role_id">
                                 <option value="">Seleccionar</option>
-                                @foreach($roles as $role)
+                                @foreach ($roles as $role)
                                     <option value="{{ $role->id }}">{{ $role->name_role_es }}</option>
                                 @endforeach
                             </select>
@@ -709,8 +502,8 @@
                         </div>
                         <div>
                             <label class="supliers-manager-slider-label">Confirmar Contraseña</label>
-                            <input class="users-manager-input password" type="password"
-                                name="password_confirmation" id="edit_password_confirmation">
+                            <input class="users-manager-input password" type="password" name="password_confirmation"
+                                id="edit_password_confirmation">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                 stroke-linejoin="round" class="lucide lucide-eye">
@@ -721,348 +514,256 @@
                             </svg>
                         </div>
                     </div>
-                    <h3>Permisos por Módulo</h3>
-                    <div class="user-manager-permissions-grid">
-                        <div class="user-manager-permission-item">
-                            <div class="user-manager-permission-left-section">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                    stroke-linecap="round" stroke-linejoin="round"
-                                    class="lucide lucide-layout-dashboard text-gray-600">
-                                    <rect width="7" height="9" x="3" y="3" rx="1"></rect>
-                                    <rect width="7" height="5" x="14" y="3" rx="1"></rect>
-                                    <rect width="7" height="9" x="14" y="12" rx="1"></rect>
-                                    <rect width="7" height="5" x="3" y="16" rx="1"></rect>
-                                </svg>
-                                <span>Dashboard</span>
-                            </div>
-                            <label class="user-manager-switch">
-                                <input type="checkbox" checked>
-                                <span class="slider"></span>
-                            </label>
-                        </div>
-                        <div class="user-manager-permission-item">
-                            <div class="user-manager-permission-left-section">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                    stroke-linecap="round" stroke-linejoin="round"
-                                    class="lucide lucide-building2 lucide-building-2 text-gray-600">
-                                    <path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"></path>
-                                    <path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"></path>
-                                    <path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"></path>
-                                    <path d="M10 6h4"></path>
-                                    <path d="M10 10h4"></path>
-                                    <path d="M10 14h4"></path>
-                                    <path d="M10 18h4"></path>
-                                </svg>
-                                <span>Clientes</span>
-                            </div>
-                            <label class="user-manager-switch">
-                                <input type="checkbox">
-                                <span class="slider"></span>
-                            </label>
-                        </div>
-                        <div class="user-manager-permission-item">
-                            <div class="user-manager-permission-left-section">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                    stroke-linecap="round" stroke-linejoin="round"
-                                    class="lucide lucide-user-cog text-gray-600">
-                                    <circle cx="18" cy="15" r="3"></circle>
-                                    <circle cx="9" cy="7" r="4"></circle>
-                                    <path d="M10 15H6a4 4 0 0 0-4 4v2"></path>
-                                    <path d="m21.7 16.4-.9-.3"></path>
-                                    <path d="m15.2 13.9-.9-.3"></path>
-                                    <path d="m16.6 18.7.3-.9"></path>
-                                    <path d="m19.1 12.2.3-.9"></path>
-                                    <path d="m19.6 18.7-.4-1"></path>
-                                    <path d="m16.8 12.3-.4-1"></path>
-                                    <path d="m14.3 16.6 1-.4"></path>
-                                    <path d="m20.7 13.8 1-.4"></path>
-                                </svg>
-                                <span>Proveedores</span>
-                            </div>
-                            <label class="user-manager-switch">
-                                <input type="checkbox">
-                                <span class="slider"></span>
-                            </label>
-                        </div>
-                        <div class="user-manager-permission-item">
-                            <div class="user-manager-permission-left-section">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                    stroke-linecap="round" stroke-linejoin="round"
-                                    class="lucide lucide-shopping-bag text-gray-600">
-                                    <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"></path>
-                                    <path d="M3 6h18"></path>
-                                    <path d="M16 10a4 4 0 0 1-8 0"></path>
-                                </svg>
-                                <span>Productos</span>
-                            </div>
-                            <label class="user-manager-switch">
-                                <input type="checkbox">
-                                <span class="slider"></span>
-                            </label>
-                        </div>
-                        <div class="user-manager-permission-item">
-                            <div class="user-manager-permission-left-section">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                    stroke-linecap="round" stroke-linejoin="round"
-                                    class="lucide lucide-folder-tree text-gray-600">
-                                    <path
-                                        d="M20 10a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1h-2.5a1 1 0 0 1-.8-.4l-.9-1.2A1 1 0 0 0 15 3h-2a1 1 0 0 0-1 1v5a1 1 0 0 0 1 1Z">
-                                    </path>
-                                    <path
-                                        d="M20 21a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1h-2.9a1 1 0 0 1-.88-.55l-.42-.85a1 1 0 0 0-.92-.6H13a1 1 0 0 0-1 1v5a1 1 0 0 0 1 1Z">
-                                    </path>
-                                    <path d="M3 5a2 2 0 0 0 2 2h3"></path>
-                                    <path d="M3 3v13a2 2 0 0 0 2 2h3"></path>
-                                </svg>
-                                <span>Categorías</span>
-                            </div>
-                            <label class="user-manager-switch">
-                                <input type="checkbox">
-                                <span class="slider"></span>
-                            </label>
-                        </div>
-                        <div class="user-manager-permission-item">
-                            <div class="user-manager-permission-left-section">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                    stroke-linecap="round" stroke-linejoin="round"
-                                    class="lucide lucide-shopping-cart text-gray-600">
-                                    <circle cx="8" cy="21" r="1"></circle>
-                                    <circle cx="19" cy="21" r="1"></circle>
-                                    <path
-                                        d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12">
-                                    </path>
-                                </svg>
-                                <span>Órdenes</span>
-                            </div>
-                            <label class="user-manager-switch">
-                                <input type="checkbox">
-                                <span class="slider"></span>
-                            </label>
-                        </div>
-                        <div class="user-manager-permission-item">
-                            <div class="user-manager-permission-left-section">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                    stroke-linecap="round" stroke-linejoin="round"
-                                    class="lucide lucide-wrench text-gray-600">
-                                    <path
-                                        d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z">
-                                    </path>
-                                </svg>
-                                <span>Servicios Técnicos</span>
-                            </div>
-                            <label class="user-manager-switch">
-                                <input type="checkbox">
-                                <span class="slider"></span>
-                            </label>
-                        </div>
-                        <div class="user-manager-permission-item">
-                            <div class="user-manager-permission-left-section">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                    stroke-linecap="round" stroke-linejoin="round"
-                                    class="lucide lucide-archive text-gray-600">
-                                    <rect width="20" height="5" x="2" y="3" rx="1"></rect>
-                                    <path d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8"></path>
-                                    <path d="M10 12h4"></path>
-                                </svg>
-                                <span>Inventario</span>
-                            </div>
-                            <label class="user-manager-switch">
-                                <input type="checkbox">
-                                <span class="slider"></span>
-                            </label>
-                        </div>
-                        <div class="user-manager-permission-item">
-                            <div class="user-manager-permission-left-section">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                    stroke-linecap="round" stroke-linejoin="round"
-                                    class="lucide lucide-truck text-gray-600">
-                                    <path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"></path>
-                                    <path d="M15 18H9"></path>
-                                    <path
-                                        d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14">
-                                    </path>
-                                    <circle cx="17" cy="18" r="2"></circle>
-                                    <circle cx="7" cy="18" r="2"></circle>
-                                </svg>
-                                <span>Envíos</span>
-                            </div>
-                            <label class="user-manager-switch">
-                                <input type="checkbox">
-                                <span class="slider"></span>
-                            </label>
-                        </div>
-                        <div class="user-manager-permission-item">
-                            <div class="user-manager-permission-left-section">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                    stroke-linecap="round" stroke-linejoin="round"
-                                    class="lucide lucide-package text-gray-600">
-                                    <path
-                                        d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z">
-                                    </path>
-                                    <path d="M12 22V12"></path>
-                                    <polyline points="3.29 7 12 12 20.71 7"></polyline>
-                                    <path d="m7.5 4.27 9 5.15"></path>
-                                </svg>
-                                <span>Paqueterías</span>
-                            </div>
-                            <label class="user-manager-switch">
-                                <input type="checkbox">
-                                <span class="slider"></span>
-                            </label>
-                        </div>
-                        <div class="user-manager-permission-item">
-                            <div class="user-manager-permission-left-section">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                    stroke-linecap="round" stroke-linejoin="round"
-                                    class="lucide lucide-credit-card text-gray-600">
-                                    <rect width="20" height="14" x="2" y="5" rx="2"></rect>
-                                    <line x1="2" x2="22" y1="10" y2="10"></line>
-                                </svg>
-                                <span>Métodos de Pago</span>
-                            </div>
-                            <label class="user-manager-switch">
-                                <input type="checkbox">
-                                <span class="slider"></span>
-                            </label>
-                        </div>
-                        <div class="user-manager-permission-item">
-                            <div class="user-manager-permission-left-section">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                    stroke-linecap="round" stroke-linejoin="round"
-                                    class="lucide lucide-mail text-gray-600">
-                                    <rect width="20" height="16" x="2" y="4" rx="2"></rect>
-                                    <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
-                                </svg>
-                                <span>Email Marketing</span>
-                            </div>
-                            <label class="user-manager-switch">
-                                <input type="checkbox">
-                                <span class="slider"></span>
-                            </label>
-                        </div>
-                        <div class="user-manager-permission-item">
-                            <div class="user-manager-permission-left-section">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                    stroke-linecap="round" stroke-linejoin="round"
-                                    class="lucide lucide-chart-column text-gray-600">
-                                    <path d="M3 3v16a2 2 0 0 0 2 2h16"></path>
-                                    <path d="M18 17V9"></path>
-                                    <path d="M13 17V5"></path>
-                                    <path d="M8 17v-3"></path>
-                                </svg>
-                                <span>Analíticas</span>
-                            </div>
-                            <label class="user-manager-switch">
-                                <input type="checkbox">
-                                <span class="slider"></span>
-                            </label>
-                        </div>
-                        <div class="user-manager-permission-item">
-                            <div class="user-manager-permission-left-section">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                    stroke-linecap="round" stroke-linejoin="round"
-                                    class="lucide lucide-activity text-gray-600">
-                                    <path
-                                        d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2">
-                                    </path>
-                                </svg>
-                                <span>Auditoría Sistema</span>
-                            </div>
-                            <label class="user-manager-switch">
-                                <input type="checkbox">
-                                <span class="slider"></span>
-                            </label>
-                        </div>
-                    </div>
-
                     <div class="user-manager-modal-footer">
                         <button type="button" id="cancelEditModal"
                             class="button-secondary size-adjustment">Cancelar</button>
-                        <button type="submit" class="button-primary size-adjustment update-user">Actualizar Usuario</button>
+                        <button type="submit" class="button-primary size-adjustment update-user">Actualizar
+                            Usuario</button>
                     </div>
                 </form>
             </div>
         </div>
-
         <script>
-            // --- Create modal ---
-            const openBtn = document.querySelector('.button-primary');
-            const modal = document.getElementById('userModal');
-            const modalContent = modal.querySelector('.user-manager-modal-content');
-            const closeBtn = document.getElementById('closeModal');
-            const cancelBtn = document.getElementById('cancelModal');
-
+            // --- Helpers ---
             const closeModalWithAnim = (m) => {
                 const mc = m.querySelector('.user-manager-modal-content');
-                mc.style.transform = 'translateX(100%)';
-                mc.style.transition = 'transform 0.2s ease-in';
+                if (mc) {
+                    mc.style.transform = 'translateX(100%)';
+                    mc.style.transition = 'transform 0.2s ease-in';
+                }
                 m.style.transition = 'opacity 0.2s ease-in';
                 setTimeout(() => {
                     m.style.display = 'none';
-                    mc.style.transform = '';
-                    mc.style.transition = '';
+                    if (mc) {
+                        mc.style.transform = '';
+                        mc.style.transition = '';
+                    }
                     m.style.transition = '';
                 }, 300);
             };
 
-            if (openBtn) openBtn.addEventListener('click', () => { modal.style.display = 'flex'; });
+            // --- Create modal ---
+            const openBtn = document.querySelector('.button-primary.size-adjustment');
+            const modal = document.getElementById('userModal');
+            const closeBtn = document.getElementById('closeModal');
+            const cancelBtn = document.getElementById('cancelModal');
+
+            if (openBtn) openBtn.addEventListener('click', () => {
+                modal.style.display = 'flex';
+            });
             if (closeBtn) closeBtn.addEventListener('click', () => closeModalWithAnim(modal));
             if (cancelBtn) cancelBtn.addEventListener('click', () => closeModalWithAnim(modal));
-            window.addEventListener('click', (e) => { if (e.target === modal) closeModalWithAnim(modal); });
+
+            let clickStartedOutside = false;
+            window.addEventListener('mousedown', (e) => {
+                clickStartedOutside = (e.target === modal || e.target === editModal);
+            });
+            window.addEventListener('mouseup', (e) => {
+                if (clickStartedOutside && (e.target === modal || e.target === editModal)) {
+                    if (e.target === modal) closeModalWithAnim(modal);
+                    if (e.target === editModal) closeModalWithAnim(editModal);
+                }
+                clickStartedOutside = false;
+            });
 
             // --- Edit modal ---
             const editModal = document.getElementById('editUserModal');
             const closeEditBtn = document.getElementById('closeEditModal');
             const cancelEditBtn = document.getElementById('cancelEditModal');
             const editForm = document.getElementById('editUserForm');
-            const editBaseUrl = '{{ url('/admin/usuarios') }}';
+            const editBaseUrl = '{{ url('/usuarios') }}';
+
+            // Contenedor de contactos del modal editar
+            const editEcContainer = document.getElementById('edit-emergency-contacts-container');
+            const editAddBtn = document.getElementById('editAddEmergencyContact');
+            const editEcText = document.getElementById('editEmergencyText');
+            const maxContacts = 5;
+
+            function buildEditContactRow(data = {}) {
+                const div = document.createElement('div');
+                div.className = 'user-manager-form user-manager-form-3 emergency-contact-item';
+                div.innerHTML = `
+            <div>
+                <label class="supliers-manager-slider-label email">Nombre del Contacto</label>
+                <input type="text" class="users-manager-input" name="emergency_contact_name[]"
+                    placeholder="Ej: Juan Pérez" value="${data.name || ''}">
+            </div>
+            <div>
+                <label class="supliers-manager-slider-label email">Teléfono</label>
+                <input type="text" class="users-manager-input" name="emergency_phone[]"
+                    placeholder="(449) 123-4567" value="${data.phone || ''}">
+            </div>
+            <div>
+                <label class="supliers-manager-slider-label email">Parentesco</label>
+                <input type="text" class="users-manager-input" name="relationship[]"
+                    placeholder="Ej: Hermano/a, Esposo/a" value="${data.relationship || ''}">
+            </div>
+            <button type="button" class="table-users-manager-action-btn delete edit-delete-emergency-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 6h18"></path>
+                    <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+                    <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+                    <line x1="10" x2="10" y1="11" y2="17"></line>
+                    <line x1="14" x2="14" y1="11" y2="17"></line>
+                </svg>
+            </button>`;
+                div.querySelector('.edit-delete-emergency-btn').addEventListener('click', () => {
+                    div.remove();
+                    updateEditUI();
+                });
+                return div;
+            }
+
+            function updateEditUI() {
+                const total = editEcContainer.querySelectorAll('.emergency-contact-item').length;
+                editEcText.textContent = `Agregar otro contacto de emergencia (${total}/${maxContacts})`;
+                editAddBtn.style.display = total >= maxContacts ? 'none' : 'flex';
+            }
+
+            editAddBtn.addEventListener('click', () => {
+                const total = editEcContainer.querySelectorAll('.emergency-contact-item').length;
+                if (total >= maxContacts) return;
+                editEcContainer.appendChild(buildEditContactRow());
+                updateEditUI();
+            });
 
             const openEditModal = (d) => {
                 editForm.action = editBaseUrl + '/' + d.id;
 
-                document.getElementById('edit_first_name').value             = d.firstName || '';
-                document.getElementById('edit_last_name').value              = d.lastName || '';
-                document.getElementById('edit_birthdate').value              = d.birthdate || '';
-                document.getElementById('edit_rfc').value                    = d.rfc || '';
-                document.getElementById('edit_curp').value                   = d.curp || '';
+                document.getElementById('edit_first_name').value = d.firstName || '';
+                document.getElementById('edit_last_name').value = d.lastName || '';
+                document.getElementById('edit_birthdate').value = d.birthdate || '';
+                document.getElementById('edit_rfc').value = d.rfc || '';
+                document.getElementById('edit_curp').value = d.curp || '';
                 document.getElementById('edit_social_segurity_number').value = d.ssn || '';
-                document.getElementById('edit_email').value                  = d.email || '';
-                document.getElementById('edit_phone').value                  = d.phone || '';
-                document.getElementById('edit_position').value               = d.position || '';
-                document.getElementById('edit_emergency_contact_name').value = d.emergencyName || '';
-                document.getElementById('edit_emergency_phone').value        = d.emergencyPhone || '';
-                document.getElementById('edit_relationship').value           = d.emergencyRelationship || '';
-                document.getElementById('edit_role_id').value                = d.roleId || '';
-                document.getElementById('edit_status').value                 = d.status || '';
-                document.getElementById('edit_password').value               = '';
-                document.getElementById('edit_password_confirmation').value  = '';
+                document.getElementById('edit_email').value = d.email || '';
+                document.getElementById('edit_phone').value = d.phone || '';
+                document.getElementById('edit_position').value = d.position || '';
+                document.getElementById('edit_role_id').value = d.roleId || '';
+                document.getElementById('edit_status').value = d.status || '';
+                document.getElementById('edit_password').value = '';
+                document.getElementById('edit_password_confirmation').value = '';
+                // Limpiar contactos existentes y cargar los del usuario
+                editEcContainer.innerHTML = '';
+                const count = parseInt(d.ecCount || '0');
+
+                if (count === 0) {
+                    editEcContainer.appendChild(buildEditContactRow());
+                } else {
+                    for (let i = 0; i < count; i++) {
+                        editEcContainer.appendChild(buildEditContactRow({
+                            name: d['ecName' + i] || '',
+                            phone: d['ecPhone' + i] || '',
+                            relationship: d['ecRel' + i] || ''
+                        }));
+                    }
+                }
+                updateEditUI();
 
                 editModal.style.display = 'flex';
             };
 
             document.querySelectorAll('.btn-edit-user').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    openEditModal(btn.dataset);
-                });
+                btn.addEventListener('click', () => openEditModal(btn.dataset));
             });
 
             if (closeEditBtn) closeEditBtn.addEventListener('click', () => closeModalWithAnim(editModal));
             if (cancelEditBtn) cancelEditBtn.addEventListener('click', () => closeModalWithAnim(editModal));
-            window.addEventListener('click', (e) => { if (e.target === editModal) closeModalWithAnim(editModal); });
+
+            // --- Create modal emergency contacts ---
+            const addBtn = document.getElementById('addEmergencyContact');
+            const container = document.getElementById('emergency-contacts-container');
+            const textCounter = document.getElementById('emergencyText');
+
+            function updateUI() {
+                const contacts = container.querySelectorAll('.emergency-contact-item');
+                const total = contacts.length;
+                textCounter.textContent = `Agregar otro contacto de emergencia (${total}/${maxContacts})`;
+                contacts.forEach(contact => {
+                    contact.querySelector('.delete-emergency-btn').style.display = total > 1 ? 'block' : 'none';
+                });
+                addBtn.style.display = total >= maxContacts ? 'none' : 'flex';
+            }
+
+            addBtn.addEventListener('click', () => {
+                if (container.querySelectorAll('.emergency-contact-item').length >= maxContacts) return;
+                const newContact = container.querySelector('.emergency-contact-item').cloneNode(true);
+                newContact.querySelectorAll('input').forEach(i => i.value = '');
+                newContact.querySelector('.delete-emergency-btn').addEventListener('click', () => {
+                    newContact.remove();
+                    updateUI();
+                });
+                container.appendChild(newContact);
+                updateUI();
+            });
+
+            container.querySelectorAll('.delete-emergency-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.target.closest('.emergency-contact-item').remove();
+                    updateUI();
+                });
+            });
+
+            updateUI();
+
+            // --- Delete confirmation modal ---
+            const deleteModal = document.getElementById('deleteUserModal');
+            const deleteForm = document.getElementById('deleteUserForm');
+            const delCancelBtn = document.getElementById('delConfirmCancel');
+            const deleteBaseUrl = '{{ url('/admin/usuarios') }}';
+
+            document.querySelectorAll('.btn-delete-user').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const id = btn.dataset.id;
+                    const name = btn.dataset.name;
+                    const email = btn.dataset.email;
+                    const initial = btn.dataset.initial;
+
+                    document.getElementById('delConfirmName').textContent = name;
+                    document.getElementById('delConfirmEmail').textContent = email;
+                    document.getElementById('delConfirmAvatar').textContent = initial;
+
+                    deleteForm.action = "{{ url('/usuarios') }}/" + id;
+                    deleteModal.classList.add('active');
+                });
+            });
+
+            delCancelBtn.addEventListener('click', () => deleteModal.classList.remove('active'));
+            deleteModal.addEventListener('click', (e) => {
+                if (e.target === deleteModal) deleteModal.classList.remove('active');
+            });
         </script>
+    </div>
+    {{-- Delete confirmation modal --}}
+    <div id="deleteUserModal" class="del-confirm-overlay">
+        <div class="del-confirm-box">
+            <div class="del-confirm-icon-wrap">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
+                    fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path>
+                    <path d="M12 9v4"></path>
+                    <path d="M12 17h.01"></path>
+                </svg>
+            </div>
+            <h2 class="del-confirm-title">¿Eliminar usuario?</h2>
+            <p class="del-confirm-desc">Esta acción no se puede deshacer. El usuario perderá acceso al sistema
+                permanentemente.</p>
+            <div class="del-confirm-user-card">
+                <div class="del-confirm-avatar" id="delConfirmAvatar">U</div>
+                <div>
+                    <p class="del-confirm-user-name" id="delConfirmName">Nombre Usuario</p>
+                    <p class="del-confirm-user-email" id="delConfirmEmail">email@ejemplo.com</p>
+                </div>
+            </div>
+            <div class="del-confirm-actions">
+                <button type="button" class="button-secondary size-adjustment" id="delConfirmCancel">Cancelar</button>
+                <form id="deleteUserForm" method="POST">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="del-confirm-btn-delete">Eliminar</button>
+                </form>
+            </div>
+        </div>
     </div>
 @endsection

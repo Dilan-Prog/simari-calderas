@@ -59,7 +59,6 @@
             </div>
         </a>
 
-    
         <a class="sidebar-nav-item" data-section="coming-soon" data-label="Proveedores">
             <div class="sidebar-nav-item-left">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
@@ -114,7 +113,7 @@
             </div>
         </a>
 
-        
+
         <a class="sidebar-nav-item" data-section="coming-soon" data-label="Servicios Técnicos">
             <div class="sidebar-nav-item-left">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
@@ -153,7 +152,7 @@
             </div>
         </a>
 
-    
+
         <a class="sidebar-nav-item" data-section="coming-soon" data-label="Paqueterías">
             <div class="sidebar-nav-item-left">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
@@ -167,7 +166,7 @@
             </div>
         </a>
 
-        
+
         <a class="sidebar-nav-item" data-section="coming-soon" data-label="Métodos de Pago">
             <div class="sidebar-nav-item-left">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
@@ -180,7 +179,7 @@
             </div>
         </a>
 
-        
+
         <a class="sidebar-nav-item" data-section="coming-soon" data-label="Email Marketing">
             <div class="sidebar-nav-item-left">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
@@ -206,7 +205,7 @@
             </div>
         </a>
 
-        
+
         <a class="sidebar-nav-item" data-section="coming-soon" data-label="Auditoría Sistema">
             <div class="sidebar-nav-item-left">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
@@ -267,8 +266,8 @@
             </div>
         </a>
 
-        
-        <a class="sidebar-nav-item" data-section="coming-soon" data-label="Configuración">
+
+        <button class="sidebar-nav-item" data-section="coming-soon" data-label="Configuración">
             <div class="sidebar-nav-item-left">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                         fill="none" stroke="currentColor" stroke-width="2"
