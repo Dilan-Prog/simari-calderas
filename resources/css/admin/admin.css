@@ -663,3 +663,114 @@
     transform: translateY(0);
     cursor: default;
 }
+
+
+
+/* Delete Confirmation Modal */
+.del-confirm-overlay {
+    display: none;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    background: rgba(0, 0, 0, 0.45);
+    z-index: 99999;
+    align-items: center;
+    justify-content: center;
+}
+.del-confirm-overlay.active {
+    display: flex;
+}
+.del-confirm-box {
+    background: #fff;
+    border-radius: 16px;
+    padding: 36px 32px 28px;
+    max-width: 420px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.18);
+    animation: delBoxIn 0.2s ease;
+}
+@keyframes delBoxIn {
+    from { transform: scale(0.92); opacity: 0; }
+    to   { transform: scale(1);    opacity: 1; }
+}
+.del-confirm-icon-wrap {
+    width: 64px;
+    height: 64px;
+    background: #fee2e2;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 16px;
+}
+.del-confirm-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: #111;
+}
+.del-confirm-desc {
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin-bottom: 20px;
+}
+.del-confirm-user-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 12px 16px;
+    text-align: left;
+    margin-bottom: 24px;
+}
+.del-confirm-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #7c3aed;
+    color: #fff;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    flex-shrink: 0;
+}
+.del-confirm-user-name {
+    font-weight: 600;
+    color: #111;
+    font-size: 0.95rem;
+    margin: 0;
+}
+.del-confirm-user-email {
+    font-size: 0.8rem;
+    color: #6b7280;
+    margin: 0;
+}
+.del-confirm-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}
+.del-confirm-actions form {
+    margin: 0;
+}
+.del-confirm-btn-delete {
+    background: #ef4444;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 28px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+.del-confirm-btn-delete:hover {
+    background: #dc2626;
+}

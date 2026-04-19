@@ -184,73 +184,102 @@
             <div class="tab-content-show-client" id="orders">
                 <div class="stats">
                     <div class="stat-card">
-                        <p>Total de Órdenes</p>
+                        <p class="breadcrumb-users-manager">Total de Órdenes</p>
                         <h2>3</h2>
                     </div>
                     <div class="stat-card">
-                        <p>Total Gastado</p>
+                        <p class="breadcrumb-users-manager">Total Gastado</p>
                         <h2>$75,750.00</h2>
                     </div>
                     <div class="stat-card">
-                        <p>Última Orden</p>
+                        <p class="breadcrumb-users-manager">Última Orden</p>
                         <h2>15 Mar 2024</h2>
                     </div>
                 </div>
-
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>ORDEN #</th>
-                            <th>FECHA</th>
-                            <th>ESTADO</th>
-                            <th>TOTAL</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>ORD-002</td>
-                            <td>2024-02-08</td>
-                            <td><span class="badge blue">En tránsito</span></td>
-                            <td>$18,200.00</td>
-                        </tr>
-                        @for ($i = 0; $i <= 12; $i++)
+                <main class="table-container-users-manager">
+                    <table class="users-manager-table">
+                        <thead>
                             <tr>
-                                <td>ORD-001</td>
-                                <td>2024-03-15</td>
-                                <td><span class="badge green">Completado</span></td>
-                                <td>$25,450.00</td>
+                                <th>ORDEN #</th>
+                                <th>FECHA</th>
+                                <th>ESTADO</th>
+                                <th>TOTAL</th>
+                                <th>ACCIONES</th>
                             </tr>
-                        @endfor
-                    </tbody>
-                </table>
-            </div>
+                        </thead>
+                    </table>
 
-            <!-- Adress -->
-            <div class="tab-content-show-client" id="addresses">
-                <div class="grid-2-information-client-show">
+                    <div class="table-scroll">
+                        <table class="users-manager-table">
+                            <tbody>
+                                @for ($i = 0; $i < 12; $i++)
+                                    <tr class="table-row-user-manager">
+                                        <td class="user-manager-table-cell">
+                                            <div>
+                                               <h3>ORD-001</h3>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <p class="breadcrumb-users-manager main">2024-03-15</p>
+                                        </td>
+                                        <td>
+                                            <span class="users-manager-badge role-employee">
+                                                En tránsito
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <h3>$25,450.00</h3>
+                                        </td>
+                                        <td>
+                                            <div class="header-right-user-manager">
+                                                {{-- edit --}}
+                                                <button class="table-users-manager-action-btn edit">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+                                                        viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                                        class="lucide lucide-package">
+                                                        <path
+                                                            d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z">
+                                                        </path>
+                                                        <path d="M12 22V12"></path>
+                                                        <polyline points="3.29 7 12 12 20.71 7"></polyline>
+                                                        <path d="m7.5 4.27 9 5.15"></path>
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @endfor
+                            </tbody>
+                        </table>
 
-                    <div class="card-information-show">
-                        <div class="card-information-show-header">
-                            <h3>Oficina Principal</h3>
-                            <span class="badge blue">Predeterminada</span>
+                        <!-- Adress -->
+                        <div class="tab-content-show-client" id="addresses">
+                            <div class="grid-2-information-client-show">
+
+                                <div class="card-information-show">
+                                    <div class="card-information-show-header">
+                                        <h3>Oficina Principal</h3>
+                                        <span class="badge blue">Predeterminada</span>
+                                    </div>
+
+                                    <p><strong>Destinatario</strong><br>Juan Pérez</p>
+                                    <p><strong>Dirección</strong><br>Calle 123...</p>
+                                    <p><strong>Teléfono</strong><br>524494348018</p>
+                                </div>
+
+                                <div class="card-information-show">
+                                    <h3>Planta de Producción</h3>
+
+                                    <p><strong>Destinatario</strong><br>Departamento de Recepción</p>
+                                    <p><strong>Dirección</strong><br>Zona Industrial...</p>
+                                    <p><strong>Teléfono</strong><br>524494348018</p>
+                                </div>
+                            </div>
+
+                            <button class="btn-dashed">＋ Agregar dirección</button>
                         </div>
-
-                        <p><strong>Destinatario</strong><br>Juan Pérez</p>
-                        <p><strong>Dirección</strong><br>Calle 123...</p>
-                        <p><strong>Teléfono</strong><br>524494348018</p>
-                    </div>
-
-                    <div class="card-information-show">
-                        <h3>Planta de Producción</h3>
-
-                        <p><strong>Destinatario</strong><br>Departamento de Recepción</p>
-                        <p><strong>Dirección</strong><br>Zona Industrial...</p>
-                        <p><strong>Teléfono</strong><br>524494348018</p>
-                    </div>
-                </div>
-
-                <button class="btn-dashed">＋ Agregar dirección</button>
-            </div>
+                </main>
         </section>
 
         <script>
