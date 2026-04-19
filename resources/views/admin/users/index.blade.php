@@ -37,7 +37,7 @@
                     <p class="toast-title">Error</p>
                     <p class="toast-message">{{ session('error') }}</p>
                 </div>
-                <button class="toast-close" <button class="toast-close"
+                <button class="toast-close"
                     onclick="const t=this.closest('.toast-notification');t.style.animation='toastOut 0.3s ease forwards';setTimeout(()=>t.remove(),300)">✕</button>
             </div>
         @endif
@@ -591,7 +591,7 @@
                     <form id="deleteUserForm" method="POST">
                         @csrf
                         @method('DELETE')
-                        <button type="submit" class="del-confirm-btn-delete">Eliminar</button>
+                        <button type="submit" class="button-primary size-adjustment delete-confirmation-modal-button">Eliminar</button>
                     </form>
                 </div>
             </div>
@@ -817,9 +817,9 @@
 
             document.querySelectorAll('.toast-notification').forEach(toast => {
                 setTimeout(() => {
-                    toast.style.animation = 'toastOut 0.3s ease forwards';
+                    toast.style.animation = 'toastOut 0.4s ease forwards';
                     setTimeout(() => toast.remove(), 300);
-                }, 4000);
+                }, 7000);
             });
         </script>
     </div>

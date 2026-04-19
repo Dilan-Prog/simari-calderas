@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Backend;
 
 use App\Http\Controllers\Controller;
 use App\Models\ContactEmergency;
+use App\Models\Customer;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -15,8 +16,7 @@ class ClientManageController extends Controller
      */
     public function index()
     {
-        // $users = User::where('role_id',2)
-        // ->get(['id', ]);
+        // $customer = Customer::get(['id','first_name', 'last_name','company', 'email', 'phone']);
         return view('admin.client.index');
     }
 
