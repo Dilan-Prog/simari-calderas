@@ -18,7 +18,7 @@
     --toggle-header:                #2E3A46;
     --toggle-header-nav:            #364153;
     --text-header-color-nav:        #D1D5DC;
-    --text-header-color-nav-hover:  #0054ff;
+    --text-header-color-nav-hover:  #ff6213;
     --text-header-color-nav-hover-white: #ffffff;
 
     /* --- Footer --- */
@@ -35,12 +35,12 @@
     --text-description-color:       #6B7280;
 
     /* --- Colores de acción / marca --- */
-    --secondary-color:              #0054ff;
+    --secondary-color:              #ff6213;
     --secondary-color-rgb:          0, 84, 255;
 
     /* --- Botones --- */
-    --button-primary-color:         #0054ff;
-    --button-primary-color-hover:   #0043cc;
+    --button-primary-color:         #ff6213;
+    --button-primary-color-hover:   #de4a00;
     --button-serondary-color:       transparent;
     --button-secondary-color-hover: #ffffff;
 

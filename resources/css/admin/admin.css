@@ -11,7 +11,7 @@
     --header-background-color: #141516;
     --header-footer-color: #1A2535;
     --text-header-color-nav: #D1D5DC;
-    --text-header-color-nav-hover: #0054ff;
+    --text-header-color-nav-hover: #ff6213;
     --text-header-color-nav-hover-white: #ffffff;
     --toggle-header: #2E3A46;
     --toggle-header-nav: #364153;
@@ -23,9 +23,9 @@
     --text-footer-color-links-hover: #ffffff;
 
     /* Brand primary (SIMARI / azul) */
-    --button-primary-color: #0054ff;
-    --button-primary-color-hover: #0043cc;
-    --secondary-color: #0054ff;
+    --button-primary-color: #ff6213;
+    --button-primary-color-hover: #de4a00;
+    --secondary-color: #ff6213;
 
     /* Brand secondary (Rinnai / rojo) */
     --button-primary-color-hover-rinnai: #b71c1c;
@@ -455,7 +455,7 @@
     width: 32px;
     height: 32px;
     border-radius: 50%;
-    background-color: #0054ff;
+    background-color: #ff6213;
     color: #fff;
     border: none;
     display: flex;
@@ -639,7 +639,7 @@
 }
 
 .user-manager-switch input:checked+.slider {
-    background-color: #0054ff;
+    background-color: #ff6213;
 }
 
 .button-secondary.size-adjustment {

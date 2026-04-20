@@ -401,7 +401,7 @@ Instrumentación Industrial - Industria Simari
  
 <!-- ═══════════════════════════════════════════════════════
      SERVICIO TÉCNICO – SECCIÓN AZUL
-     React: section bg-[#0054ff]
+     React: section bg-[#ff6213]
 ════════════════════════════════════════════════════════ -->
 <section class="ii-service" id="servicio" aria-labelledby="ii-service-title">
   <div class="ii-container">

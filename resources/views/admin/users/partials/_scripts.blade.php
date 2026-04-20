@@ -159,6 +159,7 @@
         editModal.style.display = 'flex';
 
         try {
+            
             const response = await fetch(showUserUrl.replace(':id', id), {
                 headers: {
                     'Accept': 'application/json',

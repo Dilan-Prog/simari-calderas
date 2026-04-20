@@ -34,7 +34,7 @@
             <div class="user-manager-form">
                 <div>
                     <label class="supliers-manager-slider-label">Nombre</label>
-                    <input class="users-manager-input" type="text" name="first_name" id="edit_first_name">
+                    <input class="users-manager-input" type="text" name="first_name"  id="edit_first_name">
                 </div>
                 <div>
                     <label class="supliers-manager-slider-label">Apellidos*</label>

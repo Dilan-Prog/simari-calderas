@@ -116,7 +116,7 @@
                         @endforeach
                     </select>
                 </div>
-                <div>
+                <div >
                     <label class="supliers-manager-slider-label">Estado*</label>
                     <select class="users-manager-select" name="status" id="edit_status">
                         <option value="">Seleccionar</option>

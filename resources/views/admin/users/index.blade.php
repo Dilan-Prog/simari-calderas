@@ -167,11 +167,9 @@
                 </div>
             </main>
         </section>
-
         @include('admin.users.partials._modal_create')
         @include('admin.users.partials._modal_edit')
     </div>
-
     @include('admin.users.partials._modal_delete')
 @endsection
 

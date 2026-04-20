@@ -1,192 +1,326 @@
-<header class="header-first">
-    <nav class="main-nav-header" aria-label="Navegacion principal">
-        <a href="/" aria-label="Ir al inicio">
-            <img class="header_logo" src="{{ Vite::asset('resources/images/logo/logo_SVG.svg') }}" alt="Logo Simari Calderas" width="160" height="50">
-        </a>
+<header class="navbar" id="navbar">
+  <div class="nav-inner">
 
-        <ul class="nav-link">
-            <li><a href="{{ route('home') }}">Inicio</a></li>
-            <li><a href="{{ route('company') }}">Empresa</a></li>
+    {{-- Logo --}}
+    <a href="{{ route('home') }}" class="nav-logo" aria-label="Ir al inicio">
+      <img src="{{ Vite::asset('resources/images/logo/logo_SVG.svg') }}" alt="Simari Calderas" width="140" height="44">
+    </a>
 
-            <li class="has-dropdown">
-                <button class="nav-dropdown-toggle" type="button" aria-expanded="false" aria-controls="dropdown-servicios">
-                    Servicios
-                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 14 14" fill="none">
-                        <path d="M3.49683 5.24536L6.99367 8.74221L10.4905 5.24536" stroke-width="1.16561"
-                            stroke-linecap="round" stroke-linejoin="round" />
-                    </svg>
-                </button>
-                <ul id="dropdown-servicios" class="dropdown-menu" hidden>
-                    <li><a href="{{ route('industrial-maintenance') }}">Mantenimiento industrial</a></li>
-                    <li><a href="{{ route('hydraulic-engineering') }}">Ingenieria Hidraulica</a></li>
-                    <li><a href="{{ route('equipement-calibration') }}">Calibracion de equipos</a></li>
-                    <li><a href="{{ route('water-treatment') }}">Tratamiento de Agua</a></li>
-                    <li><a href="{{ route('automation') }}">Automatizacion</a></li>
-                    <li><a href="{{ route('chiller-maintenance') }}">Mantenimiento de Chillers</a></li>
-                    <li><a href="{{ route('descale-boilers') }}">Desincrustación de Calderas</a></li>
-                    <li><a href="{{ route('industrial-project') }}">Proyecto Industrial</a></li>
-                    <li><a href="{{ route('hair-repair')}}">Reparación de Secadoras</a></li>
-                </ul>
-            </li>
+    {{-- Desktop navigation --}}
+    <nav aria-label="Navegación principal">
+      <ul class="nav-links" id="navLinks">
 
-            <li class="has-dropdown">
-                <button class="nav-dropdown-toggle" type="button" aria-expanded="false" aria-controls="dropdown-productos">
-                    Productos
-                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 14 14" fill="none">
-                        <path d="M3.49683 5.24536L6.99367 8.74221L10.4905 5.24536" stroke-width="1.16561"
-                            stroke-linecap="round" stroke-linejoin="round" />
-                    </svg>
-                </button>
-                <ul id="dropdown-productos" class="dropdown-menu" hidden>
-                    <li><a href="{{ route('simari-boilers') }}">Calderas SIMARI</a></li>
-                    <li><a href="{{ route('solar-heaters') }}">Calentadores Solares</a></li>
-                    <li><a href="{{ route('industrial-instrumentation') }}">Instrumentacion Industrial</a></li>
-                    <li><a href="{{ route('water-treatment-Anti') }}">Tratamiento de Agua Anti-incrustante</a></li>
-                    <li><a href="{{ route('spare-parts') }}">Refacciones y Mantenimiento</a></li>
-                </ul>
-            </li>
+        <li><a href="{{ route('home') }}">Inicio</a></li>
 
-            <li class="has-dropdown">
-                <button class="nav-dropdown-toggle" type="button" aria-expanded="false" aria-controls="dropdown-mastercal">
-                    Masstercal Rinnai
-                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 14 14" fill="none">
-                        <path d="M3.49683 5.24536L6.99367 8.74221L10.4905 5.24536" stroke-width="1.16561"
-                            stroke-linecap="round" stroke-linejoin="round" />
-                    </svg>
-                </button>
-                <ul id="dropdown-mastercal" class="dropdown-menu" hidden>
-                    <li><a href="{{ route('heat-pumps') }}">Bombas de Calor</a></li>
-                    <li><a href="{{ route('water-heaters') }}">Calentadores De Agua</a></li>
-                    <li><a href="{{ route('electric-heaters') }}">Calentadores Electricos</a></li>
-                    <li><a href="{{ route('tankless-heaters') }}">Calentadores de Paso a Gas</a></li>
-                    <li><a href="{{ route('softeners-filters') }}">Suavizadores y Filtros</a></li>
-                    <li><a href="{{ route('storage-tanks') }}">Tanques de Almacenamiento</a></li>
-                </ul>
-            </li>
+        {{-- Servicios dropdown --}}
+        <li class="has-mega" data-dropdown>
+          <button class="nav-btn" aria-haspopup="true" aria-expanded="false" type="button">
+            Servicios
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg>
+          </button>
+          <div class="megamenu" role="region" aria-label="Servicios">
+            <div class="mega-col">
+              <h4>Mantenimiento</h4>
+              <a href="{{ route('industrial-maintenance') }}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.106-3.105c.32-.322.863-.22.983.218a6 6 0 0 1-8.259 7.057l-7.91 7.91a1 1 0 0 1-2.999-3l7.91-7.91a6 6 0 0 1 7.057-8.259c.438.12.54.662.219.984z"></path></svg>
+                Mantenimiento Industrial
+              </a>
+              <a href="{{ route('chiller-maintenance') }}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z"></path></svg>
+                Mantenimiento de Chillers
+              </a>
+              <a href="{{ route('descale-boilers') }}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3q1 4 4 6.5t3 5.5a1 1 0 0 1-14 0 5 5 0 0 1 1-3 1 1 0 0 0 5 0c0-2-1.5-3-1.5-5q0-2 2.5-4"></path></svg>
+                Desincrustación de Calderas
+              </a>
+              <a href="{{ route('hair-repair') }}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 12-9.373 9.373a1 1 0 0 1-3.001-3L12 9"></path><path d="m18 15 4-4"></path><path d="m21.5 11.5-1.914-1.914A2 2 0 0 1 19 8.172v-.344a2 2 0 0 0-.586-1.414l-1.657-1.657A6 6 0 0 0 12.516 3H9l1.243 1.243A6 6 0 0 1 12 8.485V10l2 2h1.172a2 2 0 0 1 1.414.586L18.5 14.5"></path></svg>
+                Reparación de Secadoras
+              </a>
+            </div>
+            <div class="mega-col">
+              <h4>Ingeniería</h4>
+              <a href="{{ route('hydraulic-engineering') }}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="m16.24 7.76-1.804 5.411a2 2 0 0 1-1.265 1.265L7.76 16.24l1.804-5.411a2 2 0 0 1 1.265-1.265z"></path></svg>
+                Ingeniería Hidráulica
+              </a>
+              <a href="{{ route('industrial-project') }}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"></path><path d="m3.3 7 8.7 5 8.7-5"></path><path d="M12 22V12"></path></svg>
+                Proyectos Industriales
+              </a>
+              <a href="{{ route('automation') }}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20v2"></path><path d="M12 2v2"></path><path d="M17 20v2"></path><path d="M17 2v2"></path><path d="M2 12h2"></path><path d="M2 17h2"></path><path d="M2 7h2"></path><path d="M20 12h2"></path><path d="M20 17h2"></path><path d="M20 7h2"></path><path d="M7 20v2"></path><path d="M7 2v2"></path><rect x="4" y="4" width="16" height="16" rx="2"></rect><rect x="8" y="8" width="8" height="8" rx="1"></rect></svg>
+                Automatización
+              </a>
+              <a href="{{ route('equipement-calibration') }}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"></path><path d="m9 12 2 2 4-4"></path></svg>
+                Calibración de Equipos
+              </a>
+            </div>
+            <div class="mega-col">
+              <h4>Tratamiento</h4>
+              <a href="{{ route('water-treatment') }}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 16.3c2.2 0 4-1.83 4-4.05 0-1.16-.57-2.26-1.71-3.19S7.29 6.75 7 5.3c-.29 1.45-1.14 2.84-2.29 3.76S3 11.1 3 12.25c0 2.22 1.8 4.05 4 4.05z"></path><path d="M12.56 6.6A10.97 10.97 0 0 0 14 3.02c.5 2.5 2 4.9 4 6.5s3 3.5 3 5.5a6.98 6.98 0 0 1-11.91 4.97"></path></svg>
+                Tratamiento de Agua
+              </a>
+              <a href="{{ route('water-treatment-Anti') }}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 20a1 1 0 0 0 .553.895l2 1A1 1 0 0 0 14 21v-7a2 2 0 0 1 .517-1.341L21.74 4.67A1 1 0 0 0 21 3H3a1 1 0 0 0-.742 1.67l7.225 7.989A2 2 0 0 1 10 14z"></path></svg>
+                Tratamiento Anti-incrustante
+              </a>
+            </div>
+          </div>
+        </li>
 
-            <li><a href="/contacto">Contacto</a></li>
-        </ul>
+        {{-- Productos dropdown --}}
+        <li class="has-mega" data-dropdown>
+          <button class="nav-btn" aria-haspopup="true" aria-expanded="false" type="button">
+            Productos
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg>
+          </button>
+          <div class="megamenu" role="region" aria-label="Productos">
+            <div class="mega-col">
+              <h4>Calderas & Calentadores</h4>
+              <a href="{{ route('simari-boilers') }}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3q1 4 4 6.5t3 5.5a1 1 0 0 1-14 0 5 5 0 0 1 1-3 1 1 0 0 0 5 0c0-2-1.5-3-1.5-5q0-2 2.5-4"></path></svg>
+                Calderas SIMARI
+              </a>
+              <a href="{{ route('solar-heaters') }}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2"></path><path d="M12 20v2"></path><path d="m4.93 4.93 1.41 1.41"></path><path d="m17.66 17.66 1.41 1.41"></path><path d="M2 12h2"></path><path d="M20 12h2"></path><path d="m6.34 17.66-1.41 1.41"></path><path d="m19.07 4.93-1.41 1.41"></path></svg>
+                Calentadores Solares
+              </a>
+            </div>
+            <div class="mega-col">
+              <h4>Tratamiento de Agua</h4>
+              <a href="{{ route('water-treatment-Anti') }}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 16.3c2.2 0 4-1.83 4-4.05 0-1.16-.57-2.26-1.71-3.19S7.29 6.75 7 5.3c-.29 1.45-1.14 2.84-2.29 3.76S3 11.1 3 12.25c0 2.22 1.8 4.05 4 4.05z"></path><path d="M12.56 6.6A10.97 10.97 0 0 0 14 3.02c.5 2.5 2 4.9 4 6.5s3 3.5 3 5.5a6.98 6.98 0 0 1-11.91 4.97"></path></svg>
+                Tratamiento Anti-incrustante
+              </a>
+              <a href="{{ route('softeners-filters') }}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 20a1 1 0 0 0 .553.895l2 1A1 1 0 0 0 14 21v-7a2 2 0 0 1 .517-1.341L21.74 4.67A1 1 0 0 0 21 3H3a1 1 0 0 0-.742 1.67l7.225 7.989A2 2 0 0 1 10 14z"></path></svg>
+                Suavizadores y Filtros
+              </a>
+            </div>
+            <div class="mega-col">
+              <h4>Instrumentación</h4>
+              <a href="{{ route('industrial-instrumentation') }}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 14 4-4"></path><path d="M3.34 19a10 10 0 1 1 17.32 0"></path></svg>
+                Instrumentación Industrial
+              </a>
+              <a href="{{ route('spare-parts') }}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                Refacciones y Mantenimiento
+              </a>
+            </div>
+          </div>
+        </li>
 
-        <ul class="nav-action">
-            <li>
-                <a
-                href="tel:+524494348018"
-                aria-label="Llamar a Industria Simari"
-                >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 20 20" fill="none">
-                        <g clip-path="url(#clip0_20_1370)">
-                            <path
-                                d="M18.3305 14.0978V16.5974C18.3314 16.8295 18.2839 17.0592 18.1909 17.2718C18.0979 17.4844 17.9616 17.6753 17.7906 17.8321C17.6196 17.989 17.4177 18.1084 17.1979 18.1828C16.9781 18.2571 16.7452 18.2847 16.5141 18.2638C13.9501 17.9853 11.4873 17.1091 9.32348 15.7059C7.31031 14.4266 5.60349 12.7198 4.32423 10.7066C2.91609 8.53298 2.03978 6.05818 1.76628 3.48273C1.74546 3.25232 1.77285 3.0201 1.84669 2.80086C1.92053 2.58161 2.03922 2.38014 2.19519 2.20928C2.35116 2.03841 2.54101 1.9019 2.75263 1.80842C2.96425 1.71495 3.19302 1.66656 3.42437 1.66634H5.92399C6.32835 1.66236 6.72037 1.80555 7.02696 2.06922C7.33356 2.3329 7.53382 2.69906 7.59041 3.09946C7.69591 3.89939 7.89157 4.68483 8.17366 5.44077C8.28576 5.739 8.31002 6.06311 8.24357 6.3747C8.17711 6.68629 8.02273 6.9723 7.79871 7.19884L6.74054 8.25702C7.92666 10.343 9.65381 12.0701 11.7398 13.2563L12.798 12.1981C13.0245 11.9741 13.3105 11.8197 13.6221 11.7532C13.9337 11.6868 14.2578 11.711 14.556 11.8231C15.312 12.1052 16.0974 12.3009 16.8973 12.4064C17.3021 12.4635 17.6717 12.6674 17.936 12.9792C18.2002 13.2911 18.3406 13.6892 18.3305 14.0978Z"
-                                stroke="white" stroke-width="1.66642" stroke-linecap="round" stroke-linejoin="round" />
-                        </g>
-                        <defs>
-                            <clipPath id="clip0_20_1370">
-                                <rect width="19.997" height="19.997" fill="white" />
-                            </clipPath>
-                        </defs>
-                    </svg>
-                </a>
-            </li>
-           <li>
-             <a 
-             href="https://wa.me/524494348018?text=Hola%2C%20me%20interesa%20una%20cotizaci%C3%B3n."
-             target="_blank"
-             aria-label="Abrir chat de WhatsApp"
-             class="button-primary header">Solicitar Cotizacion</a>
-           </li>
-        </ul>
+        {{-- Mastercal Rinnai megamenu --}}
+        <li class="has-mega mastercal-li" data-dropdown>
+          <button class="nav-btn mastercal-btn" aria-haspopup="true" aria-expanded="false" type="button">
+            Mastercal Rinnai
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg>
+          </button>
+          <div class="megamenu-full" role="region" aria-label="Mastercal Rinnai">
+            <div class="mf-inner">
+              {{-- Fila 1 --}}
+              <div class="mf-grid">
+                <div class="mf-col">
+                  <h4>Bombas de calor</h4>
+                  <ul>
+                    <li><a href="{{ route('heat-pumps') }}"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12.8 19.6A2 2 0 1 0 14 16H2"></path><path d="M17.5 8a2.5 2.5 0 1 1 2 4H2"></path><path d="M9.8 4.4A2 2 0 1 1 11 8H2"></path></svg> Bomba de Calor Residencial</a></li>
+                    <li><a href="{{ route('heat-pumps') }}"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16h.01"></path><path d="M16 16h.01"></path><path d="M3 19a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8.5a.5.5 0 0 0-.769-.422l-4.462 2.844A.5.5 0 0 1 15 10.5v-2a.5.5 0 0 0-.769-.422L9.77 10.922A.5.5 0 0 1 9 10.5V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2z"></path><path d="M8 16h.01"></path></svg> Bomba de Calor Industrial</a></li>
+                    <li><a href="{{ route('heat-pumps') }}"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"></path><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"></path></svg> Bomba de Calor Geotérmica</a></li>
+                    <li><a href="{{ route('heat-pumps') }}"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 16.3c2.2 0 4-1.83 4-4.05 0-1.16-.57-2.26-1.71-3.19S7.29 6.75 7 5.3c-.29 1.45-1.14 2.84-2.29 3.76S3 11.1 3 12.25c0 2.22 1.8 4.05 4 4.05z"></path><path d="M12.56 6.6A10.97 10.97 0 0 0 14 3.02c.5 2.5 2 4.9 4 6.5s3 3.5 3 5.5a6.98 6.98 0 0 1-11.91 4.97"></path></svg> Bomba de Calor Piscinas</a></li>
+                    <li><a href="{{ route('heat-pumps') }}"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"></path></svg> Bomba de Calor Inverter</a></li>
+                  </ul>
+                </div>
+                <div class="mf-col">
+                  <h4>Calentadores</h4>
+                  <ul>
+                    <li><a href="{{ route('tankless-heaters') }}"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3q1 4 4 6.5t3 5.5a1 1 0 0 1-14 0 5 5 0 0 1 1-3 1 1 0 0 0 5 0c0-2-1.5-3-1.5-5q0-2 2.5-4"></path></svg> Calentador de Paso a Gas</a></li>
+                    <li><a href="{{ route('electric-heaters') }}"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"></path></svg> Calentador Eléctrico</a></li>
+                    <li><a href="{{ route('solar-heaters') }}"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2"></path><path d="M12 20v2"></path><path d="m4.93 4.93 1.41 1.41"></path><path d="m17.66 17.66 1.41 1.41"></path><path d="M2 12h2"></path><path d="M20 12h2"></path><path d="m6.34 17.66-1.41 1.41"></path><path d="m19.07 4.93-1.41 1.41"></path></svg> Calentador Solar</a></li>
+                    <li><a href="{{ route('water-heaters') }}"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 12h4"></path><path d="M10 8h4"></path><path d="M14 21v-3a2 2 0 0 0-4 0v3"></path><path d="M6 10H4a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-2"></path><path d="M6 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16"></path></svg> Calentador Industrial</a></li>
+                    <li><a href="{{ route('water-heaters') }}"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 16.3c2.2 0 4-1.83 4-4.05 0-1.16-.57-2.26-1.71-3.19S7.29 6.75 7 5.3c-.29 1.45-1.14 2.84-2.29 3.76S3 11.1 3 12.25c0 2.22 1.8 4.05 4 4.05z"></path><path d="M12.56 6.6A10.97 10.97 0 0 0 14 3.02c.5 2.5 2 4.9 4 6.5s3 3.5 3 5.5a6.98 6.98 0 0 1-11.91 4.97"></path></svg> Calentador para Alberca</a></li>
+                  </ul>
+                </div>
+                <div class="mf-col">
+                  <h4>Suavizadores y filtros</h4>
+                  <ul>
+                    <li><a href="{{ route('softeners-filters') }}"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 16.3c2.2 0 4-1.83 4-4.05 0-1.16-.57-2.26-1.71-3.19S7.29 6.75 7 5.3c-.29 1.45-1.14 2.84-2.29 3.76S3 11.1 3 12.25c0 2.22 1.8 4.05 4 4.05z"></path><path d="M12.56 6.6A10.97 10.97 0 0 0 14 3.02c.5 2.5 2 4.9 4 6.5s3 3.5 3 5.5a6.98 6.98 0 0 1-11.91 4.97"></path></svg> Suavizador Residencial</a></li>
+                    <li><a href="{{ route('softeners-filters') }}"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16h.01"></path><path d="M16 16h.01"></path><path d="M3 19a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8.5a.5.5 0 0 0-.769-.422l-4.462 2.844A.5.5 0 0 1 15 10.5v-2a.5.5 0 0 0-.769-.422L9.77 10.922A.5.5 0 0 1 9 10.5V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2z"></path><path d="M8 16h.01"></path></svg> Suavizador Industrial</a></li>
+                    <li><a href="{{ route('softeners-filters') }}"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 20a1 1 0 0 0 .553.895l2 1A1 1 0 0 0 14 21v-7a2 2 0 0 1 .517-1.341L21.74 4.67A1 1 0 0 0 21 3H3a1 1 0 0 0-.742 1.67l7.225 7.989A2 2 0 0 1 10 14z"></path></svg> Filtro de Sedimentos</a></li>
+                    <li><a href="{{ route('softeners-filters') }}"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"></path></svg> Filtro de Carbón Activado</a></li>
+                    <li><a href="{{ route('softeners-filters') }}"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2v6a2 2 0 0 0 .245.96l5.51 10.08A2 2 0 0 1 18 22H6a2 2 0 0 1-1.755-2.96l5.51-10.08A2 2 0 0 0 10 8V2"></path><path d="M6.453 15h11.094"></path><path d="M8.5 2h7"></path></svg> Sistema de Ósmosis Inversa</a></li>
+                  </ul>
+                </div>
+                <div class="mf-col">
+                  <h4>Tanques y almacenamiento</h4>
+                  <ul>
+                    <li><a href="{{ route('storage-tanks') }}"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 7.7c0-.6-.4-1.2-.8-1.5l-6.3-3.9a1.72 1.72 0 0 0-1.7 0l-10.3 6c-.5.2-.9.8-.9 1.4v6.6c0 .5.4 1.2.8 1.5l6.3 3.9a1.72 1.72 0 0 0 1.7 0l10.3-6c.5-.3.9-1 .9-1.5Z"></path><path d="M10 21.9V14L2.1 9.1"></path><path d="m10 14 11.9-6.9"></path><path d="M14 19.8v-8.1"></path><path d="M18 17.5V9.4"></path></svg> Tanque de Expansión</a></li>
+                    <li><a href="{{ route('storage-tanks') }}"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83z"></path><path d="M2 12a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 12"></path><path d="M2 17a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 17"></path></svg> Tanque de Acumulación</a></li>
+                    <li><a href="{{ route('storage-tanks') }}"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 14 4-4"></path><path d="M3.34 19a10 10 0 1 1 17.32 0"></path></svg> Tanque Presurizado</a></li>
+                    <li><a href="{{ route('storage-tanks') }}"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M3 5V19A9 3 0 0 0 21 19V5"></path><path d="M3 12A9 3 0 0 0 21 12"></path></svg> Tanque Rotoplas Industrial</a></li>
+                    <li><a href="{{ route('storage-tanks') }}"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3q1 4 4 6.5t3 5.5a1 1 0 0 1-14 0 5 5 0 0 1 1-3 1 1 0 0 0 5 0c0-2-1.5-3-1.5-5q0-2 2.5-4"></path></svg> Tanque de Almacenamiento GAS</a></li>
+                  </ul>
+                </div>
+              </div>
 
-        <!-- Hamburger button (mobile only) -->
-        <button class="nav-hamburger" id="nav-hamburger" type="button" aria-label="Abrir menú" aria-expanded="false" aria-controls="mobile-menu">
-            <span></span>
-            <span></span>
-            <span></span>
-        </button>
+              <hr class="mf-sep">
+
+              {{-- Fila 2 --}}
+              <div class="mf-grid">
+                <div class="mf-col">
+                  <h4>Sistemas de agua caliente</h4>
+                  <ul>
+                    <li><a href="{{ route('water-heaters') }}"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m17 2 4 4-4 4"></path><path d="M3 11v-1a4 4 0 0 1 4-4h14"></path><path d="m7 22-4-4 4-4"></path><path d="M21 13v1a4 4 0 0 1-4 4H3"></path></svg> Sistema Centralizado</a></li>
+                    <li><a href="{{ route('water-heaters') }}"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 12h4"></path><path d="M10 8h4"></path><path d="M14 21v-3a2 2 0 0 0-4 0v3"></path><path d="M6 10H4a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-2"></path><path d="M6 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16"></path></svg> Sistema para Edificios</a></li>
+                    <li><a href="{{ route('water-heaters') }}"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 22v-6.57"></path><path d="M12 11h.01"></path><path d="M12 7h.01"></path><path d="M14 15.43V22"></path><path d="M15 16a5 5 0 0 0-6 0"></path><path d="M16 11h.01"></path><path d="M16 7h.01"></path><path d="M8 11h.01"></path><path d="M8 7h.01"></path><rect x="4" y="2" width="16" height="20" rx="2"></rect></svg> Sistema para Hoteles</a></li>
+                    <li><a href="{{ route('water-heaters') }}"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16h.01"></path><path d="M16 16h.01"></path><path d="M3 19a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8.5a.5.5 0 0 0-.769-.422l-4.462 2.844A.5.5 0 0 1 15 10.5v-2a.5.5 0 0 0-.769-.422L9.77 10.922A.5.5 0 0 1 9 10.5V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2z"></path><path d="M8 16h.01"></path></svg> Sistema Industrial</a></li>
+                    <li><a href="{{ route('water-heaters') }}"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21.3 15.3a2.4 2.4 0 0 1 0 3.4l-2.6 2.6a2.4 2.4 0 0 1-3.4 0L2.7 8.7a2.41 2.41 0 0 1 0-3.4l2.6-2.6a2.41 2.41 0 0 1 3.4 0Z"></path><path d="m14.5 12.5 2-2"></path><path d="m11.5 9.5 2-2"></path><path d="m8.5 6.5 2-2"></path><path d="m17.5 15.5 2-2"></path></svg> Diseño e Instalación</a></li>
+                  </ul>
+                </div>
+                <div class="mf-col">
+                  <h4>Automatización y control</h4>
+                  <ul>
+                    <li><a href="{{ route('automation') }}"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="20" height="14" x="2" y="3" rx="2"></rect><line x1="8" x2="16" y1="21" y2="21"></line><line x1="12" x2="12" y1="17" y2="21"></line></svg> Termostatos Inteligentes</a></li>
+                    <li><a href="{{ route('automation') }}"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h.01"></path><path d="M2 8.82a15 15 0 0 1 20 0"></path><path d="M5 12.859a10 10 0 0 1 14 0"></path><path d="M8.5 16.429a5 5 0 0 1 7 0"></path></svg> Control Remoto WiFi</a></li>
+                    <li><a href="{{ route('automation') }}"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"></path><path d="M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg> Domótica Energética</a></li>
+                    <li><a href="{{ route('automation') }}"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 21v-6"></path><path d="M12 21V3"></path><path d="M19 21V9"></path></svg> Monitoreo de Consumo</a></li>
+                    <li><a href="{{ route('automation') }}"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"></path></svg> Sistemas de Seguridad Térmica</a></li>
+                  </ul>
+                </div>
+                <div class="mf-col">
+                  <h4>Mantenimiento Rinnai</h4>
+                  <ul>
+                    <li><a href="{{ route('industrial-maintenance') }}"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.106-3.105c.32-.322.863-.22.983.218a6 6 0 0 1-8.259 7.057l-7.91 7.91a1 1 0 0 1-2.999-3l7.91-7.91a6 6 0 0 1 7.057-8.259c.438.12.54.662.219.984z"></path></svg> Mantenimiento Preventivo</a></li>
+                    <li><a href="{{ route('industrial-maintenance') }}"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915"></path><circle cx="12" cy="12" r="3"></circle></svg> Diagnóstico de Fallas</a></li>
+                    <li><a href="{{ route('spare-parts') }}"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z"></path><path d="M12 22V12"></path><polyline points="3.29 7 12 12 20.71 7"></polyline><path d="m7.5 4.27 9 5.15"></path></svg> Refacciones Originales</a></li>
+                    <li><a href="{{ route('industrial-maintenance') }}"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"></rect><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path></svg> Contratos de Servicio</a></li>
+                    <li><a href="{{ route('industrial-maintenance') }}"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15.477 12.89 1.515 8.526a.5.5 0 0 1-.81.47l-3.58-2.687a1 1 0 0 0-1.197 0l-3.586 2.686a.5.5 0 0 1-.81-.469l1.514-8.526"></path><circle cx="12" cy="8" r="6"></circle></svg> Garantías y Certificaciones</a></li>
+                  </ul>
+                </div>
+                <div class="mf-col">
+                  <h4>Soluciones especiales</h4>
+                  <ul>
+                    <li><a href="{{ route('industrial-project') }}"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2"></rect><path d="M3 9h18"></path><path d="M9 21V9"></path></svg> Proyectos a Medida</a></li>
+                    <li><a href="{{ route('industrial-project') }}"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"></path><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"></path></svg> Soluciones Ecológicas</a></li>
+                    <li><a href="{{ route('automation') }}"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"></path></svg> Energía Renovable</a></li>
+                    <li><a href="{{ route('descale-boilers') }}"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z"></path></svg> Recuperación de Calor</a></li>
+                    <li><a href="{{ route('industrial-project') }}"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z"></path><path d="M12 22V12"></path><polyline points="3.29 7 12 12 20.71 7"></polyline><path d="m7.5 4.27 9 5.15"></path></svg> Paquetes Todo Incluido</a></li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </li>
+
+        <li><a href="{{ route('company') }}">Nosotros</a></li>
+        <li><a href="/contacto">Contacto</a></li>
+
+      </ul>
     </nav>
 
-    <!-- Mobile menu -->
-    <div class="mobile-menu" id="mobile-menu" aria-hidden="true">
-        <div class="mobile-menu-backdrop" id="mobile-menu-backdrop"></div>
-        <div class="mobile-menu-panel">
-            <div class="mobile-menu-header">
-                <a href="/" aria-label="Ir al inicio">
-                    <img class="header_logo" src="{{ Vite::asset('resources/images/logo/logo_SVG.svg') }}" alt="Logo Simari Calderas" width="160" height="50">
-                </a>
-                <button class="mobile-menu-close" id="mobile-menu-close" type="button" aria-label="Cerrar menú">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 22 22" fill="none">
-                        <path d="M17 5L5 17M5 5l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                    </svg>
-                </button>
-            </div>
-
-            <nav class="mobile-nav">
-                <ul>
-                    <li><a href="{{ route('home') }}">Inicio</a></li>
-                    <li><a href="{{ route('company') }}">Empresa</a></li>
-
-                    <li>
-                        <button class="mobile-dropdown-toggle" type="button" aria-expanded="false">
-                            Servicios
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 14 14" fill="none">
-                                <path d="M3.49683 5.24536L6.99367 8.74221L10.4905 5.24536" stroke="currentColor" stroke-width="1.16561" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                        </button>
-                        <ul class="mobile-dropdown" hidden>
-                            <li><a href="{{ route('industrial-maintenance') }}">Mantenimiento Industrial</a></li>
-                            <li><a href="{{ route('hydraulic-engineering') }}">Ingeniería Hidráulica</a></li>
-                            <li><a href="{{ route('water-treatment') }}">Tratamiento de Agua</a></li>
-                            <li><a href="{{ route('equipement-calibration') }}">Calibración de Equipos</a></li>
-                            <li><a href="{{ route('automation') }}">Automatización</a></li>
-                            <li><a href="{{ route('chiller-maintenance') }}">Mantenimiento de Chillers</a></li>
-                            <li><a href="{{ route('industrial-project') }}">Proyectos Industriales</a></li>
-                            <li><a href="{{ route('descale-boilers') }}">Desincrustación de Calderas</a></li>
-                            <li><a href="{{ route('hair-repair') }}">Reparación de Secadoras</a></li>
-                        </ul>
-                    </li>
-
-                    <li>
-                        <button class="mobile-dropdown-toggle" type="button" aria-expanded="false">
-                            Productos
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 14 14" fill="none">
-                                <path d="M3.49683 5.24536L6.99367 8.74221L10.4905 5.24536" stroke="currentColor" stroke-width="1.16561" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                        </button>
-                        <ul class="mobile-dropdown" hidden>
-                            <li><a href="{{ route('simari-boilers') }}">Calderas SIMARI</a></li>
-                            <li><a href="{{ route('solar-heaters') }}">Calentadores Solares</a></li>
-                            <li><a href="{{ route('industrial-instrumentation') }}">Instrumentación Industrial</a></li>
-                            <li><a href="{{ route('water-treatment') }}">Tratamiento de Agua Anti-incrustante</a></li>
-                            <li><a href="{{ route('spare-parts') }}">Refacciones y Mantenimiento</a></li>
-                        </ul>
-                    </li>
-
-                    <li>
-                        <button class="mobile-dropdown-toggle" type="button" aria-expanded="false">
-                            Masstercal Rinnai
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 14 14" fill="none">
-                                <path d="M3.49683 5.24536L6.99367 8.74221L10.4905 5.24536" stroke="currentColor" stroke-width="1.16561" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                        </button>
-                        <ul class="mobile-dropdown" hidden>
-                            <li><a href="{{ route('heat-pumps') }}">Bombas de Calor</a></li>
-                            <li><a href="{{ route('water-heaters') }}">Calentadores De Agua</a></li>
-                            <li><a href="{{ route('electric-heaters') }}">Calentadores Eléctricos</a></li>
-                            <li><a href="{{ route('tankless-heaters') }}">Calentadores de Paso a Gas</a></li>
-                            <li><a href="{{ route('softeners-filters') }}">Suavizadores y Filtros</a></li>
-                            <li><a href="{{ route('storage-tanks') }}">Tanques de Almacenamiento</a></li>
-                        </ul>
-                    </li>
-
-                    <li><a href="/contacto">Contacto</a></li>
-                </ul>
-            </nav>
-
-            <div class="mobile-menu-actions">
-                <a href="https://wa.me/524494348018?text=Hola%2C%20me%20interesa%20una%20cotizaci%C3%B3n."
-                    target="_blank"
-                    aria-label="Abrir chat de WhatsApp"
-                    class="button-primary">Solicitar Cotización</a>
-            </div>
-        </div>
+    {{-- Right actions --}}
+    <div class="nav-actions">
+      <a href="https://wa.me/524494348018?text=Hola%2C%20me%20interesa%20una%20cotizaci%C3%B3n." target="_blank" class="nav-cta" aria-label="Solicitar cotización por WhatsApp">
+        Solicitar Cotización
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+      </a>
+      <button class="nav-hamburger" id="nav-hamburger" type="button" aria-label="Abrir menú" aria-expanded="false" aria-controls="mobile-menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
     </div>
+
+  </div>
 </header>
+
+{{-- Mobile menu drawer --}}
+<div class="mobile-menu" id="mobile-menu" aria-hidden="true">
+  <div class="mobile-menu-backdrop" id="mobile-menu-backdrop"></div>
+  <div class="mobile-menu-panel">
+    <div class="mobile-menu-header">
+      <a href="{{ route('home') }}" aria-label="Ir al inicio">
+        <img class="header_logo" src="{{ Vite::asset('resources/images/logo/logo_SVG.svg') }}" alt="Logo Simari Calderas" width="130" height="40">
+      </a>
+      <button class="mobile-menu-close" id="mobile-menu-close" type="button" aria-label="Cerrar menú">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 22 22" fill="none">
+          <path d="M17 5L5 17M5 5l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+
+    <nav class="mobile-nav">
+      <ul>
+        <li><a href="{{ route('home') }}">Inicio</a></li>
+
+        <li>
+          <button class="mobile-dropdown-toggle" type="button" aria-expanded="false">
+            Servicios
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 14 14" fill="none">
+              <path d="M3.49683 5.24536L6.99367 8.74221L10.4905 5.24536" stroke="currentColor" stroke-width="1.16561" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+          <ul class="mobile-dropdown" hidden>
+            <li><a href="{{ route('industrial-maintenance') }}">Mantenimiento Industrial</a></li>
+            <li><a href="{{ route('chiller-maintenance') }}">Mantenimiento de Chillers</a></li>
+            <li><a href="{{ route('descale-boilers') }}">Desincrustación de Calderas</a></li>
+            <li><a href="{{ route('hair-repair') }}">Reparación de Secadoras</a></li>
+            <li><a href="{{ route('hydraulic-engineering') }}">Ingeniería Hidráulica</a></li>
+            <li><a href="{{ route('industrial-project') }}">Proyectos Industriales</a></li>
+            <li><a href="{{ route('automation') }}">Automatización</a></li>
+            <li><a href="{{ route('equipement-calibration') }}">Calibración de Equipos</a></li>
+            <li><a href="{{ route('water-treatment') }}">Tratamiento de Agua</a></li>
+            <li><a href="{{ route('water-treatment-Anti') }}">Tratamiento Anti-incrustante</a></li>
+          </ul>
+        </li>
+
+        <li>
+          <button class="mobile-dropdown-toggle" type="button" aria-expanded="false">
+            Productos
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 14 14" fill="none">
+              <path d="M3.49683 5.24536L6.99367 8.74221L10.4905 5.24536" stroke="currentColor" stroke-width="1.16561" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+          <ul class="mobile-dropdown" hidden>
+            <li><a href="{{ route('simari-boilers') }}">Calderas SIMARI</a></li>
+            <li><a href="{{ route('solar-heaters') }}">Calentadores Solares</a></li>
+            <li><a href="{{ route('water-treatment-Anti') }}">Tratamiento Anti-incrustante</a></li>
+            <li><a href="{{ route('softeners-filters') }}">Suavizadores y Filtros</a></li>
+            <li><a href="{{ route('industrial-instrumentation') }}">Instrumentación Industrial</a></li>
+            <li><a href="{{ route('spare-parts') }}">Refacciones y Mantenimiento</a></li>
+          </ul>
+        </li>
+
+        <li>
+          <button class="mobile-dropdown-toggle" type="button" aria-expanded="false">
+            Mastercal Rinnai
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 14 14" fill="none">
+              <path d="M3.49683 5.24536L6.99367 8.74221L10.4905 5.24536" stroke="currentColor" stroke-width="1.16561" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+          <ul class="mobile-dropdown" hidden>
+            <li><a href="{{ route('heat-pumps') }}">Bombas de Calor</a></li>
+            <li><a href="{{ route('tankless-heaters') }}">Calentadores de Paso a Gas</a></li>
+            <li><a href="{{ route('electric-heaters') }}">Calentadores Eléctricos</a></li>
+            <li><a href="{{ route('water-heaters') }}">Calentadores de Agua</a></li>
+            <li><a href="{{ route('softeners-filters') }}">Suavizadores y Filtros</a></li>
+            <li><a href="{{ route('storage-tanks') }}">Tanques de Almacenamiento</a></li>
+          </ul>
+        </li>
+
+        <li><a href="{{ route('company') }}">Nosotros</a></li>
+        <li><a href="/contacto">Contacto</a></li>
+      </ul>
+    </nav>
+
+    <div class="mobile-menu-actions">
+      <a href="https://wa.me/524494348018?text=Hola%2C%20me%20interesa%20una%20cotizaci%C3%B3n."
+         target="_blank"
+         aria-label="Solicitar cotización por WhatsApp"
+         class="button-primary">Solicitar Cotización</a>
+    </div>
+  </div>
+</div>

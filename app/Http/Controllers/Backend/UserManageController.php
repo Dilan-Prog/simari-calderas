@@ -59,7 +59,6 @@ class UserManageController extends Controller
         $user->save();
         if ($request->has('emergency_contact_name')) {
             foreach ($request->emergency_contact_name as $index => $name) {
-
                 if (! empty($name)) {
                     $contactEmergency = new ContactEmergency;
                     $contactEmergency->user_id = $user->id;
