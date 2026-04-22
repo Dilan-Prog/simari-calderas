@@ -17,21 +17,7 @@
 /* ------------------------------------------------------------------ */
 @media (max-width: 1024px) {
 
-    /* Header */
-    .main-nav-header {
-        padding: 18px 40px;
-    }
-    .main-nav-header ul.nav-link {
-        gap: 20px;
-    }
-    .main-nav-header ul li a,
-    .main-nav-header ul li .nav-dropdown-toggle {
-        font-size: 13px;
-    }
-    .button-primary.header {
-        padding: 9px 18px;
-        font-size: 14px;
-    }
+    /* Header — gestionado en navbar.css */
 
     /* Layout */
     footer      { padding: 60px 40px 0 40px; }

@@ -1,7 +1,7 @@
 :root {
     /* ── Navegación / Header ── */
     --text-header-color-nav: #d1d5dc;
-    --text-header-color-nav-hover: #0054ff;
+    --text-header-color-nav-hover: #ff6213;
     --text-header-color-nav-hover-white: #ffffff;
     --header-background-color: #141516;
     --border-header-footer-color: #2e3a46;
@@ -15,15 +15,15 @@
     /* ── Colores base ── */
     --text-white-color: #ffffff;
     --text-black: #000000;
-    --secondary-color: #0054ff;
+    --secondary-color: #ff6213;
     --background-primary: #141516;
     --bg-dark: #141516;
     --bg-dark-2: #141516;
     --bg-light: #f5f7fa;
 
     /* ── Botones principales ── */
-    --button-primary-color: #0054ff;
-    --button-primary-color-hover: #0043cc;
+    --button-primary-color: #ff6213;
+    --button-primary-color-hover: #de4a00;
     --button-serondary-color: transparent;
     --button-secondary-color-hover: #ffffff;
 
@@ -66,8 +66,8 @@
     --inst-red-dark: #8b0000;                    /* rojo oscuro para gradientes CTA */
     --inst-red-alpha: rgba(198, 40, 40, 0.082);  /* fondo tenue de íconos */
     --inst-red-alpha-lg: rgba(198, 40, 40, 0.19);/* fondo tenue mayor para badges */
-    --inst-blue: #0054ff;                        /* azul instrumento (= --secondary-color) */
-    --inst-blue-dark: #0043cc;                   /* azul oscuro hover (= --button-primary-color-hover) */
+    --inst-blue: #ff6213;                        /* azul instrumento (= --secondary-color) */
+    --inst-blue-dark: #de4a00;                   /* azul oscuro hover (= --button-primary-color-hover) */
 }
 
 /* =========================
@@ -2024,7 +2024,7 @@
  
 /* ============================================================
    HERO AZUL CON GRID PATTERN
-   React: section "relative min-h-[85vh] bg-[#0054ff] overflow-hidden"
+   React: section "relative min-h-[85vh] bg-[#ff6213] overflow-hidden"
 ============================================================ */
 .ii-hero {
     position: relative;
@@ -2247,7 +2247,7 @@
 }
 .ii-product-item:last-child { border-bottom: none; padding-bottom: 0; }
  
-/* React: font-bold text-lg mb-2 color #0054ff */
+/* React: font-bold text-lg mb-2 color #ff6213 */
 .ii-product-item__name {
     font-size: 1.05rem;
     font-weight: 700;
@@ -2381,7 +2381,7 @@
  
 /* ============================================================
    SERVICIO TÉCNICO – SECCIÓN AZUL
-   React: section bg-[#0054ff]
+   React: section bg-[#ff6213]
 ============================================================ */
 .ii-service {
     background: var(--inst-blue);
@@ -2437,7 +2437,7 @@
 }
 .ii-service-card__icon svg { color: var(--inst-red); }
  
-/* React: text-2xl font-bold mb-4 color #0054ff */
+/* React: text-2xl font-bold mb-4 color #ff6213 */
 .ii-service-card h3 {
     font-size: 1.3rem;
     font-weight: 800;

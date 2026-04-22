@@ -1,6 +1,6 @@
 /*
  * navbar.css — Sidebar fijo del panel administrativo
- * Paleta: fondo #141516 | borde #2E3A46 | activo #0054ff | hover #2E3A46
+ * Paleta: fondo #141516 | borde #2E3A46 | activo #ff6213 | hover #2E3A46
  */
 
 /* ── Reset de body para el panel ── */
@@ -153,7 +153,7 @@
     width: 28px;
     height: 28px;
     border: 2.5px solid #2E3A46;
-    border-top-color: #0054ff;
+    border-top-color: #ff6213;
     border-radius: 50%;
     animation: adminSpin 0.75s linear infinite;
 }

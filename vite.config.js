@@ -7,7 +7,7 @@ export default defineConfig({
             input: [
                 'resources/css/app.css',
                 'resources/js/app.js',
-                'resources/images/logo/logo_SVG.svg',
+                'resources/images/logo/svg_blanco_color.svg',
             ],
             refresh: true,
         }),

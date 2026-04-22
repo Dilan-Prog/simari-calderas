@@ -24,7 +24,7 @@
     --toggle-header:                     #2E3A46;
     --toggle-header-nav:                 #364153;
     --text-header-color-nav:             #D1D5DC;
-    --text-header-color-nav-hover:       #0054ff;
+    --text-header-color-nav-hover:       #ff6213;
     --text-header-color-nav-hover-white: #ffffff;
 
     /* Footer */
@@ -41,12 +41,12 @@
     --text-description-color:            #6B7280;
 
     /* Colores de acción / marca */
-    --secondary-color:                   #0054ff;
+    --secondary-color:                   #ff6213;
     --secondary-color-rgb:               0, 84, 255;
 
     /* Botones */
-    --button-primary-color:              #0054ff;
-    --button-primary-color-hover:        #0043cc;
+    --button-primary-color:              #ff6213;
+    --button-primary-color-hover:        #de4a00;
     --button-serondary-color:            transparent;
     --button-secondary-color-hover:      #ffffff;
 
@@ -162,7 +162,7 @@ body.mobile-menu-open {
     color: var(--text-header-color-nav-hover);
 }
 
-.main-nav-header ul li a {
+.main-nav-header ul li a:not(.button-primary.header) {
     color: var(--text-header-color-nav);
     text-decoration: none;
     font-size: 15px;
@@ -272,9 +272,9 @@ body.mobile-menu-open {
 
 /* Botón CTA en header desktop */
 .button-primary.header {
-    padding: 10px 28px;
-    font-size: 18px;
-    border-radius: 6px;
+    padding: 10px 28px !important;
+    font-size: 18px !important;
+    border-radius: 6px !important;
 }
 .button-primary.header:hover {
     transform: translateY(0px);

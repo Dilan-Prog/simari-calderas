@@ -9,10 +9,10 @@
     <meta name="author" content="Industria Simari" />
     <meta name="theme-color" content="#1a2940" />
     <link rel="canonical" href="@yield('canonical', 'https://industriasimari.com.mx/')" />
-    <link rel="icon" type="image/x-icon"  href="/favicon.ico" />
-    <link rel="icon" type="image/png" sizes="16x16"  href="/favicon-16x16.png" />
-    <link rel="icon" type="image/png" sizes="32x32"  href="/favicon-32x32.png" />
-    <link rel="apple-touch-icon"    sizes="180x180"  href="/apple-touch-icon.png" />
+    <link rel="icon" type="image/x-icon"  href="{{ asset('images/logo/icon-web/favicon-industria-simari-48x48.png') }}" />
+    <link rel="icon" type="image/png" sizes="16x16"  href="{{ asset('images/logo/icon-web/favicon-industria-simari-16x16.png') }}" />
+    <link rel="icon" type="image/png" sizes="32x32"  href="{{ asset('images/logo/icon-web/favicon-industria-simari-32x32.png') }}" />
+    <link rel="apple-touch-icon"    sizes="180x180"  href="{{ asset('images/logo/icon-web/favicon-industria-simari-180x180.png') }}" />
     <meta property="og:type"        content="website" />
     <meta property="og:locale"      content="es_MX" />
     <meta property="og:site_name"   content="Industria Simari" />
@@ -26,11 +26,9 @@
     <link rel="preconnect" href="https://www.google-analytics.com">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
     <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" media="print" onload="this.media='all'">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -78,7 +76,6 @@
     <!-- End Google Tag Manager (noscript) -->
 
     @include('frontend.layouts.header')
-    @include('frontend.home.sections.chat-whastapp')
     <main>
         @yield('content')
     </main>

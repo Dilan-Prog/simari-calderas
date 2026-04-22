@@ -1,30 +1,33 @@
 @extends('frontend.layouts.master')
-
-@section('title')
-@endsection
-
+@section('title', 'Servicio de Tratamiento de Agua para Calderas Industriales')
+@section('description', 'Servicio técnico experto en tratamiento de agua para calderas industriales, preveniendo incrustaciones, corrosión y deterioro prematuro.')
+@section('canonical', config('app.url') . '/servicios/tratamiento-agua')
 @section('content')
 
   <section class="hero-water-treatment">
     <div class="hero-water-treatment__bg">
       <img
-        src="https://images.unsplash.com/photo-1770048924540-e6311d4308ce?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx3YXRlciUyMHRyZWF0bWVudCUyMGluZHVzdHJpYWwlMjBzeXN0ZW18ZW58MXx8fHwxNzcyMTYwNTg1fDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
-        alt="Sistema industrial para tratamiento de agua en calderas"
+        src="{{ asset('images/services/tratamiento-agua-calderas/servicio-de-tratamiento-de-agua-para-calderas-industriales.jpg') }}"
+        alt="Servicio de Tratamiento de Agua para Calderas Industriales"
+        title="Servicio de Tratamiento de Agua para Calderas Industriales"
         width="1080"
         height="720"
         loading="eager"
+        fetchpriority="high"
         decoding="async"
       />
     </div>
 
     <div class="container hero-water-treatment__container">
       <div class="hero-water-treatment__content">
-        <h1>Tratamiento de Agua para Calderas Industriales</h1>
+        <h1>Servicio de Tratamiento de Agua para Calderas Industriales</h1>
         <p>
           Proteja su inversión con tratamiento químico especializado que previene
           incrustaciones, corrosión y deterioro prematuro de equipos térmicos críticos.
         </p>
-        <a class="button-primary hero-water-treatment-button" href="/contacto" aria-label="Solicitar análisis gratuito de tratamiento de agua">
+        <a class="button-primary hero-water-treatment-button" href="https://wa.me/524494348018?text=Hola%2C%20me%20interesa%20una%20cotizaci%C3%B3n."
+             target="_blank"
+             aria-label="Abrir chat de WhatsApp">
           Solicitar Análisis Gratuito
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-right"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
         </a>
@@ -296,12 +299,19 @@
         </p>
 
         <div class="final-cta__actions">
-          <a class="button-primary final-cta__actions-water" href="/contacto">
+          <a 
+          href="https://wa.me/524494348018?text=Hola%2C%20me%20interesa%20una%20cotizaci%C3%B3n."
+          target="_blank"
+          aria-label="Abrir chat de WhatsApp"
+          class="button-primary final-cta__actions-water">
             Solicitar Análisis Gratuito
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-right"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
           </a>
 
-          <a class="button-secondary final-cta__actions-water" href="tel:+524494348018">
+          <a 
+          href="tel:+524494348018"
+          aria-label="Llamar a Industria Simari"
+          class="button-secondary final-cta__actions-water">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-phone"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
             Llamar Ahora
           </a>

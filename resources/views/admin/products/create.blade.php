@@ -986,7 +986,7 @@
     /* ── Publish ── */
     document.getElementById('pformBtnPublish').addEventListener('click', function () {
         const badge = document.getElementById('pformSavedBadge');
-        badge.style.color = '#0054ff';
+        badge.style.color = '#ff6213';
         badge.textContent = '✓ Publicado';
         badge.classList.add('visible');
         clearTimeout(badge._timer);
