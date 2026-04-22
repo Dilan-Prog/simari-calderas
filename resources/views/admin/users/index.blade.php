@@ -804,7 +804,7 @@
                     document.getElementById('delConfirmEmail').textContent = email;
                     document.getElementById('delConfirmAvatar').textContent = initial;
 
-                    deleteForm.action = "{{ url('admin/usuarios') }}/" + id;
+                    deleteForm.action = "{{ url('admin/usuarios/eliminar-usuario') }}/" + id;
                     deleteModal.classList.add('active');
                 });
             });
