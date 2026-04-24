@@ -16,8 +16,8 @@ class ClientManageController extends Controller
      */
     public function index()
     {
-        // $customer = Customer::get(['id','first_name', 'last_name','company', 'email', 'phone']);
-        return view('admin.client.index');
+        $customers = Customer::get(['id','first_name', 'last_name','company', 'email', 'phone','rfc', 'status','source']);
+        return view('admin.client.index', compact('customers'));
     }
 
     public function information()

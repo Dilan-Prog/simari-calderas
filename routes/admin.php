@@ -14,7 +14,6 @@ Route::controller(UserManageController::class)->group(function () {
     Route::post('/usuarios/crear-usuario', action: 'store')->name('users.store');
     Route::put('/usuarios/editar-usuario/{id}', 'update')->name('users.update');
     Route::delete('/usuarios/eliminar-usuario/{id}', 'destroy')->name('users.destroy');
-
 });
 
 Route::controller(ClientManageController::class)->group(function () {
