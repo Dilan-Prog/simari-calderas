@@ -11,6 +11,7 @@ export default defineConfig({
                 'resources/js/admin/sidebar.js',
                 'resources/js/admin/google-ads.js',
                 'resources/images/logo/logo_SVG.svg',
+                'resources/images/logo/svg_blanco_color.svg',
             ],
             refresh: true,
         }),
