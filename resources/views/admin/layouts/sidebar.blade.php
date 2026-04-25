@@ -1,18 +1,17 @@
 <aside class="admin-sidebar">
     <div class="sidebar-logo">
-        <img src="{{ asset('images/logo/Logo_blanco.png') }}"
+        <img src="{{ asset('images/logo/logo_SVG.svg') }}"
                 alt="Industria Simari"
                 onerror="this.style.display='none'">
     </div>
     @php
         $activeSection = match(true) {
-            request()->routeIs('admin.dashboard')  => 'dashboard',
-            request()->routeIs('admin.users.*')    => 'usuarios',
-            request()->routeIs('admin.clients.*')  => 'clientes',
-
-            request()->routeIs('admin.products.*') => 'productos',
-
-            default                                => '',
+            request()->routeIs('admin.dashboard')    => 'dashboard',
+            request()->routeIs('admin.users.*')      => 'usuarios',
+            request()->routeIs('admin.clients.*')    => 'clientes',
+            request()->routeIs('admin.products.*')   => 'productos',
+            request()->routeIs('admin.google-ads.*') => 'google-ads',
+            default                                  => '',
         };
     @endphp
     <nav class="sidebar-nav" id="sidebarNav">
@@ -179,6 +178,21 @@
             </div>
         </a>
 
+
+        <a class="sidebar-nav-item {{ $activeSection === 'google-ads' ? 'active' : '' }}"
+           href="{{ route('admin.google-ads.index') }}"
+           data-section="google-ads"
+           data-label="Google Ads">
+            <div class="sidebar-nav-item-left">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 3v16a2 2 0 0 0 2 2h16"/>
+                    <path d="m19 9-5 5-4-4-3 3"/>
+                </svg>
+                <span class="sidebar-nav-item-label">Google Ads</span>
+            </div>
+        </a>
 
         <a class="sidebar-nav-item" data-section="coming-soon" data-label="Email Marketing">
             <div class="sidebar-nav-item-left">

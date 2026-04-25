@@ -74,7 +74,7 @@
                         </div>
                     </div>
 
-                    <a 
+                    <a
                     href="https://wa.me/524494348018?text=Hola%2C%20me%20interesa%20una%20cotizaci%C3%B3n."
                     target="_blank"
                     aria-label="Abrir chat de WhatsApp"
@@ -266,7 +266,7 @@
             </p>
 
             <div class="cta-rinnai-buttons-heat-pumps">
-                <a 
+                <a
                 href="https://wa.me/524494348018?text=Hola%2C%20me%20interesa%20una%20cotizaci%C3%B3n."
                 target="_blank"
                 aria-label="Abrir chat de WhatsApp"
@@ -276,7 +276,7 @@
                         <path d="M5 12h14M12 5l7 7-7 7"></path>
                     </svg>
                 </a>
-                <a 
+                <a
                 href="tel:+524494348018"
                 aria-label="Llamar a Industria Simari"
                 class="button-primary ctn-heat-outline">

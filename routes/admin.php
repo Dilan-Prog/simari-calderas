@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\GoogleAdsController;
 use App\Http\Controllers\Backend\AdminController;
 use App\Http\Controllers\Backend\ClientManageController;
 use App\Http\Controllers\Backend\ProductController;
@@ -25,6 +26,12 @@ Route::controller(ClientManageController::class)->group(function () {
 Route::controller(ProductController::class)->group(function () {
     Route::get('/productos', 'index')->name('products.index');
     Route::get('/productos/crear-producto', 'create')->name('products.create');
+});
+
+Route::controller(GoogleAdsController::class)->prefix('google-ads')->name('google-ads.')->group(function () {
+    Route::get('/', 'index')->name('index');
+    Route::get('/datatable', 'datatable')->name('datatable');
+    Route::get('/{id}', 'show')->name('show');
 });
 
 
