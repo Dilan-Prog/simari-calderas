@@ -4,7 +4,7 @@
     Google Ads — Conversiones | Admin
 @endsection
 @section('content')
-    <div class="container user-manager">
+    <div class="container user-manager" style="overflow-y: auto;">
         {{-- Toast notifications --}}
         @if (session('success'))
             <div class="toast-notification toast-success" id="toastNotification">

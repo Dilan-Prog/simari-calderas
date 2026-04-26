@@ -80,5 +80,54 @@
         @yield('content')
     </main>
     @include('frontend.layouts.footer')
+
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+          const params = new URLSearchParams(window.location.search);
+          const gclid  = params.get('gclid');
+
+          if (gclid) {
+              localStorage.setItem('gclid', gclid);
+          }
+
+          const storedGclid = localStorage.getItem('gclid');
+          const alreadySent = localStorage.getItem('gclid_sent') === storedGclid;
+          // quitar logs en producción
+          console.log('[GoogleAds] gclid en URL:', gclid);
+          console.log('[GoogleAds] gclid en localStorage:', storedGclid);
+          console.log('[GoogleAds] ya enviado:', alreadySent);
+
+          if (!storedGclid || alreadySent) return;
+
+          fetch('/api/v1/google-ads', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                  gclid:           storedGclid,
+                  conversion_name: 'first_visit',
+                  conversion_value: 0,
+                  currency_code:   'MXN',
+                  conversion_time: new Date().toISOString(),
+                  order_id:        null,
+                  status:          'stored',
+                  error_message:    null,
+                  sent_at: new Date().toISOString(),
+                  created_at: new Date().toISOString(),
+                  updated_at: new Date().toISOString(),
+                  
+              }),
+          })
+          .then(res => {
+              console.log('[GoogleAds] respuesta del servidor:', res.status);
+              if (res.ok) {
+                  localStorage.setItem('gclid_sent', storedGclid);
+                  console.log('[GoogleAds] conversión guardada correctamente');
+              } else {
+                  res.json().then(data => console.error('[GoogleAds] error del servidor:', data));
+              }
+          })
+          .catch(err => console.error('[GoogleAds] fetch falló:', err));
+      });
+    </script>
   </body>
   </html>
