@@ -82,7 +82,7 @@ class GoogleAdsController extends Controller
             [$label, $badgeClass] = match ($c->status) {
                 'stored'  => ['Almacenado', 'status-stored'],
                 'pending' => ['Pendiente',  'status-pending'],
-                'sent'    => ['Enviado',    'status'],
+                'sent'    => ['Enviado',    'status-sent'],
                 'failed'  => ['Fallido',    'status-failed'],
                 default   => [$c->status,   ''],
             };
@@ -113,7 +113,7 @@ HTML;
                 e($c->currency_code),
                 e($c->order_id ?? '—'),
                 $badge,
-                $c->conversion_time?->format('d/m/Y H:i') ?? '—',
+                $c->conversion_time->format('d/m/Y H:i'),
                 $c->created_at->format('d/m/Y H:i'),
                 $actions,
             ];
