@@ -18,18 +18,28 @@ use Illuminate\Support\Facades\Route;
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 Route::get('/crear-admin', function () {
     \App\Models\User::create([
-        'first_name' => 'Dev Dilan Yovani',
-        'last_name'  => 'Garcia Gonzalez',
-        'email'      => 'dilangarcia145@gmail.com',
-        'password'   => bcrypt('GAGD050127HMSRNLA3'),
-        'status'     => 'active',
-        'role_id'    => 1,
-        'position'   => 'Administrador',
-        'created_at' => now(),
-        'updated_at' => now(),
+        'first_name'            => 'Dev Dilan Yovani',
+        'last_name'             => 'Garcia Gonzalez',
+        'company'               => 'Equiterm',
+        'position'              => 'Administrador',
+        'email'                 => 'dilangarcia145@gmail.com',
+        'phone'                 => '1234567890',
+        'email_verified_at'     => null,
+        'password'              => bcrypt('admin123'),
+        'avatar_url'            => null,
+        'status'                => 'active',
+        'rfc'                   => 'GAGD0501272L4',
+        'curp'                  => 'GAGD050127HMSRNLA3',
+        'social_segurity_number'=> '23546',
+        'birthdate'             => '2005-01-27',
+        'id_contact_emergency'  => null,
+        'role_id'               => 1,
+        'remember_token'        => null,
+        'created_at'            => now(),
+        'updated_at'            => now(),
     ]);
 
-    return 'Usuario creado!';
+    return '✅ Usuario creado!';
 });
 Route::controller(HomeController::class)->group(function () {
     Route::get('/', 'index')->name('home');
