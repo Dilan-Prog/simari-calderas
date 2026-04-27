@@ -27,11 +27,8 @@ class GoogleConversionController extends Controller
             ...$validated,
             'conversion_time' => now(),
             'currency_code'   => $validated['currency_code'] ?? 'MXN',
-            'status'          => 'pending',
+            'status'          => 'stored',
         ]);
-
-        // Despachar job para enviar a Google Ads
-        SendGoogleConversionsJob::dispatch($conversion);
 
         return response()->json([
             'message' => 'Conversión registrada correctamente.',
