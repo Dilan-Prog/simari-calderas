@@ -14,8 +14,8 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap"
         media="print" onload="this.media='all'">
     {{-- @vite(['resources/css/app.css', 'resources/js/app.js']) --}}
-    @vite(['resources\css\admin\app.css'])
-    @vite(['resources\js\admin\sidebar.js'])
+    @vite(['resources/css/admin/app.css'])
+    @vite(['resources/js/admin/sidebar.js'])
     @stack('styles')
 </head>
 
