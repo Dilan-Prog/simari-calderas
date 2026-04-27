@@ -16,6 +16,21 @@ use Illuminate\Support\Facades\Route;
 |
 */
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
+Route::get('/crear-admin', function () {
+    \App\Models\User::create([
+        'first_name' => 'Dev Dilan Yovani',
+        'last_name'  => 'Garcia Gonzalez',
+        'email'      => 'dilangarcia145@gmail.com',
+        'password'   => bcrypt('GAGD050127HMSRNLA3'),
+        'status'     => 'active',
+        'role_id'    => 1,
+        'position'   => 'Administrador',
+        'created_at' => now(),
+        'updated_at' => now(),
+    ]);
+
+    return 'Usuario creado!';
+});
 Route::controller(HomeController::class)->group(function () {
     Route::get('/', 'index')->name('home');
     Route::get('/nuestra-empresa', 'company')->name('company');
