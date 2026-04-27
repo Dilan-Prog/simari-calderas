@@ -19,6 +19,12 @@
     "src": "resources/js/admin/google-ads.js",
     "isEntry": true
   },
+  "resources/js/admin/sidebar.js": {
+    "file": "assets/sidebar-CMuHmg7g.js",
+    "name": "sidebar",
+    "src": "resources/js/admin/sidebar.js",
+    "isEntry": true
+  },
   "resources/js/app.js": {
     "file": "assets/app-DgNdLuoO.js",
     "name": "app",
