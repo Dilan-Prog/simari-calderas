@@ -8,6 +8,8 @@ export default defineConfig({
                 'resources/css/app.css',
                 'resources/js/app.js',
                 'resources/images/logo/logo_SVG.svg',
+                'resources/css/admin/app.css',
+                'resources/js/admin/google-ads.js',
             ],
             refresh: true,
         }),
