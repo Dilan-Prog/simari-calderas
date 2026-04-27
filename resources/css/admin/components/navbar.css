@@ -1,0 +1,268 @@
+/*
+ * navbar.css — Sidebar fijo del panel administrativo
+ * Paleta: fondo #141516 | borde #2E3A46 | activo #ff6213 | hover #2E3A46
+ */
+
+/* ── Reset de body para el panel ── */
+.admin-panel-body {
+    margin: 0;
+    padding: 0;
+    background-color: #f0f2f5;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    overflow: hidden;
+    height: 100vh;
+}
+
+/* ── Layout principal (sidebar + contenido) ── */
+.admin-panel-layout {
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+}
+/* ════════════════════════════════════════
+   ÁREA PRINCIPAL
+════════════════════════════════════════ */
+.admin-main {
+    flex: 1;
+    margin-left: 256px;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+    min-width: 0;
+}
+
+/* ── Cabecera superior ── */
+.admin-top-header {
+    height: 64px;
+    background-color: #141516;
+    border-bottom: 1px solid #2E3A46;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 32px;
+    flex-shrink: 0;
+}
+
+.admin-breadcrumb {
+    color: #9ca3af;
+    font-size: 13.5px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.admin-breadcrumb strong {
+    color: #e5e7eb;
+    font-weight: 600;
+}
+
+.admin-breadcrumb .bc-sep {
+    color: #374151;
+}
+
+.admin-breadcrumb .bc-current {
+    color: #9ca3af;
+}
+
+.admin-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* Botón notificaciones */
+.admin-notif-btn {
+    position: relative;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    color: #9ca3af;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: background-color 0.15s ease, color 0.15s ease;
+    padding: 0;
+}
+
+.admin-notif-btn:hover {
+    background-color: #2E3A46;
+    color: #ffffff;
+}
+
+.admin-notif-dot {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 8px;
+    height: 8px;
+    background-color: #ef4444;
+    border-radius: 50%;
+    border: 2px solid #141516;
+}
+
+/* Avatar cabecera */
+.admin-header-avatar {
+    width: 36px;
+    height: 36px;
+    background-color: #374151;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+/* ── Área de contenido dinámico ── */
+.admin-content-area {
+    flex: 1;
+    overflow-y: auto;
+    background-color: #f0f2f5;
+    scrollbar-width: thin;
+    scrollbar-color: #c9cdd4 transparent;
+}
+
+.admin-content-area::-webkit-scrollbar {
+    width: 6px;
+}
+
+.admin-content-area::-webkit-scrollbar-thumb {
+    background-color: #c9cdd4;
+    border-radius: 4px;
+}
+
+/* ── Pantalla de carga ── */
+.admin-loading-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 260px;
+    gap: 14px;
+    color: #9ca3af;
+    font-size: 14px;
+}
+
+.admin-spinner {
+    width: 28px;
+    height: 28px;
+    border: 2.5px solid #2E3A46;
+    border-top-color: #ff6213;
+    border-radius: 50%;
+    animation: adminSpin 0.75s linear infinite;
+}
+
+@keyframes adminSpin {
+    to { transform: rotate(360deg); }
+}
+
+/* ── Overlay de navegación ── */
+.admin-nav-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: rgba(20, 21, 22, 0.55);
+    backdrop-filter: blur(2px);
+    align-items: center;
+    justify-content: center;
+}
+
+.admin-nav-overlay.is-visible {
+    display: flex;
+}
+
+.admin-nav-overlay .admin-spinner {
+    width: 36px;
+    height: 36px;
+    border-width: 3px;
+}
+
+/* ── Pantalla de bienvenida (Dashboard) ── */
+.admin-welcome-section {
+    padding: 40px;
+}
+
+.admin-welcome-section h1 {
+    color: #111827;
+    font-size: 26px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    letter-spacing: -0.02em;
+}
+
+.admin-welcome-section p {
+    color: #6b7280;
+    font-size: 15px;
+    margin-bottom: 32px;
+}
+
+.admin-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    max-width: 900px;
+}
+
+.admin-stat-card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    padding: 24px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+
+.admin-stat-card-label {
+    color: #6b7280;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 10px;
+}
+
+.admin-stat-card-value {
+    color: #111827;
+    font-size: 32px;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+}
+
+.admin-stat-card-sub {
+    color: #9ca3af;
+    font-size: 12px;
+    margin-top: 6px;
+}
+
+/* ── Sección "próximamente" ── */
+.admin-coming-soon {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 320px;
+    gap: 12px;
+    color: #9ca3af;
+}
+
+.admin-coming-soon svg {
+    color: #d1d5db;
+}
+
+.admin-coming-soon h3 {
+    color: #6b7280;
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0;
+}
+
+.admin-coming-soon p {
+    font-size: 14px;
+    margin: 0;
+}

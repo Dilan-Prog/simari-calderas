@@ -1,0 +1,54 @@
+/* ============================================================
+   variables.css — Design Tokens / CSS Custom Properties
+   Única fuente de verdad para colores, tipografía y sombras.
+   ============================================================ */
+
+:root {
+    /* --- Colores principales --- */
+    --background-primary:           #141516;
+    --background-primary-white:     #F8F9FA;
+    --background--white:            #ffffff;
+    --vaner-color:                  #0c1b2e;
+    --section-example:              #0E1A2B;
+    --header-footer-color:          #1A2535;
+
+    /* --- Header / Nav --- */
+    --header-background-color:      #141516;
+    --border-header-footer-color:   #2E3A46;
+    --toggle-header:                #2E3A46;
+    --toggle-header-nav:            #364153;
+    --text-header-color-nav:        #D1D5DC;
+    --text-header-color-nav-hover:  #ff6213;
+    --text-header-color-nav-hover-white: #ffffff;
+
+    /* --- Footer --- */
+    --footer-background-color:      #141516;
+    --border-footer-color-legal:    #2E3A46;
+    --text-footer-color-links:      #99A1AF;
+    --text-footer-color-links-hover:#ffffff;
+
+    /* --- Texto --- */
+    --text-white-color:             #ffffff;
+    --text-white:                   #ffffff;
+    --text-black:                   #000000;
+    --text-subwhite-color:          #D1D5DC;
+    --text-description-color:       #6B7280;
+
+    /* --- Colores de acción / marca --- */
+    --secondary-color:              #ff6213;
+    --secondary-color-rgb:          0, 84, 255;
+
+    /* --- Botones --- */
+    --button-primary-color:         #ff6213;
+    --button-primary-color-hover:   #de4a00;
+    --button-serondary-color:       transparent;
+    --button-secondary-color-hover: #ffffff;
+
+    /* --- Tipografía --- */
+    --font-family:                  'Inter', sans-serif;
+
+    /* --- Sombras --- */
+    --shadow-sm:                    0 1px 2px rgba(0, 0, 0, 0.06);
+    --shadow-md:                    0 10px 20px rgba(0, 0, 0, 0.1);
+    --shadow-red-md:                0 10px 20px rgba(127, 29, 29, 0.2);
+}
