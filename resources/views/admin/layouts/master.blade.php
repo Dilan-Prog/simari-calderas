@@ -25,6 +25,7 @@
     </div>
 
     @include('admin.layouts.sidebar')
+    @include('admin.layouts.toast')
     <section class="admin-main">
         @include('admin.layouts.navbar')
         @yield('content')

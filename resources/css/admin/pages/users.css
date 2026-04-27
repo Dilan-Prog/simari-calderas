@@ -86,6 +86,8 @@
     height: 36px;
     justify-content: center;
     width: 36px;
+    min-width: 36px;
+    min-height: 36px;
 }
 
 /* Header left user manager */
@@ -144,7 +146,6 @@
     width: 100%;
     table-layout: fixed;
 }
-
 .table-scroll {
     max-height: 420px;
     overflow-y: auto;

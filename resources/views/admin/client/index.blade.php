@@ -1,7 +1,7 @@
 @extends('admin.layouts.master')
 
 @section('title')
-    Gestor de clientes - Admin
+    Crear cliente - Admin
 @endsection
 
 @section('content')
@@ -22,7 +22,7 @@
                     </p>
                 </div>
 
-                <button class="button-primary size-adjustment">
+                <button class="button-primary size-adjustment clients">
                     + Nuevo Cliente
                 </button>
             </header>
@@ -73,15 +73,21 @@
                         <table class="clients-manager-table">
                             <tbody>
                                 {{-- Rows --}}
-                                @foreach ( $customers as $customer )
+                                @foreach ($customers as $customer)
                                     <tr>
                                         <td class="clients-manager-table-cell">
                                             <div class="avatar-user-manager">
                                                 D
                                             </div>
                                             <div>
-                                                <p class="clients-manager-name-client">{{ $customer->first_name }}</p>
-                                                <span class="clients-manager-ubication-client"> {{ $customer->source }}</span>
+                                                <p class="clients-manager-name-client">{{ $customer->first_name }}
+                                                    {{ $customer->last_name }}</p>
+                                                @php
+                                                    $address = $customer->customer_addresses->first();
+                                                @endphp
+                                                <span class="clients-manager-ubication-client">
+                                                    {{ $address ? $address->city . ', ' . $address->state : '—' }}
+                                                </span>
                                             </div>
                                         </td>
 
@@ -98,7 +104,7 @@
                                                     <path d="M10 10h4"></path>
                                                     <path d="M10 14h4"></path>
                                                     <path d="M10 18h4"></path>
-                                                </svg>  {{ $customer->company }}
+                                                </svg> {{ $customer->company }}
                                             </p>
                                         </td>
 
@@ -130,12 +136,27 @@
                                         </td>
 
                                         <td>
-                                            <span class="users-manager-badge status">{{ $customer->status }}</span>
+                                            @php
+                                                $statusLabel = match ($customer->status) {
+                                                    'active' => 'Activo',
+                                                    'inactive' => 'Inactivo',
+                                                    'suspended' => 'Suspendido',
+                                                    default => $customer->status,
+                                                };
+                                                $statusClass = match ($customer->status) {
+                                                    'active' => 'status',
+                                                    'inactive' => 'status-inactive',
+                                                    'suspended' => 'status-inactive',
+                                                    default => 'status',
+                                                };
+                                            @endphp
+                                            <span class="users-manager-badge {{ $statusClass }}">{{ $statusLabel }}</span>
                                         </td>
 
                                         <td>
                                             <div class="header-right-user-manager buttons">
-                                                <button class="table-users-manager-action-btn edit">
+                                                <button class="table-users-manager-action-btn edit"
+                                                    onclick="window.location='{{ route('admin.clients.information', $customer->id) }}'">
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
                                                         viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
@@ -146,8 +167,9 @@
                                                         <circle cx="12" cy="12" r="3"></circle>
                                                     </svg>
                                                 </button>
-                                                <button class="table-users-manager-action-btn edit"
-                                                    onclick="window.location='{{ route('admin.clients.information') }}'">
+                                                <button type="button"
+                                                    class="table-users-manager-action-btn edit btn-edit-client"
+                                                    data-id="{{ $customer->id }}">
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
                                                         viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
@@ -157,7 +179,12 @@
                                                         </path>
                                                     </svg>
                                                 </button>
-                                                <button class="table-users-manager-action-btn delete">
+                                                <button type="button"
+                                                    class="table-users-manager-action-btn delete btn-delete-client"
+                                                    data-id="{{ $customer->id }}"
+                                                    data-name="{{ $customer->first_name }} {{ $customer->last_name }}"
+                                                    data-email="{{ $customer->email }}"
+                                                    data-initial="{{ strtoupper(substr($customer->first_name, 0, 1)) }}">
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
                                                         viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
@@ -182,6 +209,10 @@
                     </div>
                 </div>
             </main>
+            @include('admin.client.partials._modal_create')
+            @include('admin.client.partials._edit_modal')
+            @include('admin.client.partials._scripts')
         </section>
+        @include('admin.client.partials._modal_delete')
     </div>
 @endsection

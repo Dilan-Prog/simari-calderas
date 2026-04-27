@@ -413,7 +413,6 @@
             }
 
             // Account
-            // A:
             const showRoleText = document.getElementById('showRoleText');
             const showStatusText = document.getElementById('showStatusText');
 
