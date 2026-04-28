@@ -19,9 +19,10 @@ class ClientManageController extends Controller
         return view('admin.client.index', compact('customers'));
     }
 
-    public function information()
+    public function information(string $id)
     {
-        return view('admin.client.partials.show');
+    $customer = Customer::with(['customer_addresses'])->findOrFail($id);
+    return view('admin.client.partials.show', compact('customer'));
     }
 
     /**

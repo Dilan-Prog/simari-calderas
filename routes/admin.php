@@ -18,11 +18,11 @@ Route::controller(UserManageController::class)->group(function () {
 
 Route::controller(ClientManageController::class)->group(function () {
     Route::get('/clientes', 'index')->name('clients.index');
-    Route::get('/clientes/informacion', 'information')->name('clients.information');
     Route::post('/clientes/crear-usuario/', action: 'store')->name('clients.store');
     Route::get('/clientes/editar-cliente/{id}', 'edit')->name('clients.edit');
     Route::put('/clientes/editar-cliente/{id}', 'update')->name('clients.update');
     Route::delete('/clientes/eliminar-cliente/{id}', 'destroy')->name('clients.destroy');
+    Route::get('/clientes/informacion/{id}', 'information')->name('clients.information');
 });
 
 Route::controller(ProductController::class)->group(function () {

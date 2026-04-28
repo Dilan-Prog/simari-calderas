@@ -85,6 +85,48 @@
             }, 7000);
         };
 
+        // Update table row without reload
+        const updateClientTableRow = (customer) => {
+            const editBtn = document.querySelector(`.btn-edit-client[data-id="${customer.id}"]`);
+            if (!editBtn) return;
+            const row = editBtn.closest('tr');
+
+            // Update name
+            row.querySelector('.clients-manager-name-client').textContent = [customer.first_name, customer.last_name]
+                .filter(Boolean).join(' ');
+
+            // Update location
+            const addr = customer.customer_addresses?.[0] ?? null;
+            row.querySelector('.clients-manager-ubication-client').textContent =
+                addr ? `${addr.city}, ${addr.state}` : '—';
+
+            // Update company
+            const companyEl = row.querySelector('.breadcrumb-clients-manager');
+            if (companyEl) companyEl.textContent = customer.company ?? '—';
+
+            // Update status badge
+            const statusBadge = row.querySelector('.users-manager-badge');
+            if (statusBadge) {
+                const labels = {
+                    active: 'Activo',
+                    inactive: 'Inactivo',
+                    suspended: 'Suspendido'
+                };
+                statusBadge.textContent = labels[customer.status] ?? customer.status;
+                statusBadge.className = 'users-manager-badge ' +
+                    (customer.status === 'active' ? 'status' : 'status-inactive');
+            }
+
+            // Update delete button data
+            const deleteBtn = row.querySelector('.btn-delete-client');
+            if (deleteBtn) {
+                deleteBtn.dataset.name = [customer.first_name, customer.last_name].filter(Boolean).join(' ');
+                deleteBtn.dataset.email = customer.email;
+                deleteBtn.dataset.initial = customer.first_name.charAt(0).toUpperCase();
+            }
+        };
+
+
         // Edit client modal
         const editClientModal = document.getElementById('clientEditModal');
         const closeEditClientBtn = document.getElementById('closeClientEditModal');
@@ -216,8 +258,8 @@
 
                 if (response.ok) {
                     closeEditWithAnim();
+                    updateClientTableRow(data.customer);
                     showClientToast('Cliente actualizado correctamente.');
-                    setTimeout(() => window.location.reload(), 1000);
                 } else if (response.status === 422) {
                     const errorList = Object.values(data.errors).flat();
                     errorsContainer.innerHTML = errorList.map(msg => `<p>${msg}</p>`).join('');
