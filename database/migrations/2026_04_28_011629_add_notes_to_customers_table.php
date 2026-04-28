@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::table('customers', function (Blueprint $table) {
             $table->text('notes')->nullable()->after('status');
         });
-    }
+}
 
     /**
      * Reverse the migrations.

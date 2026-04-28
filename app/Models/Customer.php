@@ -22,6 +22,7 @@ class Customer extends Model
         'status',
         'source',
         'company',
+        'notes'
     ];
 
     public function customer_addresses()

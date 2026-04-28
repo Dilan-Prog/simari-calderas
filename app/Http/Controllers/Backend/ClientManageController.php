@@ -60,6 +60,7 @@ class ClientManageController extends Controller
             'postal_code' => 'nullable|string|max:20',
             'country' => 'nullable|string|max:100',
             'reference' => 'nullable|string|max:255',
+            'notes' => 'nullable|string',
         ]);
 
         $customer = new Customer;
@@ -70,6 +71,7 @@ class ClientManageController extends Controller
         $customer->phone = $request->phone;
         $customer->password_hash = 'OdioAlosNegros';
         $customer->rfc = $request->rfc;
+        $customer->notes = $request->notes;
         $customer->document_type = $request->document_type;
         $customer->document_numer = $request->document_numer ?? '';
         $customer->birth_date = $request->birth_date;
@@ -146,6 +148,7 @@ class ClientManageController extends Controller
             'postal_code' => 'nullable|string|max:20',
             'country' => 'nullable|string|max:100',
             'reference' => 'nullable|string|max:255',
+            'notes' => 'nullable|string',
         ]);
 
         $customer->first_name = $firstName;
@@ -158,31 +161,43 @@ class ClientManageController extends Controller
         $customer->document_numer = $request->document_numer ?? '';
         $customer->birth_date = $request->birth_date;
         $customer->source = $request->source;
+        $customer->notes = $request->notes;
         $customer->status = $request->status;
         $customer->save();
 
-        if ($request->filled('address_line1')) {
-            $address = $customer->customer_addresses()->first();
-            $addressData = [
-                'label' => 'fiscal',
-                'recipient_name' => $firstName.' '.$lastName,
-                'phone' => $request->phone,
-                'address_line1' => $request->address_line1,
-                'address_line2' => $request->address_line2,
-                'city' => $request->city,
-                'state' => $request->state,
-                'postal_code' => $request->postal_code,
-                'country' => $request->country ?? 'México',
-                'reference' => $request->reference,
-                'is_default' => true,
-            ];
+        // Delete all existing addresses and recreate
+        $customer->customer_addresses()->delete();
 
-            if ($address) {
-                $address->update($addressData);
-            } else {
-                $customer->customer_addresses()->create($addressData);
-            }
-        }
+        if ($request->filled('address_line1')) {
+            $customer->customer_addresses()->create([
+            'label'          => 'fiscal',
+            'recipient_name' => $firstName . ' ' . $lastName,
+            'phone'          => $request->phone,
+            'address_line1'  => $request->address_line1,
+            'address_line2'  => $request->address_line1,
+            'city'           => $request->city,
+            'state'          => $request->state,
+            'postal_code'    => $request->postal_code,
+            'country'        => $request->country ?? 'México',
+            'reference'      => $request->reference,
+            'is_default'     => true,
+    ]);
+
+    if (!$request->boolean('same_as_fiscal') && $request->filled('address_line2')) {
+        $customer->customer_addresses()->create([
+            'label'          => 'envio',
+            'recipient_name' => $firstName . ' ' . $lastName,
+            'phone'          => $request->phone,
+            'address_line1'  => $request->address_line2,
+            'address_line2'  => $request->address_line2,
+            'city'           => $request->city,
+            'state'          => $request->state,
+            'postal_code'    => $request->postal_code,
+            'country'        => $request->country ?? 'México',
+            'is_default'     => false,
+        ]);
+    }
+}
 
         return response()->json([
             'success' => true,

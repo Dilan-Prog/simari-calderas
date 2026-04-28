@@ -39,12 +39,12 @@
                             <path d="m21 21-4.3-4.3"></path>
                         </svg>
                     </span>
-                    <input type="text" placeholder="Buscar por nombre, empresa, email o RFC...">
+                    <input type="text" id="clientSearch" placeholder="Buscar por nombre, empresa, email o RFC...">
                 </div>
 
                 {{-- Filter  --}}
                 <div class="filters-clients-manager-select">
-                    <select>
+                    <select id="clientStatusFilter">
                         <option value="all">Todos los estados</option>
                         <option value="active">Activo</option>
                         <option value="inactive">Inactivo</option>
@@ -132,7 +132,7 @@
                                         </td>
 
                                         <td>
-                                            <span class="breadcrumb-clients-manager">{{ $customer->rfc }}</span>
+                                            <span class="breadcrumb-clients-manager client-rfc">{{ $customer->rfc }}</span>
                                         </td>
 
                                         <td>
@@ -150,7 +150,8 @@
                                                     default => 'status',
                                                 };
                                             @endphp
-                                            <span class="users-manager-badge {{ $statusClass }}">{{ $statusLabel }}</span>
+                                            <span class="users-manager-badge {{ $statusClass }}"
+                                                data-status="{{ $customer->status }}">{{ $statusLabel }}</span>
                                         </td>
 
                                         <td>
