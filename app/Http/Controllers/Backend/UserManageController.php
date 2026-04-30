@@ -69,12 +69,15 @@ class UserManageController extends Controller
                 }
             }
         }
+
         return redirect()->route('admin.users.index')->with('success', 'Usuario creado correctamente.');
     }
 
     public function show(string $id)
     {
-        $user = User::with(['role:id,name_role_es', 'contactEmergency'])->findOrFail($id);
+        $user = User::with(['role:id,name_role_es', 'contactEmergency'])
+            ->findOrFail($id);
+
         return response()->json($user);
     }
 
@@ -142,6 +145,7 @@ class UserManageController extends Controller
         abort_if($user->id === auth()->id(), 403, 'No puedes eliminarte a ti mismo.');
         $user->contactEmergency()->delete();
         $user->delete();
+
         return redirect()->route('admin.users.index')->with('success', 'Usuario eliminado correctamente.');
     }
 }

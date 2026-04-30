@@ -24,7 +24,7 @@
             <form id="deleteUserForm" method="POST">
                 @csrf
                 @method('DELETE')
-                <button type="submit" class="del-confirm-btn-delete">Eliminar</button>
+                <button type="submit" class="button-primary size-adjustment delete-confirmation-modal-button">Eliminar</button>
             </form>
         </div>
     </div>
