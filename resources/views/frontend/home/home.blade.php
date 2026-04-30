@@ -1,5 +1,5 @@
 @extends('frontend.layouts.master')
-@section('title', 'Industria Simari')
+@section('title', 'Equiterm Industries')
 @section('description', 'Diseñamos, instalamos y mantenemos sistemas de calderas, calentadores y tratamiento de agua para los sectores industrial, alimentario, hotelero y metalmecánico. Soporte técnico especializado disponible 24/7.')
 @section('canonical', config('app.url') . '/')
 @section('content')
@@ -34,7 +34,7 @@
                     <a
                     href="https://wa.me/524494348018?text=Hola%2C%20me%20interesa%20una%20cotizaci%C3%B3n."
                     target="_blank"
-                    aria-label="Abrir chat de WhatsApp" 
+                    aria-label="Abrir chat de WhatsApp"
                     class="button-primary">
                         Solicitar Cotización
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
@@ -47,7 +47,7 @@
 
                     <a
                     href="tel:+524494348018"
-                    aria-label="Llamar a Industria Simari"
+                    aria-label="Llamar a Equiterm Industries"
                     class="button-secondary">
                     Llamar Ahora
                     </a>
@@ -257,8 +257,8 @@
                     <div class="blur-backdrop-home"></div>
                     <img class="why-img-home"
                         src="{{ asset('images/company/team/equipo_industria_simari.jpg') }}"
-                        alt="Equipo Industria Simari"
-                        title="Equipo Industria Simari"
+                        alt="Equipo Equiterm Industries"
+                        title="Equipo Equiterm Industries"
                         fetchpriority="low"
                         loading="lazy"
                         decoding="async"
@@ -284,18 +284,18 @@
                 </p>
 
                 <div class="cta-buttons-home">
-                    
+
                     <a
                     href="https://wa.me/524494348018?text=Hola%2C%20me%20interesa%20una%20cotizaci%C3%B3n."
                     target="_blank"
-                    aria-label="Abrir chat de WhatsApp" 
+                    aria-label="Abrir chat de WhatsApp"
                     class="button-primary cta-section-home">
                         Solicitar Asesoría
                     </a>
 
                     <a
                     href="tel:+524494348018"
-                    aria-label="Llamar a Industria Simari"
+                    aria-label="Llamar a Equiterm Industries"
                     class="button-secondary cta-section-home">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
                             <g clip-path="url(#clip0_20_1370)">
@@ -311,7 +311,7 @@
                         </svg>
                          +52 (449) 434-8018
                     </a>
-                    
+
                 </div>
             </div>
         </div>

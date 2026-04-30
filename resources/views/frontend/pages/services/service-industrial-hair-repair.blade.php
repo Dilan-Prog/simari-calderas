@@ -30,7 +30,7 @@
                 </p>
 
                 <div class="hero-actions">
-                    <a 
+                    <a
                     href="https://wa.me/524494348018?text=Hola%2C%20me%20interesa%20una%20cotizaci%C3%B3n."
                     target="_blank"
                     aria-label="Abrir chat de WhatsApp"
@@ -387,7 +387,7 @@
             </p>
 
             <div class="cta-final-actions">
-                <a 
+                <a
                 href="https://wa.me/524494348018?text=Hola%2C%20me%20interesa%20una%20cotizaci%C3%B3n."
                 target="_blank"
                 aria-label="Abrir chat de WhatsApp"
@@ -401,9 +401,9 @@
                     </svg>
                 </a>
 
-                <a 
+                <a
                 href="tel:+524494348018"
-                aria-label="Llamar a Industria Simari"
+                aria-label="Llamar a Equiterm Industries"
                 class="button-secondary work-process">
                     <svg
                         xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"

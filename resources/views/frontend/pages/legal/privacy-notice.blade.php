@@ -1,6 +1,6 @@
 @extends('frontend.layouts.master')
 @section('title')
-Industria Simari Aviso de Privacidad
+Equiterm Industries Aviso de Privacidad
 @endsection
 @section('content')
     <section class="simari-privacy-body" aria-label="Contenido del aviso">

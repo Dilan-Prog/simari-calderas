@@ -1,16 +1,16 @@
 @extends('frontend.layouts.master')
 
 @section('title')
-Instrumentación Industrial - Industria Simari
+Instrumentación Industrial - Equiterm Industries
 @endsection
 @section('content')
 <section class="ii-hero" aria-labelledby="ii-hero-title">
   <div class="ii-hero__pattern" aria-hidden="true"></div>
   <div class="ii-hero__overlay" aria-hidden="true"></div>
- 
+
   <div class="ii-hero__inner">
     <div class="ii-hero__content">
- 
+
       <!-- Badge con ícono -->
       <div class="ii-hero__badge">
         <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m12 14 4-4"/><path d="M3.34 19a10 10 0 1 1 17.32 0"/></svg>
@@ -19,19 +19,19 @@ Instrumentación Industrial - Industria Simari
           <div class="ii-hero__badge-sub">Medición · Control · Monitoreo</div>
         </div>
       </div>
- 
+
       <!-- Título -->
       <h1 id="ii-hero-title" class="ii-hero__title">
         Instrumentos<br>
         de <span class="ii-accent">Precisión</span><br>
         <span class="ii-sub">Industrial</span>
       </h1>
- 
+
       <!-- Descripción -->
       <p class="ii-hero__desc">
         Soluciones completas de medición y control para procesos térmicos e industriales. Manómetros, transmisores, sensores, analizadores y sistemas de automatización.
       </p>
- 
+
       <!-- 4 stats -->
       <div class="ii-hero__stats" role="list" aria-label="Indicadores clave">
         <div class="ii-stat" role="listitem">
@@ -51,10 +51,10 @@ Instrumentación Industrial - Industria Simari
           <div class="ii-stat__label">Stock</div>
         </div>
       </div>
- 
+
       <!-- CTAs -->
       <nav class="ii-hero__btns" aria-label="Acciones principales">
-        <a 
+        <a
         href="https://wa.me/524494348018?text=Hola%2C%20me%20interesa%20una%20cotizaci%C3%B3n."
         target="_blank"
         aria-label="Abrir chat de WhatsApp"
@@ -62,34 +62,34 @@ Instrumentación Industrial - Industria Simari
           Solicitar Catálogo Técnico
           <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
         </a>
-        <a 
+        <a
         href="tel:+524494348018"
-        aria-label="Llamar a Industria Simari"
+        aria-label="Llamar a Equiterm Industries"
         class="ii-btn-outline-white">
           <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
           Asesoría Técnica
         </a>
       </nav>
- 
+
     </div>
   </div>
 </section>
- 
- 
+
+
 <!-- ═══════════════════════════════════════════════════════
      CATÁLOGO – 4 CARDS (2 filas × 2 columnas)
      React: section bg-[#2E3A46] grid md:grid-cols-2 lg:grid-cols-3
 ════════════════════════════════════════════════════════ -->
 <section class="ii-catalog" id="catalogo" aria-labelledby="ii-catalog-title">
   <div class="ii-container">
- 
+
     <header class="ii-catalog__header">
       <h2 id="ii-catalog-title" class="ii-catalog__title">Catálogo de Instrumentación</h2>
       <p class="ii-catalog__sub">6 familias principales con más de 200 productos en stock</p>
     </header>
- 
+
     <div class="ii-catalog__grid">
- 
+
       <!-- ── Medición de Presión (azul) ── -->
       <article class="ii-cat-card" aria-labelledby="cat-presion">
         <div class="ii-cat-card__header ii-cat-card__header--blue">
@@ -134,7 +134,7 @@ Instrumentación Industrial - Industria Simari
           <a href="/contacto" class="ii-cat-card__btn ii-cat-card__btn--blue" rel="noopener">Ver Detalles</a>
         </div>
       </article>
- 
+
       <!-- ── Medición de Temperatura (rojo) ── -->
       <article class="ii-cat-card" aria-labelledby="cat-temp">
         <div class="ii-cat-card__header ii-cat-card__header--red">
@@ -179,7 +179,7 @@ Instrumentación Industrial - Industria Simari
           <a href="/contacto" class="ii-cat-card__btn ii-cat-card__btn--red" rel="noopener">Ver Detalles</a>
         </div>
       </article>
- 
+
       <!-- ── Análisis de Agua (ámbar) ── -->
       <article class="ii-cat-card" aria-labelledby="cat-agua">
         <div class="ii-cat-card__header ii-cat-card__header--amber">
@@ -224,7 +224,7 @@ Instrumentación Industrial - Industria Simari
           <a href="/contacto" class="ii-cat-card__btn ii-cat-card__btn--amber" rel="noopener">Ver Detalles</a>
         </div>
       </article>
- 
+
       <!-- ── Control y Automatización (pink) ── -->
       <article class="ii-cat-card" aria-labelledby="cat-auto">
         <div class="ii-cat-card__header ii-cat-card__header--pink">
@@ -269,27 +269,27 @@ Instrumentación Industrial - Industria Simari
           <a href="/contacto" class="ii-cat-card__btn ii-cat-card__btn--pink" rel="noopener">Ver Detalles</a>
         </div>
       </article>
- 
+
     </div>
   </div>
 </section>
- 
- 
+
+
 <!-- ═══════════════════════════════════════════════════════
      APLICACIONES CRÍTICAS – SECCIÓN NEGRA
      React: section "py-20 bg-black text-white"
 ════════════════════════════════════════════════════════ -->
 <section class="ii-apps" id="aplicaciones" aria-labelledby="ii-apps-title">
   <div class="ii-container">
- 
+
     <header class="ii-apps__header">
       <svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>
       <h2 id="ii-apps-title" class="ii-apps__title">Aplicaciones Críticas por Sistema</h2>
       <p class="ii-apps__sub">Instrumentación obligatoria y recomendada según normatividad vigente</p>
     </header>
- 
+
     <div class="ii-apps__list" role="list">
- 
+
       <!-- Cuarto de Calderas -->
       <div class="ii-app-row" role="listitem">
         <div class="ii-app-row__inner">
@@ -315,7 +315,7 @@ Instrumentación Industrial - Industria Simari
           </div>
         </div>
       </div>
- 
+
       <!-- Tratamiento de Agua -->
       <div class="ii-app-row" role="listitem">
         <div class="ii-app-row__inner">
@@ -341,7 +341,7 @@ Instrumentación Industrial - Industria Simari
           </div>
         </div>
       </div>
- 
+
       <!-- Procesos Térmicos -->
       <div class="ii-app-row" role="listitem">
         <div class="ii-app-row__inner">
@@ -367,7 +367,7 @@ Instrumentación Industrial - Industria Simari
           </div>
         </div>
       </div>
- 
+
       <!-- HVAC Industrial -->
       <div class="ii-app-row" role="listitem">
         <div class="ii-app-row__inner">
@@ -393,26 +393,26 @@ Instrumentación Industrial - Industria Simari
           </div>
         </div>
       </div>
- 
+
     </div>
   </div>
 </section>
- 
- 
+
+
 <!-- ═══════════════════════════════════════════════════════
      SERVICIO TÉCNICO – SECCIÓN AZUL
      React: section bg-[#ff6213]
 ════════════════════════════════════════════════════════ -->
 <section class="ii-service" id="servicio" aria-labelledby="ii-service-title">
   <div class="ii-container">
- 
+
     <header class="ii-service__header">
       <h2 id="ii-service-title" class="ii-service__title">Servicio Técnico Especializado</h2>
       <p class="ii-service__sub">Más que venta de equipos: solución integral</p>
     </header>
- 
+
     <div class="ii-service__grid">
- 
+
       <article class="ii-service-card" aria-labelledby="svc-precision">
         <div class="ii-service-card__body">
           <div class="ii-service-card__icon" aria-hidden="true">
@@ -424,7 +424,7 @@ Instrumentación Industrial - Industria Simari
           </div>
         </div>
       </article>
- 
+
       <article class="ii-service-card" aria-labelledby="svc-norm">
         <div class="ii-service-card__body">
           <div class="ii-service-card__icon" aria-hidden="true">
@@ -436,7 +436,7 @@ Instrumentación Industrial - Industria Simari
           </div>
         </div>
       </article>
- 
+
       <article class="ii-service-card" aria-labelledby="svc-inst">
         <div class="ii-service-card__body">
           <div class="ii-service-card__icon" aria-hidden="true">
@@ -448,7 +448,7 @@ Instrumentación Industrial - Industria Simari
           </div>
         </div>
       </article>
- 
+
       <article class="ii-service-card" aria-labelledby="svc-post">
         <div class="ii-service-card__body">
           <div class="ii-service-card__icon" aria-hidden="true">
@@ -460,21 +460,21 @@ Instrumentación Industrial - Industria Simari
           </div>
         </div>
       </article>
- 
+
     </div>
   </div>
 </section>
- 
- 
+
+
 <!-- ═══════════════════════════════════════════════════════
      MARCAS – SECCIÓN DARK
      React: section bg-[#2E3A46]
 ════════════════════════════════════════════════════════ -->
 <section class="ii-brands" id="marcas" aria-labelledby="ii-brands-title">
   <div class="ii-container">
- 
+
     <h2 id="ii-brands-title" class="ii-brands__title">Representamos Marcas Líderes Mundiales</h2>
- 
+
     <div class="ii-brands__grid" role="list" aria-label="Marcas representadas">
       <div class="ii-brand-tile" role="listitem"><div class="ii-brand-tile__name">Winters</div></div>
       <div class="ii-brand-tile" role="listitem"><div class="ii-brand-tile__name">Ashcroft</div></div>
@@ -485,26 +485,26 @@ Instrumentación Industrial - Industria Simari
       <div class="ii-brand-tile" role="listitem"><div class="ii-brand-tile__name">Rosemount</div></div>
       <div class="ii-brand-tile" role="listitem"><div class="ii-brand-tile__name">Siemens</div></div>
     </div>
- 
+
   </div>
 </section>
- 
- 
+
+
 <!-- ═══════════════════════════════════════════════════════
      CTA ROJO FINAL
      React: section "py-24 bg-gradient from-[#C62828] to-[#8B0000]"
 ════════════════════════════════════════════════════════ -->
 <section class="ii-cta" id="contacto" aria-labelledby="ii-cta-title">
   <div class="ii-cta__inner">
- 
+
     <svg xmlns="http://www.w3.org/2000/svg" width="72" height="72" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m12 14 4-4"/><path d="M3.34 19a10 10 0 1 1 17.32 0"/></svg>
- 
+
     <h2 id="ii-cta-title">¿Necesitas Asesoría Técnica?</h2>
- 
+
     <p>
       Nuestros ingenieros te ayudarán a seleccionar la instrumentación correcta según tu proceso, rangos de operación y normatividad aplicable.
     </p>
- 
+
     <nav class="ii-cta__btns" aria-label="Opciones de contacto">
       <a
       href="https://wa.me/524494348018?text=Hola%2C%20me%20interesa%20una%20cotizaci%C3%B3n."
@@ -514,15 +514,15 @@ Instrumentación Industrial - Industria Simari
         Solicitar Visita Técnica
         <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
       </a>
-      <a 
+      <a
       href="tel:+524494348018"
-      aria-label="Llamar a Industria Simari"
+      aria-label="Llamar a Equiterm Industries"
       class="button-secondary li-cta">
         <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
         449 434 8018
       </a>
     </nav>
- 
+
   </div>
 </section>
 @endsection

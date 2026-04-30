@@ -1,5 +1,5 @@
 @extends('frontend.layouts.master')
-@section('title', 'Servicio de Calibración de Equipos - Industria Simari')
+@section('title', 'Servicio de Calibración de Equipos - Equiterm Industries')
 @section('description', 'Servicio técnico experto en calibración de equipos industriales y quemadores para optimizar la eficiencia energética y reducir emisiones contaminantes.')
 @section('canonical', config('app.url') . '/servicios/calibracion-equipos')
 @section('content')
@@ -112,13 +112,13 @@
                             <circle cx="12" cy="12" r="2"></circle>
                         </svg>
                     </div>
-    
+
                     <h3 class="accordion__title">
                         ¿Qué Incluye el Servicio?
                     </h3>
                     <div class="accordion__toggle" aria-label="Toggle"></div>
                 </button>
-    
+
                 {{-- Contents of the first tab --}}
                 <div class="accordion__content">
                     <div class="accordion__grid">
@@ -126,29 +126,29 @@
                             <h4>Ajuste de Quemadores</h4>
                             <p>Optimización de relación aire-combustible, ajuste de presiones de gas y sincronización de
                                 sistemas modulantes.</p>
-    
+
                             <h4>Calibración de Instrumentos</h4>
                             <p>Verificación con patrones certificados de manómetros, termómetros y transmisores.</p>
-    
+
                             <h4>Certificados Trazables</h4>
                             <p>Emisión de certificados con trazabilidad a CENAM y cumplimiento NOM-008-SCFI.</p>
                         </div>
-    
+
                         <div>
                             <h4>Análisis de Combustión</h4>
                             <p>Medición de O2, CO, CO2, NOx, temperatura de gases y cálculo de eficiencia térmica.</p>
-    
+
                             <h4>Pruebas de Seguridad</h4>
                             <p>Verificación de válvulas, sistemas de corte y protecciones térmicas.</p>
-    
+
                             <h4>Informe Técnico</h4>
                             <p>Reporte con parámetros antes/después y recomendaciones técnicas.</p>
                         </div>
-    
+
                     </div>
                 </div>
             </article>
-    
+
             {{-- FOURTH TAB  --}}
             <article class="accordion__item">
                 <button class="accordion__header">
@@ -161,13 +161,13 @@
                             <polyline points="16 7 22 7 22 13"></polyline>
                         </svg>
                     </div>
-    
+
                     <h3 class="accordion__title">
                         Beneficios Operativos
                     </h3>
                     <div class="accordion__toggle" aria-label="Toggle"></div>
                 </button>
-    
+
                 {{-- Contents of the second tab --}}
                 <div class="accordion__content">
                     <ul class="first_list">
@@ -180,7 +180,7 @@
                                 <p>Combustión optimizada reduce consumo mediante ajuste preciso de exceso de aire.</p>
                             </div>
                         </li>
-    
+
                         <li class="list_element">
                             <div class="accordion__icon-box2">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"
@@ -196,7 +196,7 @@
                                 <p>Disminución de CO, NOx y partículas para cumplimiento ambiental.</p>
                             </div>
                         </li>
-    
+
                         <li class="list_element">
                             <div class="accordion__icon-box2">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"
@@ -211,7 +211,7 @@
                                 <p>Control exacto de procesos críticos y decisiones basadas en datos reales.</p>
                             </div>
                         </li>
-    
+
                         <li class="list_element">
                             <div class="accordion__icon-box2">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"
@@ -229,8 +229,8 @@
                     </ul>
                 </div>
             </article>
-    
-    
+
+
             {{-- THIRD TAB --}}
             <article class="accordion__item">
                 <button class="accordion__header">
@@ -250,7 +250,7 @@
                     </h3>
                     <div class="accordion__toggle" aria-label="Toggle"></div>
                 </button>
-    
+
                 {{-- Contents of the third tab --}}
                 <div class="accordion__content">
                     <div class="accordion__grid">
@@ -264,7 +264,7 @@
                                     <p>Análisis de combustión inicial y revisión de instrumentos existentes.</p>
                                 </div>
                             </li>
-    
+
                             <li class="list_element">
                                 <div class="accordion__icon-box2">
                                     3
@@ -275,7 +275,7 @@
                                 </div>
                             </li>
                         </ul>
-    
+
                         <ul class="first_list">
                             <li class="list_element">
                                 <div class="accordion__icon-box2">
@@ -286,7 +286,7 @@
                                     <p>Ajuste con patrones certificados y verificación de seguridad.</p>
                                 </div>
                             </li>
-    
+
                             <li class="list_element">
                                 <div class="accordion__icon-box2">
                                     4
@@ -300,7 +300,7 @@
                     </div>
                 </div>
             </article>
-    
+
             <!-- FOURTH TAB -->
             <article class="accordion__item">
                 <button class="accordion__header">
@@ -314,13 +314,13 @@
                             </path>
                         </svg>
                     </div>
-    
+
                     <h3 class="accordion__title">
                         Por qué SIMARI CALDERAS
                     </h3>
                     <div class="accordion__toggle" aria-label="Toggle"></div>
                 </button>
-    
+
                 {{-- Contents of the first tab --}}
                 <div class="accordion__content">
                     <div class="article-container-fourth-service-calibration">
@@ -329,13 +329,13 @@
                             <h4>Años Experiencia</h4>
                             <p>Especialistas certificados en calibración.</p>
                         </article>
-    
+
                         <article class="especial-card-text-service-calibration">
                             <div class="super-especial-text-red">100%</div>
                             <h4>Trazabilidad</h4>
                             <p>Patrones con trazabilidad a CENAM.</p>
                         </article>
-    
+
                         <article class="especial-card-text-service-calibration">
                             <div class="super-especial-text-red">24/7</div>
                             <h4>Soporte</h4>
@@ -364,7 +364,7 @@
                             stroke-linecap="round" stroke-linejoin="round" />
                     </svg>
                 </a>
-                <a href="tel:+524494348018" aria-label="Llamar a Industria Simari" class="button-secondary calibration">
+                <a href="tel:+524494348018" aria-label="Llamar a Equiterm Industries" class="button-secondary calibration">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                         stroke-linejoin="round" class="lucide lucide-phone">

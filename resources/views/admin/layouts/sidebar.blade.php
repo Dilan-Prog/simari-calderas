@@ -1,7 +1,7 @@
 <aside class="admin-sidebar">
     <div class="sidebar-logo">
         <img src="{{ asset('images/logo/logo_SVG.svg') }}"
-                alt="Industria Simari"
+                alt="Equiterm Industries"
                 onerror="this.style.display='none'">
     </div>
     @php

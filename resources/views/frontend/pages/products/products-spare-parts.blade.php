@@ -1,7 +1,7 @@
 @extends('frontend.layouts.master')
 
 @section('title')
-Refacciones para Calderas Industriales - Industria Simari
+Refacciones para Calderas Industriales - Equiterm Industries
 @endsection
 @section('content')
 

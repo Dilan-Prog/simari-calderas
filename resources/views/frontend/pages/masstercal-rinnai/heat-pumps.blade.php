@@ -1,5 +1,5 @@
 @extends('frontend.layouts.master')
-@section('title', 'Bombas de Calor Rinnai - Industria Simari')
+@section('title', 'Bombas de Calor Rinnai - Equiterm Industries')
 @section('description', 'Bombas de Calor Rinnai: Agua caliente instantánea sin gas. Tecnología eléctrica de alta eficiencia para máxima seguridad y comodidad en tu hogar.')
 @section('canonical', config('app.url') . '/masstercal-rinnai/bombas-de-calor-rinnai')
 @section('content')
@@ -278,7 +278,7 @@
                 </a>
                 <a
                 href="tel:+524494348018"
-                aria-label="Llamar a Industria Simari"
+                aria-label="Llamar a Equiterm Industries"
                 class="button-primary ctn-heat-outline">
                     <svg
                         xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"

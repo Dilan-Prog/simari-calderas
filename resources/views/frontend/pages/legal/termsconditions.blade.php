@@ -1,7 +1,7 @@
 @extends('frontend.layouts.master')
 
 @section('title')
-Industria Simari Terminos y Condiciones
+Equiterm Industries Terminos y Condiciones
 @endsection
 
 @section('content')

@@ -15,7 +15,7 @@ class SeoHelper
     /**
      * Limpia y trunca el title (máx 60 caracteres)
      */
-    public static function title(string $title, string $suffix = 'Industria Simari'): string
+    public static function title(string $title, string $suffix = 'Equiterm Industries'): string
     {
         $full = $title . ' - ' . $suffix;
         return mb_substr(trim($full), 0, 60);

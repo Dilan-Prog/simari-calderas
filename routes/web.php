@@ -25,6 +25,12 @@ Route::controller(HomeController::class)->group(function () {
     Route::get('/aviso-privacidad', 'privacyNotice')->name('privacy-notice');
     Route::get('/terminos-condiciones', 'termsOfService')->name('terms-of-service');
     // Services
+    // new services SEO
+    Route::get('/servicios-calderas', 'boilerServices')->name('boiler-services');
+    Route::get('/reparacion-calderas', 'boilerRepair')->name('boiler-repair');
+    Route::get('/mantenimiento-calderas', 'boilerMaintenance')->name('boiler-maintenance');
+    Route::get('/desincrustacion-calderas', 'boilerDescaling')->name('boiler-descaling');
+    //old services
     Route::get('servicios/mantenimiento-industrial', 'industrialMaintenance')->name('industrial-maintenance');
     Route::get('servicios/ingenieria-hidraulica', 'hydraulicEngineering')->name('hydraulic-engineering');
     Route::get('servicios/calibracion-equipos', 'equipementCalibration')->name('equipement-calibration');

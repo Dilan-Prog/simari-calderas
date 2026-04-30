@@ -5,7 +5,7 @@
                 <section class="footer-brand" aria-label="Información de la empresa">
                     <a href="{{ route('home') }}" aria-label="Ir al inicio" itemprop="url" title="SIMARI Calderas - Inicio">
                         <img class="footer-logo" src="{{ Vite::asset('resources/images/logo/logo_SVG.svg') }}"
-                            alt="Industria Simari - soluciones térmicas industriales y residenciales" itemprop="logo"
+                            alt="Equiterm Industries - soluciones térmicas industriales y residenciales" itemprop="logo"
                             width="268" height="60"
                             loading="lazy" decoding="async">
                     </a>
@@ -27,7 +27,7 @@
                             </a>
                         </p>
                         <p>
-                            <a href="tel:+524494348018" itemprop="telephone" aria-label="Llamar a Industria Simari">
+                            <a href="tel:+524494348018" itemprop="telephone" aria-label="Llamar a Equiterm Industries">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
                                     viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                     stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">

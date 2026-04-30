@@ -1,5 +1,5 @@
 @extends('frontend.layouts.master')
-@section('title', 'Calentadores Eléctricos Rinnai - Industria Simari')
+@section('title', 'Calentadores Eléctricos Rinnai - Equiterm Industries')
 @section('description', 'Calentadores Electricos Rinnai: Agua caliente instantánea sin gas. Tecnología eléctrica de alta
     eficiencia para máxima seguridad y comodidad en tu hogar.')
 @section('canonical', config('app.url') . '/masstercal-rinnai/calentadores-electricos-rinnai')
@@ -12,13 +12,13 @@
                 <div>
                     <!-- Logo alineado a la izquierda -->
                     <div class="re-hero__logo">
-                        <img src="{{ asset('images/masstercal-rinnai/rinnai-logo.png') }}" 
-                          alt="Rinnai Logo" 
-                          title="Rinnai" 
+                        <img src="{{ asset('images/masstercal-rinnai/rinnai-logo.png') }}"
+                          alt="Rinnai Logo"
+                          title="Rinnai"
                           width="200"
-                          height="60" 
-                          loading="eager" 
-                          fetchpriority="high" 
+                          height="60"
+                          loading="eager"
+                          fetchpriority="high"
                           decoding="async">
                     </div>
 
@@ -53,7 +53,7 @@
 
                     <!-- CTAs -->
                     <nav class="re-hero__btns" aria-label="Acciones principales">
-                        <a 
+                        <a
                           href="https://wa.me/524494348018?text=Hola%2C%20me%20interesa%20una%20cotizaci%C3%B3n."
                           target="_blank"
                           aria-label="Abrir chat de WhatsApp"
@@ -67,7 +67,7 @@
                         </a>
                         <a
                           href="tel:+524494348018"
-                          aria-label="Llamar a Industria Simari"
+                          aria-label="Llamar a Equiterm Industries"
                           class="re-btn-outline-rinnai"
                           >
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
@@ -178,7 +178,7 @@
                     </ul>
                     <a href="https://wa.me/524494348018?text=Hola%2C%20me%20interesa%20una%20cotizaci%C3%B3n."
                         target="_blank"
-                        aria-label="Abrir chat de WhatsApp" 
+                        aria-label="Abrir chat de WhatsApp"
                         class="re-price-card__btn re-price-card__btn--dark" >Solicitar
                         Básico</a>
                 </article>
@@ -388,7 +388,7 @@
             <p>Sin gas, sin riesgos, sin emisiones. Solo agua caliente eficiente y confiable.</p>
 
             <nav class="re-cta-black__btns" aria-label="Opciones de contacto">
-                <a 
+                <a
                   href="https://wa.me/524494348018?text=Hola%2C%20me%20interesa%20una%20cotizaci%C3%B3n."
                   target="_blank"
                   aria-label="Abrir chat de WhatsApp"
@@ -400,9 +400,9 @@
                         <path d="M5 12h14M12 5l7 7-7 7" />
                     </svg>
                 </a>
-                <a 
+                <a
                   href="tel:+524494348018"
-                  aria-label="Llamar a Industria Simari"
+                  aria-label="Llamar a Equiterm Industries"
                   class="re-btn-cta-outline"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
