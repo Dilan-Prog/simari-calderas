@@ -59,7 +59,7 @@
             </div>
         </a>
 
-        <a class="sidebar-nav-item" data-section="coming-soon" data-label="Proveedores">
+        <a class="sidebar-nav-item {{ $activeSection === 'proveedores' ? 'active' : '' }}" data-section="proveedores" href="{{ route('admin.suppliers.index') }}" data-label="Proveedores">
             <div class="sidebar-nav-item-left">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                         fill="none" stroke="currentColor" stroke-width="2"

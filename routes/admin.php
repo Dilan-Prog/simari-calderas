@@ -5,6 +5,8 @@ use App\Http\Controllers\Backend\ClientManageController;
 use App\Http\Controllers\Backend\ProductController;
 use App\Http\Controllers\Backend\UserManageController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Backend\SupplierManageController;
+
 
 Route::get('/', [AdminController::class, 'dashboard'])->name('dashboard');
 
@@ -23,6 +25,15 @@ Route::controller(ClientManageController::class)->group(function () {
     Route::put('/clientes/editar-cliente/{id}', 'update')->name('clients.update');
     Route::delete('/clientes/eliminar-cliente/{id}', 'destroy')->name('clients.destroy');
     Route::get('/clientes/informacion/{id}', 'information')->name('clients.information');
+});
+
+Route::controller(SupplierManageController::class)->group(function () {
+    Route::get('/proveedores', 'index')->name('suppliers.index');
+    Route::get('/proveedores/mostrar-proveedor/{id}', 'show')->name('suppliers.show');
+    Route::post('/proveedores/crear-proveedor', 'store')->name('suppliers.store');
+    Route::get('/proveedores/editar-proveedor/{id}', 'edit')->name('suppliers.edit');
+    Route::put('/proveedores/editar-proveedor/{id}', 'update')->name('suppliers.update');
+    Route::delete('/proveedores/eliminar-proveedor/{id}', 'destroy')->name('suppliers.destroy');
 });
 
 Route::controller(ProductController::class)->group(function () {
