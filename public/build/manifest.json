@@ -1,15 +1,28 @@
 {
+  "resources/css/admin/app.css": {
+    "file": "assets/app-BUJxJeWl.css",
+    "src": "resources/css/admin/app.css",
+    "isEntry": true
+  },
   "resources/css/app.css": {
-    "file": "assets/app-C9fxjCu9.css",
+    "file": "assets/app-CoeLbQvW.css",
     "src": "resources/css/app.css",
     "isEntry": true
   },
-  "resources/images/logo/logo_SVG.svg": {
-    "file": "assets/logo_SVG-DFRLlr3G.svg",
-    "src": "resources/images/logo/logo_SVG.svg"
+  "resources/js/admin/google-ads.js": {
+    "file": "assets/google-ads-Cuv0h1CS.js",
+    "name": "google-ads",
+    "src": "resources/js/admin/google-ads.js",
+    "isEntry": true
+  },
+  "resources/js/admin/sidebar.js": {
+    "file": "assets/sidebar-CMuHmg7g.js",
+    "name": "sidebar",
+    "src": "resources/js/admin/sidebar.js",
+    "isEntry": true
   },
   "resources/js/app.js": {
-    "file": "assets/app-DgNdLuoO.js",
+    "file": "assets/app-Br5zntOM.js",
     "name": "app",
     "src": "resources/js/app.js",
     "isEntry": true
