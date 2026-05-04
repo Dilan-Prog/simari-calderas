@@ -3,7 +3,7 @@
 
     {{-- Logo --}}
     <a href="{{ route('home') }}" class="nav-logo" aria-label="Ir al inicio">
-      <img src="{{ Vite::asset('resources/images/logo/svg_blanco_color.svg') }}" alt="Simari Calderas" width="140" height="44">
+      <img src="{{ asset('images/logo/equiterm-logo-blanco-color-3x.png') }}" alt="Equiterm Industries" width="140" height="44">
     </a>
 
     {{-- Desktop navigation --}}
@@ -292,7 +292,7 @@
   <div class="mobile-menu-panel">
     <div class="mobile-menu-header">
       <a href="{{ route('home') }}" aria-label="Ir al inicio">
-        <img class="header_logo" src="{{ Vite::asset('resources/images/logo/logo_SVG.svg') }}" alt="Logo Simari Calderas" width="130" height="40">
+        <img class="header_logo" src="{{ Vite::asset('resources/images/logo/logo_SVG.svg') }}" alt="Logo Equiterm Industries" width="130" height="40">
       </a>
       <button class="mobile-menu-close" id="mobile-menu-close" type="button" aria-label="Cerrar menú">
         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 22 22" fill="none">

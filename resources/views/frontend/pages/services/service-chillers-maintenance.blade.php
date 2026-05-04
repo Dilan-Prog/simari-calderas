@@ -337,10 +337,10 @@
         </div>
     </section>
 
-    <!-- SECCIÓN: Por qué elegir a SIMARI CALDERAS -->
+    <!-- SECCIÓN: Por qué elegir a Equiterm Industries -->
     <section class="why-choose-simari-section">
         <div class="container why-choose-simari-section">
-            <h2 class="section-main-title">Por qué elegir a SIMARI CALDERAS</h2>
+            <h2 class="section-main-title">Por qué elegir a Equiterm Industries</h2>
 
             <div class="simari-stats-grid">
                 <div class="simari-stat-item ">

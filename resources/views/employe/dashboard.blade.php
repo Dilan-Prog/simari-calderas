@@ -1,6 +1,6 @@
 @extends('admin.layouts.master')
 
-@section('title', 'Panel Empleado | Simari Calderas')
+@section('title', 'Panel Empleado | Equiterm Industries')
 
 @section('content')
 <div class="main-content">

@@ -200,7 +200,7 @@
                 <p class="section-subtitle-home why-section">Por Qué Elegirnos</p>
                 <h2 class="why-title-home">Excelencia Técnica y Compromiso Total</h2>
                 <p class="why-desc-home">
-                    En SIMARI Calderas, entendemos que la energía es el corazón de su operación.
+                    En Equiterm Industries, entendemos que la energía es el corazón de su operación.
                     Nuestro enfoque combina ingeniería de precisión con un servicio al cliente inigualable.
                 </p>
 

@@ -316,7 +316,7 @@
                     </div>
 
                     <h3 class="accordion__title">
-                        Por qué SIMARI CALDERAS
+                        Por qué Equiterm Industries
                     </h3>
                     <div class="accordion__toggle" aria-label="Toggle"></div>
                 </button>
