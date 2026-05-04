@@ -1,14 +1,17 @@
 <aside class="admin-sidebar">
-    <div class="sidebar-logo">
-        <img src="{{ asset('images/logo/logo_SVG.svg') }}"
+    <div class="sidebar-logo" onclick="window.location.href = '{{ route('home') }}'">
+        <img src="{{ asset('images/logo/equiterm-logo-blanco-color-3x.png') }}"
                 alt="Equiterm Industries"
+                fetchpriority="low"
+                loading="lazy"
                 onerror="this.style.display='none'">
     </div>
-    @php
+    @php    
         $activeSection = match(true) {
             request()->routeIs('admin.dashboard')    => 'dashboard',
             request()->routeIs('admin.users.*')      => 'usuarios',
             request()->routeIs('admin.clients.*')    => 'clientes',
+            request()->routeIs('admin.suppliers.*')  => 'proveedores',
             request()->routeIs('admin.products.*')   => 'productos',
             request()->routeIs('admin.google-ads.*') => 'google-ads',
             default                                  => '',

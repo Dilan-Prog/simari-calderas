@@ -8,7 +8,7 @@
     <meta name="robots" content="index,follow" />
     <meta name="author" content="Equiterm Industries" />
     <meta name="theme-color" content="#1a2940" />
-    <link rel="canonical" href="@yield('canonical', 'https://industriasimari.com.mx/')" />
+    <link rel="canonical" href="@yield('canonical', 'https://equitermindustries.com.mx/')" />
     <link rel="icon" type="image/x-icon"  href="{{ asset('images/logo/icon-web/favicon-industria-simari-48x48.png') }}" />
     <link rel="icon" type="image/png" sizes="16x16"  href="{{ asset('images/logo/icon-web/favicon-industria-simari-16x16.png') }}" />
     <link rel="icon" type="image/png" sizes="32x32"  href="{{ asset('images/logo/icon-web/favicon-industria-simari-32x32.png') }}" />
@@ -18,8 +18,8 @@
     <meta property="og:site_name"   content="Equiterm Industries" />
     <meta property="og:title"       content="@yield('og_title', 'Diseñamos, instalamos y mantenemos sistemas de calderas, calentadores y tratamiento de agua para los sectores industrial, alimentario, hotelero y metalmecánico. Soporte técnico especializado disponible 24/7 | Equiterm Industries')" />
     <meta property="og:description" content="@yield('og_description', 'Diseñamos, instalamos y mantenemos sistemas de calderas, calentadores y tratamiento de agua para los sectores industrial, alimentario, hotelero y metalmecánico. Soporte técnico especializado disponible 24/7')" />
-    <meta property="og:url"         content="@yield('og_url', 'https://industriasimari.com.mx/')" />
-    <meta property="og:image"       content="@yield('og_image', 'https://industriasimari.com.mx/images/og-home.jpg')" />
+    <meta property="og:url"         content="@yield('og_url', 'https://equitermindustries.com.mx/')" />
+    <meta property="og:image"       content="@yield('og_image', 'https://equitermindustries.com.mx/images/og-home.jpg')" />
     <meta property="og:image:width"  content="1200" />
     <meta property="og:image:height" content="630" />
     <link rel="preconnect" href="https://www.googletagmanager.com">
@@ -34,7 +34,7 @@
         "@context": "https://schema.org",
         "@type": "LocalBusiness",
         "name": "Equiterm Industries",
-        "url": "https://industriasimari.com.mx/",
+        "url": "equitermindustries.com.mx",
         "telephone": "+52-449-434-8018",
         "description": "Diseñamos, instalamos y mantenemos sistemas de calderas, calentadores y tratamiento de agua para los sectores industrial, alimentario, hotelero y metalmecánico. Soporte técnico especializado disponible 24/7",
         "areaServed": "MX",

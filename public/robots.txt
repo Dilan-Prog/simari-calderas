@@ -6,4 +6,4 @@ Disallow: /register
 Disallow: /dashboard
 Disallow: /api/
 # Sitemap
-Sitemap: https://industriasimari.com.mx/sitemap.xml
+Sitemap: equitermindustries.com.mxsitemap.xml
