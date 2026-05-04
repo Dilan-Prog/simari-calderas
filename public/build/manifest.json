@@ -9,10 +9,6 @@
     "src": "resources/css/app.css",
     "isEntry": true
   },
-  "resources/images/logo/svg_blanco_color.svg": {
-    "file": "assets/svg_blanco_color-DTxkyLQi.svg",
-    "src": "resources/images/logo/svg_blanco_color.svg"
-  },
   "resources/js/admin/google-ads.js": {
     "file": "assets/google-ads-Cuv0h1CS.js",
     "name": "google-ads",

@@ -4,7 +4,7 @@
             <div class="footer-grid">
                 <section class="footer-brand" aria-label="Información de la empresa">
                     <a href="{{ route('home') }}" aria-label="Ir al inicio" itemprop="url" title="Equiterm Industries - Inicio">
-                        <img class="footer-logo" src="{{ Vite::asset('resources/images/logo/logo_SVG.svg') }}"
+                        <img class="footer-logo" src="{{ asset('images/logo/equiterm-logo-blanco-color-3x.png') }}"
                             alt="Equiterm Industries - soluciones térmicas industriales y residenciales" itemprop="logo"
                             width="268" height="60"
                             loading="lazy" decoding="async">
