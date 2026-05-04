@@ -2178,3 +2178,357 @@ p
         font-size: 1rem;
     }
 }
+
+/* =========================================
+   MEJORAS VISUALES — SERVICE PAGES
+   Refinamiento profesional de todas las
+   páginas de servicio (hair-repair pattern)
+========================================= */
+
+/* --- Hero --- */
+.hero-section-hair-repair {
+    min-height: 88vh;
+}
+.hero-title {
+    font-size: clamp(1.9rem, 3.8vw, 3.25rem);
+    line-height: 1.12;
+    letter-spacing: -0.02em;
+}
+.hero-description {
+    font-size: clamp(0.95rem, 1.5vw, 1.075rem);
+    color: var(--text-subwhite-color);
+    line-height: 1.7;
+    margin-bottom: 28px;
+}
+.container.hero-hair-repair {
+    padding: 96px 200px;
+}
+
+/* --- Subtítulos de sección --- */
+.service-subtitle-industrial {
+    font-size: clamp(1.5rem, 2.8vw, 2rem);
+    font-weight: 800;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+    color: var(--vaner-color);
+}
+
+.section-main-title {
+    font-size: clamp(1.5rem, 2.8vw, 2rem);
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    color: var(--vaner-color);
+}
+
+/* --- Callout mejorado --- */
+.applications-card {
+    background: linear-gradient(135deg, rgba(255, 98, 19, 0.07) 0%, rgba(255, 98, 19, 0.02) 100%);
+    border-left: 4px solid var(--secondary-color);
+    border-radius: 14px;
+    padding: 28px 40px;
+    box-shadow: 0 4px 24px rgba(255, 98, 19, 0.09), 0 1px 4px rgba(0,0,0,0.04);
+}
+.applications-card .service-text-industrial {
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--vaner-color);
+    line-height: 1.65;
+}
+
+/* --- Include cards con hover y acento --- */
+.include-card {
+    border-top: 3px solid transparent;
+    transition: transform 0.25s ease, box-shadow 0.25s ease, border-top-color 0.2s ease;
+    position: relative;
+}
+.include-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 24px 48px rgba(0, 0, 0, 0.13);
+    border-top-color: var(--secondary-color);
+}
+.include-card .icon-box {
+    width: 52px;
+    height: 52px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(255, 98, 19, 0.3);
+}
+.include-card-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--vaner-color);
+    line-height: 1.35;
+}
+.include-card-text {
+    font-size: 0.9rem;
+    color: var(--text-description-color);
+    line-height: 1.65;
+}
+
+/* --- Benefit items — tarjeta blanca profesional --- */
+.benefit-item {
+    background-color: #ffffff;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.benefit-item:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.1);
+    border-color: rgba(255, 98, 19, 0.2);
+}
+.benefit-icon-box {
+    box-shadow: 0 4px 12px rgba(255, 98, 19, 0.25);
+    transition: transform 0.2s ease;
+}
+.benefit-item:hover .benefit-icon-box {
+    transform: scale(1.08);
+}
+.benefit-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--vaner-color);
+}
+.benefit-text {
+    font-size: 0.9rem;
+    color: var(--text-description-color);
+    line-height: 1.65;
+}
+
+/* --- Sección blanca con benefits (frecuencia) --- */
+.service-description-section-industrial .benefits-grid {
+    margin-top: 0;
+}
+
+/* --- CTA oscuro (contratos / work-process) --- */
+.work-process-section {
+    background: linear-gradient(135deg, var(--vaner-color) 0%, #0a1520 100%);
+    position: relative;
+    overflow: hidden;
+}
+.work-process-section::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(circle at 20% 50%, rgba(255, 98, 19, 0.08) 0%, transparent 60%),
+                      radial-gradient(circle at 80% 50%, rgba(255, 255, 255, 0.02) 0%, transparent 50%);
+    pointer-events: none;
+}
+.cta-final-title-industrial {
+    font-size: clamp(1.5rem, 3vw, 2.25rem);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+}
+.cta-final-description-industrial {
+    font-size: clamp(0.95rem, 1.5vw, 1.1rem);
+    color: rgba(255, 255, 255, 0.75);
+    margin-bottom: 0;
+}
+.button-secondary.work-process {
+    border-radius: 8px;
+    font-size: 1.05rem;
+    padding: 17px 36px;
+    letter-spacing: 0.01em;
+    font-weight: 700;
+    gap: 10px;
+    transition: all 0.2s ease;
+    text-decoration: none;
+}
+.button-secondary.work-process:hover {
+    background: rgba(255, 255, 255, 0.12);
+    color: #fff;
+    transform: translateY(-2px);
+}
+
+/* --- Accordion nativo <details>/<summary> --- */
+.accordion__item summary {
+    list-style: none;
+}
+.accordion__item summary::-webkit-details-marker {
+    display: none;
+}
+.accordion__item summary::marker {
+    display: none;
+    content: '';
+}
+
+/* Estado abierto */
+details[open] > .accordion__header {
+    border-radius: 16px 16px 0 0;
+    background-color: #f9fafb;
+    border-bottom: 1px solid var(--border-color);
+}
+details[open] ~ p,
+details[open] + p {
+    padding-top: 4px;
+}
+.accordion__icon-box {
+    transition: transform 0.25s ease;
+}
+details[open] .accordion__icon-box {
+    transform: rotate(180deg);
+}
+.accordion__icon-box {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    box-shadow: 0 3px 10px rgba(255, 98, 19, 0.3);
+}
+
+/* Header del accordion */
+.accordion__header {
+    cursor: pointer;
+    border: 1px solid var(--border-color);
+    transition: background-color 0.15s ease;
+}
+.accordion__header:hover {
+    background-color: #f9fafb;
+}
+.accordion__title {
+    font-size: clamp(0.95rem, 1.8vw, 1.15rem);
+    font-weight: 600;
+    color: var(--vaner-color);
+    line-height: 1.4;
+}
+
+/* Respuesta del accordion */
+.accordion__item details[open] {
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+.accordion__item {
+    border: none;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    transition: box-shadow 0.2s ease;
+}
+.accordion__item:hover {
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Texto respuesta FAQ */
+.service-calibration-accordion details p {
+    background-color: #ffffff;
+    border-radius: 0 0 16px 16px;
+    border: 1px solid var(--border-color);
+    border-top: none;
+    padding: 20px 24px 28px !important;
+    font-size: 0.97rem;
+    line-height: 1.75;
+    color: var(--text-body);
+}
+
+/* Título FAQ */
+.service-calibration-accordion h2 {
+    font-size: clamp(1.5rem, 2.8vw, 2rem);
+    font-weight: 800;
+    color: var(--vaner-color);
+    margin-bottom: 48px;
+}
+
+/* --- Final CTA --- */
+.final-cta {
+    background: linear-gradient(135deg, var(--vaner-color) 0%, #0a1520 60%, #141516 100%);
+    padding: 96px 0;
+    position: relative;
+    overflow: hidden;
+}
+.final-cta::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(circle at 50% 0%, rgba(255, 98, 19, 0.12) 0%, transparent 60%);
+    pointer-events: none;
+}
+.final-cta__icon {
+    background: rgba(255, 98, 19, 0.15);
+    border: 1px solid rgba(255, 98, 19, 0.35);
+    color: var(--secondary-color);
+}
+.final-cta__content h2 {
+    font-size: clamp(1.75rem, 3.5vw, 2.75rem);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin-bottom: 20px;
+}
+.final-cta__content p {
+    font-size: clamp(0.95rem, 1.5vw, 1.1rem);
+    color: rgba(255, 255, 255, 0.75);
+    margin-bottom: 40px;
+    max-width: 680px;
+}
+.button-primary.final-cta__actions-water,
+.button-secondary.final-cta__actions-water {
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 700;
+    padding: 17px 34px;
+    gap: 10px;
+    transition: all 0.2s ease;
+    text-decoration: none;
+}
+.button-primary.final-cta__actions-water:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(255, 98, 19, 0.4);
+}
+.button-secondary.final-cta__actions-water:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    transform: translateY(-2px);
+}
+
+/* --- Responsive service pages --- */
+@media (max-width: 1200px) {
+    .container.hero-hair-repair,
+    .container.service-description-section,
+    .container.what-includes-section,
+    .container.work-process-section,
+    .container.service-calibration-accordion {
+        padding-left: 100px;
+        padding-right: 100px;
+    }
+}
+@media (max-width: 900px) {
+    .container.hero-hair-repair,
+    .container.service-description-section,
+    .container.what-includes-section,
+    .container.work-process-section,
+    .container.service-calibration-accordion {
+        padding-left: 48px;
+        padding-right: 48px;
+    }
+    .hero-section-hair-repair {
+        min-height: auto;
+        padding-bottom: 48px;
+    }
+    .hero-content {
+        max-width: 100%;
+    }
+    .includes-grid {
+        grid-template-columns: 1fr;
+    }
+    .benefits-grid {
+        grid-template-columns: 1fr;
+    }
+}
+@media (max-width: 600px) {
+    .container.hero-hair-repair,
+    .container.service-description-section,
+    .container.what-includes-section,
+    .container.work-process-section,
+    .container.service-calibration-accordion {
+        padding-left: 24px;
+        padding-right: 24px;
+    }
+    .accordion__title {
+        font-size: 0.95rem;
+    }
+    .final-cta__actions {
+        flex-direction: column;
+        gap: 12px;
+    }
+    .button-primary.final-cta__actions-water,
+    .button-secondary.final-cta__actions-water {
+        width: 100%;
+        justify-content: center;
+    }
+}
