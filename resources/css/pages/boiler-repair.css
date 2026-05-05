@@ -3,7 +3,7 @@
    Prefijo br-. Extiende las clases base sin romperlas.
 ================================================ */
 
-/* ── Hero overlay ── */
+
 #inicio .hero-overlay {
     background: linear-gradient(
         105deg,
@@ -204,7 +204,7 @@
 }
 
 /* ── Applications card ── */
-.applications-card .service-text-industrial { gap: ;}
+.applications-card .service-text-industrial { margin: 0;}
 
 /* ── Process step numbers ── */
 .benefit-icon-box.br-step-number {
