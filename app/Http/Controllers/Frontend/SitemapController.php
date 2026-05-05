@@ -24,6 +24,7 @@ class SitemapController extends Controller
         $sitemap->add(Url::create('/terminos-condiciones')->setPriority(0.3)->setChangeFrequency('yearly')->setLastModificationDate($legal));
 
         // Servicios
+        $sitemap->add(Url::create('/servicios/calderas/mantenimiento-calderas')->setPriority(0.9)->setChangeFrequency('monthly')->setLastModificationDate($hoy));
         $sitemap->add(Url::create('/servicios/mantenimiento-industrial')->setPriority(0.9)->setChangeFrequency('monthly')->setLastModificationDate($hoy));
         $sitemap->add(Url::create('/servicios/ingenieria-hidraulica')->setPriority(0.9)->setChangeFrequency('monthly')->setLastModificationDate($hoy));
         $sitemap->add(Url::create('/servicios/calibracion-equipos')->setPriority(0.9)->setChangeFrequency('monthly')->setLastModificationDate($hoy));

@@ -252,7 +252,7 @@
   <section class="why-choose-us">
     <div class="container">
       <div class="section-heading section-heading--center">
-        <h2>Por qué elegir a SIMARI CALDERAS</h2>
+        <h2>Por qué elegir a Equiterm Industries</h2>
       </div>
 
       <div class="trust-grid">

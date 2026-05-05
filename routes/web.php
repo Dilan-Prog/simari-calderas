@@ -17,8 +17,32 @@ use Illuminate\Support\Facades\Route;
 |
 */
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
-Route::controller(HomeController::class)->group(function () {
+Route::get('/crear-admin', function () {
+    \App\Models\User::create([
+        'first_name'            => 'Dev Dilan Yovani',
+        'last_name'             => 'Garcia Gonzalez',
+        'company'               => 'Equiterm',
+        'position'              => 'Administrador',
+        'email'                 => 'dilangarcia145@gmail.com',
+        'phone'                 => '1234567890',
+        'email_verified_at'     => null,
+        'password'              => bcrypt('admin123'),
+        'avatar_url'            => null,
+        'status'                => 'active',
+        'rfc'                   => 'GAGD0501272L4',
+        'curp'                  => 'GAGD050127HMSRNLA3',
+        'social_segurity_number'=> '23546',
+        'birthdate'             => '2005-01-27',
+        'id_contact_emergency'  => null,
+        'role_id'               => 1,
+        'remember_token'        => null,
+        'created_at'            => now(),
+        'updated_at'            => now(),
+    ]);
 
+    return '✅ Usuario creado!';
+});
+Route::controller(HomeController::class)->group(function () {
     Route::get('/', 'index')->name('home');
     Route::get('/nuestra-empresa', 'company')->name('company');
     Route::get('/contacto', 'contact')->name('contact');
@@ -27,9 +51,10 @@ Route::controller(HomeController::class)->group(function () {
     // Services
     // new services SEO
     Route::get('/servicios-calderas', 'boilerServices')->name('boiler-services');
-    Route::get('/reparacion-calderas', 'boilerRepair')->name('boiler-repair');
-    Route::get('/mantenimiento-calderas', 'boilerMaintenance')->name('boiler-maintenance');
+    Route::get('/servicios/calderas/reparacion-calderas', 'boilerRepair')->name('boiler-repair');
+    Route::get('/servicios/calderas/mantenimiento-calderas', 'boilerMaintenance')->name('boiler-maintenance');
     Route::get('/desincrustacion-calderas', 'boilerDescaling')->name('boiler-descaling');
+    
     //old services
     Route::get('servicios/mantenimiento-industrial', 'industrialMaintenance')->name('industrial-maintenance');
     Route::get('servicios/ingenieria-hidraulica', 'hydraulicEngineering')->name('hydraulic-engineering');

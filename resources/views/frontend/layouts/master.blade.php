@@ -9,10 +9,24 @@
     <meta name="author" content="Equiterm Industries" />
     <meta name="theme-color" content="#1a2940" />
     <link rel="canonical" href="@yield('canonical', 'https://equitermindustries.com.mx/')" />
-    <link rel="icon" type="image/x-icon"  href="{{ asset('images/logo/icon-web/favicon-industria-simari-48x48.png') }}" />
-    <link rel="icon" type="image/png" sizes="16x16"  href="{{ asset('images/logo/icon-web/favicon-industria-simari-16x16.png') }}" />
-    <link rel="icon" type="image/png" sizes="32x32"  href="{{ asset('images/logo/icon-web/favicon-industria-simari-32x32.png') }}" />
-    <link rel="apple-touch-icon"    sizes="180x180"  href="{{ asset('images/logo/icon-web/favicon-industria-simari-180x180.png') }}" />
+    <link rel="shortcut icon"        type="image/x-icon"  href="{{ asset('images/logo/icon-web/favicon.ico') }}" />
+    <link rel="icon" type="image/png" sizes="16x16"  href="{{ asset('images/logo/icon-web/favicon-16x16.png') }}" />
+    <link rel="icon" type="image/png" sizes="32x32"  href="{{ asset('images/logo/icon-web/favicon-32x32.png') }}" />
+    <link rel="icon" type="image/png" sizes="96x96"  href="{{ asset('images/logo/icon-web/favicon-96x96.png') }}" />
+    <link rel="icon" type="image/png" sizes="256x256" href="{{ asset('images/logo/icon-web/favicon-256x256.png') }}" />
+    <link rel="apple-touch-icon"      sizes="57x57"  href="{{ asset('images/logo/icon-web/apple-icon-57x57.png') }}" />
+    <link rel="apple-touch-icon"      sizes="60x60"  href="{{ asset('images/logo/icon-web/apple-icon-60x60.png') }}" />
+    <link rel="apple-touch-icon"      sizes="72x72"  href="{{ asset('images/logo/icon-web/apple-icon-72x72.png') }}" />
+    <link rel="apple-touch-icon"      sizes="76x76"  href="{{ asset('images/logo/icon-web/apple-icon-76x76.png') }}" />
+    <link rel="apple-touch-icon"      sizes="114x114" href="{{ asset('images/logo/icon-web/apple-icon-114x114.png') }}" />
+    <link rel="apple-touch-icon"      sizes="120x120" href="{{ asset('images/logo/icon-web/apple-icon-120x120.png') }}" />
+    <link rel="apple-touch-icon"      sizes="144x144" href="{{ asset('images/logo/icon-web/apple-icon-144x144.png') }}" />
+    <link rel="apple-touch-icon"      sizes="152x152" href="{{ asset('images/logo/icon-web/apple-icon-152x152.png') }}" />
+    <link rel="apple-touch-icon"      sizes="180x180" href="{{ asset('images/logo/icon-web/apple-icon-180x180.png') }}" />
+    <meta name="msapplication-TileImage"   content="{{ asset('images/logo/icon-web/ms-icon-144x144.png') }}" />
+    <meta name="msapplication-square70x70logo"  content="{{ asset('images/logo/icon-web/ms-icon-70x70.png') }}" />
+    <meta name="msapplication-square150x150logo" content="{{ asset('images/logo/icon-web/ms-icon-150x150.png') }}" />
+    <meta name="msapplication-square310x310logo" content="{{ asset('images/logo/icon-web/ms-icon-310x310.png') }}" />
     <meta property="og:type"        content="website" />
     <meta property="og:locale"      content="es_MX" />
     <meta property="og:site_name"   content="Equiterm Industries" />
@@ -52,25 +66,18 @@
     <style>
         {!! $critical !!}
     </style> --}}
-
     <!-- Google tag (gtag.js) -->
-        <script async src="https://www.googletagmanager.com/gtag/js?id=AW-18002291598">
-        </script>
-        <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-RVXX78K31C"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
 
-        gtag('config', 'AW-18002291598');
-        </script>
-    <!-- End Google Tag Manager -->
-
+  gtag('config', 'G-RVXX78K31C');
+  // Analytics
+</script>
   </head>
   <body>
-    <!-- Google Tag Manager (noscript) -->
-      <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PLSDTJHX"
-      height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-    <!-- End Google Tag Manager (noscript) -->
 
     @include('frontend.layouts.header')
     <main>

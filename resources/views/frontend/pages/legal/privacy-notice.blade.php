@@ -45,7 +45,7 @@ Equiterm Industries Aviso de Privacidad
                                 </h2>
                                 <div class="simari-privacy-card__text">
                                     <p>
-                                        <strong>SIMARI Calderas S.A. de C.V.</strong> (en adelante “SIMARI”), con domicilio
+                                        <strong>Equiterm Industries S.A. de C.V.</strong> (en adelante “SIMARI”), con domicilio
                                         en
                                         <span class="simari-privacy-placeholder">[Dirección completa]</span>, es responsable
                                         del tratamiento de sus datos personales.
