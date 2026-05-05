@@ -142,6 +142,41 @@
     margin: 0;
 }
 
+/* ── Stats callout (variante compacta de bm-price-callout) ── */
+.bm-price-callout--stats {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px 32px;
+    margin-bottom: 28px;
+}
+.bm-price-callout__stat-col {
+    flex: 1;
+    text-align: center;
+    padding: 8px 24px;
+}
+.bm-price-callout__stat-sep {
+    width: 1px;
+    background: rgba(0, 0, 0, 0.12);
+    align-self: stretch;
+    min-height: 56px;
+}
+.bm-price-callout__stat-value {
+    font-size: clamp(2rem, 4vw, 2.6rem);
+    font-weight: 800;
+    color: var(--secondary-color);
+    line-height: 1;
+    margin: 0 0 6px;
+}
+.bm-price-callout__stat-label {
+    font-size: 0.82rem;
+    color: var(--text-body);
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 600;
+}
+
 /* ── Price callout ── */
 .bm-price-callout {
     background: linear-gradient(135deg, #0c1b2e 0%, #0a1520 100%);
@@ -196,6 +231,62 @@
     letter-spacing: 0.02em;
     position: relative;
     z-index: 1;
+}
+
+/* ── Normativas: tarjeta de urgencia ── */
+#normativas .applications-card {
+    border-left: 4px solid var(--secondary-color);
+    background: #fff3ee;
+    padding: 20px 24px;
+}
+
+/* ── KPI row (por qué elegirnos) ── */
+.bm-kpi-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    background: var(--background-primary-white);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    padding: 8px 0;
+    margin-bottom: 40px;
+    margin-top: 32px;
+}
+.bm-kpi-item {
+    flex: 1;
+    min-width: 160px;
+    text-align: center;
+    padding: 20px 24px;
+}
+.bm-kpi-item:not(:last-child) {
+    border-right: 1px solid rgba(0, 0, 0, 0.1);
+}
+.bm-kpi-value {
+    font-size: clamp(1.8rem, 3.5vw, 2.4rem);
+    font-weight: 800;
+    color: var(--secondary-color);
+    line-height: 1;
+    margin: 0 0 6px;
+}
+.bm-kpi-label {
+    font-size: 0.82rem;
+    color: var(--text-body);
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 600;
+}
+
+/* ── CTA: botón WhatsApp verde sólido ── */
+.bm-whatsapp-btn {
+    background-color: #25D366 !important;
+    color: #fff !important;
+    border-color: #25D366 !important;
+}
+.bm-whatsapp-btn:hover {
+    background-color: #1fba59 !important;
+    border-color: #1fba59 !important;
+    transform: translateY(-2px);
 }
 
 /* ── Benefit items "Por qué elegirnos" — más generosos ── */
@@ -276,4 +367,7 @@
     #contacto .final-cta__actions { flex-direction: column; gap: 12px; }
     #contacto .button-primary.final-cta__actions-water,
     #contacto .button-secondary.final-cta__actions-water { width: 100%; justify-content: center; }
+    .bm-price-callout--stats { padding: 16px 20px; }
+    .bm-price-callout__stat-col { padding: 6px 16px; }
+    .bm-kpi-item:not(:last-child) { border-right: none; border-bottom: 1px solid rgba(0,0,0,0.1); }
 }

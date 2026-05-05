@@ -2,11 +2,11 @@
 
 @section('title', 'Mantenimiento a Calderas Industriales en México | Equiterm')
 @section('description', 'Servicio profesional de mantenimiento a calderas industriales en México. Cumplimiento NOM-020-STPS, equipo certificado y cobertura nacional.')
-@section('canonical', config('app.url') . '/servicios/calderas/mantenimiento-de-calderas')
+@section('canonical', config('app.url') . '/servicios/calderas/mantenimiento-calderas')
 
 @section('og_title', 'Mantenimiento a Calderas Industriales en México | Equiterm')
 @section('og_description', 'Servicio profesional de mantenimiento a calderas industriales en México. Cumplimiento NOM-020-STPS, equipo certificado y cobertura nacional.')
-@section('og_url', config('app.url') . '/servicios/calderas/mantenimiento-de-calderas')
+@section('og_url', config('app.url') . '/servicios/calderas/mantenimiento-calderas')
 @section('og_image', config('app.url') . '/images/og-mantenimiento-calderas.jpg')
 
 @section('schema')
@@ -26,7 +26,7 @@
   },
   "areaServed": "México",
   "description": "Servicio profesional de mantenimiento a calderas industriales en México. Cumplimiento NOM-020-STPS, equipo certificado y cobertura nacional.",
-  "url": "{{ config('app.url') . '/servicios/calderas/mantenimiento-de-calderas' }}"
+  "url": "{{ config('app.url') . '/servicios/calderas/mantenimiento-calderas' }}"
 }
 </script>
 <script type="application/ld+json">
@@ -157,11 +157,22 @@
             reducen la vida útil del equipo —reducen también la seguridad de toda la planta.
         </p>
 
+        <div class="bm-price-callout bm-price-callout--stats" role="region" aria-label="Impacto de incrustaciones según ABMA">
+            <div class="bm-price-callout__stat-col">
+                <p class="bm-price-callout__stat-value">3 mm</p>
+                <p class="bm-price-callout__stat-label">de incrustación</p>
+            </div>
+            <div class="bm-price-callout__stat-sep" aria-hidden="true"></div>
+            <div class="bm-price-callout__stat-col">
+                <p class="bm-price-callout__stat-value">25%</p>
+                <p class="bm-price-callout__stat-label">más consumo de combustible</p>
+            </div>
+        </div>
+
         <p class="service-text-industrial">
-            Un dato documentado por la ABMA (American Boiler Manufacturers Association):
-            <strong>incrustaciones de apenas 3 mm</strong> en las paredes internas de la caldera pueden
-            incrementar el consumo de combustible hasta un <strong>25%</strong>. Eso se traduce en miles
-            de pesos de pérdida mensual que un mantenimiento semestral hubiera prevenido por completo.
+            La ABMA (American Boiler Manufacturers Association) documenta que esas cifras bastan para
+            generar <strong>miles de pesos de pérdida mensual</strong> —pérdida que un mantenimiento
+            semestral habría prevenido por completo.
         </p>
 
         <div class="applications-card">
@@ -437,22 +448,74 @@
     <div class="container what-includes-section">
         <h2 class="section-main-title">Normativas mexicanas que rigen el mantenimiento de calderas</h2>
 
-        <p class="service-text-industrial" style="text-align: center; max-width: 860px; margin: 0 auto 32px;">
-            La <strong>NOM-020-STPS-2011</strong> (Recipientes Sujetos a Presión, Recipientes Criogénicos
-            y Generadores de Vapor o Calderas) establece las condiciones mínimas de seguridad para la
-            operación, mantenimiento e inspección de estos equipos en centros de trabajo mexicanos. Toda
-            empresa que opere una caldera está obligada a mantener un <strong>expediente técnico</strong>
-            actualizado, contar con operadores certificados y obtener dictamen de operación segura ante
-            una Unidad Verificadora acreditada ante la EMA. El <strong>Código ASME</strong> es la
-            referencia internacional de diseño y fabricación adoptada en México. Su incumplimiento puede
-            derivar en sanciones del <strong>IMSS</strong> y la STPS, con responsabilidad directa del
-            patrón ante cualquier accidente.
-        </p>
+        <div class="benefits-grid">
+
+            <div class="benefit-item">
+                <div class="benefit-icon-box" aria-hidden="true">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
+                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                         stroke-linejoin="round">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                    </svg>
+                </div>
+                <div class="benefit-content">
+                    <h3 class="benefit-title">Expediente técnico obligatorio</h3>
+                    <p class="benefit-text">
+                        La <strong>NOM-020-STPS-2011</strong> exige que toda empresa que opere una caldera
+                        mantenga un expediente técnico actualizado. El <strong>Código ASME</strong> es la
+                        referencia de diseño y fabricación adoptada en México.
+                    </p>
+                </div>
+            </div>
+
+            <div class="benefit-item">
+                <div class="benefit-icon-box" aria-hidden="true">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
+                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                         stroke-linejoin="round">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                    </svg>
+                </div>
+                <div class="benefit-content">
+                    <h3 class="benefit-title">Operadores certificados</h3>
+                    <p class="benefit-text">
+                        La norma obliga a contar con <strong>operadores certificados</strong> para la
+                        operación de generadores de vapor. Su incumplimiento deriva en responsabilidad
+                        directa del patrón ante la STPS y el <strong>IMSS</strong>.
+                    </p>
+                </div>
+            </div>
+
+            <div class="benefit-item">
+                <div class="benefit-icon-box" aria-hidden="true">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
+                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                         stroke-linejoin="round">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                    </svg>
+                </div>
+                <div class="benefit-content">
+                    <h3 class="benefit-title">Dictamen ante la EMA</h3>
+                    <p class="benefit-text">
+                        Es obligatorio obtener el <strong>dictamen de operación segura</strong> ante una
+                        Unidad Verificadora acreditada ante la EMA. Sin él, cada día de operación
+                        representa una exposición legal para la empresa.
+                    </p>
+                </div>
+            </div>
+
+        </div>
 
         <div class="applications-card">
             <p class="service-text-industrial" style="margin: 0;">
-                "Operar sin dictamen NOM-020 vigente expone a la empresa a sanciones legales y
-                responsabilidades patronales ante el IMSS."
+                <strong>"Operar sin dictamen NOM-020 vigente expone a la empresa a sanciones legales y
+                responsabilidades patronales ante el IMSS."</strong>
             </p>
         </div>
     </div>
@@ -572,7 +635,7 @@
         </h2>
 
         <p class="service-text-industrial">
-            Con más de <strong>15 años</strong> de experiencia en mantenimiento de calderas industriales
+            Con más de <strong>30 años</strong> de experiencia en mantenimiento de calderas industriales
             en México, nuestro equipo de ingenieros certificados ASME atiende plantas en todo el país.
             Ejecutamos cada servicio adaptando el calendario a tu producción —sin paros no programados—
             y entregamos reportes técnicos detallados con termografía, ultrasonido y análisis de
@@ -582,6 +645,21 @@
         {{-- TODO: <img src="{{ asset('images/services/mantenimiento-calderas/equipo-ingenieros-calderas-equiterm.jpg') }}"
              alt="Ingenieros certificados ASME realizando mantenimiento de caldera industrial — Equiterm Industries"
              width="1200" height="600" loading="lazy" decoding="async"> --}}
+
+        <div class="bm-kpi-row" role="region" aria-label="Cifras clave Equiterm Industries">
+            <div class="bm-kpi-item">
+                <p class="bm-kpi-value">+500</p>
+                <p class="bm-kpi-label">Calderas atendidas</p>
+            </div>
+            <div class="bm-kpi-item">
+                <p class="bm-kpi-value">+30</p>
+                <p class="bm-kpi-label">Años de experiencia</p>
+            </div>
+            <div class="bm-kpi-item">
+                <p class="bm-kpi-value">Nacional</p>
+                <p class="bm-kpi-label">Cobertura</p>
+            </div>
+        </div>
 
         <div class="benefits-grid" style="margin-top: 40px;">
 
@@ -837,7 +915,7 @@
                 <a href="https://wa.me/524494348018?text=Hola%2C%20me%20interesa%20agendar%20mantenimiento%20a%20caldera."
                    target="_blank"
                    rel="noopener"
-                   class="button-secondary final-cta__actions-water"
+                   class="button-secondary final-cta__actions-water bm-whatsapp-btn"
                    aria-label="Solicitar cotización de mantenimiento de caldera por WhatsApp">
                     <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
                          viewBox="0 0 24 24" fill="currentColor">
