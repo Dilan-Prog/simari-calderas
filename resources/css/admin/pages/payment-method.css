@@ -1,0 +1,422 @@
+:root {
+    /* BASE  */
+    --payment-method-bg:               #ffffff;
+    --payment-method-border:           #e5e7eb;
+    --payment-method-shadow:           rgba(0, 0, 0, 0.06);
+
+    /* TEXT */
+    --payment-method-text-primary:     #111827;
+    --payment-method-text-secondary:   oklch(55.1% .027 264.364);
+    --payment-method-text-muted:       #636364;
+
+    /* BLUE (ACTIONS) */
+    --payment-method-primary:          #2563eb;
+    --payment-method-primary-hover:    #f0f5ff;
+    --payment-method-primary-light:    oklch(96.7% .003 264.542);
+
+    /* ACTIVE STATE */
+    --payment-method-success-bg:       #d1fae5;
+    --payment-method-success-text:     #077254;
+
+    /* INACTIVE STATE */
+    --payment-method-danger:           #ef4444;
+    --payment-method-danger-hover:     #fff0f0;
+
+    /* UI GRAYS */
+    --payment-method-gray-light:       oklch(98.5% .002 247.839);
+    --payment-method-gray-50: #f9fafb;
+    --payment-method-gray-100: #f3f4f6;
+
+    /* FOCUS */
+    --payment-method-focus-ring: rgba(37, 99, 235, 0.1);
+}
+
+
+/* ── MAIN SECTION ─────────────────────────────────────── */
+.payment-method-section {
+    padding: 15px 32px;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow-y: auto;
+    box-sizing: border-box;
+}
+
+/* ── HEADER ────────────────────────────────────────────────── */
+.payment-method-main {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1px;
+}
+
+
+/* ── CARD GRID ──────────────────────────────────────── */
+.payment-method-container {
+    width: 100%;
+    overflow-y: scroll;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+}
+
+.payment-method-container::-webkit-scrollbar {
+    width: 10px;
+}
+
+.payment-method-container::-webkit-scrollbar-thumb {
+    background: var(--payment-method-border);
+    border-radius: 10px;
+}
+
+.payment-method-container::-webkit-scrollbar-thumb:hover {
+    background: var(--payment-method-text-muted);
+}
+
+
+/* ── CARD ───────────────────────────────────────────────── */
+.payment-method-card {
+    max-width: 550px;
+    max-height: 200px;
+    background: var(--payment-method-bg);
+    border-radius: 14px;
+    padding: 24px;
+    border: 1px solid var(--payment-method-border);
+    box-shadow: 0 6px 18px var(--payment-method-shadow);
+    margin-bottom: 12px;
+}
+
+
+/* ── CARD HEADER ─────────────────────────────────────── */
+.payment-method-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
+}
+
+.payment-method-info {
+    display: flex;
+    align-items: center;  
+    gap: 14px;
+}
+
+/* Column of text next to the icon */
+.payment-method-text {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 6px;
+}
+
+
+/* ── ICON ─────────────────────────────────────────────────── */
+.payment-method-icon {
+    width: 48px;
+    height: 48px;
+    flex-shrink: 0;
+    background: var(--payment-method-primary-light);
+    color: var(--payment-method-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    font-size: 18px;
+}
+
+
+/* ── TEXT CARD ─────────────────────────────────────── */
+.payment-method-title,
+.payment-method-name {
+    margin: 0;
+    font-size: 17px;
+    text-decoration: solid;
+    font-weight: 600;
+    color: var(--payment-method-text-primary);
+}
+
+.payment-method-commission {
+    margin: 0;
+    font-size: 13.5px;
+    color: var(--payment-method-text-secondary);
+}
+
+
+/* ── STATE BADGE ───────────────────────────────────────── */
+.payment-method-status {
+    font-size: 11.5px;
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.status-active {
+    background: var(--payment-method-success-bg);
+    color: var(--payment-method-success-text);
+}
+
+.status-inactive {
+    background: var(--payment-method-gray-100);
+    color: var(--payment-method-text-muted);
+}
+
+
+/* ── DESCRIPCTION ───────────────────────────────────────────── */
+.payment-method-description {
+    font-size: 14px;
+    color: var(--payment-method-text-secondary);
+    margin: 10px 0 16px;
+}
+
+
+/* ── INSTRUCTIONS ─────────────────────────────────────────── */
+.payment-method-input {
+    background: var(--payment-method-gray-light);
+    padding: 13px;
+    border-radius: 8px;
+    font-size: 11.5px;
+    color: var(--payment-method-text-muted);
+    margin-bottom: 14px;
+}
+
+
+/* ── ACTION (EDIT/DELETE) ──────────────────────────── */
+.payment-method-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.payment-method-btn-edit {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    border: 1px solid var(--payment-method-primary);
+    background: transparent;
+    color: var(--payment-method-primary);
+    padding: 10px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background 0.2s ease;
+}
+
+.payment-method-btn-edit:hover {
+    background: var(--payment-method-primary-hover);
+}
+
+.payment-method-btn-delete {
+    width: 50px;
+    height: 40px;
+    border: 1px solid var(--payment-method-danger);
+    background: transparent;
+    color: var(--payment-method-danger);
+    border-radius: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s ease;
+}
+
+.payment-method-btn-delete:hover {
+    background: var(--payment-method-danger-hover);
+}
+
+
+/* ── EMPTY STATE ──────────────────────────────────────────── */
+.payment-method-empty {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 48px 0;
+    color: var(--payment-method-text-muted);
+    font-size: 15px;
+}
+
+/* ── MODAL DELETE ────────────────────────────────────────── */
+.pm-delete-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+}
+
+.pm-delete-modal.active {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: all;
+}
+
+.pm-delete-modal-box {
+    position: relative;
+    z-index: 1;
+    background: var(--payment-method-bg);
+    border-radius: 18px;
+    border: 1px solid var(--payment-method-border);
+    padding: 2rem 1.75rem;
+    width: 360px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.pm-delete-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: #fff0f0;
+    color: var(--payment-method-danger);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.pm-delete-modal-box h2 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--payment-method-text-primary);
+    text-align: center;
+}
+
+.pm-delete-modal-box p {
+    margin: 0;
+    font-size: 14px;
+    color: var(--payment-method-text-secondary);
+    text-align: center;
+    line-height: 1.6;
+}
+
+.pm-delete-card {
+    width: 100%;
+    background: var(--payment-method-gray-50);
+    border: 1px solid var(--payment-method-border);
+    border-radius: 12px;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-sizing: border-box;
+}
+
+.pm-delete-card-name {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--payment-method-text-primary) !important;
+    text-align: left !important;
+}
+
+.pm-delete-card-commission {
+    margin: 0;
+    font-size: 12px;
+    color: var(--payment-method-text-secondary) !important;
+    text-align: left !important;
+}
+
+.pm-delete-actions {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+    margin-top: 0.25rem;
+}
+
+.pm-delete-btn-cancel,
+.pm-delete-btn-confirm {
+    flex: 1;
+    padding: 11px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.pm-delete-btn-cancel {
+    border: 1px solid var(--payment-method-border);
+    background: var(--payment-method-bg);
+    color: var(--payment-method-text-primary);
+}
+
+.pm-delete-btn-cancel:hover { background: var(--payment-method-gray-100); }
+
+.pm-delete-btn-confirm {
+    border: none;
+    background: var(--payment-method-danger);
+    color: #fff;
+}
+
+.pm-delete-btn-confirm:hover { background: #dc2626; }
+
+/* ── TOAST ─────────────────────────────────────────────────── */
+.pm-toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 2000;
+ 
+    display: flex;
+    align-items: center;
+    gap: 12px;
+ 
+    background: var(--payment-method-bg);
+    border: 1px solid var(--payment-method-border);
+    border-radius: 12px;
+    padding: 14px 18px;
+    min-width: 280px;
+    max-width: 360px;
+ 
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.10);
+ 
+    opacity: 0;
+    transform: translateY(-10px);
+    pointer-events: none;
+    transition: opacity 0.25s ease, transform 0.25s ease;
+}
+ 
+.pm-toast--visible {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: all;
+}
+ 
+.pm-toast-icon {
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background: var(--payment-method-text-primary);
+    color: var(--payment-method-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+ 
+.pm-toast-body {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+ 
+.pm-toast-title {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--payment-method-text-primary);
+}
+ 
+.pm-toast-subtitle {
+    margin: 0;
+    font-size: 12px;
+    color: var(--payment-method-text-muted);
+}
+ 

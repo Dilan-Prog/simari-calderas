@@ -22,6 +22,23 @@ class HomeController extends Controller
     }
 
 
+
+
+
+    // TEST CREATE ADMIN PAGE
+    public function users(){
+        return view('admin.users.user-manager');
+    }
+
+    public function clients(){
+        return view('admin.managers.clients-manager');
+    }
+
+    public function supliers(){
+        return view('admin.managers.supliers-manager');
+    }
+
+
     // SERVICES PAGES
 
     public function industrialMaintenance()
@@ -63,7 +80,7 @@ class HomeController extends Controller
     }
 
 
-    
+
     // Products
     public function simariBoilers()
     {

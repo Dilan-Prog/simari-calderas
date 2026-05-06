@@ -3,16 +3,21 @@
 namespace App\Http\Controllers\Backend;
 
 use App\Http\Controllers\Controller;
+use App\Models\ContactEmergency;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
-class ManageUserController extends Controller
+class ClientManageController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        //
+        $users = User::where('role_id',2)
+        ->get(['id', ]);
+        return view('admin.client.index');
     }
 
     /**
