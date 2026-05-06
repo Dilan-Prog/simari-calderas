@@ -1,7 +1,7 @@
 :root {
     /* ── Navegación / Header ── */
     --text-header-color-nav: #d1d5dc;
-    --text-header-color-nav-hover: #0054ff;
+    --text-header-color-nav-hover: #ff6213;
     --text-header-color-nav-hover-white: #ffffff;
     --header-background-color: #141516;
     --border-header-footer-color: #2e3a46;
@@ -21,8 +21,8 @@
     --header-footer-color: #1A2535;
 
     /* ── Botones principales ── */
-    --button-primary-color: #0054ff;
-    --button-primary-color-hover: #0043cc;
+    --button-primary-color: #ff6213;
+    --button-primary-color-hover: #de4a00;
     --button-serondary-color: transparent;
     --button-secondary-color-hover: #ffffff;
 
@@ -65,8 +65,8 @@
     --inst-red-dark: #8b0000;                    /* rojo oscuro para gradientes CTA */
     --inst-red-alpha: rgba(198, 40, 40, 0.082);  /* fondo tenue de íconos */
     --inst-red-alpha-lg: rgba(198, 40, 40, 0.19);/* fondo tenue mayor para badges */
-    --inst-blue: #0054ff;                        /* azul instrumento (= --secondary-color) */
-    --inst-blue-dark: #0043cc;                   /* azul oscuro hover (= --button-primary-color-hover) */
+    --inst-blue: #ff6213;                        /* azul instrumento (= --secondary-color) */
+    --inst-blue-dark: #de4a00;                   /* azul oscuro hover (= --button-primary-color-hover) */
 }
 
 /* ==============================

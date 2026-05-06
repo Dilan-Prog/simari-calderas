@@ -63,5 +63,4 @@ class User extends Authenticatable
     {
         return $this->hasMany(ContactEmergency::class, 'user_id');
     }
-
 }

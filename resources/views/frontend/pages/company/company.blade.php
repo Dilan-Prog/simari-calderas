@@ -1,13 +1,13 @@
 @extends('frontend.layouts.master')
-@section('title', 'Industria Simari Empresa')
-@section('description', 'Industria Simari es una empresa hidrocálida con más de 35 años de experiencia en soluciones térmicas para sectores industriales, alimentarios, metalmecánicos, hoteleros y deportivos. Ofrecemos servicios de gestión completa de sistemas térmicos.')
+@section('title', 'Equiterm Industries Empresa')
+@section('description', 'Equiterm Industries es una empresa hidrocálida con más de 35 años de experiencia en soluciones térmicas para sectores industriales, alimentarios, metalmecánicos, hoteleros y deportivos. Ofrecemos servicios de gestión completa de sistemas térmicos.')
 @section('canonical', config('app.url') . '/nuestra-empresa')
 @section('content')
         <section class="company-hero">
             <div class="company-hero-bg">
                 <img src="https://images.unsplash.com/photo-1707330266686-109c087163eb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxpbmR1c3RyaWFsJTIwZW5naW5lZXJpbmclMjBjb3Jwb3JhdGUlMjBidWlsZGluZyUyMHRlYW18ZW58MXx8fHwxNzcxNTQzMDgzfDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
-                    alt="Equipo de Industria Simari trabajando en soluciones térmicas"
-                    title="Equipo de Industria Simari trabajando en soluciones térmicas"
+                    alt="Equipo de Equiterm Industries trabajando en soluciones térmicas"
+                    title="Equipo de Equiterm Industries trabajando en soluciones térmicas"
                     width="1200"
                     height="1200"
                     loading="eager"
@@ -48,8 +48,8 @@
                 <div class="company-history-img">
                     <div class="company-img-decor"></div>
                     <img src="{{ asset('images/company/team/equipo_industria_simari.jpg') }}"
-                        alt="Ingenieros Industriales de Industria Simari trabajando en soluciones térmicas"
-                        title="Equipo de Industria Simari trabajando en soluciones térmicas"
+                        alt="Ingenieros Industriales de Equiterm Industries trabajando en soluciones térmicas"
+                        title="Equipo de Equiterm Industries trabajando en soluciones térmicas"
                         width="1200"
                         height="1200"
                         loading="eager"

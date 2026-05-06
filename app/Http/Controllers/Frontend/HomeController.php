@@ -40,6 +40,26 @@ class HomeController extends Controller
 
 
     // SERVICES PAGES
+    // new services SEO
+    public function boilerServices()
+    {
+        return view('frontend.pages.services.boiler-services');
+    }
+    public function boilerRepair()
+    {
+        return view('frontend.pages.services.boiler-repair');
+    }
+    public function boilerMaintenance()
+    {
+        return view('frontend.pages.services.boiler-maintenance');
+    }
+    public function boilerDescaling()
+    {
+        return view('frontend.pages.services.boiler-descale');
+    }
+
+
+    //old services
 
     public function industrialMaintenance()
     {

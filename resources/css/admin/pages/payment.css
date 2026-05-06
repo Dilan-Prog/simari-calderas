@@ -1,0 +1,67 @@
+:root {
+    /* Typography */
+    --font-family: 'Inter', sans-serif;
+
+    /* Core colors */
+    --text-black: #000000;
+    --text-white-color: #ffffff;
+
+    /* Header */
+    --border-header-footer-color: #2E3A46;
+    --header-background-color: #141516;
+    --header-footer-color: #1A2535;
+    --text-header-color-nav: #D1D5DC;
+    --text-header-color-nav-hover: #0054ff;
+    --text-header-color-nav-hover-white: #ffffff;
+    --toggle-header: #2E3A46;
+    --toggle-header-nav: #364153;
+
+    /* Footer */
+    --border-footer-color-legal: #2E3A46;
+    --footer-background-color: #141516;
+    --text-footer-color-links: #99A1AF;
+    --text-footer-color-links-hover: #ffffff;
+
+    /* Brand primary (SIMARI / azul) */
+    --button-primary-color: #0054ff;
+    --button-primary-color-hover: #0043cc;
+    --secondary-color: #0054ff;
+    --third-color: #d9ff00;
+
+    /* Brand secondary (Rinnai / rojo) */
+    --button-primary-color-hover-rinnai: #b71c1c;
+    --button-primary-color-rinnai: #C62828;
+    --secondary-color-rinnai: #C62828;
+
+    /* Buttons */
+    --button-secondary-color-hover: #ffffff;
+    --button-serondary-color: transparent;
+
+    /* Backgrounds */
+    --background-primary: #141516;
+    --bg-dark: #141516;
+    --bg-dark-2: #141516;
+    --bg-light: #f5f7fa;
+    --section-example: #0E1A2B;
+
+    /* Text */
+    --text-body: #4b5563;
+    --text-description-color: #99A1AF;
+    --text-muted: #9ca3af;
+    --text-soft: #d1d5db;
+    --text-subwhite-color: #E5E7EB;
+
+    /* Cards / borders */
+    --border-color: #e5e7eb;
+    --card-dark: rgba(255, 255, 255, 0.1);
+    --card-line: rgba(255, 255, 255, 0.2);
+
+    /* Radius */
+    --radius-lg: 24px;
+    --radius-md: 18px;
+    --radius-sm: 12px;
+
+    /* Shadows */
+    --shadow-default: 0 14px 38px rgba(0, 0, 0, 0.16);
+}
+

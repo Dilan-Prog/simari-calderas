@@ -13,18 +13,18 @@
           <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
           Energía Solar Térmica
         </div>
- 
+
         <h1 class="solar-hero__title">
           Calentadores<br>
           <span class="accent">Solares</span>
           <span class="sub">Industriales</span>
         </h1>
- 
+
         <p class="solar-hero__desc">
           Reduce hasta <strong>80% tu consumo de gas</strong> con tecnología solar térmica de última generación.
           Sistemas de tubos evacuados y placa plana para aplicaciones comerciales e industriales.
         </p>
- 
+
         <!-- Stats -->
         <div class="solar-hero__stats" role="list" aria-label="Beneficios clave">
           <div class="solar-stat" role="listitem">
@@ -40,7 +40,7 @@
             <div class="solar-stat__label">Años vida útil</div>
           </div>
         </div>
- 
+
         <!-- Certs -->
         <div class="solar-cert">
           <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15.477 12.89 1.515 8.526a.5.5 0 0 1-.81.47l-3.58-2.687a1 1 0 0 0-1.197 0l-3.586 2.686a.5.5 0 0 1-.81-.469l1.514-8.526"/><circle cx="12" cy="8" r="6"/></svg>
@@ -49,10 +49,10 @@
             <div class="solar-cert__norms">NOM-003-ENER · NOM-027-ENER · ANCE</div>
           </div>
         </div>
- 
+
         <!-- CTAs -->
         <nav class="solar-hero__cta" aria-label="Acciones principales">
-          <a 
+          <a
             href="https://wa.me/524494348018?text=Hola%2C%20me%20interesa%20una%20cotizaci%C3%B3n."
             target="_blank"
             aria-label="Abrir chat de WhatsApp"
@@ -60,16 +60,16 @@
             Calcular Mi Ahorro
             <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 9h10M9 5l4 4-4 4"/></svg>
           </a>
-          <a 
+          <a
             href="tel:+524494348018"
-            aria-label="Llamar a Industria Simari"
+            aria-label="Llamar a Equiterm Industries"
             class="btn btn-outline-blue">
             <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
             Llamar
           </a>
         </nav>
       </div>
- 
+
       <!-- Image column -->
       <div class="solar-hero__img-wrap" aria-hidden="true">
         <div class="solar-hero__img-frame">
@@ -103,20 +103,20 @@
           </div>
         </div>
       </div>
- 
+
     </div>
   </div>
 </section>
- 
+
 <section class="solar-products section-pad" id="sistemas" aria-labelledby="products-heading">
   <div class="container">
     <div class="section-header">
       <h2 id="products-heading">Sistemas Solares Térmicos</h2>
       <p>Tecnología adaptada a cada necesidad industrial</p>
     </div>
- 
+
     <div class="solar-products__grid">
- 
+
       <!-- Tubos evacuados -->
       <article class="product-card" aria-labelledby="prod-tubos">
         <div class="product-card__header">
@@ -140,7 +140,7 @@
           <a href="/contacto" class="product-card__btn" rel="noopener">Solicitar Información</a>
         </div>
       </article>
- 
+
       <!-- Placa plana -->
       <article class="product-card" aria-labelledby="prod-placa">
         <div class="product-card__header">
@@ -164,7 +164,7 @@
           <a href="/contacto" class="product-card__btn" rel="noopener">Solicitar Información</a>
         </div>
       </article>
- 
+
       <!-- Sistema Híbrido -->
       <article class="product-card" aria-labelledby="prod-hibrido">
         <div class="product-card__header">
@@ -188,7 +188,7 @@
           <a href="/contacto" class="product-card__btn" rel="noopener">Solicitar Información</a>
         </div>
       </article>
- 
+
     </div>
   </div>
 </section>
@@ -198,9 +198,9 @@
       <h2 id="timeline-heading">Tu Viaje Hacia el Ahorro</h2>
       <p>Cómo evoluciona tu ahorro con el sistema solar</p>
     </div>
- 
+
     <div class="timeline" role="list">
- 
+
       <div class="timeline-item" role="listitem">
         <div class="timeline-dot" aria-hidden="true">1</div>
         <div class="timeline-card">
@@ -217,7 +217,7 @@
           <p>Primeros ahorros visibles en factura de gas desde el primer mes de operación.</p>
         </div>
       </div>
- 
+
       <div class="timeline-item" role="listitem">
         <div class="timeline-dot" aria-hidden="true">2</div>
         <div class="timeline-card">
@@ -234,7 +234,7 @@
           <p>El sistema alcanza su máxima eficiencia operativa y rendimiento estacional.</p>
         </div>
       </div>
- 
+
       <div class="timeline-item" role="listitem">
         <div class="timeline-dot" aria-hidden="true">3</div>
         <div class="timeline-card">
@@ -251,7 +251,7 @@
           <p>Recuperación completa de la inversión inicial mediante el ahorro acumulado en gas.</p>
         </div>
       </div>
- 
+
       <div class="timeline-item" role="listitem">
         <div class="timeline-dot" aria-hidden="true">4</div>
         <div class="timeline-card">
@@ -268,12 +268,12 @@
           <p>Ahorro puro año tras año con mínimo mantenimiento preventivo.</p>
         </div>
       </div>
- 
+
     </div>
   </div>
 </section>
- 
- 
+
+
 <!-- ═══════════════════════════════════════
      INDUSTRIES
 ═══════════════════════════════════════ -->
@@ -283,9 +283,9 @@
       <h2 id="industries-heading">Aplicaciones Comerciales e Industriales</h2>
       <p>Casos de éxito y retornos de inversión reales</p>
     </div>
- 
+
     <div class="industries-grid">
- 
+
       <!-- Hoteles -->
       <article class="industry-row" aria-labelledby="ind-hoteles">
         <div class="industry-row__inner">
@@ -311,7 +311,7 @@
           </div>
         </div>
       </article>
- 
+
       <!-- Hospitales -->
       <article class="industry-row" aria-labelledby="ind-hosp">
         <div class="industry-row__inner">
@@ -337,7 +337,7 @@
           </div>
         </div>
       </article>
- 
+
       <!-- Industria Alimentaria -->
       <article class="industry-row" aria-labelledby="ind-alim">
         <div class="industry-row__inner">
@@ -363,7 +363,7 @@
           </div>
         </div>
       </article>
- 
+
       <!-- Gimnasios -->
       <article class="industry-row" aria-labelledby="ind-gym">
         <div class="industry-row__inner">
@@ -389,12 +389,12 @@
           </div>
         </div>
       </article>
- 
+
     </div>
   </div>
 </section>
- 
- 
+
+
 <!-- ═══════════════════════════════════════
      ENVIRONMENTAL IMPACT
 ═══════════════════════════════════════ -->
@@ -405,7 +405,7 @@
       <h2 id="env-heading">Impacto Ambiental Positivo</h2>
       <p>Más que ahorro: contribución real a la sostenibilidad</p>
     </div>
- 
+
     <div class="solar-env__grid">
       <article class="env-card">
         <div class="env-card__emoji" aria-hidden="true">🌍</div>
@@ -428,8 +428,8 @@
     </div>
   </div>
 </section>
- 
- 
+
+
 <!-- ═══════════════════════════════════════
      CTA
 ═══════════════════════════════════════ -->
@@ -438,7 +438,7 @@
     <div class="solar-cta__inner">
       <h2 id="cta-heading">Calcula Tu Ahorro en 2 Minutos</h2>
       <p>Ingresa tus datos y recibe una estimación personalizada de inversión, ahorro y ROI</p>
- 
+
       <div class="solar-cta__steps" role="list" aria-label="Pasos para obtener tu cotización">
         <div class="cta-step" role="listitem">
           <div class="cta-step__num">1</div>
@@ -453,7 +453,7 @@
           <div class="cta-step__text">Recibe propuesta</div>
         </div>
       </div>
- 
+
       <nav class="solar-cta__btns" aria-label="Solicitar cotización">
         <a href="/contacto" class="btn btn-white" rel="noopener">
           Solicitar Cálculo Gratuito

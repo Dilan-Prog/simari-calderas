@@ -3,9 +3,9 @@
         <section class="footer-top" aria-label="Información general del sitio">
             <div class="footer-grid">
                 <section class="footer-brand" aria-label="Información de la empresa">
-                    <a href="{{ route('home') }}" aria-label="Ir al inicio" itemprop="url" title="SIMARI Calderas - Inicio">
-                        <img class="footer-logo" src="{{ Vite::asset('resources/images/logo/logo_SVG.svg') }}"
-                            alt="Industria Simari - soluciones térmicas industriales y residenciales" itemprop="logo"
+                    <a href="{{ route('home') }}" aria-label="Ir al inicio" itemprop="url" title="Equiterm Industries - Inicio">
+                        <img class="footer-logo" src="{{ asset('images/logo/equiterm-logo-blanco-color-3x.png') }}"
+                            alt="Equiterm Industries - soluciones térmicas industriales y residenciales" itemprop="logo"
                             width="268" height="60"
                             loading="lazy" decoding="async">
                     </a>
@@ -15,19 +15,19 @@
                     </p>
                     <address class="footer-info-contact-address" aria-label="Datos de contacto">
                         <p>
-                            <a href="mailto:administracion@industriasimari.com.mx" itemprop="email"
-                                aria-label="Enviar correo a SIMARI Calderas">
+                            <a href="mailto:administracion@equitermindustries.com.mx" itemprop="email"
+                                aria-label="Enviar correo a Equiterm Industries">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
                                     viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                     stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                                     <rect width="20" height="16" x="2" y="4" rx="2"></rect>
                                     <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
                                 </svg>
-                                <span>administracion@industriasimari.com.mx</span>
+                                <span>administracion@equitermindustries.com.mx</span>
                             </a>
                         </p>
                         <p>
-                            <a href="tel:+524494348018" itemprop="telephone" aria-label="Llamar a Industria Simari">
+                            <a href="tel:+524494348018" itemprop="telephone" aria-label="Llamar a Equiterm Industries">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
                                     viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                     stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -98,7 +98,7 @@
                         <ul class="social-list">
                             {{-- Linkedin --}}
                             {{-- <li>
-                                <a href="https://www.linkedin.com/company/simari-calderas" rel="noopener noreferrer" aria-label="LinkedIn de SIMARI Calderas" itemprop="sameAs" title="LinkedIn de SIMARI Calderas">
+                                <a href="https://www.linkedin.com/company/simari-calderas" rel="noopener noreferrer" aria-label="LinkedIn de Equiterm Industries" itemprop="sameAs" title="LinkedIn de Equiterm Industries">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                                     <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>
                                     <rect width="4" height="12" x="2" y="9"></rect>
@@ -108,8 +108,8 @@
                             </li> --}}
                             <li>
                                 <a href="https://www.facebook.com/simaricalderas" rel="noopener noreferrer"
-                                    aria-label="Facebook de SIMARI Calderas" itemprop="sameAs"
-                                    title="Facebook de SIMARI Calderas">
+                                    aria-label="Facebook de Equiterm Industries" itemprop="sameAs"
+                                    title="Facebook de Equiterm Industries">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
                                         viewBox="0 0 20 20">
                                         <g clip-path="url(#clip0_20_1323)">
@@ -128,7 +128,7 @@
                             </li>
                             {{-- Teiiter --}}
                             {{-- <li>
-                                <a href="https://twitter.com/simari_calderas" rel="noopener noreferrer" aria-label="X (Twitter) de SIMARI Calderas" itemprop="sameAs" title="X (Twitter) de SIMARI Calderas">
+                                <a href="https://twitter.com/simari_calderas" rel="noopener noreferrer" aria-label="X (Twitter) de Equiterm Industries" itemprop="sameAs" title="X (Twitter) de Equiterm Industries">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                                     <path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"></path>
                                 </svg>
@@ -137,7 +137,7 @@
 
                             {{-- Instagram --}}
                             {{-- <li>
-                                <a href="https://www.instagram.com/simari_calderas" rel="noopener noreferrer" aria-label="Instagram de SIMARI Calderas" itemprop="sameAs" title="Instagram de SIMARI Calderas">
+                                <a href="https://www.instagram.com/simari_calderas" rel="noopener noreferrer" aria-label="Instagram de Equiterm Industries" itemprop="sameAs" title="Instagram de Equiterm Industries">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                                     <rect width="20" height="20" x="2" y="2" rx="5" ry="5"></rect>
                                     <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
@@ -155,32 +155,33 @@
         <section class="footer-bottom" aria-label="Legal">
             <p>
                 © <span>2026 </span>
-                <span itemprop="name">SIMARI Calderas S.A. de C.V.</span>
+                <span itemprop="name">Equiterm Industries S.A. de C.V.</span>
                 <span> Todos los derechos reservados.</span>
             </p>
             <nav class="footer-legal" aria-label="Enlaces legales">
                 <ul class="footer-legal-links">
+                    <li>@auth
+                            @php $rol = auth()->user()->role?->name_role @endphp
+
+                            @if ($rol === 'admin')
+                                <a  href="{{ route('admin.dashboard') }}">Panel Admin</a>
+
+                            @elseif ($rol === 'employe')
+                                <a href="{{ route('employee.dashboard') }}">Mi Dashboard</a>
+
+                            @else
+                                <a href="{{ route('profile.edit') }}">Mi Cuenta</a>
+                            @endif
+                        @else
+                            <a href="{{ route('login') }}">Iniciar Sesión</a>
+                        @endauth
+                    </li>
                     <li><a href="{{ route('privacy-notice') }}">Aviso de privacidad</a></li>
                     <li><a href="{{ route('terms-of-service') }}">Términos y condiciones</a></li>
                 </ul>
             </nav>
         </section>
     </div>
-@auth
-    @php $rol = auth()->user()->role?->name_role @endphp
-
-    @if ($rol === 'admin')
-        <a style="font-size:28px; color:white;"  href="{{ route('admin.dashboard') }}">Panel Admin</a>
-
-    @elseif ($rol === 'employe')
-        <a style="font-size:28px; color:white;" href="{{ route('employee.dashboard') }}">Mi Dashboard</a>
-
-    @else
-        <a style="font-size:28px; color:white;" href="{{ route('profile.edit') }}">Mi Cuenta</a>
-    @endif
-@else
-    <a style="font-size:28px; color:white;" href="{{ route('login') }}">Iniciar Sesión</a>
-@endauth
 </footer>
 <div class="wa-float wa-float--right" aria-label="Chat de WhatsApp">
 

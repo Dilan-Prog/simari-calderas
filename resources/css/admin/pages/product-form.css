@@ -1,0 +1,986 @@
+/* ════════════════════════════════════════
+   PRODUCT FORM  (create / edit)
+════════════════════════════════════════ */
+
+.pform-page {
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 64px);
+    background: #f5f7fa;
+    overflow: hidden;
+    font-family: var(--font-family);
+}
+
+/* ── Sticky header ── */
+.pform-page-header {
+    background: #ffffff;
+    border-bottom: 1px solid #e5e7eb;
+    padding: 16px 32px 0;
+    flex-shrink: 0;
+}
+
+.pform-header-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+}
+
+.pform-header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.pform-back-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    border: none;
+    background: transparent;
+    color: #6b7280;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.pform-back-btn:hover {
+    background: #f3f4f6;
+    color: #374151;
+}
+
+.pform-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: #111827;
+    margin: 0 0 3px;
+}
+
+.pform-saved-badge {
+    display: none;
+    align-items: center;
+    gap: 4px;
+    font-size: 13px;
+    color: #16a34a;
+}
+
+.pform-saved-badge.visible {
+    display: inline-flex;
+}
+
+.pform-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* ── Header action buttons ── */
+.pform-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    font-family: var(--font-family);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background-color 0.15s ease;
+}
+
+.pform-btn.outline {
+    background: #ffffff;
+    border: 1px solid #d1d5db;
+    color: #374151;
+}
+
+.pform-btn.outline:hover {
+    background: #f9fafb;
+}
+
+.pform-btn.primary {
+    background: var(--secondary-color);
+    border: none;
+    color: #ffffff;
+}
+
+.pform-btn.primary:hover {
+    background: var(--button-primary-color-hover);
+}
+
+/* ── Tabs row ── */
+.pform-tabs-row {
+    display: flex;
+    gap: 2px;
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+
+.pform-tabs-row::-webkit-scrollbar {
+    display: none;
+}
+
+.pform-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border: none;
+    border-bottom: 2px solid transparent;
+    border-radius: 6px 6px 0 0;
+    background: transparent;
+    color: #6b7280;
+    font-size: 14px;
+    font-weight: 400;
+    font-family: var(--font-family);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: color 0.15s ease, background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.pform-tab:hover:not(.active) {
+    color: #111827;
+    background: #f9fafb;
+}
+
+.pform-tab.active {
+    border-bottom-color: var(--secondary-color);
+    background: rgba(0, 84, 255, 0.05);
+    color: var(--secondary-color);
+    font-weight: 500;
+}
+
+/* ── Scrollable content ── */
+.pform-content-area {
+    flex: 1;
+    overflow-y: auto;
+    padding: 32px;
+    min-height: 0;
+}
+
+.pform-panel-wrap {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+/* ── Tab panels ── */
+.pform-tab-panel {
+    display: none;
+}
+
+.pform-tab-panel.active {
+    display: block;
+}
+
+/* ── White card panel ── */
+.pform-panel {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 32px;
+    margin-bottom: 24px;
+}
+
+.pform-panel-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #111827;
+    margin: 0 0 24px;
+}
+
+/* ── Form fields ── */
+.pform-field {
+    margin-bottom: 20px;
+}
+
+.pform-field:last-child {
+    margin-bottom: 0;
+}
+
+.pform-label {
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 6px;
+}
+
+.pform-required {
+    color: #ef4444;
+    margin-left: 2px;
+}
+
+.pform-input,
+.pform-select,
+.pform-textarea {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: var(--font-family);
+    color: #374151;
+    background: #ffffff;
+    outline: none;
+    box-sizing: border-box;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.pform-input:focus,
+.pform-select:focus,
+.pform-textarea:focus {
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 0 3px rgba(0, 84, 255, 0.1);
+}
+
+.pform-textarea {
+    resize: none;
+    line-height: 1.6;
+}
+
+.pform-hint {
+    font-size: 12px;
+    color: #9ca3af;
+    margin: 6px 0 0;
+}
+
+.pform-char-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 6px;
+}
+
+.pform-char-count {
+    font-size: 12px;
+    color: #9ca3af;
+}
+
+/* ── Grid layouts ── */
+.pform-grid-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.pform-grid-2 {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.pform-grid-3 .pform-field,
+.pform-grid-2 .pform-field {
+    margin-bottom: 0;
+}
+
+/* ── Quill editor wrapper ── */
+.pform-quill-wrap {
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.pform-quill-wrap:focus-within {
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 0 3px rgba(0, 84, 255, 0.1);
+}
+
+.pform-quill-wrap .ql-toolbar.ql-snow {
+    border: none;
+    border-bottom: 1px solid #e5e7eb;
+    background: #f9fafb;
+}
+
+.pform-quill-wrap .ql-container.ql-snow {
+    border: none;
+    font-family: var(--font-family);
+    font-size: 14px;
+}
+
+.pform-quill-wrap .ql-editor {
+    min-height: 320px;
+    color: #374151;
+    line-height: 1.7;
+}
+
+.pform-quill-wrap .ql-editor.ql-blank::before {
+    color: #9ca3af;
+    font-style: normal;
+}
+
+/* ── Tips info box ── */
+.pform-tips-box {
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    border-radius: 10px;
+    padding: 16px 20px;
+}
+
+.pform-tips-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1e40af;
+    margin: 0 0 10px;
+}
+
+.pform-tips-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.pform-tips-list li {
+    font-size: 13px;
+    color: #1d4ed8;
+}
+
+/* ── Placeholder panels ── */
+.pform-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 64px 32px;
+    color: #9ca3af;
+    gap: 12px;
+    text-align: center;
+}
+
+.pform-placeholder svg {
+    opacity: 0.35;
+}
+
+.pform-placeholder-title {
+    font-size: 15px;
+    font-weight: 500;
+    color: #6b7280;
+    margin: 0;
+}
+
+.pform-placeholder-sub {
+    font-size: 13px;
+    color: #9ca3af;
+    margin: 0;
+}
+
+/* ── Disabled select ── */
+.pform-select:disabled {
+    background: #f3f4f6;
+    color: #9ca3af;
+    cursor: not-allowed;
+}
+
+/* ── Image dropzone ── */
+.pform-dropzone {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 200px;
+    border: 2px dashed #d1d5db;
+    border-radius: 10px;
+    cursor: pointer;
+    background: #f9fafb;
+    margin-bottom: 24px;
+    box-sizing: border-box;
+    transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.pform-dropzone:hover {
+    background: #f3f4f6;
+    border-color: #9ca3af;
+}
+
+.pform-dropzone-text {
+    font-size: 14px;
+    font-weight: 500;
+    color: #374151;
+    margin: 10px 0 4px;
+}
+
+.pform-dropzone-sub {
+    font-size: 12px;
+    color: #9ca3af;
+}
+
+/* ── Inner sections ── */
+.pform-section {
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 24px;
+    margin-bottom: 20px;
+}
+
+.pform-section:last-child {
+    margin-bottom: 0;
+}
+
+.pform-section-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    color: #111827;
+    margin: 0 0 16px;
+}
+
+/* ── Price input ── */
+.pform-price-wrap {
+    position: relative;
+}
+
+.pform-price-prefix {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6b7280;
+    font-size: 14px;
+    pointer-events: none;
+}
+
+.pform-input-prefixed {
+    padding-left: 28px;
+}
+
+/* ── Profitability card ── */
+.pform-profit-card {
+    background: linear-gradient(to right, #eff6ff, #f0fdf4);
+    border: 1px solid #bfdbfe;
+    border-radius: 10px;
+    padding: 16px 20px;
+    margin-top: 20px;
+}
+
+.pform-profit-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #111827;
+    margin: 0 0 14px;
+}
+
+.pform-profit-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+}
+
+.pform-profit-label {
+    font-size: 13px;
+    color: #6b7280;
+    margin: 0 0 4px;
+}
+
+.pform-profit-value {
+    font-size: 20px;
+    font-weight: 700;
+    color: #111827;
+    margin: 0;
+}
+
+.pform-profit-margin {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid #bfdbfe;
+}
+
+.pform-profit-margin-value {
+    font-size: 24px;
+    font-weight: 700;
+    color: #16a34a;
+    margin: 0;
+}
+
+/* ── Availability buttons ── */
+.pform-avail-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+}
+
+.pform-avail-btn {
+    padding: 16px;
+    border-radius: 8px;
+    border: 2px solid #e5e7eb;
+    background: #ffffff;
+    cursor: pointer;
+    text-align: center;
+    font-family: var(--font-family);
+    transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.pform-avail-btn:hover:not(.active) {
+    border-color: #d1d5db;
+}
+
+.pform-avail-btn.active {
+    border-color: #16a34a;
+    background: #f0fdf4;
+}
+
+.pform-avail-btn-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #111827;
+}
+
+.pform-avail-btn.active .pform-avail-btn-title {
+    color: #15803d;
+}
+
+.pform-avail-btn-sub {
+    font-size: 12px;
+    color: #6b7280;
+    margin-top: 4px;
+}
+
+/* ── Breadcrumb preview ── */
+.pform-breadcrumb {
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin-top: 16px;
+    font-size: 13px;
+}
+
+/* ── Tag row + chips ── */
+.pform-tag-row {
+    display: flex;
+    gap: 8px;
+}
+
+.pform-tag-row .pform-input {
+    flex: 1;
+}
+
+.pform-tag-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 10px;
+}
+
+.pform-tag-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    background: #e0e7ff;
+    color: #3730a3;
+    border-radius: 20px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.pform-tag-chip:hover {
+    background: #c7d2fe;
+}
+
+/* ── Badge toggle cards ── */
+.pform-badge-card {
+    padding: 20px;
+    border-radius: 8px;
+    border: 2px solid #e5e7eb;
+    background: #ffffff;
+    cursor: pointer;
+    text-align: left;
+    width: 100%;
+    font-family: var(--font-family);
+    transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.pform-badge-card:hover:not(.active) {
+    border-color: #d1d5db;
+}
+
+.pform-badge-card.active {
+    border-color: var(--secondary-color);
+    background: rgba(0, 84, 255, 0.04);
+}
+
+.pform-badge-card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+
+.pform-badge-icon {
+    padding: 8px;
+    border-radius: 8px;
+    background: #f3f4f6;
+    color: #9ca3af;
+    flex-shrink: 0;
+    transition: background 0.15s, color 0.15s;
+}
+
+.pform-badge-card.active .pform-badge-icon {
+    background: rgba(0, 84, 255, 0.1);
+    color: var(--secondary-color);
+}
+
+.pform-badge-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #111827;
+    margin-bottom: 4px;
+}
+
+.pform-badge-sub {
+    font-size: 12px;
+    color: #6b7280;
+    margin: 0;
+    text-align: left;
+}
+
+/* Toggle switch */
+.pform-toggle {
+    width: 40px;
+    height: 22px;
+    background: #d1d5db;
+    border-radius: 11px;
+    position: relative;
+    transition: background 0.2s ease;
+}
+
+.pform-toggle::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 18px;
+    height: 18px;
+    background: #ffffff;
+    border-radius: 50%;
+    transition: left 0.2s ease;
+}
+
+.pform-badge-card.active .pform-toggle {
+    background: var(--secondary-color);
+}
+
+.pform-badge-card.active .pform-toggle::after {
+    left: 20px;
+}
+
+/* ── Specs header ── */
+.pform-specs-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+/* ── Spec rows ── */
+.pform-spec-list {
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 16px;
+}
+
+.pform-spec-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    gap: 10px;
+    align-items: center;
+}
+
+.pform-spec-del {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    background: #ffffff;
+    color: #ef4444;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background 0.15s, border-color 0.15s;
+}
+
+.pform-spec-del:hover {
+    background: #fef2f2;
+    border-color: #fca5a5;
+}
+
+/* ── Alert box (orange) ── */
+.pform-alert-box {
+    display: flex;
+    gap: 12px;
+    background: #fff7ed;
+    border: 1px solid #fed7aa;
+    border-radius: 10px;
+    padding: 16px 20px;
+    margin-bottom: 24px;
+    flex-shrink: 0;
+}
+
+.pform-alert-box-icon {
+    flex-shrink: 0;
+    color: #ea580c;
+    margin-top: 2px;
+}
+
+.pform-alert-box-body h4 {
+    font-size: 14px;
+    font-weight: 600;
+    color: #7c2d12;
+    margin: 0 0 6px;
+}
+
+.pform-alert-box-body p {
+    font-size: 13px;
+    color: #9a3412;
+    margin: 0;
+    line-height: 1.6;
+}
+
+/* ── Document rows ── */
+.pform-doc-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.pform-doc-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 16px;
+    transition: border-color 0.15s ease;
+}
+
+.pform-doc-row:hover {
+    border-color: #d1d5db;
+}
+
+.pform-doc-icon {
+    padding: 8px;
+    background: #eff6ff;
+    border-radius: 8px;
+    flex-shrink: 0;
+    color: var(--secondary-color);
+}
+
+.pform-doc-info {
+    flex: 1;
+}
+
+.pform-doc-info h3 {
+    font-size: 14px;
+    font-weight: 600;
+    color: #111827;
+    margin: 0 0 2px;
+}
+
+.pform-doc-info p {
+    font-size: 13px;
+    color: #6b7280;
+    margin: 0;
+}
+
+.pform-doc-upload {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    background: var(--secondary-color);
+    color: #ffffff;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background 0.15s ease;
+}
+
+.pform-doc-upload:hover {
+    background: var(--button-primary-color-hover);
+}
+
+/* ── Reco box ── */
+.pform-reco-box {
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 16px 20px;
+}
+
+.pform-reco-box h4 {
+    font-size: 14px;
+    font-weight: 600;
+    color: #111827;
+    margin: 0 0 8px;
+}
+
+.pform-reco-box ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.pform-reco-box li {
+    font-size: 13px;
+    color: #374151;
+}
+
+/* ── SEO Modal overlay ── */
+.pform-seo-modal {
+    position: fixed;
+    inset: 0;
+    background: #f5f7fa;
+    z-index: 200;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    font-family: var(--font-family);
+}
+
+.pform-seo-header {
+    background: #ffffff;
+    border-bottom: 1px solid #e5e7eb;
+    padding: 20px 32px;
+    flex-shrink: 0;
+}
+
+.pform-seo-header-top {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.pform-seo-score-wrap {
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.pform-seo-score {
+    font-size: 28px;
+    font-weight: 700;
+    color: #dc2626;
+    line-height: 1;
+}
+
+.pform-seo-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 32px;
+    min-height: 0;
+}
+
+.pform-seo-wrap {
+    max-width: 900px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+/* ── Google preview ── */
+.pform-google-preview {
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    padding: 20px 24px;
+}
+
+.pform-google-url {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: #15803d;
+    margin-bottom: 4px;
+}
+
+.pform-google-title {
+    font-size: 20px;
+    font-weight: 400;
+    color: #1d4ed8;
+    margin: 0 0 6px;
+    cursor: default;
+}
+
+.pform-google-title:hover {
+    text-decoration: underline;
+}
+
+.pform-google-desc {
+    font-size: 14px;
+    color: #374151;
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* ── SEO analysis ── */
+.pform-seo-analysis {
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-top: 16px;
+}
+
+.pform-seo-analysis-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #111827;
+    margin: 0 0 12px;
+}
+
+.pform-seo-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: #374151;
+    margin-bottom: 8px;
+}
+
+.pform-seo-item:last-child {
+    margin-bottom: 0;
+}
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+    .pform-grid-3 { grid-template-columns: 1fr 1fr; }
+    .pform-avail-row { grid-template-columns: 1fr; }
+    .pform-profit-grid { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 640px) {
+    .pform-page-header { padding: 16px 16px 0; }
+    .pform-content-area { padding: 16px; }
+    .pform-panel { padding: 20px; }
+    .pform-grid-3,
+    .pform-grid-2 { grid-template-columns: 1fr; }
+    .pform-btn.outline:not(#pformBtnPublish) { display: none; }
+    .pform-seo-content { padding: 16px; }
+    .pform-seo-header { padding: 16px; }
+    .pform-spec-row { grid-template-columns: 1fr; }
+}

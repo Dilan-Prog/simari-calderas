@@ -1,7 +1,7 @@
 @extends('frontend.layouts.master')
 
 @section('title')
-Industria Simari Terminos y Condiciones
+Equiterm Industries Terminos y Condiciones
 @endsection
 
 @section('content')
@@ -27,7 +27,7 @@ Industria Simari Terminos y Condiciones
             <h1 class="simari-hero__title">Términos y Condiciones</h1>
 
             <p class="presentation-subcontent-title simari-hero__subtitle">
-                Condiciones generales de uso del sitio web y contratación de servicios de SIMARI Calderas
+                Condiciones generales de uso del sitio web y contratación de servicios de Equiterm Industries
             </p>
 
             <p class="presentation-subcontent-date simari-hero__date">
@@ -57,7 +57,7 @@ Industria Simari Terminos y Condiciones
           <div class="simari-terms-card__content">
             <h2 class="simari-privacy-card__title simari-terms-card__title">Aceptación de los Términos</h2>
             <div class="simari-privacy-card__text">
-              <p>Al acceder y utilizar el sitio web de SIMARI Calderas S.A. de C.V. (en adelante "SIMARI" o "el Sitio"), usted acepta estar legalmente obligado por estos Términos y Condiciones de Uso.</p>
+              <p>Al acceder y utilizar el sitio web de Equiterm Industries S.A. de C.V. (en adelante "SIMARI" o "el Sitio"), usted acepta estar legalmente obligado por estos Términos y Condiciones de Uso.</p>
               <p>Si no está de acuerdo con estos términos, le solicitamos que no utilice nuestro sitio web ni nuestros servicios.</p>
               <p>SIMARI se reserva el derecho de modificar estos términos en cualquier momento. Es responsabilidad del usuario revisar periódicamente esta página para estar al tanto de cualquier cambio.</p>
             </div>
@@ -332,7 +332,7 @@ Industria Simari Terminos y Condiciones
       </p>
 
       <div class="simari-cta__footer">
-        © 2026 SIMARI Calderas S.A. de C.V. - Todos los derechos reservados
+        © 2026 Equiterm Industries S.A. de C.V. - Todos los derechos reservados
       </div>
     </div>
   </div>

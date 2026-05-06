@@ -1,33 +1,51 @@
 <?php
 
+use App\Http\Controllers\Admin\GoogleAdsController;
 use App\Http\Controllers\Backend\AdminController;
 use App\Http\Controllers\Backend\ClientManageController;
+use App\Http\Controllers\Backend\ProductController;
 use App\Http\Controllers\Backend\UserManageController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Backend\SupplierManageController;
+
 
 Route::get('/', [AdminController::class, 'dashboard'])->name('dashboard');
+
 Route::controller(UserManageController::class)->group(function () {
     Route::get('/usuarios', 'index')->name('users.index');
-    Route::post('/crear-usuarios', action: 'store')->name('users.store');
-    Route::put('/editar-usuarios/{id}', 'update')->name('users.update');
+    Route::get('/usuarios/mostrar-usuario/{id}', 'show')->name('users.show');
+    Route::post('/usuarios/crear-usuario', action: 'store')->name('users.store');
+    Route::put('/usuarios/editar-usuario/{id}', 'update')->name('users.update');
+    Route::delete('/usuarios/eliminar-usuario/{id}', 'destroy')->name('users.destroy');
 });
 
 Route::controller(ClientManageController::class)->group(function () {
     Route::get('/clientes', 'index')->name('clients.index');
+    Route::post('/clientes/crear-usuario/', action: 'store')->name('clients.store');
+    Route::get('/clientes/editar-cliente/{id}', 'edit')->name('clients.edit');
+    Route::put('/clientes/editar-cliente/{id}', 'update')->name('clients.update');
+    Route::delete('/clientes/eliminar-cliente/{id}', 'destroy')->name('clients.destroy');
+    Route::get('/clientes/informacion/{id}', 'information')->name('clients.information');
 });
 
-// // Partial de Usuarios — devuelve solo el HTML del contenido (para fetch desde el dashboard)
-// Route::get('/usuarios-partial', function () {
-//     $roles = \App\Models\Role::all();
-//     return view('admin.users.partial', compact('roles'));
-// })->name('admin.users.partial');
-// // Vista completa de Usuarios (con layout propio)
-// Route::get('/admin/usuarios', [UserManageController::class, 'index'])->name('admin.users.index');
+Route::controller(SupplierManageController::class)->group(function () {
+    Route::get('/proveedores', 'index')->name('suppliers.index');
+    Route::get('/proveedores/mostrar-proveedor/{id}', 'show')->name('suppliers.show');
+    Route::post('/proveedores/crear-proveedor', 'store')->name('suppliers.store');
+    Route::get('/proveedores/editar-proveedor/{id}', 'edit')->name('suppliers.edit');
+    Route::put('/proveedores/editar-proveedor/{id}', 'update')->name('suppliers.update');
+    Route::delete('/proveedores/eliminar-proveedor/{id}', 'destroy')->name('suppliers.destroy');
+});
 
-// // Crear usuario
-// Route::post('/admin/usuarios', [UserManageController::class, 'store'])->name('admin.users.store');
+Route::controller(ProductController::class)->group(function () {
+    Route::get('/productos', 'index')->name('products.index');
+    Route::get('/productos/crear-producto', 'create')->name('products.create');
+});
 
-// Route::controller(AdminController::class)->group(function () {
-//     Route::get('/gestion-usuarios', 'index')->name('users.index');
-//     Route::post('/gestion-usuarios/crear',  'store')->name('users.store');
-// });
+Route::controller(GoogleAdsController::class)->prefix('google-ads')->name('google-ads.')->group(function () {
+    Route::get('/', 'index')->name('index');
+    Route::get('/datatable', 'datatable')->name('datatable');
+    Route::get('/{id}', 'show')->name('show');
+});
+
+

@@ -1,7 +1,7 @@
 /*
  * login.css — Estilos compartidos para todas las vistas de inicio de sesión
  * (admin, usuario, empleado, etc.)
- * Paleta: fondo #141516 | bordes #2E3A46 | acento #0054ff | texto blanco / #9ca3af
+ * Paleta: fondo #141516 | bordes #2E3A46 | acento #ff6213 | texto blanco / #9ca3af
  */
 
 *, *::before, *::after {
@@ -131,7 +131,7 @@
 }
 
 .login-input:focus {
-    border-color: #0054ff;
+    border-color: #ff6213;
     box-shadow: 0 0 0 3px rgba(0, 84, 255, 0.18);
 }
 
@@ -161,7 +161,7 @@
 }
 
 .login-forgot-link {
-    color: #0054ff;
+    color: #ff6213;
     font-size: 12px;
     text-decoration: none;
     transition: color 0.2s;
@@ -183,7 +183,7 @@
 .login-remember input[type="checkbox"] {
     width: 16px;
     height: 16px;
-    accent-color: #0054ff;
+    accent-color: #ff6213;
     cursor: pointer;
     border-radius: 4px;
 }
@@ -199,7 +199,7 @@
 .login-btn {
     display: block;
     width: 100%;
-    background-color: #0054ff;
+    background-color: #ff6213;
     border: none;
     border-radius: 10px;
     color: #ffffff;
@@ -214,7 +214,7 @@
 }
 
 .login-btn:hover {
-    background-color: #0043cc;
+    background-color: #de4a00;
     box-shadow: 0 6px 20px rgba(0, 84, 255, 0.35);
 }
 
@@ -250,7 +250,7 @@
 }
 
 .login-footer-text a {
-    color: #0054ff;
+    color: #ff6213;
     text-decoration: none;
     font-weight: 500;
 }
