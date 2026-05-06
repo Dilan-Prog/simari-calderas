@@ -352,6 +352,7 @@
     border-radius: 99px;
     max-width: 300px;
     margin-bottom: 20px;
+    user-select: none;
 }
 
 .supliers-manager-slider-handle {
@@ -1263,16 +1264,23 @@
     padding-right: 20px;
 
 }
-.supplier-stars {
-    color: #f59e0b;
-    font-size: 1rem;
-    letter-spacing: 2px;
-}
 .grid-supplier-header{
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 16px;
     margin: 24px 0;
+}
+
+.supplier-stars-svg {
+    font-size: 1.2rem;
+    letter-spacing: 1px;
+}
+
+.star-filled {
+    color: #f59e0b;
+}
+.star-empty {
+    color: #d1d5db;
 }
 
 .grid-suppliers{
@@ -1285,3 +1293,22 @@
     display: block;
 }
 
+
+/* Suppliers show */
+.show-information-supplier{
+    background: var(--bg-light);
+}
+.supplier-header-show{
+    display: flex;
+    justify-content: space-between;
+    margin: 16px 0;
+}
+
+.supplier-avatar{
+    border-radius: 12px;
+    background:var(--button-primary-color);
+}
+
+.supplier-tabs{
+    background-color: var(--bg-light);
+}

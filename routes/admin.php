@@ -34,6 +34,7 @@ Route::controller(SupplierManageController::class)->group(function () {
     Route::get('/proveedores/editar-proveedor/{id}', 'edit')->name('suppliers.edit');
     Route::put('/proveedores/editar-proveedor/{id}', 'update')->name('suppliers.update');
     Route::delete('/proveedores/eliminar-proveedor/{id}', 'destroy')->name('suppliers.destroy');
+    Route::get('/proveedores/informacion/{id}', 'information')->name('suppliers.information');
 });
 
 Route::controller(ProductController::class)->group(function () {

@@ -24,6 +24,15 @@ class SupplierManageController extends Controller
         return response()->json($supplier);
     }
 
+    public function information(string $id){
+        $supplier = Supplier::with(['products'=>function($query){
+            $query->select('products.id', 'products.name', 'products.sku')
+            ->withPivot('cost', 'lead_time_days', 'is_primary');
+        }
+        ])->findOrFail($id);
+        return view('admin.supplier.partials._modal_show', compact('supplier'));
+    }
+
     public function store(Request $request)
     {
         $request->validate([
