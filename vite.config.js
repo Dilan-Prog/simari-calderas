@@ -10,6 +10,8 @@ export default defineConfig({
                 'resources/css/admin/app.css',
                 'resources/js/admin/sidebar.js',
                 'resources/js/admin/google-ads.js',
+                'resources/css/admin-quotes.css',
+                'resources/js/admin-quotes.js',
             ],
             refresh: true,
         }),

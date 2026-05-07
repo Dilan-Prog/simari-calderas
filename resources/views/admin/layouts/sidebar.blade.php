@@ -6,7 +6,13 @@
                 loading="lazy"
                 onerror="this.style.display='none'">
     </div>
-    @php    
+    <style>
+        /* Temporal: deshabilitar enlaces visualmente sin tocar lógica
+           Quitar estas líneas cuando se re-habiliten los módulos. */
+        .sidebar-nav-item.disabled { pointer-events: none; opacity: 0.6; cursor: default; }
+        .sidebar-nav-item.disabled .sidebar-nav-item-label { cursor: default; color: inherit; }
+    </style>
+    @php
         $activeSection = match(true) {
             request()->routeIs('admin.dashboard')    => 'dashboard',
             request()->routeIs('admin.users.*')      => 'usuarios',
@@ -14,6 +20,7 @@
             request()->routeIs('admin.suppliers.*')  => 'proveedores',
             request()->routeIs('admin.products.*')   => 'productos',
             request()->routeIs('admin.google-ads.*') => 'google-ads',
+            request()->routeIs('admin.quotes.*')     => 'cotizaciones',
             default                                  => '',
         };
     @endphp
@@ -91,7 +98,7 @@
         </a>
 
 
-        <a class="sidebar-nav-item" data-section="coming-soon" data-label="Categorías">
+        <a class="sidebar-nav-item disabled" data-section="coming-soon" data-label="Categorías" aria-disabled="true" tabindex="-1">
             <div class="sidebar-nav-item-left">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                         fill="none" stroke="currentColor" stroke-width="2"
@@ -103,7 +110,19 @@
                 <span class="sidebar-nav-item-label">Categorías</span>
             </div>
         </a>
-        <a class="sidebar-nav-item" data-section="coming-soon" data-label="Órdenes">
+        <a class="sidebar-nav-item {{ $activeSection === 'cotizaciones' ? 'active' : '' }}" href="{{ route('admin.quotes.index') }}" data-section="cotizaciones" data-label="Cotizaciones">
+            <div class="sidebar-nav-item-left">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/>
+                    <path d="M14 2v6h6"/>
+                    <path d="M8 13h8"/><path d="M8 17h5"/>
+                </svg>
+                <span class="sidebar-nav-item-label">Cotizaciones</span>
+            </div>
+        </a>
+        <a class="sidebar-nav-item disabled" data-section="coming-soon" data-label="Órdenes">
             <div class="sidebar-nav-item-left">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                         fill="none" stroke="currentColor" stroke-width="2"
@@ -116,7 +135,7 @@
         </a>
 
 
-        <a class="sidebar-nav-item" data-section="coming-soon" data-label="Servicios Técnicos">
+        <a class="sidebar-nav-item disabled" data-section="coming-soon" data-label="Servicios Técnicos">
             <div class="sidebar-nav-item-left">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                         fill="none" stroke="currentColor" stroke-width="2"
@@ -128,7 +147,7 @@
         </a>
 
 
-        <a class="sidebar-nav-item" data-section="coming-soon" data-label="Inventario">
+        <a class="sidebar-nav-item disabled" data-section="coming-soon" data-label="Inventario">
             <div class="sidebar-nav-item-left">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                         fill="none" stroke="currentColor" stroke-width="2"
@@ -140,7 +159,7 @@
                 <span class="sidebar-nav-item-label">Inventario</span>
             </div>
         </a>
-        <a class="sidebar-nav-item" data-section="coming-soon" data-label="Envíos">
+        <a class="sidebar-nav-item disabled" data-section="coming-soon" data-label="Envíos">
             <div class="sidebar-nav-item-left">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                         fill="none" stroke="currentColor" stroke-width="2"
@@ -155,7 +174,7 @@
         </a>
 
 
-        <a class="sidebar-nav-item" data-section="coming-soon" data-label="Paqueterías">
+        <a class="sidebar-nav-item disabled" data-section="coming-soon" data-label="Paqueterías">
             <div class="sidebar-nav-item-left">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                         fill="none" stroke="currentColor" stroke-width="2"
@@ -169,7 +188,7 @@
         </a>
 
 
-        <a class="sidebar-nav-item" data-section="coming-soon" data-label="Métodos de Pago">
+        <a class="sidebar-nav-item disabled" data-section="coming-soon" data-label="Métodos de Pago">
             <div class="sidebar-nav-item-left">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                         fill="none" stroke="currentColor" stroke-width="2"
@@ -197,7 +216,7 @@
             </div>
         </a>
 
-        <a class="sidebar-nav-item" data-section="coming-soon" data-label="Email Marketing">
+        <a class="sidebar-nav-item disabled" data-section="coming-soon" data-label="Email Marketing">
             <div class="sidebar-nav-item-left">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                         fill="none" stroke="currentColor" stroke-width="2"
@@ -210,7 +229,7 @@
         </a>
 
 
-        <a class="sidebar-nav-item" data-section="coming-soon" data-label="Analíticas">
+        <a class="sidebar-nav-item disabled" data-section="coming-soon" data-label="Analíticas">
             <div class="sidebar-nav-item-left">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                         fill="none" stroke="currentColor" stroke-width="2"
@@ -223,7 +242,7 @@
         </a>
 
 
-        <a class="sidebar-nav-item" data-section="coming-soon" data-label="Auditoría Sistema">
+        <a class="sidebar-nav-item disabled" data-section="coming-soon" data-label="Auditoría Sistema">
             <div class="sidebar-nav-item-left">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                         fill="none" stroke="currentColor" stroke-width="2"
@@ -233,7 +252,7 @@
                 <span class="sidebar-nav-item-label">Auditoría Sistema</span>
             </div>
         </a>
-        <a class="sidebar-nav-item" data-section="coming-soon" data-label="Blog">
+        <a class="sidebar-nav-item disabled" data-section="coming-soon" data-label="Blog">
             <div class="sidebar-nav-item-left">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                         fill="none" stroke="currentColor" stroke-width="2"
@@ -245,7 +264,7 @@
                 <span class="sidebar-nav-item-label">Blog</span>
             </div>
         </a>
-        <a class="sidebar-nav-item" data-section="coming-soon" data-label="Menú">
+        <a class="sidebar-nav-item disabled" data-section="coming-soon" data-label="Menú">
             <div class="sidebar-nav-item-left">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                         fill="none" stroke="currentColor" stroke-width="2"
@@ -259,7 +278,7 @@
         </a>
 
 
-        <a class="sidebar-nav-item" data-section="coming-soon" data-label="SEO Global">
+        <a class="sidebar-nav-item disabled" data-section="coming-soon" data-label="SEO Global">
             <div class="sidebar-nav-item-left">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                         fill="none" stroke="currentColor" stroke-width="2"
@@ -272,7 +291,7 @@
             </div>
         </a>
 
-        <a class="sidebar-nav-item" data-section="coming-soon" data-label="WhatsApp">
+        <a class="sidebar-nav-item disabled" data-section="coming-soon" data-label="WhatsApp">
             <div class="sidebar-nav-item-left">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                         fill="none" stroke="currentColor" stroke-width="2"
@@ -284,7 +303,7 @@
         </a>
 
 
-        <button class="sidebar-nav-item" data-section="coming-soon" data-label="Configuración">
+        <button class="sidebar-nav-item disabled" data-section="coming-soon" data-label="Configuración">
             <div class="sidebar-nav-item-left">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                         fill="none" stroke="currentColor" stroke-width="2"

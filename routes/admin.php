@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\GoogleAdsController;
 use App\Http\Controllers\Backend\AdminController;
 use App\Http\Controllers\Backend\ClientManageController;
 use App\Http\Controllers\Backend\ProductController;
+use App\Http\Controllers\Backend\QuoteController;
 use App\Http\Controllers\Backend\UserManageController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Backend\SupplierManageController;
@@ -40,6 +41,20 @@ Route::controller(SupplierManageController::class)->group(function () {
 Route::controller(ProductController::class)->group(function () {
     Route::get('/productos', 'index')->name('products.index');
     Route::get('/productos/crear-producto', 'create')->name('products.create');
+});
+
+Route::controller(QuoteController::class)->prefix('cotizaciones')->name('quotes.')->group(function () {
+    Route::get('/', 'index')->name('index');
+    Route::get('/crear', 'create')->name('create');
+    Route::post('/', 'store')->name('store');
+    Route::get('/buscar-productos', 'searchProducts')->name('search-products');
+    Route::get('/{quote}', 'show')->name('show');
+    Route::get('/{quote}/editar', 'edit')->name('edit');
+    Route::put('/{quote}', 'update')->name('update');
+    Route::delete('/{quote}', 'destroy')->name('destroy');
+    Route::get('/{quote}/pdf', 'downloadPdf')->name('pdf');
+    Route::post('/{quote}/enviar-correo', 'sendEmail')->name('send-email');
+    Route::patch('/{quote}/estado', 'updateStatus')->name('update-status');
 });
 
 Route::controller(GoogleAdsController::class)->prefix('google-ads')->name('google-ads.')->group(function () {

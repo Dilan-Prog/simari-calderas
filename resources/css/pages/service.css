@@ -2532,3 +2532,535 @@ details[open] .accordion__icon-box {
         justify-content: center;
     }
 }
+
+
+/* =========================================
+   BOILER SERVICES — hero trust grid
+========================================= */
+.hero-trust-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-top: 32px;
+    max-width: 600px;
+}
+
+.hero-trust-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.875rem;
+    color: var(--text-subwhite-color);
+    font-family: var(--font-family);
+}
+
+.hero-trust-item > span:first-child {
+    flex-shrink: 0;
+    font-size: 1rem;
+    color: var(--secondary-color);
+    width: 20px;
+    text-align: center;
+    line-height: 1;
+}
+
+.hero-trust-text {
+    line-height: 1.4;
+}
+
+
+/* =========================================
+   BOILER SERVICES — stat strip
+========================================= */
+.bs-stat-strip {
+    background: var(--secondary-color);
+    font-family: var(--font-family);
+}
+
+.bs-stat-strip__inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 28px 200px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0;
+    text-align: center;
+}
+
+.bs-stat-strip__item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 0 20px;
+    border-right: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.bs-stat-strip__item:last-child {
+    border-right: none;
+}
+
+.bs-stat-strip__number {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--text-white-color);
+    line-height: 1;
+    font-family: var(--font-family);
+    font-variant-numeric: tabular-nums;
+}
+
+.bs-stat-strip__label {
+    font-size: 0.8125rem;
+    color: rgba(255, 255, 255, 0.85);
+    font-weight: 400;
+    line-height: 1.3;
+}
+
+
+/* =========================================
+   BOILER SERVICES — boiler types table
+========================================= */
+.bs-table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin: 32px 0 0;
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-md, 0 10px 20px rgba(0, 0, 0, 0.1));
+}
+
+.bs-boiler-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--font-family);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+}
+
+.bs-boiler-table thead tr {
+    background: var(--header-footer-color);
+}
+
+.bs-boiler-table thead th {
+    padding: 16px 20px;
+    color: var(--text-white-color);
+    font-weight: 700;
+    font-size: 0.875rem;
+    text-align: left;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+}
+
+.bs-boiler-table tbody tr {
+    background: var(--background--white);
+    border-bottom: 1px solid var(--border-color);
+    transition: background-color 0.15s ease;
+}
+
+.bs-boiler-table tbody tr:hover {
+    background: var(--bg-light);
+}
+
+.bs-boiler-table tbody tr:last-child {
+    border-bottom: none;
+}
+
+.bs-boiler-table td {
+    padding: 14px 20px;
+    font-size: 0.9375rem;
+    color: var(--text-body);
+    line-height: 1.5;
+    vertical-align: top;
+}
+
+.bs-boiler-table td:first-child {
+    font-weight: 600;
+    color: var(--header-footer-color);
+    white-space: nowrap;
+}
+
+.bs-table-note {
+    margin-top: 14px;
+    font-size: 0.8125rem;
+    color: var(--text-description-color);
+    font-style: italic;
+    text-align: center;
+    font-family: var(--font-family);
+}
+
+
+/* =========================================
+   BOILER SERVICES — frequency table
+========================================= */
+.bs-frequency-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--font-family);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+}
+
+.bs-frequency-table thead tr {
+    background: var(--section-example);
+}
+
+.bs-frequency-table thead th {
+    padding: 14px 20px;
+    color: var(--text-white-color);
+    font-weight: 700;
+    font-size: 0.875rem;
+    text-align: left;
+    white-space: nowrap;
+}
+
+.bs-frequency-table tbody tr {
+    background: var(--background--white);
+    border-bottom: 1px solid var(--border-color);
+    transition: background-color 0.15s ease;
+}
+
+.bs-frequency-table tbody tr:hover {
+    background: var(--bg-light);
+}
+
+.bs-frequency-table tbody tr:last-child {
+    border-bottom: none;
+}
+
+.bs-frequency-table td {
+    padding: 12px 20px;
+    font-size: 0.875rem;
+    color: var(--text-body);
+    line-height: 1.5;
+    vertical-align: middle;
+}
+
+.bs-frequency-table td:first-child {
+    font-weight: 600;
+    color: var(--header-footer-color);
+}
+
+.bs-frequency-table td:nth-child(2) {
+    color: var(--secondary-color);
+    font-weight: 500;
+}
+
+.bs-frequency-table td:last-child {
+    color: var(--text-description-color);
+    font-weight: 500;
+    font-size: 0.75rem;
+}
+
+
+/* =========================================
+   BOILER SERVICES — industry list
+========================================= */
+.bs-industry-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin-top: 32px;
+    list-style: none;
+    padding: 0;
+}
+
+.bs-industry-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 20px 24px;
+    background: var(--bg-light);
+    border-radius: var(--radius-sm);
+    border-left: 4px solid var(--secondary-color);
+    transition: all 0.2s ease;
+}
+
+.bs-industry-item:hover {
+    background: var(--background--white);
+    box-shadow: var(--shadow-md, 0 10px 20px rgba(0, 0, 0, 0.1));
+    transform: translateY(-2px);
+}
+
+.bs-industry-icon {
+    font-size: 1.375rem;
+    flex-shrink: 0;
+    line-height: 1;
+    margin-top: 2px;
+}
+
+.bs-industry-name {
+    font-size: 0.9375rem;
+    font-weight: 700;
+    color: var(--header-footer-color);
+    margin: 0 0 3px;
+    line-height: 1.3;
+    font-family: var(--font-family);
+}
+
+.bs-industry-desc {
+    font-size: 0.8125rem;
+    color: var(--text-description-color);
+    margin: 0;
+    line-height: 1.5;
+    font-family: var(--font-family);
+}
+
+.bs-internal-link {
+    display: inline-block;
+    margin-top: 24px;
+    font-size: 0.875rem;
+    color: var(--secondary-color);
+    text-decoration: none;
+    font-weight: 500;
+    font-family: var(--font-family);
+    transition: color 0.15s ease;
+}
+
+.bs-internal-link:hover {
+    color: var(--button-primary-color-hover);
+    text-decoration: underline;
+}
+
+
+/* =========================================
+   BOILER SERVICES — FAQ (native <details>)
+========================================= */
+.faq-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-width: 860px;
+    margin: 40px auto 0;
+}
+
+.faq-item {
+    background: var(--background--white);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-md, 0 10px 20px rgba(0, 0, 0, 0.1));
+    overflow: hidden;
+    transition: box-shadow 0.2s ease;
+}
+
+.faq-item:hover {
+    box-shadow: var(--shadow-default);
+}
+
+.faq-item[open] {
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 0 2px rgba(255, 98, 19, 0.12);
+}
+
+.faq-summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 20px 24px;
+    cursor: pointer;
+    font-size: 1.0625rem;
+    font-weight: 600;
+    color: var(--header-footer-color);
+    list-style: none;
+    font-family: var(--font-family);
+    transition: background-color 0.15s ease;
+    user-select: none;
+}
+
+.faq-summary::-webkit-details-marker {
+    display: none;
+}
+
+.faq-summary::marker {
+    display: none;
+    content: '';
+}
+
+.faq-summary::after {
+    content: '›';
+    font-size: 1.375rem;
+    font-weight: 300;
+    color: var(--secondary-color);
+    flex-shrink: 0;
+    transition: transform 0.25s ease;
+    line-height: 1;
+}
+
+.faq-item[open] .faq-summary::after {
+    transform: rotate(90deg);
+}
+
+.faq-summary:hover {
+    background: var(--bg-light);
+}
+
+.faq-body {
+    padding: 0 24px 24px;
+    font-family: var(--font-family);
+}
+
+.faq-body p {
+    font-size: 0.9375rem;
+    line-height: 1.7;
+    color: var(--text-body);
+    margin: 0;
+}
+
+
+/* =========================================
+   BOILER SERVICES — breadcrumb nav
+========================================= */
+.breadcrumb-nav {
+    background: var(--bg-light);
+    border-bottom: 1px solid var(--border-color);
+    padding: 12px 200px;
+    font-family: var(--font-family);
+}
+
+.breadcrumb-list {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    flex-wrap: wrap;
+}
+
+.breadcrumb-item {
+    display: flex;
+    align-items: center;
+}
+
+.breadcrumb-link {
+    font-size: 0.8125rem;
+    color: var(--text-description-color);
+    text-decoration: none;
+    transition: color 0.15s ease;
+}
+
+.breadcrumb-link:hover {
+    color: var(--secondary-color);
+}
+
+.breadcrumb-separator {
+    font-size: 0.875rem;
+    color: var(--border-color);
+    user-select: none;
+    line-height: 1;
+}
+
+.breadcrumb-current {
+    font-size: 0.8125rem;
+    color: var(--secondary-color);
+    font-weight: 600;
+}
+
+
+/* =========================================
+   BOILER SERVICES — step number override
+========================================= */
+.bs-step-number {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    border-radius: 50%;
+    background: var(--secondary-color);
+    color: var(--text-white-color);
+    font-size: 1.125rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 4px 12px rgba(255, 98, 19, 0.3);
+}
+
+
+/* =========================================
+   BOILER SERVICES — includes grid override (2×2)
+========================================= */
+.boiler-includes .includes-grid {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+
+/* =========================================
+   BOILER SERVICES — responsive
+========================================= */
+@media (max-width: 1200px) {
+    .bs-stat-strip__inner {
+        padding: 24px 100px;
+    }
+
+    .breadcrumb-nav {
+        padding: 12px 100px;
+    }
+}
+
+@media (max-width: 992px) {
+    .bs-stat-strip__inner {
+        padding: 24px 48px;
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .bs-stat-strip__item:nth-child(2) {
+        border-right: none;
+    }
+
+    .bs-industry-list {
+        grid-template-columns: 1fr;
+    }
+
+    .breadcrumb-nav {
+        padding: 12px 48px;
+    }
+
+    .boiler-includes .includes-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .hero-trust-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .bs-stat-strip__inner {
+        padding: 20px 24px;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+    }
+
+    .bs-stat-strip__item {
+        border-right: none;
+        padding: 0;
+    }
+
+    .bs-table-wrap {
+        border-radius: 0;
+    }
+
+    .bs-boiler-table,
+    .bs-frequency-table {
+        display: block;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        min-width: 0;
+    }
+
+    .bs-industry-list {
+        grid-template-columns: 1fr;
+    }
+
+    .faq-summary {
+        font-size: 0.9375rem;
+        padding: 16px 20px;
+    }
+
+    .faq-body {
+        padding: 0 20px 20px;
+    }
+
+    .breadcrumb-nav {
+        padding: 10px 24px;
+    }
+}

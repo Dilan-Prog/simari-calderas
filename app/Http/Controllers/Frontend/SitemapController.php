@@ -33,7 +33,7 @@ class SitemapController extends Controller
         $sitemap->add(Url::create('/servicios/mantenimiento-chillers')->setPriority(0.9)->setChangeFrequency('monthly')->setLastModificationDate($hoy));
         $sitemap->add(Url::create('/servicios/proyectos-industriales')->setPriority(0.9)->setChangeFrequency('monthly')->setLastModificationDate($hoy));
         $sitemap->add(Url::create('/servicios/desincrustacion-calderas')->setPriority(0.9)->setChangeFrequency('monthly')->setLastModificationDate($hoy));
-        $sitemap->add(Url::create('/servicios/reparacion-secadoras')->setPriority(0.9)->setChangeFrequency('monthly')->setLastModificationDate($hoy));
+        $sitemap->add(Url::create('/servicios/calderas/reparacion-secadoras')->setPriority(0.9)->setChangeFrequency('monthly')->setLastModificationDate($hoy));
 
         // Productos
         $sitemap->add(Url::create('/productos/calderas-simari')->setPriority(0.9)->setChangeFrequency('monthly')->setLastModificationDate($hoy));
