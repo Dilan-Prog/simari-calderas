@@ -1,12 +1,23 @@
 {
+  "resources/css/admin-quotes.css": {
+    "file": "assets/admin-quotes-BZdCqjlH.css",
+    "src": "resources/css/admin-quotes.css",
+    "isEntry": true
+  },
   "resources/css/admin/app.css": {
     "file": "assets/app-BUJxJeWl.css",
     "src": "resources/css/admin/app.css",
     "isEntry": true
   },
   "resources/css/app.css": {
-    "file": "assets/app-5MadWDOy.css",
+    "file": "assets/app-8S9pPGuA.css",
     "src": "resources/css/app.css",
+    "isEntry": true
+  },
+  "resources/js/admin-quotes.js": {
+    "file": "assets/admin-quotes-C5r3yJVs.js",
+    "name": "admin-quotes",
+    "src": "resources/js/admin-quotes.js",
     "isEntry": true
   },
   "resources/js/admin/google-ads.js": {
