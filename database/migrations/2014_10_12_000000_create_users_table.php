@@ -25,7 +25,7 @@ return new class extends Migration
     /**
      * Reverse the migrations.
      */
-    make:model InventoryLog
+    
     public function down(): void
     {
         Schema::dropIfExists('users');
