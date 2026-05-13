@@ -39,9 +39,7 @@
                         </svg>
                         SEO del Producto
                     </button>
-                    <button class="pform-btn outline" id="pformBtnDraft" type="button"
-                        onclick="document.getElementById('productCreateForm').querySelector('[name=is_active]').value=0;
-                        document.getElementById('productCreateForm').submit();">
+                    <button class="pform-btn outline" id="pformBtnDraft" type="button">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                             stroke-linejoin="round">
@@ -52,9 +50,7 @@
                         </svg>
                         Guardar Borrador
                     </button>
-                    <button class="pform-btn primary" id="pformBtnPublish" type="button"
-                        onclick="document.getElementById('productCreateForm').querySelector('[name=is_active]').value=1;
-                        document.getElementById('productCreateForm').submit();">
+                    <button class="pform-btn primary" id="pformBtnPublish" type="button">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                             stroke-linejoin="round">
@@ -222,7 +218,7 @@
                             </ul>
                         </div>
                     </div>
-                    
+
                     {{-- Panel 1: Imágenes --}}
                     <div class="pform-tab-panel" id="pformPanel1" role="tabpanel">
 
@@ -392,8 +388,8 @@
                                     <div class="pform-field">
                                         <label class="pform-label">Inventario Disponible <span
                                                 class="pform-required">*</span></label>
-                                        <input type="number" class="pform-input" placeholder="0" min="0"
-                                            required>
+                                        <input type="number" class="pform-input" name="stock" placeholder="0"
+                                            min="0" required>
                                     </div>
                                     <div class="pform-field">
                                         <label class="pform-label">Unidad de Medida</label>
@@ -411,6 +407,7 @@
 
                                 <div class="pform-field" style="margin-bottom:0">
                                     <label class="pform-label">Estado de Disponibilidad</label>
+                                    <input type="hidden" name="availability" id="pformAvailability" value="available">
                                     <div class="pform-avail-row">
                                         <button type="button" class="pform-avail-btn active">
                                             <div class="pform-avail-btn-title">Disponible</div>
@@ -850,11 +847,8 @@
                                 </ul>
                             </div>
                         </div>
-
                     </div>
-
                 </div>
-
             </form>
         </div>
         {{-- ── SEO Modal overlay ── --}}
@@ -900,7 +894,7 @@
                             <label class="pform-label" for="pformSeoTitle">Título SEO <span
                                     class="pform-required">*</span></label>
                             <input type="text" id="pformSeoTitle" class="pform-input" name="seo_title"
-                                placeholder="Bomba de Calor Rinnai 20HP" maxlength="60">
+                                form="productCreateForm" placeholder="Bomba de Calor Rinnai 20HP" maxlength="60">
                             <div class="pform-char-row">
                                 <span class="pform-hint" style="margin:0">Óptimo: 30-60 caracteres</span>
                                 <span class="pform-char-count" id="pformSeoTitleCount">0/60</span>
@@ -911,7 +905,7 @@
                             <label class="pform-label" for="pformSeoSlug">URL Slug</label>
                             <div class="pform-tag-row">
                                 <input type="text" id="pformSeoSlug" class="pform-input" name="slug"
-                                    placeholder="producto-ejemplo">
+                                    form="productCreateForm" placeholder="producto-ejemplo">
                                 <button type="button" id="pformSeoAutoSlug" class="pform-btn outline">Generar
                                     Auto</button>
                             </div>
@@ -923,7 +917,7 @@
                             <label class="pform-label" for="pformSeoMeta">Meta Description <span
                                     class="pform-required">*</span></label>
                             <textarea id="pformSeoMeta" class="pform-textarea" rows="3" maxlength="160" name = "seo_description"
-                                placeholder="Descripción breve que aparecerá en los resultados de búsqueda de Google"></textarea>
+                                form="productCreateForm" placeholder="Descripción breve que aparecerá en los resultados de búsqueda de Google"></textarea>
                             <div class="pform-char-row">
                                 <span class="pform-hint" style="margin:0">Óptimo: 120-160 caracteres</span>
                                 <span class="pform-char-count" id="pformSeoMetaCount">0/160</span>

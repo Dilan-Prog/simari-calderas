@@ -53,15 +53,27 @@
             btnGrid.addEventListener('click', () => setView('grid'));
             btnList.addEventListener('click', () => setView('list'));
 
-            // Delete confirmation — intercepta el submit del form
-            document.querySelectorAll('.prod-action-btn.delete').forEach(btn => {
-                btn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const name = this.dataset.productName || 'este producto';
-                    if (confirm(`¿Eliminar "${name}"? Esta acción no se puede deshacer.`)) {
-                        this.closest('form').submit();
-                    }
+            // Delete modal
+            const deleteProductModal = document.getElementById('deleteProductModal');
+            const deleteProductForm = document.getElementById('deleteProductForm');
+            const delProductCancelBtn = document.getElementById('delProductConfirmCancel');
+            const deleteProductUrl = '{{ url('/admin/productos/eliminar') }}';
+
+            document.querySelectorAll('.btn-delete-product').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.getElementById('delProductConfirmName').textContent = btn.dataset.name;
+                    document.getElementById('delProductConfirmSku').textContent = btn.dataset.sku;
+                    document.getElementById('delProductConfirmAvatar').textContent =
+                        btn.dataset.name.charAt(0).toUpperCase();
+                    deleteProductForm.action = deleteProductUrl + '/' + btn.dataset.id;
+                    deleteProductModal.classList.add('active');
                 });
+            });
+
+            delProductCancelBtn.addEventListener('click', () =>
+                deleteProductModal.classList.remove('active'));
+            deleteProductModal.addEventListener('click', (e) => {
+                if (e.target === deleteProductModal) deleteProductModal.classList.remove('active');
             });
         })();
     </script>

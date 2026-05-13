@@ -29,6 +29,7 @@ class ProductController extends Controller
 
         return view('admin.products.index', compact('products'));
     }
+
     public function create()
     {
         $categories = Category::where('is_active', true)
@@ -40,6 +41,7 @@ class ProductController extends Controller
 
         return view('admin.products.create_product.create', compact('categories', 'brands'));
     }
+
     public function store(Request $request)
     {
         $request->validate([
@@ -60,44 +62,67 @@ class ProductController extends Controller
             'slug'              => 'nullable|string|max:255|unique:products,slug',
             'is_active'         => 'nullable|boolean',
             'is_featured'       => 'nullable|boolean',
+            'availability'      => 'nullable|in:available,on_order,out_of_stock'
         ]);
 
         $product = new Products();
         $product->name              = $request->name;
         $product->sku               = $request->sku;
-        $product->slug              = $request->slug ? Str::slug($request->slug) : Str::slug($request->name);
+        $product->slug              = $request->slug
+            ? Str::slug($request->slug)
+            : Str::slug($request->name);
         $product->price             = $request->price;
-        $product->cost              = $request->cost              ?? 0;
-        $product->compare_price     = $request->compare_price     ?? null;
-        $product->stock             = $request->stock             ?? 0;
+        $product->cost              = $request->cost           ?? 0;
+        $product->compare_price     = $request->compare_price  ?? null;
+        $product->stock             = $request->stock          ?? 0;
         $product->short_description = $request->short_description ?? null;
-        $product->description       = $request->description       ?? null;
-        $product->weight            = $request->weight            ?? null;
-        $product->height            = $request->height            ?? null;
-        $product->width             = $request->width             ?? null;
-        $product->length            = $request->length            ?? null;
-        $product->seo_title         = $request->seo_title         ?? null;
-        $product->seo_description   = $request->seo_description   ?? null;
-        $product->category_id = $request->category_id ?? null;
-        $product->brand_id    = $request->brand_id    ?? null;
+        $product->description       = $request->description    ?? null;
+        $product->weight            = $request->weight         ?? null;
+        $product->height            = $request->height         ?? null;
+        $product->width             = $request->width          ?? null;
+        $product->length            = $request->length         ?? null;
+        $product->seo_title         = $request->seo_title      ?? null;
+        $product->seo_description   = $request->seo_description ?? null;
+        $product->category_id       = $request->category_id    ?? null;
+        $product->brand_id          = $request->brand_id       ?? null;
         $product->is_active         = $request->boolean('is_active',  true);
         $product->is_featured       = $request->boolean('is_featured', false);
+        $product->availability      = $request->availability ?? 'available';
+        // Save specifications
+        if ($request->filled('spec_key')) {
+            $specs = [];
+            foreach ($request->spec_key as $i => $key) {
+                if (!empty($key)) {
+                    $specs[] = [
+                        'key'   => $key,
+                        'value' => $request->spec_value[$i] ?? '',
+                    ];
+                }
+            }
+            $product->specifications = json_encode($specs);
+        }
+
         $product->save();
 
         return redirect()->route('admin.products.index')
             ->with('success', 'Producto creado correctamente.');
     }
-    public function edit($id)
+
+    public function edit(string $id)
     {
         $product = Products::with(['category', 'brand'])->findOrFail($id);
 
         $categories = Category::where('is_active', true)
             ->whereNull('parent_id')
+            ->with(['children' => fn($q) => $q->where('is_active', true)->select('id', 'name', 'parent_id')])
             ->get(['id', 'name']);
 
         $brands = Brand::where('is_active', true)->get(['id', 'name']);
 
-        return view('admin.products.edit_product.edit', compact('product', 'categories', 'brands'));
+        return view(
+            'admin.products.edit_product.edit',
+            compact('product', 'categories', 'brands')
+        );
     }
 
     public function update(Request $request, string $id)
@@ -122,27 +147,49 @@ class ProductController extends Controller
             'slug'              => 'nullable|string|max:255|unique:products,slug,' . $id,
             'is_active'         => 'nullable|boolean',
             'is_featured'       => 'nullable|boolean',
+            'availability'      => 'nullable|in:available,on_order,out_of_stock',
         ]);
 
         $product->name              = $request->name;
         $product->sku               = $request->sku;
-        $product->slug              = $request->slug ? Str::slug($request->slug) : Str::slug($request->name);
+        $product->slug              = $request->slug
+            ? Str::slug($request->slug)
+            : Str::slug($request->name);
         $product->price             = $request->price;
-        $product->cost              = $request->cost              ?? 0;
-        $product->compare_price     = $request->compare_price     ?? null;
-        $product->stock             = $request->stock             ?? 0;
+        $product->cost              = $request->cost           ?? 0;
+        $product->compare_price     = $request->compare_price  ?? null;
+        $product->stock             = $request->stock          ?? 0;
         $product->short_description = $request->short_description ?? null;
-        $product->description       = $request->description       ?? null;
-        $product->weight            = $request->weight            ?? null;
-        $product->height            = $request->height            ?? null;
-        $product->width             = $request->width             ?? null;
-        $product->length            = $request->length            ?? null;
-        $product->seo_title         = $request->seo_title         ?? null;
-        $product->category_id       = $request->category_id       ?? null;
-        $product->brand_id          = $request->brand_id          ?? null;
-        $product->seo_description   = $request->seo_description   ?? null;
+        $product->description       = $request->description    ?? null;
+        $product->weight            = $request->weight         ?? null;
+        $product->height            = $request->height         ?? null;
+        $product->width             = $request->width          ?? null;
+        $product->length            = $request->length         ?? null;
+        $product->seo_title         = $request->seo_title      ?? null;
+        $product->seo_description   = $request->seo_description ?? null;
+        $product->category_id       = $request->category_id    ?? null;
+        $product->brand_id          = $request->brand_id       ?? null;
         $product->is_active         = $request->boolean('is_active',  true);
         $product->is_featured       = $request->boolean('is_featured', false);
+        $product->availability      = $request->availability ?? 'available';
+
+        // Save specifications
+        if ($request->filled('spec_key')) {
+            $specs = [];
+            foreach ($request->spec_key as $i => $key) {
+                if (!empty($key)) {
+                    $specs[] = [
+                        'key'   => $key,
+                        'value' => $request->spec_value[$i] ?? '',
+                    ];
+                }
+            }
+            $product->specifications = json_encode($specs);
+        } else {
+            // Clear specs if all were deleted
+            $product->specifications = null;
+        }
+
         $product->save();
 
         return redirect()->route('admin.products.index')

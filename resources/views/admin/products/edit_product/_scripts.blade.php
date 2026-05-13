@@ -54,12 +54,7 @@
 
             // Pre-load existing description
             const existingDesc = document.getElementById('pformDescHidden').value;
-            if (existingDesc) quillInstance.root.innerHTML = existingDesc;
-
-            // Capture Quill content before submit
-            document.getElementById('productEditForm').addEventListener('submit', function() {
-                document.getElementById('pformDescHidden').value = quillInstance.root.innerHTML;
-            });
+            if (existingDesc) quillInstance.setText(existingDesc);
 
             /* ── Back button ── */
             document.getElementById('pformBackBtn').addEventListener('click', function() {
@@ -68,6 +63,7 @@
 
             /* ── Save draft ── */
             document.getElementById('pformBtnDraft').addEventListener('click', function() {
+                document.getElementById('pformDescHidden').value = quillInstance.getText().trim(); // ← agregar
                 document.getElementById('pformIsActive').value = 0;
                 const badge = document.getElementById('pformSavedBadge');
                 badge.style.color = '#16a34a';
@@ -80,6 +76,7 @@
 
             /* ── Publish ── */
             document.getElementById('pformBtnPublish').addEventListener('click', function() {
+                document.getElementById('pformDescHidden').value = quillInstance.getText().trim(); // ← agregar
                 document.getElementById('pformIsActive').value = 1;
                 const badge = document.getElementById('pformSavedBadge');
                 badge.style.color = '#ff6213';
@@ -177,8 +174,9 @@
                 const row = document.createElement('div');
                 row.className = 'pform-spec-row';
                 row.innerHTML =
-                    '<input type="text" class="pform-input" placeholder="Nombre del campo (ej: Potencia)">' +
-                    '<input type="text" class="pform-input" placeholder="Valor (ej: 20 HP)">' +
+                    row.innerHTML =
+                    '<input type="text" class="pform-input" name="spec_key[]" placeholder="Nombre del campo (ej: Potencia)">' +
+                    '<input type="text" class="pform-input" name="spec_value[]" placeholder="Valor (ej: 20 HP)">' +
                     '<button type="button" class="pform-spec-del" title="Eliminar">' +
                     '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
                     '<path d="M18 6 6 18"/><path d="m6 6 12 12"/>' +
@@ -195,6 +193,35 @@
 
                 specsList.appendChild(row);
             });
+
+            // Pre-load existing specs
+            const existingSpecs = {!! json_encode(json_decode($product->specifications ?? '[]')) !!};
+            if (existingSpecs.length > 0) {
+                specsEmpty.style.display = 'none';
+                specsList.style.display = 'flex';
+                existingSpecs.forEach(spec => {
+                    const row = document.createElement('div');
+                    row.className = 'pform-spec-row';
+                    row.innerHTML =
+                        '<input type="text" class="pform-input" name="spec_key[]" placeholder="Nombre del campo">' +
+                        '<input type="text" class="pform-input" name="spec_value[]" placeholder="Valor">' +
+                        '<button type="button" class="pform-spec-del" title="Eliminar">' +
+                        '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+                        '<path d="M18 6 6 18"/><path d="m6 6 12 12"/>' +
+                        '</svg>' +
+                        '</button>';
+                    row.querySelectorAll('input')[0].value = spec.key ?? '';
+                    row.querySelectorAll('input')[1].value = spec.value ?? '';
+                    row.querySelector('.pform-spec-del').addEventListener('click', function() {
+                        row.remove();
+                        if (specsList.children.length === 0) {
+                            specsList.style.display = 'none';
+                            specsEmpty.style.display = 'flex';
+                        }
+                    });
+                    specsList.appendChild(row);
+                });
+            }
 
             /* ── SEO modal ── */
             const seoModal = document.getElementById('pformSeoModal');

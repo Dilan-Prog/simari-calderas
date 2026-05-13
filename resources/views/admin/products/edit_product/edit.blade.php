@@ -132,15 +132,14 @@
         </div>
 
         {{-- ── Form wrapping all panels ── --}}
-        <form id="productEditForm" method="POST" action="{{ route('admin.products.update', $product->id) }}">
-            @csrf
-            @method('PUT')
-            <input type="hidden" name="is_active" id="pformIsActive" value="{{ $product->is_active ? 1 : 0 }}">
-            <input type="hidden" name="is_featured" id="pformIsFeatured" value="{{ $product->is_featured ? 1 : 0 }}">
-            <input type="hidden" name="description" id="pformDescHidden" value="{{ $product->description }}">
-
-            {{-- ── Scrollable content ── --}}
-            <div class="pform-content-area">
+        {{-- ── Scrollable content ── --}}
+        <div class="pform-content-area">
+            <form id="productEditForm" method="POST" action="{{ route('admin.products.update', $product->id) }}">
+                @csrf
+                @method('PUT')
+                <input type="hidden" name="is_active" id="pformIsActive" value="{{ $product->is_active ? 1 : 0 }}">
+                <input type="hidden" name="is_featured" id="pformIsFeatured"
+                    value="{{ $product->is_featured ? 1 : 0 }}">
                 <div class="pform-panel-wrap">
                     {{-- Panel 0: Información Básica --}}
                     <div class="pform-tab-panel active" id="pformPanel0" role="tabpanel">
@@ -701,9 +700,10 @@
                     </div>
 
                 </div>
-            </div>
+            </form>
+        </div>
 
-        </form>{{-- cierra productEditForm --}}
+        {{-- cierra productEditForm --}}
 
         {{-- ── SEO Modal — fuera del form principal ── --}}
         <div class="pform-seo-modal" id="pformSeoModal" style="display:none">

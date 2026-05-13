@@ -52,11 +52,6 @@
                 }
             });
 
-            // Capture Quill content before submit
-            document.getElementById('productCreateForm').addEventListener('submit', function() {
-                document.getElementById('pformDescHidden').value = quillInstance.root.innerHTML;
-            });
-
             /* ── Back button ── */
             document.getElementById('pformBackBtn').addEventListener('click', function() {
                 window.location.href = '/admin/productos';
@@ -64,22 +59,28 @@
 
             /* ── Save draft ── */
             document.getElementById('pformBtnDraft').addEventListener('click', function() {
+                document.getElementById('pformDescHidden').value = quillInstance.getText().trim();
+                document.getElementById('productCreateForm').querySelector('[name=is_active]').value = 0;
                 const badge = document.getElementById('pformSavedBadge');
                 badge.style.color = '#16a34a';
                 badge.textContent = '✓ Guardado';
                 badge.classList.add('visible');
                 clearTimeout(badge._timer);
                 badge._timer = setTimeout(() => badge.classList.remove('visible'), 3000);
+                document.getElementById('productCreateForm').submit();
             });
 
             /* ── Publish ── */
             document.getElementById('pformBtnPublish').addEventListener('click', function() {
+                document.getElementById('pformDescHidden').value = quillInstance.getText().trim();
+                document.getElementById('productCreateForm').querySelector('[name=is_active]').value = 1;
                 const badge = document.getElementById('pformSavedBadge');
                 badge.style.color = '#ff6213';
                 badge.textContent = '✓ Publicado';
                 badge.classList.add('visible');
                 clearTimeout(badge._timer);
                 badge._timer = setTimeout(() => badge.classList.remove('visible'), 3000);
+                document.getElementById('productCreateForm').submit();
             });
 
             /* ── Profitability card ── */
@@ -110,12 +111,22 @@
                         row.querySelectorAll('.pform-avail-btn').forEach(b => b.classList
                             .remove('active'));
                         this.classList.add('active');
+
+                        // Sync to hidden input
+                        const titleEl = this.querySelector('.pform-avail-btn-title');
+                        const map = {
+                            'Disponible': 'available',
+                            'Bajo Pedido': 'on_order',
+                            'Agotado': 'out_of_stock',
+                        };
+                        document.getElementById('pformAvailability').value =
+                            map[titleEl?.textContent.trim()] ?? 'available';
                     });
                 });
             });
 
             /* ── Badge toggle cards ── */
-            document.querySelectorAll('.pform-badge-card').forEach(function(card) {
+            document.querySelectorAll('.pform-badge-card:not(#badgeFeatured)').forEach(function(card) {
                 card.addEventListener('click', function() {
                     this.classList.toggle('active');
                 });
@@ -158,8 +169,8 @@
                 const row = document.createElement('div');
                 row.className = 'pform-spec-row';
                 row.innerHTML =
-                    '<input type="text" class="pform-input" placeholder="Nombre del campo (ej: Potencia)">' +
-                    '<input type="text" class="pform-input" placeholder="Valor (ej: 20 HP)">' +
+                    '<input type="text" class="pform-input" name="spec_key[]" placeholder="Nombre del campo (ej: Potencia)">' +
+                    '<input type="text" class="pform-input" name="spec_value[]" placeholder="Valor (ej: 20 HP)">' +
                     '<button type="button" class="pform-spec-del" title="Eliminar">' +
                     '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
                     '<path d="M18 6 6 18"/><path d="m6 6 12 12"/>' +
