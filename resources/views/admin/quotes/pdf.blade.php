@@ -5,7 +5,11 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 <title>{{ $quote->quote_number }}</title>
 <style>
-* { margin: 0; padding: 0; box-sizing: border-box; }
+
+@page {
+    margin: 150px 0px 90px 0px;
+}
+/* * { margin: 0; padding: 0; box-sizing: border-box; } */
 body {
     font-family: DejaVu Sans, Arial, sans-serif;
     font-size: 11px;
@@ -16,7 +20,7 @@ body {
 /* ── Footer fijo: DomPDF lo repite en cada página ─── */
 #pdf-footer {
     position: fixed;
-    bottom: 0;
+    bottom: -90px;
     left: 0;
     right: 0;
     height: 50px;
@@ -37,7 +41,10 @@ body {
 .footer-orange { color: #ff6213; }
 
 /* ── Encabezado oscuro ───────────────────────────── */
-.doc-header { background: #1a1a1a; padding: 22px 44px; }
+.doc-header { background: #1a1a1a; padding: 22px 44px 12px 44px; position: fixed; top: -150px;
+left: 0;
+right: 0; }
+
 .header-inner  { display: table; width: 100%; }
 .header-left   { display: table-cell; vertical-align: top; }
 .header-right  { display: table-cell; vertical-align: top; text-align: right; width: 45%; }
@@ -54,17 +61,17 @@ body {
 /* Línea naranja bajo el header */
 .header-accent { height: 3px; background: #ff6213; }
 
-/* ── Contenido de página ─────────────────────────── */
-/* padding-bottom reserva espacio para el footer fijo */
-.page { padding: 22px 44px 68px; }
 
 /* ── Bloque receptor ─────────────────────────────── */
+.conditions , .items-table, .totals-wrap, .notes-section {
+    margin: 22px 44px;
+}
 .receptor {
     background: #f8f8f8; border: 1px solid #e5e5e5;
-    border-radius: 4px; padding: 14px 18px; margin-bottom: 18px;
+    border-radius: 4px;  margin-top: 25px; margin-bottom: 15px;
 }
 .receptor-title {
-    font-size: 9px; font-weight: bold; color: #999;
+    font-size: 9px; font-weight: bold; color: #6b6b6b;
     text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;
 }
 .receptor-cols { display: table; width: 100%; }
@@ -85,10 +92,11 @@ body {
     width: 100%; border-collapse: collapse;
     margin-bottom: 16px; table-layout: fixed;
 }
+thead {display: table-header-group;}
 .items-table thead tr { background: #141516; }
 .items-table thead th {
     padding: 9px 10px; text-align: left;
-    font-size: 9px; color: #fff;
+    font-size: 9px; color: #fff
     text-transform: uppercase; letter-spacing: .6px; font-weight: bold;
 }
 .items-table thead th.th-right { text-align: right; }
@@ -132,6 +140,9 @@ body {
     text-transform: uppercase; letter-spacing: .8px; margin-bottom: 6px;
 }
 .notes-text { font-size: 10px; color: #666; line-height: 1.6; word-wrap: break-word; }
+.pdf-spacer{
+    height:20px;
+}
 </style>
 </head>
 <body>
@@ -177,11 +188,9 @@ body {
             </div>
         </div>
     </div>
+    <div class="header-accent"></div>
 </div>
-<div class="header-accent"></div>
-
-<div class="page">
-
+<div class="pdf-spacer"></div>
     {{-- ── Receptor ──────────────────────────────────────── --}}
     <div class="receptor">
         <div class="receptor-title">Cotización para</div>
@@ -304,7 +313,5 @@ body {
         @endif
     </div>
     @endif
-
-</div>
 </body>
 </html>
