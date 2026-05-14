@@ -34,7 +34,7 @@
                     <h2 style="color:#dc2626;">{{ $suppliers->where('status', 'suspended')->count() }}</h2>
                 </div>
 
-            {{-- Filters --}}
+                {{-- Filters --}}
                 <div class="filters-clients-manager-search grid-suppliers">
                     <span class="search-icon-clients-manager">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
@@ -149,41 +149,51 @@
                                                 {{ $supplier->payment_terms ?? '—' }}
                                             </span>
                                         </td>
+                                        {{-- Quality stars --}}
                                         <td>
-                                            <span class="supplier-stars"
+                                            <span class="supplier-stars-svg"
                                                 data-rating="{{ $supplier->rating_quality ?? 0 }}">
                                                 @for ($s = 1; $s <= 5; $s++)
-                                                    @if ($s <= ($supplier->rating_quality ?? 0))
-                                                        ★
-                                                    @else
-                                                        ☆
-                                                    @endif
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                                        viewBox="0 0 24 24"
+                                                        fill="{{ $s <= ($supplier->rating_quality ?? 0) ? '#facc15' : 'none' }}"
+                                                        stroke="{{ $s <= ($supplier->rating_quality ?? 0) ? '#facc15' : '#d1d5db' }}"
+                                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <path
+                                                            d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z">
+                                                        </path>
+                                                    </svg>
                                                 @endfor
                                             </span>
                                         </td>
+                                        {{-- Compliance stars --}}
                                         <td>
-                                            <span class="supplier-stars"
+                                            <span class="supplier-stars-svg"
                                                 data-rating="{{ $supplier->rating_compliance ?? 0 }}">
                                                 @for ($s = 1; $s <= 5; $s++)
-                                                    @if ($s <= ($supplier->rating_compliance ?? 0))
-                                                        ★
-                                                    @else
-                                                        ☆
-                                                    @endif
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                                        viewBox="0 0 24 24"
+                                                        fill="{{ $s <= ($supplier->rating_compliance ?? 0) ? '#facc15' : 'none' }}"
+                                                        stroke="{{ $s <= ($supplier->rating_compliance ?? 0) ? '#facc15' : '#d1d5db' }}"
+                                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <path
+                                                            d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z">
+                                                        </path>
+                                                    </svg>
                                                 @endfor
                                             </span>
                                         </td>
                                         <td>
-                                            <span class="users-manager-badge {{ $statusClass }}"
+                                            <span class="users-manager-badge {{ $statusClass }} supplier-status-badge"
                                                 data-status="{{ $supplier->status }}">
                                                 {{ $statusLabel }}
                                             </span>
                                         </td>
                                         <td>
                                             <div class="header-right-user-manager">
-                                                <button type="button"
-                                                    class="table-users-manager-action-btn edit btn-show-supplier"
-                                                    data-id="{{ $supplier->id }}">
+                                                <button type="button" data-id="{{ $supplier->id }}"
+                                                    onclick="window.location='{{ route('admin.suppliers.information', $supplier->id) }}'"
+                                                    class="table-users-manager-action-btn edit btn-show-supplier">
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
                                                         viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -232,7 +242,6 @@
                 </div>
             </main>
         </section>
-
     </div>
 
     @include('admin.supplier.partials._modal_create')

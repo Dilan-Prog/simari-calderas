@@ -36,6 +36,16 @@ Route::controller(SupplierManageController::class)->group(function () {
     Route::get('/proveedores/editar-proveedor/{id}', 'edit')->name('suppliers.edit');
     Route::put('/proveedores/editar-proveedor/{id}', 'update')->name('suppliers.update');
     Route::delete('/proveedores/eliminar-proveedor/{id}', 'destroy')->name('suppliers.destroy');
+    Route::get('/proveedores/informacion/{id}', 'information')->name('suppliers.information');
+});
+
+Route::controller(ProductController::class)->group(function(){
+    Route::get('/productos', 'index')->name('products.index');
+    Route::get('/productos/nuevo','create')->name('products.create');
+    Route::post('/productos/nuevo','store')->name('products.store');
+    Route::get('/productos/editar/{id}','edit')->name('products.edit');
+    Route::put('/productos/editar/{id}','update')->name('products.update');
+    Route::delete('/productos/eliminar/{id}','destroy')->name('products.destroy');
 });
 
 Route::controller(ProductController::class)->group(function () {

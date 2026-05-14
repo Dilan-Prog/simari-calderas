@@ -161,13 +161,26 @@
                 paymentBadge.dataset.payment = supplier.payment_terms ?? '';
             }
 
-            // Update stars
-            const stars = (rating) => [...Array(5)].map((_, i) => i < rating ? '★' : '☆').join('');
-            const starEls = row.querySelectorAll('.supplier-stars');
-            if (starEls[0]) starEls[0].textContent = stars(supplier.rating_quality ?? 0);
-            if (starEls[1]) starEls[1].textContent = stars(supplier.rating_compliance ?? 0);
+            // Update stars with colored spans and data-rating
+            const starSvg = (filled) => `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+            fill="${filled ? '#facc15' : 'none'}" stroke="${filled ? '#facc15' : '#d1d5db'}"
+            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z"></path>
+            </svg>`;
 
-            const statusBadge = row.querySelector('.users-manager-badge');
+            const stars = (rating) => [...Array(5)].map((_, i) => starSvg(i < rating)).join('');
+
+            const starEls = row.querySelectorAll('.supplier-stars-svg');
+            if (starEls[0]) {
+                starEls[0].innerHTML = stars(supplier.rating_quality ?? 0);
+                starEls[0].dataset.rating = supplier.rating_quality ?? 0;
+            }
+            if (starEls[1]) {
+                starEls[1].innerHTML = stars(supplier.rating_compliance ?? 0);
+                starEls[1].dataset.rating = supplier.rating_compliance ?? 0;
+            }
+
+            const statusBadge = row.querySelector('.supplier-status-badge');
             if (statusBadge) {
                 const labels = {
                     active: 'Activo',
@@ -175,8 +188,8 @@
                     suspended: 'Suspendido'
                 };
                 statusBadge.textContent = labels[supplier.status] ?? supplier.status;
-                statusBadge.className = 'users-manager-badge ' + (supplier.status === 'active' ? 'status' :
-                    'status-inactive');
+                statusBadge.className = 'users-manager-badge supplier-status-badge ' +
+                    (supplier.status === 'active' ? 'status' : 'status-inactive');
                 statusBadge.dataset.status = supplier.status;
             }
 
@@ -194,19 +207,19 @@
             toast.className = `toast-notification toast-${type}`;
             toast.innerHTML =
                 `
-            <div class="toast-icon-wrap">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                    fill="none" stroke="#16a34a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                    <path d="m9 11 3 3L22 4"></path>
-                </svg>
-            </div>
-            <div class="toast-body">
-                <p class="toast-title">Acción realizada</p>
-                <p class="toast-message">${message}</p>
-            </div>
-            <button class="toast-close"
-                onclick="const t=this.closest('.toast-notification');t.style.animation='toastOut 0.3s ease forwards';setTimeout(()=>t.remove(),300)">✕</button>`;
+                <div class="toast-icon-wrap">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                        fill="none" stroke="#16a34a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                        <path d="m9 11 3 3L22 4"></path>
+                    </svg>
+                </div>
+                <div class="toast-body">
+                    <p class="toast-title">Acción realizada</p>
+                    <p class="toast-message">${message}</p>
+                </div>
+                <button class="toast-close"
+                    onclick="const t=this.closest('.toast-notification');t.style.animation='toastOut 0.3s ease forwards';setTimeout(()=>t.remove(),300)">✕</button>`;
             document.querySelector('.container.user-manager').prepend(toast);
             setTimeout(() => {
                 toast.style.animation = 'toastOut 0.3s ease forwards';
@@ -251,16 +264,18 @@
                 const contact = row.querySelector('.supplier-contact')?.textContent.toLowerCase() ?? '';
                 const email = row.querySelector('.supplier-email')?.textContent.toLowerCase() ?? '';
                 const phone = row.querySelector('.supplier-phone')?.textContent.toLowerCase() ?? '';
-                const badge = row.querySelector('.users-manager-badge');
+                const badge = row.querySelector('.supplier-status-badge');
                 const payBadge = row.querySelector('.supplier-payment');
-                const qualEl = row.querySelectorAll('.supplier-stars')[0];
-                const qualRating = (qualEl?.textContent.match(/★/g) || []).length;
+                const qualEl = row.querySelectorAll('.supplier-stars-svg')[0];
+                const complianceEl = row.querySelectorAll('.supplier-stars-svg')[1];
+                const qualRating = parseInt(qualEl?.dataset.rating ?? '0');
+                const compRating = parseInt(complianceEl?.dataset.rating ?? '0');
 
                 const matchSearch = !search || company.includes(search) || contact.includes(search) ||
                     email.includes(search) || phone.includes(search);
                 const matchStatus = status === 'all' || badge?.dataset.status === status;
                 const matchPayment = payment === 'all' || payBadge?.dataset.payment === payment;
-                const matchRating = qualRating >= minRating;
+                const matchRating = qualRating >= minRating || compRating >= minRating;
 
                 row.style.display = matchSearch && matchStatus && matchPayment && matchRating ? '' : 'none';
             });
@@ -286,11 +301,11 @@
             if (rawPercentage > 100) rawPercentage = 100;
             const step = 20;
             const value = Math.round(rawPercentage / step);
-            const snappedPercentage = value * step;
-            handle.style.left = `calc(${snappedPercentage}% - 9px)`;
-            fill.style.width = `${snappedPercentage}%`;
+            const snappedPct = value * step;
+            handle.style.left = `calc(${snappedPct}% - 9px)`;
+            fill.style.width = `${snappedPct}%`;
             label.innerText = `Rating mínimo: ${value}/5`;
-            filterSuppliers(); // Re-filter on slider change
+            filterSuppliers();
         }
 
         handle.addEventListener('mousedown', () => isDragging = true);

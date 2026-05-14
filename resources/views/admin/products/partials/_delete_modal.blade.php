@@ -1,4 +1,5 @@
-<div id="deleteSupplierModal" class="del-confirm-overlay">
+{{-- Delete modal --}}
+<div id="deleteProductModal" class="del-confirm-overlay">
     <div class="del-confirm-box">
         <div class="del-confirm-icon-wrap">
             <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none"
@@ -8,23 +9,24 @@
                 <path d="M12 17h.01"></path>
             </svg>
         </div>
-        <h2 class="del-confirm-title">¿Eliminar proveedor?</h2>
-        <p class="del-confirm-desc">Esta acción no se puede deshacer. El proveedor será eliminado permanentemente.</p>
+        <h2 class="del-confirm-title">¿Eliminar producto?</h2>
+        <p class="del-confirm-desc">Esta acción no se puede deshacer. El producto será eliminado permanentemente.</p>
         <div class="del-confirm-user-card">
-            <div class="del-confirm-avatar" id="delSupplierConfirmAvatar">P</div>
+            <div class="del-confirm-avatar" id="delProductConfirmAvatar">P</div>
             <div>
-                <p class="del-confirm-user-name" id="delSupplierConfirmName">Nombre Proveedor</p>
-                <p class="del-confirm-user-email" id="delSupplierConfirmEmail">email@ejemplo.com</p>
+                <p class="del-confirm-user-name" id="delProductConfirmName">Nombre Producto</p>
+                <p class="del-confirm-user-email" id="delProductConfirmSku">SKU</p>
             </div>
         </div>
         <div class="del-confirm-actions">
             <button type="button" class="button-secondary size-adjustment"
-                id="delSupplierConfirmCancel">Cancelar</button>
-            <form id="deleteSupplierForm" method="POST">
+                id="delProductConfirmCancel">Cancelar</button>
+            <form id="deleteProductForm" method="POST">
                 @csrf
                 @method('DELETE')
-                <button type="submit"
-                    class="button-primary size-adjustment delete-confirmation-modal-button">Eliminar</button>
+                <button type="submit" class="button-primary size-adjustment delete-confirmation-modal-button">
+                    Eliminar
+                </button>
             </form>
         </div>
     </div>

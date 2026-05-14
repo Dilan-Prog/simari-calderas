@@ -24,9 +24,10 @@ class Supplier extends Model
         'rating_compliance',
     ];
 
-    // public function products()
-    // {
-    //     return $this->belongsToMany(Products::class, 'supplier_products')
-    //         ->withPivot('cost', 'lead_time_days', 'is_primary');
-    // }
+    // Relationships
+    public function products()
+    {
+        return $this->belongsToMany(Products::class, 'suppliers_products', 'supplier_id', 'product_id')
+            ->withPivot('cost', 'lead_time_days', 'is_primary');
+    }
 }
