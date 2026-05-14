@@ -77,6 +77,29 @@
 .qsearch-result-price { font-size: 14px; font-weight: 700; color: #e8612c; white-space: nowrap; }
 .qsearch-empty { padding: 40px 20px; text-align: center; color: #555; font-size: 13px; }
 .qsearch-loading { padding: 40px 20px; text-align: center; color: #555; font-size: 13px; }
+
+/* Description toggle + textarea per row (dark theme) */
+.item-name-wrap { display: flex; flex-direction: column; gap: 6px; }
+.item-name-row { display: flex; align-items: center; gap: 6px; }
+.item-name-row .cell-input { flex: 1; min-width: 0; }
+.item-desc-toggle {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 5px;
+    border: 1px solid #2e2e3e;
+    background: transparent;
+    color: #555;
+    cursor: pointer;
+    padding: 0;
+    transition: background .15s, color .15s, border-color .15s;
+}
+.item-desc-toggle:hover { background: rgba(232,97,44,.12); color: #e8612c; border-color: rgba(232,97,44,.35); }
+.item-desc-toggle--active { background: rgba(232,97,44,.15); color: #e8612c; border-color: rgba(232,97,44,.4); }
+.item-desc { height: auto; min-height: 72px; resize: vertical; font-size: 12px; color: #bbb; line-height: 1.55; }
 </style>
 @endpush
 

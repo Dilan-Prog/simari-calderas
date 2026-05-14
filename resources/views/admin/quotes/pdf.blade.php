@@ -11,233 +11,283 @@ body {
     font-size: 11px;
     color: #1a1a2e;
     background: #fff;
-    padding: 0;
 }
-.page { padding: 36px 44px; }
 
-/* Header (dark) */
-.doc-header { background: #1a1a1a; }
-.header { display: table; width: 100%; padding: 26px 44px; }
-.header-left { display: table-cell; vertical-align: top; width: 50%; }
-.header-right { display: table-cell; vertical-align: top; text-align: right; }
-.company-meta { margin-top: 8px; }
-.company-meta p { font-size: 10px; color: #9CA3AF; line-height: 1.6; }
-.cotizacion-label {
-    font-size: 9px; font-weight: bold; color: #ff6213;
-    letter-spacing: 2px; text-transform: uppercase; margin-bottom: 5px;
-}
-.cotizacion-number { font-size: 22px; font-weight: bold; color: #ffffff; line-height: 1; }
-.cotizacion-dates { margin-top: 6px; }
-.cotizacion-dates p { font-size: 10px; color: #9CA3AF; line-height: 1.7; }
-.cotizacion-dates span { color: #D1D5DC; font-weight: bold; }
-.header-divider { height: 3px; background: #ff6213; width: 60px; margin: 0 44px 28px; }
-
-/* Receptor */
-.receptor-block { background: #f8f8f8; border: 1px solid #e0e0e0; border-radius: 4px; padding: 14px 18px; margin-bottom: 24px; }
-.receptor-title { font-size: 9px; font-weight: bold; color: #999; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
-.receptor-grid { display: table; width: 100%; }
-.receptor-col { display: table-cell; width: 50%; vertical-align: top; }
-.receptor-label { font-size: 9px; color: #999; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 2px; }
-.receptor-value { font-size: 11px; color: #1a1a2e; font-weight: bold; }
-.receptor-item { margin-bottom: 10px; }
-
-/* Products table */
-.items-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-.items-table thead tr { background: #1a1a2e; }
-.items-table thead th {
-    padding: 9px 12px;
-    text-align: left;
-    font-size: 9px;
-    color: #fff;
-    text-transform: uppercase;
-    letter-spacing: .6px;
-    font-weight: bold;
-}
-.items-table thead th.text-right { text-align: right; }
-.items-table tbody tr:nth-child(even) { background: #f8f8f8; }
-.items-table tbody td { padding: 9px 12px; font-size: 11px; color: #333; border-bottom: 1px solid #eee; vertical-align: middle; }
-.items-table tbody td.text-right { text-align: right; }
-.items-table tbody td.td-name { font-weight: bold; color: #1a1a2e; }
-.items-table tbody td.td-sku { font-size: 9px; color: #999; }
-
-/* Totals */
-.totals-wrap { display: table; width: 100%; margin-bottom: 28px; }
-.totals-spacer { display: table-cell; width: 55%; }
-.totals-box { display: table-cell; width: 45%; vertical-align: top; }
-.totals-row { display: table; width: 100%; padding: 5px 0; border-bottom: 1px solid #eee; }
-.totals-row-label { display: table-cell; font-size: 11px; color: #666; }
-.totals-row-value { display: table-cell; text-align: right; font-size: 11px; font-weight: bold; color: #333; }
-.totals-row.final { border-bottom: none; margin-top: 4px; padding-top: 10px; }
-.totals-row.final .totals-row-label { font-size: 14px; font-weight: bold; color: #1a1a2e; }
-.totals-row.final .totals-row-value { font-size: 14px; font-weight: bold; color: #e8612c; }
-
-/* Notes */
-.notes-section { display: table; width: 100%; margin-bottom: 20px; border-top: 1px solid #eee; padding-top: 16px; }
-.notes-col { display: table-cell; width: 50%; vertical-align: top; padding-right: 20px; }
-.notes-col:last-child { padding-right: 0; }
-.notes-label { font-size: 9px; font-weight: bold; color: #999; text-transform: uppercase; letter-spacing: .8px; margin-bottom: 6px; }
-.notes-text { font-size: 10px; color: #666; line-height: 1.6; }
-
-/* Footer */
-.footer {
+/* ── Footer fijo: DomPDF lo repite en cada página ─── */
+#pdf-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 50px;
     background: #1a1a1a;
-    padding: 16px 44px;
-    display: table;
-    width: 100%;
-    margin-top: 32px;
-    border-top: 2px solid #2E2E2E;
+    border-top: 2px solid #ff6213;
+    padding: 0 44px;
 }
-.footer-brand {
-    display: table-cell;
-    width: 33%;
-    vertical-align: middle;
-}
+.footer-inner  { display: table; width: 100%; height: 50px; }
+.footer-brand  { display: table-cell; width: 30%; vertical-align: middle; }
 .footer-center {
-    display: table-cell;
-    width: 34%;
-    vertical-align: middle;
-    text-align: center;
-    font-size: 9px;
-    color: #6B7280;
-    line-height: 1.7;
+    display: table-cell; width: 40%; vertical-align: middle;
+    text-align: center; font-size: 8px; color: #6B7280; line-height: 1.7;
 }
-.footer-right {
-    display: table-cell;
-    width: 33%;
-    vertical-align: middle;
-    text-align: right;
-    font-size: 9px;
-    color: #6B7280;
-    line-height: 1.7;
+.footer-right  {
+    display: table-cell; width: 30%; vertical-align: middle;
+    text-align: right; font-size: 8px; color: #6B7280; line-height: 1.7;
 }
-.footer-right a { color: #ff6213; text-decoration: none; }
-.accent-bottom {
-    height: 3px;
-    background: #ff6213;
+.footer-orange { color: #ff6213; }
+
+/* ── Encabezado oscuro ───────────────────────────── */
+.doc-header { background: #1a1a1a; padding: 22px 44px; }
+.header-inner  { display: table; width: 100%; }
+.header-left   { display: table-cell; vertical-align: top; }
+.header-right  { display: table-cell; vertical-align: top; text-align: right; width: 45%; }
+.company-meta p { font-size: 9.5px; color: #9CA3AF; line-height: 1.7; margin-top: 6px; }
+.cot-label  {
+    font-size: 9px; font-weight: bold; color: #ff6213;
+    letter-spacing: 3px; text-transform: uppercase; margin-bottom: 5px;
 }
+.cot-number { font-size: 22px; font-weight: bold; color: #ffffff; line-height: 1; }
+.cot-dates  { margin-top: 7px; }
+.cot-dates p { font-size: 9.5px; color: #9CA3AF; line-height: 1.8; }
+.cot-dates span { color: #D1D5DC; font-weight: bold; }
+
+/* Línea naranja bajo el header */
+.header-accent { height: 3px; background: #ff6213; }
+
+/* ── Contenido de página ─────────────────────────── */
+/* padding-bottom reserva espacio para el footer fijo */
+.page { padding: 22px 44px 68px; }
+
+/* ── Bloque receptor ─────────────────────────────── */
+.receptor {
+    background: #f8f8f8; border: 1px solid #e5e5e5;
+    border-radius: 4px; padding: 14px 18px; margin-bottom: 18px;
+}
+.receptor-title {
+    font-size: 9px; font-weight: bold; color: #999;
+    text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;
+}
+.receptor-cols { display: table; width: 100%; }
+.receptor-col  { display: table-cell; width: 50%; vertical-align: top; padding-right: 16px; }
+.receptor-col:last-child { padding-right: 0; }
+.r-label { font-size: 9px; color: #999; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 2px; }
+.r-value { font-size: 11px; color: #1a1a2e; font-weight: bold; margin-bottom: 8px; }
+
+/* ── Tira de condiciones ─────────────────────────── */
+.conditions     { display: table; width: 100%; margin-bottom: 16px;font-family: 'Inter', sans-serif; }
+.cond-item      { display: table-cell; vertical-align: top; padding-right: 12px; font-family: 'Inter', sans-serif; }
+.cond-item:last-child { padding-right: 0; }
+.cond-label { font-size: 9px; color: #999; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 3px; }
+.cond-value { font-size: 11px; color: #333; font-weight: 600; }
+
+/* ── Tabla de productos ──────────────────────────── */
+.items-table {
+    width: 100%; border-collapse: collapse;
+    margin-bottom: 16px; table-layout: fixed;
+}
+.items-table thead tr { background: #141516; }
+.items-table thead th {
+    padding: 9px 10px; text-align: left;
+    font-size: 9px; color: #fff;
+    text-transform: uppercase; letter-spacing: .6px; font-weight: bold;
+}
+.items-table thead th.th-right { text-align: right; }
+
+/* Evitar que una fila quede partida entre páginas */
+.items-table tbody tr { page-break-inside: avoid; }
+.items-table tbody tr:nth-child(even) { background: #f5f5f5; }
+.items-table tbody td {
+    padding: 9px 10px; font-size: 11px; color: #444;
+    border-bottom: 1px solid #eee; vertical-align: top; word-wrap: break-word;
+}
+.items-table tbody td.td-right { text-align: right; }
+.items-table tbody td.td-name  { font-weight: bold; color: #1a1a2e; }
+.items-table tbody td.td-sku   { font-size: 9.5px; color: #999; }
+.item-desc-text {
+    font-size: 9px; font-weight: normal; color: #555;
+    margin-top: 5px; line-height: 1.55;
+}
+
+/* ── Totales ─────────────────────────────────────── */
+.totals-wrap    { display: table; width: 100%; margin-bottom: 22px; }
+.totals-spacer  { display: table-cell; width: 55%; }
+.totals-box     { display: table-cell; width: 45%; vertical-align: top; }
+.totals-row     { display: table; width: 100%; padding: 5px 0; border-bottom: 1px solid #eee; }
+.totals-row:last-child { border-bottom: none; }
+.totals-lbl     { display: table-cell; font-size: 11px; color: #666; }
+.totals-val     { display: table-cell; text-align: right; font-size: 11px; font-weight: bold; color: #333; }
+.totals-final   {
+    background: #ff6213; border-radius: 5px; padding: 10px 14px;
+    display: table; width: 100%; margin-top: 8px;
+}
+.totals-final-lbl { display: table-cell; font-size: 13px; font-weight: bold; color: #fff; }
+.totals-final-val { display: table-cell; text-align: right; font-size: 13px; font-weight: bold; color: #fff; }
+
+/* ── Notas y términos ────────────────────────────── */
+.notes-section { display: table; width: 100%; border-top: 1px solid #eee; padding-top: 16px; }
+.notes-col      { display: table-cell; width: 50%; vertical-align: top; padding-right: 20px; }
+.notes-col:last-child { padding-right: 0; }
+.notes-label    {
+    font-size: 9px; font-weight: bold; color: #999;
+    text-transform: uppercase; letter-spacing: .8px; margin-bottom: 6px;
+}
+.notes-text { font-size: 10px; color: #666; line-height: 1.6; word-wrap: break-word; }
 </style>
 </head>
 <body>
 
-    <!-- Dark header (full-width, outside page padding) -->
-    <div class="doc-header">
-        <div class="header">
-            <div class="header-left">
-                <img src="{{ public_path('images/logo/equiterm-logo-blanco-color-3x.png') }}"
-                     alt="Equiterm Industries" style="height:28px;width:auto;">
-                <div class="company-meta">
-                    <p>administracion@equitermindustries.com.mx</p>
-                    <p>México, Aguascalientes</p>
-                </div>
+{{-- ── Footer fijo (aparece en cada página) ──────────────── --}}
+<div id="pdf-footer">
+    <div class="footer-inner">
+        <div class="footer-brand">
+            <img src="{{ public_path('images/logo/equiterm-logo-blanco-color-3x.png') }}"
+                 alt="Equiterm Industries" style="height:22px;width:auto;">
+        </div>
+        <div class="footer-center">
+            Cotización generada el {{ now()->format('d/m/Y H:i') }}<br>
+            Este documento es una cotización y no constituye una factura.
+        </div>
+        <div class="footer-right">
+            administracion@equitermindustries.com.mx<br>
+            <span class="footer-orange">equitermindustries.com.mx</span>
+        </div>
+    </div>
+</div>
+
+{{-- ── Encabezado oscuro ─────────────────────────────────── --}}
+<div class="doc-header">
+    <div class="header-inner">
+        <div class="header-left">
+            <img src="{{ public_path('images/logo/equiterm-logo-blanco-color-3x.png') }}"
+                 alt="Equiterm Industries" style="height:28px;width:auto;">
+            <div class="company-meta">
+                <p>administracion@equitermindustries.com.mx</p>
+                <p>México, Aguascalientes</p>
             </div>
-            <div class="header-right">
-                <div class="cotizacion-label">Cotización</div>
-                <div class="cotizacion-number">{{ $quote->quote_number }}</div>
-                <div class="cotizacion-dates">
-                    <p>Emisión: <span>{{ $quote->created_at->format('d/m/Y') }}</span></p>
-                    @if($quote->valid_until)
-                    <p>Válida hasta: <span>{{ $quote->valid_until->format('d/m/Y') }}</span></p>
-                    @endif
-                </div>
+        </div>
+        <div class="header-right">
+            <div class="cot-label">Cotización</div>
+            <div class="cot-number">{{ $quote->quote_number }}</div>
+            <div class="cot-dates">
+                <p>Emisión: <span>{{ $quote->created_at->format('d/m/Y') }}</span></p>
+                @if($quote->valid_until)
+                <p>Válida hasta: <span>{{ $quote->valid_until->format('d/m/Y') }}</span></p>
+                @endif
+                <p>Moneda: <span>{{ $quote->currency }}</span></p>
             </div>
         </div>
     </div>
+</div>
+<div class="header-accent"></div>
 
 <div class="page">
 
-    <!-- Receptor -->
-    <div class="receptor-block">
+    {{-- ── Receptor ──────────────────────────────────────── --}}
+    <div class="receptor">
         <div class="receptor-title">Cotización para</div>
-        <div class="receptor-grid">
+        <div class="receptor-cols">
             <div class="receptor-col">
-                <div class="receptor-item">
-                    <div class="receptor-label">Nombre</div>
-                    <div class="receptor-value">{{ $quote->guest_name }}</div>
-                </div>
+                <div class="r-label">Nombre</div>
+                <div class="r-value">{{ $quote->guest_name }}</div>
                 @if($quote->guest_company)
-                <div class="receptor-item">
-                    <div class="receptor-label">Empresa</div>
-                    <div class="receptor-value">{{ $quote->guest_company }}</div>
-                </div>
+                <div class="r-label">Empresa</div>
+                <div class="r-value">{{ $quote->guest_company }}</div>
                 @endif
             </div>
             <div class="receptor-col">
                 @if($quote->guest_email)
-                <div class="receptor-item">
-                    <div class="receptor-label">Correo</div>
-                    <div class="receptor-value">{{ $quote->guest_email }}</div>
-                </div>
+                <div class="r-label">Correo</div>
+                <div class="r-value">{{ $quote->guest_email }}</div>
                 @endif
                 @if($quote->guest_phone)
-                <div class="receptor-item">
-                    <div class="receptor-label">Teléfono</div>
-                    <div class="receptor-value">{{ $quote->guest_phone }}</div>
-                </div>
+                <div class="r-label">Teléfono</div>
+                <div class="r-value">{{ $quote->guest_phone }}</div>
                 @endif
                 @if($quote->guest_rfc)
-                <div class="receptor-item">
-                    <div class="receptor-label">RFC</div>
-                    <div class="receptor-value">{{ $quote->guest_rfc }}</div>
-                </div>
+                <div class="r-label">RFC</div>
+                <div class="r-value">{{ $quote->guest_rfc }}</div>
                 @endif
             </div>
         </div>
     </div>
 
-    <!-- Products table -->
+    {{-- ── Condiciones ────────────────────────────────────── --}}
+    <div class="conditions">
+        <div class="cond-item">
+            <div class="cond-label">IVA</div>
+            <div class="cond-value">{{ $quote->tax_rate }}%</div>
+        </div>
+        <div class="cond-item">
+            <div class="cond-label">Moneda</div>
+            <div class="cond-value">{{ $quote->currency }}</div>
+        </div>
+        @if($quote->valid_until)
+        <div class="cond-item">
+            <div class="cond-label">Válido hasta</div>
+            <div class="cond-value">{{ $quote->valid_until->format('d/m/Y') }}</div>
+        </div>
+        @endif
+    </div>
+
+    {{-- ── Tabla de productos ─────────────────────────────── --}}
     <table class="items-table">
         <thead>
             <tr>
-                <th style="width:30px;">#</th>
-                <th>Descripción</th>
-                <th style="width:90px;">SKU</th>
-                <th class="text-right" style="width:50px;">Cant.</th>
-                <th class="text-right" style="width:100px;">Precio Unit.</th>
-                <th class="text-right" style="width:60px;">Desc. %</th>
-                <th class="text-right" style="width:100px;">Total</th>
+                <th style="width:4%;">#</th>
+                <th style="width:38%;">Descripción</th>
+                <th style="width:12%;">SKU</th>
+                <th class="th-right" style="width:8%;">Cant.</th>
+                <th class="th-right" style="width:16%;">Precio Unit.</th>
+                <th class="th-right" style="width:8%;">Desc.%</th>
+                <th class="th-right" style="width:14%;">Total</th>
             </tr>
         </thead>
         <tbody>
             @foreach($quote->items as $i => $item)
             <tr>
                 <td style="text-align:center;color:#aaa;">{{ $i + 1 }}</td>
-                <td class="td-name">{{ $item->product_name }}</td>
+                <td class="td-name">
+                    {{ $item->product_name }}
+                    @if($item->notes)
+                    <div class="item-desc-text">{!! nl2br(e($item->notes)) !!}</div>
+                    @endif
+                </td>
                 <td class="td-sku">{{ $item->product_sku ?? '—' }}</td>
-                <td class="text-right">{{ $item->quantity }}</td>
-                <td class="text-right">${{ number_format($item->unit_price, 2) }}</td>
-                <td class="text-right">{{ $item->discount_percent > 0 ? $item->discount_percent . '%' : '—' }}</td>
-                <td class="text-right" style="font-weight:bold;">${{ number_format($item->line_total, 2) }}</td>
+                <td class="td-right">{{ $item->quantity }}</td>
+                <td class="td-right">{{ $quote->currency }} ${{ number_format($item->unit_price, 2) }}</td>
+                <td class="td-right">{{ $item->discount_percent > 0 ? $item->discount_percent . '%' : '—' }}</td>
+                <td class="td-right" style="font-weight:bold;">${{ number_format($item->line_total, 2) }}</td>
             </tr>
             @endforeach
         </tbody>
     </table>
 
-    <!-- Totals -->
+    {{-- ── Totales ─────────────────────────────────────────── --}}
     <div class="totals-wrap">
         <div class="totals-spacer"></div>
         <div class="totals-box">
             <div class="totals-row">
-                <div class="totals-row-label">Subtotal</div>
-                <div class="totals-row-value">{{ $quote->currency }} ${{ number_format($quote->subtotal, 2) }}</div>
+                <div class="totals-lbl">Subtotal</div>
+                <div class="totals-val">{{ $quote->currency }} ${{ number_format($quote->subtotal, 2) }}</div>
             </div>
             @if($quote->discount_total > 0)
             <div class="totals-row">
-                <div class="totals-row-label">Descuento</div>
-                <div class="totals-row-value">- {{ $quote->currency }} ${{ number_format($quote->discount_total, 2) }}</div>
+                <div class="totals-lbl">Descuento</div>
+                <div class="totals-val">− {{ $quote->currency }} ${{ number_format($quote->discount_total, 2) }}</div>
             </div>
             @endif
             <div class="totals-row">
-                <div class="totals-row-label">IVA ({{ $quote->tax_rate }}%)</div>
-                <div class="totals-row-value">{{ $quote->currency }} ${{ number_format($quote->tax_total, 2) }}</div>
+                <div class="totals-lbl">IVA ({{ $quote->tax_rate }}%)</div>
+                <div class="totals-val">{{ $quote->currency }} ${{ number_format($quote->tax_total, 2) }}</div>
             </div>
-            <div class="totals-row final">
-                <div class="totals-row-label">Total</div>
-                <div class="totals-row-value">{{ $quote->currency }} ${{ number_format($quote->total, 2) }}</div>
+            <div class="totals-final">
+                <div class="totals-final-lbl">Total</div>
+                <div class="totals-final-val">{{ $quote->currency }} ${{ number_format($quote->total, 2) }}</div>
             </div>
         </div>
     </div>
 
-    <!-- Notes & Terms -->
+    {{-- ── Notas y términos ────────────────────────────────── --}}
     @if($quote->notes || $quote->terms_conditions)
     <div class="notes-section">
         @if($quote->notes)
@@ -254,23 +304,6 @@ body {
         @endif
     </div>
     @endif
-
-    <!-- Footer -->
-    <div class="footer">
-        <div class="footer-brand">
-            <img src="{{ public_path('images/logo/equiterm-logo-blanco-color-3x.png') }}"
-                 alt="Equiterm Industries" style="height:28px;width:auto;">
-        </div>
-        <div class="footer-center">
-            Cotización generada el {{ now()->format('d/m/Y H:i') }}<br>
-            Este documento es una cotización y no constituye una factura.
-        </div>
-        <div class="footer-right">
-            administracion@equitermindustries.com.mx<br>
-            equitermindustries.com.mx
-        </div>
-    </div>
-    <div class="accent-bottom"></div>
 
 </div>
 </body>

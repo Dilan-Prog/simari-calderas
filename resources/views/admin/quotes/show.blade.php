@@ -146,7 +146,12 @@
                         @foreach($quote->items as $i => $item)
                         <tr>
                             <td class="td-num">{{ $i + 1 }}</td>
-                            <td class="td-name">{{ $item->product_name }}</td>
+                            <td class="td-name">
+                                {{ $item->product_name }}
+                                @if($item->notes)
+                                <div style="font-size:11px;font-weight:400;color:var(--aq-text-sec);margin-top:5px;white-space:pre-wrap;line-height:1.55;">{{ $item->notes }}</div>
+                                @endif
+                            </td>
                             <td class="td-sku">{{ $item->product_sku ?? '—' }}</td>
                             <td class="td-right">{{ $item->quantity }}</td>
                             <td class="td-right">{{ $quote->currency }} ${{ number_format($item->unit_price, 2) }}</td>

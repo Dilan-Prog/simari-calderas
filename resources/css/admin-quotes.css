@@ -471,6 +471,51 @@
 
 .item-line-total { font-weight: 700; color: var(--aq-text); }
 
+/* Description toggle + textarea per row */
+.item-name-wrap { display: flex; flex-direction: column; gap: 6px; }
+
+.item-name-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.item-name-row .cell-input { flex: 1; min-width: 0; }
+
+.item-desc-toggle {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 5px;
+    border: 1px solid var(--aq-border);
+    background: transparent;
+    color: var(--aq-text-muted);
+    cursor: pointer;
+    transition: background 150ms ease, color 150ms ease, border-color 150ms ease;
+    padding: 0;
+}
+.item-desc-toggle:hover {
+    background: rgba(255, 98, 19, .07);
+    color: var(--aq-orange);
+    border-color: rgba(255, 98, 19, .3);
+}
+.item-desc-toggle--active {
+    background: rgba(255, 98, 19, .10);
+    color: var(--aq-orange);
+    border-color: rgba(255, 98, 19, .35);
+}
+
+.item-desc {
+    height: auto;
+    min-height: 72px;
+    resize: vertical;
+    font-size: 12px;
+    color: var(--aq-text-sec);
+    line-height: 1.55;
+}
+
 /* Delete button — class injected dynamically by quotes.js */
 .qform-del-btn {
     display: inline-flex;

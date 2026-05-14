@@ -10,10 +10,13 @@
             if (existingEmpty) existingEmpty.remove();
 
             rowCount++;
-            var qty      = isExisting ? (product.quantity || 1)         : 1;
-            var price    = isExisting ? (product.unit_price || product.price || 0) : (product.price || 0);
-            var disc     = isExisting ? (product.discount_percent || 0) : 0;
+            var qty       = isExisting ? (product.quantity || 1)                  : 1;
+            var price     = isExisting ? (product.unit_price || product.price || 0) : (product.price || 0);
+            var disc      = isExisting ? (product.discount_percent || 0)           : 0;
+            var notes     = isExisting ? (product.notes || '')                     : '';
             var lineTotal = QuoteForm._calcLineTotal(qty, price, disc);
+
+            var descHidden = notes ? '' : ' style="display:none"';
 
             var tr = document.createElement('tr');
             tr.dataset.productId  = product.product_id || product.id || '';
@@ -21,7 +24,15 @@
             tr.innerHTML =
                 '<td class="col-num">' + rowCount + '</td>' +
                 '<td class="col-name">' +
-                    '<input type="text" class="cell-input item-name" value="' + _esc(product.product_name || product.name || '') + '" placeholder="Descripción del producto">' +
+                    '<div class="item-name-wrap">' +
+                        '<div class="item-name-row">' +
+                            '<input type="text" class="cell-input item-name" value="' + _esc(product.product_name || product.name || '') + '" placeholder="Nombre del producto o servicio">' +
+                            '<button type="button" class="item-desc-toggle' + (notes ? ' item-desc-toggle--active' : '') + '" title="Agregar descripción detallada" aria-label="Agregar descripción">' +
+                                '<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>' +
+                            '</button>' +
+                        '</div>' +
+                        '<textarea class="cell-input item-desc" placeholder="Descripción detallada del servicio..." rows="3"' + descHidden + '>' + _esc(notes) + '</textarea>' +
+                    '</div>' +
                 '</td>' +
                 '<td class="col-sku">' +
                     '<input type="text" class="cell-input item-sku" value="' + _esc(product.product_sku || product.sku || '') + '" placeholder="SKU">' +
@@ -41,6 +52,16 @@
                         '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>' +
                     '</button>' +
                 '</td>';
+
+            /* Toggle description textarea */
+            var toggleBtn = tr.querySelector('.item-desc-toggle');
+            var descArea  = tr.querySelector('.item-desc');
+            toggleBtn.addEventListener('click', function () {
+                var hidden = descArea.style.display === 'none';
+                descArea.style.display = hidden ? '' : 'none';
+                toggleBtn.classList.toggle('item-desc-toggle--active', hidden);
+                if (hidden) descArea.focus();
+            });
 
             tr.querySelector('.item-qty').addEventListener('input', function () {
                 QuoteForm.calculateRowTotal(tr);
@@ -118,9 +139,10 @@
 
             var items = [];
             rows.forEach(function (tr) {
-                var qty   = parseFloat(tr.querySelector('.item-qty').value)   || 0;
-                var price = parseFloat(tr.querySelector('.item-price').value) || 0;
-                var disc  = parseFloat(tr.querySelector('.item-disc').value)  || 0;
+                var qty      = parseFloat(tr.querySelector('.item-qty').value)   || 0;
+                var price    = parseFloat(tr.querySelector('.item-price').value) || 0;
+                var disc     = parseFloat(tr.querySelector('.item-disc').value)  || 0;
+                var notesEl  = tr.querySelector('.item-desc');
 
                 items.push({
                     product_id:       tr.dataset.productId || null,
@@ -131,6 +153,7 @@
                     discount_percent: disc,
                     tax_percent:      parseFloat((document.getElementById('taxRate') || {}).value) || 16,
                     line_total:       QuoteForm._calcLineTotal(qty, price, disc),
+                    notes:            notesEl ? (notesEl.value.trim() || null) : null,
                 });
             });
 
