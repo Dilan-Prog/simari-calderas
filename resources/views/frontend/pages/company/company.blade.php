@@ -47,7 +47,7 @@
 
                 <div class="company-history-img">
                     <div class="company-img-decor"></div>
-                    <img src="{{ asset('images/company/team/equipo_industria_simari.jpg') }}"
+                    <img src="#"
                         alt="Ingenieros Industriales de Equiterm Industries trabajando en soluciones térmicas"
                         title="Equipo de Equiterm Industries trabajando en soluciones térmicas"
                         width="1200"
