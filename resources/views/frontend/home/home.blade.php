@@ -256,7 +256,7 @@
                 <div class="why-image-wrapper-home">
                     <div class="blur-backdrop-home"></div>
                     <img class="why-img-home"
-                        src="{{ asset('images/company/team/equipo_industria_simari.jpg') }}"
+                        src="#"
                         alt="Equipo Equiterm Industries"
                         title="Equipo Equiterm Industries"
                         fetchpriority="low"
