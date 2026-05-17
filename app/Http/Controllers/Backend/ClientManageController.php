@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Backend;
 
 use App\Http\Controllers\Controller;
 use App\Models\Customer;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Smalot\PdfParser\Parser;
 
 class ClientManageController extends Controller
 {
@@ -96,6 +98,135 @@ class ClientManageController extends Controller
         }
 
         return redirect()->route('admin.clients.index')->with('success', 'Cliente creado correctamente.');
+    }
+
+    public function parseCfdi(Request $request): JsonResponse
+    {
+        $request->validate(['cfdi_pdf' => 'required|file|mimes:pdf|max:5120']);
+
+        try {
+            $parser  = new Parser();
+            $pdf     = $parser->parseFile($request->file('cfdi_pdf')->getPathname());
+            $rawText = '';
+            foreach ($pdf->getPages() as $page) {
+                $rawText .= $page->getText();
+            }
+
+            // Normalizar: un solo espacio, sin saltos de línea
+            $text = preg_replace('/\s+/', ' ', $rawText);
+
+            // RFC
+            $rfc = '';
+            if (preg_match('/RFC:\s*([A-Z]{3,4}\d{6}[A-Z0-9]{3})/i', $text, $m))
+                $rfc = trim($m[1]);
+
+            // CURP
+            $curp = '';
+            if (preg_match('/CURP:\s*([A-Z]{4}\d{6}[HM][A-Z]{5}[A-Z0-9]\d)/i', $text, $m))
+                $curp = trim($m[1]);
+
+            // Nombre(s) — labels concatenados sin espacios
+            $nombres = '';
+            if (preg_match('/Nombre\(s\):\s*(.+?)(?=PrimerApellido:|Primer Apellido:)/i', $text, $m))
+                $nombres = trim($m[1]);
+
+            $apellido1 = '';
+            if (preg_match('/PrimerApellido:\s*(.+?)(?=SegundoApellido:|Segundo Apellido:)/i', $text, $m))
+                $apellido1 = trim($m[1]);
+
+            $apellido2 = '';
+            if (preg_match('/SegundoApellido:\s*(.+?)(?=Fechainicio|Fecha inicio)/i', $text, $m))
+                $apellido2 = trim($m[1]);
+
+            $fullName = trim("$nombres $apellido1 $apellido2");
+
+            // Empresa — Nombre Comercial, fallback al nombre completo
+            $company = '';
+            if (preg_match('/NombreComercial:\s*(.+?)(?=Datosdel|Datos del)/i', $text, $m))
+                $company = trim($m[1]);
+            if (empty($company)) $company = $fullName;
+
+            // Código Postal
+            $postalCode = '';
+            if (preg_match('/C[oó]digoPostal:(\d{5})/i', $text, $m))
+                $postalCode = trim($m[1]);
+
+            // Tipo de Vialidad
+            $tipoVialidad = '';
+            if (preg_match('/TipodeVialidad:\s*(.+?)(?=NombredeVialidad:)/i', $text, $m))
+                $tipoVialidad = trim($m[1]);
+
+            // Nombre de Vialidad
+            $nombreVialidad = '';
+            if (preg_match('/NombredeVialidad:\s*(.+?)(?=N[uú]meroExterior:)/i', $text, $m))
+                $nombreVialidad = trim($m[1]);
+
+            // Número Exterior
+            $numExterior = '';
+            if (preg_match('/N[uú]meroExterior:\s*(\S+?)(?=N[uú]meroInterior:)/i', $text, $m))
+                $numExterior = trim($m[1]);
+
+            // Número Interior
+            $numInterior = '';
+            if (preg_match('/N[uú]meroInterior:\s*(.+?)(?=NombredelaColonia:)/i', $text, $m))
+                $numInterior = trim($m[1]);
+
+            // Colonia
+            $colonia = '';
+            if (preg_match('/NombredelaColonia:\s*(.+?)(?=NombredelaLocalidad:)/i', $text, $m))
+                $colonia = trim($m[1]);
+
+            // Ciudad (Localidad)
+            $city = '';
+            if (preg_match('/NombredelaLocalidad:\s*(.+?)(?=NombredelMunicipio)/i', $text, $m))
+                $city = trim($m[1]);
+
+            // Estado (Entidad Federativa)
+            $state = '';
+            if (preg_match('/NombredelaEntidadFederativa:\s*(.+?)(?=EntreCalle:)/i', $text, $m))
+                $state = trim($m[1]);
+
+            // Construir dirección
+            $parts = array_filter([
+                $tipoVialidad,
+                $nombreVialidad,
+                $numExterior ? "#$numExterior" : '',
+                $numInterior ? "Int.$numInterior" : '',
+                $colonia     ? "Col.$colonia"     : '',
+            ]);
+            $addressLine1 = implode(' ', $parts);
+
+            // Fecha de nacimiento desde CURP (posiciones 4-9: AAMMDD)
+            $birthDate = '';
+            if (!empty($curp) && strlen($curp) >= 10) {
+                $yy       = substr($curp, 4, 2);
+                $mo       = substr($curp, 6, 2);
+                $dd       = substr($curp, 8, 2);
+                $fullYear = ((int) $yy > (int) date('y')) ? "19$yy" : "20$yy";
+                $birthDate = "$fullYear-$mo-$dd";
+            }
+
+            return response()->json([
+                'rfc'            => $rfc,
+                'curp'           => $curp,
+                'full_name'      => $fullName,
+                'company'        => $company,
+                'document_type'  => 'curp',
+                'document_numer' => $curp,
+                'address_line1'  => $addressLine1,
+                'city'           => $city,
+                'state'          => $state,
+                'postal_code'    => $postalCode,
+                'country'        => 'México',
+                'birth_date'     => $birthDate,
+                'status'         => 'active',
+            ]);
+
+        } catch (\Exception) {
+            return response()->json([
+                'error' => 'No se pudo leer el PDF. Verifica que sea una Constancia de Situación Fiscal del SAT.',
+            ], 422);
+        }
     }
 
     /**

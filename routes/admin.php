@@ -23,6 +23,7 @@ Route::controller(UserManageController::class)->group(function () {
 Route::controller(ClientManageController::class)->group(function () {
     Route::get('/clientes', 'index')->name('clients.index');
     Route::post('/clientes/crear-usuario/', action: 'store')->name('clients.store');
+    Route::post('/clientes/parse-cfdi', 'parseCfdi')->name('clients.parse-cfdi');
     Route::get('/clientes/editar-cliente/{id}', 'edit')->name('clients.edit');
     Route::put('/clientes/editar-cliente/{id}', 'update')->name('clients.update');
     Route::delete('/clientes/eliminar-cliente/{id}', 'destroy')->name('clients.destroy');

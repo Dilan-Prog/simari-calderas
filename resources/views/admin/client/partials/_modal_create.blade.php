@@ -13,6 +13,19 @@
             action="{{ route('admin.clients.store') }}" method="POST">
             @csrf
 
+            {{-- CFDI / Constancia SAT reader --}}
+            <div class="cfdi-reader-section">
+                <h3 style="margin-top:0">Leer Constancia SAT</h3>
+                <div class="cfdi-upload-row">
+                    <input type="file" id="cfdiFileInput" accept=".pdf" style="display:none">
+                    <button type="button" id="cfdiReadBtn" class="button-secondary size-adjustment">
+                        📄 Seleccionar Constancia (PDF)
+                    </button>
+                    <span id="cfdiFileName" class="cfdi-filename">Ningún archivo seleccionado</span>
+                </div>
+                <div id="cfdiStatus" class="cfdi-status" style="display:none"></div>
+            </div>
+
             {{-- Section: Personal info --}}
             <h3>Información Personal</h3>
             <div class="user-manager-form">
@@ -53,9 +66,10 @@
                         <option value="ine" {{ old('document_type') == 'ine' ? 'selected' : '' }}>INE</option>
                         <option value="pasaporte" {{ old('document_type') == 'pasaporte' ? 'selected' : '' }}>Pasaporte</option>
                         <option value="curp" {{ old('document_type') == 'curp' ? 'selected' : '' }}>CURP</option>
+                        <option value="cfdi" {{ old('document_type') == 'cfdi' ? 'selected' : '' }}>CFDI</option>
                     </select>
                 </div>
-                <div>
+                {{-- <div>
                     <label class="supliers-manager-slider-label">Número de documento</label>
                     <input class="users-manager-input" type="text" name="document_numer"
                         placeholder="Ej: 1234567890123" value="{{ old('document_numer') }}">
@@ -64,7 +78,7 @@
                     <label class="supliers-manager-slider-label">Fecha de nacimiento</label>
                     <input class="users-manager-input" type="date" name="birth_date"
                         value="{{ old('birth_date') }}">
-                </div>
+                </div> --}}
                 <div>
                     <label class="supliers-manager-slider-label">¿Cómo nos conoció?</label>
                     <select class="users-manager-select" name="source">

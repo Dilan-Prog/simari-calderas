@@ -316,5 +316,82 @@
 
         clientSearch.addEventListener('input', filterClients);
         clientStatusFilter.addEventListener('change', filterClients);
+
+        // --- CFDI / Constancia SAT reader ---
+        const cfdiReadBtn   = document.getElementById('cfdiReadBtn');
+        const cfdiFileInput = document.getElementById('cfdiFileInput');
+        const cfdiFileName  = document.getElementById('cfdiFileName');
+        const cfdiStatus    = document.getElementById('cfdiStatus');
+
+        const cfdiFieldMap = {
+            rfc:            '[name="rfc"]',
+            full_name:      '[name="full_name"]',
+            company:        '[name="company"]',
+            document_type:  '[name="document_type"]',
+            document_numer: '[name="document_numer"]',
+            address_line1:  '[name="address_line1"]',
+            city:           '[name="city"]',
+            state:          '[name="state"]',
+            postal_code:    '[name="postal_code"]',
+            country:        '[name="country"]',
+            birth_date:     '[name="birth_date"]',
+            status:         '[name="status"]',
+        };
+
+        function cfdiShowStatus(type, message) {
+            cfdiStatus.style.display = 'block';
+            cfdiStatus.className     = `cfdi-status cfdi-status--${type}`;
+            cfdiStatus.textContent   = message;
+        }
+
+        if (cfdiReadBtn) {
+            cfdiReadBtn.addEventListener('click', () => cfdiFileInput.click());
+
+            cfdiFileInput.addEventListener('change', async function () {
+                if (!this.files.length) return;
+
+                const file = this.files[0];
+                cfdiFileName.textContent = file.name;
+                cfdiReadBtn.disabled     = true;
+                cfdiReadBtn.textContent  = '⏳ Leyendo...';
+                cfdiShowStatus('info', 'Procesando el PDF, espera un momento...');
+
+                const formData = new FormData();
+                formData.append('cfdi_pdf', file);
+                formData.append('_token', document.querySelector('meta[name="csrf-token"]').content);
+
+                try {
+                    const response = await fetch('{{ route('admin.clients.parse-cfdi') }}', {
+                        method: 'POST',
+                        body:   formData,
+                    });
+
+                    const data = await response.json();
+
+                    if (!response.ok) {
+                        cfdiShowStatus('error', data.error || 'Error al procesar el PDF.');
+                        return;
+                    }
+
+                    let filled = 0;
+                    for (const [key, selector] of Object.entries(cfdiFieldMap)) {
+                        if (!data[key]) continue;
+                        const el = document.querySelector(selector);
+                        if (!el) continue;
+                        el.value = data[key];
+                        filled++;
+                    }
+
+                    cfdiShowStatus('success', `✅ Se llenaron ${filled} campos automáticamente.`);
+
+                } catch (err) {
+                    cfdiShowStatus('error', 'Error de conexión. Intenta de nuevo.');
+                } finally {
+                    cfdiReadBtn.disabled    = false;
+                    cfdiReadBtn.textContent = '📄 Seleccionar Constancia (PDF)';
+                    cfdiFileInput.value     = '';
+                }
+            });
+        }
     </script>
 @endpush
