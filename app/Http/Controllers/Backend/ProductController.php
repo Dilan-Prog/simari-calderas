@@ -69,7 +69,7 @@ class ProductController extends Controller
             'slug'              => 'nullable|string|max:255|unique:products,slug',
             'is_active'         => 'nullable|boolean',
             'is_featured'       => 'nullable|boolean',
-            'availability'      => 'nullable|in:available,on_order,out_of_stock',
+            // 'availability'      => 'nullable|in:available,on_order,out_of_stock',
             'images'            => 'nullable|array',
             'images.*'          => 'image|mimes:jpeg,jpg,png|max:2048',
         ]);
@@ -96,7 +96,7 @@ class ProductController extends Controller
         $product->brand_id          = $request->brand_id       ?? null;
         $product->is_active         = $request->boolean('is_active',  true);
         $product->is_featured       = $request->boolean('is_featured', false);
-        $product->availability      = $request->availability ?? 'available';
+        // $product->availability      = $request->availability ?? 'available';
         // Save specifications
         if ($request->filled('spec_key')) {
             $specs = [];
