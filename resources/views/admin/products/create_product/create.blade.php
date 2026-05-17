@@ -168,8 +168,7 @@
                                         SKU <span class="pform-required">*</span>
                                     </label>
                                     <input type="text" id="pformSku" class="pform-input" name="sku"
-                                        value="{{ $sku }}" readonly
-                                        style="background:#f9fafb;cursor:not-allowed;" required />
+                                        value="{{ $sku }}" readonly required disabled/>
                                 </div>
                                 <div class="pform-field">
                                     <label class="pform-label" for="pformBrand">Marca</label>
@@ -387,7 +386,7 @@
                                 <div class="pform-grid-3">
                                     <div class="pform-field">
                                         <label class="pform-label">SKU <span class="pform-required">*</span></label>
-                                        <input type="text" class="pform-input" placeholder="PROD-001" required>
+                                        <input type="text" class="pform-input" placeholder="PROD-001" required value="{{ $sku }}" disabled>
                                     </div>
                                     <div class="pform-field">
                                         <label class="pform-label">Inventario Disponible <span

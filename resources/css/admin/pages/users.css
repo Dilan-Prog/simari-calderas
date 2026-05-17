@@ -515,6 +515,11 @@
     border-radius: 6px;
 }
 
+.users-manager-input.password::-ms-reveal,
+.users-manager-input.password::-ms-clear {
+    display: none;
+}
+
 .lucide-eye {
     position: absolute;
     right: 12px;

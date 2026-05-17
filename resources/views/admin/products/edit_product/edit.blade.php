@@ -397,7 +397,7 @@
                                     <div class="pform-field">
                                         <label class="pform-label">SKU <span class="pform-required">*</span></label>
                                         <input type="text" name="sku_inventory" class="pform-input"
-                                            placeholder="PROD-001" value="{{ $product->sku }}" required>
+                                            placeholder="PROD-001" value="{{ $product->sku }}" required disabled>
                                     </div>
                                     <div class="pform-field">
                                         <label class="pform-label">Inventario Disponible <span
