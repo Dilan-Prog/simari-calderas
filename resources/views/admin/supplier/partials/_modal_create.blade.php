@@ -9,6 +9,19 @@
             method="POST">
             @csrf
 
+            {{-- Constancia SAT reader --}}
+            <div class="cfdi-reader-section">
+                <h3 style="margin-top:0">Leer Constancia SAT</h3>
+                <div class="cfdi-upload-row">
+                    <input type="file" id="supplierCfdiFileInput" accept=".pdf" style="display:none">
+                    <button type="button" id="supplierCfdiReadBtn" class="button-secondary size-adjustment">
+                        📄 Seleccionar Constancia (PDF)
+                    </button>
+                    <span id="supplierCfdiFileName" class="cfdi-filename">Ningún archivo seleccionado</span>
+                </div>
+                <div id="supplierCfdiStatus" class="cfdi-status" style="display:none"></div>
+            </div>
+
             <h3>Información de la Empresa</h3>
             <div class="show-user-divider"></div>
             <div class="user-manager-form">

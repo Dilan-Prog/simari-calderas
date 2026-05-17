@@ -321,5 +321,91 @@
         slider.addEventListener('click', (e) => {
             if (!isDragging) updateSlider(e);
         });
+
+        // --- CFDI / Constancia SAT reader (Proveedor) ---
+        (function () {
+            const btn      = document.getElementById('supplierCfdiReadBtn');
+            const input    = document.getElementById('supplierCfdiFileInput');
+            const fileName = document.getElementById('supplierCfdiFileName');
+            const status   = document.getElementById('supplierCfdiStatus');
+            const form     = document.getElementById('supplierCreateForm');
+
+            function showStatus(type, message) {
+                status.style.display = 'block';
+                status.className     = `cfdi-status cfdi-status--${type}`;
+                status.textContent   = message;
+            }
+
+            btn.addEventListener('click', () => input.click());
+
+            input.addEventListener('change', async function () {
+                if (!this.files.length) return;
+
+                fileName.textContent = this.files[0].name;
+                btn.disabled         = true;
+                btn.textContent      = '⏳ Leyendo...';
+                showStatus('info', 'Procesando el PDF, espera un momento...');
+
+                const formData = new FormData();
+                formData.append('cfdi_pdf', this.files[0]);
+                formData.append('_token', document.querySelector('meta[name="csrf-token"]').content);
+
+                try {
+                    const res  = await fetch('{{ route('admin.clients.parse-cfdi') }}', {
+                        method: 'POST',
+                        body:   formData,
+                    });
+                    const data = await res.json();
+
+                    if (!res.ok) {
+                        showStatus('error', data.error || 'Error al procesar el PDF.');
+                        return;
+                    }
+
+                    // Mapeo: campos CFDI → campos del formulario de proveedor
+                    const map = {
+                        rfc:       '[name="rfc"]',
+                        full_name: '[name="contact_name"]',
+                        company:   '[name="company_name"]',
+                        phone:     '[name="phone"]',
+                        email:     '[name="email"]',
+                    };
+
+                    let filled = 0;
+                    for (const [key, selector] of Object.entries(map)) {
+                        if (!data[key]) continue;
+                        const el = form.querySelector(selector);
+                        if (!el) continue;
+                        el.value = data[key];
+                        filled++;
+                    }
+
+                    // Dirección: construir desde partes en el textarea único
+                    const addressEl = form.querySelector('[name="address"]');
+                    if (addressEl) {
+                        const parts = [
+                            data.address_line1,
+                            data.city,
+                            data.state,
+                            data.postal_code ? `C.P. ${data.postal_code}` : '',
+                            data.country,
+                        ].filter(Boolean);
+                        if (parts.length) {
+                            addressEl.value = parts.join(', ');
+                            filled++;
+                        }
+                    }
+
+                    showStatus('success', `✅ Se llenaron ${filled} campos automáticamente.`);
+
+                } catch {
+                    showStatus('error', 'Error de conexión. Intenta de nuevo.');
+                } finally {
+                    btn.disabled    = false;
+                    btn.textContent = '📄 Seleccionar Constancia (PDF)';
+                    input.value     = '';
+                }
+            });
+        })();
     </script>
 @endpush
