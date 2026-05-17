@@ -96,7 +96,7 @@ class ProductController extends Controller
         $product->brand_id          = $request->brand_id       ?? null;
         $product->is_active         = $request->boolean('is_active',  true);
         $product->is_featured       = $request->boolean('is_featured', false);
-        // $product->availability      = $request->availability ?? 'available';
+        $product->availability      = $request->availability ?? 'available';
         // Save specifications
         if ($request->filled('spec_key')) {
             $specs = [];
