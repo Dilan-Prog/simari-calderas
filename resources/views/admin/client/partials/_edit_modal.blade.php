@@ -59,15 +59,6 @@
                     </select>
                 </div>
                 <div>
-                    <label class="supliers-manager-slider-label">Número de documento</label>
-                    <input class="users-manager-input" type="text" name="document_numer"
-                        placeholder="Ej: 1234567890123">
-                </div>
-                <div>
-                    <label class="supliers-manager-slider-label">Fecha de nacimiento</label>
-                    <input class="users-manager-input" type="date" name="birth_date">
-                </div>
-                <div>
                     <label class="supliers-manager-slider-label">¿Cómo nos conoció?</label>
                     <select class="users-manager-select" name="source">
                         <option value="">Seleccionar...</option>

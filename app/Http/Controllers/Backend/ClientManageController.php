@@ -51,8 +51,6 @@ class ClientManageController extends Controller
             'phone' => 'nullable|string|max:30',
             'rfc' => 'nullable|string|max:20',
             'document_type' => 'nullable|string|max:30',
-            'document_numer' => 'nullable|string|max:30',
-            'birth_date' => 'nullable|date',
             'source' => 'nullable|string|max:50',
             'status' => 'required|in:active,inactive,suspended',
             'address_line1' => 'nullable|string|max:255',
@@ -75,8 +73,6 @@ class ClientManageController extends Controller
         $customer->rfc = $request->rfc;
         $customer->notes = $request->notes;
         $customer->document_type = $request->document_type;
-        $customer->document_numer = $request->document_numer ?? '';
-        $customer->birth_date = $request->birth_date;
         $customer->source = $request->source;
         $customer->status = $request->status;
         $customer->save();
@@ -207,19 +203,16 @@ class ClientManageController extends Controller
             }
 
             return response()->json([
-                'rfc'            => $rfc,
-                'curp'           => $curp,
-                'full_name'      => $fullName,
-                'company'        => $company,
-                'document_type'  => 'curp',
-                'document_numer' => $curp,
-                'address_line1'  => $addressLine1,
-                'city'           => $city,
-                'state'          => $state,
-                'postal_code'    => $postalCode,
-                'country'        => 'México',
-                'birth_date'     => $birthDate,
-                'status'         => 'active',
+                'rfc'           => $rfc,
+                'full_name'     => $fullName,
+                'company'       => $company,
+                'document_type' => 'curp',
+                'address_line1' => $addressLine1,
+                'city'          => $city,
+                'state'         => $state,
+                'postal_code'   => $postalCode,
+                'country'       => 'México',
+                'status'        => 'active',
             ]);
 
         } catch (\Exception) {
@@ -268,8 +261,6 @@ class ClientManageController extends Controller
             'phone' => 'nullable|string|max:30',
             'rfc' => 'nullable|string|max:20',
             'document_type' => 'nullable|string|max:30',
-            'document_numer' => 'nullable|string|max:30',
-            'birth_date' => 'nullable|date',
             'source' => 'nullable|string|max:50',
             'status' => 'required|in:active,inactive,suspended',
             'address_line1' => 'nullable|string|max:255',
@@ -289,8 +280,6 @@ class ClientManageController extends Controller
         $customer->phone = $request->phone;
         $customer->rfc = $request->rfc;
         $customer->document_type = $request->document_type;
-        $customer->document_numer = $request->document_numer ?? '';
-        $customer->birth_date = $request->birth_date;
         $customer->source = $request->source;
         $customer->notes = $request->notes;
         $customer->status = $request->status;

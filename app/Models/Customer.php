@@ -17,8 +17,6 @@ class Customer extends Model
         'phone',
         'password_hash',
         'document_type',
-        'document_numer',
-        'birth_date',
         'status',
         'source',
         'company',

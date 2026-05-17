@@ -170,13 +170,8 @@
                         editClientForm.querySelector('[name="email"]').value = customer.email ?? '';
                         editClientForm.querySelector('[name="phone"]').value = customer.phone ?? '';
                         editClientForm.querySelector('[name="rfc"]').value = customer.rfc ?? '';
-                        editClientForm.querySelector('[name="document_type"]').value = customer
-                            .document_type ?? '';
-                        editClientForm.querySelector('[name="document_numer"]').value = customer
-                            .document_numer ?? '';
-                        editClientForm.querySelector('[name="birth_date"]').value = customer
-                            .birth_date ?? '';
-                        editClientForm.querySelector('[name="source"]').value = customer.source ?? '';
+                        editClientForm.querySelector('[name="document_type"]').value = customer.document_type ?? '';
+                        editClientForm.querySelector('[name="source"]').value         = customer.source ?? '';
                         editClientForm.querySelector('[name="status"]').value = customer.status ??
                             'active';
                         editClientForm.querySelector('[name="notes"]').value = customer.notes ?? '';
@@ -324,18 +319,16 @@
         const cfdiStatus    = document.getElementById('cfdiStatus');
 
         const cfdiFieldMap = {
-            rfc:            '[name="rfc"]',
-            full_name:      '[name="full_name"]',
-            company:        '[name="company"]',
-            document_type:  '[name="document_type"]',
-            document_numer: '[name="document_numer"]',
-            address_line1:  '[name="address_line1"]',
-            city:           '[name="city"]',
-            state:          '[name="state"]',
-            postal_code:    '[name="postal_code"]',
-            country:        '[name="country"]',
-            birth_date:     '[name="birth_date"]',
-            status:         '[name="status"]',
+            rfc:           '[name="rfc"]',
+            full_name:     '[name="full_name"]',
+            company:       '[name="company"]',
+            document_type: '[name="document_type"]',
+            address_line1: '[name="address_line1"]',
+            city:          '[name="city"]',
+            state:         '[name="state"]',
+            postal_code:   '[name="postal_code"]',
+            country:       '[name="country"]',
+            status:        '[name="status"]',
         };
 
         function cfdiShowStatus(type, message) {

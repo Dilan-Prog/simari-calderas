@@ -69,16 +69,6 @@
                         <option value="cfdi" {{ old('document_type') == 'cfdi' ? 'selected' : '' }}>CFDI</option>
                     </select>
                 </div>
-                {{-- <div>
-                    <label class="supliers-manager-slider-label">Número de documento</label>
-                    <input class="users-manager-input" type="text" name="document_numer"
-                        placeholder="Ej: 1234567890123" value="{{ old('document_numer') }}">
-                </div>
-                <div>
-                    <label class="supliers-manager-slider-label">Fecha de nacimiento</label>
-                    <input class="users-manager-input" type="date" name="birth_date"
-                        value="{{ old('birth_date') }}">
-                </div> --}}
                 <div>
                     <label class="supliers-manager-slider-label">¿Cómo nos conoció?</label>
                     <select class="users-manager-select" name="source">
