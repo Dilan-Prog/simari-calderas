@@ -77,6 +77,67 @@
             QuoteForm.calculateGlobalTotals();
         },
 
+        addRow: function (p) {
+            // Called by inline product search — SKU readonly, discount empty
+            var existingEmpty = document.getElementById('emptyRow');
+            if (existingEmpty) existingEmpty.remove();
+
+            rowCount++;
+            var qty       = 1;
+            var price     = parseFloat(p.price || 0);
+            var lineTotal = QuoteForm._calcLineTotal(qty, price, 0);
+
+            var tr = document.createElement('tr');
+            tr.dataset.productId  = p.id || '';
+            tr.dataset.productSku = p.sku || '';
+            tr.innerHTML =
+                '<td class="col-num">' + rowCount + '</td>' +
+                '<td class="col-name">' +
+                    '<div class="item-name-wrap">' +
+                        '<div class="item-name-row">' +
+                            '<input type="text" class="cell-input item-name" value="' + _esc(p.name || '') + '" placeholder="Nombre del producto o servicio">' +
+                            '<button type="button" class="item-desc-toggle" title="Agregar descripción detallada" aria-label="Agregar descripción">' +
+                                '<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>' +
+                            '</button>' +
+                        '</div>' +
+                        '<textarea class="cell-input item-desc" placeholder="Descripción detallada del servicio..." rows="3" style="display:none"></textarea>' +
+                    '</div>' +
+                '</td>' +
+                '<td class="col-sku">' +
+                    '<input type="text" class="cell-input item-sku sku-readonly" value="' + _esc(p.sku || '') + '" readonly disabled tabindex="-1">' +
+                '</td>' +
+                '<td class="col-qty">' +
+                    '<input type="number" class="cell-input item-qty" value="1" min="1" step="1">' +
+                '</td>' +
+                '<td class="col-price">' +
+                    '<input type="number" class="cell-input item-price" value="' + price.toFixed(2) + '" min="0" step="0.01">' +
+                '</td>' +
+                '<td class="col-disc">' +
+                    '<input type="number" class="cell-input item-disc" value="" min="0" max="100" step="0.01" placeholder="0">' +
+                '</td>' +
+                '<td class="col-total item-line-total">$' + lineTotal.toFixed(2) + '</td>' +
+                '<td class="col-del">' +
+                    '<button type="button" class="qform-del-btn" onclick="QuoteForm.removeRow(this)" title="Eliminar" aria-label="Eliminar fila">' +
+                        '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>' +
+                    '</button>' +
+                '</td>';
+
+            var toggleBtn = tr.querySelector('.item-desc-toggle');
+            var descArea  = tr.querySelector('.item-desc');
+            toggleBtn.addEventListener('click', function () {
+                var hidden = descArea.style.display === 'none';
+                descArea.style.display = hidden ? '' : 'none';
+                toggleBtn.classList.toggle('item-desc-toggle--active', hidden);
+                if (hidden) descArea.focus();
+            });
+            tr.querySelector('.item-qty').addEventListener('input', function () { QuoteForm.calculateRowTotal(tr); });
+            tr.querySelector('.item-price').addEventListener('input', function () { QuoteForm.calculateRowTotal(tr); });
+            tr.querySelector('.item-disc').addEventListener('input', function () { QuoteForm.calculateRowTotal(tr); });
+
+            document.getElementById('itemsTableBody').appendChild(tr);
+            QuoteForm.calculateGlobalTotals();
+        },
+
         addFreeRow: function () {
             QuoteForm.addProductRow({
                 product_id: null, product_name: '', product_sku: '',

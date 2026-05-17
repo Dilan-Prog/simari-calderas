@@ -47,7 +47,12 @@ class QuoteController extends Controller
 
     public function create()
     {
-        return view('admin.quotes.create');
+        $customers = \App\Models\Customer::select('id', 'first_name', 'last_name', 'email', 'phone', 'rfc', 'company')
+            ->where('status', 'active')
+            ->orderBy('first_name')
+            ->get();
+
+        return view('admin.quotes.create', compact('customers'));
     }
 
     public function store(Request $request)
@@ -155,14 +160,27 @@ class QuoteController extends Controller
     {
         $q = $request->get('q', '');
 
-        $products = Products::where('is_active', 1)
+        $products = Products::with(['category:id,name', 'brand:id,name'])
+            ->where('is_active', 1)
             ->where(function ($query) use ($q) {
                 $query->where('name', 'like', "%{$q}%")
-                      ->orWhere('sku', 'like', "%{$q}%");
+                      ->orWhere('sku', 'like', "%{$q}%")
+                      ->orWhereHas('brand', fn($b) => $b->where('name', 'like', "%{$q}%"))
+                      ->orWhereHas('category', fn($c) => $c->where('name', 'like', "%{$q}%"));
             })
-            ->select('id', 'name', 'sku', 'price', 'stock', 'cover_image_url')
-            ->limit(20)
-            ->get();
+            ->select('id', 'name', 'sku', 'price', 'stock', 'cover_image_url', 'brand_id', 'category_id')
+            ->take(12)
+            ->get()
+            ->map(fn($p) => [
+                'id'        => $p->id,
+                'name'      => $p->name,
+                'sku'       => $p->sku,
+                'price'     => $p->price,
+                'stock'     => $p->stock,
+                'image_url' => $p->cover_image_url,
+                'category'  => $p->category?->name,
+                'brand'     => $p->brand?->name,
+            ]);
 
         return response()->json($products);
     }

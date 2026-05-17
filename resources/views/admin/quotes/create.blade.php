@@ -44,9 +44,35 @@
                 <div class="quotes-card">
                     <h2 class="quotes-card__header">Datos del Receptor</h2>
 
+                    {{-- Selector de cliente registrado --}}
+                    <div class="form-group">
+                        <label class="form-label">Buscar Cliente registrado</label>
+                        <div class="client-select-wrap">
+                            <input type="text" id="clientSearchInput" class="form-input"
+                                   placeholder="Escribe el nombre o empresa..."
+                                   autocomplete="off">
+                            <div id="clientDropdown" class="client-dropdown" style="display:none">
+                                @foreach($customers as $c)
+                                    <div class="client-dropdown__item"
+                                         data-name="{{ trim($c->first_name . ' ' . $c->last_name) }}"
+                                         data-company="{{ $c->company ?? '' }}"
+                                         data-email="{{ $c->email ?? '' }}"
+                                         data-phone="{{ $c->phone ?? '' }}"
+                                         data-rfc="{{ $c->rfc ?? '' }}">
+                                        <span class="client-dropdown__name">{{ trim($c->first_name . ' ' . $c->last_name) }}</span>
+                                        @if($c->company)
+                                            <span class="client-dropdown__company">{{ $c->company }}</span>
+                                        @endif
+                                    </div>
+                                @endforeach
+                                <div class="client-dropdown__empty" style="display:none">Sin resultados</div>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="form-group">
                         <label class="form-label">Nombre completo <span class="form-req">*</span></label>
-                        <input type="text" name="guest_name" class="form-input"
+                        <input type="text" name="guest_name" id="guestName" class="form-input"
                                value="{{ old('guest_name') }}" required autocomplete="off"
                                placeholder="Nombre y apellidos del receptor">
                         @error('guest_name')<span class="form-error">{{ $message }}</span>@enderror
@@ -104,14 +130,51 @@
                     @enderror
 
                     <div class="products-toolbar">
-                        <button type="button" class="btn-outline" onclick="openProductSearch()">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
-                            </svg>
-                            Buscar en catálogo
-                        </button>
+
+                        {{-- Búsqueda inline de productos --}}
+                        <div class="inline-product-search" id="inlineProductSearch">
+                            <div class="inline-product-search__input-wrap">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15"
+                                     viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                     stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"
+                                     class="inline-product-search__icon" aria-hidden="true">
+                                    <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+                                </svg>
+                                <input type="text"
+                                       id="inlineProductInput"
+                                       class="inline-product-search__input"
+                                       placeholder="Buscar por nombre, SKU, marca o categoría..."
+                                       autocomplete="off">
+                                <button type="button"
+                                        class="inline-product-search__clear"
+                                        id="inlineProductClear"
+                                        style="display:none"
+                                        aria-label="Limpiar búsqueda">✕</button>
+                            </div>
+
+                            <div class="inline-product-search__dropdown"
+                                 id="inlineProductDropdown"
+                                 style="display:none">
+                                <div class="inline-product-search__loading"
+                                     id="inlineProductLoading"
+                                     style="display:none">
+                                    <span class="inline-product-search__spinner"></span>
+                                    Buscando productos...
+                                </div>
+                                <div class="inline-product-search__empty"
+                                     id="inlineProductEmpty"
+                                     style="display:none">
+                                    Sin resultados para "<span id="inlineProductEmptyQuery"></span>"
+                                </div>
+                                <ul class="inline-product-search__list" id="inlineProductList"></ul>
+                            </div>
+                        </div>
+
                         <button type="button" class="btn-add-row" onclick="QuoteForm.addFreeRow()">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15"
+                                 viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                 stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"
+                                 aria-hidden="true">
                                 <path d="M12 5v14"/><path d="M5 12h14"/>
                             </svg>
                             Agregar línea libre
@@ -224,22 +287,6 @@
     </form>
 </div>
 
-{{-- ── Modal búsqueda de productos ───────────────────── --}}
-<div class="product-search-backdrop" id="searchBackdrop" onclick="closeSearchOnBackdrop(event)">
-    <div class="product-search-modal">
-        <div class="product-search-modal__header">
-            <span class="product-search-modal__title">Buscar producto</span>
-            <button class="product-search-close" onclick="closeProductSearch()" aria-label="Cerrar">&#x2715;</button>
-        </div>
-        <div class="product-search-input-wrap">
-            <input type="text" id="searchInput" class="product-search-input"
-                   placeholder="Nombre o SKU del producto..." autocomplete="off">
-        </div>
-        <div class="product-search-results" id="searchResults">
-            <div class="product-search-empty">Escribe para buscar productos...</div>
-        </div>
-    </div>
-</div>
 @endsection
 
 @push('scripts')
@@ -248,6 +295,204 @@
 window.ADMIN_QUOTES_CONFIG = {
     searchUrl: "{{ route('admin.quotes.search-products') }}"
 };
+
+// ── Inline product search ────────────────────────────────
+(function () {
+    const input    = document.getElementById('inlineProductInput');
+    const dropdown = document.getElementById('inlineProductDropdown');
+    const list     = document.getElementById('inlineProductList');
+    const loading  = document.getElementById('inlineProductLoading');
+    const empty    = document.getElementById('inlineProductEmpty');
+    const emptyQ   = document.getElementById('inlineProductEmptyQuery');
+    const clearBtn = document.getElementById('inlineProductClear');
+    const SEARCH_URL = window.ADMIN_QUOTES_CONFIG.searchUrl;
+
+    let debounceTimer = null;
+    let currentQuery  = '';
+
+    function showLoading() {
+        loading.style.display  = 'flex';
+        empty.style.display    = 'none';
+        list.style.display     = 'none';
+        dropdown.style.display = 'block';
+    }
+
+    function showResults(items) {
+        loading.style.display = 'none';
+        if (items.length === 0) {
+            empty.style.display    = 'flex';
+            emptyQ.textContent     = currentQuery;
+            list.style.display     = 'none';
+        } else {
+            empty.style.display    = 'none';
+            list.style.display     = 'block';
+            renderItems(items);
+        }
+    }
+
+    function hideDropdown() {
+        dropdown.style.display = 'none';
+        list.innerHTML = '';
+    }
+
+    function formatPrice(n) {
+        return '$' + parseFloat(n).toLocaleString('es-MX', {
+            minimumFractionDigits: 2, maximumFractionDigits: 2
+        });
+    }
+
+    function esc(s) {
+        return String(s ?? '').replace(/&/g,'&amp;').replace(/"/g,'&quot;')
+                              .replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+
+    function renderItems(products) {
+        list.innerHTML = '';
+        products.forEach(p => {
+            const hasStock = p.stock > 0;
+            const li = document.createElement('li');
+            li.className = 'inline-product-search__item' + (!hasStock ? ' is-out-of-stock' : '');
+            const imgSrc = p.image_url ? esc(p.image_url) : '';
+            li.innerHTML = `
+                <div class="inline-product-search__item-img">
+                    ${imgSrc
+                        ? `<img src="${imgSrc}" alt="${esc(p.name)}" onerror="this.onerror=null;this.style.display='none';">`
+                        : `<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>`
+                    }
+                </div>
+                <div class="inline-product-search__item-info">
+                    <span class="inline-product-search__item-name">${esc(p.name)}</span>
+                    <span class="inline-product-search__item-sku">SKU: ${esc(p.sku)}</span>
+                    <span class="inline-product-search__item-meta">
+                        ${[p.category, p.brand].filter(Boolean).map(esc).join(' · ')}
+                    </span>
+                </div>
+                <div class="inline-product-search__item-right">
+                    <div class="inline-product-search__item-stock ${hasStock ? 'in-stock' : 'out-of-stock'}">
+                        ${hasStock ? p.stock + ' disponibles' : 'Sin stock'}
+                    </div>
+                    <div class="inline-product-search__item-price">${formatPrice(p.price)}</div>
+                    <button type="button"
+                            class="inline-product-search__add-btn"
+                            aria-label="Agregar ${esc(p.name)}">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                             viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                             stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 5v14"/><path d="M5 12h14"/>
+                        </svg>
+                    </button>
+                </div>`;
+
+            li.querySelector('.inline-product-search__add-btn')
+              .addEventListener('click', () => {
+                  QuoteForm.addRow(p);
+                  input.value = '';
+                  clearBtn.style.display = 'none';
+                  hideDropdown();
+                  input.focus();
+              });
+
+            list.appendChild(li);
+        });
+    }
+
+    async function fetchProducts(query) {
+        try {
+            const url = new URL(SEARCH_URL, window.location.origin);
+            url.searchParams.set('q', query);
+            const res  = await fetch(url.toString(), {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            });
+            if (!res.ok) throw new Error('Server error');
+            const data = await res.json();
+            return Array.isArray(data) ? data : (data.data ?? []);
+        } catch {
+            return [];
+        }
+    }
+
+    input.addEventListener('input', function () {
+        const q = this.value.trim();
+        clearBtn.style.display = q ? 'block' : 'none';
+        clearTimeout(debounceTimer);
+
+        if (q.length < 2) { hideDropdown(); return; }
+
+        currentQuery = q;
+        showLoading();
+        debounceTimer = setTimeout(async () => {
+            const products = await fetchProducts(q);
+            if (currentQuery === q) showResults(products);
+        }, 300);
+    });
+
+    clearBtn.addEventListener('click', () => {
+        input.value = '';
+        clearBtn.style.display = 'none';
+        hideDropdown();
+        input.focus();
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('#inlineProductSearch')) hideDropdown();
+    });
+
+    input.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') { hideDropdown(); input.blur(); }
+    });
+})();
+
+// ── Buscador de cliente registrado ──────────────────────
+(function () {
+    const searchInput = document.getElementById('clientSearchInput');
+    const dropdown    = document.getElementById('clientDropdown');
+    const items       = Array.from(dropdown.querySelectorAll('.client-dropdown__item'));
+    const emptyMsg    = dropdown.querySelector('.client-dropdown__empty');
+
+    function filterItems(q) {
+        q = q.toLowerCase().trim();
+        let visible = 0;
+        items.forEach(item => {
+            const name    = item.dataset.name.toLowerCase();
+            const company = item.dataset.company.toLowerCase();
+            const match   = !q || name.includes(q) || company.includes(q);
+            item.style.display = match ? '' : 'none';
+            if (match) visible++;
+        });
+        emptyMsg.style.display = visible === 0 ? '' : 'none';
+    }
+
+    searchInput.addEventListener('focus', () => {
+        filterItems(searchInput.value);
+        dropdown.style.display = 'block';
+    });
+
+    searchInput.addEventListener('input', () => {
+        filterItems(searchInput.value);
+        dropdown.style.display = 'block';
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.client-select-wrap')) {
+            dropdown.style.display = 'none';
+        }
+    });
+
+    items.forEach(item => {
+        item.addEventListener('click', () => {
+            // Rellenar campos del receptor
+            document.getElementById('guestName').value                           = item.dataset.name;
+            document.querySelector('[name="guest_company"]').value               = item.dataset.company;
+            document.querySelector('[name="guest_email"]').value                 = item.dataset.email;
+            document.querySelector('[name="guest_phone"]').value                 = item.dataset.phone;
+            document.querySelector('[name="guest_rfc"]').value                   = item.dataset.rfc;
+
+            // Actualizar el buscador con el nombre seleccionado
+            searchInput.value = item.dataset.name + (item.dataset.company ? ' — ' + item.dataset.company : '');
+            dropdown.style.display = 'none';
+        });
+    });
+})();
 </script>
 @vite(['resources/js/admin-quotes.js'])
 @endpush
