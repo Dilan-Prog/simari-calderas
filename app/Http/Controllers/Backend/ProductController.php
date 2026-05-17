@@ -3,17 +3,20 @@
 namespace App\Http\Controllers\Backend;
 
 use App\Http\Controllers\Controller;
+use App\Traits\ImageUploadTrait;
 use Illuminate\Http\Request;
 use App\Models\Products;
+use App\Models\ProductImage;
 use Illuminate\Support\Str;
 use App\Models\Category;
 use App\Models\Brand;
 
 class ProductController extends Controller
 {
+    use ImageUploadTrait;
     public function index()
     {
-        $products = Products::with(['category', 'brand'])->get([
+        $products = Products::with(['category', 'brand', 'images'])->get([
             'id',
             'name',
             'sku',
@@ -39,7 +42,11 @@ class ProductController extends Controller
 
         $brands = Brand::where('is_active', true)->get(['id', 'name']);
 
-        return view('admin.products.create_product.create', compact('categories', 'brands'));
+        $lastProduct = Products::orderBy('id', 'desc')->first();
+        $nextNumber = $lastProduct ? (intval(substr($lastProduct->sku, 5)) + 1) : 1;
+        $sku = 'ALMC-' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
+
+        return view('admin.products.create_product.create', compact('categories', 'brands', 'sku'));
     }
 
     public function store(Request $request)
@@ -62,7 +69,9 @@ class ProductController extends Controller
             'slug'              => 'nullable|string|max:255|unique:products,slug',
             'is_active'         => 'nullable|boolean',
             'is_featured'       => 'nullable|boolean',
-            'availability'      => 'nullable|in:available,on_order,out_of_stock'
+            'availability'      => 'nullable|in:available,on_order,out_of_stock',
+            'images'            => 'nullable|array',
+            'images.*'          => 'image|mimes:jpeg,jpg,png|max:2048',
         ]);
 
         $product = new Products();
@@ -104,13 +113,24 @@ class ProductController extends Controller
 
         $product->save();
 
+        if ($request->hasFile('images')) {
+            $paths = $this->uploadImages($request->file('images'));
+            foreach ($paths as $i => $path) {
+                ProductImage::create([
+                    'product_id' => $product->id,
+                    'image_url'  => $path,
+                    'sort_order' => $i,
+                ]);
+            }
+        }
+
         return redirect()->route('admin.products.index')
             ->with('success', 'Producto creado correctamente.');
     }
 
     public function edit(string $id)
     {
-        $product = Products::with(['category', 'brand'])->findOrFail($id);
+        $product = Products::with(['category', 'brand', 'images'])->findOrFail($id);
 
         $categories = Category::where('is_active', true)
             ->whereNull('parent_id')
@@ -148,6 +168,10 @@ class ProductController extends Controller
             'is_active'         => 'nullable|boolean',
             'is_featured'       => 'nullable|boolean',
             'availability'      => 'nullable|in:available,on_order,out_of_stock',
+            'images'            => 'nullable|array',
+            'images.*'          => 'image|mimes:jpeg,jpg,png|max:2048',
+            'delete_images'     => 'nullable|array',
+            'delete_images.*'   => 'integer|exists:product_images,id',
         ]);
 
         $product->name              = $request->name;
@@ -192,13 +216,40 @@ class ProductController extends Controller
 
         $product->save();
 
+        if ($request->filled('delete_images')) {
+            $toDelete = ProductImage::whereIn('id', $request->delete_images)
+                ->where('product_id', $product->id)
+                ->get();
+            foreach ($toDelete as $img) {
+                $this->deleteImage($img->image_url);
+                $img->delete();
+            }
+        }
+
+        if ($request->hasFile('images')) {
+            $existingCount = $product->images()->count();
+            $paths = $this->uploadImages($request->file('images'));
+            foreach ($paths as $i => $path) {
+                ProductImage::create([
+                    'product_id' => $product->id,
+                    'image_url'  => $path,
+                    'sort_order' => $existingCount + $i,
+                ]);
+            }
+        }
+
         return redirect()->route('admin.products.index')
             ->with('success', 'Producto actualizado correctamente.');
     }
 
     public function destroy(string $id)
     {
-        $product = Products::findOrFail($id);
+        $product = Products::with('images')->findOrFail($id);
+
+        foreach ($product->images as $img) {
+            $this->deleteImage($img->image_url);
+        }
+
         $product->suppliers()->detach();
         $product->delete();
 

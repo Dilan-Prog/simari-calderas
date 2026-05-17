@@ -88,14 +88,15 @@
                                 $statusLabel = $product->is_active ? 'Activo' : 'Inactivo';
                                 $statusClass = $product->is_active ? 'published' : 'draft';
                                 $stockClass = $product->stock > 0 ? 'in-stock' : 'out-stock';
+                                $thumbUrl = $product->cover_image_url ?? $product->images->first()?->url;
                             @endphp
                             <tr data-name="{{ strtolower($product->name) }}" data-sku="{{ strtolower($product->sku) }}"
                                 data-status="{{ $statusVal }}">
                                 <td>
                                     <div class="prod-cell-product">
                                         <div class="prod-thumb">
-                                            @if ($product->cover_image_url)
-                                                <img src="{{ $product->cover_image_url }}" alt="{{ $product->name }}"
+                                            @if ($thumbUrl)
+                                                <img src="{{ $thumbUrl }}" alt="{{ $product->name }}"
                                                     style="width:100%;height:100%;object-fit:cover;border-radius:8px;">
                                             @else
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"
@@ -180,8 +181,9 @@
                     <div class="prod-grid-card" data-name="{{ strtolower($product->name) }}"
                         data-sku="{{ strtolower($product->sku) }}" data-status="{{ $statusVal }}">
                         <div class="prod-grid-thumb">
-                            @if ($product->cover_image_url)
-                                <img src="{{ $product->cover_image_url }}" alt="{{ $product->name }}"
+                            @php $thumbUrl = $product->cover_image_url ?? $product->images->first()?->url; @endphp
+                            @if ($thumbUrl)
+                                <img src="{{ $thumbUrl }}" alt="{{ $product->name }}"
                                     style="width:100%;height:100%;object-fit:cover;border-radius:8px;">
                             @else
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"

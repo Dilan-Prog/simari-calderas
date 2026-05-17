@@ -52,6 +52,11 @@ class Products extends Model
         return $this->belongsTo(Brand::class, 'brand_id');
     }
 
+    public function images()
+    {
+        return $this->hasMany(ProductImage::class, 'product_id')->orderBy('sort_order');
+    }
+
     // Many-to-many with suppliers
     public function suppliers()
     {

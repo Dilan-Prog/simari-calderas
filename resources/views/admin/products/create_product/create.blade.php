@@ -140,7 +140,7 @@
 
         {{-- ── Scrollable content ── --}}
         <div class="pform-content-area">
-            <form id="productCreateForm" method="POST" action="{{ route('admin.products.store') }}">
+            <form id="productCreateForm" method="POST" action="{{ route('admin.products.store') }}" enctype="multipart/form-data">
                 @csrf
                 <input type="hidden" name="is_active" value="1">
                 <input type="hidden" name="is_featured" value="0">
@@ -168,7 +168,8 @@
                                         SKU <span class="pform-required">*</span>
                                     </label>
                                     <input type="text" id="pformSku" class="pform-input" name="sku"
-                                        placeholder="HYP-500" required />
+                                        value="{{ $sku }}" readonly
+                                        style="background:#f9fafb;cursor:not-allowed;" required />
                                 </div>
                                 <div class="pform-field">
                                     <label class="pform-label" for="pformBrand">Marca</label>
@@ -237,11 +238,14 @@
                                 </svg>
                                 <p class="pform-dropzone-text">Haz clic para subir imágenes o arrástralas aquí</p>
                                 <p class="pform-dropzone-sub">PNG, JPG, JPEG hasta 10MB por imagen</p>
-                                <input type="file" id="pformImageInput" accept="image/png,image/jpeg,image/jpg"
+                                <input type="file" id="pformImageInput" name="images[]"
+                                    accept="image/png,image/jpeg,image/jpg"
                                     multiple style="display:none">
                             </label>
 
-                            <div class="pform-placeholder" style="padding:40px 32px">
+                            <div id="pformImageGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:12px;margin-top:16px;"></div>
+
+                            <div class="pform-placeholder" id="pformImagePlaceholder" style="padding:40px 32px">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="56" height="56"
                                     viewBox="0 0 24 24" fill="none" stroke="#d1d5db" stroke-width="1.5"
                                     stroke-linecap="round" stroke-linejoin="round">
