@@ -47,11 +47,11 @@ body {
     letter-spacing: 3px; text-transform: uppercase; margin-bottom: 4px;
 }
 .cot-number { font-size: 22px; font-weight: bold; color: #ffffff; line-height: 1; }
-.cot-dates  { margin-top: 6px; display: flex;}
-.cot-dates p { font-size: 9.5px; color: #9CA3AF; line-height: 1.8; margin: 0; }
+.cot-dates  { margin-top: 6px; }
+.cot-dates p { font-size: 9.5px; color: #9CA3AF; line-height: 1.8; display: inline; margin: 0; }
 .cot-dates span { color: #D1D5DC; font-weight: bold; }
 
-.header-accent { height: 3px; background: #ff6213; }
+.header-accent { height: 3px; background: #ff6213; margin: 0; }
 
 
 /* ════════════════════════════════════════════════════
