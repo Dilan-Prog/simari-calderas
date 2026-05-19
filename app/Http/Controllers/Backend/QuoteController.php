@@ -194,6 +194,15 @@ class QuoteController extends Controller
         return $pdf->download("{$quote->quote_number}.pdf");
     }
 
+    public function previewPdf(Quote $quote)
+    {
+        $quote->load('items', 'createdBy');
+        $pdf = Pdf::loadView('admin.quotes.pdf', compact('quote'))
+            ->setPaper('a4', 'portrait');
+
+        return $pdf->stream("{$quote->quote_number}.pdf");
+    }
+
     public function sendEmail(Quote $quote)
     {
         $quote->load('items', 'createdBy');

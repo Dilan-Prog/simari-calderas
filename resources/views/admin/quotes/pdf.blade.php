@@ -7,28 +7,66 @@
 <style>
 
 @page {
-    margin: 150px 0px 90px 0px;
+    margin: 130px 0px 70px 0px;
 }
-/* * { margin: 0; padding: 0; box-sizing: border-box; } */
+
+* { box-sizing: border-box; }
+
 body {
     font-family: DejaVu Sans, Arial, sans-serif;
     font-size: 11px;
     color: #1a1a2e;
     background: #fff;
+    margin: 0;
+    padding: 0;
 }
 
-/* ── Footer fijo: DomPDF lo repite en cada página ─── */
+/* ════════════════════════════════════════════════════
+   HEADER FIJO — abarca todo el ancho del papel
+   ════════════════════════════════════════════════════ */
+#pdf-header {
+    position: fixed;
+    top: -130px;
+    left: 0;
+    right: 0;
+    height: 110px;
+    background: #1a1a1a;
+}
+.header-body {
+    padding: 20px 44px 14px 44px;
+    display: table;
+    width: 100%;
+}
+.header-left  { display: table-cell; vertical-align: top; }
+.header-right { display: table-cell; vertical-align: top; text-align: right; width: 46%; }
+
+.company-meta p { font-size: 9.5px; color: #9CA3AF; line-height: 1.7; margin: 0; margin-top: 5px; }
+
+.cot-label  {
+    font-size: 9px; font-weight: bold; color: #ff6213;
+    letter-spacing: 3px; text-transform: uppercase; margin-bottom: 4px;
+}
+.cot-number { font-size: 22px; font-weight: bold; color: #ffffff; line-height: 1; }
+.cot-dates  { margin-top: 6px; display: flex;}
+.cot-dates p { font-size: 9.5px; color: #9CA3AF; line-height: 1.8; margin: 0; }
+.cot-dates span { color: #D1D5DC; font-weight: bold; }
+
+.header-accent { height: 3px; background: #ff6213; }
+
+
+/* ════════════════════════════════════════════════════
+   FOOTER FIJO — abarca todo el ancho del papel
+   ════════════════════════════════════════════════════ */
 #pdf-footer {
     position: fixed;
-    bottom: -90px;
+    bottom: -70px;
     left: 0;
     right: 0;
     height: 50px;
     background: #1a1a1a;
     border-top: 2px solid #ff6213;
-    padding: 0 44px;
 }
-.footer-inner  { display: table; width: 100%; height: 50px; }
+.footer-inner  { display: table; width: 100%; height: 50px; padding: 0 44px; }
 .footer-brand  { display: table-cell; width: 30%; vertical-align: middle; }
 .footer-center {
     display: table-cell; width: 40%; vertical-align: middle;
@@ -40,35 +78,25 @@ body {
 }
 .footer-orange { color: #ff6213; }
 
-/* ── Encabezado oscuro ───────────────────────────── */
-.doc-header { background: #1a1a1a; padding: 22px 44px 12px 44px; position: fixed; top: -150px;
-left: 0;
-right: 0; }
 
-.header-inner  { display: table; width: 100%; }
-.header-left   { display: table-cell; vertical-align: top; }
-.header-right  { display: table-cell; vertical-align: top; text-align: right; width: 45%; }
-.company-meta p { font-size: 9.5px; color: #9CA3AF; line-height: 1.7; margin-top: 6px; }
-.cot-label  {
-    font-size: 9px; font-weight: bold; color: #ff6213;
-    letter-spacing: 3px; text-transform: uppercase; margin-bottom: 5px;
+/* ════════════════════════════════════════════════════
+   WRAPPER DE CONTENIDO — padding lateral simula márgenes
+   ════════════════════════════════════════════════════ */
+#content {
+    padding: 0 44px;
 }
-.cot-number { font-size: 22px; font-weight: bold; color: #ffffff; line-height: 1; }
-.cot-dates  { margin-top: 7px; }
-.cot-dates p { font-size: 9.5px; color: #9CA3AF; line-height: 1.8; }
-.cot-dates span { color: #D1D5DC; font-weight: bold; }
-
-/* Línea naranja bajo el header */
-.header-accent { height: 3px; background: #ff6213; }
 
 
-/* ── Bloque receptor ─────────────────────────────── */
-.conditions , .items-table, .totals-wrap, .notes-section {
-    margin: 22px 44px;
-}
+/* ════════════════════════════════════════════════════
+   BLOQUE RECEPTOR
+   ════════════════════════════════════════════════════ */
 .receptor {
-    background: #f8f8f8; border: 1px solid #e5e5e5;
-    border-radius: 4px;  margin-top: 25px; margin-bottom: 15px;
+    background: #f8f8f8;
+    border: 1px solid #e5e5e5;
+    border-radius: 4px;
+    padding: 14px 16px;
+    margin-top: 22px;
+    margin-bottom: 14px;
 }
 .receptor-title {
     font-size: 9px; font-weight: bold; color: #6b6b6b;
@@ -80,97 +108,116 @@ right: 0; }
 .r-label { font-size: 9px; color: #999; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 2px; }
 .r-value { font-size: 11px; color: #1a1a2e; font-weight: bold; margin-bottom: 8px; }
 
-/* ── Tira de condiciones ─────────────────────────── */
-.conditions     { display: table; width: 100%; margin-bottom: 16px;font-family: 'Inter', sans-serif; }
-.cond-item      { display: table-cell; vertical-align: top; padding-right: 12px; font-family: 'Inter', sans-serif; }
+
+/* ════════════════════════════════════════════════════
+   TIRA DE CONDICIONES
+   ════════════════════════════════════════════════════ */
+.conditions {
+    display: table;
+    width: 100%;
+    margin-bottom: 16px;
+}
+.cond-item { display: table-cell; vertical-align: top; padding-right: 12px; }
 .cond-item:last-child { padding-right: 0; }
 .cond-label { font-size: 9px; color: #999; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 3px; }
 .cond-value { font-size: 11px; color: #333; font-weight: 600; }
 
-/* ── Tabla de productos ──────────────────────────── */
+
+/* ════════════════════════════════════════════════════
+   TABLA DE PRODUCTOS
+   ════════════════════════════════════════════════════ */
 .items-table {
-    width: 100%; border-collapse: collapse;
-    margin-bottom: 16px; table-layout: fixed;
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+    margin-bottom: 16px;
 }
-thead {display: table-header-group;}
+thead { display: table-header-group; }
 .items-table thead tr { background: #141516; }
 .items-table thead th {
-    padding: 9px 10px; text-align: left;
-    font-size: 9px; color: #fff
-    text-transform: uppercase; letter-spacing: .6px; font-weight: bold;
+    padding: 9px 8px;
+    text-align: left;
+    font-size: 9px;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: .6px;
+    font-weight: bold;
 }
 .items-table thead th.th-right { text-align: right; }
 
-/* Evitar que una fila quede partida entre páginas */
 .items-table tbody tr { page-break-inside: avoid; }
 .items-table tbody tr:nth-child(even) { background: #f5f5f5; }
 .items-table tbody td {
-    padding: 9px 10px; font-size: 11px; color: #444;
-    border-bottom: 1px solid #eee; vertical-align: top; word-wrap: break-word;
+    padding: 9px 8px;
+    font-size: 11px;
+    color: #444;
+    border-bottom: 1px solid #eee;
+    vertical-align: top;
+    word-wrap: break-word;
 }
-.items-table tbody td.td-right { text-align: right; }
-.items-table tbody td.td-name  { font-weight: bold; color: #1a1a2e; }
-.items-table tbody td.td-sku   { font-size: 9.5px; color: #999; }
+.items-table tbody td.td-right  { text-align: right; }
+.items-table tbody td.td-name   { font-weight: bold; color: #1a1a2e; }
+.items-table tbody td.td-sku    { font-size: 9.5px; color: #999; }
 .item-desc-text {
     font-size: 9px; font-weight: normal; color: #555;
-    margin-top: 5px; line-height: 1.55;
+    margin-top: 4px; line-height: 1.55;
 }
 
-/* ── Totales ─────────────────────────────────────── */
-.totals-wrap    { display: table; width: 100%; margin-bottom: 22px; }
-.totals-spacer  { display: table-cell; width: 55%; }
-.totals-box     { display: table-cell; width: 45%; vertical-align: top; }
-.totals-row     { display: table; width: 100%; padding: 5px 0; border-bottom: 1px solid #eee; }
+
+/* ════════════════════════════════════════════════════
+   TOTALES
+   ════════════════════════════════════════════════════ */
+.totals-wrap   { display: table; width: 100%; margin-bottom: 22px; }
+.totals-spacer { display: table-cell; width: 50%; }
+.totals-box    { display: table-cell; width: 50%; vertical-align: top; }
+
+.totals-row    { display: table; width: 100%; padding: 5px 0; border-bottom: 1px solid #eee; }
 .totals-row:last-child { border-bottom: none; }
-.totals-lbl     { display: table-cell; font-size: 11px; color: #666; }
-.totals-val     { display: table-cell; text-align: right; font-size: 11px; font-weight: bold; color: #333; }
-.totals-final   {
+.totals-lbl    { display: table-cell; width: 45%; font-size: 11px; color: #666; }
+.totals-val    {
+    display: table-cell; width: 55%; text-align: right;
+    font-size: 11px; font-weight: bold; color: #333;
+    white-space: nowrap;
+}
+
+.totals-final  {
     background: #ff6213; border-radius: 5px; padding: 10px 14px;
     display: table; width: 100%; margin-top: 8px;
 }
 .totals-final-lbl { display: table-cell; font-size: 13px; font-weight: bold; color: #fff; }
-.totals-final-val { display: table-cell; text-align: right; font-size: 13px; font-weight: bold; color: #fff; }
+.totals-final-val {
+    display: table-cell; text-align: right;
+    font-size: 13px; font-weight: bold; color: #fff;
+    white-space: nowrap;
+}
 
-/* ── Notas y términos ────────────────────────────── */
-.notes-section { display: table; width: 100%; border-top: 1px solid #eee; padding-top: 16px; }
-.notes-col      { display: table-cell; width: 50%; vertical-align: top; padding-right: 20px; }
+
+/* ════════════════════════════════════════════════════
+   NOTAS Y TÉRMINOS
+   ════════════════════════════════════════════════════ */
+.notes-section {
+    display: table; width: 100%;
+    border-top: 1px solid #eee; padding-top: 16px;
+    margin-bottom: 16px;
+}
+.notes-col { display: table-cell; width: 50%; vertical-align: top; padding-right: 20px; }
 .notes-col:last-child { padding-right: 0; }
-.notes-label    {
+.notes-label {
     font-size: 9px; font-weight: bold; color: #999;
     text-transform: uppercase; letter-spacing: .8px; margin-bottom: 6px;
 }
 .notes-text { font-size: 10px; color: #666; line-height: 1.6; word-wrap: break-word; }
-.pdf-spacer{
-    height:20px;
-}
+
 </style>
 </head>
 <body>
 
-{{-- ── Footer fijo (aparece en cada página) ──────────────── --}}
-<div id="pdf-footer">
-    <div class="footer-inner">
-        <div class="footer-brand">
-            <img src="{{ public_path('images/logo/equiterm-logo-blanco-color-3x.png') }}"
-                 alt="Equiterm Industries" style="height:22px;width:auto;">
-        </div>
-        <div class="footer-center">
-            Cotización generada el {{ now()->format('d/m/Y H:i') }}<br>
-            Este documento es una cotización y no constituye una factura.
-        </div>
-        <div class="footer-right">
-            administracion@equitermindustries.com.mx<br>
-            <span class="footer-orange">equitermindustries.com.mx</span>
-        </div>
-    </div>
-</div>
-
-{{-- ── Encabezado oscuro ─────────────────────────────────── --}}
-<div class="doc-header">
-    <div class="header-inner">
+{{-- ── Header fijo ──────────────────────────────────────────── --}}
+<div id="pdf-header">
+    <div class="header-body">
         <div class="header-left">
             <img src="{{ public_path('images/logo/equiterm-logo-blanco-color-3x.png') }}"
-                 alt="Equiterm Industries" style="height:28px;width:auto;">
+                 alt="Equiterm Industries" style="height:28px;width:auto;display:block;">
             <div class="company-meta">
                 <p>administracion@equitermindustries.com.mx</p>
                 <p>México, Aguascalientes</p>
@@ -190,8 +237,29 @@ thead {display: table-header-group;}
     </div>
     <div class="header-accent"></div>
 </div>
-<div class="pdf-spacer"></div>
-    {{-- ── Receptor ──────────────────────────────────────── --}}
+
+{{-- ── Footer fijo ──────────────────────────────────────────── --}}
+<div id="pdf-footer">
+    <div class="footer-inner">
+        <div class="footer-brand">
+            <img src="{{ public_path('images/logo/equiterm-logo-blanco-color-3x.png') }}"
+                 alt="Equiterm Industries" style="height:22px;width:auto;">
+        </div>
+        <div class="footer-center">
+            Cotización generada el {{ now()->format('d/m/Y H:i') }}<br>
+            Este documento es una cotización y no constituye una factura.
+        </div>
+        <div class="footer-right">
+            administracion@equitermindustries.com.mx<br>
+            <span class="footer-orange">equitermindustries.com.mx</span>
+        </div>
+    </div>
+</div>
+
+{{-- ── Contenido principal ──────────────────────────────────── --}}
+<div id="content">
+
+    {{-- Receptor --}}
     <div class="receptor">
         <div class="receptor-title">Cotización para</div>
         <div class="receptor-cols">
@@ -220,7 +288,7 @@ thead {display: table-header-group;}
         </div>
     </div>
 
-    {{-- ── Condiciones ────────────────────────────────────── --}}
+    {{-- Condiciones --}}
     <div class="conditions">
         <div class="cond-item">
             <div class="cond-label">IVA</div>
@@ -238,17 +306,17 @@ thead {display: table-header-group;}
         @endif
     </div>
 
-    {{-- ── Tabla de productos ─────────────────────────────── --}}
+    {{-- Tabla de productos --}}
     <table class="items-table">
         <thead>
             <tr>
                 <th style="width:4%;">#</th>
-                <th style="width:38%;">Descripción</th>
-                <th style="width:12%;">SKU</th>
-                <th class="th-right" style="width:8%;">Cant.</th>
-                <th class="th-right" style="width:16%;">Precio Unit.</th>
-                <th class="th-right" style="width:8%;">Desc.%</th>
-                <th class="th-right" style="width:14%;">Total</th>
+                <th style="width:34%;">Descripción</th>
+                <th style="width:13%;">SKU</th>
+                <th class="th-right" style="width:6%;white-space:nowrap;">Cant.</th>
+                <th class="th-right" style="width:17%;">Precio Unit.</th>
+                <th class="th-right" style="width:8%;white-space:nowrap;">Desc.%</th>
+                <th class="th-right" style="width:18%;white-space:nowrap;">Total</th>
             </tr>
         </thead>
         <tbody>
@@ -262,16 +330,16 @@ thead {display: table-header-group;}
                     @endif
                 </td>
                 <td class="td-sku">{{ $item->product_sku ?? '—' }}</td>
-                <td class="td-right">{{ $item->quantity }}</td>
+                <td class="td-right" style="white-space:nowrap;">{{ $item->quantity }}</td>
                 <td class="td-right">{{ $quote->currency }} ${{ number_format($item->unit_price, 2) }}</td>
-                <td class="td-right">{{ $item->discount_percent > 0 ? $item->discount_percent . '%' : '—' }}</td>
-                <td class="td-right" style="font-weight:bold;">${{ number_format($item->line_total, 2) }}</td>
+                <td class="td-right" style="white-space:nowrap;">{{ $item->discount_percent > 0 ? $item->discount_percent . '%' : '—' }}</td>
+                <td class="td-right" style="font-weight:bold;white-space:nowrap;">${{ number_format($item->line_total, 2) }}</td>
             </tr>
             @endforeach
         </tbody>
     </table>
 
-    {{-- ── Totales ─────────────────────────────────────────── --}}
+    {{-- Totales --}}
     <div class="totals-wrap">
         <div class="totals-spacer"></div>
         <div class="totals-box">
@@ -296,7 +364,7 @@ thead {display: table-header-group;}
         </div>
     </div>
 
-    {{-- ── Notas y términos ────────────────────────────────── --}}
+    {{-- Notas y términos --}}
     @if($quote->notes || $quote->terms_conditions)
     <div class="notes-section">
         @if($quote->notes)
@@ -313,5 +381,7 @@ thead {display: table-header-group;}
         @endif
     </div>
     @endif
+
+</div>{{-- /#content --}}
 </body>
 </html>

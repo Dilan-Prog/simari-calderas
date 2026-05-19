@@ -64,6 +64,7 @@ Route::controller(QuoteController::class)->prefix('cotizaciones')->name('quotes.
     Route::put('/{quote}', 'update')->name('update');
     Route::delete('/{quote}', 'destroy')->name('destroy');
     Route::get('/{quote}/pdf', 'downloadPdf')->name('pdf');
+    Route::get('/{quote}/pdf-preview', 'previewPdf')->name('pdf-preview');
     Route::post('/{quote}/enviar-correo', 'sendEmail')->name('send-email');
     Route::patch('/{quote}/estado', 'updateStatus')->name('update-status');
 });

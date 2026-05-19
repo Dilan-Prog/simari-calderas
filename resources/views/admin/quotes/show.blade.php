@@ -34,10 +34,10 @@
             </a>
             @endif
 
-            <a href="{{ route('admin.quotes.pdf', $quote) }}" class="btn-action btn-action--secondary" target="_blank">
+            <button type="button" class="btn-action btn-action--secondary" onclick="openPdfModal()">
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/><path d="M12 18v-6"/><path d="m9 15 3 3 3-3"/></svg>
-                Descargar PDF
-            </a>
+                Vista previa PDF
+            </button>
 
             @if($quote->guest_email)
             <form method="POST" action="{{ route('admin.quotes.send-email', $quote) }}"
@@ -293,6 +293,55 @@
 </div>
 @endsection
 
+{{-- ── Modal visualizador de PDF ──────────────────────── --}}
+<div id="pdf-modal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.65);align-items:center;justify-content:center;">
+    <div style="background:#fff;border-radius:8px;width:90vw;max-width:960px;height:90vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.4);">
+
+        {{-- Barra superior del modal --}}
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 18px;background:#1a1a1a;border-bottom:2px solid #ff6213;flex-shrink:0;">
+            <span style="color:#fff;font-size:14px;font-weight:600;">
+                Vista previa — {{ $quote->quote_number }}
+            </span>
+            <div style="display:flex;gap:10px;align-items:center;">
+                <a id="pdf-download-btn"
+                   href="{{ route('admin.quotes.pdf', $quote) }}"
+                   style="display:inline-flex;align-items:center;gap:6px;background:#ff6213;color:#fff;border:none;padding:7px 14px;border-radius:5px;font-size:12px;font-weight:600;cursor:pointer;text-decoration:none;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17V3"/><path d="m6 11 6 6 6-6"/><path d="M19 21H5"/></svg>
+                    Descargar PDF
+                </a>
+                <button onclick="closePdfModal()" style="background:transparent;border:none;cursor:pointer;color:#9CA3AF;font-size:20px;line-height:1;padding:4px 8px;" title="Cerrar">&times;</button>
+            </div>
+        </div>
+
+        {{-- iframe con el PDF en stream --}}
+        <iframe id="pdf-frame"
+                src=""
+                style="flex:1;border:none;background:#525659;"
+                title="Vista previa PDF"></iframe>
+    </div>
+</div>
+
 @push('scripts')
 @vite(['resources/js/admin-quotes.js'])
+<script>
+function openPdfModal() {
+    const modal = document.getElementById('pdf-modal');
+    const frame = document.getElementById('pdf-frame');
+    modal.style.display = 'flex';
+    if (!frame.src || frame.src === window.location.href) {
+        frame.src = '{{ route('admin.quotes.pdf-preview', $quote) }}';
+    }
+    document.body.style.overflow = 'hidden';
+}
+function closePdfModal() {
+    document.getElementById('pdf-modal').style.display = 'none';
+    document.body.style.overflow = '';
+}
+document.getElementById('pdf-modal').addEventListener('click', function(e) {
+    if (e.target === this) closePdfModal();
+});
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closePdfModal();
+});
+</script>
 @endpush
