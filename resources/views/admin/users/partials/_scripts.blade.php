@@ -1,5 +1,44 @@
 @push('scripts')
     <script>
+        // ── Helpers de validación inline ─────────────────────────────
+        function valClear(form, name) {
+            const f = form.querySelector(`[name="${name}"]`);
+            if (!f) return;
+            f.classList.remove('val-error-input', 'val-error-select');
+            form.querySelectorAll(`.val-error-msg[data-for="${name}"]`).forEach(el => el.remove());
+        }
+        function valMark(form, name, label) {
+            const f = form.querySelector(`[name="${name}"]`);
+            if (!f) return;
+            f.classList.add(f.tagName === 'SELECT' ? 'val-error-select' : 'val-error-input');
+            if (!form.querySelector(`.val-error-msg[data-for="${name}"]`)) {
+                const msg = document.createElement('span');
+                msg.className = 'val-error-msg';
+                msg.dataset.for = name;
+                msg.textContent = `El campo "${label}" es requerido`;
+                f.insertAdjacentElement('afterend', msg);
+            }
+        }
+        function valRun(form, fields) {
+            let first = null;
+            fields.forEach(([name, label]) => {
+                const f = form.querySelector(`[name="${name}"]`);
+                if (!f) return;
+                const empty = f.tagName === 'SELECT' ? f.value === '' : f.value.trim() === '';
+                if (empty) { valMark(form, name, label); if (!first) first = f; }
+                else valClear(form, name);
+            });
+            return first;
+        }
+        function valBind(form, fields) {
+            fields.forEach(([name]) => {
+                const f = form.querySelector(`[name="${name}"]`);
+                if (!f) return;
+                f.addEventListener(f.tagName === 'SELECT' ? 'change' : 'input', () => valClear(form, name));
+            });
+        }
+        // ─────────────────────────────────────────────────────────────
+
         const updateUserUrl = '{{ route('admin.users.update', ':id') }}';
         const showUserUrl = '{{ route('admin.users.show', ':id') }}';
         // --- Helpers ---
@@ -135,6 +174,26 @@
 
         updateUI();
 
+        // --- Validación formulario CREAR usuario ---
+        const createUserForm = document.getElementById('userCreateForm');
+        const createUserFields = [
+            ['first_name', 'Nombre'],
+            ['last_name', 'Apellidos'],
+            ['email', 'Email'],
+            ['status', 'Estado'],
+            ['password', 'Contraseña'],
+            ['password_confirmation', 'Confirmar Contraseña'],
+        ];
+        valBind(createUserForm, createUserFields);
+        createUserForm.addEventListener('submit', (e) => {
+            const firstErr = valRun(createUserForm, createUserFields);
+            if (firstErr) {
+                e.preventDefault();
+                firstErr.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                try { firstErr.focus(); } catch (_) {}
+            }
+        });
+
         // --- Edit modal ---
         const editModal = document.getElementById('editUserModal');
         const closeEditBtn = document.getElementById('closeEditModal');
@@ -218,8 +277,24 @@
             }
         };
 
+        // Bind validación edit (una sola vez, el form es estático)
+        const editUserFields = [
+            ['first_name', 'Nombre'],
+            ['last_name', 'Apellidos'],
+            ['email', 'Email'],
+            ['status', 'Estado'],
+        ];
+        valBind(editForm, editUserFields);
+
         editForm.addEventListener('submit', async (e) => {
             e.preventDefault();
+
+            const firstErr = valRun(editForm, editUserFields);
+            if (firstErr) {
+                firstErr.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                try { firstErr.focus(); } catch (_) {}
+                return;
+            }
 
             const errorsContainer = document.getElementById('edit-errors-container');
             errorsContainer.style.display = 'none';

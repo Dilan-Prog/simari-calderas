@@ -25,8 +25,8 @@
 
 
         <!-- Form Body -->
-        <form class="user-manager-modal-body" action="{{ route('admin.users.store') }}" method="POST"
-            enctype="multipart/form-data">
+        <form id="userCreateForm" class="user-manager-modal-body" action="{{ route('admin.users.store') }}" method="POST"
+            enctype="multipart/form-data" novalidate>
             @csrf
             <h3>Información Personal</h3>
             <div class="user-manager-avatar-upload-container">
