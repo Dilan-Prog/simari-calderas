@@ -29,7 +29,6 @@ body {
     top: -130px;
     left: 0;
     right: 0;
-    height: 110px;
     background: #1a1a1a;
 }
 .header-body {
