@@ -60,8 +60,8 @@
                     <table class="clients-manager-table head-table">
                         <thead>
                             <tr>
-                                <th>CLIENTE</th>
                                 <th>EMPRESA</th>
+                                <th>CLIENTE</th>
                                 <th>CONTACTO</th>
                                 <th>RFC</th>
                                 <th>ESTADO</th>
@@ -76,24 +76,7 @@
                                 @foreach ($customers as $customer)
                                     <tr>
                                         <td class="clients-manager-table-cell">
-                                            <div class="avatar-user-manager">
-                                                D
-                                            </div>
-                                            <div>
-                                                <p class="clients-manager-name-client">{{ $customer->first_name }}
-                                                    {{ $customer->last_name }}</p>
-                                                @php
-                                                    $address = $customer->customer_addresses->first();
-                                                @endphp
-                                                <span class="clients-manager-ubication-client">
-                                                    {{ $address ? $address->city . ', ' . $address->state : '—' }}
-                                                </span>
-                                            </div>
-                                        </td>
-
-                                        <td>
-                                            <p class="breadcrumb-clients-manager">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
                                                     viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                                                     class="lucide lucide-building2 lucide-building-2 text-gray-600">
@@ -104,9 +87,27 @@
                                                     <path d="M10 10h4"></path>
                                                     <path d="M10 14h4"></path>
                                                     <path d="M10 18h4"></path>
-                                                </svg> {{ $customer->company }}
+                                                </svg>
+                                            <div>
+
+                                                <p class="clients-manager-name-client">{{ $customer->company }}</p>
+                                                @php
+                                                    $address = $customer->customer_addresses->first();
+                                                @endphp
+                                                <span class="clients-manager-ubication-client">
+                                                    {{ $address ? $address->city . ', ' . $address->state : '—' }}
+                                                </span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="avatar-user-manager">
+                                                    D
+                                                </div>
+                                            <p class="breadcrumb-clients-manager">
+                                                 {{ $customer->first_name }} {{ $customer->last_name }}
                                             </p>
                                         </td>
+
 
                                         <td>
                                             <p class="breadcrumb-clients-manager">
