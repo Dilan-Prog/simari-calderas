@@ -35,6 +35,7 @@
         @include('admin.layouts.navbar')
         @yield('content')
     </section>
+    @include('admin.layouts.scripts')
     @stack('scripts')
 </body>
 </html>
