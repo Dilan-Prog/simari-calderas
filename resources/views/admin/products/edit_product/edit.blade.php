@@ -170,11 +170,15 @@
                                 </div>
                                 <div class="pform-field">
                                     <label class="pform-label" for="pformBrand">Marca</label>
-                                    <input type="text" id="pformBrand" class="pform-input"
-                                        placeholder="Se selecciona en Organización"
-                                        value="{{ $product->brand->name ?? '' }}" readonly
-                                        style="background:#f9fafb;color:#9ca3af;cursor:not-allowed;"
-                                        title="La marca se selecciona en la pestaña Organización">
+                                    <select id="pformBrand" name="brand_id" class="pform-select" required>
+                                        <option value="">Seleccionar...</option>
+                                        @foreach ($brands as $brand)
+                                            <option value="{{ $brand->id }}"
+                                                {{ $product->brand_id == $brand->id ? 'selected' : '' }}>
+                                                {{ $brand->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
                                     <p class="pform-hint">Selecciona la marca en la pestaña <strong>Organización</strong>
                                     </p>
                                 </div>
@@ -493,15 +497,10 @@
 
                                     {{-- Marca --}}
                                     <div class="pform-field">
-                                        <label class="pform-label">Marca <span class="pform-required">*</span></label>
-                                        <select class="pform-select" name="brand_id" id="pformBrandSelect" required>
-                                            <option value="">Seleccionar...</option>
-                                            @foreach ($brands as $brand)
-                                                <option value="{{ $brand->id }}"
-                                                    {{ $product->brand_id == $brand->id ? 'selected' : '' }}>
-                                                    {{ $brand->name }}
-                                                </option>
-                                            @endforeach
+                                        <label class="pform-label">Categoría Hija</label>
+                                        <select class="pform-select" name="child_category_id" id="pformCategoryChild"
+                                            {{ $product->category_id ? '' : 'disabled' }}>
+                                            <option value="">Seleccionar subcategoría primero...</option>
                                         </select>
                                     </div>
                                 </div>
