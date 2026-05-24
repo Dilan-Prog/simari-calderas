@@ -138,8 +138,9 @@
                 @csrf
                 @method('PUT')
                 <input type="hidden" name="is_active" id="pformIsActive" value="{{ $product->is_active ? 1 : 0 }}">
-                <input type="hidden" name="is_featured" id="pformIsFeatured"
-                    value="{{ $product->is_featured ? 1 : 0 }}">
+                <input type="hidden" name="is_featured" id="pformIsFeatured" value="{{ $product->is_featured ? 1 : 0 }}">
+                <input type="hidden" name="is_new" id="pformIsNew" value="{{ $product->is_new ? 1 : 0 }}">
+                <input type="hidden" name="is_recommended" id="pformIsRecommended" value="{{ $product->is_recommended ? 1 : 0 }}">
                 <div class="pform-panel-wrap">
                     {{-- Panel 0: Información Básica --}}
                     <div class="pform-tab-panel active" id="pformPanel0" role="tabpanel">
@@ -408,7 +409,6 @@
                                     <div class="pform-field">
                                         <label class="pform-label">Unidad de Medida</label>
                                         <select class="pform-select">
-                                            <option value="unidad">Unidad</option>
                                             <option value="pieza">Pieza</option>
                                             <option value="juego">Juego</option>
                                             <option value="kit">Kit</option>
@@ -564,7 +564,9 @@
                                         <p class="pform-badge-sub">Aparecerá en la sección de productos destacados</p>
                                     </button>
 
-                                    <button type="button" class="pform-badge-card">
+                                    <button type="button"
+                                        class="pform-badge-card {{ $product->is_new ? 'active' : '' }}"
+                                        id="badgeNew">
                                         <div class="pform-badge-card-header">
                                             <div class="pform-badge-icon">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
@@ -587,8 +589,8 @@
                                     </button>
 
                                     <button type="button"
-                                        class="pform-badge-card {{ $product->is_active ? 'active' : '' }}"
-                                        id="badgeActive">
+                                        class="pform-badge-card {{ $product->is_recommended ? 'active' : '' }}"
+                                        id="badgeRecommended">
                                         <div class="pform-badge-card-header">
                                             <div class="pform-badge-icon">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"

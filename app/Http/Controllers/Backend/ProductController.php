@@ -54,6 +54,7 @@ class ProductController extends Controller
         $request->validate([
             'name'              => 'required|string|max:255',
             'sku'               => 'required|string|max:100|unique:products,sku',
+            'model'             => 'nullable|string|max:255',
             'price'             => 'required|numeric|min:0',
             'cost'              => 'nullable|numeric|min:0',
             'compare_price'     => 'nullable|numeric|min:0',
@@ -69,7 +70,9 @@ class ProductController extends Controller
             'slug'              => 'nullable|string|max:255|unique:products,slug',
             'is_active'         => 'nullable|boolean',
             'is_featured'       => 'nullable|boolean',
-            // 'availability'      => 'nullable|in:available,on_order,out_of_stock',
+            'is_new'            => 'nullable|boolean',
+            'is_recommended'    => 'nullable|boolean',
+            'availability'      => 'nullable|in:available,on_order,out_of_stock',
             'images'            => 'nullable|array',
             'images.*'          => 'image|mimes:jpeg,jpg,png|max:2048',
         ]);
@@ -77,6 +80,7 @@ class ProductController extends Controller
         $product = new Products();
         $product->name              = $request->name;
         $product->sku               = $request->sku;
+        $product->model             = $request->model;
         $product->slug              = $request->slug
             ? Str::slug($request->slug)
             : Str::slug($request->name);
@@ -96,6 +100,8 @@ class ProductController extends Controller
         $product->brand_id          = $request->brand_id       ?? null;
         $product->is_active         = $request->boolean('is_active',  true);
         $product->is_featured       = $request->boolean('is_featured', false);
+        $product->is_new            = $request->boolean('is_new', false);
+        $product->is_recommended    = $request->boolean('is_recommended', false);
         $product->availability      = $request->availability ?? 'available';
         // Save specifications
         if ($request->filled('spec_key')) {
@@ -152,6 +158,7 @@ class ProductController extends Controller
         $request->validate([
             'name'              => 'required|string|max:255',
             'sku'               => 'required|string|max:100|unique:products,sku,' . $id,
+            'model'             => 'nullable|string|max:255',
             'price'             => 'required|numeric|min:0',
             'cost'              => 'nullable|numeric|min:0',
             'compare_price'     => 'nullable|numeric|min:0',
@@ -167,6 +174,8 @@ class ProductController extends Controller
             'slug'              => 'nullable|string|max:255|unique:products,slug,' . $id,
             'is_active'         => 'nullable|boolean',
             'is_featured'       => 'nullable|boolean',
+            'is_new'            => 'nullable|boolean',
+            'is_recommended'    => 'nullable|boolean',
             'availability'      => 'nullable|in:available,on_order,out_of_stock',
             'images'            => 'nullable|array',
             'images.*'          => 'image|mimes:jpeg,jpg,png|max:2048',
@@ -176,6 +185,7 @@ class ProductController extends Controller
 
         $product->name              = $request->name;
         $product->sku               = $request->sku;
+        $product->model             = $request->model;
         $product->slug              = $request->slug
             ? Str::slug($request->slug)
             : Str::slug($request->name);
@@ -195,6 +205,8 @@ class ProductController extends Controller
         $product->brand_id          = $request->brand_id       ?? null;
         $product->is_active         = $request->boolean('is_active',  true);
         $product->is_featured       = $request->boolean('is_featured', false);
+        $product->is_new            = $request->boolean('is_new', false);
+        $product->is_recommended    = $request->boolean('is_recommended', false);
         $product->availability      = $request->availability ?? 'available';
 
         // Save specifications

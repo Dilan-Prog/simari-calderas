@@ -250,7 +250,7 @@
 
             <div class="prod-summary-bar">
                 <span id="prodCountLabel">Mostrando {{ $products->count() }} de {{ $products->count() }} productos</span>
-                <span>Total en inventario: {{ $products->sum('stock') }} unidades</span>
+                <span>Total en inventario: {{ $products->sum('stock') }} {{ $products->first()->stock_unit ?? 'unidades' }}</span>
             </div>
         </div>
     </div>
