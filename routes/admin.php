@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Backend\AdminController;
+use App\Http\Controllers\Backend\CategoryController;
 use App\Http\Controllers\Backend\ClientManageController;
 use App\Http\Controllers\Backend\ProductController;
 use App\Http\Controllers\Backend\UserManageController;
@@ -37,13 +38,21 @@ Route::controller(SupplierManageController::class)->group(function () {
     Route::get('/proveedores/informacion/{id}', 'information')->name('suppliers.information');
 });
 
-Route::controller(ProductController::class)->group(function(){
+Route::controller(ProductController::class)->group(function () {
     Route::get('/productos', 'index')->name('products.index');
-    Route::get('/productos/nuevo','create')->name('products.create');
-    Route::post('/productos/nuevo','store')->name('products.store');
-    Route::get('/productos/editar/{id}','edit')->name('products.edit');
-    Route::put('/productos/editar/{id}','update')->name('products.update');
-    Route::delete('/productos/eliminar/{id}','destroy')->name('products.destroy');
+    Route::get('/productos/nuevo', 'create')->name('products.create');
+    Route::post('/productos/nuevo', 'store')->name('products.store');
+    Route::get('/productos/editar/{id}', 'edit')->name('products.edit');
+    Route::put('/productos/editar/{id}', 'update')->name('products.update');
+    Route::delete('/productos/eliminar/{id}', 'destroy')->name('products.destroy');
+});
+
+Route::controller(CategoryController::class)->group(function () {
+    Route::get('/categorias', 'index')->name('categories.index');
+    Route::post('/categorias/crear', 'store')->name('categories.store');
+    Route::get('/categorias/editar/{id}', 'edit')->name('categories.edit');
+    Route::put('/categorias/editar/{id}',       'update')->name('categories.update');
+    Route::delete('/categorias/eliminar/{id}',  'destroy')->name('categories.destroy');
 });
 
 Route::controller(ProductController::class)->group(function () {

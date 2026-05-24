@@ -8,15 +8,19 @@ use Illuminate\Database\Eloquent\Model;
 class Category extends Model
 {
     use HasFactory;
-    protected $fillable = ['name', 'slug', 'description', 'parent_id', 'is_active'];
 
     protected $table = 'product_categories';
+
+    protected $fillable = [
+        'parent_id', 'name', 'slug', 'description',
+        'image_url', 'is_active', 'sort_order',
+    ];
 
     protected $casts = [
         'is_active' => 'boolean',
     ];
 
-    // Self-referencing — subcategories
+    // Self-referencing relationships
     public function parent()
     {
         return $this->belongsTo(Category::class, 'parent_id');
@@ -25,6 +29,14 @@ class Category extends Model
     public function children()
     {
         return $this->hasMany(Category::class, 'parent_id');
+    }
+
+    // Level helper
+    public function getLevelAttribute(): int
+    {
+        if (!$this->parent_id) return 1;
+        if ($this->parent && !$this->parent->parent_id) return 2;
+        return 3;
     }
 
     public function products()

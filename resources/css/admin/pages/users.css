@@ -1313,3 +1313,15 @@
 .supplier-tabs{
     background-color: var(--bg-light);
 }
+.card-information-show{
+    border: 1px solid rgb(221, 220, 255);
+    overflow:hidden;
+}
+
+.category-row{
+    display:flex;align-items:center;
+    justify-content:space-between;
+    padding:16px 20px;
+    border: 1px solid rgb(221, 220, 255);
+    border-radius: 8px;
+}

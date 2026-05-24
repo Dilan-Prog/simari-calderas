@@ -76,7 +76,7 @@
         </a>
 
 
-        <a class="sidebar-nav-item {{ $activeSection === 'productos' ? 'active' : '' }}" data-section="coming-soon" href="{{ route('admin.products.index') }}" data-label="Productos">
+        <a class="sidebar-nav-item {{ $activeSection === 'productos' ? 'active' : '' }}" data-section="products" href="{{ route('admin.products.index') }}" data-label="Productos">
             <div class="sidebar-nav-item-left">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                         fill="none" stroke="currentColor" stroke-width="2"
@@ -89,7 +89,7 @@
         </a>
 
 
-        <a class="sidebar-nav-item" data-section="coming-soon" data-label="Categorías">
+        <a class="sidebar-nav-item" data-section="coming-soon" data-label="Categorías" data-section="categories" href="{{ route('admin.categories.index') }}">
             <div class="sidebar-nav-item-left">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                         fill="none" stroke="currentColor" stroke-width="2"
