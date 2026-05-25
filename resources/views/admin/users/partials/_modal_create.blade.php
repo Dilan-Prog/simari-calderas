@@ -57,7 +57,7 @@
                 </div>
                 <div>
                     <label class="supliers-manager-slider-label">RFC</label>
-                    <input id="id-rfc" class="users-manager-input rfc-input-script" type="text" placeholder="XAXX010101000"
+                    <input class="users-manager-input" type="text" placeholder="XAXX010101000"
                         name="rfc" value="{{ old('rfc') }}">
                 </div>
                 <div>
