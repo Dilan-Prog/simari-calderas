@@ -1,0 +1,174 @@
+/* ============================================================
+   pages/_clients.css — Vista detalle del cliente (show)
+   ============================================================ */
+
+.breadcrumb-clients-manager {
+    color: var(--admin-text-body);
+    font-size: var(--admin-text-xs);
+    margin: 0;
+}
+
+/* ── Show page layout ── */
+.clients-manager-section.show {
+    background: var(--admin-bg-light);
+}
+
+.client-header-show {
+    display: flex;
+    justify-content: space-between;
+    background-color: var(--admin-bg-white);
+    padding: 20px;
+    border-radius: var(--admin-radius-lg);
+    margin-bottom: 20px;
+    box-shadow: var(--admin-shadow-lg);
+}
+
+/* ── Botones de acción ── */
+.client-actions-show {
+    display: flex;
+    justify-content: start;
+    align-items: center;
+    gap: 12px;
+}
+
+.client-actions-show.up { flex-direction: column; }
+
+.new-order {
+    height: 44px;
+    display: flex;
+}
+
+.edit-client {
+    border: 2px solid var(--admin-primary);
+    background-color: transparent;
+    height: 44px;
+    display: flex;
+    gap: 4px;
+    color: var(--admin-primary);
+}
+
+.edit-client:hover { background-color: #eaeefd; }
+
+/* ── Info del cliente ── */
+.client-left-show {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+}
+
+.information-client-show {
+    display: flex;
+    align-items: start;
+    justify-content: center;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.information-client-show h2 {
+    margin: 0;
+    padding: 0;
+    font-size: 32px;
+}
+
+.link-container-show { margin-bottom: 40px; }
+
+.client-window-link {
+    font-family: var(--admin-font);
+    color: var(--admin-text-body);
+    cursor: default;
+    text-decoration: none;
+}
+
+.client-window-link:hover { color: var(--admin-primary); }
+
+.avatar-show {
+    width: 80px;
+    height: 80px;
+    background: #22c55e;
+    color: var(--admin-text-white);
+    font-weight: bold;
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+
+/* ── Tabs ── */
+.tabs-show-clients-container {
+    border-bottom: 0.5px solid #e3e3e3;
+    display: flex;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.tab-show-client {
+    background: none;
+    font-family: var(--admin-font);
+    color: var(--admin-text-body);
+    font-weight: 550;
+    font-size: var(--admin-text-base);
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+}
+
+.tab-show-client.active {
+    border-bottom: 2px solid #2563eb;
+    color: #2563eb;
+}
+
+.tab-content-show-client         { display: none; }
+.tab-content-show-client.active  { display: block; }
+
+/* ── Content grid ── */
+.grid-2-information-client-show {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+/* ── Cards de información ── */
+.card-information-show {
+    background: var(--admin-bg-white);
+    padding: 20px;
+    border-radius: var(--admin-radius-lg);
+    display: flex;
+    gap: 12px;
+    flex-direction: column;
+    font-family: var(--admin-font);
+    box-shadow: var(--admin-shadow-lg);
+}
+
+.card-information-show.notes   { margin: 0; }
+.card-information-show.activitie h3 { margin: 0; }
+
+.breadcrumb-users-manager.main.activitie { margin: 12px 0; }
+
+.notes-information-show {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.note-box-information-client {
+    background: #fafdff;
+    padding: 10px;
+    border-radius: 8px;
+}
+
+/* ── Stats row (shared with suppliers) ── */
+.stats {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.stat-card-supplier-index {
+    background: var(--admin-bg-light);
+    padding: 8px 20px;
+    box-shadow: var(--admin-shadow-lg);
+    border-radius: var(--admin-radius-lg);
+    flex: 1;
+}

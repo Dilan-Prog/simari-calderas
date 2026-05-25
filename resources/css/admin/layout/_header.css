@@ -1,0 +1,91 @@
+/* ============================================================
+   layout/_header.css — Topbar/cabecera del panel admin
+   ============================================================ */
+
+.admin-top-header {
+    height: var(--admin-header-height);
+    background-color: var(--admin-bg-dark);
+    border-bottom: 1px solid var(--admin-border-dark);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 32px;
+    flex-shrink: 0;
+}
+
+/* ── Breadcrumb ── */
+.admin-breadcrumb {
+    color: var(--admin-text-subtle);
+    font-size: 13.5px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.admin-breadcrumb strong {
+    color: #e5e7eb;
+    font-weight: 600;
+}
+
+.admin-breadcrumb .bc-sep {
+    color: #374151;
+}
+
+.admin-breadcrumb .bc-current {
+    color: var(--admin-text-subtle);
+}
+
+/* ── Acciones del header ── */
+.admin-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* ── Botón de notificaciones ── */
+.admin-notif-btn {
+    position: relative;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    color: var(--admin-text-subtle);
+    cursor: pointer;
+    border-radius: var(--admin-radius);
+    transition: background-color 0.15s ease, color 0.15s ease;
+    padding: 0;
+}
+
+.admin-notif-btn:hover {
+    background-color: var(--admin-border-dark);
+    color: var(--admin-text-white);
+}
+
+.admin-notif-dot {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 8px;
+    height: 8px;
+    background-color: #ef4444;
+    border-radius: 50%;
+    border: 2px solid var(--admin-bg-dark);
+}
+
+/* ── Avatar cabecera ── */
+.admin-header-avatar {
+    width: 36px;
+    height: 36px;
+    background-color: #374151;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--admin-text-white);
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+}

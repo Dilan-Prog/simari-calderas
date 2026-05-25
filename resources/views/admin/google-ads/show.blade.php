@@ -1,92 +1,9 @@
-@extends('admin.layouts.master')
+﻿@extends('admin.layouts.master')
 
 @section('title')
     Conversión #{{ $conversion->id }} — Google Ads | Admin
 @endsection
 
-@push('styles')
-    <style>
-        /* ── Status badge extensions (same as index) ── */
-        .users-manager-badge.status-stored  { background: #f3f4f6; color: #6b7280; }
-        .users-manager-badge.status-pending { background: #fef9c3; color: #854d0e; }
-        .users-manager-badge.status-failed  { background: #fee2e2; color: #991b1b; }
-
-        /* ── Detail card ── */
-        .ga-detail-card {
-            background: #fff;
-            border: 1px solid #e5e7eb;
-            border-radius: 10px;
-            padding: 1.75rem 2rem;
-            margin-top: 1.25rem;
-        }
-        .ga-detail-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 1.5rem 2.5rem;
-        }
-        .ga-detail-field label {
-            display: block;
-            font-size: 0.72rem;
-            font-weight: 600;
-            color: #6b7280;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            margin-bottom: 0.3rem;
-        }
-        .ga-detail-field p {
-            font-size: 0.95rem;
-            color: #111827;
-            word-break: break-all;
-        }
-        .ga-detail-field p.mono {
-            font-family: monospace;
-            font-size: 0.85rem;
-            background: #f9fafb;
-            padding: 0.35rem 0.6rem;
-            border-radius: 5px;
-            border: 1px solid #e5e7eb;
-        }
-        .ga-error-block {
-            margin-top: 1.5rem;
-            padding: 1rem 1.25rem;
-            background: #fef2f2;
-            border: 1px solid #fecaca;
-            border-radius: 8px;
-        }
-        .ga-error-block label {
-            display: block;
-            font-size: 0.72rem;
-            font-weight: 600;
-            color: #991b1b;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            margin-bottom: 0.4rem;
-        }
-        .ga-error-block p {
-            font-size: 0.9rem;
-            color: #7f1d1d;
-            word-break: break-word;
-        }
-        .ga-back-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.4rem;
-            font-size: 0.875rem;
-            color: #374151;
-            border: 1px solid #d1d5db;
-            border-radius: 6px;
-            padding: 0.4rem 0.9rem;
-            background: #fff;
-            text-decoration: none;
-            transition: background 0.15s;
-        }
-        .ga-back-btn:hover { background: #f3f4f6; }
-
-        @media (max-width: 640px) {
-            .ga-detail-grid { grid-template-columns: 1fr; }
-        }
-    </style>
-@endpush
 
 @section('content')
     <div class="container user-manager">

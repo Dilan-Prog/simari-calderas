@@ -1,0 +1,14 @@
+/* ============================================================
+   base/_reset.css — Reset específico del panel admin
+   ============================================================ */
+
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--admin-font);
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}

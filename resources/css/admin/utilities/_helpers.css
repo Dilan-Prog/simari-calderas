@@ -1,0 +1,30 @@
+/* ============================================================
+   utilities/_helpers.css — Clases utilitarias del admin
+   ============================================================ */
+
+/* ── Visibilidad ── */
+.admin-hidden  { display: none !important; }
+.admin-visible { display: block !important; }
+
+/* ── Texto ── */
+.admin-text-muted   { color: var(--admin-text-muted); }
+.admin-text-primary { color: var(--admin-text-primary); }
+.admin-text-success { color: var(--admin-success); }
+.admin-text-danger  { color: var(--admin-danger); }
+.admin-text-warning { color: var(--admin-warning); }
+
+/* ── Cursores ── */
+.admin-cursor-pointer { cursor: pointer; }
+.admin-cursor-default { cursor: default; }
+
+/* ── Overflow ── */
+.admin-overflow-hidden { overflow: hidden; }
+.admin-truncate {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+/* ── Espaciado ── */
+.admin-mt-auto { margin-top: auto; }
+.admin-ml-auto { margin-left: auto; }

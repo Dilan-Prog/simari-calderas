@@ -1,20 +1,20 @@
-/* ════════════════════════════════════════
-   PRODUCT FORM  (create / edit)
-════════════════════════════════════════ */
+/* ============================================================
+   pages/_product-form.css — Formulario de producto (create / edit)
+   ============================================================ */
 
 .pform-page {
     display: flex;
     flex-direction: column;
     height: calc(100vh - 64px);
-    background: #f5f7fa;
+    background: var(--admin-bg-light);
     overflow: hidden;
-    font-family: var(--font-family);
+    font-family: var(--admin-font);
 }
 
 /* ── Sticky header ── */
 .pform-page-header {
-    background: #ffffff;
-    border-bottom: 1px solid #e5e7eb;
+    background: var(--admin-bg-white);
+    border-bottom: 1px solid var(--admin-border);
     padding: 16px 32px 0;
     flex-shrink: 0;
 }
@@ -67,9 +67,7 @@
     color: #16a34a;
 }
 
-.pform-saved-badge.visible {
-    display: inline-flex;
-}
+.pform-saved-badge.visible { display: inline-flex; }
 
 .pform-header-actions {
     display: flex;
@@ -84,33 +82,29 @@
     gap: 7px;
     padding: 8px 16px;
     border-radius: 8px;
-    font-size: 14px;
+    font-size: var(--admin-text-base);
     font-weight: 500;
-    font-family: var(--font-family);
+    font-family: var(--admin-font);
     cursor: pointer;
     white-space: nowrap;
     transition: background-color 0.15s ease;
 }
 
 .pform-btn.outline {
-    background: #ffffff;
+    background: var(--admin-bg-white);
     border: 1px solid #d1d5db;
     color: #374151;
 }
 
-.pform-btn.outline:hover {
-    background: #f9fafb;
-}
+.pform-btn.outline:hover { background: #f9fafb; }
 
 .pform-btn.primary {
-    background: var(--secondary-color);
+    background: var(--admin-primary);
     border: none;
-    color: #ffffff;
+    color: var(--admin-text-white);
 }
 
-.pform-btn.primary:hover {
-    background: var(--button-primary-color-hover);
-}
+.pform-btn.primary:hover { background: var(--admin-primary-hover); }
 
 /* ── Tabs row ── */
 .pform-tabs-row {
@@ -120,9 +114,7 @@
     scrollbar-width: none;
 }
 
-.pform-tabs-row::-webkit-scrollbar {
-    display: none;
-}
+.pform-tabs-row::-webkit-scrollbar { display: none; }
 
 .pform-tab {
     display: inline-flex;
@@ -134,9 +126,9 @@
     border-radius: 6px 6px 0 0;
     background: transparent;
     color: #6b7280;
-    font-size: 14px;
+    font-size: var(--admin-text-base);
     font-weight: 400;
-    font-family: var(--font-family);
+    font-family: var(--admin-font);
     cursor: pointer;
     white-space: nowrap;
     transition: color 0.15s ease, background-color 0.15s ease, border-color 0.15s ease;
@@ -148,9 +140,9 @@
 }
 
 .pform-tab.active {
-    border-bottom-color: var(--secondary-color);
-    background: rgba(0, 84, 255, 0.05);
-    color: var(--secondary-color);
+    border-bottom-color: var(--admin-primary);
+    background: rgba(255, 98, 19, 0.05);
+    color: var(--admin-primary);
     font-weight: 500;
 }
 
@@ -168,18 +160,13 @@
 }
 
 /* ── Tab panels ── */
-.pform-tab-panel {
-    display: none;
-}
-
-.pform-tab-panel.active {
-    display: block;
-}
+.pform-tab-panel         { display: none; }
+.pform-tab-panel.active  { display: block; }
 
 /* ── White card panel ── */
 .pform-panel {
-    background: #ffffff;
-    border: 1px solid #e5e7eb;
+    background: var(--admin-bg-white);
+    border: 1px solid var(--admin-border);
     border-radius: 10px;
     padding: 32px;
     margin-bottom: 24px;
@@ -193,26 +180,18 @@
 }
 
 /* ── Form fields ── */
-.pform-field {
-    margin-bottom: 20px;
-}
-
-.pform-field:last-child {
-    margin-bottom: 0;
-}
+.pform-field { margin-bottom: 20px; }
+.pform-field:last-child { margin-bottom: 0; }
 
 .pform-label {
     display: block;
-    font-size: 14px;
+    font-size: var(--admin-text-base);
     font-weight: 500;
     color: #374151;
     margin-bottom: 6px;
 }
 
-.pform-required {
-    color: #ef4444;
-    margin-left: 2px;
-}
+.pform-required { color: #ef4444; margin-left: 2px; }
 
 .pform-input,
 .pform-select,
@@ -221,10 +200,10 @@
     padding: 10px 14px;
     border: 1px solid #d1d5db;
     border-radius: 8px;
-    font-size: 14px;
-    font-family: var(--font-family);
+    font-size: var(--admin-text-base);
+    font-family: var(--admin-font);
     color: #374151;
-    background: #ffffff;
+    background: var(--admin-bg-white);
     outline: none;
     box-sizing: border-box;
     transition: border-color 0.15s ease, box-shadow 0.15s ease;
@@ -233,20 +212,21 @@
 .pform-input:focus,
 .pform-select:focus,
 .pform-textarea:focus {
-    border-color: var(--secondary-color);
-    box-shadow: 0 0 0 3px rgba(0, 84, 255, 0.1);
+    border-color: var(--admin-primary);
+    box-shadow: 0 0 0 3px var(--admin-primary-alpha);
 }
 
-.pform-textarea {
-    resize: none;
-    line-height: 1.6;
+.pform-textarea  { resize: none; line-height: 1.6; }
+
+.pform-input:disabled,
+.pform-select:disabled,
+#pformSku:disabled {
+    background: #f3f4f6;
+    color: var(--admin-text-muted);
+    cursor: not-allowed;
 }
 
-.pform-hint {
-    font-size: 12px;
-    color: #9ca3af;
-    margin: 6px 0 0;
-}
+.pform-hint       { font-size: var(--admin-text-xs); color: var(--admin-text-muted); margin: 6px 0 0; }
 
 .pform-char-row {
     display: flex;
@@ -255,10 +235,7 @@
     margin-top: 6px;
 }
 
-.pform-char-count {
-    font-size: 12px;
-    color: #9ca3af;
-}
+.pform-char-count { font-size: var(--admin-text-xs); color: var(--admin-text-muted); }
 
 /* ── Grid layouts ── */
 .pform-grid-3 {
@@ -276,9 +253,7 @@
 }
 
 .pform-grid-3 .pform-field,
-.pform-grid-2 .pform-field {
-    margin-bottom: 0;
-}
+.pform-grid-2 .pform-field { margin-bottom: 0; }
 
 /* ── Quill editor wrapper ── */
 .pform-quill-wrap {
@@ -289,20 +264,20 @@
 }
 
 .pform-quill-wrap:focus-within {
-    border-color: var(--secondary-color);
-    box-shadow: 0 0 0 3px rgba(0, 84, 255, 0.1);
+    border-color: var(--admin-primary);
+    box-shadow: 0 0 0 3px var(--admin-primary-alpha);
 }
 
 .pform-quill-wrap .ql-toolbar.ql-snow {
     border: none;
-    border-bottom: 1px solid #e5e7eb;
+    border-bottom: 1px solid var(--admin-border);
     background: #f9fafb;
 }
 
 .pform-quill-wrap .ql-container.ql-snow {
     border: none;
-    font-family: var(--font-family);
-    font-size: 14px;
+    font-family: var(--admin-font);
+    font-size: var(--admin-text-base);
 }
 
 .pform-quill-wrap .ql-editor {
@@ -312,7 +287,7 @@
 }
 
 .pform-quill-wrap .ql-editor.ql-blank::before {
-    color: #9ca3af;
+    color: var(--admin-text-muted);
     font-style: normal;
 }
 
@@ -325,7 +300,7 @@
 }
 
 .pform-tips-title {
-    font-size: 14px;
+    font-size: var(--admin-text-base);
     font-weight: 600;
     color: #1e40af;
     margin: 0 0 10px;
@@ -340,10 +315,7 @@
     gap: 4px;
 }
 
-.pform-tips-list li {
-    font-size: 13px;
-    color: #1d4ed8;
-}
+.pform-tips-list li { font-size: var(--admin-text-sm); color: #1d4ed8; }
 
 /* ── Placeholder panels ── */
 .pform-placeholder {
@@ -352,14 +324,12 @@
     align-items: center;
     justify-content: center;
     padding: 64px 32px;
-    color: #9ca3af;
+    color: var(--admin-text-muted);
     gap: 12px;
     text-align: center;
 }
 
-.pform-placeholder svg {
-    opacity: 0.35;
-}
+.pform-placeholder svg { opacity: 0.35; }
 
 .pform-placeholder-title {
     font-size: 15px;
@@ -369,23 +339,9 @@
 }
 
 .pform-placeholder-sub {
-    font-size: 13px;
-    color: #9ca3af;
+    font-size: var(--admin-text-sm);
+    color: var(--admin-text-muted);
     margin: 0;
-}
-
-/* ── Disabled select ── */
-.pform-select:disabled {
-    background: #f3f4f6;
-    color: #9ca3af;
-    cursor: not-allowed;
-}
-
-/* ── Disabled input ── */
-.pform-input:disabled, #pformSku:disabled {
-    background: #f3f4f6;
-    color: #9ca3af;
-    cursor: not-allowed;
 }
 
 /* ── Image dropzone ── */
@@ -411,28 +367,23 @@
 }
 
 .pform-dropzone-text {
-    font-size: 14px;
+    font-size: var(--admin-text-base);
     font-weight: 500;
     color: #374151;
     margin: 10px 0 4px;
 }
 
-.pform-dropzone-sub {
-    font-size: 12px;
-    color: #9ca3af;
-}
+.pform-dropzone-sub { font-size: var(--admin-text-xs); color: var(--admin-text-muted); }
 
 /* ── Inner sections ── */
 .pform-section {
-    border: 1px solid #e5e7eb;
+    border: 1px solid var(--admin-border);
     border-radius: 8px;
     padding: 24px;
     margin-bottom: 20px;
 }
 
-.pform-section:last-child {
-    margin-bottom: 0;
-}
+.pform-section:last-child { margin-bottom: 0; }
 
 .pform-section-title {
     display: flex;
@@ -445,9 +396,7 @@
 }
 
 /* ── Price input ── */
-.pform-price-wrap {
-    position: relative;
-}
+.pform-price-wrap { position: relative; }
 
 .pform-price-prefix {
     position: absolute;
@@ -455,13 +404,11 @@
     top: 50%;
     transform: translateY(-50%);
     color: #6b7280;
-    font-size: 14px;
+    font-size: var(--admin-text-base);
     pointer-events: none;
 }
 
-.pform-input-prefixed {
-    padding-left: 28px;
-}
+.pform-input-prefixed { padding-left: 28px; }
 
 /* ── Profitability card ── */
 .pform-profit-card {
@@ -476,7 +423,7 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    font-size: 14px;
+    font-size: var(--admin-text-base);
     font-weight: 600;
     color: #111827;
     margin: 0 0 14px;
@@ -488,11 +435,7 @@
     gap: 16px;
 }
 
-.pform-profit-label {
-    font-size: 13px;
-    color: #6b7280;
-    margin: 0 0 4px;
-}
+.pform-profit-label { font-size: var(--admin-text-sm); color: #6b7280; margin: 0 0 4px; }
 
 .pform-profit-value {
     font-size: 20px;
@@ -524,35 +467,26 @@
 .pform-avail-btn {
     padding: 16px;
     border-radius: 8px;
-    border: 2px solid #e5e7eb;
-    background: #ffffff;
+    border: 2px solid var(--admin-border);
+    background: var(--admin-bg-white);
     cursor: pointer;
     text-align: center;
-    font-family: var(--font-family);
+    font-family: var(--admin-font);
     transition: border-color 0.15s ease, background 0.15s ease;
 }
 
-.pform-avail-btn:hover:not(.active) {
-    border-color: #d1d5db;
-}
+.pform-avail-btn:hover:not(.active) { border-color: #d1d5db; }
 
 .pform-avail-btn.active {
     border-color: #16a34a;
     background: #f0fdf4;
 }
 
-.pform-avail-btn-title {
-    font-size: 14px;
-    font-weight: 600;
-    color: #111827;
-}
-
-.pform-avail-btn.active .pform-avail-btn-title {
-    color: #15803d;
-}
+.pform-avail-btn-title { font-size: var(--admin-text-base); font-weight: 600; color: #111827; }
+.pform-avail-btn.active .pform-avail-btn-title { color: #15803d; }
 
 .pform-avail-btn-sub {
-    font-size: 12px;
+    font-size: var(--admin-text-xs);
     color: #6b7280;
     margin-top: 4px;
 }
@@ -564,7 +498,7 @@
     border-radius: 8px;
     padding: 10px 14px;
     margin-top: 16px;
-    font-size: 13px;
+    font-size: var(--admin-text-sm);
 }
 
 /* ── Tag row + chips ── */
@@ -573,9 +507,7 @@
     gap: 8px;
 }
 
-.pform-tag-row .pform-input {
-    flex: 1;
-}
+.pform-tag-row .pform-input { flex: 1; }
 
 .pform-tag-chips {
     display: flex;
@@ -591,35 +523,31 @@
     background: #e0e7ff;
     color: #3730a3;
     border-radius: 20px;
-    font-size: 13px;
+    font-size: var(--admin-text-sm);
     cursor: pointer;
     transition: background 0.15s;
 }
 
-.pform-tag-chip:hover {
-    background: #c7d2fe;
-}
+.pform-tag-chip:hover { background: #c7d2fe; }
 
 /* ── Badge toggle cards ── */
 .pform-badge-card {
     padding: 20px;
     border-radius: 8px;
-    border: 2px solid #e5e7eb;
-    background: #ffffff;
+    border: 2px solid var(--admin-border);
+    background: var(--admin-bg-white);
     cursor: pointer;
     text-align: left;
     width: 100%;
-    font-family: var(--font-family);
+    font-family: var(--admin-font);
     transition: border-color 0.15s ease, background 0.15s ease;
 }
 
-.pform-badge-card:hover:not(.active) {
-    border-color: #d1d5db;
-}
+.pform-badge-card:hover:not(.active) { border-color: #d1d5db; }
 
 .pform-badge-card.active {
-    border-color: var(--secondary-color);
-    background: rgba(0, 84, 255, 0.04);
+    border-color: var(--admin-primary);
+    background: var(--admin-primary-alpha);
 }
 
 .pform-badge-card-header {
@@ -633,31 +561,31 @@
     padding: 8px;
     border-radius: 8px;
     background: #f3f4f6;
-    color: #9ca3af;
+    color: var(--admin-text-muted);
     flex-shrink: 0;
     transition: background 0.15s, color 0.15s;
 }
 
 .pform-badge-card.active .pform-badge-icon {
-    background: rgba(0, 84, 255, 0.1);
-    color: var(--secondary-color);
+    background: var(--admin-primary-alpha);
+    color: var(--admin-primary);
 }
 
 .pform-badge-name {
-    font-size: 14px;
+    font-size: var(--admin-text-base);
     font-weight: 600;
     color: #111827;
     margin-bottom: 4px;
 }
 
 .pform-badge-sub {
-    font-size: 12px;
+    font-size: var(--admin-text-xs);
     color: #6b7280;
     margin: 0;
     text-align: left;
 }
 
-/* Toggle switch */
+/* Toggle switch (inside badge card) */
 .pform-toggle {
     width: 40px;
     height: 22px;
@@ -674,20 +602,15 @@
     left: 2px;
     width: 18px;
     height: 18px;
-    background: #ffffff;
+    background: var(--admin-bg-white);
     border-radius: 50%;
     transition: left 0.2s ease;
 }
 
-.pform-badge-card.active .pform-toggle {
-    background: var(--secondary-color);
-}
+.pform-badge-card.active .pform-toggle        { background: var(--admin-primary); }
+.pform-badge-card.active .pform-toggle::after { left: 20px; }
 
-.pform-badge-card.active .pform-toggle::after {
-    left: 20px;
-}
-
-/* ── Specs header ── */
+/* ── Specs ── */
 .pform-specs-header {
     display: flex;
     align-items: flex-start;
@@ -696,7 +619,6 @@
     margin-bottom: 24px;
 }
 
-/* ── Spec rows ── */
 .pform-spec-list {
     flex-direction: column;
     gap: 10px;
@@ -716,9 +638,9 @@
     justify-content: center;
     width: 36px;
     height: 36px;
-    border: 1px solid #e5e7eb;
+    border: 1px solid var(--admin-border);
     border-radius: 8px;
-    background: #ffffff;
+    background: var(--admin-bg-white);
     color: #ef4444;
     cursor: pointer;
     flex-shrink: 0;
@@ -730,7 +652,7 @@
     border-color: #fca5a5;
 }
 
-/* ── Alert box (orange) ── */
+/* ── Alert box (orange info) ── */
 .pform-alert-box {
     display: flex;
     gap: 12px;
@@ -749,14 +671,14 @@
 }
 
 .pform-alert-box-body h4 {
-    font-size: 14px;
+    font-size: var(--admin-text-base);
     font-weight: 600;
     color: #7c2d12;
     margin: 0 0 6px;
 }
 
 .pform-alert-box-body p {
-    font-size: 13px;
+    font-size: var(--admin-text-sm);
     color: #9a3412;
     margin: 0;
     line-height: 1.6;
@@ -774,74 +696,52 @@
     display: flex;
     align-items: center;
     gap: 16px;
-    border: 1px solid #e5e7eb;
+    border: 1px solid var(--admin-border);
     border-radius: 8px;
     padding: 16px;
     transition: border-color 0.15s ease;
 }
 
-.pform-doc-row:hover {
-    border-color: #d1d5db;
-}
+.pform-doc-row:hover { border-color: #d1d5db; }
 
 .pform-doc-icon {
     padding: 8px;
     background: #eff6ff;
     border-radius: 8px;
     flex-shrink: 0;
-    color: var(--secondary-color);
+    color: var(--admin-primary);
 }
 
-.pform-doc-info {
-    flex: 1;
-}
-
-.pform-doc-info h3 {
-    font-size: 14px;
-    font-weight: 600;
-    color: #111827;
-    margin: 0 0 2px;
-}
-
-.pform-doc-info p {
-    font-size: 13px;
-    color: #6b7280;
-    margin: 0;
-}
+.pform-doc-info { flex: 1; }
+.pform-doc-info h3 { font-size: var(--admin-text-base); font-weight: 600; color: #111827; margin: 0 0 2px; }
+.pform-doc-info p  { font-size: var(--admin-text-sm); color: #6b7280; margin: 0; }
 
 .pform-doc-upload {
     display: inline-flex;
     align-items: center;
     gap: 6px;
     padding: 8px 16px;
-    background: var(--secondary-color);
-    color: #ffffff;
+    background: var(--admin-primary);
+    color: var(--admin-text-white);
     border-radius: 8px;
-    font-size: 13px;
+    font-size: var(--admin-text-sm);
     font-weight: 500;
     cursor: pointer;
     flex-shrink: 0;
     transition: background 0.15s ease;
 }
 
-.pform-doc-upload:hover {
-    background: var(--button-primary-color-hover);
-}
+.pform-doc-upload:hover { background: var(--admin-primary-hover); }
 
 /* ── Reco box ── */
 .pform-reco-box {
     background: #f9fafb;
-    border: 1px solid #e5e7eb;
+    border: 1px solid var(--admin-border);
     border-radius: 10px;
     padding: 16px 20px;
 }
 
-.pform-reco-box h4 {
-    font-size: 14px;
-    font-weight: 600;
-    color: #111827;
-    margin: 0 0 8px;
-}
+.pform-reco-box h4 { font-size: var(--admin-text-base); font-weight: 600; color: #111827; margin: 0 0 8px; }
 
 .pform-reco-box ul {
     list-style: none;
@@ -852,26 +752,23 @@
     gap: 4px;
 }
 
-.pform-reco-box li {
-    font-size: 13px;
-    color: #374151;
-}
+.pform-reco-box li { font-size: var(--admin-text-sm); color: #374151; }
 
 /* ── SEO Modal overlay ── */
 .pform-seo-modal {
     position: fixed;
     inset: 0;
-    background: #f5f7fa;
+    background: var(--admin-bg-light);
     z-index: 200;
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    font-family: var(--font-family);
+    font-family: var(--admin-font);
 }
 
 .pform-seo-header {
-    background: #ffffff;
-    border-bottom: 1px solid #e5e7eb;
+    background: var(--admin-bg-white);
+    border-bottom: 1px solid var(--admin-border);
     padding: 20px 32px;
     flex-shrink: 0;
 }
@@ -882,10 +779,7 @@
     gap: 16px;
 }
 
-.pform-seo-score-wrap {
-    text-align: center;
-    flex-shrink: 0;
-}
+.pform-seo-score-wrap { text-align: center; flex-shrink: 0; }
 
 .pform-seo-score {
     font-size: 28px;
@@ -920,7 +814,7 @@
     display: flex;
     align-items: center;
     gap: 6px;
-    font-size: 13px;
+    font-size: var(--admin-text-sm);
     color: #15803d;
     margin-bottom: 4px;
 }
@@ -933,12 +827,10 @@
     cursor: default;
 }
 
-.pform-google-title:hover {
-    text-decoration: underline;
-}
+.pform-google-title:hover { text-decoration: underline; }
 
 .pform-google-desc {
-    font-size: 14px;
+    font-size: var(--admin-text-base);
     color: #374151;
     line-height: 1.6;
     margin: 0;
@@ -947,14 +839,14 @@
 /* ── SEO analysis ── */
 .pform-seo-analysis {
     background: #f9fafb;
-    border: 1px solid #e5e7eb;
+    border: 1px solid var(--admin-border);
     border-radius: 8px;
     padding: 16px 20px;
     margin-top: 16px;
 }
 
 .pform-seo-analysis-title {
-    font-size: 14px;
+    font-size: var(--admin-text-base);
     font-weight: 600;
     color: #111827;
     margin: 0 0 12px;
@@ -964,30 +856,28 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    font-size: 14px;
+    font-size: var(--admin-text-base);
     color: #374151;
     margin-bottom: 8px;
 }
 
-.pform-seo-item:last-child {
-    margin-bottom: 0;
-}
+.pform-seo-item:last-child { margin-bottom: 0; }
 
 /* ── Responsive ── */
 @media (max-width: 900px) {
-    .pform-grid-3 { grid-template-columns: 1fr 1fr; }
+    .pform-grid-3   { grid-template-columns: 1fr 1fr; }
     .pform-avail-row { grid-template-columns: 1fr; }
     .pform-profit-grid { grid-template-columns: 1fr 1fr; }
 }
 
 @media (max-width: 640px) {
-    .pform-page-header { padding: 16px 16px 0; }
+    .pform-page-header  { padding: 16px 16px 0; }
     .pform-content-area { padding: 16px; }
-    .pform-panel { padding: 20px; }
+    .pform-panel        { padding: 20px; }
     .pform-grid-3,
-    .pform-grid-2 { grid-template-columns: 1fr; }
+    .pform-grid-2       { grid-template-columns: 1fr; }
     .pform-btn.outline:not(#pformBtnPublish) { display: none; }
-    .pform-seo-content { padding: 16px; }
-    .pform-seo-header { padding: 16px; }
-    .pform-spec-row { grid-template-columns: 1fr; }
+    .pform-seo-content  { padding: 16px; }
+    .pform-seo-header   { padding: 16px; }
+    .pform-spec-row     { grid-template-columns: 1fr; }
 }

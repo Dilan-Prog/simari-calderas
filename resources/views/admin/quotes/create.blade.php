@@ -2,9 +2,6 @@
 
 @section('title', 'Nueva Cotización - Admin')
 
-@push('styles')
-@vite(['resources/css/admin-quotes.css'])
-@endpush
 
 @section('content')
 <div class="quotes-page">

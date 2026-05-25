@@ -18,10 +18,6 @@
     @vite(['resources/css/admin/app.css'])
     @vite(['resources/js/admin/sidebar.js'])
     @stack('styles')
-    <style>
-    .val-error-input,.val-error-select{border-color:#e3342f!important;box-shadow:0 0 0 2px rgba(227,52,47,.18)!important;}
-    .val-error-msg{display:block;color:#e3342f;font-size:12px;margin-top:4px;font-weight:500;}
-    </style>
 </head>
 
 <body>

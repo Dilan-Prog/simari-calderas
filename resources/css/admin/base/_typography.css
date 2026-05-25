@@ -1,0 +1,18 @@
+/* ============================================================
+   base/_typography.css — Clases de texto reutilizables
+   ============================================================ */
+
+.admin-text-xs     { font-size: var(--admin-text-xs); }
+.admin-text-sm     { font-size: var(--admin-text-sm); }
+.admin-text-base   { font-size: var(--admin-text-base); }
+.admin-text-md     { font-size: var(--admin-text-md); }
+.admin-text-lg     { font-size: var(--admin-text-lg); }
+.admin-text-muted  { color: var(--admin-text-muted); }
+.admin-text-subtle { color: var(--admin-text-subtle); }
+.admin-text-body   { color: var(--admin-text-body); }
+.admin-text-primary-color { color: var(--admin-primary); }
+.admin-font-medium { font-weight: 500; }
+.admin-font-semibold { font-weight: 600; }
+.admin-font-bold   { font-weight: 700; }
+.admin-uppercase   { text-transform: uppercase; letter-spacing: 0.05em; }
+.admin-truncate    { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }

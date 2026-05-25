@@ -2,9 +2,6 @@
 
 @section('title', 'Editar Cotización — ' . $quote->quote_number)
 
-@push('styles')
-@vite(['resources/css/admin-quotes.css'])
-@endpush
 
 @section('content')
 <div class="quotes-page">

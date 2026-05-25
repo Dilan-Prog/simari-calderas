@@ -1,12 +1,12 @@
+/* ============================================================
+   layout/_sidebar.css — Sidebar y navegación lateral
+   ============================================================ */
 
-/* ════════════════════════════════════════
-   SIDEBAR
-════════════════════════════════════════ */
 .admin-sidebar {
-    width: 256px;
+    width: var(--admin-sidebar-width);
     flex-shrink: 0;
-    background-color: #141516;
-    border-right: 1px solid #2E3A46;
+    background-color: var(--admin-bg-dark);
+    border-right: 1px solid var(--admin-border-dark);
     display: flex;
     flex-direction: column;
     height: 100vh;
@@ -18,13 +18,14 @@
 
 /* ── Logo ── */
 .sidebar-logo {
-    height: 64px;
+    height: var(--admin-header-height);
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 0 24px;
-    border-bottom: 1px solid #2E3A46;
+    border-bottom: 1px solid var(--admin-border-dark);
     flex-shrink: 0;
+    cursor: pointer;
 }
 
 .sidebar-logo img {
@@ -42,7 +43,7 @@
     gap: 2px;
     overflow-y: auto;
     scrollbar-width: thin;
-    scrollbar-color: #2E3A46 transparent;
+    scrollbar-color: var(--admin-border-dark) transparent;
 }
 
 .sidebar-nav::-webkit-scrollbar {
@@ -54,7 +55,7 @@
 }
 
 .sidebar-nav::-webkit-scrollbar-thumb {
-    background-color: #2E3A46;
+    background-color: var(--admin-border-dark);
     border-radius: 4px;
 }
 
@@ -64,9 +65,9 @@
     align-items: center;
     justify-content: space-between;
     padding: 9px 12px;
-    border-radius: 10px;
+    border-radius: var(--admin-radius-md);
     text-decoration: none;
-    color: #9ca3af;
+    color: var(--admin-text-subtle);
     transition: background-color 0.15s ease, color 0.15s ease;
     cursor: pointer;
     border: none;
@@ -74,24 +75,36 @@
     box-sizing: border-box;
     width: 100%;
     text-align: left;
-    font-family: var(--font-family);
-    font-size: 14px;
+    font-family: var(--admin-font);
+    font-size: var(--admin-text-base);
 }
 
 .sidebar-nav-item:hover {
-    background-color: #2E3A46;
-    color: #ffffff;
+    background-color: var(--admin-border-dark);
+    color: var(--admin-text-white);
     text-decoration: none;
 }
 
 .sidebar-nav-item.active {
-    background-color: #ff6213;
-    color: #ffffff;
-    box-shadow: 0 4px 14px rgba(0, 84, 255, 0.3);
+    background-color: var(--admin-primary);
+    color: var(--admin-text-white);
+    box-shadow: 0 4px 14px rgba(255, 98, 19, 0.3);
 }
 
 .sidebar-nav-item.active:hover {
-    background-color: #0049e0;
+    background-color: var(--admin-primary-hover);
+}
+
+/* Ítems deshabilitados (módulos en desarrollo) */
+.sidebar-nav-item.disabled {
+    pointer-events: none;
+    opacity: 0.6;
+    cursor: default;
+}
+
+.sidebar-nav-item.disabled .sidebar-nav-item-label {
+    cursor: default;
+    color: inherit;
 }
 
 /* ── Lado izquierdo del ítem ── */
@@ -127,7 +140,7 @@
 /* ── Footer del sidebar ── */
 .sidebar-footer {
     padding: 14px 16px;
-    border-top: 1px solid #2E3A46;
+    border-top: 1px solid var(--admin-border-dark);
     flex-shrink: 0;
 }
 
@@ -147,7 +160,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #ffffff;
+    color: var(--admin-text-white);
     font-size: 12px;
     font-weight: 700;
     flex-shrink: 0;
@@ -159,8 +172,8 @@
 }
 
 .sidebar-profile-name {
-    color: #ffffff;
-    font-size: 13px;
+    color: var(--admin-text-white);
+    font-size: var(--admin-text-sm);
     font-weight: 500;
     margin: 0 0 2px;
     white-space: nowrap;
@@ -169,7 +182,7 @@
 }
 
 .sidebar-profile-email {
-    color: #6b7280;
+    color: var(--admin-text-muted);
     font-size: 11px;
     white-space: nowrap;
     overflow: hidden;
@@ -184,11 +197,11 @@
     justify-content: center;
     gap: 7px;
     padding: 9px 16px;
-    background-color: #2E3A46;
+    background-color: var(--admin-border-dark);
     border: none;
-    border-radius: 10px;
+    border-radius: var(--admin-radius-md);
     color: #d1d5db;
-    font-size: 13px;
+    font-size: var(--admin-text-sm);
     font-family: inherit;
     font-weight: 500;
     cursor: pointer;
@@ -198,7 +211,7 @@
 
 .sidebar-logout-btn:hover {
     background-color: #3d4e5c;
-    color: #ffffff;
+    color: var(--admin-text-white);
     text-decoration: none;
 }
 

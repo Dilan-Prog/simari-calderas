@@ -1,0 +1,233 @@
+/* ============================================================
+   components/_buttons.css — Todos los estilos de botones
+   ============================================================ */
+
+/* ── Botones base del sistema (globales) ── */
+.button-primary {
+    background: var(--admin-primary);
+    color: var(--admin-text-white);
+    display: inline-flex;
+    padding: 12px 32px;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    border-radius: var(--admin-radius-sm);
+    font-size: var(--admin-text-md);
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+    transition: all 0.1s ease-in-out;
+    font-family: var(--admin-font);
+    line-height: 1.4;
+}
+
+.button-primary:hover {
+    background: var(--admin-primary-hover);
+    transform: translateY(-2px);
+}
+
+.button-secondary {
+    background: transparent;
+    color: var(--admin-text-white);
+    display: inline-flex;
+    padding: 12px 32px;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    border-radius: var(--admin-radius-sm);
+    font-size: var(--admin-text-md);
+    font-weight: 700;
+    border: 2px solid white;
+    cursor: pointer;
+    font-family: var(--admin-font);
+    line-height: 1.4;
+}
+
+.button-secondary:hover {
+    background: var(--admin-text-white);
+    color: black;
+}
+
+/* ── Ajuste de tamaño para modales ── */
+.button-primary.size-adjustment {
+    border-radius: var(--admin-radius-lg);
+    font-size: var(--admin-text-md);
+    padding: 12px 32px;
+    height: 52px;
+}
+
+.button-primary.size-adjustment:hover {
+    transform: translateY(0);
+    cursor: default;
+}
+
+.button-secondary.size-adjustment {
+    border: 2px solid rgb(218, 218, 218);
+    color: var(--admin-text-body);
+    height: 52px;
+    border-radius: var(--admin-radius-lg);
+    font-size: var(--admin-text-md);
+}
+
+.button-secondary.size-adjustment:hover {
+    cursor: default;
+    background-color: rgb(229, 229, 229);
+}
+
+.delete-confirmation-modal-button {
+    background: var(--secondary-color-rinnai);
+}
+
+.delete-confirmation-modal-button:hover {
+    background: var(--button-primary-color-hover-rinnai);
+}
+
+/* ── Botones del módulo de cotizaciones ── */
+.btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    height: 40px;
+    padding: 0 20px;
+    background: var(--admin-primary);
+    color: var(--admin-text-white);
+    border: none;
+    border-radius: var(--admin-radius);
+    font-size: var(--admin-text-base);
+    font-weight: 700;
+    font-family: var(--admin-font);
+    cursor: pointer;
+    text-decoration: none;
+    white-space: nowrap;
+    box-shadow: 0 4px 14px rgba(255, 98, 19, 0.35);
+    transition: background 150ms ease, box-shadow 150ms ease, transform 150ms ease;
+}
+
+.btn-primary:hover {
+    background: var(--admin-primary-hover);
+    box-shadow: 0 6px 20px rgba(255, 98, 19, 0.45);
+    transform: translateY(-1px);
+    color: var(--admin-text-white);
+}
+
+.btn-primary--full {
+    width: 100%;
+    height: 44px;
+    margin-top: 18px;
+}
+
+.btn-outline {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    height: 40px;
+    padding: 0 18px;
+    background: transparent;
+    color: var(--admin-primary);
+    border: 2px solid var(--admin-primary);
+    border-radius: var(--admin-radius);
+    font-size: var(--admin-text-sm);
+    font-weight: 600;
+    font-family: var(--admin-font);
+    cursor: pointer;
+    white-space: nowrap;
+    text-decoration: none;
+    transition: background 150ms ease;
+}
+
+.btn-outline:hover {
+    background: rgba(255, 98, 19, 0.06);
+    color: var(--admin-primary);
+}
+
+.btn-add-row {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    height: 40px;
+    padding: 0 18px;
+    background: rgba(255, 98, 19, 0.07);
+    color: var(--admin-primary-hover);
+    border: 2px solid rgba(255, 98, 19, 0.22);
+    border-radius: var(--admin-radius);
+    font-size: var(--admin-text-sm);
+    font-weight: 600;
+    font-family: var(--admin-font);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 150ms ease, border-color 150ms ease, color 150ms ease;
+}
+
+.btn-add-row:hover {
+    background: rgba(255, 98, 19, 0.14);
+    border-color: rgba(255, 98, 19, 0.4);
+    color: var(--admin-primary);
+}
+
+.btn-cancel {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 36px;
+    margin-top: 8px;
+    font-size: var(--admin-text-sm);
+    color: var(--admin-text-muted);
+    text-decoration: none;
+    border-radius: var(--admin-radius-sm);
+    transition: background 150ms ease, color 150ms ease;
+}
+
+.btn-cancel:hover {
+    background: var(--admin-border-light);
+    color: #374151;
+}
+
+/* ── Botones de acción rápida (show page) ── */
+.quick-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.btn-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 9px 16px;
+    border-radius: 7px;
+    font-size: var(--admin-text-sm);
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    text-decoration: none;
+    font-family: var(--admin-font);
+    white-space: nowrap;
+    transition: background 150ms ease, color 150ms ease;
+}
+
+.btn-action--primary             { background: var(--admin-primary); color: var(--admin-text-white); }
+.btn-action--primary:hover       { background: var(--admin-primary-hover); color: var(--admin-text-white); }
+.btn-action--secondary           { background: var(--admin-bg-faint); color: var(--admin-text-primary); border: 1px solid var(--admin-border); }
+.btn-action--secondary:hover     { background: var(--admin-border); }
+.btn-action--danger              { background: #FEF2F2; color: var(--admin-danger); border: 1px solid #FECACA; }
+.btn-action--danger:hover        { background: var(--admin-danger-bg); }
+
+/* ── Botón dashed (añadir elemento) ── */
+.btn-dashed {
+    width: 100%;
+    padding: 15px;
+    border: 2px dashed #cbd5e1;
+    background: none;
+    border-radius: var(--admin-radius-lg);
+    margin-top: 20px;
+    cursor: pointer;
+    font-family: var(--admin-font);
+    transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.btn-dashed:hover {
+    border-color: var(--admin-primary);
+    color: var(--admin-primary);
+}

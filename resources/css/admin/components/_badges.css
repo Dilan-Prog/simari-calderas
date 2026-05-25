@@ -1,0 +1,91 @@
+/* ============================================================
+   components/_badges.css — Badges, tags y pills de estado
+   ============================================================ */
+
+/* ── Badge base del manager de usuarios/clientes ── */
+.users-manager-badge {
+    display: inline-block;
+    border-radius: 999px;
+    font-size: var(--admin-text-xs);
+    padding: 5px 10px;
+    text-transform: capitalize;
+    font-weight: 500;
+}
+
+/* Roles */
+.users-manager-badge.role-admin    { background: #f9dbfe; color: rgb(151, 0, 151); }
+.users-manager-badge.role-employee { background: var(--admin-success-bg); color: #1d4ed8; }
+
+/* Estado activo/inactivo */
+.users-manager-badge.status          { background: var(--admin-success-bg); color: #166534; }
+.users-manager-badge.status-inactive { background: #e3e3e3; color: #3f3f3f; }
+
+/* Google Ads estados */
+.users-manager-badge.status-stored  { background: #f3f4f6; color: var(--admin-text-muted); }
+.users-manager-badge.status-pending { background: var(--admin-warning-bg); color: #854d0e; }
+.users-manager-badge.status-failed  { background: var(--admin-danger-bg); color: #991b1b; }
+
+/* ── Status badge (cotizaciones) ── */
+.status-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: var(--admin-text-xs);
+    font-weight: 700;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+    vertical-align: middle;
+}
+
+.status-badge--draft    { background: var(--admin-border-light); color: var(--admin-text-muted); }
+.status-badge--sent     { background: #EFF6FF; color: #2563EB; }
+.status-badge--accepted { background: #F0FDF4; color: var(--admin-success); }
+.status-badge--rejected { background: var(--admin-danger-bg); color: var(--admin-danger); }
+.status-badge--expired  { background: #FFF7ED; color: #EA580C; }
+
+/* ── Badge genérico (show page) ── */
+.badge {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: var(--admin-radius-md);
+    font-size: var(--admin-text-xs);
+    font-weight: 500;
+}
+
+.badge.green { background: #d1fae5; color: #065f46; }
+.badge.blue  { background: #dbeafe; color: #1e40af; }
+
+/* ── Folio badge (cotizaciones) ── */
+.folio-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: var(--admin-border-light);
+    border: 1px solid var(--admin-border);
+    border-radius: var(--admin-radius-sm);
+    padding: 4px 10px;
+    font-size: var(--admin-text-xs);
+    font-weight: 600;
+    color: var(--admin-text-muted);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.3px;
+}
+
+.folio-badge svg {
+    color: var(--admin-text-subtle);
+    flex-shrink: 0;
+}
+
+/* ── Status activo (clientes) ── */
+.status {
+    display: inline-block;
+    margin-top: 5px;
+    padding: 4px 10px;
+    border-radius: var(--admin-radius-md);
+    font-size: var(--admin-text-xs);
+}
+
+.status.active {
+    background: #d1fae5;
+    color: #065f46;
+}

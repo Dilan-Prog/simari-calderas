@@ -1,0 +1,323 @@
+/* ============================================================
+   components/_forms.css — Inputs, selects, labels y filtros
+   ============================================================ */
+
+/* ── Inputs y selects del manager ── */
+.users-manager-input,
+.users-manager-select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: var(--admin-radius);
+    font-family: var(--admin-font);
+    color: var(--text-black);
+    font-size: var(--admin-text-base);
+    box-sizing: border-box;
+}
+
+.users-manager-input.password {
+    padding-right: 45px;
+    height: 40px;
+    border: 1px solid #d1d5db;
+    border-radius: var(--admin-radius-sm);
+}
+
+.users-manager-input.password::-ms-reveal,
+.users-manager-input.password::-ms-clear {
+    display: none;
+}
+
+/* ── Ícono de ojo para password ── */
+.lucide-eye {
+    position: absolute;
+    right: 12px;
+    bottom: 10px;
+    cursor: pointer;
+    color: var(--admin-text-muted);
+    transition: color 0.2s;
+    display: flex;
+    align-items: center;
+}
+
+.toggle-icon:hover,
+.user-manager-form svg.lucide-eye:hover {
+    color: #2f2f2f;
+}
+
+.toggle-icon svg { display: block; }
+
+/* ── Filtros de búsqueda ── */
+.filters-clients-manager {
+    display: flex;
+    gap: 16px;
+    margin: 24px 0;
+}
+
+.filters-clients-manager-search {
+    font-family: var(--admin-font);
+    flex: 1;
+    position: relative;
+}
+
+.filters-clients-manager-search input {
+    border: 1px solid var(--admin-border);
+    border-radius: var(--admin-radius-md);
+    font-size: var(--admin-text-base);
+    outline: none;
+    padding: 12px 16px 12px 40px;
+    transition: all 0.2s ease;
+    width: 95%;
+}
+
+.filters-clients-manager-search input:focus {
+    border-color: #0051ff;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+}
+
+.search-icon-clients-manager {
+    color: var(--admin-text-subtle);
+    font-size: var(--admin-text-md);
+    left: 12px;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.filters-clients-manager-select select {
+    background: var(--admin-bg-white);
+    border: 1px solid var(--admin-border);
+    border-radius: var(--admin-radius-md);
+    color: var(--admin-text-body);
+    font-family: var(--admin-font);
+    font-size: var(--admin-text-base);
+    padding: 12px 24px;
+    transition: all 0.2s ease;
+}
+
+.filters-clients-manager-select select:focus {
+    border-color: #0039b4;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+    color: var(--admin-text-body);
+}
+
+/* ── Inputs del módulo de cotizaciones ── */
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 16px;
+}
+
+.form-group:last-child { margin-bottom: 0; }
+
+.form-label {
+    font-size: var(--admin-text-xs);
+    font-weight: 600;
+    color: #374151;
+}
+
+.form-req { color: var(--admin-primary); margin-left: 2px; }
+
+.form-input,
+.form-select,
+.form-textarea {
+    background: var(--admin-bg-white);
+    border: 1px solid #D1D5DB;
+    color: var(--admin-text-primary);
+    border-radius: var(--admin-radius);
+    padding: 10px 12px;
+    height: 40px;
+    font-size: var(--admin-text-sm);
+    font-family: var(--admin-font);
+    width: 100%;
+    transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+
+.form-textarea {
+    height: auto;
+    min-height: 80px;
+    resize: vertical;
+}
+
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus {
+    outline: none;
+    border-color: var(--admin-primary);
+    box-shadow: 0 0 0 3px var(--admin-primary-alpha);
+}
+
+.form-input::placeholder,
+.form-textarea::placeholder { color: var(--admin-text-subtle); }
+
+.form-error { font-size: var(--admin-text-xs); color: var(--admin-danger); margin-top: 2px; }
+
+/* Sub-grupo destacado (datos fiscales) */
+.form-group--highlighted {
+    background: var(--admin-bg-faint);
+    border: 1px solid var(--admin-border);
+    border-radius: var(--admin-radius);
+    padding: 16px;
+    margin-top: 12px;
+    margin-bottom: 0;
+}
+
+.form-group--highlighted .form-input { background: var(--admin-bg-white); }
+
+.form-section-label {
+    display: block;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--admin-text-subtle);
+    margin-bottom: 14px;
+}
+
+/* ── Grid de formulario ── */
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+/* ── Botón de emergency add ── */
+.emergency-add-btn {
+    width: 100%;
+    border: 2px dashed var(--admin-text-muted);
+    background-color: transparent;
+    color: var(--admin-text-body);
+    padding: 14px;
+    border-radius: var(--admin-radius-md);
+    font-size: var(--admin-text-base);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    cursor: pointer;
+    font-family: var(--admin-font);
+    transition: border-color 0.15s, color 0.15s;
+}
+
+.emergency-add-btn:hover {
+    color: var(--admin-primary);
+    border-color: var(--admin-primary);
+}
+
+.emergency-add-btn .icon {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.emergency-contact-item {
+    position: relative;
+    padding-right: 50px;
+}
+
+.delete-emergency-btn {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-15%);
+    background-color: #ffefef;
+    border: none;
+    font-size: 16px;
+    display: none;
+    cursor: pointer;
+}
+
+.delete-emergency-btn svg { color: var(--button-primary-color-hover-rinnai); }
+.delete-emergency-btn:hover { background-color: #ffbebe; }
+
+/* ── CFDI reader ── */
+.cfdi-reader-section {
+    margin-bottom: 1.5rem;
+    padding: 1.25rem;
+    border: 2px dashed #cbd5e1;
+    border-radius: var(--admin-radius-md);
+    background: #f8fafc;
+}
+
+.cfdi-upload-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-top: 0.5rem;
+}
+
+.cfdi-filename {
+    font-size: 0.85rem;
+    color: #64748b;
+}
+
+.cfdi-status {
+    margin-top: 0.75rem;
+    padding: 0.6rem 1rem;
+    border-radius: var(--admin-radius-sm);
+    font-size: 0.875rem;
+}
+
+.cfdi-status--info    { background: #dbeafe; color: #1e40af; }
+.cfdi-status--success { background: var(--admin-success-bg); color: #166534; }
+.cfdi-status--error   { background: var(--admin-danger-bg); color: #991b1b; }
+
+/* ── Discount input (cotizaciones) ── */
+.discount-input {
+    background: var(--admin-bg-faint);
+    border: 1px solid var(--admin-border);
+    color: var(--admin-text-primary);
+    border-radius: var(--admin-radius-sm);
+    padding: 4px 8px;
+    font-size: var(--admin-text-sm);
+    width: 90px;
+    text-align: right;
+    font-family: var(--admin-font);
+    transition: border-color 150ms ease;
+}
+
+.discount-input:focus {
+    outline: none;
+    border-color: var(--admin-primary);
+}
+
+/* ── Status select (cotizaciones show) ── */
+.status-change-form {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+}
+
+.status-select {
+    flex: 1;
+    background: var(--admin-bg-faint);
+    border: 1px solid var(--admin-border);
+    color: var(--admin-text-primary);
+    border-radius: 7px;
+    padding: 8px 12px;
+    font-size: var(--admin-text-sm);
+    cursor: pointer;
+    font-family: var(--admin-font);
+}
+
+.status-select:focus {
+    outline: none;
+    border-color: var(--admin-primary);
+}
+
+.status-submit-btn {
+    background: var(--admin-bg-faint);
+    border: 1px solid var(--admin-border);
+    color: var(--admin-text-primary);
+    border-radius: 7px;
+    padding: 8px 14px;
+    font-size: var(--admin-text-sm);
+    cursor: pointer;
+    font-weight: 600;
+    font-family: var(--admin-font);
+    white-space: nowrap;
+    transition: background 150ms ease;
+}
+
+.status-submit-btn:hover { background: var(--admin-border); }

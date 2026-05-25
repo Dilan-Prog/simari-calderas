@@ -1,0 +1,44 @@
+/* ============================================================
+   pages/_suppliers.css — Página de gestión de proveedores
+   ============================================================ */
+
+/* ── Slider de calificación ── */
+.supliers-manager-slider-section {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.supliers-manager-slider-label {
+    font-family: var(--admin-font);
+    font-size: var(--admin-text-xs);
+    color: var(--admin-text-body);
+}
+
+.supliers-manager-custom-slider {
+    position: relative;
+    height: 6px;
+    background: var(--admin-text-subtle);
+    border-radius: 99px;
+    max-width: 300px;
+    margin-bottom: 20px;
+    user-select: none;
+}
+
+.supliers-manager-slider-handle {
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 1px solid var(--admin-text-muted);
+    background-color: var(--admin-bg-white);
+    top: -6px;
+    left: -9px;
+}
+
+/* ── Botón de editar/eliminar contacto de emergencia ── */
+.edit-delete-emergency-btn {
+    position: relative;
+    left: 20px;
+    top: 20px;
+}

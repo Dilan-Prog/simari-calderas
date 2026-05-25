@@ -1,0 +1,101 @@
+/* ============================================================
+   components/_alerts.css — Notificaciones, toasts y errores
+   ============================================================ */
+
+/* ── Validation errors (form fields) ── */
+.val-error-input,
+.val-error-select {
+    border-color: #e3342f !important;
+    box-shadow: 0 0 0 2px rgba(227, 52, 47, 0.18) !important;
+}
+
+.val-error-msg {
+    display: block;
+    color: #e3342f;
+    font-size: 12px;
+    margin-top: 4px;
+    font-weight: 500;
+}
+
+/* ── Alert inline (quotes module) ── */
+.alert-error {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #FEF2F2;
+    border: 1px solid #FECACA;
+    border-radius: var(--admin-radius-sm);
+    padding: 10px 14px;
+    margin-bottom: 14px;
+    color: #DC2626;
+    font-size: 13px;
+}
+
+/* ── Toast notification ── */
+.toast-notification {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px 16px;
+    border-radius: 10px;
+    border: 1px solid;
+    margin-bottom: 16px;
+    animation: toastIn 0.3s ease;
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    z-index: 400;
+}
+
+.toast-success {
+    background: #f0fdf4;
+    border-color: #bbf7d0;
+}
+
+.toast-error {
+    background: #fef2f2;
+    border-color: #fecaca;
+}
+
+.toast-icon-wrap {
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+
+.toast-body { min-width: 200px; }
+
+.toast-title {
+    font-weight: 600;
+    font-size: 0.875rem;
+    margin: 0 0 2px;
+    color: var(--admin-text-body);
+}
+
+.toast-message {
+    font-size: 0.8rem;
+    margin: 0;
+    color: var(--admin-text-body);
+}
+
+.toast-close {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--admin-text-muted);
+    font-size: 12px;
+    padding: 0;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.toast-close:hover { color: #374151; }
+
+@keyframes toastIn {
+    from { opacity: 0; transform: translateX(8px); }
+    to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes toastOut {
+    from { opacity: 1; transform: translateX(0); }
+    to   { opacity: 0; transform: translateX(8px); }
+}

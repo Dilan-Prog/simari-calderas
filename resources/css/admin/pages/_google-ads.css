@@ -1,0 +1,183 @@
+/* ============================================================
+   pages/_google-ads.css — Google Ads (index + show)
+   ============================================================ */
+
+/* ── Metrics cards ── */
+.google-ads-cards {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.google-ads-card {
+    background: var(--admin-bg-white);
+    border: 1px solid var(--admin-border);
+    border-radius: var(--admin-radius-md);
+    padding: 1.25rem 1.5rem;
+}
+
+.google-ads-card-label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--admin-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.4rem;
+}
+
+.google-ads-card-value {
+    font-size: 1.7rem;
+    font-weight: 700;
+    color: var(--admin-text-primary);
+    line-height: 1.2;
+}
+
+.google-ads-card-sub {
+    font-size: 0.72rem;
+    color: var(--admin-text-subtle);
+    margin-top: 0.25rem;
+}
+
+/* ── Filter bar ── */
+.google-ads-filters {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid #f3f4f6;
+    flex-wrap: wrap;
+}
+
+.google-ads-filter-label {
+    font-size: 0.8rem;
+    color: var(--admin-text-muted);
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.google-ads-filter-input {
+    height: 36px;
+    padding: 0 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    color: #374151;
+    background: var(--admin-bg-white);
+    outline: none;
+    transition: border-color 0.15s;
+}
+
+.google-ads-filter-input:focus { border-color: #2563eb; }
+
+.google-ads-search-input {
+    height: 36px;
+    padding: 0 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    color: #374151;
+    background: var(--admin-bg-white);
+    outline: none;
+    min-width: 220px;
+    transition: border-color 0.15s;
+}
+
+.google-ads-search-input:focus { border-color: #2563eb; }
+
+.google-ads-filters-spacer { flex: 1; }
+
+/* ── Show page — detail card ── */
+.ga-detail-card {
+    background: var(--admin-bg-white);
+    border: 1px solid var(--admin-border);
+    border-radius: var(--admin-radius-md);
+    padding: 1.75rem 2rem;
+    margin-top: 1.25rem;
+}
+
+.ga-detail-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem 2.5rem;
+}
+
+.ga-detail-field label {
+    display: block;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--admin-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.3rem;
+}
+
+.ga-detail-field p {
+    font-size: 0.95rem;
+    color: var(--admin-text-primary);
+    word-break: break-all;
+}
+
+.ga-detail-field p.mono {
+    font-family: monospace;
+    font-size: 0.85rem;
+    background: #f9fafb;
+    padding: 0.35rem 0.6rem;
+    border-radius: 5px;
+    border: 1px solid var(--admin-border);
+}
+
+/* ── Show page — error block ── */
+.ga-error-block {
+    margin-top: 1.5rem;
+    padding: 1rem 1.25rem;
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: var(--admin-radius);
+}
+
+.ga-error-block label {
+    display: block;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: #991b1b;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.4rem;
+}
+
+.ga-error-block p {
+    font-size: 0.9rem;
+    color: #7f1d1d;
+    word-break: break-word;
+}
+
+/* ── Show page — back button ── */
+.ga-back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.875rem;
+    color: #374151;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    padding: 0.4rem 0.9rem;
+    background: var(--admin-bg-white);
+    text-decoration: none;
+    transition: background 0.15s;
+}
+
+.ga-back-btn:hover { background: #f3f4f6; }
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+    .google-ads-cards { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 640px) {
+    .ga-detail-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 500px) {
+    .google-ads-cards { grid-template-columns: 1fr; }
+}

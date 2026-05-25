@@ -6,13 +6,7 @@
                 loading="lazy"
                 onerror="this.style.display='none'">
     </div>
-    <style>
-        /* Temporal: deshabilitar enlaces visualmente sin tocar lógica
-           Quitar estas líneas cuando se re-habiliten los módulos. */
-        .sidebar-nav-item.disabled { pointer-events: none; opacity: 0.6; cursor: default; }
-        .sidebar-nav-item.disabled .sidebar-nav-item-label { cursor: default; color: inherit; }
-    </style>
-    @php
+@php
         $activeSection = match(true) {
             request()->routeIs('admin.dashboard')    => 'dashboard',
             request()->routeIs('admin.users.*')      => 'usuarios',

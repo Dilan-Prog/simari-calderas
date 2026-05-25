@@ -1,7 +1,64 @@
-/* ════════════════════════════════════════
-   DASHBOARD PAGE
-════════════════════════════════════════ */
+/* ============================================================
+   pages/_dashboard.css — Panel de bienvenida y página dashboard
+   ============================================================ */
 
+/* ── Welcome section (landing del admin) ── */
+.admin-welcome-section {
+    padding: 40px;
+}
+
+.admin-welcome-section h1 {
+    color: #111827;
+    font-size: 26px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    letter-spacing: -0.02em;
+}
+
+.admin-welcome-section p {
+    color: #6b7280;
+    font-size: 15px;
+    margin-bottom: 32px;
+}
+
+.admin-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    max-width: 900px;
+}
+
+.admin-stat-card {
+    background: var(--admin-bg-white);
+    border: 1px solid var(--admin-border);
+    border-radius: 14px;
+    padding: 24px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+
+.admin-stat-card-label {
+    color: #6b7280;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 10px;
+}
+
+.admin-stat-card-value {
+    color: #111827;
+    font-size: 32px;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+}
+
+.admin-stat-card-sub {
+    color: var(--admin-text-muted);
+    font-size: 12px;
+    margin-top: 6px;
+}
+
+/* ── Dashboard page ── */
 .dash-page {
     padding: 32px;
     overflow-y: auto;
@@ -9,7 +66,6 @@
     box-sizing: border-box;
 }
 
-/* ── Header ── */
 .dash-header {
     display: flex;
     justify-content: space-between;
@@ -26,7 +82,7 @@
 
 .dash-timestamp {
     font-size: 13px;
-    color: #9ca3af;
+    color: var(--admin-text-muted);
 }
 
 /* ── Stats grid ── */
@@ -37,9 +93,8 @@
     margin-bottom: 24px;
 }
 
-/* ── Stat card ── */
 .dash-stat-card {
-    background: #ffffff;
+    background: var(--admin-bg-white);
     padding: 24px;
     border-radius: 12px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
@@ -102,9 +157,8 @@
     gap: 24px;
 }
 
-/* ── Panel base ── */
 .dash-panel {
-    background: #ffffff;
+    background: var(--admin-bg-white);
     padding: 24px;
     border-radius: 12px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
@@ -112,7 +166,6 @@
     min-width: 0;
 }
 
-/* ── Traffic chart ── */
 .dash-chart-header {
     display: flex;
     justify-content: space-between;
@@ -129,10 +182,10 @@
 
 .dash-chart-select {
     background: #f9fafb;
-    border: 1px solid #e5e7eb;
+    border: 1px solid var(--admin-border);
     border-radius: 6px;
     font-size: 13px;
-    font-family: var(--font-family);
+    font-family: var(--admin-font);
     color: #374151;
     padding: 4px 8px;
     cursor: pointer;
@@ -140,9 +193,7 @@
     transition: border-color 0.15s ease;
 }
 
-.dash-chart-select:focus {
-    border-color: var(--secondary-color);
-}
+.dash-chart-select:focus { border-color: var(--admin-primary); }
 
 .dash-chart-wrapper {
     position: relative;
@@ -173,14 +224,12 @@
     background: #f9fafb;
     border: none;
     cursor: pointer;
-    font-family: var(--font-family);
+    font-family: var(--admin-font);
     transition: background-color 0.15s ease;
     text-decoration: none;
 }
 
-.dash-quick-btn:hover {
-    background: #f3f4f6;
-}
+.dash-quick-btn:hover { background: #f3f4f6; }
 
 .dash-quick-btn-left {
     display: flex;
@@ -212,14 +261,12 @@
 }
 
 .dash-quick-btn-chevron {
-    color: #9ca3af;
+    color: var(--admin-text-muted);
     transition: color 0.15s ease;
     flex-shrink: 0;
 }
 
-.dash-quick-btn:hover .dash-quick-btn-chevron {
-    color: #6b7280;
-}
+.dash-quick-btn:hover .dash-quick-btn-chevron { color: #6b7280; }
 
 /* ── Performance footer ── */
 .dash-performance {
@@ -243,10 +290,7 @@
     letter-spacing: 0.05em;
 }
 
-.dash-performance-label svg {
-    color: #22c55e;
-    flex-shrink: 0;
-}
+.dash-performance-label svg { color: #22c55e; flex-shrink: 0; }
 
 .dash-performance-text {
     font-size: 13px;
@@ -261,21 +305,11 @@
 
 /* ── Responsive ── */
 @media (max-width: 1024px) {
-    .dash-stats-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-
-    .dash-bottom-grid {
-        grid-template-columns: 1fr;
-    }
+    .dash-stats-grid  { grid-template-columns: repeat(2, 1fr); }
+    .dash-bottom-grid { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 640px) {
-    .dash-page {
-        padding: 16px;
-    }
-
-    .dash-stats-grid {
-        grid-template-columns: 1fr;
-    }
+    .dash-page       { padding: 16px; }
+    .dash-stats-grid { grid-template-columns: 1fr; }
 }

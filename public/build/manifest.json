@@ -1,11 +1,6 @@
 {
-  "resources/css/admin-quotes.css": {
-    "file": "assets/admin-quotes-DE-LJElS.css",
-    "src": "resources/css/admin-quotes.css",
-    "isEntry": true
-  },
   "resources/css/admin/app.css": {
-    "file": "assets/app-uNXdRO_L.css",
+    "file": "assets/app-DZ1SX9co.css",
     "src": "resources/css/admin/app.css",
     "isEntry": true
   },

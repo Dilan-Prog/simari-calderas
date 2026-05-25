@@ -1,0 +1,115 @@
+/* ============================================================
+   layout/_shell.css — Estructura global del panel admin
+   Contenedor principal, área de contenido y estados de carga.
+   ============================================================ */
+
+/* ── Layout principal (sidebar fijo + contenido) ── */
+.admin-panel-layout {
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* ── Área principal (a la derecha del sidebar) ── */
+.admin-main {
+    flex: 1;
+    margin-left: var(--admin-sidebar-width);
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+    min-width: 0;
+}
+
+/* ── Área de contenido dinámico con scroll ── */
+.admin-content-area {
+    flex: 1;
+    overflow-y: auto;
+    background-color: var(--admin-bg-content);
+    scrollbar-width: thin;
+    scrollbar-color: #c9cdd4 transparent;
+}
+
+.admin-content-area::-webkit-scrollbar {
+    width: 6px;
+}
+
+.admin-content-area::-webkit-scrollbar-thumb {
+    background-color: #c9cdd4;
+    border-radius: 4px;
+}
+
+/* ── Spinner genérico del panel ── */
+.admin-spinner {
+    width: 28px;
+    height: 28px;
+    border: 2.5px solid var(--admin-border-dark);
+    border-top-color: var(--admin-primary);
+    border-radius: 50%;
+    animation: adminSpin 0.75s linear infinite;
+}
+
+@keyframes adminSpin {
+    to { transform: rotate(360deg); }
+}
+
+/* ── Overlay de navegación (pantalla de carga al cambiar sección) ── */
+.admin-nav-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: rgba(20, 21, 22, 0.55);
+    backdrop-filter: blur(2px);
+    align-items: center;
+    justify-content: center;
+}
+
+.admin-nav-overlay.is-visible {
+    display: flex;
+}
+
+.admin-nav-overlay .admin-spinner {
+    width: 36px;
+    height: 36px;
+    border-width: 3px;
+}
+
+/* ── Estado de carga genérico ── */
+.admin-loading-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 260px;
+    gap: 14px;
+    color: var(--admin-text-subtle);
+    font-size: var(--admin-text-base);
+}
+
+/* ── Sección "próximamente" ── */
+.admin-coming-soon {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 320px;
+    gap: 12px;
+    color: var(--admin-text-subtle);
+}
+
+.admin-coming-soon svg {
+    color: #d1d5db;
+}
+
+.admin-coming-soon h3 {
+    color: var(--admin-text-muted);
+    font-size: var(--admin-text-lg);
+    font-weight: 600;
+    margin: 0;
+}
+
+.admin-coming-soon p {
+    font-size: var(--admin-text-base);
+    margin: 0;
+}

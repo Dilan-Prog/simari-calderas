@@ -1,10 +1,36 @@
-@import "./variables.css";
-@import "./layout.css";
-@import "./components/navbar.css";
-@import "./components/sidebar.css";
-@import "./components/buttons.css";
-@import "./pages/users.css";
-@import "./pages/dashboard.css";
-@import "./pages/products.css";
-@import "./pages/product-form.css";
-@import "./pages/googleads.css";
+/* ============================================================
+   resources/css/admin/app.css — Entry point Vite (admin)
+   Importa todos los módulos CSS del panel de administración.
+   ============================================================ */
+
+/* ── Base ── */
+@import "./base/_variables.css";
+@import "./base/_reset.css";
+@import "./base/_typography.css";
+
+/* ── Layout ── */
+@import "./layout/_shell.css";
+@import "./layout/_header.css";
+@import "./layout/_sidebar.css";
+
+/* ── Components ── */
+@import "./components/_buttons.css";
+@import "./components/_badges.css";
+@import "./components/_tables.css";
+@import "./components/_forms.css";
+@import "./components/_modals.css";
+@import "./components/_alerts.css";
+
+/* ── Pages ── */
+@import "./pages/_dashboard.css";
+@import "./pages/_users.css";
+@import "./pages/_clients.css";
+@import "./pages/_suppliers.css";
+@import "./pages/_products.css";
+@import "./pages/_product-form.css";
+@import "./pages/_quotes.css";
+@import "./pages/_google-ads.css";
+@import "./pages/_payment.css";
+
+/* ── Utilities ── */
+@import "./utilities/_helpers.css";
