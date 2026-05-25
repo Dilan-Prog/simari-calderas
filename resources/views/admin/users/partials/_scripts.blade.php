@@ -1,4 +1,5 @@
 @push('scripts')
+    
     <script>
         // ── Helpers de validación inline ─────────────────────────────
         function valClear(form, name) {
