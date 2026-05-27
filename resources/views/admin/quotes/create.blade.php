@@ -52,16 +52,16 @@
                                    placeholder="Escribe el nombre o empresa..."
                                    autocomplete="off">
                             <div id="clientDropdown" class="client-dropdown" style="display:none">
-                                @foreach($customers as $c)
+                                @foreach($customers as $customer)
                                     <div class="client-dropdown__item"
-                                         data-name="{{ trim($c->first_name . ' ' . $c->last_name) }}"
-                                         data-company="{{ $c->company ?? '' }}"
-                                         data-email="{{ $c->email ?? '' }}"
-                                         data-phone="{{ $c->phone ?? '' }}"
-                                         data-rfc="{{ $c->rfc ?? '' }}">
-                                        <span class="client-dropdown__name">{{ trim($c->first_name . ' ' . $c->last_name) }}</span>
-                                        @if($c->company)
-                                            <span class="client-dropdown__company">{{ $c->company }}</span>
+                                         data-name="{{ trim($customer->first_name . ' ' . $customer->last_name) }}"
+                                         data-company="{{ $customer->company ?? '' }}"
+                                         data-email="{{ $customer->email ?? '' }}"
+                                         data-phone="{{ $customer->phone ?? '' }}"
+                                         data-rfc="{{ $customer->rfc ?? '' }}">
+                                        <span class="client-dropdown__name">{{ $customer->company }}</span>
+                                        @if($customer->company)
+                                            <span class="client-dropdown__company">{{ trim($customer->first_name . ' ' . $customer->last_name) }}</span>
                                         @endif
                                     </div>
                                 @endforeach

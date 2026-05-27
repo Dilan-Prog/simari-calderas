@@ -1,5 +1,43 @@
-@push('scripts')
     <script>
+        // ── Helpers de validación inline ─────────────────────────────
+        function valClear(form, name) {
+            const f = form.querySelector(`[name="${name}"]`);
+            if (!f) return;
+            f.classList.remove('val-error-input', 'val-error-select');
+            form.querySelectorAll(`.val-error-msg[data-for="${name}"]`).forEach(el => el.remove());
+        }
+        function valMark(form, name, label) {
+            const f = form.querySelector(`[name="${name}"]`);
+            if (!f) return;
+            f.classList.add(f.tagName === 'SELECT' ? 'val-error-select' : 'val-error-input');
+            if (!form.querySelector(`.val-error-msg[data-for="${name}"]`)) {
+                const msg = document.createElement('span');
+                msg.className = 'val-error-msg';
+                msg.dataset.for = name;
+                msg.textContent = `El campo "${label}" es requerido`;
+                f.insertAdjacentElement('afterend', msg);
+            }
+        }
+        function valRun(form, fields) {
+            let first = null;
+            fields.forEach(([name, label]) => {
+                const f = form.querySelector(`[name="${name}"]`);
+                if (!f) return;
+                const empty = f.tagName === 'SELECT' ? f.value === '' : f.value.trim() === '';
+                if (empty) { valMark(form, name, label); if (!first) first = f; }
+                else valClear(form, name);
+            });
+            return first;
+        }
+        function valBind(form, fields) {
+            fields.forEach(([name]) => {
+                const f = form.querySelector(`[name="${name}"]`);
+                if (!f) return;
+                f.addEventListener(f.tagName === 'SELECT' ? 'change' : 'input', () => valClear(form, name));
+            });
+        }
+        // ─────────────────────────────────────────────────────────────
+
         const updateUserUrl = '{{ route('admin.users.update', ':id') }}';
         const showUserUrl = '{{ route('admin.users.show', ':id') }}';
         // --- Helpers ---
@@ -21,6 +59,12 @@
         };
 
         const maxContacts = 5;
+
+        const setFieldValue = (form, name, value) => {
+            const field = form.querySelector(`[name="${name}"]`);
+            if (!field) return;
+            field.value = value ?? '';
+        };
 
         // --- Factory: builds a contact row for both modals ---
         function buildContactRow(data = {}, deleteBtnClass, onDelete) {
@@ -135,6 +179,26 @@
 
         updateUI();
 
+        // --- Validación formulario CREAR usuario ---
+        const createUserForm = document.getElementById('userCreateForm');
+        const createUserFields = [
+            ['first_name', 'Nombre'],
+            ['last_name', 'Apellidos'],
+            ['email', 'Email'],
+            ['status', 'Estado'],
+            ['password', 'Contraseña'],
+            ['password_confirmation', 'Confirmar Contraseña'],
+        ];
+        valBind(createUserForm, createUserFields);
+        createUserForm.addEventListener('submit', (e) => {
+            const firstErr = valRun(createUserForm, createUserFields);
+            if (firstErr) {
+                e.preventDefault();
+                firstErr.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                try { firstErr.focus(); } catch (_) {}
+            }
+        });
+
         // --- Edit modal ---
         const editModal = document.getElementById('editUserModal');
         const closeEditBtn = document.getElementById('closeEditModal');
@@ -189,19 +253,19 @@
 
                 const user = await response.json();
 
-                editForm.querySelector('[name="first_name"]').value = user.first_name || '';
-                editForm.querySelector('[name="last_name"]').value = user.last_name || '';
-                editForm.querySelector('[name="birthdate"]').value = user.birthdate || '';
-                editForm.querySelector('[name="rfc"]').value = user.rfc || '';
-                editForm.querySelector('[name="curp"]').value = user.curp || '';
-                editForm.querySelector('[name="social_segurity_number"]').value = user.social_segurity_number || '';
-                editForm.querySelector('[name="email"]').value = user.email || '';
-                editForm.querySelector('[name="phone"]').value = user.phone || '';
-                editForm.querySelector('[name="position"]').value = user.position || '';
-                editForm.querySelector('[name="role_id"]').value = user.role_id || '';
-                editForm.querySelector('[name="status"]').value = user.status || '';
-                editForm.querySelector('[name="password"]').value = '';
-                editForm.querySelector('[name="password_confirmation"]').value = '';
+                setFieldValue(editForm, 'first_name', user.first_name);
+                setFieldValue(editForm, 'last_name', user.last_name);
+                setFieldValue(editForm, 'birthdate', user.birthdate);
+                setFieldValue(editForm, 'rfc', user.rfc);
+                setFieldValue(editForm, 'curp', user.curp);
+                setFieldValue(editForm, 'social_segurity_number', user.social_segurity_number);
+                setFieldValue(editForm, 'email', user.email);
+                setFieldValue(editForm, 'phone', user.phone);
+                setFieldValue(editForm, 'position', user.position);
+                setFieldValue(editForm, 'role_id', user.role_id);
+                setFieldValue(editForm, 'status', user.status);
+                setFieldValue(editForm, 'password', '');
+                setFieldValue(editForm, 'password_confirmation', '');
 
                 const contacts = user.contact_emergency || [];
                 if (contacts.length === 0) {
@@ -218,8 +282,24 @@
             }
         };
 
+        // Bind validación edit (una sola vez, el form es estático)
+        const editUserFields = [
+            ['first_name', 'Nombre'],
+            ['last_name', 'Apellidos'],
+            ['email', 'Email'],
+            ['status', 'Estado'],
+        ];
+        valBind(editForm, editUserFields);
+
         editForm.addEventListener('submit', async (e) => {
             e.preventDefault();
+
+            const firstErr = valRun(editForm, editUserFields);
+            if (firstErr) {
+                firstErr.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                try { firstErr.focus(); } catch (_) {}
+                return;
+            }
 
             const errorsContainer = document.getElementById('edit-errors-container');
             errorsContainer.style.display = 'none';
@@ -464,4 +544,4 @@
             });
         });
     </script>
-@endpush
+

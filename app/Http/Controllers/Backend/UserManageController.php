@@ -13,8 +13,8 @@ class UserManageController extends Controller
     public function index()
     {
         $users = User::with(['role:id,name_role_es', 'contactEmergency'])
-            ->get(['id', 'first_name', 'last_name', 'email', 'role_id', 'status',
-                'birthdate', 'rfc', 'curp', 'social_segurity_number', 'phone', 'position']);
+            ->get(['id', 'first_name', 'last_name', 'email', 'role_id', 'status'
+            , 'rfc', 'curp', 'social_segurity_number', 'phone', 'position']);
 
         $roles = Role::select('id', 'name_role_es')->get();
 
@@ -30,10 +30,9 @@ class UserManageController extends Controller
             'position' => 'nullable|string|max:150',
             'phone' => 'required|string|max:30',
             'status' => 'required|in:active,inactive,suspended',
-            'rfc' => 'required|string|max:15|unique:users,rfc',
+            'rfc' => ['required', 'string', 'regex:/^[A-Z0-9]{12,13}$/', 'unique:users,rfc'],
             'curp' => 'nullable|string|max:18|unique:users,curp',
             'social_segurity_number' => 'nullable|string|max:20|unique:users,social_segurity_number',
-            'birthdate' => 'nullable|date',
             'role_id' => 'required|integer|exists:roles,id',
             'password' => 'required|string|min:8|confirmed',
             'emergency_contact_name' => 'nullable|array',
@@ -53,7 +52,6 @@ class UserManageController extends Controller
         $user->rfc = $request->rfc;
         $user->curp = $request->curp;
         $user->social_segurity_number = $request->social_segurity_number;
-        $user->birthdate = $request->birthdate;
         $user->role_id = $request->role_id;
         $user->password = bcrypt($request->password);
         $user->save();
@@ -94,7 +92,6 @@ class UserManageController extends Controller
             'rfc' => 'required|string|max:15|unique:users,rfc,'.$id,
             'curp' => 'nullable|string|max:18|unique:users,curp,'.$id,
             'social_segurity_number' => 'nullable|string|max:20|unique:users,social_segurity_number,'.$id,
-            'birthdate' => 'nullable|date',
             'role_id' => 'required|integer|exists:roles,id',
             'password' => 'nullable|string|min:8|confirmed',
             'emergency_contact_name' => 'nullable|array',
@@ -113,7 +110,6 @@ class UserManageController extends Controller
         $user->rfc = $request->rfc;
         $user->curp = $request->curp;
         $user->social_segurity_number = $request->social_segurity_number;
-        $user->birthdate = $request->birthdate;
         $user->role_id = $request->role_id;
         if ($request->filled('password')) {
             $user->password = bcrypt($request->password);

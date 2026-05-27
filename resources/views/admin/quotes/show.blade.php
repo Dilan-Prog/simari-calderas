@@ -40,7 +40,7 @@
             </button>
 
             @if($quote->guest_email)
-            <form method="POST" action="{{ route('admin.quotes.send-email', $quote) }}"
+            <form method="POST" id="quotes-send-email" action="{{ route('admin.quotes.send-email', $quote) }}"
                   onsubmit="return confirm('¿Enviar cotización por correo a {{ $quote->guest_email }}?')">
                 @csrf
                 <button type="submit" class="btn-action btn-action--primary">

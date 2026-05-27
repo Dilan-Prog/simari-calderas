@@ -5,6 +5,33 @@
 
 @push('styles')
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css">
+    <style>
+        .pform-input.pform-field-error,
+        .pform-select.pform-field-error,
+        .pform-textarea.pform-field-error {
+            border-color: #dc2626 !important;
+            box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1) !important;
+        }
+        .pform-error-msg {
+            color: #dc2626;
+            font-size: 12px;
+            margin-top: 4px;
+            margin-bottom: 0;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .pform-error-msg::before {
+            content: '';
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23dc2626' stroke-width='2'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cline x1='12' y1='8' x2='12' y2='12'/%3E%3Cline x1='12' y1='16' x2='12.01' y2='16'/%3E%3C/svg%3E");
+            background-size: contain;
+            background-repeat: no-repeat;
+            flex-shrink: 0;
+        }
+    </style>
 @endpush
 
 @section('content')
@@ -140,10 +167,12 @@
 
         {{-- ── Scrollable content ── --}}
         <div class="pform-content-area">
-            <form id="productCreateForm" method="POST" action="{{ route('admin.products.store') }}" enctype="multipart/form-data">
+            <form id="productCreateForm" method="POST" action="{{ route('admin.products.store') }}" enctype="multipart/form-data" novalidate>
                 @csrf
                 <input type="hidden" name="is_active" value="1">
-                <input type="hidden" name="is_featured" value="0">
+                <input type="hidden" name="is_featured" id="pformIsFeatured" value="0">
+                <input type="hidden" name="is_new" id="pformIsNew" value="0">
+                <input type="hidden" name="is_recommended" id="pformIsRecommended" value="0">
                 <div class="pform-panel-wrap">
 
                     {{-- Panel 0: Información Básica --}}
@@ -171,13 +200,14 @@
                                         value="{{ $sku }}" readonly />
                                 </div>
                                 <div class="pform-field">
-                                    <label class="pform-label" for="pformBrand">Marca</label>
-                                    <input type="text" id="pformBrand" class="pform-input"
-                                        placeholder="Se selecciona en Organización" readonly
-                                        style="background:#f9fafb;color:#9ca3af;cursor:not-allowed;"
-                                        title="La marca se selecciona en la pestaña Organización">
-                                    <p class="pform-hint">Selecciona la marca en la pestaña <strong>Organización</strong>
-                                    </p>
+                                    <label class="pform-label" for="pformBrand">Marca <span
+                                            class="pform-required">*</span></label>
+                                    <select id="pformBrand" name="brand_id" class="pform-select" required>
+                                        <option value="">Seleccionar...</option>
+                                        @foreach ($brands as $brand)
+                                            <option value="{{ $brand->id }}">{{ $brand->name }}</option>
+                                        @endforeach
+                                    </select>
                                 </div>
                                 <div class="pform-field">
                                     <label class="pform-label" for="pformModel">Modelo</label>
@@ -397,7 +427,6 @@
                                     <div class="pform-field">
                                         <label class="pform-label">Unidad de Medida</label>
                                         <select class="pform-select">
-                                            <option value="unidad">Unidad</option>
                                             <option value="pieza">Pieza</option>
                                             <option value="juego">Juego</option>
                                             <option value="kit">Kit</option>
@@ -474,14 +503,12 @@
                                         </select>
                                     </div>
 
-                                    {{-- Marca desde BD --}}
+                                    {{-- Child category from db --}}
                                     <div class="pform-field">
-                                        <label class="pform-label">Marca <span class="pform-required">*</span></label>
-                                        <select class="pform-select" name="brand_id" required>
-                                            <option value="">Seleccionar...</option>
-                                            @foreach ($brands as $brand)
-                                                <option value="{{ $brand->id }}">{{ $brand->name }}</option>
-                                            @endforeach
+                                        <label class="pform-label">Categoría Hija</label>
+                                        <select class="pform-select" name="child_category_id" id="pformCategoryChild"
+                                            disabled>
+                                            <option value="">Seleccionar subcategoría primero...</option>
                                         </select>
                                     </div>
                                 </div>
@@ -542,7 +569,7 @@
                                         <p class="pform-badge-sub">Aparecerá en la sección de productos destacados</p>
                                     </button>
 
-                                    <button type="button" class="pform-badge-card">
+                                    <button type="button" class="pform-badge-card" id="badgeNew">
                                         <div class="pform-badge-card-header">
                                             <div class="pform-badge-icon">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
@@ -564,7 +591,7 @@
                                         <p class="pform-badge-sub">Mostrará badge de "Nuevo" en el producto</p>
                                     </button>
 
-                                    <button type="button" class="pform-badge-card">
+                                    <button type="button" class="pform-badge-card" id="badgeRecommended">
                                         <div class="pform-badge-card-header">
                                             <div class="pform-badge-icon">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"

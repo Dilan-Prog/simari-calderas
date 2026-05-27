@@ -49,6 +49,20 @@
 .quotes-table-card { background: #fff; border-radius: 8px; box-shadow: var(--shadow-sm); overflow: hidden; }
 .quotes-table-scroll { overflow-x: auto; }
 .quotes-table { width: 100%; border-collapse: collapse; min-width: 700px; }
+
+/* Scroll solo en tbody — thead queda fijo */
+.quotes-table thead,
+.quotes-table tbody { display: block; width: 100%; }
+
+.quotes-table thead tr,
+.quotes-table tbody tr { display: table; width: 100%; table-layout: fixed; }
+
+.quotes-table tbody {
+    max-height: 420px;
+    overflow-y: auto;
+    scrollbar-gutter: stable;   /* reserva espacio para la scrollbar sin desplazar thead */
+}
+
 .quotes-table thead tr { background: var(--header-footer-color); height: 44px; }
 .quotes-table thead th { padding: 0 20px; text-align: left; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--text-subwhite-color); white-space: nowrap; }
 .quotes-table tbody tr { height: 52px; border-bottom: 1px solid #F3F4F6; transition: background .15s; }

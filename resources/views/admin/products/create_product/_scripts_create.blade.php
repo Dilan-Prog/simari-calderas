@@ -57,8 +57,77 @@
                 window.location.href = '/admin/productos';
             });
 
+            /* ── Validation helpers ── */
+            function getErrorAnchor(el) {
+                return (el.parentElement && el.parentElement.classList.contains('pform-price-wrap'))
+                    ? el.parentElement
+                    : el;
+            }
+
+            function showFieldError(el, msg) {
+                el.classList.add('pform-field-error');
+                const anchor = getErrorAnchor(el);
+                if (!anchor.nextElementSibling || !anchor.nextElementSibling.classList.contains('pform-error-msg')) {
+                    const p = document.createElement('p');
+                    p.className = 'pform-error-msg';
+                    p.textContent = msg;
+                    anchor.insertAdjacentElement('afterend', p);
+                }
+                const clearFn = () => {
+                    el.classList.remove('pform-field-error');
+                    const errEl = getErrorAnchor(el).nextElementSibling;
+                    if (errEl && errEl.classList.contains('pform-error-msg')) errEl.remove();
+                };
+                el.addEventListener('input', clearFn, { once: true });
+                el.addEventListener('change', clearFn, { once: true });
+            }
+
+            function clearAllErrors() {
+                document.querySelectorAll('.pform-field-error').forEach(el => el.classList.remove('pform-field-error'));
+                document.querySelectorAll('.pform-error-msg').forEach(el => el.remove());
+            }
+
+            function switchToPanel(panelId) {
+                tabs.forEach(t => t.classList.remove('active'));
+                panels.forEach(p => p.classList.remove('active'));
+                document.getElementById(panelId).classList.add('active');
+                tabs.forEach(t => { if (t.dataset.tab === panelId) t.classList.add('active'); });
+            }
+
+            function validateForm() {
+                clearAllErrors();
+                const required = [
+                    { el: document.getElementById('pformName'),               msg: 'El nombre del producto es obligatorio',      panel: 'pformPanel0' },
+                    { el: document.getElementById('pformCost'),               msg: 'El costo del artículo es obligatorio',        panel: 'pformPanel2' },
+                    { el: document.getElementById('pformPrice'),              msg: 'El precio de venta es obligatorio',           panel: 'pformPanel2' },
+                    { el: document.querySelector('[name="stock"]'),           msg: 'El inventario disponible es obligatorio',     panel: 'pformPanel2' },
+                    { el: document.getElementById('pformCategoryMain'),       msg: 'La categoría principal es obligatoria',       panel: 'pformPanel3' },
+                    { el: document.querySelector('select[name="brand_id"]'),  msg: 'La marca es obligatoria',                    panel: 'pformPanel3' },
+                ];
+
+                let firstErrorEl = null;
+                let firstErrorPanel = null;
+
+                required.forEach(({ el, msg, panel }) => {
+                    if (!el) return;
+                    const empty = el.tagName === 'SELECT' ? !el.value : !el.value.trim();
+                    if (empty) {
+                        showFieldError(el, msg);
+                        if (!firstErrorEl) { firstErrorEl = el; firstErrorPanel = panel; }
+                    }
+                });
+
+                if (firstErrorEl) {
+                    switchToPanel(firstErrorPanel);
+                    setTimeout(() => firstErrorEl.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
+                    return false;
+                }
+                return true;
+            }
+
             /* ── Save draft ── */
             document.getElementById('pformBtnDraft').addEventListener('click', function() {
+                if (!validateForm()) return;
                 document.getElementById('pformDescHidden').value = quillInstance.getText().trim();
                 document.getElementById('productCreateForm').querySelector('[name=is_active]').value = 0;
                 const badge = document.getElementById('pformSavedBadge');
@@ -72,6 +141,7 @@
 
             /* ── Publish ── */
             document.getElementById('pformBtnPublish').addEventListener('click', function() {
+                if (!validateForm()) return;
                 document.getElementById('pformDescHidden').value = quillInstance.getText().trim();
                 document.getElementById('productCreateForm').querySelector('[name=is_active]').value = 1;
                 const badge = document.getElementById('pformSavedBadge');
@@ -126,7 +196,7 @@
             });
 
             /* ── Badge toggle cards ── */
-            document.querySelectorAll('.pform-badge-card:not(#badgeFeatured)').forEach(function(card) {
+            document.querySelectorAll('.pform-badge-card:not(#badgeFeatured):not(#badgeNew):not(#badgeRecommended)').forEach(function(card) {
                 card.addEventListener('click', function() {
                     this.classList.toggle('active');
                 });
@@ -319,13 +389,28 @@
             }
         });
 
-        /* ── Badge featured sync ── */
+        /* ── Badge sync ── */
         const badgeFeatured = document.getElementById('badgeFeatured');
         if (badgeFeatured) {
             badgeFeatured.addEventListener('click', function() {
                 this.classList.toggle('active');
-                document.getElementById('pformIsFeatured').value =
-                    this.classList.contains('active') ? 1 : 0;
+                document.getElementById('pformIsFeatured').value = this.classList.contains('active') ? 1 : 0;
+            });
+        }
+
+        const badgeNew = document.getElementById('badgeNew');
+        if (badgeNew) {
+            badgeNew.addEventListener('click', function() {
+                this.classList.toggle('active');
+                document.getElementById('pformIsNew').value = this.classList.contains('active') ? 1 : 0;
+            });
+        }
+
+        const badgeRecommended = document.getElementById('badgeRecommended');
+        if (badgeRecommended) {
+            badgeRecommended.addEventListener('click', function() {
+                this.classList.toggle('active');
+                document.getElementById('pformIsRecommended').value = this.classList.contains('active') ? 1 : 0;
             });
         }
 

@@ -120,22 +120,30 @@
                 });
             });
 
-            /* ── Badge toggle cards — sync is_featured ── */
+            /* ── Badge toggle cards ── */
             const badgeFeatured = document.getElementById('badgeFeatured');
             if (badgeFeatured) {
                 badgeFeatured.addEventListener('click', function() {
                     this.classList.toggle('active');
-                    document.getElementById('pformIsFeatured').value = this.classList.contains('active') ? 1 :
-                        0;
+                    document.getElementById('pformIsFeatured').value = this.classList.contains('active') ? 1 : 0;
                 });
             }
 
-            document.querySelectorAll('.pform-badge-card:not(#badgeFeatured):not(#badgeActive)').forEach(function(
-                card) {
-                card.addEventListener('click', function() {
+            const badgeNew = document.getElementById('badgeNew');
+            if (badgeNew) {
+                badgeNew.addEventListener('click', function() {
                     this.classList.toggle('active');
+                    document.getElementById('pformIsNew').value = this.classList.contains('active') ? 1 : 0;
                 });
-            });
+            }
+
+            const badgeRecommended = document.getElementById('badgeRecommended');
+            if (badgeRecommended) {
+                badgeRecommended.addEventListener('click', function() {
+                    this.classList.toggle('active');
+                    document.getElementById('pformIsRecommended').value = this.classList.contains('active') ? 1 : 0;
+                });
+            }
 
             /* ── Tags ── */
             function addTag() {

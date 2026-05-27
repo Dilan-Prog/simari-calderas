@@ -10,7 +10,7 @@
 
         {{-- Form --}}
         <form class="user-manager-modal-body" id="clientCreateForm"
-            action="{{ route('admin.clients.store') }}" method="POST">
+            action="{{ route('admin.clients.store') }}" method="POST" novalidate>
             @csrf
 
             {{-- CFDI / Constancia SAT reader --}}
@@ -163,3 +163,66 @@
         </form>
     </div>
 </div>
+
+@push('scripts')
+<script>
+(function () {
+    const form = document.getElementById('clientCreateForm');
+    if (!form) return;
+
+    const fields = [
+        ['full_name',     'Nombre Completo'],
+        ['company',       'Empresa'],
+        ['email',         'Email'],
+        ['phone',         'Teléfono'],
+        ['rfc',           'RFC'],
+        ['address_line1', 'Dirección Fiscal'],
+        ['city',          'Ciudad'],
+        ['state',         'Estado'],
+        ['postal_code',   'C.P.'],
+        ['country',       'País'],
+    ];
+
+    function clr(name) {
+        const f = form.querySelector(`[name="${name}"]`);
+        if (!f) return;
+        f.classList.remove('val-error-input', 'val-error-select');
+        form.querySelectorAll(`.val-error-msg[data-for="${name}"]`).forEach(e => e.remove());
+    }
+    function mark(name, label) {
+        const f = form.querySelector(`[name="${name}"]`);
+        if (!f) return;
+        f.classList.add(f.tagName === 'SELECT' ? 'val-error-select' : 'val-error-input');
+        if (!form.querySelector(`.val-error-msg[data-for="${name}"]`)) {
+            const msg = document.createElement('span');
+            msg.className = 'val-error-msg';
+            msg.dataset.for = name;
+            msg.textContent = `El campo "${label}" es requerido`;
+            f.insertAdjacentElement('afterend', msg);
+        }
+    }
+
+    fields.forEach(([name]) => {
+        const f = form.querySelector(`[name="${name}"]`);
+        if (!f) return;
+        f.addEventListener(f.tagName === 'SELECT' ? 'change' : 'input', () => clr(name));
+    });
+
+    form.addEventListener('submit', (e) => {
+        let first = null;
+        fields.forEach(([name, label]) => {
+            const f = form.querySelector(`[name="${name}"]`);
+            if (!f) return;
+            const empty = f.tagName === 'SELECT' ? f.value === '' : f.value.trim() === '';
+            if (empty) { mark(name, label); if (!first) first = f; }
+            else clr(name);
+        });
+        if (first) {
+            e.preventDefault();
+            first.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            try { first.focus(); } catch (_) {}
+        }
+    });
+})();
+</script>
+@endpush

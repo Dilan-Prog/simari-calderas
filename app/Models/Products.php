@@ -28,13 +28,17 @@ class Products extends Model
         'cover_image_url',
         'is_active',
         'is_featured',
+        'is_new',
+        'is_recommended',
         'seo_title',
         'seo_description',
     ];
 
     protected $casts = [
-        'is_active'   => 'boolean',
-        'is_featured' => 'boolean',
+        'is_active'       => 'boolean',
+        'is_featured'     => 'boolean',
+        'is_new'          => 'boolean',
+        'is_recommended'  => 'boolean',
         'price'       => 'decimal:2',
         'cost'        => 'decimal:2',
         'compare_price' => 'decimal:2',
