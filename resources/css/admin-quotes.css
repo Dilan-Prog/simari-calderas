@@ -380,6 +380,10 @@
 /* Quick-action buttons (show page header) */
 .quick-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
 
+#quotes-send-email {
+    margin:0;
+}
+
 .btn-action {
     display: inline-flex;
     align-items: center;

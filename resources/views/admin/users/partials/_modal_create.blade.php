@@ -58,7 +58,7 @@
                 <div>
                     <label class="supliers-manager-slider-label">RFC</label>
                     <input class="users-manager-input" type="text" placeholder="XAXX010101000"
-                        name="rfc" value="{{ old('rfc') }}">
+                        name="rfc" id="create_rfc" value="{{ old('rfc') }}">
                 </div>
                 <div>
                     <label class="supliers-manager-slider-label">CURP</label>
@@ -156,8 +156,6 @@
                     Usuario</button>
             </div>
         </form>
-
     </div>
-
 </div>
 
