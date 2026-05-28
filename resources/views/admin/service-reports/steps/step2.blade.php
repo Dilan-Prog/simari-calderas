@@ -42,9 +42,24 @@
     .sr-meas-table tbody tr { border-bottom: 1px solid #F3F4F6; }
     .sr-meas-table tbody td { padding: 6px 8px; vertical-align: middle; }
     .sr-meas-table .sr-input { height: 34px; font-size: 12px; }
-    .sr-meas-in-range   { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #D1D5DB; }
-    .sr-meas-in-range.ok  { background: #16A34A; }
-    .sr-meas-in-range.bad { background: #DC2626; }
+    /* Range badge */
+    .sr-range-badge { display: inline-flex; align-items: center; gap: 3px; font-size: 11px; font-weight: 600;
+                      padding: 3px 8px; border-radius: 4px; white-space: nowrap; line-height: 1.4; }
+    .sr-range-ok  { background: #F0FDF4; color: #16A34A; border: 1px solid #BBF7D0; }
+    .sr-range-bad { background: #FEF2F2; color: #DC2626; border: 1px solid #FECACA; }
+    .sr-range-nd  { background: #F3F4F6; color: #9CA3AF; border: 1px solid #E5E7EB; }
+
+    /* Range bar */
+    .sr-range-bar-wrap { margin-top: 5px; }
+    .sr-range-bar-track { position: relative; height: 6px; background: #E5E7EB; border-radius: 3px; overflow: visible; }
+    .sr-range-bar-valid { position: absolute; top: 0; height: 100%; border-radius: 3px;
+                          background: #D1FAE5; border: 1px solid #6EE7B7; transition: all .2s; }
+    .sr-range-bar-valid.bad { background: #FEE2E2; border-color: #FCA5A5; }
+    .sr-range-bar-pin { position: absolute; top: 50%; width: 10px; height: 10px; border-radius: 50%;
+                        transform: translate(-50%, -50%); border: 2px solid #fff;
+                        box-shadow: 0 1px 3px rgba(0,0,0,.2); transition: all .2s; background: #9CA3AF; }
+    .sr-range-bar-pin.ok  { background: #16A34A; }
+    .sr-range-bar-pin.bad { background: #DC2626; }
     .sr-btn-add-row {
         margin-top: 12px; height: 36px; padding: 0 16px; border-radius: 6px; border: 1px dashed #D1D5DB;
         background: #fff; color: #6B7280; font-size: 13px; font-family: 'Inter', sans-serif;
@@ -156,7 +171,15 @@
                                         <td><input type="text" name="measurements[{{ $idx }}][result]"   class="sr-input sr-result" value="{{ old("measurements.$idx.result", $m->result) }}" placeholder="7.4"></td>
                                         <td><input type="number" step="any" name="measurements[{{ $idx }}][limit_min]" class="sr-input sr-lmin" value="{{ old("measurements.$idx.limit_min", $m->limit_min) }}" placeholder="6.5"></td>
                                         <td><input type="number" step="any" name="measurements[{{ $idx }}][limit_max]" class="sr-input sr-lmax" value="{{ old("measurements.$idx.limit_max", $m->limit_max) }}" placeholder="8.5"></td>
-                                        <td style="text-align:center;"><span class="sr-meas-in-range {{ $m->in_range === true ? 'ok' : ($m->in_range === false ? 'bad' : '') }}" id="ir-{{ $idx }}"></span></td>
+                                        <td style="min-width:110px;">
+                                            <span class="sr-range-badge sr-range-nd">— S/L</span>
+                                            <div class="sr-range-bar-wrap" style="display:none;">
+                                                <div class="sr-range-bar-track">
+                                                    <div class="sr-range-bar-valid"></div>
+                                                    <div class="sr-range-bar-pin"></div>
+                                                </div>
+                                            </div>
+                                        </td>
                                         <td><button type="button" class="sr-btn-del-row" onclick="removeRow(this)">✕</button></td>
                                     </tr>
                                 @empty
@@ -167,7 +190,15 @@
                                         <td><input type="text" name="measurements[0][result]"    class="sr-input sr-result" placeholder="7.4"></td>
                                         <td><input type="number" step="any" name="measurements[0][limit_min]" class="sr-input sr-lmin" placeholder="6.5"></td>
                                         <td><input type="number" step="any" name="measurements[0][limit_max]" class="sr-input sr-lmax" placeholder="8.5"></td>
-                                        <td style="text-align:center;"><span class="sr-meas-in-range" id="ir-0"></span></td>
+                                        <td style="min-width:110px;">
+                                            <span class="sr-range-badge sr-range-nd">— S/L</span>
+                                            <div class="sr-range-bar-wrap" style="display:none;">
+                                                <div class="sr-range-bar-track">
+                                                    <div class="sr-range-bar-valid"></div>
+                                                    <div class="sr-range-bar-pin"></div>
+                                                </div>
+                                            </div>
+                                        </td>
                                         <td><button type="button" class="sr-btn-del-row" onclick="removeRow(this)">✕</button></td>
                                     </tr>
                                 @endforelse
@@ -277,15 +308,54 @@
     let rowCount = {{ max(count($report->measurements), 1) }};
 
     function calcInRange(row) {
-        const result = parseFloat(row.querySelector('.sr-result').value);
-        const lmin   = row.querySelector('.sr-lmin').value;
-        const lmax   = row.querySelector('.sr-lmax').value;
-        const dot    = row.querySelector('.sr-meas-in-range');
-        if (isNaN(result) || (lmin === '' && lmax === '')) { dot.className = 'sr-meas-in-range'; return; }
-        const min = lmin !== '' ? parseFloat(lmin) : -Infinity;
-        const max = lmax !== '' ? parseFloat(lmax) :  Infinity;
+        const result  = parseFloat(row.querySelector('.sr-result').value);
+        const lminVal = row.querySelector('.sr-lmin').value;
+        const lmaxVal = row.querySelector('.sr-lmax').value;
+        const badge   = row.querySelector('.sr-range-badge');
+        const barWrap = row.querySelector('.sr-range-bar-wrap');
+        const barValid= row.querySelector('.sr-range-bar-valid');
+        const barPin  = row.querySelector('.sr-range-bar-pin');
+
+        if (!badge) return;
+
+        const lmin = lminVal !== '' ? parseFloat(lminVal) : null;
+        const lmax = lmaxVal !== '' ? parseFloat(lmaxVal) : null;
+
+        // No result or no limits
+        if (isNaN(result) || (lmin === null && lmax === null)) {
+            badge.className = 'sr-range-badge sr-range-nd';
+            badge.textContent = '— S/L';
+            if (barWrap) barWrap.style.display = 'none';
+            return;
+        }
+
+        const min = lmin !== null ? lmin : -Infinity;
+        const max = lmax !== null ? lmax :  Infinity;
         const ok  = result >= min && result <= max;
-        dot.className = 'sr-meas-in-range ' + (ok ? 'ok' : 'bad');
+
+        badge.className = 'sr-range-badge ' + (ok ? 'sr-range-ok' : 'sr-range-bad');
+        badge.innerHTML = ok ? '✓ Dentro' : '✗ Fuera';
+
+        // Show bar only when both limits are finite and valid
+        if (lmin !== null && lmax !== null && lmax > lmin && barWrap) {
+            barWrap.style.display = 'block';
+            const pad      = (lmax - lmin) * 0.35;
+            const dispMin  = lmin - pad;
+            const dispMax  = lmax + pad;
+            const dispRange= dispMax - dispMin;
+
+            const validLeft  = ((lmin - dispMin) / dispRange) * 100;
+            const validWidth = ((lmax - lmin)    / dispRange) * 100;
+            barValid.style.left  = validLeft  + '%';
+            barValid.style.width = validWidth + '%';
+            barValid.className   = 'sr-range-bar-valid' + (ok ? '' : ' bad');
+
+            const pinPct = Math.min(99, Math.max(1, ((result - dispMin) / dispRange) * 100));
+            barPin.style.left  = pinPct + '%';
+            barPin.className   = 'sr-range-bar-pin ' + (ok ? 'ok' : 'bad');
+        } else if (barWrap) {
+            barWrap.style.display = 'none';
+        }
     }
 
     document.getElementById('measBody').addEventListener('input', function (e) {
@@ -308,7 +378,15 @@
             <td><input type="text" name="measurements[${idx}][result]"    class="sr-input sr-result" placeholder="0.0"></td>
             <td><input type="number" step="any" name="measurements[${idx}][limit_min]" class="sr-input sr-lmin" placeholder="0"></td>
             <td><input type="number" step="any" name="measurements[${idx}][limit_max]" class="sr-input sr-lmax" placeholder="0"></td>
-            <td style="text-align:center;"><span class="sr-meas-in-range" id="ir-${idx}"></span></td>
+            <td style="min-width:110px;">
+                <span class="sr-range-badge sr-range-nd">— S/L</span>
+                <div class="sr-range-bar-wrap" style="display:none;">
+                    <div class="sr-range-bar-track">
+                        <div class="sr-range-bar-valid"></div>
+                        <div class="sr-range-bar-pin"></div>
+                    </div>
+                </div>
+            </td>
             <td><button type="button" class="sr-btn-del-row" onclick="removeRow(this)">✕</button></td>`;
         tbody.appendChild(tr);
     });

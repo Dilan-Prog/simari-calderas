@@ -90,22 +90,45 @@ body {
    RECEPTOR / CLIENTE
    ════════════════════════════════════════════════════ */
 .receptor {
-    background: #f8f8f8;
-    border: 1px solid #e5e5e5;
-    border-radius: 4px;
-    padding: 14px 16px;
+    border: 1px solid #d0d0d0;
+    border-radius: 5px;
     margin-top: 22px;
     margin-bottom: 14px;
+    overflow: hidden;
 }
+.receptor-header {
+    background: #1a1a1a;
+    padding: 10px 18px;
+    display: table;
+    width: 100%;
+}
+.receptor-header-left  { display: table-cell; vertical-align: middle; }
+.receptor-header-right { display: table-cell; vertical-align: middle; text-align: right; }
 .receptor-title {
-    font-size: 9px; font-weight: bold; color: #6b6b6b;
-    text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;
+    font-size: 8px; font-weight: bold; color: #ff6213;
+    text-transform: uppercase; letter-spacing: 2px; margin: 0 0 2px;
 }
-.receptor-cols { display: table; width: 100%; }
-.receptor-col  { display: table-cell; width: 50%; vertical-align: top; padding-right: 16px; }
-.receptor-col:last-child { padding-right: 0; }
-.r-label { font-size: 9px; color: #999; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 2px; }
-.r-value { font-size: 11px; color: #1a1a2e; font-weight: bold; margin-bottom: 8px; }
+.receptor-name-large {
+    font-size: 16px; font-weight: bold; color: #ffffff; line-height: 1.1;
+}
+.receptor-company-tag {
+    font-size: 10px; color: #9CA3AF; margin-top: 2px;
+}
+.receptor-badge {
+    display: inline-block; background: #ff6213; color: #fff;
+    font-size: 8px; font-weight: bold; letter-spacing: 1px;
+    text-transform: uppercase; padding: 3px 10px; border-radius: 3px;
+}
+.receptor-body {
+    background: #fafafa;
+    padding: 14px 18px;
+    display: table;
+    width: 100%;
+}
+.receptor-col  { display: table-cell; width: 50%; vertical-align: top; padding-right: 20px; }
+.receptor-col:last-child { padding-right: 0; border-left: 1px solid #e5e5e5; padding-left: 20px; }
+.r-label { font-size: 8px; color: #999; text-transform: uppercase; letter-spacing: .8px; margin-bottom: 2px; }
+.r-value { font-size: 11px; color: #1a1a2e; font-weight: bold; margin-bottom: 10px; }
 
 
 /* ════════════════════════════════════════════════════
@@ -219,22 +242,56 @@ thead { display: table-header-group; }
 /* ════════════════════════════════════════════════════
    FIRMA
    ════════════════════════════════════════════════════ */
-.signature-block {
-    display: table; width: 100%; margin-top: 24px;
-    border-top: 2px solid #ff6213; padding-top: 14px;
+.sig-section {
+    margin-top: 28px;
+    border: 1px solid #d0d0d0;
+    border-radius: 5px;
+    overflow: hidden;
+    page-break-inside: avoid;
 }
-.signature-img-wrap { display: table-cell; width: 42%; vertical-align: top; }
-.signature-img { max-height: 80px; max-width: 200px; }
-.signature-info { display: table-cell; vertical-align: bottom; padding-left: 24px; }
-.signer-name     { font-size: 12px; font-weight: bold; color: #1a1a2e; }
-.signer-position { font-size: 10px; color: #374151; margin-top: 2px; }
-.signer-phone    { font-size: 9px; color: #6B7280; }
-.signer-date     { font-size: 9px; color: #9CA3AF; margin-top: 4px; }
-
-.signature-blank { margin-top: 28px; padding-top: 14px; border-top: 1px solid #E5E7EB; }
-.signature-blank-line {
-    width: 240px; border-bottom: 1px solid #1a1a2e; height: 48px; display: inline-block;
+.sig-section-header {
+    background: #1a1a1a;
+    padding: 10px 18px;
+    display: table;
+    width: 100%;
 }
+.sig-section-title {
+    font-size: 8px; font-weight: bold; color: #ff6213;
+    text-transform: uppercase; letter-spacing: 2px; margin: 0 0 1px;
+}
+.sig-section-subtitle {
+    font-size: 9px; color: #9CA3AF;
+}
+.sig-cols { display: table; width: 100%; }
+.sig-col  {
+    display: table-cell; width: 50%; vertical-align: top;
+    padding: 16px 20px;
+    background: #fafafa;
+}
+.sig-col:last-child {
+    border-left: 1px solid #e0e0e0;
+    background: #fff;
+}
+.sig-col-label {
+    font-size: 8px; font-weight: bold; color: #999;
+    text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;
+    padding-bottom: 6px; border-bottom: 1px solid #eee;
+}
+.sig-box {
+    height: 70px; border: 1px dashed #D1D5DB; border-radius: 4px;
+    background: #fff; margin-bottom: 12px;
+    display: table; width: 100%;
+}
+.sig-box-inner {
+    display: table-cell; vertical-align: middle; text-align: center;
+    font-size: 9px; color: #ccc;
+}
+.sig-img { max-height: 64px; max-width: 220px; display: block; margin: 0 auto; }
+.sig-name     { font-size: 12px; font-weight: bold; color: #1a1a2e; margin-bottom: 2px; }
+.sig-position { font-size: 10px; color: #374151; }
+.sig-phone    { font-size: 9px; color: #6B7280; margin-top: 1px; }
+.sig-date     { font-size: 8px; color: #9CA3AF; margin-top: 6px; }
+.sig-line     { border-bottom: 1px solid #555; height: 48px; width: 100%; display: block; margin-bottom: 8px; }
 
 </style>
 </head>
@@ -289,24 +346,39 @@ thead { display: table-header-group; }
 
     {{-- Cliente --}}
     <div class="receptor">
-        <div class="receptor-title">Reporte para</div>
-        <div class="receptor-cols">
+        <div class="receptor-header">
+            <div class="receptor-header-left">
+                <div class="receptor-title">Reporte para</div>
+                <div class="receptor-name-large">{{ $report->customer_name }}</div>
+                @if($report->customer_company)
+                <div class="receptor-company-tag">{{ $report->customer_company }}</div>
+                @endif
+            </div>
+            <div class="receptor-header-right">
+                <div class="receptor-badge">{{ $report->service_type_label }}</div>
+            </div>
+        </div>
+        <div class="receptor-body">
             <div class="receptor-col">
-                <div class="r-label">Nombre</div>
-                <div class="r-value">{{ $report->customer_name }}</div>
                 @if($report->customer_company)
                 <div class="r-label">Empresa</div>
                 <div class="r-value">{{ $report->customer_company }}</div>
                 @endif
-            </div>
-            <div class="receptor-col">
                 @if($report->customer_rfc)
                 <div class="r-label">RFC</div>
                 <div class="r-value">{{ $report->customer_rfc }}</div>
                 @endif
+            </div>
+            <div class="receptor-col">
                 @if($report->customer_phone)
                 <div class="r-label">Teléfono</div>
                 <div class="r-value">{{ $report->customer_phone }}</div>
+                @endif
+                <div class="r-label">Fecha de Servicio</div>
+                <div class="r-value">{{ $report->service_date->format('d/m/Y') }}</div>
+                @if($report->location)
+                <div class="r-label">Ubicación</div>
+                <div class="r-value">{{ $report->location }}</div>
                 @endif
             </div>
         </div>
@@ -459,29 +531,33 @@ thead { display: table-header-group; }
         </table>
     @endif
 
-    {{-- Firma --}}
-    @if($report->status === 'signed' && $report->signature_data)
-        <div class="signature-block">
-            <div class="signature-img-wrap">
-                <img src="{{ $report->signature_data }}" class="signature-img" alt="Firma">
-            </div>
-            <div class="signature-info">
-                <div class="signer-name">{{ $report->signature_name }}</div>
-                <div class="signer-position">{{ $report->signature_position }}</div>
-                @if($report->signature_phone)
-                    <div class="signer-phone">{{ $report->signature_phone }}</div>
+    {{-- Firma de Recibido --}}
+    <div class="sig-section">
+        <div class="sig-section-header">
+            <div class="sig-section-title">Firma de Conformidad</div>
+            <div class="sig-section-subtitle">Este documento certifica que el servicio fue realizado satisfactoriamente</div>
+        </div>
+        <div style="padding: 20px 44px; text-align: center;">
+            <div class="sig-col-label" style="margin-bottom:14px;">Firma de Recibido — Cliente</div>
+            <div style="margin: 0 auto; width: 60%;">
+                <div class="sig-box" style="{{ $report->signature_data ? 'border:1px solid #D1D5DB;' : '' }}">
+                    <div class="sig-box-inner">
+                        @if($report->signature_data)
+                            <img src="{{ $report->signature_data }}" class="sig-img" alt="Firma">
+                        @else
+                            Firma aquí
+                        @endif
+                    </div>
+                </div>
+                <div style="border-bottom: 1px solid #555; margin: 12px auto 6px; width: 100%;"></div>
+                <div class="sig-name">{{ $report->customer_name }}</div>
+                @if($report->customer_company)
+                <div class="sig-position">{{ $report->customer_company }}</div>
                 @endif
-                <div class="signer-date">Firmado el {{ $report->signed_at->format('d/m/Y \a \l\a\s H:i') }}</div>
+                <div style="font-size:8px; color:#999; margin-top:6px; text-transform:uppercase; letter-spacing:1px;">Nombre y Firma</div>
             </div>
         </div>
-    @else
-        <div class="signature-blank">
-            <div class="signature-blank-line"></div>
-            <div style="font-size:9px; color:#6B7280; margin-top:4px;">Firma del Responsable</div>
-            <div style="font-size:9px; color:#6B7280;">Nombre: ___________________________</div>
-            <div style="font-size:9px; color:#6B7280; margin-top:2px;">Cargo: ____________________________</div>
-        </div>
-    @endif
+    </div>
 
 </div>{{-- /#content --}}
 </body>
