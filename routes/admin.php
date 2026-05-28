@@ -88,9 +88,11 @@ Route::prefix('service-reports')->name('service-reports.')->controller(ServiceRe
     Route::get('/{report}/edit', 'edit')->name('edit');
     Route::delete('/{report}', 'destroy')->name('destroy');
     Route::get('/{report}/pdf', 'downloadPdf')->name('download-pdf');
+    Route::get('/{report}/pdf-preview', 'previewPdf')->name('pdf-preview');
     Route::post('/{report}/sign', 'sign')->name('sign');
     Route::get('/{report}/step/{step}', 'step')->name('step');
     Route::post('/{report}/step/{step}', 'saveStep')->name('save-step');
+    Route::delete('/{report}/images/{image}', 'destroyImage')->name('images.destroy');
 });
 
 Route::controller(GoogleAdsController::class)->prefix('google-ads')->name('google-ads.')->group(function () {

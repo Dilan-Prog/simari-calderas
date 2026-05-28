@@ -78,6 +78,11 @@ class ServiceReport extends Model
         return $this->hasMany(ServiceReportCustomField::class)->orderBy('sort_order');
     }
 
+    public function images(): HasMany
+    {
+        return $this->hasMany(ServiceReportImage::class)->orderBy('sort_order');
+    }
+
     // ── Scopes ─────────────────────────────────────────────────────────────────
 
     public function scopeByStatus($query, string $status)

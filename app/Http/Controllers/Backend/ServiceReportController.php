@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Backend;
 use App\Http\Controllers\Controller;
 use App\Models\Customer;
 use App\Models\ServiceReport;
+use App\Models\ServiceReportImage;
 use App\Models\User;
 use App\Services\ServiceReportService;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -116,6 +117,10 @@ class ServiceReportController extends Controller
             $data['systemsChecked'] = $this->service->getSystemsChecked();
         }
 
+        if ($step === 4) {
+            $data['images'] = $report->images()->orderBy('sort_order')->get();
+        }
+
         return view("admin.service-reports.steps.step{$step}", $data);
     }
 
@@ -127,6 +132,10 @@ class ServiceReportController extends Controller
         }
 
         $this->validateStep($request, $report, $step);
+
+        if ($step === 4 && $request->hasFile('images')) {
+            $this->service->saveImages($report, $request->file('images'));
+        }
 
         $this->service->updateStep($report, $request->all(), $step);
 
@@ -146,7 +155,7 @@ class ServiceReportController extends Controller
 
     public function show(ServiceReport $report)
     {
-        $report->load(['measurements', 'activity', 'customFields', 'assignedUser', 'createdBy', 'customer']);
+        $report->load(['measurements', 'activity', 'customFields', 'assignedUser', 'createdBy', 'customer', 'images']);
         return view('admin.service-reports.show', compact('report'));
     }
 
@@ -190,6 +199,16 @@ class ServiceReportController extends Controller
         return $pdf->download("{$report->report_number}.pdf");
     }
 
+    public function previewPdf(ServiceReport $report)
+    {
+        $report->load(['measurements', 'activity', 'customFields', 'assignedUser', 'createdBy']);
+
+        $pdf = Pdf::loadView('admin.service-reports.pdf', compact('report'))
+            ->setPaper('a4', 'portrait');
+
+        return $pdf->stream("{$report->report_number}.pdf");
+    }
+
     // ── Sign ───────────────────────────────────────────────────────────────────
 
     public function sign(Request $request, ServiceReport $report)
@@ -215,6 +234,15 @@ class ServiceReportController extends Controller
 
         return redirect()->route('admin.service-reports.show', $report)
             ->with('success', "Reporte {$report->report_number} firmado y completado exitosamente.");
+    }
+
+    // ── Image delete ──────────────────────────────────────────────────────────
+
+    public function destroyImage(ServiceReport $report, ServiceReportImage $image)
+    {
+        $this->service->deleteReportImage($image);
+
+        return back()->with('success', 'Imagen eliminada correctamente.');
     }
 
     // ── Customer search (AJAX) ─────────────────────────────────────────────────

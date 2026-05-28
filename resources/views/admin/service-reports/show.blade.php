@@ -43,6 +43,21 @@
     .sr-check-list { display: flex; flex-wrap: wrap; gap: 8px; }
     .sr-check-chip { font-size: 12px; padding: 4px 10px; border-radius: 4px; background: #F0FDF4; color: #16A34A; border: 1px solid #BBF7D0; }
 
+    /* Images grid */
+    .sr-photo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
+    .sr-photo-item { border-radius: 8px; overflow: hidden; border: 1px solid #E5E7EB; aspect-ratio: 1 / 1;
+                     cursor: pointer; transition: box-shadow .15s; }
+    .sr-photo-item:hover { box-shadow: 0 0 0 2px #ff6213; }
+    .sr-photo-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+    /* Lightbox */
+    .sr-lightbox { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.85);
+                   z-index: 9999; align-items: center; justify-content: center; }
+    .sr-lightbox.open { display: flex; }
+    .sr-lightbox img { max-width: 90vw; max-height: 90vh; border-radius: 4px; }
+    .sr-lightbox-close { position: absolute; top: 20px; right: 24px; color: #fff; font-size: 28px;
+                          cursor: pointer; background: none; border: none; line-height: 1; }
+
     /* Signature */
     .sr-signature-img { max-height: 120px; border: 1px solid #E5E7EB; border-radius: 6px; padding: 8px; background: #fff; }
     .sr-signer-info { font-size: 13px; color: #374151; margin-top: 12px; }
@@ -110,10 +125,10 @@
                     Editar
                 </a>
             @endif
-            <a href="{{ route('admin.service-reports.download-pdf', $report) }}" class="sr-btn sr-btn-outline" target="_blank">
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
-                PDF
-            </a>
+            <button type="button" class="sr-btn sr-btn-outline" onclick="openPdfModal()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/><path d="M12 18v-6"/><path d="m9 15 3 3 3-3"/></svg>
+                Vista previa PDF
+            </button>
             @if($report->isEditable())
                 <a href="{{ route('admin.service-reports.step', [$report, 6]) }}" class="sr-btn sr-btn-sign">
                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/></svg>
@@ -292,6 +307,22 @@
         </div>
     @endif
 
+    {{-- Evidencia fotográfica --}}
+    @if($report->images->count())
+        <div class="sr-card">
+            <div class="sr-card-header">Evidencia Fotográfica ({{ $report->images->count() }})</div>
+            <div class="sr-card-body">
+                <div class="sr-photo-grid">
+                    @foreach($report->images as $img)
+                        <div class="sr-photo-item" onclick="openLightbox('{{ $img->url }}')">
+                            <img src="{{ $img->url }}" alt="Evidencia">
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        </div>
+    @endif
+
     {{-- Firma --}}
     @if($report->status === 'signed' && $report->signature_data)
         <div class="sr-card">
@@ -313,4 +344,68 @@
     @endif
 
 </div>
+
+{{-- Lightbox --}}
+<div class="sr-lightbox" id="srLightbox" onclick="closeLightbox()">
+    <button class="sr-lightbox-close" onclick="closeLightbox()">×</button>
+    <img src="" id="srLightboxImg" alt="Evidencia" onclick="event.stopPropagation()">
+</div>
+
+{{-- Modal PDF --}}
+<div id="sr-pdf-modal" style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,.65); align-items:center; justify-content:center;">
+    <div style="background:#fff; border-radius:8px; width:90vw; max-width:960px; height:90vh; display:flex; flex-direction:column; overflow:hidden; box-shadow:0 20px 60px rgba(0,0,0,.4);">
+
+        <div style="display:flex; align-items:center; justify-content:space-between; padding:12px 18px; background:#1a1a1a; border-bottom:2px solid #ff6213; flex-shrink:0;">
+            <span style="color:#fff; font-size:14px; font-weight:600;">
+                Vista previa — {{ $report->report_number }}
+            </span>
+            <div style="display:flex; gap:10px; align-items:center;">
+                <a href="{{ route('admin.service-reports.download-pdf', $report) }}"
+                   style="display:inline-flex; align-items:center; gap:6px; background:#ff6213; color:#fff; border:none; padding:7px 14px; border-radius:5px; font-size:12px; font-weight:600; cursor:pointer; text-decoration:none;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17V3"/><path d="m6 11 6 6 6-6"/><path d="M19 21H5"/></svg>
+                    Descargar PDF
+                </a>
+                <button onclick="closePdfModal()" style="background:transparent; border:none; cursor:pointer; color:#9CA3AF; font-size:20px; line-height:1; padding:4px 8px;" title="Cerrar">&times;</button>
+            </div>
+        </div>
+
+        <iframe id="sr-pdf-frame" src="" style="flex:1; border:none; background:#525659;" title="Vista previa PDF"></iframe>
+    </div>
+</div>
+
 @endsection
+
+@push('scripts')
+<script>
+function openLightbox(src) {
+    document.getElementById('srLightboxImg').src = src;
+    document.getElementById('srLightbox').classList.add('open');
+}
+function closeLightbox() {
+    document.getElementById('srLightbox').classList.remove('open');
+}
+
+function openPdfModal() {
+    const modal = document.getElementById('sr-pdf-modal');
+    const frame = document.getElementById('sr-pdf-frame');
+    modal.style.display = 'flex';
+    if (!frame.src || frame.src === window.location.href) {
+        frame.src = '{{ route('admin.service-reports.pdf-preview', $report) }}';
+    }
+    document.body.style.overflow = 'hidden';
+}
+function closePdfModal() {
+    document.getElementById('sr-pdf-modal').style.display = 'none';
+    document.body.style.overflow = '';
+}
+document.getElementById('sr-pdf-modal').addEventListener('click', function (e) {
+    if (e.target === this) closePdfModal();
+});
+document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') {
+        closePdfModal();
+        closeLightbox();
+    }
+});
+</script>
+@endpush

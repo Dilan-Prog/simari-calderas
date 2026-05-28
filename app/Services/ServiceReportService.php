@@ -5,11 +5,14 @@ namespace App\Services;
 use App\Models\ServiceReport;
 use App\Models\ServiceReportActivity;
 use App\Models\ServiceReportCustomField;
+use App\Models\ServiceReportImage;
 use App\Models\ServiceReportMeasurement;
+use App\Traits\ImageUploadTrait;
 use Illuminate\Support\Facades\DB;
 
 class ServiceReportService
 {
+    use ImageUploadTrait;
     public function generateReportNumber(): string
     {
         $year = now()->year;
@@ -158,6 +161,27 @@ class ServiceReportService
                 'sort_order'        => $index,
             ]);
         }
+    }
+
+    public function saveImages(ServiceReport $report, array $files): void
+    {
+        $paths = $this->uploadImages($files, "service-reports/{$report->id}");
+
+        $lastSort = $report->images()->max('sort_order') ?? -1;
+
+        foreach ($paths as $i => $path) {
+            ServiceReportImage::create([
+                'service_report_id' => $report->id,
+                'path'              => $path,
+                'sort_order'        => $lastSort + $i + 1,
+            ]);
+        }
+    }
+
+    public function deleteReportImage(ServiceReportImage $image): void
+    {
+        $this->deleteImage($image->path);
+        $image->delete();
     }
 
     public function saveSignature(ServiceReport $report, array $signatureData): void
