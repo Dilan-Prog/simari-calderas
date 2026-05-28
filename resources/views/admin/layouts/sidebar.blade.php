@@ -21,7 +21,7 @@
             request()->routeIs('admin.products.*')   => 'productos',
             request()->routeIs('admin.google-ads.*') => 'google-ads',
             request()->routeIs('admin.quotes.*')     => 'cotizaciones',
-            request()->routeIs('admin.reports-service.*') => 'reportes-servicio',
+            request()->routeIs('admin.service-reports.*') => 'reportes-servicio',
             default                                  => '',
         };
     @endphp
@@ -123,7 +123,7 @@
                 <span class="sidebar-nav-item-label">Cotizaciones</span>
             </div>
         </a>
-        <a class="sidebar-nav-item {{ $activeSection === 'reportes-servicio' ? 'active' : '' }}" href="{{ route('admin.reports-service.index') }}" data-section="reportes-servicio" data-label="Reporte de Servicios">
+        <a class="sidebar-nav-item {{ $activeSection === 'reportes-servicio' ? 'active' : '' }}" href="{{ route('admin.service-reports.index') }}" data-section="reportes-servicio" data-label="Reporte de Servicios">
             <div class="sidebar-nav-item-left">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                         fill="none" stroke="currentColor" stroke-width="2"

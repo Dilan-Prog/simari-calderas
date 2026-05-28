@@ -6,6 +6,7 @@ use App\Http\Controllers\Backend\CategoryController;
 use App\Http\Controllers\Backend\ClientManageController;
 use App\Http\Controllers\Backend\ProductController;
 use App\Http\Controllers\Backend\QuoteController;
+use App\Http\Controllers\Backend\ServiceReportController;
 use App\Http\Controllers\Backend\UserManageController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Backend\SupplierManageController;
@@ -76,6 +77,20 @@ Route::controller(QuoteController::class)->prefix('cotizaciones')->name('quotes.
     Route::get('/{quote}/pdf-preview', 'previewPdf')->name('pdf-preview');
     Route::post('/{quote}/enviar-correo', 'sendEmail')->name('send-email');
     Route::patch('/{quote}/estado', 'updateStatus')->name('update-status');
+});
+
+Route::prefix('service-reports')->name('service-reports.')->controller(ServiceReportController::class)->group(function () {
+    Route::get('/', 'index')->name('index');
+    Route::get('/create', 'create')->name('create');
+    Route::post('/', 'store')->name('store');
+    Route::get('/customers/search', 'searchCustomers')->name('customers.search');
+    Route::get('/{report}', 'show')->name('show');
+    Route::get('/{report}/edit', 'edit')->name('edit');
+    Route::delete('/{report}', 'destroy')->name('destroy');
+    Route::get('/{report}/pdf', 'downloadPdf')->name('download-pdf');
+    Route::post('/{report}/sign', 'sign')->name('sign');
+    Route::get('/{report}/step/{step}', 'step')->name('step');
+    Route::post('/{report}/step/{step}', 'saveStep')->name('save-step');
 });
 
 Route::controller(GoogleAdsController::class)->prefix('google-ads')->name('google-ads.')->group(function () {

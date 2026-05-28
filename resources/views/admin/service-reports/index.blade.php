@@ -603,7 +603,7 @@
             <p class="sr-page-subtitle">Gestiona y genera reportes técnicos de los servicios realizados</p>
         </div>
 
-        <a href="{{ route('service-reports.create') }}" class="sr-btn-new">
+        <a href="{{ route('admin.service-reports.create') }}" class="sr-btn-new">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M5 12h14"/><path d="M12 5v14"/>
             </svg>
@@ -613,7 +613,7 @@
 
     {{-- ── FILTERS ── --}}
     <div class="sr-filters">
-        <form method="GET" action="{{ route('service-reports.index') }}">
+        <form method="GET" action="{{ route('admin.service-reports.index') }}">
             <div class="sr-filters-grid">
 
                 {{-- Search --}}
@@ -728,7 +728,7 @@
                                         <polyline points="10 9 9 9 8 9"/>
                                     </svg>
                                     <p>No hay reportes registrados</p>
-                                    <a href="{{ route('service-reports.create') }}" class="sr-btn-new" style="margin-top:4px;">
+                                    <a href="{{ route('admin.service-reports.create') }}" class="sr-btn-new" style="margin-top:4px;">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                             <path d="M5 12h14"/><path d="M12 5v14"/>
                                         </svg>
@@ -742,7 +742,7 @@
                             <tr>
                                 {{-- FOLIO --}}
                                 <td>
-                                    <a href="{{ route('service-reports.show', $report) }}" class="sr-folio-link">
+                                    <a href="{{ route('admin.service-reports.show', $report) }}" class="sr-folio-link">
                                         {{ $report->report_number }}
                                     </a>
                                 </td>
@@ -785,21 +785,21 @@
                                     <div class="sr-actions">
 
                                         {{-- Ver --}}
-                                        <a href="{{ route('service-reports.show', $report) }}" class="sr-action-btn" title="Ver reporte">
+                                        <a href="{{ route('admin.service-reports.show', $report) }}" class="sr-action-btn" title="Ver reporte">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                                 <path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/>
                                             </svg>
                                         </a>
 
                                         {{-- Editar --}}
-                                        <a href="{{ route('service-reports.edit', $report) }}" class="sr-action-btn" title="Editar reporte">
+                                        <a href="{{ route('admin.service-reports.edit', $report) }}" class="sr-action-btn" title="Editar reporte">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                                 <path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/>
                                             </svg>
                                         </a>
 
                                         {{-- Descargar PDF --}}
-                                        <a href="{{ route('service-reports.download-pdf', $report) }}" class="sr-action-btn" title="Descargar PDF" target="_blank">
+                                        <a href="{{ route('admin.service-reports.download-pdf', $report) }}" class="sr-action-btn" title="Descargar PDF" target="_blank">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/>
                                             </svg>
@@ -808,7 +808,7 @@
                                         {{-- Eliminar --}}
                                         <form
                                             method="POST"
-                                            action="{{ route('service-reports.destroy', $report) }}"
+                                            action="{{ route('admin.service-reports.destroy', $report) }}"
                                             style="display:inline;"
                                             onsubmit="return confirm('¿Eliminar este reporte? Esta acción no se puede deshacer.')"
                                         >
