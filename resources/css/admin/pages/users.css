@@ -1351,3 +1351,8 @@
 .cfdi-status--info    { background: #dbeafe; color: #1e40af; }
 .cfdi-status--success { background: #dcfce7; color: #166534; }
 .cfdi-status--error   { background: #fee2e2; color: #991b1b; }
+
+.category-row{
+    display: flex;
+    justify-content: space-between;
+}
