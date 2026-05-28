@@ -191,7 +191,7 @@ class ServiceReportController extends Controller
 
     public function downloadPdf(ServiceReport $report)
     {
-        $report->load(['measurements', 'activity', 'customFields', 'assignedUser', 'createdBy']);
+        $report->load(['measurements', 'activity', 'customFields', 'assignedUser', 'createdBy', 'images']);
 
         $pdf = Pdf::loadView('admin.service-reports.pdf', compact('report'))
             ->setPaper('a4', 'portrait');
@@ -201,7 +201,7 @@ class ServiceReportController extends Controller
 
     public function previewPdf(ServiceReport $report)
     {
-        $report->load(['measurements', 'activity', 'customFields', 'assignedUser', 'createdBy']);
+        $report->load(['measurements', 'activity', 'customFields', 'assignedUser', 'createdBy', 'images']);
 
         $pdf = Pdf::loadView('admin.service-reports.pdf', compact('report'))
             ->setPaper('a4', 'portrait');

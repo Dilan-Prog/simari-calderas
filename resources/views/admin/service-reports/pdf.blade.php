@@ -438,6 +438,27 @@ thead { display: table-header-group; }
         <div class="text-block">{{ $report->recommendations }}</div>
     @endif
 
+    {{-- Evidencia fotográfica --}}
+    @if($report->images->isNotEmpty())
+        <div class="section-title">Evidencia Fotográfica ({{ $report->images->count() }})</div>
+        <table style="width:100%; border-collapse:collapse; margin-bottom:16px;">
+            @foreach($report->images->chunk(3) as $row)
+            <tr>
+                @foreach($row as $img)
+                <td style="width:33%; padding:4px; vertical-align:top;">
+                    <img src="{{ storage_path('app/public/' . $img->path) }}"
+                         style="width:100%; max-height:160px; object-fit:cover; border-radius:4px; border:1px solid #e5e5e5; display:block;"
+                         alt="Evidencia">
+                </td>
+                @endforeach
+                @for($j = $row->count(); $j < 3; $j++)
+                <td style="width:33%; padding:4px;"></td>
+                @endfor
+            </tr>
+            @endforeach
+        </table>
+    @endif
+
     {{-- Firma --}}
     @if($report->status === 'signed' && $report->signature_data)
         <div class="signature-block">
