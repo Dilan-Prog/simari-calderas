@@ -138,4 +138,6 @@
     @include('admin.users.partials._modal_delete')
     @include('admin.users.partials._modal_show')
 @endsection
+@push('scripts')
 @include('admin.users.partials._scripts')
+@endpush

@@ -1,4 +1,3 @@
-@push('scripts')
     <script>
         // ── Helpers de validación inline ─────────────────────────────
         function valClear(form, name) {
@@ -60,6 +59,12 @@
         };
 
         const maxContacts = 5;
+
+        const setFieldValue = (form, name, value) => {
+            const field = form.querySelector(`[name="${name}"]`);
+            if (!field) return;
+            field.value = value ?? '';
+        };
 
         // --- Factory: builds a contact row for both modals ---
         function buildContactRow(data = {}, deleteBtnClass, onDelete) {
@@ -248,19 +253,19 @@
 
                 const user = await response.json();
 
-                editForm.querySelector('[name="first_name"]').value = user.first_name || '';
-                editForm.querySelector('[name="last_name"]').value = user.last_name || '';
-                editForm.querySelector('[name="birthdate"]').value = user.birthdate || '';
-                editForm.querySelector('[name="rfc"]').value = user.rfc || '';
-                editForm.querySelector('[name="curp"]').value = user.curp || '';
-                editForm.querySelector('[name="social_segurity_number"]').value = user.social_segurity_number || '';
-                editForm.querySelector('[name="email"]').value = user.email || '';
-                editForm.querySelector('[name="phone"]').value = user.phone || '';
-                editForm.querySelector('[name="position"]').value = user.position || '';
-                editForm.querySelector('[name="role_id"]').value = user.role_id || '';
-                editForm.querySelector('[name="status"]').value = user.status || '';
-                editForm.querySelector('[name="password"]').value = '';
-                editForm.querySelector('[name="password_confirmation"]').value = '';
+                setFieldValue(editForm, 'first_name', user.first_name);
+                setFieldValue(editForm, 'last_name', user.last_name);
+                setFieldValue(editForm, 'birthdate', user.birthdate);
+                setFieldValue(editForm, 'rfc', user.rfc);
+                setFieldValue(editForm, 'curp', user.curp);
+                setFieldValue(editForm, 'social_segurity_number', user.social_segurity_number);
+                setFieldValue(editForm, 'email', user.email);
+                setFieldValue(editForm, 'phone', user.phone);
+                setFieldValue(editForm, 'position', user.position);
+                setFieldValue(editForm, 'role_id', user.role_id);
+                setFieldValue(editForm, 'status', user.status);
+                setFieldValue(editForm, 'password', '');
+                setFieldValue(editForm, 'password_confirmation', '');
 
                 const contacts = user.contact_emergency || [];
                 if (contacts.length === 0) {
@@ -539,4 +544,4 @@
             });
         });
     </script>
-@endpush
+
