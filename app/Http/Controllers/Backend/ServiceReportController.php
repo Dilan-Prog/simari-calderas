@@ -105,6 +105,12 @@ class ServiceReportController extends Controller
                 ->with('error', 'No puedes saltar pasos. Completa el paso anterior primero.');
         }
 
+        // Block access to sign step (6) until all data steps (1-5) are complete
+        if ($step === 6 && $report->current_step < 5) {
+            return redirect()->route('admin.service-reports.step', [$report, $report->current_step + 1])
+                ->with('error', 'Debes completar todos los pasos antes de firmar el reporte.');
+        }
+
         $report->load(['measurements', 'activity', 'customFields', 'assignedUser']);
 
         $data = [
@@ -112,6 +118,13 @@ class ServiceReportController extends Controller
             'step'         => $step,
             'serviceTypes' => $this->service->getServiceTypes(),
         ];
+
+        if ($step === 1) {
+            $data['customers'] = Customer::select('id', 'first_name', 'last_name', 'company', 'rfc', 'phone', 'email')
+                ->where('status', 'active')->orderBy('first_name')->get();
+            $data['users'] = User::select('id', 'first_name', 'last_name', 'position')
+                ->where('status', 'active')->orderBy('first_name')->get();
+        }
 
         if ($step === 2 && $report->usesActivityForm()) {
             $data['systemsChecked'] = $this->service->getSystemsChecked();
@@ -216,6 +229,11 @@ class ServiceReportController extends Controller
         if (!$report->isEditable()) {
             return redirect()->route('admin.service-reports.show', $report)
                 ->with('error', 'Este reporte ya ha sido firmado.');
+        }
+
+        if ($report->current_step < 5) {
+            return redirect()->route('admin.service-reports.step', [$report, $report->current_step + 1])
+                ->with('error', 'Debes completar todos los pasos antes de firmar el reporte.');
         }
 
         $request->validate([

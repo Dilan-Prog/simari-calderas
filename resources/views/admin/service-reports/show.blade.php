@@ -226,6 +226,39 @@
         <div class="sr-flash-err">{{ session('error') }}</div>
     @endif
 
+    {{-- Steps progress banner (only while editing) --}}
+    @if($report->isEditable() && $report->current_step < 5)
+        @php
+            $stepNames = ['Datos Generales','Mediciones / Act.','Observaciones','Evidencia','Resumen'];
+        @endphp
+        <div style="background:#FFF7ED; border:1px solid #FDBA74; border-radius:8px; padding:12px 16px; margin-bottom:16px; display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap;">
+            <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ff6213" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>
+                <span style="font-size:13px; color:#92400E; font-weight:500;">Reporte incompleto — faltan pasos por completar</span>
+                <div style="display:flex; align-items:center; gap:6px;">
+                    @foreach($stepNames as $i => $sName)
+                        @php $sn = $i + 1; @endphp
+                        <span style="display:inline-flex; align-items:center; gap:4px; font-size:11px; font-weight:500;
+                                     padding:2px 8px; border-radius:20px;
+                                     {{ $sn <= $report->current_step ? 'background:#FEF3C7; color:#92400E; border:1px solid #FDE68A;' : 'background:#F3F4F6; color:#9CA3AF; border:1px solid #E5E7EB;' }}">
+                            @if($sn <= $report->current_step)
+                                <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                            @else
+                                {{ $sn }}
+                            @endif
+                            {{ $sName }}
+                        </span>
+                    @endforeach
+                </div>
+            </div>
+            <a href="{{ route('admin.service-reports.step', [$report, $report->current_step + 1]) }}"
+               style="flex-shrink:0; display:inline-flex; align-items:center; gap:6px; height:36px; padding:0 16px; border-radius:6px;
+                      background:#ff6213; color:#fff; font-size:13px; font-weight:500; text-decoration:none; white-space:nowrap;">
+                Continuar → Paso {{ $report->current_step + 1 }}
+            </a>
+        </div>
+    @endif
+
     {{-- Breadcrumb --}}
     <div class="sr-breadcrumb">
         <span>Panel de Control</span>
@@ -258,10 +291,17 @@
                 Vista previa PDF
             </button>
             @if($report->isEditable())
-                <a href="{{ route('admin.service-reports.step', [$report, 6]) }}" class="sr-btn sr-btn-sign">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/></svg>
-                    Firmar
-                </a>
+                @if($report->current_step >= 5)
+                    <a href="{{ route('admin.service-reports.step', [$report, 6]) }}" class="sr-btn sr-btn-sign">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/></svg>
+                        Firmar
+                    </a>
+                @else
+                    <a href="{{ route('admin.service-reports.step', [$report, $report->current_step + 1]) }}" class="sr-btn sr-btn-sign">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                        Continuar (Paso {{ $report->current_step + 1 }})
+                    </a>
+                @endif
             @endif
             @if($report->isDeletable())
                 <form method="POST" action="{{ route('admin.service-reports.destroy', $report) }}" style="display:inline;"
