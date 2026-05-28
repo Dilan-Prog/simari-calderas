@@ -1,17 +1,41 @@
 {
+<<<<<<< HEAD
   "resources/css/admin/app.css": {
     "file": "assets/app-B1lJ0qMm.css",
+=======
+  "resources/css/admin-quotes.css": {
+    "file": "assets/admin-quotes-B9t4uuYe.css",
+    "src": "resources/css/admin-quotes.css",
+    "isEntry": true
+  },
+  "resources/css/admin/app.css": {
+    "file": "assets/app-uNXdRO_L.css",
+>>>>>>> 9f21f7d4ddd7b772e9904ef29e5899116acf3b89
     "src": "resources/css/admin/app.css",
     "isEntry": true
   },
   "resources/css/app.css": {
-    "file": "assets/app-C9fxjCu9.css",
+    "file": "assets/app-Cd7BWfNo.css",
     "src": "resources/css/app.css",
     "isEntry": true
   },
-  "resources/images/logo/logo_SVG.svg": {
-    "file": "assets/logo_SVG-DFRLlr3G.svg",
-    "src": "resources/images/logo/logo_SVG.svg"
+  "resources/js/admin-quotes.js": {
+    "file": "assets/admin-quotes-C5r3yJVs.js",
+    "name": "admin-quotes",
+    "src": "resources/js/admin-quotes.js",
+    "isEntry": true
+  },
+  "resources/js/admin/google-ads.js": {
+    "file": "assets/google-ads-Cuv0h1CS.js",
+    "name": "google-ads",
+    "src": "resources/js/admin/google-ads.js",
+    "isEntry": true
+  },
+  "resources/js/admin/sidebar.js": {
+    "file": "assets/sidebar-CMuHmg7g.js",
+    "name": "sidebar",
+    "src": "resources/js/admin/sidebar.js",
+    "isEntry": true
   },
   "resources/js/admin/google-ads.js": {
     "file": "assets/google-ads-Cuv0h1CS.js",
@@ -26,7 +50,7 @@
     "isEntry": true
   },
   "resources/js/app.js": {
-    "file": "assets/app-DgNdLuoO.js",
+    "file": "assets/app-Br5zntOM.js",
     "name": "app",
     "src": "resources/js/app.js",
     "isEntry": true

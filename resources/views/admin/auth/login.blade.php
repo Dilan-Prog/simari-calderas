@@ -3,7 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<<<<<<< HEAD
     <title>Iniciar Sesión — SIMARI Calderas</title>
+=======
+    <title>Iniciar Sesión — Equiterm Industries</title>
+>>>>>>> 9f21f7d4ddd7b772e9904ef29e5899116acf3b89
     <meta name="robots" content="noindex, nofollow">
 
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
@@ -27,7 +31,11 @@
         {{-- Logo --}}
         <div class="login-logo">
             <img src="{{ asset('images/logo/Logo_blanco.png') }}"
+<<<<<<< HEAD
                  alt="SIMARI Calderas"
+=======
+                 alt="Equiterm Industries"
+>>>>>>> 9f21f7d4ddd7b772e9904ef29e5899116acf3b89
                  onerror="this.style.display='none'">
         </div>
 

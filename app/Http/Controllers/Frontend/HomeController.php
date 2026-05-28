@@ -22,7 +22,44 @@ class HomeController extends Controller
     }
 
 
+
+
+
+    // TEST CREATE ADMIN PAGE
+    public function users(){
+        return view('admin.users.user-manager');
+    }
+
+    public function clients(){
+        return view('admin.managers.clients-manager');
+    }
+
+    public function supliers(){
+        return view('admin.managers.supliers-manager');
+    }
+
+
     // SERVICES PAGES
+    // new services SEO
+    public function boilerServices()
+    {
+        return view('frontend.pages.services.boiler-services');
+    }
+    public function boilerRepair()
+    {
+        return view('frontend.pages.services.boiler-repair');
+    }
+    public function boilerMaintenance()
+    {
+        return view('frontend.pages.services.boiler-maintenance');
+    }
+    public function boilerDescaling()
+    {
+        return view('frontend.pages.services.boiler-descale');
+    }
+
+
+    //old services
 
     public function industrialMaintenance()
     {
@@ -63,7 +100,7 @@ class HomeController extends Controller
     }
 
 
-    
+
     // Products
     public function simariBoilers()
     {

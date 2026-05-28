@@ -1,5 +1,5 @@
 @extends('frontend.layouts.master')
-@section('title', 'Tanques de Almacenamiento Rinnai - Industria Simari')
+@section('title', 'Tanques de Almacenamiento Rinnai - Equiterm Industries')
 @section('description', 'Tanques de Almacenamiento Rinnai: Soluciones de alta capacidad para aplicaciones comerciales e industriales.')
 @section('canonical', config('app.url') . '/masstercal-rinnai/tanques-de-almacenamiento-rinnai')
 @section('content')
@@ -152,7 +152,7 @@
 
             <div class="st-content">
                 <article class="st-media-card">
-                    <img src="{{ asset('images/masstercal-rinnai/productos-rinnai/tanques-almacenamiento/tanque-galvanizado-de-acero-inoxidable.png') }}" 
+                    <img src="{{ asset('images/masstercal-rinnai/productos-rinnai/tanques-almacenamiento/tanque-galvanizado-de-acero-inoxidable.png') }}"
                     alt="Tanques de almacenamiento Rinnai"
                     title="Tanques de almacenamiento Rinnai"
                     fetchpriority="low"
@@ -401,7 +401,7 @@
                 especifica.
             </p>
             <div class="st-cta-buttons">
-                <a 
+                <a
                 href="https://wa.me/524494348018?text=Hola%2C%20me%20interesa%20una%20cotizaci%C3%B3n."
                 target="_blank"
                 aria-label="Abrir chat de WhatsApp"
@@ -415,9 +415,9 @@
                             stroke-linecap="round" stroke-linejoin="round" />
                     </svg>
                 </a>
-                <a 
+                <a
                 href="tel:+524494348018"
-                aria-label="Llamar a Industria Simari"
+                aria-label="Llamar a Equiterm Industries"
                 class="button-secondary st-cta-button"><svg
                         xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"
                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"

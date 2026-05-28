@@ -1,5 +1,5 @@
 @extends('frontend.layouts.master')
-@section('title', 'Contacto - Industria Simari')
+@section('title', 'Contacto - Equiterm Industries')
 @section('description', 'Contacta con nosotros para obtener más información sobre nuestros productos y servicios.')
 @section('canonical', config('app.url') . '/contacto')
 @section('content')
@@ -38,7 +38,7 @@
                 <div class="title-underline"></div>
                 <p class="info-subtitle">Póngase en contacto con nuestro equipo de ingeniería y ventas.</p>
             </div>
-    
+
             <div class="contact-grid">
                 <!-- Dirección -->
                 <article class="contact-card">
@@ -57,7 +57,7 @@
                         </address>
                     </div>
                 </article>
-    
+
                 <!-- Teléfono -->
                 <article class="contact-card">
                     <div class="contact-icon-wrapper phone-icon">
@@ -68,12 +68,12 @@
                     <div class="contact-content">
                         <h3>Central Telefónica</h3>
                         <ul class="phone-list">
-                            <li><a href="tel:+524494348018" aria-label="Llamar a Industria Simari">+52 (449) 434-8018</a></li>
-                            <li><a href="tel:+524498068894" aria-label="Llamar a Industria Simari">+52 (449) 806-8894</a></li>
+                            <li><a href="tel:+524494348018" aria-label="Llamar a Equiterm Industries">+52 (449) 434-8018</a></li>
+                            <li><a href="tel:+524498068894" aria-label="Llamar a Equiterm Industries">+52 (449) 806-8894</a></li>
                         </ul>
                     </div>
                 </article>
-    
+
                 <!-- Email Servicios -->
                 <article class="contact-card">
                     <div class="contact-icon-wrapper email-icon">
@@ -85,12 +85,12 @@
                     <div class="contact-content">
                         <h3>Recepción y Cotizaciones</h3>
                         <ul class="email-list">
-                            <li><a href="mailto:administracion@industriasimari.com" aria-label="Enviar correo a Industria Simari">administracion@industriasimari.com.mx</a></li>
-                            <li><a href="tel:+524493968406" aria-label="Llamar a Industria Simari">+52 (449) 396-8406</a></li>
+                            <li><a href="mailto:administracion@industriasimari.com" aria-label="Enviar correo a Equiterm Industries">administracion@industriasimari.com.mx</a></li>
+                            <li><a href="tel:+524493968406" aria-label="Llamar a Equiterm Industries">+52 (449) 396-8406</a></li>
                         </ul>
                     </div>
                 </article>
-    
+
                 <!-- Email Facturación -->
                 <article class="contact-card">
                     <div class="contact-icon-wrapper document-icon">
@@ -104,7 +104,7 @@
                     </div>
                     <div class="contact-content">
                         <h3>Facturación</h3>
-                        <a href="mailto:facturacion@industriasimari.com" aria-label="Enviar correo a Industria Simari">facturacion@industriasimari.com.mx</a>
+                        <a href="mailto:facturacion@industriasimari.com" aria-label="Enviar correo a Equiterm Industries">facturacion@industriasimari.com.mx</a>
                     </div>
                 </article>
                 <div class="additional-features">
@@ -133,27 +133,27 @@
         </div>
         <div class="form-wrapper">
             <h2 id="form-title" class="form-title">Envíenos un mensaje</h2>
-            
+
             <form class="contact-form" method="POST" action="" novalidate>
                 @csrf
-                
+
                 <div class="form-row">
                     <div class="form-group">
                         <label for="name">Nombre Completo <span aria-label="requerido">*</span></label>
-                        <input 
-                            type="text" 
-                            id="name" 
-                            name="name" 
-                            required 
+                        <input
+                            type="text"
+                            id="name"
+                            name="name"
+                            required
                             placeholder="Ej. Juan Pérez"
                             aria-required="true">
                     </div>
                     <div class="form-group">
                         <label for="company">Empresa</label>
-                        <input 
-                            type="text" 
-                            id="company" 
-                            name="company" 
+                        <input
+                            type="text"
+                            id="company"
+                            name="company"
                             placeholder="Ej. Industrias SA">
                     </div>
                 </div>
@@ -161,20 +161,20 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label for="email">Correo Electrónico <span aria-label="requerido">*</span></label>
-                        <input 
-                            type="email" 
-                            id="email" 
-                            name="email" 
-                            required 
+                        <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            required
                             placeholder="nombre@empresa.com"
                             aria-required="true">
                     </div>
                     <div class="form-group">
                         <label for="phone">Teléfono</label>
-                        <input 
-                            type="tel" 
-                            id="phone" 
-                            name="phone" 
+                        <input
+                            type="tel"
+                            id="phone"
+                            name="phone"
                             placeholder="(000) 000-0000">
                     </div>
                 </div>
@@ -194,10 +194,10 @@
 
                 <div class="form-group full-width">
                     <label for="message">Mensaje</label>
-                    <textarea 
-                        id="message" 
-                        name="message" 
-                        rows="5" 
+                    <textarea
+                        id="message"
+                        name="message"
+                        rows="5"
                         placeholder="Describa su requerimiento o consulta..."></textarea>
                 </div>
 

@@ -25,8 +25,13 @@
 
 
         <!-- Form Body -->
+<<<<<<< HEAD
         <form class="user-manager-modal-body" action="{{ route('admin.users.store') }}" method="POST"
             enctype="multipart/form-data">
+=======
+        <form id="userCreateForm" class="user-manager-modal-body" action="{{ route('admin.users.store') }}" method="POST"
+            enctype="multipart/form-data" novalidate>
+>>>>>>> 9f21f7d4ddd7b772e9904ef29e5899116acf3b89
             @csrf
             <h3>Información Personal</h3>
             <div class="user-manager-avatar-upload-container">
@@ -55,6 +60,7 @@
                     <label class="supliers-manager-slider-label">Apellidos*</label>
                     <input class="users-manager-input" type="text" name="last_name" value="{{ old('last_name') }}">
                 </div>
+<<<<<<< HEAD
 
                 <div>
                     <label class="supliers-manager-slider-label">Fecha de Nacimiento</label>
@@ -64,6 +70,12 @@
                     <label class="supliers-manager-slider-label">RFC</label>
                     <input class="users-manager-input" type="text" placeholder="XAXX010101000"
                         name="rfc" value="{{ old('rfc') }}">
+=======
+                <div>
+                    <label class="supliers-manager-slider-label">RFC</label>
+                    <input class="users-manager-input" type="text" placeholder="XAXX010101000"
+                        name="rfc" id="create_rfc" value="{{ old('rfc') }}">
+>>>>>>> 9f21f7d4ddd7b772e9904ef29e5899116acf3b89
                 </div>
                 <div>
                     <label class="supliers-manager-slider-label">CURP</label>
@@ -161,7 +173,13 @@
                     Usuario</button>
             </div>
         </form>
+<<<<<<< HEAD
 
     </div>
 
 </div>
+=======
+    </div>
+</div>
+
+>>>>>>> 9f21f7d4ddd7b772e9904ef29e5899116acf3b89

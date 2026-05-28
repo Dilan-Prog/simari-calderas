@@ -159,7 +159,7 @@
 
         <p>
           <a href="/contacto">Solicitar asesoría</a>
-          <a href="tel:+524494348018" aria-label="Llamar a SIMARI Calderas al +52 449 434 8018">
+          <a href="tel:+524494348018" aria-label="Llamar a Equiterm Industries al +52 449 434 8018">
             +52 (449) 434-8018
           </a>
         </p>

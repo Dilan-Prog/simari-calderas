@@ -9,7 +9,7 @@
     /* Header */
     --header-background-color: #141516;
     --text-header-color-nav: #D1D5DC;
-    --text-header-color-nav-hover: #0054ff;
+    --text-header-color-nav-hover: #ff6213;
     --text-header-color-nav-hover-white: #ffffff;
     --border-header-footer-color: #2E3A46;
     --toggle-header: #2E3A46;
@@ -22,9 +22,9 @@
     --border-footer-color-legal: #2E3A46;
 
     /* Brand primary (SIMARI / azul) */
-    --secondary-color: #0054ff;
-    --button-primary-color: #0054ff;
-    --button-primary-color-hover: #0043cc;
+    --secondary-color: #ff6213;
+    --button-primary-color: #ff6213;
+    --button-primary-color-hover: #de4a00;
 
     /* Brand secondary (Rinnai / rojo) */
     --secondary-color-rinnai: #C62828;
@@ -102,7 +102,7 @@
         max-width: 58%;
         line-height: 1.6;
     }
-
+p
     .button-primary.service-calibration {
         border-radius: 14px;
     }
@@ -485,7 +485,7 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
-    opacity: 0.5;
+    opacity: 0.1;
 }
 
 .hero-overlay {
@@ -589,7 +589,7 @@
 }
 
 .check-circle {
-    width: 24px; 
+    width: 24px;
     height: 24px;
     display: flex;
     align-items: center;
@@ -794,7 +794,7 @@
 }
 
 /* =========================================
-   SECCIÓN: POR QUÉ ELEGIR A SIMARI CALDERAS
+   SECCIÓN: POR QUÉ ELEGIR A Equiterm Industries
 ========================================= */
 .why-choose-simari-section {
     background-color: var(--text-white-color);
@@ -1449,7 +1449,7 @@
 }
 
 .process-card--primary {
-    background: linear-gradient(135deg, #0054ff 0%, #0043cc 100%);
+    background: linear-gradient(135deg, #ff6213 0%, #de4a00 100%);
 }
 
 .process-card--dark {
@@ -1742,7 +1742,7 @@
     grid-template-columns: 2fr 1fr;
     gap: 32px;
     align-items: start;
-    
+
 }
 
 .automation-overview__intro {
@@ -1825,7 +1825,7 @@
 }
 
 .automation-feature--primary {
-    background: linear-gradient(135deg, #0054ff 0%, #0043cc 100%);
+    background: linear-gradient(135deg, #ff6213 0%, #de4a00 100%);
     color: var(--text-white-color);
 }
 
@@ -2001,7 +2001,7 @@
 }
 
 .automation-process .process-card--primary {
-    background: linear-gradient(135deg, #0054ff 0%, #0043cc 100%);
+    background: linear-gradient(135deg, #ff6213 0%, #de4a00 100%);
 }
 
 .automation-process .process-card__step {
@@ -2176,5 +2176,891 @@
     .automation-benefits .benefit-card p,
     .automation-cta__content p {
         font-size: 1rem;
+    }
+}
+
+/* =========================================
+   MEJORAS VISUALES — SERVICE PAGES
+   Refinamiento profesional de todas las
+   páginas de servicio (hair-repair pattern)
+========================================= */
+
+/* --- Hero --- */
+.hero-section-hair-repair {
+    min-height: 88vh;
+}
+.hero-title {
+    font-size: clamp(1.9rem, 3.8vw, 3.25rem);
+    line-height: 1.12;
+    letter-spacing: -0.02em;
+}
+.hero-description {
+    font-size: clamp(0.95rem, 1.5vw, 1.075rem);
+    color: var(--text-subwhite-color);
+    line-height: 1.7;
+    margin-bottom: 28px;
+}
+.container.hero-hair-repair {
+    padding: 96px 200px;
+}
+
+/* --- Subtítulos de sección --- */
+.service-subtitle-industrial {
+    font-size: clamp(1.5rem, 2.8vw, 2rem);
+    font-weight: 800;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+    color: var(--vaner-color);
+}
+
+.section-main-title {
+    font-size: clamp(1.5rem, 2.8vw, 2rem);
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    color: var(--vaner-color);
+}
+
+/* --- Callout mejorado --- */
+.applications-card {
+    background: linear-gradient(135deg, rgba(255, 98, 19, 0.07) 0%, rgba(255, 98, 19, 0.02) 100%);
+    border-left: 4px solid var(--secondary-color);
+    border-radius: 14px;
+    padding: 28px 40px;
+    box-shadow: 0 4px 24px rgba(255, 98, 19, 0.09), 0 1px 4px rgba(0,0,0,0.04);
+}
+.applications-card .service-text-industrial {
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--vaner-color);
+    line-height: 1.65;
+}
+
+/* --- Include cards con hover y acento --- */
+.include-card {
+    border-top: 3px solid transparent;
+    transition: transform 0.25s ease, box-shadow 0.25s ease, border-top-color 0.2s ease;
+    position: relative;
+}
+.include-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 24px 48px rgba(0, 0, 0, 0.13);
+    border-top-color: var(--secondary-color);
+}
+.include-card .icon-box {
+    width: 52px;
+    height: 52px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(255, 98, 19, 0.3);
+}
+.include-card-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--vaner-color);
+    line-height: 1.35;
+}
+.include-card-text {
+    font-size: 0.9rem;
+    color: var(--text-description-color);
+    line-height: 1.65;
+}
+
+/* --- Benefit items — tarjeta blanca profesional --- */
+.benefit-item {
+    background-color: #ffffff;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.benefit-item:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.1);
+    border-color: rgba(255, 98, 19, 0.2);
+}
+.benefit-icon-box {
+    box-shadow: 0 4px 12px rgba(255, 98, 19, 0.25);
+    transition: transform 0.2s ease;
+}
+.benefit-item:hover .benefit-icon-box {
+    transform: scale(1.08);
+}
+.benefit-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--vaner-color);
+}
+.benefit-text {
+    font-size: 0.9rem;
+    color: var(--text-description-color);
+    line-height: 1.65;
+}
+
+/* --- Sección blanca con benefits (frecuencia) --- */
+.service-description-section-industrial .benefits-grid {
+    margin-top: 0;
+}
+
+/* --- CTA oscuro (contratos / work-process) --- */
+.work-process-section {
+    background: linear-gradient(135deg, var(--vaner-color) 0%, #0a1520 100%);
+    position: relative;
+    overflow: hidden;
+}
+.work-process-section::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(circle at 20% 50%, rgba(255, 98, 19, 0.08) 0%, transparent 60%),
+                      radial-gradient(circle at 80% 50%, rgba(255, 255, 255, 0.02) 0%, transparent 50%);
+    pointer-events: none;
+}
+.cta-final-title-industrial {
+    font-size: clamp(1.5rem, 3vw, 2.25rem);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+}
+.cta-final-description-industrial {
+    font-size: clamp(0.95rem, 1.5vw, 1.1rem);
+    color: rgba(255, 255, 255, 0.75);
+    margin-bottom: 0;
+}
+.button-secondary.work-process {
+    border-radius: 8px;
+    font-size: 1.05rem;
+    padding: 17px 36px;
+    letter-spacing: 0.01em;
+    font-weight: 700;
+    gap: 10px;
+    transition: all 0.2s ease;
+    text-decoration: none;
+}
+.button-secondary.work-process:hover {
+    background: rgba(255, 255, 255, 0.12);
+    color: #fff;
+    transform: translateY(-2px);
+}
+
+/* --- Accordion nativo <details>/<summary> --- */
+.accordion__item summary {
+    list-style: none;
+}
+.accordion__item summary::-webkit-details-marker {
+    display: none;
+}
+.accordion__item summary::marker {
+    display: none;
+    content: '';
+}
+
+/* Estado abierto */
+details[open] > .accordion__header {
+    border-radius: 16px 16px 0 0;
+    background-color: #f9fafb;
+    border-bottom: 1px solid var(--border-color);
+}
+details[open] ~ p,
+details[open] + p {
+    padding-top: 4px;
+}
+.accordion__icon-box {
+    transition: transform 0.25s ease;
+}
+details[open] .accordion__icon-box {
+    transform: rotate(180deg);
+}
+.accordion__icon-box {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    box-shadow: 0 3px 10px rgba(255, 98, 19, 0.3);
+}
+
+/* Header del accordion */
+.accordion__header {
+    cursor: pointer;
+    border: 1px solid var(--border-color);
+    transition: background-color 0.15s ease;
+}
+.accordion__header:hover {
+    background-color: #f9fafb;
+}
+.accordion__title {
+    font-size: clamp(0.95rem, 1.8vw, 1.15rem);
+    font-weight: 600;
+    color: var(--vaner-color);
+    line-height: 1.4;
+}
+
+/* Respuesta del accordion */
+.accordion__item details[open] {
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+.accordion__item {
+    border: none;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    transition: box-shadow 0.2s ease;
+}
+.accordion__item:hover {
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Texto respuesta FAQ */
+.service-calibration-accordion details p {
+    background-color: #ffffff;
+    border-radius: 0 0 16px 16px;
+    border: 1px solid var(--border-color);
+    border-top: none;
+    padding: 20px 24px 28px !important;
+    font-size: 0.97rem;
+    line-height: 1.75;
+    color: var(--text-body);
+}
+
+/* Título FAQ */
+.service-calibration-accordion h2 {
+    font-size: clamp(1.5rem, 2.8vw, 2rem);
+    font-weight: 800;
+    color: var(--vaner-color);
+    margin-bottom: 48px;
+}
+
+/* --- Final CTA --- */
+.final-cta {
+    background: linear-gradient(135deg, var(--vaner-color) 0%, #0a1520 60%, #141516 100%);
+    padding: 96px 0;
+    position: relative;
+    overflow: hidden;
+}
+.final-cta::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(circle at 50% 0%, rgba(255, 98, 19, 0.12) 0%, transparent 60%);
+    pointer-events: none;
+}
+.final-cta__icon {
+    background: rgba(255, 98, 19, 0.15);
+    border: 1px solid rgba(255, 98, 19, 0.35);
+    color: var(--secondary-color);
+}
+.final-cta__content h2 {
+    font-size: clamp(1.75rem, 3.5vw, 2.75rem);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin-bottom: 20px;
+}
+.final-cta__content p {
+    font-size: clamp(0.95rem, 1.5vw, 1.1rem);
+    color: rgba(255, 255, 255, 0.75);
+    margin-bottom: 40px;
+    max-width: 680px;
+}
+.button-primary.final-cta__actions-water,
+.button-secondary.final-cta__actions-water {
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 700;
+    padding: 17px 34px;
+    gap: 10px;
+    transition: all 0.2s ease;
+    text-decoration: none;
+}
+.button-primary.final-cta__actions-water:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(255, 98, 19, 0.4);
+}
+.button-secondary.final-cta__actions-water:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    transform: translateY(-2px);
+}
+
+/* --- Responsive service pages --- */
+@media (max-width: 1200px) {
+    .container.hero-hair-repair,
+    .container.service-description-section,
+    .container.what-includes-section,
+    .container.work-process-section,
+    .container.service-calibration-accordion {
+        padding-left: 100px;
+        padding-right: 100px;
+    }
+}
+@media (max-width: 900px) {
+    .container.hero-hair-repair,
+    .container.service-description-section,
+    .container.what-includes-section,
+    .container.work-process-section,
+    .container.service-calibration-accordion {
+        padding-left: 48px;
+        padding-right: 48px;
+    }
+    .hero-section-hair-repair {
+        min-height: auto;
+        padding-bottom: 48px;
+    }
+    .hero-content {
+        max-width: 100%;
+    }
+    .includes-grid {
+        grid-template-columns: 1fr;
+    }
+    .benefits-grid {
+        grid-template-columns: 1fr;
+    }
+}
+@media (max-width: 600px) {
+    .container.hero-hair-repair,
+    .container.service-description-section,
+    .container.what-includes-section,
+    .container.work-process-section,
+    .container.service-calibration-accordion {
+        padding-left: 24px;
+        padding-right: 24px;
+    }
+    .accordion__title {
+        font-size: 0.95rem;
+    }
+    .final-cta__actions {
+        flex-direction: column;
+        gap: 12px;
+    }
+    .button-primary.final-cta__actions-water,
+    .button-secondary.final-cta__actions-water {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+
+/* =========================================
+   BOILER SERVICES — hero trust grid
+========================================= */
+.hero-trust-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-top: 32px;
+    max-width: 600px;
+}
+
+.hero-trust-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.875rem;
+    color: var(--text-subwhite-color);
+    font-family: var(--font-family);
+}
+
+.hero-trust-item > span:first-child {
+    flex-shrink: 0;
+    font-size: 1rem;
+    color: var(--secondary-color);
+    width: 20px;
+    text-align: center;
+    line-height: 1;
+}
+
+.hero-trust-text {
+    line-height: 1.4;
+}
+
+
+/* =========================================
+   BOILER SERVICES — stat strip
+========================================= */
+.bs-stat-strip {
+    background: var(--secondary-color);
+    font-family: var(--font-family);
+}
+
+.bs-stat-strip__inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 28px 200px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0;
+    text-align: center;
+}
+
+.bs-stat-strip__item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 0 20px;
+    border-right: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.bs-stat-strip__item:last-child {
+    border-right: none;
+}
+
+.bs-stat-strip__number {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--text-white-color);
+    line-height: 1;
+    font-family: var(--font-family);
+    font-variant-numeric: tabular-nums;
+}
+
+.bs-stat-strip__label {
+    font-size: 0.8125rem;
+    color: rgba(255, 255, 255, 0.85);
+    font-weight: 400;
+    line-height: 1.3;
+}
+
+
+/* =========================================
+   BOILER SERVICES — boiler types table
+========================================= */
+.bs-table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin: 32px 0 0;
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-md, 0 10px 20px rgba(0, 0, 0, 0.1));
+}
+
+.bs-boiler-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--font-family);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+}
+
+.bs-boiler-table thead tr {
+    background: var(--header-footer-color);
+}
+
+.bs-boiler-table thead th {
+    padding: 16px 20px;
+    color: var(--text-white-color);
+    font-weight: 700;
+    font-size: 0.875rem;
+    text-align: left;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+}
+
+.bs-boiler-table tbody tr {
+    background: var(--background--white);
+    border-bottom: 1px solid var(--border-color);
+    transition: background-color 0.15s ease;
+}
+
+.bs-boiler-table tbody tr:hover {
+    background: var(--bg-light);
+}
+
+.bs-boiler-table tbody tr:last-child {
+    border-bottom: none;
+}
+
+.bs-boiler-table td {
+    padding: 14px 20px;
+    font-size: 0.9375rem;
+    color: var(--text-body);
+    line-height: 1.5;
+    vertical-align: top;
+}
+
+.bs-boiler-table td:first-child {
+    font-weight: 600;
+    color: var(--header-footer-color);
+    white-space: nowrap;
+}
+
+.bs-table-note {
+    margin-top: 14px;
+    font-size: 0.8125rem;
+    color: var(--text-description-color);
+    font-style: italic;
+    text-align: center;
+    font-family: var(--font-family);
+}
+
+
+/* =========================================
+   BOILER SERVICES — frequency table
+========================================= */
+.bs-frequency-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--font-family);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+}
+
+.bs-frequency-table thead tr {
+    background: var(--section-example);
+}
+
+.bs-frequency-table thead th {
+    padding: 14px 20px;
+    color: var(--text-white-color);
+    font-weight: 700;
+    font-size: 0.875rem;
+    text-align: left;
+    white-space: nowrap;
+}
+
+.bs-frequency-table tbody tr {
+    background: var(--background--white);
+    border-bottom: 1px solid var(--border-color);
+    transition: background-color 0.15s ease;
+}
+
+.bs-frequency-table tbody tr:hover {
+    background: var(--bg-light);
+}
+
+.bs-frequency-table tbody tr:last-child {
+    border-bottom: none;
+}
+
+.bs-frequency-table td {
+    padding: 12px 20px;
+    font-size: 0.875rem;
+    color: var(--text-body);
+    line-height: 1.5;
+    vertical-align: middle;
+}
+
+.bs-frequency-table td:first-child {
+    font-weight: 600;
+    color: var(--header-footer-color);
+}
+
+.bs-frequency-table td:nth-child(2) {
+    color: var(--secondary-color);
+    font-weight: 500;
+}
+
+.bs-frequency-table td:last-child {
+    color: var(--text-description-color);
+    font-weight: 500;
+    font-size: 0.75rem;
+}
+
+
+/* =========================================
+   BOILER SERVICES — industry list
+========================================= */
+.bs-industry-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin-top: 32px;
+    list-style: none;
+    padding: 0;
+}
+
+.bs-industry-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 20px 24px;
+    background: var(--bg-light);
+    border-radius: var(--radius-sm);
+    border-left: 4px solid var(--secondary-color);
+    transition: all 0.2s ease;
+}
+
+.bs-industry-item:hover {
+    background: var(--background--white);
+    box-shadow: var(--shadow-md, 0 10px 20px rgba(0, 0, 0, 0.1));
+    transform: translateY(-2px);
+}
+
+.bs-industry-icon {
+    font-size: 1.375rem;
+    flex-shrink: 0;
+    line-height: 1;
+    margin-top: 2px;
+}
+
+.bs-industry-name {
+    font-size: 0.9375rem;
+    font-weight: 700;
+    color: var(--header-footer-color);
+    margin: 0 0 3px;
+    line-height: 1.3;
+    font-family: var(--font-family);
+}
+
+.bs-industry-desc {
+    font-size: 0.8125rem;
+    color: var(--text-description-color);
+    margin: 0;
+    line-height: 1.5;
+    font-family: var(--font-family);
+}
+
+.bs-internal-link {
+    display: inline-block;
+    margin-top: 24px;
+    font-size: 0.875rem;
+    color: var(--secondary-color);
+    text-decoration: none;
+    font-weight: 500;
+    font-family: var(--font-family);
+    transition: color 0.15s ease;
+}
+
+.bs-internal-link:hover {
+    color: var(--button-primary-color-hover);
+    text-decoration: underline;
+}
+
+
+/* =========================================
+   BOILER SERVICES — FAQ (native <details>)
+========================================= */
+.faq-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-width: 860px;
+    margin: 40px auto 0;
+}
+
+.faq-item {
+    background: var(--background--white);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-md, 0 10px 20px rgba(0, 0, 0, 0.1));
+    overflow: hidden;
+    transition: box-shadow 0.2s ease;
+}
+
+.faq-item:hover {
+    box-shadow: var(--shadow-default);
+}
+
+.faq-item[open] {
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 0 2px rgba(255, 98, 19, 0.12);
+}
+
+.faq-summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 20px 24px;
+    cursor: pointer;
+    font-size: 1.0625rem;
+    font-weight: 600;
+    color: var(--header-footer-color);
+    list-style: none;
+    font-family: var(--font-family);
+    transition: background-color 0.15s ease;
+    user-select: none;
+}
+
+.faq-summary::-webkit-details-marker {
+    display: none;
+}
+
+.faq-summary::marker {
+    display: none;
+    content: '';
+}
+
+.faq-summary::after {
+    content: '›';
+    font-size: 1.375rem;
+    font-weight: 300;
+    color: var(--secondary-color);
+    flex-shrink: 0;
+    transition: transform 0.25s ease;
+    line-height: 1;
+}
+
+.faq-item[open] .faq-summary::after {
+    transform: rotate(90deg);
+}
+
+.faq-summary:hover {
+    background: var(--bg-light);
+}
+
+.faq-body {
+    padding: 0 24px 24px;
+    font-family: var(--font-family);
+}
+
+.faq-body p {
+    font-size: 0.9375rem;
+    line-height: 1.7;
+    color: var(--text-body);
+    margin: 0;
+}
+
+
+/* =========================================
+   BOILER SERVICES — breadcrumb nav
+========================================= */
+.breadcrumb-nav {
+    background: var(--bg-light);
+    border-bottom: 1px solid var(--border-color);
+    padding: 12px 200px;
+    font-family: var(--font-family);
+}
+
+.breadcrumb-list {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    flex-wrap: wrap;
+}
+
+.breadcrumb-item {
+    display: flex;
+    align-items: center;
+}
+
+.breadcrumb-link {
+    font-size: 0.8125rem;
+    color: var(--text-description-color);
+    text-decoration: none;
+    transition: color 0.15s ease;
+}
+
+.breadcrumb-link:hover {
+    color: var(--secondary-color);
+}
+
+.breadcrumb-separator {
+    font-size: 0.875rem;
+    color: var(--border-color);
+    user-select: none;
+    line-height: 1;
+}
+
+.breadcrumb-current {
+    font-size: 0.8125rem;
+    color: var(--secondary-color);
+    font-weight: 600;
+}
+
+
+/* =========================================
+   BOILER SERVICES — step number override
+========================================= */
+.bs-step-number {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    border-radius: 50%;
+    background: var(--secondary-color);
+    color: var(--text-white-color);
+    font-size: 1.125rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 4px 12px rgba(255, 98, 19, 0.3);
+}
+
+
+/* =========================================
+   BOILER SERVICES — includes grid override (2×2)
+========================================= */
+.boiler-includes .includes-grid {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+
+/* =========================================
+   BOILER SERVICES — responsive
+========================================= */
+@media (max-width: 1200px) {
+    .bs-stat-strip__inner {
+        padding: 24px 100px;
+    }
+
+    .breadcrumb-nav {
+        padding: 12px 100px;
+    }
+}
+
+@media (max-width: 992px) {
+    .bs-stat-strip__inner {
+        padding: 24px 48px;
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .bs-stat-strip__item:nth-child(2) {
+        border-right: none;
+    }
+
+    .bs-industry-list {
+        grid-template-columns: 1fr;
+    }
+
+    .breadcrumb-nav {
+        padding: 12px 48px;
+    }
+
+    .boiler-includes .includes-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .hero-trust-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .bs-stat-strip__inner {
+        padding: 20px 24px;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+    }
+
+    .bs-stat-strip__item {
+        border-right: none;
+        padding: 0;
+    }
+
+    .bs-table-wrap {
+        border-radius: 0;
+    }
+
+    .bs-boiler-table,
+    .bs-frequency-table {
+        display: block;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        min-width: 0;
+    }
+
+    .bs-industry-list {
+        grid-template-columns: 1fr;
+    }
+
+    .faq-summary {
+        font-size: 0.9375rem;
+        padding: 16px 20px;
+    }
+
+    .faq-body {
+        padding: 0 20px 20px;
+    }
+
+    .breadcrumb-nav {
+        padding: 10px 24px;
     }
 }

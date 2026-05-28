@@ -13,8 +13,13 @@ class UserManageController extends Controller
     public function index()
     {
         $users = User::with(['role:id,name_role_es', 'contactEmergency'])
+<<<<<<< HEAD
             ->get(['id', 'first_name', 'last_name', 'email', 'role_id', 'status',
                 'birthdate', 'rfc', 'curp', 'social_segurity_number', 'phone', 'position']);
+=======
+            ->get(['id', 'first_name', 'last_name', 'email', 'role_id', 'status'
+            , 'rfc', 'curp', 'social_segurity_number', 'phone', 'position']);
+>>>>>>> 9f21f7d4ddd7b772e9904ef29e5899116acf3b89
 
         $roles = Role::select('id', 'name_role_es')->get();
 
@@ -30,10 +35,16 @@ class UserManageController extends Controller
             'position' => 'nullable|string|max:150',
             'phone' => 'required|string|max:30',
             'status' => 'required|in:active,inactive,suspended',
+<<<<<<< HEAD
             'rfc' => 'required|string|max:15|unique:users,rfc',
             'curp' => 'nullable|string|max:18|unique:users,curp',
             'social_segurity_number' => 'nullable|string|max:20|unique:users,social_segurity_number',
             'birthdate' => 'nullable|date',
+=======
+            'rfc' => ['required', 'string', 'regex:/^[A-Z0-9]{12,13}$/', 'unique:users,rfc'],
+            'curp' => 'nullable|string|max:18|unique:users,curp',
+            'social_segurity_number' => 'nullable|string|max:20|unique:users,social_segurity_number',
+>>>>>>> 9f21f7d4ddd7b772e9904ef29e5899116acf3b89
             'role_id' => 'required|integer|exists:roles,id',
             'password' => 'required|string|min:8|confirmed',
             'emergency_contact_name' => 'nullable|array',
@@ -53,7 +64,10 @@ class UserManageController extends Controller
         $user->rfc = $request->rfc;
         $user->curp = $request->curp;
         $user->social_segurity_number = $request->social_segurity_number;
+<<<<<<< HEAD
         $user->birthdate = $request->birthdate;
+=======
+>>>>>>> 9f21f7d4ddd7b772e9904ef29e5899116acf3b89
         $user->role_id = $request->role_id;
         $user->password = bcrypt($request->password);
         $user->save();
@@ -69,12 +83,22 @@ class UserManageController extends Controller
                 }
             }
         }
+<<<<<<< HEAD
+=======
+
+>>>>>>> 9f21f7d4ddd7b772e9904ef29e5899116acf3b89
         return redirect()->route('admin.users.index')->with('success', 'Usuario creado correctamente.');
     }
 
     public function show(string $id)
     {
+<<<<<<< HEAD
         $user = User::with(['role:id,name_role_es', 'contactEmergency'])->findOrFail($id);
+=======
+        $user = User::with(['role:id,name_role_es', 'contactEmergency'])
+            ->findOrFail($id);
+
+>>>>>>> 9f21f7d4ddd7b772e9904ef29e5899116acf3b89
         return response()->json($user);
     }
 
@@ -91,7 +115,10 @@ class UserManageController extends Controller
             'rfc' => 'required|string|max:15|unique:users,rfc,'.$id,
             'curp' => 'nullable|string|max:18|unique:users,curp,'.$id,
             'social_segurity_number' => 'nullable|string|max:20|unique:users,social_segurity_number,'.$id,
+<<<<<<< HEAD
             'birthdate' => 'nullable|date',
+=======
+>>>>>>> 9f21f7d4ddd7b772e9904ef29e5899116acf3b89
             'role_id' => 'required|integer|exists:roles,id',
             'password' => 'nullable|string|min:8|confirmed',
             'emergency_contact_name' => 'nullable|array',
@@ -110,7 +137,10 @@ class UserManageController extends Controller
         $user->rfc = $request->rfc;
         $user->curp = $request->curp;
         $user->social_segurity_number = $request->social_segurity_number;
+<<<<<<< HEAD
         $user->birthdate = $request->birthdate;
+=======
+>>>>>>> 9f21f7d4ddd7b772e9904ef29e5899116acf3b89
         $user->role_id = $request->role_id;
         if ($request->filled('password')) {
             $user->password = bcrypt($request->password);
@@ -142,6 +172,10 @@ class UserManageController extends Controller
         abort_if($user->id === auth()->id(), 403, 'No puedes eliminarte a ti mismo.');
         $user->contactEmergency()->delete();
         $user->delete();
+<<<<<<< HEAD
+=======
+
+>>>>>>> 9f21f7d4ddd7b772e9904ef29e5899116acf3b89
         return redirect()->route('admin.users.index')->with('success', 'Usuario eliminado correctamente.');
     }
 }

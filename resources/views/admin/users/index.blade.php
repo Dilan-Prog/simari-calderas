@@ -4,6 +4,7 @@
 @endsection
 @section('content')
     <div class="container user-manager">
+<<<<<<< HEAD
         {{-- Toast notifications --}}
         @if (session('success'))
             <div class="toast-notification toast-success" id="toastNotification">
@@ -41,6 +42,8 @@
                     onclick="const t=this.closest('.toast-notification');t.style.animation='toastOut 0.3s ease forwards';setTimeout(()=>t.remove(),300)">✕</button>
             </div>
         @endif
+=======
+>>>>>>> 9f21f7d4ddd7b772e9904ef29e5899116acf3b89
         {{-- Main content --}}
         <section class="users-manager-section">
             {{-- User manager section --}}
@@ -112,7 +115,12 @@
                                     <td>
                                         <div class="header-right-user-manager">
                                             {{-- view --}}
+<<<<<<< HEAD
                                             <button class="table-users-manager-action-btn edit">
+=======
+                                            <button class="table-users-manager-action-btn edit btn-show-user"
+                                                data-id="{{ $user->id }}">
+>>>>>>> 9f21f7d4ddd7b772e9904ef29e5899116acf3b89
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
                                                     viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
@@ -144,6 +152,10 @@
                                                 data-name="{{ $user->first_name }} {{ $user->last_name }}"
                                                 data-email="{{ $user->email }}"
                                                 data-initial="{{ strtoupper(substr($user->first_name, 0, 1)) }}">
+<<<<<<< HEAD
+=======
+
+>>>>>>> 9f21f7d4ddd7b772e9904ef29e5899116acf3b89
                                                 {{-- delete svg --}}
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
                                                     viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -171,6 +183,14 @@
         @include('admin.users.partials._modal_edit')
     </div>
     @include('admin.users.partials._modal_delete')
+<<<<<<< HEAD
 @endsection
 
 @include('admin.users.partials._scripts')
+=======
+    @include('admin.users.partials._modal_show')
+@endsection
+@push('scripts')
+@include('admin.users.partials._scripts')
+@endpush
+>>>>>>> 9f21f7d4ddd7b772e9904ef29e5899116acf3b89

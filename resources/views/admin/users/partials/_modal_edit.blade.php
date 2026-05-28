@@ -41,10 +41,13 @@
                     <input class="users-manager-input" type="text" name="last_name" id="edit_last_name">
                 </div>
                 <div>
+<<<<<<< HEAD
                     <label class="supliers-manager-slider-label">Fecha de Nacimiento</label>
                     <input class="users-manager-input" type="date" name="birthdate" id="edit_birthdate">
                 </div>
                 <div>
+=======
+>>>>>>> 9f21f7d4ddd7b772e9904ef29e5899116acf3b89
                     <label class="supliers-manager-slider-label">RFC</label>
                     <input class="users-manager-input" type="text" placeholder="XAXX010101000" name="rfc"
                         id="edit_rfc">

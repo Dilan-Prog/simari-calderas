@@ -1,7 +1,11 @@
 @extends('admin.layouts.master')
 
 @section('title')
+<<<<<<< HEAD
     Gestor de clientes - Admin
+=======
+    Crear cliente - Admin
+>>>>>>> 9f21f7d4ddd7b772e9904ef29e5899116acf3b89
 @endsection
 
 @section('content')
@@ -22,7 +26,11 @@
                     </p>
                 </div>
 
+<<<<<<< HEAD
                 <button class="button-primary size-adjustment">
+=======
+                <button class="button-primary size-adjustment clients">
+>>>>>>> 9f21f7d4ddd7b772e9904ef29e5899116acf3b89
                     + Nuevo Cliente
                 </button>
             </header>
@@ -39,12 +47,20 @@
                             <path d="m21 21-4.3-4.3"></path>
                         </svg>
                     </span>
+<<<<<<< HEAD
                     <input type="text" placeholder="Buscar por nombre, empresa, email o RFC...">
+=======
+                    <input type="text" id="clientSearch" placeholder="Buscar por nombre, empresa, email o RFC...">
+>>>>>>> 9f21f7d4ddd7b772e9904ef29e5899116acf3b89
                 </div>
 
                 {{-- Filter  --}}
                 <div class="filters-clients-manager-select">
+<<<<<<< HEAD
                     <select>
+=======
+                    <select id="clientStatusFilter">
+>>>>>>> 9f21f7d4ddd7b772e9904ef29e5899116acf3b89
                         <option value="all">Todos los estados</option>
                         <option value="active">Activo</option>
                         <option value="inactive">Inactivo</option>
@@ -60,8 +76,13 @@
                     <table class="clients-manager-table head-table">
                         <thead>
                             <tr>
+<<<<<<< HEAD
                                 <th>CLIENTE</th>
                                 <th>EMPRESA</th>
+=======
+                                <th>EMPRESA</th>
+                                <th>CLIENTE</th>
+>>>>>>> 9f21f7d4ddd7b772e9904ef29e5899116acf3b89
                                 <th>CONTACTO</th>
                                 <th>RFC</th>
                                 <th>ESTADO</th>
@@ -73,6 +94,7 @@
                         <table class="clients-manager-table">
                             <tbody>
                                 {{-- Rows --}}
+<<<<<<< HEAD
                                 <tr>
                                     <td class="clients-manager-table-cell">
                                         <div class="avatar-user-manager">
@@ -291,6 +313,12 @@
                                         <td>
                                             <p class="breadcrumb-clients-manager">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+=======
+                                @foreach ($customers as $customer)
+                                    <tr>
+                                        <td class="clients-manager-table-cell">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+>>>>>>> 9f21f7d4ddd7b772e9904ef29e5899116acf3b89
                                                     viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                                                     class="lucide lucide-building2 lucide-building-2 text-gray-600">
@@ -301,10 +329,35 @@
                                                     <path d="M10 10h4"></path>
                                                     <path d="M10 14h4"></path>
                                                     <path d="M10 18h4"></path>
+<<<<<<< HEAD
                                                 </svg> Alimentos Procesados del Norte
                                             </p>
                                         </td>
 
+=======
+                                                </svg>
+                                            <div>
+
+                                                <p class="clients-manager-name-client">{{ $customer->company }}</p>
+                                                @php
+                                                    $address = $customer->customer_addresses->first();
+                                                @endphp
+                                                <span class="clients-manager-ubication-client">
+                                                    {{ $address ? $address->city . ', ' . $address->state : '—' }}
+                                                </span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="avatar-user-manager">
+                                                    D
+                                                </div>
+                                            <p class="breadcrumb-clients-manager">
+                                                 {{ $customer->first_name }} {{ $customer->last_name }}
+                                            </p>
+                                        </td>
+
+
+>>>>>>> 9f21f7d4ddd7b772e9904ef29e5899116acf3b89
                                         <td>
                                             <p class="breadcrumb-clients-manager">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"
@@ -314,7 +367,11 @@
                                                     <rect width="20" height="16" x="2" y="4" rx="2">
                                                     </rect>
                                                     <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
+<<<<<<< HEAD
                                                 </svg> cesar.gavidia@apnorte.mx
+=======
+                                                </svg> {{ $customer->email }}
+>>>>>>> 9f21f7d4ddd7b772e9904ef29e5899116acf3b89
                                             </p>
                                             <p class="breadcrumb-clients-manager">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"
@@ -324,21 +381,53 @@
                                                     <path
                                                         d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z">
                                                     </path>
+<<<<<<< HEAD
                                                 </svg> (444) 825-1167
+=======
+                                                </svg> {{ $customer->phone }}
+>>>>>>> 9f21f7d4ddd7b772e9904ef29e5899116acf3b89
                                             </p>
                                         </td>
 
                                         <td>
+<<<<<<< HEAD
                                             <span class="breadcrumb-clients-manager">APN870504KL9</span>
                                         </td>
 
                                         <td>
                                             <span class="users-manager-badge status">Activo</span>
+=======
+                                            <span class="breadcrumb-clients-manager client-rfc">{{ $customer->rfc }}</span>
+                                        </td>
+
+                                        <td>
+                                            @php
+                                                $statusLabel = match ($customer->status) {
+                                                    'active' => 'Activo',
+                                                    'inactive' => 'Inactivo',
+                                                    'suspended' => 'Suspendido',
+                                                    default => $customer->status,
+                                                };
+                                                $statusClass = match ($customer->status) {
+                                                    'active' => 'status',
+                                                    'inactive' => 'status-inactive',
+                                                    'suspended' => 'status-inactive',
+                                                    default => 'status',
+                                                };
+                                            @endphp
+                                            <span class="users-manager-badge {{ $statusClass }}"
+                                                data-status="{{ $customer->status }}">{{ $statusLabel }}</span>
+>>>>>>> 9f21f7d4ddd7b772e9904ef29e5899116acf3b89
                                         </td>
 
                                         <td>
                                             <div class="header-right-user-manager buttons">
+<<<<<<< HEAD
                                                 <button class="table-users-manager-action-btn edit">
+=======
+                                                <button class="table-users-manager-action-btn edit"
+                                                    onclick="window.location='{{ route('admin.clients.information', $customer->id) }}'">
+>>>>>>> 9f21f7d4ddd7b772e9904ef29e5899116acf3b89
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
                                                         viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
@@ -349,8 +438,14 @@
                                                         <circle cx="12" cy="12" r="3"></circle>
                                                     </svg>
                                                 </button>
+<<<<<<< HEAD
                                                 <button class="table-users-manager-action-btn edit"
                                                     onclick="window.location='{{ route('admin.clients.information') }}'">
+=======
+                                                <button type="button"
+                                                    class="table-users-manager-action-btn edit btn-edit-client"
+                                                    data-id="{{ $customer->id }}">
+>>>>>>> 9f21f7d4ddd7b772e9904ef29e5899116acf3b89
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
                                                         viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
@@ -360,7 +455,16 @@
                                                         </path>
                                                     </svg>
                                                 </button>
+<<<<<<< HEAD
                                                 <button class="table-users-manager-action-btn delete">
+=======
+                                                <button type="button"
+                                                    class="table-users-manager-action-btn delete btn-delete-client"
+                                                    data-id="{{ $customer->id }}"
+                                                    data-name="{{ $customer->first_name }} {{ $customer->last_name }}"
+                                                    data-email="{{ $customer->email }}"
+                                                    data-initial="{{ strtoupper(substr($customer->first_name, 0, 1)) }}">
+>>>>>>> 9f21f7d4ddd7b772e9904ef29e5899116acf3b89
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
                                                         viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
@@ -379,12 +483,24 @@
                                             </div>
                                         </td>
                                     </tr>
+<<<<<<< HEAD
                                 @endfor
+=======
+                                @endforeach
+>>>>>>> 9f21f7d4ddd7b772e9904ef29e5899116acf3b89
                             </tbody>
                         </table>
                     </div>
                 </div>
             </main>
+<<<<<<< HEAD
         </section>
+=======
+            @include('admin.client.partials._modal_create')
+            @include('admin.client.partials._edit_modal')
+            @include('admin.client.partials._scripts')
+        </section>
+        @include('admin.client.partials._modal_delete')
+>>>>>>> 9f21f7d4ddd7b772e9904ef29e5899116acf3b89
     </div>
 @endsection

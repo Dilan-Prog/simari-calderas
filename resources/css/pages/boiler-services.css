@@ -1,0 +1,174 @@
+/* ================================================
+   BOILER SERVICES — estilos específicos de página
+   Extiende las clases base sin romperlas.
+================================================ */
+
+/* ── Stat strip ───────────────────────────────────────── */
+.bs-stat-strip {
+    background: var(--secondary-color);
+    padding: 20px 0;
+}
+.bs-stat-strip__inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    text-align: center;
+}
+.bs-stat-strip__item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.bs-stat-strip__number {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text-white-color);
+    font-variant-numeric: tabular-nums;
+    line-height: 1.1;
+}
+.bs-stat-strip__label {
+    font-size: 12px;
+    color: rgba(255,255,255,.88);
+    font-weight: 500;
+    letter-spacing: .03em;
+}
+
+/* ── Tables ───────────────────────────────────────────── */
+.bs-table-wrap {
+    overflow-x: auto;
+    margin-top: 28px;
+    border-radius: var(--radius-sm, 12px);
+    box-shadow: 0 1px 4px rgba(0,0,0,.08);
+}
+.bs-boiler-table,
+.bs-frequency-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    font-family: var(--font-family);
+}
+.bs-boiler-table thead,
+.bs-frequency-table thead {
+    background: var(--header-footer-color);
+    color: var(--text-subwhite-color);
+}
+.bs-boiler-table thead th,
+.bs-frequency-table thead th {
+    padding: 14px 20px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: .07em;
+    white-space: nowrap;
+}
+.bs-boiler-table tbody tr,
+.bs-frequency-table tbody tr {
+    border-bottom: 1px solid var(--border-color, #e5e7eb);
+    transition: background .15s;
+}
+.bs-boiler-table tbody tr:last-child,
+.bs-frequency-table tbody tr:last-child {
+    border-bottom: none;
+}
+.bs-boiler-table tbody tr:hover,
+.bs-frequency-table tbody tr:hover {
+    background: #fafafa;
+}
+.bs-boiler-table td,
+.bs-frequency-table td {
+    padding: 14px 20px;
+    color: var(--text-body, #4b5563);
+    vertical-align: top;
+    line-height: 1.55;
+}
+.bs-boiler-table td:first-child,
+.bs-frequency-table td:first-child {
+    font-weight: 600;
+    color: #111827;
+    white-space: nowrap;
+}
+.bs-frequency-table td:last-child {
+    color: var(--secondary-color);
+    font-weight: 500;
+    font-size: 12px;
+}
+.bs-table-note {
+    margin-top: 16px;
+    font-size: 13px;
+    color: var(--text-description-color);
+    font-style: italic;
+    text-align: center;
+}
+
+/* ── Industry list ────────────────────────────────────── */
+.bs-industry-list {
+    list-style: none;
+    padding: 0;
+    margin: 24px 0 0;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+}
+.bs-industry-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px 16px;
+    background: var(--bg-light, #f5f7fa);
+    border-radius: var(--radius-sm, 12px);
+    border-left: 3px solid var(--secondary-color);
+}
+.bs-industry-icon {
+    font-size: 20px;
+    flex-shrink: 0;
+    line-height: 1;
+    margin-top: 1px;
+}
+.bs-industry-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #111827;
+    margin: 0 0 2px;
+}
+.bs-industry-desc {
+    font-size: 13px;
+    color: var(--text-description-color);
+    margin: 0;
+}
+.bs-internal-link {
+    display: inline-block;
+    margin-top: 24px;
+    font-size: 14px;
+    color: var(--secondary-color);
+    text-decoration: none;
+    font-weight: 500;
+}
+.bs-internal-link:hover { text-decoration: underline; }
+
+/* ── Step numbers ─────────────────────────────────────── */
+.bs-step-number {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--secondary-color);
+    color: #fff;
+    font-size: 18px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+/* ── Responsive ───────────────────────────────────────── */
+@media (max-width: 768px) {
+    .bs-stat-strip__inner { grid-template-columns: repeat(2, 1fr); }
+    .bs-industry-list { grid-template-columns: 1fr; }
+}
+@media (max-width: 480px) {
+    .bs-stat-strip__inner { grid-template-columns: 1fr 1fr; gap: 12px; }
+}

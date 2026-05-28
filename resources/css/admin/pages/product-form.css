@@ -381,6 +381,16 @@
     cursor: not-allowed;
 }
 
+<<<<<<< HEAD
+=======
+/* ── Disabled input ── */
+.pform-input:disabled, #pformSku:disabled {
+    background: #f3f4f6;
+    color: #9ca3af;
+    cursor: not-allowed;
+}
+
+>>>>>>> 9f21f7d4ddd7b772e9904ef29e5899116acf3b89
 /* ── Image dropzone ── */
 .pform-dropzone {
     display: flex;

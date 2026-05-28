@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Backend\AdminController;
 use App\Http\Controllers\Frontend\HomeController;
 use App\Http\Controllers\Frontend\SitemapController;
 use App\Http\Controllers\ProfileController;
@@ -48,6 +49,13 @@ Route::controller(HomeController::class)->group(function () {
     Route::get('/aviso-privacidad', 'privacyNotice')->name('privacy-notice');
     Route::get('/terminos-condiciones', 'termsOfService')->name('terms-of-service');
     // Services
+    // new services SEO
+    Route::get('/servicios-calderas', 'boilerServices')->name('boiler-services');
+    Route::get('/servicios/calderas/reparacion-calderas', 'boilerRepair')->name('boiler-repair');
+    Route::get('/servicios/calderas/mantenimiento-calderas', 'boilerMaintenance')->name('boiler-maintenance');
+    Route::get('/desincrustacion-calderas', 'boilerDescaling')->name('boiler-descaling');
+    
+    //old services
     Route::get('servicios/mantenimiento-industrial', 'industrialMaintenance')->name('industrial-maintenance');
     Route::get('servicios/ingenieria-hidraulica', 'hydraulicEngineering')->name('hydraulic-engineering');
     Route::get('servicios/calibracion-equipos', 'equipementCalibration')->name('equipement-calibration');
@@ -70,7 +78,13 @@ Route::controller(HomeController::class)->group(function () {
     Route::get('masstercal-rinnai/calentadores-paso-gas-rinnai', 'tanklessHeaters')->name('tankless-heaters');
     Route::get('masstercal-rinnai/suavizadores-filtros-rinnai', 'softenersFilters')->name('softeners-filters');
     Route::get('masstercal-rinnai/tanques-almacenamiento-rinnai', 'storageTanks')->name('storage-tanks');
+    // Admin (rutas legacy del HomeController — no modificar)
+    Route::get('/admin/users', [HomeController::class, 'users'])->name('admin');
+    Route::get('admin/clients',[HomeController::class,'clients'])->name('clients');
+    Route::get('admin/supliers',[HomeController::class,'supliers'])->name('supliers');
 });
+
+
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');

@@ -4,22 +4,36 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>@yield('title')</title>
-    <meta name="description" content="@yield('description', 'Industria Simari con 35 años de experiencia en ingeniería térmica industrial. Diseñamos, instalamos y mantenemos sistemas de calderas, calentadores y tratamiento de agua para los sectores industrial, alimentario, hotelero y metalmecánico. Soporte técnico especializado disponible 24/7.')" />
+    <meta name="description" content="@yield('description', 'Equiterm Industries con 35 años de experiencia en ingeniería térmica industrial. Diseñamos, instalamos y mantenemos sistemas de calderas, calentadores y tratamiento de agua para los sectores industrial, alimentario, hotelero y metalmecánico. Soporte técnico especializado disponible 24/7.')" />
     <meta name="robots" content="index,follow" />
-    <meta name="author" content="Industria Simari" />
+    <meta name="author" content="Equiterm Industries" />
     <meta name="theme-color" content="#1a2940" />
-    <link rel="canonical" href="@yield('canonical', 'https://industriasimari.com.mx/')" />
-    <link rel="icon" type="image/x-icon"  href="{{ asset('images/logo/icon-web/favicon-industria-simari-48x48.png') }}" />
-    <link rel="icon" type="image/png" sizes="16x16"  href="{{ asset('images/logo/icon-web/favicon-industria-simari-16x16.png') }}" />
-    <link rel="icon" type="image/png" sizes="32x32"  href="{{ asset('images/logo/icon-web/favicon-industria-simari-32x32.png') }}" />
-    <link rel="apple-touch-icon"    sizes="180x180"  href="{{ asset('images/logo/icon-web/favicon-industria-simari-180x180.png') }}" />
+    <link rel="canonical" href="@yield('canonical', 'https://equitermindustries.com.mx/')" />
+    <link rel="shortcut icon"        type="image/x-icon"  href="{{ asset('images/logo/icon-web/favicon.ico') }}" />
+    <link rel="icon" type="image/png" sizes="16x16"  href="{{ asset('images/logo/icon-web/favicon-16x16.png') }}" />
+    <link rel="icon" type="image/png" sizes="32x32"  href="{{ asset('images/logo/icon-web/favicon-32x32.png') }}" />
+    <link rel="icon" type="image/png" sizes="96x96"  href="{{ asset('images/logo/icon-web/favicon-96x96.png') }}" />
+    <link rel="icon" type="image/png" sizes="256x256" href="{{ asset('images/logo/icon-web/favicon-256x256.png') }}" />
+    <link rel="apple-touch-icon"      sizes="57x57"  href="{{ asset('images/logo/icon-web/apple-icon-57x57.png') }}" />
+    <link rel="apple-touch-icon"      sizes="60x60"  href="{{ asset('images/logo/icon-web/apple-icon-60x60.png') }}" />
+    <link rel="apple-touch-icon"      sizes="72x72"  href="{{ asset('images/logo/icon-web/apple-icon-72x72.png') }}" />
+    <link rel="apple-touch-icon"      sizes="76x76"  href="{{ asset('images/logo/icon-web/apple-icon-76x76.png') }}" />
+    <link rel="apple-touch-icon"      sizes="114x114" href="{{ asset('images/logo/icon-web/apple-icon-114x114.png') }}" />
+    <link rel="apple-touch-icon"      sizes="120x120" href="{{ asset('images/logo/icon-web/apple-icon-120x120.png') }}" />
+    <link rel="apple-touch-icon"      sizes="144x144" href="{{ asset('images/logo/icon-web/apple-icon-144x144.png') }}" />
+    <link rel="apple-touch-icon"      sizes="152x152" href="{{ asset('images/logo/icon-web/apple-icon-152x152.png') }}" />
+    <link rel="apple-touch-icon"      sizes="180x180" href="{{ asset('images/logo/icon-web/apple-icon-180x180.png') }}" />
+    <meta name="msapplication-TileImage"   content="{{ asset('images/logo/icon-web/ms-icon-144x144.png') }}" />
+    <meta name="msapplication-square70x70logo"  content="{{ asset('images/logo/icon-web/ms-icon-70x70.png') }}" />
+    <meta name="msapplication-square150x150logo" content="{{ asset('images/logo/icon-web/ms-icon-150x150.png') }}" />
+    <meta name="msapplication-square310x310logo" content="{{ asset('images/logo/icon-web/ms-icon-310x310.png') }}" />
     <meta property="og:type"        content="website" />
     <meta property="og:locale"      content="es_MX" />
-    <meta property="og:site_name"   content="Industria Simari" />
-    <meta property="og:title"       content="@yield('og_title', 'Diseñamos, instalamos y mantenemos sistemas de calderas, calentadores y tratamiento de agua para los sectores industrial, alimentario, hotelero y metalmecánico. Soporte técnico especializado disponible 24/7 | Industria Simari')" />
+    <meta property="og:site_name"   content="Equiterm Industries" />
+    <meta property="og:title"       content="@yield('og_title', 'Diseñamos, instalamos y mantenemos sistemas de calderas, calentadores y tratamiento de agua para los sectores industrial, alimentario, hotelero y metalmecánico. Soporte técnico especializado disponible 24/7 | Equiterm Industries')" />
     <meta property="og:description" content="@yield('og_description', 'Diseñamos, instalamos y mantenemos sistemas de calderas, calentadores y tratamiento de agua para los sectores industrial, alimentario, hotelero y metalmecánico. Soporte técnico especializado disponible 24/7')" />
-    <meta property="og:url"         content="@yield('og_url', 'https://industriasimari.com.mx/')" />
-    <meta property="og:image"       content="@yield('og_image', 'https://industriasimari.com.mx/images/og-home.jpg')" />
+    <meta property="og:url"         content="@yield('og_url', 'https://equitermindustries.com.mx/')" />
+    <meta property="og:image"       content="@yield('og_image', 'https://equitermindustries.com.mx/images/og-home.jpg')" />
     <meta property="og:image:width"  content="1200" />
     <meta property="og:image:height" content="630" />
     <link rel="preconnect" href="https://www.googletagmanager.com">
@@ -33,8 +47,8 @@
       {
         "@context": "https://schema.org",
         "@type": "LocalBusiness",
-        "name": "Industria Simari",
-        "url": "https://industriasimari.com.mx/",
+        "name": "Equiterm Industries",
+        "url": "equitermindustries.com.mx",
         "telephone": "+52-449-434-8018",
         "description": "Diseñamos, instalamos y mantenemos sistemas de calderas, calentadores y tratamiento de agua para los sectores industrial, alimentario, hotelero y metalmecánico. Soporte técnico especializado disponible 24/7",
         "areaServed": "MX",
@@ -52,6 +66,7 @@
     <style>
         {!! $critical !!}
     </style> --}}
+<<<<<<< HEAD
     <script async src="https://www.googletagmanager.com/gtag/js?id=AW-18002291598">
         </script>
         <script>
@@ -63,12 +78,20 @@
         </script>
     <!-- End Google Tag Manager -->
 
+=======
+    <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-RVXX78K31C"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-RVXX78K31C');
+  // Analytics
+</script>
+>>>>>>> 9f21f7d4ddd7b772e9904ef29e5899116acf3b89
   </head>
   <body>
-    <!-- Google Tag Manager (noscript) -->
-      <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PLSDTJHX"
-      height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-    <!-- End Google Tag Manager (noscript) -->
 
     @include('frontend.layouts.header')
     <main>
@@ -88,9 +111,12 @@
           const storedGclid = localStorage.getItem('gclid');
           const alreadySent = localStorage.getItem('gclid_sent') === storedGclid;
 
+<<<<<<< HEAD
           console.log('Guardando GCLID:', storedGclid);
           console.log('Already sent:', alreadySent);
           console.log('Current URL:', window.location.href);
+=======
+>>>>>>> 9f21f7d4ddd7b772e9904ef29e5899116acf3b89
           if (!storedGclid || alreadySent) return;
 
           fetch('/api/v1/google-ads', {

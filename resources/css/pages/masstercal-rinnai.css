@@ -1,6 +1,6 @@
 :root {
     --text-header-color-nav:#D1D5DC;
-    --text-header-color-nav-hover:#0054ff;
+    --text-header-color-nav-hover:#ff6213;
     --text-header-color-nav-hover-white:#ffffff;
     --header-background-color:#141516;
     --border-header-footer-color:#2E3A46;
@@ -11,9 +11,9 @@
     --border-footer-color-legal:#2E3A46;
     --toggle-header:#2E3A46;
     --toggle-header-nav:#364153;
-    --secondary-color:#0054ff;
-    --button-primary-color:#0054ff;
-    --button-primary-color-hover:#0043cc;
+    --secondary-color:#ff6213;
+    --button-primary-color:#ff6213;
+    --button-primary-color-hover:#de4a00;
     --secondary-color-rinnai:#C62828;
     --button-primary-color-rinnai:#C62828;
     --button-primary-color-hover-rinnai:#b71c1c;

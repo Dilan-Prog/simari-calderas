@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+
+>>>>>>> 9f21f7d4ddd7b772e9904ef29e5899116acf3b89
 <!DOCTYPE html>
 <html lang="es-MX">
 <head>
@@ -17,6 +21,13 @@
     @vite(['resources/css/admin/app.css'])
     @vite(['resources/js/admin/sidebar.js'])
     @stack('styles')
+<<<<<<< HEAD
+=======
+    <style>
+    .val-error-input,.val-error-select{border-color:#e3342f!important;box-shadow:0 0 0 2px rgba(227,52,47,.18)!important;}
+    .val-error-msg{display:block;color:#e3342f;font-size:12px;margin-top:4px;font-weight:500;}
+    </style>
+>>>>>>> 9f21f7d4ddd7b772e9904ef29e5899116acf3b89
 </head>
 
 <body>
@@ -25,10 +36,18 @@
     </div>
 
     @include('admin.layouts.sidebar')
+<<<<<<< HEAD
+=======
+    @include('admin.layouts.toast')
+>>>>>>> 9f21f7d4ddd7b772e9904ef29e5899116acf3b89
     <section class="admin-main">
         @include('admin.layouts.navbar')
         @yield('content')
     </section>
+<<<<<<< HEAD
+=======
+    @include('admin.layouts.scripts')
+>>>>>>> 9f21f7d4ddd7b772e9904ef29e5899116acf3b89
     @stack('scripts')
 </body>
 </html>

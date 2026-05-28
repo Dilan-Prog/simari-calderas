@@ -1,16 +1,39 @@
 <aside class="admin-sidebar">
+<<<<<<< HEAD
     <div class="sidebar-logo">
         <img src="{{ asset('images/logo/logo_SVG.svg') }}"
                 alt="Industria Simari"
                 onerror="this.style.display='none'">
     </div>
+=======
+    <div class="sidebar-logo" onclick="window.location.href = '{{ route('home') }}'">
+        <img src="{{ asset('images/logo/equiterm-logo-blanco-color-3x.png') }}"
+                alt="Equiterm Industries"
+                fetchpriority="low"
+                loading="lazy"
+                onerror="this.style.display='none'">
+    </div>
+    <style>
+        /* Temporal: deshabilitar enlaces visualmente sin tocar lógica
+           Quitar estas líneas cuando se re-habiliten los módulos. */
+        .sidebar-nav-item.disabled { pointer-events: none; opacity: 0.6; cursor: default; }
+        .sidebar-nav-item.disabled .sidebar-nav-item-label { cursor: default; color: inherit; }
+    </style>
+>>>>>>> 9f21f7d4ddd7b772e9904ef29e5899116acf3b89
     @php
         $activeSection = match(true) {
             request()->routeIs('admin.dashboard')    => 'dashboard',
             request()->routeIs('admin.users.*')      => 'usuarios',
             request()->routeIs('admin.clients.*')    => 'clientes',
+<<<<<<< HEAD
             request()->routeIs('admin.products.*')   => 'productos',
             request()->routeIs('admin.google-ads.*') => 'google-ads',
+=======
+            request()->routeIs('admin.suppliers.*')  => 'proveedores',
+            request()->routeIs('admin.products.*')   => 'productos',
+            request()->routeIs('admin.google-ads.*') => 'google-ads',
+            request()->routeIs('admin.quotes.*')     => 'cotizaciones',
+>>>>>>> 9f21f7d4ddd7b772e9904ef29e5899116acf3b89
             default                                  => '',
         };
     @endphp
@@ -58,7 +81,11 @@
             </div>
         </a>
 
+<<<<<<< HEAD
         <a class="sidebar-nav-item" data-section="coming-soon" data-label="Proveedores">
+=======
+        <a class="sidebar-nav-item {{ $activeSection === 'proveedores' ? 'active' : '' }}" data-section="proveedores" href="{{ route('admin.suppliers.index') }}" data-label="Proveedores">
+>>>>>>> 9f21f7d4ddd7b772e9904ef29e5899116acf3b89
             <div class="sidebar-nav-item-left">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                         fill="none" stroke="currentColor" stroke-width="2"
@@ -75,7 +102,11 @@
         </a>
 
 
+<<<<<<< HEAD
         <a class="sidebar-nav-item {{ $activeSection === 'productos' ? 'active' : '' }}" data-section="coming-soon" href="{{ route('admin.products.index') }}" data-label="Productos">
+=======
+        <a class="sidebar-nav-item {{ $activeSection === 'productos' ? 'active' : '' }}" data-section="products" href="{{ route('admin.products.index') }}" data-label="Productos">
+>>>>>>> 9f21f7d4ddd7b772e9904ef29e5899116acf3b89
             <div class="sidebar-nav-item-left">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                         fill="none" stroke="currentColor" stroke-width="2"
@@ -88,7 +119,11 @@
         </a>
 
 
+<<<<<<< HEAD
         <a class="sidebar-nav-item" data-section="coming-soon" data-label="Categorías">
+=======
+        <a class="sidebar-nav-item" data-section="coming-soon" data-label="Categorías" data-section="categories" href="{{ route('admin.categories.index') }}">
+>>>>>>> 9f21f7d4ddd7b772e9904ef29e5899116acf3b89
             <div class="sidebar-nav-item-left">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                         fill="none" stroke="currentColor" stroke-width="2"
@@ -100,7 +135,23 @@
                 <span class="sidebar-nav-item-label">Categorías</span>
             </div>
         </a>
+<<<<<<< HEAD
         <a class="sidebar-nav-item" data-section="coming-soon" data-label="Órdenes">
+=======
+        <a class="sidebar-nav-item {{ $activeSection === 'cotizaciones' ? 'active' : '' }}" href="{{ route('admin.quotes.index') }}" data-section="cotizaciones" data-label="Cotizaciones">
+            <div class="sidebar-nav-item-left">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/>
+                    <path d="M14 2v6h6"/>
+                    <path d="M8 13h8"/><path d="M8 17h5"/>
+                </svg>
+                <span class="sidebar-nav-item-label">Cotizaciones</span>
+            </div>
+        </a>
+        <a class="sidebar-nav-item disabled" data-section="coming-soon" data-label="Órdenes">
+>>>>>>> 9f21f7d4ddd7b772e9904ef29e5899116acf3b89
             <div class="sidebar-nav-item-left">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                         fill="none" stroke="currentColor" stroke-width="2"
@@ -113,7 +164,11 @@
         </a>
 
 
+<<<<<<< HEAD
         <a class="sidebar-nav-item" data-section="coming-soon" data-label="Servicios Técnicos">
+=======
+        <a class="sidebar-nav-item disabled" data-section="coming-soon" data-label="Servicios Técnicos">
+>>>>>>> 9f21f7d4ddd7b772e9904ef29e5899116acf3b89
             <div class="sidebar-nav-item-left">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                         fill="none" stroke="currentColor" stroke-width="2"
@@ -125,7 +180,11 @@
         </a>
 
 
+<<<<<<< HEAD
         <a class="sidebar-nav-item" data-section="coming-soon" data-label="Inventario">
+=======
+        <a class="sidebar-nav-item disabled" data-section="coming-soon" data-label="Inventario">
+>>>>>>> 9f21f7d4ddd7b772e9904ef29e5899116acf3b89
             <div class="sidebar-nav-item-left">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                         fill="none" stroke="currentColor" stroke-width="2"
@@ -137,7 +196,11 @@
                 <span class="sidebar-nav-item-label">Inventario</span>
             </div>
         </a>
+<<<<<<< HEAD
         <a class="sidebar-nav-item" data-section="coming-soon" data-label="Envíos">
+=======
+        <a class="sidebar-nav-item disabled" data-section="coming-soon" data-label="Envíos">
+>>>>>>> 9f21f7d4ddd7b772e9904ef29e5899116acf3b89
             <div class="sidebar-nav-item-left">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                         fill="none" stroke="currentColor" stroke-width="2"
@@ -152,7 +215,11 @@
         </a>
 
 
+<<<<<<< HEAD
         <a class="sidebar-nav-item" data-section="coming-soon" data-label="Paqueterías">
+=======
+        <a class="sidebar-nav-item disabled" data-section="coming-soon" data-label="Paqueterías">
+>>>>>>> 9f21f7d4ddd7b772e9904ef29e5899116acf3b89
             <div class="sidebar-nav-item-left">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                         fill="none" stroke="currentColor" stroke-width="2"
@@ -166,7 +233,11 @@
         </a>
 
 
+<<<<<<< HEAD
         <a class="sidebar-nav-item" data-section="coming-soon" data-label="Métodos de Pago">
+=======
+        <a class="sidebar-nav-item disabled" data-section="coming-soon" data-label="Métodos de Pago">
+>>>>>>> 9f21f7d4ddd7b772e9904ef29e5899116acf3b89
             <div class="sidebar-nav-item-left">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                         fill="none" stroke="currentColor" stroke-width="2"
@@ -194,7 +265,11 @@
             </div>
         </a>
 
+<<<<<<< HEAD
         <a class="sidebar-nav-item" data-section="coming-soon" data-label="Email Marketing">
+=======
+        <a class="sidebar-nav-item disabled" data-section="coming-soon" data-label="Email Marketing">
+>>>>>>> 9f21f7d4ddd7b772e9904ef29e5899116acf3b89
             <div class="sidebar-nav-item-left">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                         fill="none" stroke="currentColor" stroke-width="2"
@@ -207,7 +282,11 @@
         </a>
 
 
+<<<<<<< HEAD
         <a class="sidebar-nav-item" data-section="coming-soon" data-label="Analíticas">
+=======
+        <a class="sidebar-nav-item disabled" data-section="coming-soon" data-label="Analíticas">
+>>>>>>> 9f21f7d4ddd7b772e9904ef29e5899116acf3b89
             <div class="sidebar-nav-item-left">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                         fill="none" stroke="currentColor" stroke-width="2"
@@ -220,7 +299,11 @@
         </a>
 
 
+<<<<<<< HEAD
         <a class="sidebar-nav-item" data-section="coming-soon" data-label="Auditoría Sistema">
+=======
+        <a class="sidebar-nav-item disabled" data-section="coming-soon" data-label="Auditoría Sistema">
+>>>>>>> 9f21f7d4ddd7b772e9904ef29e5899116acf3b89
             <div class="sidebar-nav-item-left">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                         fill="none" stroke="currentColor" stroke-width="2"
@@ -230,7 +313,11 @@
                 <span class="sidebar-nav-item-label">Auditoría Sistema</span>
             </div>
         </a>
+<<<<<<< HEAD
         <a class="sidebar-nav-item" data-section="coming-soon" data-label="Blog">
+=======
+        <a class="sidebar-nav-item disabled" data-section="coming-soon" data-label="Blog">
+>>>>>>> 9f21f7d4ddd7b772e9904ef29e5899116acf3b89
             <div class="sidebar-nav-item-left">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                         fill="none" stroke="currentColor" stroke-width="2"
@@ -242,7 +329,11 @@
                 <span class="sidebar-nav-item-label">Blog</span>
             </div>
         </a>
+<<<<<<< HEAD
         <a class="sidebar-nav-item" data-section="coming-soon" data-label="Menú">
+=======
+        <a class="sidebar-nav-item disabled" data-section="coming-soon" data-label="Menú">
+>>>>>>> 9f21f7d4ddd7b772e9904ef29e5899116acf3b89
             <div class="sidebar-nav-item-left">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                         fill="none" stroke="currentColor" stroke-width="2"
@@ -256,7 +347,11 @@
         </a>
 
 
+<<<<<<< HEAD
         <a class="sidebar-nav-item" data-section="coming-soon" data-label="SEO Global">
+=======
+        <a class="sidebar-nav-item disabled" data-section="coming-soon" data-label="SEO Global">
+>>>>>>> 9f21f7d4ddd7b772e9904ef29e5899116acf3b89
             <div class="sidebar-nav-item-left">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                         fill="none" stroke="currentColor" stroke-width="2"
@@ -269,7 +364,11 @@
             </div>
         </a>
 
+<<<<<<< HEAD
         <a class="sidebar-nav-item" data-section="coming-soon" data-label="WhatsApp">
+=======
+        <a class="sidebar-nav-item disabled" data-section="coming-soon" data-label="WhatsApp">
+>>>>>>> 9f21f7d4ddd7b772e9904ef29e5899116acf3b89
             <div class="sidebar-nav-item-left">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                         fill="none" stroke="currentColor" stroke-width="2"
@@ -281,7 +380,11 @@
         </a>
 
 
+<<<<<<< HEAD
         <button class="sidebar-nav-item" data-section="coming-soon" data-label="Configuración">
+=======
+        <button class="sidebar-nav-item disabled" data-section="coming-soon" data-label="Configuración">
+>>>>>>> 9f21f7d4ddd7b772e9904ef29e5899116acf3b89
             <div class="sidebar-nav-item-left">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                         fill="none" stroke="currentColor" stroke-width="2"
