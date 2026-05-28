@@ -90,7 +90,7 @@ class ServiceReportController extends Controller
 
         $report = $this->service->store($request->all(), auth()->id());
 
-        return redirect()->route('service-reports.step', [$report, 2])
+        return redirect()->route('admin.service-reports.step', [$report, 2])
             ->with('success', "Reporte {$report->report_number} creado. Continúa con el paso 2.");
     }
 
@@ -100,7 +100,7 @@ class ServiceReportController extends Controller
     {
         // Prevent skipping steps
         if ($step > $report->current_step + 1) {
-            return redirect()->route('service-reports.step', [$report, $report->current_step + 1])
+            return redirect()->route('admin.service-reports.step', [$report, $report->current_step + 1])
                 ->with('error', 'No puedes saltar pasos. Completa el paso anterior primero.');
         }
 
@@ -122,7 +122,7 @@ class ServiceReportController extends Controller
     public function saveStep(Request $request, ServiceReport $report, int $step)
     {
         if (!$report->isEditable()) {
-            return redirect()->route('service-reports.show', $report)
+            return redirect()->route('admin.service-reports.show', $report)
                 ->with('error', 'Este reporte ya está firmado y no puede ser modificado.');
         }
 
@@ -134,11 +134,11 @@ class ServiceReportController extends Controller
         $nextStep = $step + 1;
 
         if ($nextStep > 6) {
-            return redirect()->route('service-reports.show', $report)
+            return redirect()->route('admin.service-reports.show', $report)
                 ->with('success', 'Reporte completado exitosamente.');
         }
 
-        return redirect()->route('service-reports.step', [$report, $nextStep])
+        return redirect()->route('admin.service-reports.step', [$report, $nextStep])
             ->with('success', "Paso {$step} guardado correctamente.");
     }
 
@@ -155,11 +155,11 @@ class ServiceReportController extends Controller
     public function edit(ServiceReport $report)
     {
         if (!$report->isEditable()) {
-            return redirect()->route('service-reports.show', $report)
+            return redirect()->route('admin.service-reports.show', $report)
                 ->with('error', 'Los reportes firmados no pueden ser editados.');
         }
 
-        return redirect()->route('service-reports.step', [$report, 1]);
+        return redirect()->route('admin.service-reports.step', [$report, 1]);
     }
 
     // ── Destroy ────────────────────────────────────────────────────────────────
@@ -195,7 +195,7 @@ class ServiceReportController extends Controller
     public function sign(Request $request, ServiceReport $report)
     {
         if (!$report->isEditable()) {
-            return redirect()->route('service-reports.show', $report)
+            return redirect()->route('admin.service-reports.show', $report)
                 ->with('error', 'Este reporte ya ha sido firmado.');
         }
 
@@ -213,7 +213,7 @@ class ServiceReportController extends Controller
             'signature_phone',
         ]));
 
-        return redirect()->route('service-reports.show', $report)
+        return redirect()->route('admin.service-reports.show', $report)
             ->with('success', "Reporte {$report->report_number} firmado y completado exitosamente.");
     }
 

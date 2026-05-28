@@ -25,11 +25,11 @@
     .sr-step-item.active .sr-step-label, .sr-step-item.done .sr-step-label { color: #374151; }
 
     /* Form card */
-    .sr-form-card { background: #fff; border-radius: 8px; box-shadow: 0 1px 2px rgba(0,0,0,.06); }
+    .sr-form-card { background: #fff; border-radius: 8px; box-shadow: 0 1px 2px rgba(0,0,0,.06); display: flex; flex-direction: column; max-height: 420px; overflow-y: auto; }
     .sr-form-header { padding: 20px 24px; border-bottom: 1px solid #F3F4F6; }
     .sr-form-header h2 { margin: 0 0 4px; font-size: 16px; font-weight: 600; color: #111827; }
     .sr-form-header p  { margin: 0; font-size: 13px; color: #6B7280; }
-    .sr-form-body  { padding: 24px; }
+    .sr-form-body  { padding: 24px; overflow-y: auto; flex: 1; }
     .sr-form-footer { padding: 16px 24px; border-top: 1px solid #F3F4F6;
                       display: flex; justify-content: flex-end; gap: 12px; }
 
@@ -64,22 +64,22 @@
     .sr-error { font-size: 12px; color: #DC2626; }
     .sr-hint  { font-size: 12px; color: #9CA3AF; }
 
-    /* Customer autocomplete */
-    .sr-autocomplete { position: relative; }
-    .sr-autocomplete-list {
+    /* Customer dropdown */
+    .sr-client-select-wrap { position: relative; }
+    .sr-client-dropdown {
         position: absolute; z-index: 50; top: calc(100% + 4px); left: 0; right: 0;
         background: #fff; border: 1px solid #E5E7EB; border-radius: 6px;
-        box-shadow: 0 4px 16px rgba(0,0,0,.12); max-height: 240px; overflow-y: auto; display: none;
+        box-shadow: 0 4px 16px rgba(0,0,0,.12); max-height: 240px; overflow-y: auto;
     }
-    .sr-autocomplete-list.open { display: block; }
-    .sr-autocomplete-item {
-        padding: 10px 14px; cursor: pointer; border-bottom: 1px solid #F3F4F6;
-        transition: background .1s;
+    .sr-client-dropdown__item {
+        padding: 10px 14px; cursor: pointer; border-bottom: 1px solid #F3F4F6; transition: background .1s;
     }
-    .sr-autocomplete-item:last-child { border-bottom: none; }
-    .sr-autocomplete-item:hover { background: #FFF7ED; }
-    .sr-autocomplete-item strong { display: block; font-size: 13px; color: #111827; }
-    .sr-autocomplete-item span   { font-size: 12px; color: #6B7280; }
+    .sr-client-dropdown__item:last-child { border-bottom: none; }
+    .sr-client-dropdown__item:hover { background: #FFF7ED; }
+    .sr-client-dropdown__item.hidden { display: none; }
+    .sr-client-dropdown__name    { display: block; font-size: 13px; font-weight: 600; color: #111827; }
+    .sr-client-dropdown__company { display: block; font-size: 12px; color: #6B7280; }
+    .sr-client-dropdown__empty   { padding: 10px 14px; font-size: 13px; color: #9CA3AF; }
 
     /* Buttons */
     .sr-btn-primary {
@@ -141,7 +141,7 @@
     @endif
 
     {{-- Form card --}}
-    <div class="sr-form-card">
+    <div class="sr-form-card" style="margin-bottom:32px;">
         <div class="sr-form-header">
             <h2>Paso 1 — Datos Generales</h2>
             <p>Información principal del reporte y del cliente</p>
@@ -213,10 +213,29 @@
                 <div class="sr-grid-2" style="margin-top:24px;">
                     <div class="sr-section-title">Datos del Cliente</div>
 
-                    <div class="sr-field sr-full sr-autocomplete">
-                        <label class="sr-label" for="customerSearch">Buscar cliente existente</label>
-                        <input type="text" id="customerSearch" class="sr-input" placeholder="Escribe nombre, empresa o RFC…" autocomplete="off">
-                        <div class="sr-autocomplete-list" id="customerList"></div>
+                    <div class="sr-field sr-full">
+                        <label class="sr-label" for="clientSearchInput">Buscar Cliente registrado</label>
+                        <div class="sr-client-select-wrap">
+                            <input type="text" id="clientSearchInput" class="sr-input"
+                                   placeholder="Escribe el nombre o empresa…" autocomplete="off">
+                            <div id="clientDropdown" class="sr-client-dropdown" style="display:none;">
+                                @foreach($customers as $customer)
+                                    <div class="sr-client-dropdown__item"
+                                         data-id="{{ $customer->id }}"
+                                         data-name="{{ trim($customer->first_name . ' ' . $customer->last_name) }}"
+                                         data-company="{{ $customer->company ?? '' }}"
+                                         data-email="{{ $customer->email ?? '' }}"
+                                         data-phone="{{ $customer->phone ?? '' }}"
+                                         data-rfc="{{ $customer->rfc ?? '' }}">
+                                        <span class="sr-client-dropdown__name">{{ $customer->company ?: trim($customer->first_name . ' ' . $customer->last_name) }}</span>
+                                        @if($customer->company)
+                                            <span class="sr-client-dropdown__company">{{ trim($customer->first_name . ' ' . $customer->last_name) }}</span>
+                                        @endif
+                                    </div>
+                                @endforeach
+                                <div class="sr-client-dropdown__empty" style="display:none;">Sin resultados</div>
+                            </div>
+                        </div>
                         <span class="sr-hint">Selecciona un cliente para rellenar los campos automáticamente, o escríbelos manualmente.</span>
                     </div>
 
@@ -270,54 +289,52 @@
     typeSelect.addEventListener('change', toggleCustom);
     toggleCustom();
 
-    // Customer autocomplete
-    const searchInput = document.getElementById('customerSearch');
-    const listEl      = document.getElementById('customerList');
+    // Customer client-side dropdown
+    const searchInput = document.getElementById('clientSearchInput');
+    const dropdown    = document.getElementById('clientDropdown');
     const idInput     = document.getElementById('customerId');
-    let debounceTimer;
+    const allItems    = Array.from(dropdown.querySelectorAll('.sr-client-dropdown__item'));
+    const emptyMsg    = dropdown.querySelector('.sr-client-dropdown__empty');
 
     searchInput.addEventListener('input', function () {
-        clearTimeout(debounceTimer);
-        const q = this.value.trim();
-        if (q.length < 2) { listEl.classList.remove('open'); return; }
+        const q = this.value.trim().toLowerCase();
 
-        debounceTimer = setTimeout(function () {
-            fetch('{{ route('admin.service-reports.customers.search') }}?q=' + encodeURIComponent(q))
-                .then(r => r.json())
-                .then(data => {
-                    listEl.innerHTML = '';
-                    if (!data.length) { listEl.classList.remove('open'); return; }
+        if (!q) {
+            dropdown.style.display = 'none';
+            return;
+        }
 
-                    data.forEach(function (c) {
-                        const item = document.createElement('div');
-                        item.className = 'sr-autocomplete-item';
-                        item.innerHTML = '<strong>' + escHtml(c.full_name) + '</strong>'
-                            + '<span>' + [c.company, c.rfc].filter(Boolean).join(' · ') + '</span>';
-                        item.addEventListener('click', function () {
-                            idInput.value = c.id;
-                            document.getElementById('customer_name').value    = c.full_name;
-                            document.getElementById('customer_company').value = c.company || '';
-                            document.getElementById('customer_rfc').value     = c.rfc     || '';
-                            document.getElementById('customer_phone').value   = c.phone   || '';
-                            searchInput.value = c.full_name;
-                            listEl.classList.remove('open');
-                        });
-                        listEl.appendChild(item);
-                    });
-                    listEl.classList.add('open');
-                });
-        }, 300);
+        let visibleCount = 0;
+        allItems.forEach(function (item) {
+            const name    = (item.dataset.name    || '').toLowerCase();
+            const company = (item.dataset.company || '').toLowerCase();
+            const rfc     = (item.dataset.rfc     || '').toLowerCase();
+            const matches = name.includes(q) || company.includes(q) || rfc.includes(q);
+            item.classList.toggle('hidden', !matches);
+            if (matches) visibleCount++;
+        });
+
+        emptyMsg.style.display  = visibleCount === 0 ? '' : 'none';
+        dropdown.style.display  = '';
+    });
+
+    allItems.forEach(function (item) {
+        item.addEventListener('click', function () {
+            idInput.value = item.dataset.id;
+            document.getElementById('customer_name').value    = item.dataset.name;
+            document.getElementById('customer_company').value = item.dataset.company;
+            document.getElementById('customer_rfc').value     = item.dataset.rfc;
+            document.getElementById('customer_phone').value   = item.dataset.phone;
+            searchInput.value      = item.dataset.company || item.dataset.name;
+            dropdown.style.display = 'none';
+        });
     });
 
     document.addEventListener('click', function (e) {
-        if (!e.target.closest('.sr-autocomplete')) listEl.classList.remove('open');
+        if (!e.target.closest('.sr-client-select-wrap')) {
+            dropdown.style.display = 'none';
+        }
     });
-
-    function escHtml(str) {
-        const div = document.createElement('div');
-        div.appendChild(document.createTextNode(str || ''));
-        return div.innerHTML;
-    }
 })();
 </script>
 @endpush

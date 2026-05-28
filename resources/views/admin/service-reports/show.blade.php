@@ -3,7 +3,7 @@
 
 @push('styles')
 <style>
-    .sr-show-wrap { font-family: 'Inter', sans-serif; background: #F8F9FA; min-height: 100%; padding: 32px; }
+    .sr-show-wrap { font-family: 'Inter', sans-serif; background: #F8F9FA; flex: 1; overflow-y: auto; padding: 32px 32px 48px; }
 
     /* Header */
     .sr-show-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 24px; }
@@ -105,17 +105,17 @@
         </div>
         <div class="sr-show-actions">
             @if($report->isEditable())
-                <a href="{{ route('service-reports.edit', $report) }}" class="sr-btn sr-btn-outline">
+                <a href="{{ route('admin.service-reports.edit', $report) }}" class="sr-btn sr-btn-outline">
                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/></svg>
                     Editar
                 </a>
             @endif
-            <a href="{{ route('service-reports.download-pdf', $report) }}" class="sr-btn sr-btn-outline" target="_blank">
+            <a href="{{ route('admin.service-reports.download-pdf', $report) }}" class="sr-btn sr-btn-outline" target="_blank">
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
                 PDF
             </a>
             @if($report->isEditable())
-                <a href="{{ route('service-reports.step', [$report, 6]) }}" class="sr-btn sr-btn-sign">
+                <a href="{{ route('admin.service-reports.step', [$report, 6]) }}" class="sr-btn sr-btn-sign">
                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/></svg>
                     Firmar
                 </a>

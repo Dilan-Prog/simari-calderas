@@ -3,7 +3,7 @@
 
 @push('styles')
 <style>
-    .sr-create-wrap { font-family: 'Inter', sans-serif; background: #F8F9FA; min-height: 100%; padding: 32px; }
+    .sr-create-wrap { font-family: 'Inter', sans-serif; background: #F8F9FA; flex: 1; overflow-y: auto; padding: 32px 32px 48px; }
     .sr-progress { display: flex; align-items: center; background: #fff; border-radius: 8px;
                    box-shadow: 0 1px 2px rgba(0,0,0,.06); padding: 20px 24px; margin-bottom: 24px; }
     .sr-step-item { display: flex; flex-direction: column; align-items: center; flex: 1; position: relative; }
@@ -87,7 +87,7 @@
     <div class="sr-summary-card">
         <div class="sr-summary-card-header">
             📋 Datos Generales
-            <a href="{{ route('service-reports.step', [$report, 1]) }}" style="margin-left:auto; font-size:12px; color:#ff6213; text-decoration:none; font-weight:400;">Editar</a>
+            <a href="{{ route('admin.service-reports.step', [$report, 1]) }}" style="margin-left:auto; font-size:12px; color:#ff6213; text-decoration:none; font-weight:400;">Editar</a>
         </div>
         <div class="sr-summary-body">
             <dl class="sr-dl">
@@ -139,7 +139,7 @@
         <div class="sr-summary-card">
             <div class="sr-summary-card-header">
                 🔬 Mediciones ({{ $report->measurements->count() }})
-                <a href="{{ route('service-reports.step', [$report, 2]) }}" style="margin-left:auto; font-size:12px; color:#ff6213; text-decoration:none; font-weight:400;">Editar</a>
+                <a href="{{ route('admin.service-reports.step', [$report, 2]) }}" style="margin-left:auto; font-size:12px; color:#ff6213; text-decoration:none; font-weight:400;">Editar</a>
             </div>
             <div class="sr-summary-body" style="padding:0;">
                 <table class="sr-mini-table">
@@ -180,7 +180,7 @@
         <div class="sr-summary-card">
             <div class="sr-summary-card-header">
                 🔧 Actividades
-                <a href="{{ route('service-reports.step', [$report, 2]) }}" style="margin-left:auto; font-size:12px; color:#ff6213; text-decoration:none; font-weight:400;">Editar</a>
+                <a href="{{ route('admin.service-reports.step', [$report, 2]) }}" style="margin-left:auto; font-size:12px; color:#ff6213; text-decoration:none; font-weight:400;">Editar</a>
             </div>
             <div class="sr-summary-body">
                 <p style="font-size:13px; color:#374151; margin:0 0 12px; white-space:pre-wrap;">{{ $report->activity->content }}</p>
@@ -198,7 +198,7 @@
         <div class="sr-summary-card">
             <div class="sr-summary-card-header">
                 ⚙️ Campos Personalizados
-                <a href="{{ route('service-reports.step', [$report, 2]) }}" style="margin-left:auto; font-size:12px; color:#ff6213; text-decoration:none; font-weight:400;">Editar</a>
+                <a href="{{ route('admin.service-reports.step', [$report, 2]) }}" style="margin-left:auto; font-size:12px; color:#ff6213; text-decoration:none; font-weight:400;">Editar</a>
             </div>
             <div class="sr-summary-body">
                 <dl class="sr-dl">
@@ -216,7 +216,7 @@
         <div class="sr-summary-card">
             <div class="sr-summary-card-header">
                 📝 Observaciones
-                <a href="{{ route('service-reports.step', [$report, 3]) }}" style="margin-left:auto; font-size:12px; color:#ff6213; text-decoration:none; font-weight:400;">Editar</a>
+                <a href="{{ route('admin.service-reports.step', [$report, 3]) }}" style="margin-left:auto; font-size:12px; color:#ff6213; text-decoration:none; font-weight:400;">Editar</a>
             </div>
             <div class="sr-summary-body">
                 <dl class="sr-dl">
@@ -272,10 +272,10 @@
     </div>
 
     {{-- Footer --}}
-    <form method="POST" action="{{ route('service-reports.save-step', [$report, 5]) }}" style="display:contents;">
+    <form method="POST" action="{{ route('admin.service-reports.save-step', [$report, 5]) }}" style="display:contents;">
         @csrf
         <div class="sr-form-footer">
-            <a href="{{ route('service-reports.step', [$report, 4]) }}" class="sr-btn-outline">← Anterior</a>
+            <a href="{{ route('admin.service-reports.step', [$report, 4]) }}" class="sr-btn-outline">← Anterior</a>
             <button type="submit" class="sr-btn-primary">Continuar a Firma →</button>
         </div>
     </form>

@@ -16,11 +16,11 @@
     .sr-step-label { font-size: 11px; color: #9CA3AF; margin-top: 6px; text-align: center; white-space: nowrap; }
     .sr-step-item.active .sr-step-label, .sr-step-item.done .sr-step-label { color: #374151; }
 
-    .sr-form-card { background: #fff; border-radius: 8px; box-shadow: 0 1px 2px rgba(0,0,0,.06); }
+    .sr-form-card { background: #fff; border-radius: 8px; box-shadow: 0 1px 2px rgba(0,0,0,.06); display: flex; flex-direction: column; max-height: 420px; overflow-y: auto; }
     .sr-form-header { padding: 20px 24px; border-bottom: 1px solid #F3F4F6; }
     .sr-form-header h2 { margin: 0 0 4px; font-size: 16px; font-weight: 600; color: #111827; }
     .sr-form-header p  { margin: 0; font-size: 13px; color: #6B7280; }
-    .sr-form-body  { padding: 24px; }
+    .sr-form-body  { padding: 24px; overflow-y: auto; flex: 1; }
     .sr-form-footer { padding: 16px 24px; border-top: 1px solid #F3F4F6; display: flex; justify-content: space-between; gap: 12px; }
 
     /* Canvas */
@@ -101,7 +101,7 @@
             <p>Firma en el recuadro con el ratón o con el dedo en dispositivos táctiles</p>
         </div>
 
-        <form method="POST" action="{{ route('service-reports.sign', $report) }}" id="signForm">
+        <form method="POST" action="{{ route('admin.service-reports.sign', $report) }}" id="signForm">
             @csrf
             <input type="hidden" name="signature_data" id="signatureData">
 
@@ -147,7 +147,7 @@
             </div>
 
             <div class="sr-form-footer">
-                <a href="{{ route('service-reports.step', [$report, 5]) }}" class="sr-btn-outline">← Anterior</a>
+                <a href="{{ route('admin.service-reports.step', [$report, 5]) }}" class="sr-btn-outline">← Anterior</a>
                 <button type="submit" class="sr-btn-primary" id="btnSign" disabled>Firmar y Completar</button>
             </div>
         </form>
