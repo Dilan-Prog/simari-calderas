@@ -149,6 +149,8 @@
                         document.getElementById('categorySortOrder').value = cat.sort_order ?? 0;
                         document.getElementById('categoryIsActive').value = cat.is_active ? '1' : '0';
                         document.getElementById('categoryParent').value = cat.parent_id ?? '';
+                        document.getElementById('categorySeoTitle').value = cat.seo_title ?? '';
+                        document.getElementById('categorySeoDesc').value = cat.seo_description ?? '';
 
                         const level = cat.parent_id ?
                             (cat.parent?.parent_id ? 3 : 2) :
@@ -230,21 +232,55 @@
         // Search and filter
         const categorySearch = document.getElementById('categorySearch');
         const categoryLevelFilter = document.getElementById('categoryLevelFilter');
+        const categoryStatusFilter = document.getElementById('categoryStatusFilter');
+        const btnFilter = document.getElementById('btnFilter');
 
         const filterCategories = () => {
             const search = categorySearch.value.toLowerCase().trim();
             const level = categoryLevelFilter.value;
+            const status = categoryStatusFilter.value;
 
-            document.querySelectorAll('.category-row').forEach(row => {
+            document.querySelectorAll('.cat-row').forEach(row => {
                 const name = row.dataset.name ?? '';
                 const rowLevel = row.dataset.level ?? '';
-                const matchName = !search || name.includes(search);
+                const rowStatus = row.dataset.status ?? '';
+
+                const matchSearch = !search || name.includes(search);
                 const matchLevel = level === 'all' || rowLevel === level;
-                row.style.display = matchName && matchLevel ? '' : 'none';
+                const matchStatus = status === 'all' || rowStatus === status;
+
+                row.style.display = matchSearch && matchLevel && matchStatus ? '' : 'none';
             });
         };
 
         categorySearch.addEventListener('input', filterCategories);
         categoryLevelFilter.addEventListener('change', filterCategories);
+        categoryStatusFilter.addEventListener('change', filterCategories);
+        btnFilter.addEventListener('click', filterCategories);
+
+
+        categorySearch.addEventListener('input', filterCategories);
+        categoryLevelFilter.addEventListener('change', filterCategories);
+
+        document.querySelectorAll('[data-toggle]').forEach(function(el) {
+            el.addEventListener('click', function() {
+                const targetId = this.dataset.toggle;
+                const parentRow = this.closest('tr');
+                const allRows = Array.from(document.querySelectorAll('#categoriesTable tbody tr'));
+                const parentIndex = allRows.indexOf(parentRow);
+                const parentLevel = parseInt(parentRow.dataset.level);
+
+                // Find all descendant rows
+                let i = parentIndex + 1;
+                while (i < allRows.length) {
+                    const rowLevel = parseInt(allRows[i].dataset.level);
+                    if (rowLevel <= parentLevel) break;
+                    const current = allRows[i];
+                    const isHidden = current.style.display === 'none';
+                    current.style.display = isHidden ? '' : 'none';
+                    i++;
+                }
+            });
+        });
     </script>
 @endpush
