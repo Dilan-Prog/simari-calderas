@@ -9,6 +9,7 @@ use App\Http\Controllers\Backend\QuoteController;
 use App\Http\Controllers\Backend\ServiceReportController;
 use App\Http\Controllers\Backend\UserManageController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Backend\BrandController;
 use App\Http\Controllers\Backend\SupplierManageController;
 
 
@@ -59,6 +60,14 @@ Route::controller(CategoryController::class)->group(function () {
     Route::delete('/categorias/eliminar/{id}',  'destroy')->name('categories.destroy');
 });
 
+Route::controller(BrandController::class)->group(function () {
+    Route::get('/marcas',                  'index')->name('brands.index');
+    Route::post('/marcas/crear',           'store')->name('brands.store');
+    Route::get('/marcas/editar/{id}',      'edit')->name('brands.edit');
+    Route::put('/marcas/editar/{id}',      'update')->name('brands.update');
+    Route::delete('/marcas/eliminar/{id}', 'destroy')->name('brands.destroy');
+});
+
 Route::controller(ProductController::class)->group(function () {
     Route::get('/productos', 'index')->name('products.index');
     Route::get('/productos/crear-producto', 'create')->name('products.create');
@@ -100,5 +109,3 @@ Route::controller(GoogleAdsController::class)->prefix('google-ads')->name('googl
     Route::get('/datatable', 'datatable')->name('datatable');
     Route::get('/{id}', 'show')->name('show');
 });
-
-

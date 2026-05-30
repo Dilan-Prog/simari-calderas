@@ -51,7 +51,7 @@ class CategoryController extends Controller
 
     public function edit(string $id)
     {
-        $category = Category::with('parent')->findOrFail($id);
+        $category = Category::with(['parent.parent'])->findOrFail($id);
         return response()->json($category);
     }
 

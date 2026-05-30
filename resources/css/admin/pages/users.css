@@ -1356,3 +1356,101 @@
     display: flex;
     justify-content: space-between;
 }
+
+.clients-manager-table.brand-table th{
+    background-color: #1A2535;
+    color: var(--text-muted);
+}
+
+/* Tipografía de Marca */
+.brand-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-black);
+    margin: 0 0 2px 0;
+}
+
+.brand-products-count {
+    font-size: 12px;
+    color: var(--text-description-color);
+    display: block;
+}
+
+/* Badges (Píldoras de colores) */
+.brand-slug-badge {
+    display: inline-block;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+    border: 1px solid #e1e1e1;
+    color: var(--text-body);
+}
+
+.brand-status-badge {
+    display: inline-block;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.status-active {
+    background-color: #f0fff3;
+    color: #3cbe40;
+    border: 1px solid #8bff8f;
+}
+
+.status-inactive {
+    background-color: #f3f4f6;
+    color: #4b5563;
+    border: 1px solid #acb5c1;
+
+}
+
+/* Imágenes y Placeholders */
+.brand-logo-img {
+    width: 48px;
+    height: 32px;
+    object-fit: contain;
+    border-radius: 16px; /* Para que quede ovalado como en la foto 1 */
+    border: 1px solid #e5e7eb;
+    background-color: #ffffff;
+    padding: 2px;
+}
+
+.brand-logo-placeholder {
+    width: 40px;
+    height: 40px;
+    background-color: #f3f4f6;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #e5e7eb;
+}
+
+/* Botones de Acción */
+.actions-container {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.action-btn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: #6b7280;
+    padding: 6px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.action-btn:hover {
+    color: #111827;
+    background-color: #f3f4f6;
+}

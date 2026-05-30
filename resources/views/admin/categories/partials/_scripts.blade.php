@@ -149,6 +149,28 @@
                         document.getElementById('categorySortOrder').value = cat.sort_order ?? 0;
                         document.getElementById('categoryIsActive').value = cat.is_active ? '1' : '0';
                         document.getElementById('categoryParent').value = cat.parent_id ?? '';
+
+                        const level = cat.parent_id ?
+                            (cat.parent?.parent_id ? 3 : 2) :
+                            1;
+
+                        const levelSelect = document.getElementById('categoryLevel');
+                        const parentSelect = document.getElementById('categoryParent');
+                        const allOptions = parentSelect.querySelectorAll('option[data-level]');
+
+                        levelSelect.value = level;
+
+                        allOptions.forEach(opt => {
+                            const optLevel = parseInt(opt.dataset.level);
+                            opt.style.display = (level === 2 && optLevel === 1) ||
+                                (level === 3 && optLevel === 2) ? '' : 'none';
+                        });
+
+                        parentSelect.disabled = level === 1;
+
+
+                        parentSelect.value = cat.parent_id ?? '';
+
                         errorsContainer.style.display = 'none';
                         categoryModal.style.display = 'flex';
                     })
