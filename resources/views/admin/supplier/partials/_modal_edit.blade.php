@@ -10,7 +10,7 @@
         <form class="user-manager-modal-body" id="supplierEditForm" method="POST">
             @csrf
             @method('PUT')
-
+            
             <h3>Información de la Empresa</h3>
             <div class="show-user-divider"></div>
             <div class="user-manager-form">

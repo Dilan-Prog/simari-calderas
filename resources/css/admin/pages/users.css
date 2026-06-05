@@ -496,7 +496,6 @@
 }
 
 .user-manager-form.access-sistem-form div {
-    position: relative;
     margin-bottom: 15px;
     display: flex;
     flex-direction: column;
@@ -520,15 +519,27 @@
     display: none;
 }
 
-.lucide-eye {
+.password-eye-container-from-users {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.password-eye-container-from-users.users-manager-input {
+    width: 100%;
+    padding-right: 40px;
+}
+
+.eye-from-users{
     position: absolute;
     right: 12px;
-    bottom: 10px;
+    top: 20px;
     cursor: pointer;
     color: #6b7280;
     transition: color 0.2s;
-    display: flex;
-    align-items: center;
+    transform: translateY(-50%);
+    flex-shrink: 0;
 }
 
 .toggle-icon:hover,
@@ -1484,5 +1495,3 @@
     font-size:12px;
     font-weight:600;
 }
-
-

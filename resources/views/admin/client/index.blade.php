@@ -21,7 +21,7 @@
                         Administra la información de tus clientes B2B
                     </p>
                 </div>
-
+                
                 <button class="button-primary size-adjustment clients">
                     + Nuevo Cliente
                 </button>

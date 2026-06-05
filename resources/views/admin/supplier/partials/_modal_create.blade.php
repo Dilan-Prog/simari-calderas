@@ -21,7 +21,7 @@
                 </div>
                 <div id="supplierCfdiStatus" class="cfdi-status" style="display:none"></div>
             </div>
-
+            
             <h3>Información de la Empresa</h3>
             <div class="show-user-divider"></div>
             <div class="user-manager-form">
