@@ -570,6 +570,27 @@
             });
         }
 
+        /* ── Toggle delete existing image ── */
+        function toggleDeleteImg(id) {
+            const checkbox = document.getElementById('delImg' + id);
+            const container = document.querySelector('.pform-existing-img[data-id="' + id + '"]');
+            const btn = container.querySelector('.pform-del-existing');
+
+            checkbox.checked = !checkbox.checked;
+
+            if (checkbox.checked) {
+                container.style.opacity = '0.4';
+                container.style.outline = '2px solid #dc2626';
+                btn.textContent = '↩';
+                btn.title = 'Deshacer eliminación';
+            } else {
+                container.style.opacity = '';
+                container.style.outline = '';
+                btn.textContent = '✕';
+                btn.title = 'Eliminar imagen';
+            }
+        }
+
         /* ── Image Gallery ── */
         (function() {
             const input = document.getElementById('pformImageInput');
