@@ -30,6 +30,12 @@
         // Reset form
         const resetCategoryForm = () => {
             categoryForm.reset();
+
+            document.querySelectorAll('.field-error-msg').forEach(el => el.remove());
+            document.querySelectorAll('.is-invalid').forEach(el => {
+                el.classList.remove('is-invalid');
+            });
+
             document.getElementById('categorySlug').value = '';
             document.getElementById('categorySortOrder').value = '1';
             document.getElementById('categoryIsActive').value = '1';
@@ -40,7 +46,6 @@
             document.getElementById('categoryModalTitle').textContent = 'Nueva Categoría';
             document.getElementById('categorySubmitBtn').textContent = 'Crear Categoría';
 
-            // Forzar el cambio de nivel para que oculte/bloquee el selector de padres al iniciar limpio
             document.getElementById('categoryLevel').dispatchEvent(new Event('change'));
         };
 
@@ -96,51 +101,85 @@
             }
         }
 
-        // --- LISTENERS REACTIVOS PARA EL SLUG Y FILTROS DEL FORMULARIO ---
-
-        // Al escribir el nombre: Solo auto-genera si NO está editando (para proteger SEO)
         document.getElementById('categoryName').addEventListener('input', function() {
             if (!isEditMode) buildSlug();
         });
 
-        // Al cambiar de padre: Se ejecuta SIEMPRE (incluso editando) porque la estructura cambió
         document.getElementById('categoryParent').addEventListener('change', function() {
             buildSlug();
         });
 
-        // Al cambiar de nivel: Filtra las opciones de padre, bloquea/desbloquea y recalcula el slug
         document.getElementById('categoryLevel').addEventListener('change', function() {
             const level = parseInt(this.value);
             const parent = document.getElementById('categoryParent');
             const options = parent.querySelectorAll('option[data-level]');
 
-            // 1. Mostrar/ocultar los padres válidos según el nivel jerárquico
             options.forEach(opt => {
                 const optLevel = parseInt(opt.dataset.level);
                 opt.style.display = (level === 2 && optLevel === 1) ||
                     (level === 3 && optLevel === 2) ? '' : 'none';
             });
 
-            // 2. Si el nivel pasa a ser Principal (1), bloqueamos el selector de padres
             parent.disabled = level === 1;
 
-            // 3. Resetear el valor seleccionado del padre si es un cambio manual del usuario
-            // (Si estamos cargando el formulario en edición, evitamos romper el valor original)
             if (document.activeElement === this) {
                 parent.value = '';
             }
 
-            // 4. Recalcular la ruta del slug en base a la nueva realidad del nivel
             buildSlug();
         });
 
-
-        // Submit form (create or update)
+        // SUBMIT
         categoryForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            errorsContainer.style.display = 'none';
-            errorsContainer.innerHTML = '';
 
+            document.querySelectorAll('.field-error-msg').forEach(el => el.remove());
+            document.querySelectorAll('.is-invalid').forEach(el => {
+                el.classList.remove('is-invalid');
+            });
+            errorsContainer.style.display = 'none';
+
+            let hasErrors = false;
+
+            const nameInput = document.getElementById('categoryName');
+            const parentSelect = document.getElementById('categoryParent');
+            const level = parseInt(document.getElementById('categoryLevel').value);
+
+            const showError = (element, message) => {
+                element.classList.add('is-invalid');
+
+                const errorSpan = document.createElement('span');
+                errorSpan.className = 'field-error-msg';
+                errorSpan.innerText = message;
+
+                const container = element.closest('.mb-3') || element.closest('.mb-4') || element.parentElement;
+                if (container) {
+                    container.appendChild(errorSpan);
+                }
+                hasErrors = true;
+            };
+
+            // Validaciones locales
+            if (!nameInput.value.trim()) {
+                showError(nameInput, 'El nombre de la categoría es obligatorio.');
+            }
+
+            if (level > 1 && !parentSelect.value) {
+                showError(parentSelect, 'Debes seleccionar una categoría padre para este nivel.');
+            }
+
+            if (hasErrors) {
+                const firstInvalid = document.querySelector('.is-invalid');
+                if (firstInvalid) {
+                    firstInvalid.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'center'
+                    });
+                }
+                return;
+            }
+
+            // --- Envío Fetch ---
             const formData = new FormData(categoryForm);
 
             if (document.getElementById('categoryLevel').value === '1') {
@@ -172,6 +211,10 @@
                     const errorList = Object.values(data.errors).flat();
                     errorsContainer.innerHTML = errorList.map(m => `<p>${m}</p>`).join('');
                     errorsContainer.style.display = 'block';
+
+                    // Asignar errores devueltos por el servidor a los inputs correspondientes
+                    if (data.errors.name) showError(nameInput, data.errors.name[0]);
+                    if (data.errors.parent_id) showError(parentSelect, data.errors.parent_id[0]);
                 }
             } catch (err) {
                 console.error('Error:', err);
@@ -208,11 +251,9 @@
                         const levelSelect = document.getElementById('categoryLevel');
                         const parentSelect = document.getElementById('categoryParent');
 
-                        // Asignamos el nivel y disparamos de forma controlada el filtro visual de las opciones
                         levelSelect.value = level;
                         levelSelect.dispatchEvent(new Event('change'));
 
-                        // Insertamos el parent_id real de la categoría a editar
                         parentSelect.value = cat.parent_id ?? '';
 
                         errorsContainer.style.display = 'none';
@@ -237,8 +278,7 @@
             });
         });
 
-        document.getElementById('delCategoryCancel').addEventListener('click', () => deleteCategoryModal.classList.remove(
-            'active'));
+        document.getElementById('delCategoryCancel').addEventListener('click', () => deleteCategoryModal.classList.remove('active'));
         deleteCategoryModal.addEventListener('click', (e) => {
             if (e.target === deleteCategoryModal) deleteCategoryModal.classList.remove('active');
         });

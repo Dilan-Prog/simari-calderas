@@ -1495,3 +1495,24 @@
     font-size:12px;
     font-weight:600;
 }
+
+/* Estilos convencionales de validación */
+.is-invalid {
+    border: 1px solid #dc2626;
+    background-color: #fef2f2;
+}
+
+.is-invalid:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.2);
+    border-color: #dc2626;
+}
+
+.field-error-msg {
+    color: #dc2626;
+    font-size: 13px;
+    display: block;
+    margin-top: 5px;
+    font-weight: 500;
+    width: 100%;
+}
