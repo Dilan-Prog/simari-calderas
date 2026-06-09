@@ -21,6 +21,7 @@
         $authUser = auth()->user();
         $activeSection = match (true) {
             request()->routeIs('admin.dashboard') => 'dashboard',
+            request()->routeIs('admin.roles.*') => 'roles',
             request()->routeIs('admin.users.*') => 'usuarios',
             request()->routeIs('admin.clients.*') => 'clientes',
             request()->routeIs('admin.suppliers.*') => 'proveedores',
@@ -50,8 +51,8 @@
 
         {{-- Roles: solo admin --}}
         @if($authUser->isAdmin())
-        <a class="sidebar-nav-item {{ $activeSection === 'usuarios' ? 'active' : '' }}" data-section="usuarios"
-            data-label="Roles" href="{{ route('admin.users.index') }}">
+        <a class="sidebar-nav-item {{ $activeSection === 'roles' ? 'active' : '' }}" data-section="roles"
+            data-label="Roles" href="{{ route('admin.roles.index') }}">
             <div class="sidebar-nav-item-left">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">

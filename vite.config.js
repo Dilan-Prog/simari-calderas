@@ -12,6 +12,8 @@ export default defineConfig({
                 'resources/js/admin/google-ads.js',
                 'resources/css/admin-quotes.css',
                 'resources/js/admin-quotes.js',
+                'resources/css/admin/roles.css',
+                'resources/js/admin/roles.js',
             ],
             refresh: true,
         }),
