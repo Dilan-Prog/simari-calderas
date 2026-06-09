@@ -101,6 +101,8 @@ class ProductController extends Controller
         $product->seo_title         = $request->seo_title      ?? null;
         $product->seo_description   = $request->seo_description ?? null;
         $product->category_id       = $request->category_id    ?? null;
+        $product->subcategory_id    = $request->subcategory_id    ?? null;
+        $product->child_category_id = $request->child_category_id ?? null;
         $product->brand_id          = $request->brand_id       ?? null;
         $product->is_active         = $request->boolean('is_active',  true);
         $product->is_featured       = $request->boolean('is_featured', false);
@@ -210,6 +212,8 @@ class ProductController extends Controller
         $product->seo_title         = $request->seo_title      ?? null;
         $product->seo_description   = $request->seo_description ?? null;
         $product->category_id       = $request->category_id    ?? null;
+        $product->subcategory_id    = $request->subcategory_id    ?? null;
+        $product->child_category_id = $request->child_category_id ?? null;
         $product->brand_id          = $request->brand_id       ?? null;
         $product->is_active         = $request->boolean('is_active',  true);
         $product->is_featured       = $request->boolean('is_featured', false);

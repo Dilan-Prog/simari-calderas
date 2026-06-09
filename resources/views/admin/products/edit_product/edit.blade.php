@@ -134,13 +134,16 @@
         {{-- ── Form wrapping all panels ── --}}
         {{-- ── Scrollable content ── --}}
         <div class="pform-content-area">
-            <form id="productEditForm" method="POST" action="{{ route('admin.products.update', $product->id) }}" enctype="multipart/form-data">
+            <form id="productEditForm" method="POST" action="{{ route('admin.products.update', $product->id) }}"
+                enctype="multipart/form-data">
                 @csrf
                 @method('PUT')
                 <input type="hidden" name="is_active" id="pformIsActive" value="{{ $product->is_active ? 1 : 0 }}">
-                <input type="hidden" name="is_featured" id="pformIsFeatured" value="{{ $product->is_featured ? 1 : 0 }}">
+                <input type="hidden" name="is_featured" id="pformIsFeatured"
+                    value="{{ $product->is_featured ? 1 : 0 }}">
                 <input type="hidden" name="is_new" id="pformIsNew" value="{{ $product->is_new ? 1 : 0 }}">
-                <input type="hidden" name="is_recommended" id="pformIsRecommended" value="{{ $product->is_recommended ? 1 : 0 }}">
+                <input type="hidden" name="is_recommended" id="pformIsRecommended"
+                    value="{{ $product->is_recommended ? 1 : 0 }}">
                 <div class="pform-panel-wrap">
                     {{-- Panel 0: Información Básica --}}
                     <div class="pform-tab-panel active" id="pformPanel0" role="tabpanel">
@@ -163,9 +166,8 @@
                                     <label class="pform-label" for="pformSku">
                                         SKU <span class="pform-required">*</span>
                                     </label>
-                                    <input type="text" id="pformSku" class="pform-input"
-                                        value="{{ $product->sku }}" disabled
-                                        style="background:#f9fafb;color:#6b7280;cursor:not-allowed;" />
+                                    <input type="text" id="pformSku" class="pform-input" value="{{ $product->sku }}"
+                                        disabled style="background:#f9fafb;color:#6b7280;cursor:not-allowed;" />
                                     <input type="hidden" name="sku" value="{{ $product->sku }}" />
                                 </div>
                                 <div class="pform-field">
@@ -245,25 +247,33 @@
                             </label>
 
                             {{-- Imágenes existentes --}}
-                            @if($product->images->count())
-                            <div id="pformExistingGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:12px;margin-top:16px;">
-                                @foreach($product->images as $img)
-                                <div class="pform-existing-img" data-id="{{ $img->id }}" style="position:relative;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;">
-                                    <img src="{{ $img->url }}" alt="" style="width:100%;height:100px;object-fit:cover;display:block;">
-                                    <div style="padding:4px 6px;font-size:11px;color:#6b7280;">Imagen #{{ $loop->iteration }}</div>
-                                    <input type="checkbox" name="delete_images[]" value="{{ $img->id }}" id="delImg{{ $img->id }}" style="display:none">
-                                    <button type="button" class="pform-del-existing"
-                                        onclick="toggleDeleteImg({{ $img->id }})"
-                                        style="position:absolute;top:4px;right:4px;background:#dc2626;color:#fff;border:none;border-radius:50%;width:22px;height:22px;cursor:pointer;font-size:13px;line-height:1;display:flex;align-items:center;justify-content:center;">✕</button>
+                            @if ($product->images->count())
+                                <div id="pformExistingGrid"
+                                    style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:12px;margin-top:16px;">
+                                    @foreach ($product->images as $img)
+                                        <div class="pform-existing-img" data-id="{{ $img->id }}"
+                                            style="position:relative;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;">
+                                            <img src="{{ $img->url }}" alt=""
+                                                style="width:100%;height:100px;object-fit:cover;display:block;">
+                                            <div style="padding:4px 6px;font-size:11px;color:#6b7280;">Imagen
+                                                #{{ $loop->iteration }}</div>
+                                            <input type="checkbox" name="delete_images[]" value="{{ $img->id }}"
+                                                id="delImg{{ $img->id }}" style="display:none">
+                                            <button type="button" class="pform-del-existing"
+                                                onclick="toggleDeleteImg({{ $img->id }})"
+                                                style="position:absolute;top:4px;right:4px;background:#dc2626;color:#fff;border:none;border-radius:50%;width:22px;height:22px;cursor:pointer;font-size:13px;line-height:1;display:flex;align-items:center;justify-content:center;">✕</button>
+                                        </div>
+                                    @endforeach
                                 </div>
-                                @endforeach
-                            </div>
                             @endif
 
                             {{-- Grid de nuevas imágenes a subir --}}
-                            <div id="pformImageGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:12px;margin-top:16px;"></div>
+                            <div id="pformImageGrid"
+                                style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:12px;margin-top:16px;">
+                            </div>
 
-                            <div class="pform-placeholder" id="pformImagePlaceholder" style="padding:40px 32px;{{ $product->images->count() ? 'display:none' : '' }}">
+                            <div class="pform-placeholder" id="pformImagePlaceholder"
+                                style="padding:40px 32px;{{ $product->images->count() ? 'display:none' : '' }}">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="56" height="56"
                                     viewBox="0 0 24 24" fill="none" stroke="#d1d5db" stroke-width="1.5"
                                     stroke-linecap="round" stroke-linejoin="round">
@@ -481,26 +491,31 @@
                                         </select>
                                     </div>
 
-                                    {{-- Subcategoría --}}
+                                    {{-- Sub category --}}
                                     <div class="pform-field">
                                         <label class="pform-label">Subcategoría</label>
                                         <select class="pform-select" name="subcategory_id" id="pformCategorySub"
                                             {{ $product->category_id ? '' : 'disabled' }}>
                                             <option value="">Seleccionar categoría primero...</option>
-                                            @if ($product->category && $product->category->children->count())
-                                                @foreach ($product->category->children as $sub)
-                                                    <option value="{{ $sub->id }}">{{ $sub->name }}</option>
-                                                @endforeach
+                                            @if ($product->subcategory_id && $product->subcategory)
+                                                <option value="{{ $product->subcategory->id }}" selected>
+                                                    {{ $product->subcategory->name }}
+                                                </option>
                                             @endif
                                         </select>
                                     </div>
 
-                                    {{-- Marca --}}
+                                    {{-- Child category --}}
                                     <div class="pform-field">
                                         <label class="pform-label">Categoría Hija</label>
                                         <select class="pform-select" name="child_category_id" id="pformCategoryChild"
-                                            {{ $product->category_id ? '' : 'disabled' }}>
+                                            {{ $product->subcategory_id ? '' : 'disabled' }}>
                                             <option value="">Seleccionar subcategoría primero...</option>
+                                            @if ($product->child_category_id && $product->childCategory)
+                                                <option value="{{ $product->childCategory->id }}" selected>
+                                                    {{ $product->childCategory->name }}
+                                                </option>
+                                            @endif
                                         </select>
                                     </div>
                                 </div>
@@ -564,8 +579,7 @@
                                     </button>
 
                                     <button type="button"
-                                        class="pform-badge-card {{ $product->is_new ? 'active' : '' }}"
-                                        id="badgeNew">
+                                        class="pform-badge-card {{ $product->is_new ? 'active' : '' }}" id="badgeNew">
                                         <div class="pform-badge-card-header">
                                             <div class="pform-badge-icon">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"

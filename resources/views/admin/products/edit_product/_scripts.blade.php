@@ -495,6 +495,55 @@
                 categoryChild.disabled = true;
             }
         });
+        // Pre-load subcategories for existing category
+        (function() {
+            const mainVal = categoryMain.value;
+            if (!mainVal) return;
+
+            const subs = subcategories[mainVal] ?? [];
+            if (subs.length === 0) return;
+
+            // Rebuild sub options
+            categorySub.innerHTML = '<option value="">Seleccionar...</option>';
+            subs.forEach(sub => {
+                const opt = document.createElement('option');
+                opt.value = sub.id;
+                opt.textContent = sub.name;
+                // Pre-select if matches saved subcategory_id
+                if (String(sub.id) === String('{{ $product->subcategory_id }}')) {
+                    opt.selected = true;
+                }
+                categorySub.appendChild(opt);
+            });
+            categorySub.disabled = false;
+
+            // Pre-load children for existing subcategory
+            const subVal = categorySub.value;
+            if (!subVal) return;
+
+            const subObj = subs.find(s => String(s.id) === String(subVal));
+            const children = subObj?.children ?? [];
+            if (children.length === 0) return;
+
+            categoryChild.innerHTML = '<option value="">Seleccionar...</option>';
+            children.forEach(child => {
+                const opt = document.createElement('option');
+                opt.value = child.id;
+                opt.textContent = child.name;
+                if (String(child.id) === String('{{ $product->child_category_id }}')) {
+                    opt.selected = true;
+                }
+                categoryChild.appendChild(opt);
+            });
+            categoryChild.disabled = false;
+
+            // Update breadcrumb
+            const mainName = categoryMain.options[categoryMain.selectedIndex]?.text ?? '';
+            const subName = categorySub.options[categorySub.selectedIndex]?.text ?? '';
+            breadcrumb.textContent = subName ?
+                `Catálogo > ${mainName} > ${subName}` :
+                `Catálogo > ${mainName}`;
+        })();
 
         /* ── Badge sync ── */
         const badgeFeatured = document.getElementById('badgeFeatured');

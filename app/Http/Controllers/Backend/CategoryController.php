@@ -11,7 +11,7 @@ class CategoryController extends Controller
 {
     public function index()
     {
-        $categories = Category::with('parent')
+        $categories = Category::with('parent.parent')
             ->orderBy('sort_order')
             ->orderBy('name')
             ->paginate(15);

@@ -11,6 +11,8 @@ class Products extends Model
 
     protected $fillable = [
         'category_id',
+        'subcategory_id',
+        'child_category_id',
         'brand_id',
         'name',
         'slug',
@@ -70,5 +72,16 @@ class Products extends Model
             'product_id',
             'supplier_id'
         )->withPivot('cost', 'lead_time_days', 'is_primary');
+    }
+    // Subcategory
+    public function subcategory()
+    {
+        return $this->belongsTo(Category::class, 'subcategory_id');
+    }
+
+    // Child Category
+    public function childCategory()
+    {
+        return $this->belongsTo(Category::class, 'child_category_id');
     }
 }
