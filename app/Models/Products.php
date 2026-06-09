@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Storage;
 
 class Products extends Model
 {
@@ -61,7 +60,7 @@ class Products extends Model
     {
         if (!$value) return null;
         if (str_starts_with($value, 'http')) return $value;
-        return Storage::url($value);
+        return asset($value);
     }
 
     public function images()

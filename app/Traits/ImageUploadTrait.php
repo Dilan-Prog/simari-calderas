@@ -2,7 +2,6 @@
 
 namespace App\Traits;
 
-use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Facades\Image;
 
 trait ImageUploadTrait
@@ -10,20 +9,23 @@ trait ImageUploadTrait
     public function uploadImages(array $files, string $folder = 'products'): array
     {
         $paths = [];
+        $dir   = public_path($folder);
+
+        if (!is_dir($dir)) {
+            mkdir($dir, 0755, true);
+        }
 
         foreach ($files as $file) {
             $ext      = strtolower($file->getClientOriginalExtension());
             $filename = uniqid() . '.' . $ext;
             $path     = $folder . '/' . $filename;
 
-            $encoded = Image::make($file)
+            Image::make($file)
                 ->resize(1200, null, function ($constraint) {
                     $constraint->aspectRatio();
                     $constraint->upsize();
                 })
-                ->encode($ext, 85);
-
-            Storage::disk('public')->put($path, $encoded);
+                ->save(public_path($path), 85);
 
             $paths[] = $path;
         }
@@ -33,8 +35,10 @@ trait ImageUploadTrait
 
     public function deleteImage(string $path): void
     {
-        if (Storage::disk('public')->exists($path)) {
-            Storage::disk('public')->delete($path);
+        $fullPath = public_path($path);
+
+        if (file_exists($fullPath)) {
+            unlink($fullPath);
         }
     }
 }
