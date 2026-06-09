@@ -13,9 +13,10 @@ class Permission extends Model
     const UPDATED_AT = null;
 
     protected $fillable = [
-        'code',
         'name',
+        'code',
         'module',
+        'action',
     ];
 
     public function roles(): BelongsToMany

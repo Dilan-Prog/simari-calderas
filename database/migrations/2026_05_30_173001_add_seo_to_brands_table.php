@@ -12,8 +12,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('brands', function (Blueprint $table) {
-            $table->string('seo_title', 60)->nullable()->after('is_active');
-            $table->string('seo_description', 160)->nullable()->after('seo_title');
+            if (!Schema::hasColumn('brands', 'seo_title')) {
+                $table->string('seo_title', 60)->nullable()->after('is_active');
+            }
+            if (!Schema::hasColumn('brands', 'seo_description')) {
+                $table->string('seo_description', 160)->nullable()->after('seo_title');
+            }
         });
     }
 
