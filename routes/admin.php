@@ -10,12 +10,27 @@ use App\Http\Controllers\Backend\ServiceReportController;
 use App\Http\Controllers\Backend\UserManageController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Backend\BrandController;
+use App\Http\Controllers\Backend\RoleController;
 use App\Http\Controllers\Backend\SupplierManageController;
 
 // ============================================================
 // Dashboard — sin permiso, todos los usuarios autenticados
 // ============================================================
 Route::get('/', [AdminController::class, 'dashboard'])->name('dashboard');
+
+
+// ============================================================
+// Roles
+// ============================================================
+Route::controller(RoleController::class)
+    ->middleware('permission:role')
+    ->group(function () {
+        Route::get('/roles', 'index')->name('roles.index');
+        Route::get('/roles/mostrar-rol/{id}', 'show')->name('roles.show');
+        Route::post('/roles/crear-rol', 'store')->name('roles.store');
+        Route::put('/roles/editar-rol/{id}', 'update')->name('roles.update');
+        Route::delete('/roles/eliminar-rol/{id}', 'destroy')->name('roles.destroy');
+    });
 
 // ============================================================
 // Usuarios
