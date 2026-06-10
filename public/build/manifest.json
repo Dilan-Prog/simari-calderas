@@ -9,6 +9,16 @@
     "src": "resources/css/admin/app.css",
     "isEntry": true
   },
+  "resources/css/admin/roles.css": {
+    "file": "assets/roles-BINgigIa.css",
+    "src": "resources/css/admin/roles.css",
+    "isEntry": true
+  },
+  "resources/css/admin/technical-services.css": {
+    "file": "assets/technical-services-CDayPEvR.css",
+    "src": "resources/css/admin/technical-services.css",
+    "isEntry": true
+  },
   "resources/css/app.css": {
     "file": "assets/app-Cd7BWfNo.css",
     "src": "resources/css/app.css",
@@ -26,10 +36,22 @@
     "src": "resources/js/admin/google-ads.js",
     "isEntry": true
   },
+  "resources/js/admin/roles.js": {
+    "file": "assets/roles-CpcDjtCP.js",
+    "name": "roles",
+    "src": "resources/js/admin/roles.js",
+    "isEntry": true
+  },
   "resources/js/admin/sidebar.js": {
     "file": "assets/sidebar-CMuHmg7g.js",
     "name": "sidebar",
     "src": "resources/js/admin/sidebar.js",
+    "isEntry": true
+  },
+  "resources/js/admin/technical-services.js": {
+    "file": "assets/technical-services-D-wOplR-.js",
+    "name": "technical-services",
+    "src": "resources/js/admin/technical-services.js",
     "isEntry": true
   },
   "resources/js/app.js": {
