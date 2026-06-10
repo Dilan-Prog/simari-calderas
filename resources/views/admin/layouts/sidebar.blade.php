@@ -26,6 +26,8 @@
             request()->routeIs('admin.clients.*') => 'clientes',
             request()->routeIs('admin.suppliers.*') => 'proveedores',
             request()->routeIs('admin.products.*') => 'productos',
+            request()->routeIs('admin.categories.*') => 'categorias',
+            request()->routeIs('admin.brands.*') => 'marcas',
             request()->routeIs('admin.google-ads.*') => 'google-ads',
             request()->routeIs('admin.quotes.*') => 'cotizaciones',
             request()->routeIs('admin.service-reports.*') => 'reportes-servicio',
@@ -151,7 +153,7 @@
 
         {{-- Categorías --}}
         @if($authUser->hasPermission('categories'))
-        <a class="sidebar-nav-item" data-section="categories" data-label="Categorías"
+        <a class="sidebar-nav-item {{ $activeSection === 'categorias' ? 'active': ''  }}" data-section="categories" data-label="Categorías"
             href="{{ route('admin.categories.index') }}">
             <div class="sidebar-nav-item-left">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
@@ -171,7 +173,7 @@
 
         {{-- Marcas --}}
         @if($authUser->hasPermission('brands'))
-        <a class="sidebar-nav-item" data-section="brands" data-label="Marcas"
+        <a class="sidebar-nav-item {{ $activeSection === 'marcas' ? 'active' : '' }}" data-section="brands" data-label="Marcas"
             href="{{ route('admin.brands.index') }}">
             <div class="sidebar-nav-item-left">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
