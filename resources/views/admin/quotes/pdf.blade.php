@@ -19,13 +19,9 @@ body {
     margin: 0;
     padding: 0;
 }
-<<<<<<< HEAD
-
-=======
 /* ════════════════════════════════════════════════════
    HEADER FIJO — abarca todo el ancho del papel
    ════════════════════════════════════════════════════ */
->>>>>>> 04638f4537a2a9460f7400914815b28dcf8c8c55
 #pdf-header {
     position: fixed;
     top: -130px;

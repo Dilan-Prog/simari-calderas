@@ -25,18 +25,8 @@
 
 
         <!-- Form Body -->
-<<<<<<< HEAD
-<<<<<<< HEAD
-        <form class="user-manager-modal-body" action="{{ route('admin.users.store') }}" method="POST"
-            enctype="multipart/form-data">
-=======
-        <form id="userCreateForm" class="user-manager-modal-body" action="{{ route('admin.users.store') }}" method="POST"
-            enctype="multipart/form-data" novalidate>
->>>>>>> 9f21f7d4ddd7b772e9904ef29e5899116acf3b89
-=======
         <form id="userCreateForm" class="user-manager-modal-body" action="{{ route('admin.users.store') }}"
             method="POST" enctype="multipart/form-data" novalidate>
->>>>>>> 04638f4537a2a9460f7400914815b28dcf8c8c55
             @csrf
             <h3>Información Personal</h3>
             <div class="user-manager-avatar-upload-container">
@@ -64,27 +54,10 @@
                     <label class="supliers-manager-slider-label">Apellidos*</label>
                     <input class="users-manager-input" type="text" name="last_name" value="{{ old('last_name') }}">
                 </div>
-<<<<<<< HEAD
-
-                <div>
-                    <label class="supliers-manager-slider-label">Fecha de Nacimiento</label>
-                    <input class="users-manager-input" type="date" name="birthdate" value="{{ old('birthdate') }}">
-                </div>
                 <div>
                     <label class="supliers-manager-slider-label">RFC</label>
-                    <input class="users-manager-input" type="text" placeholder="XAXX010101000"
-                        name="rfc" value="{{ old('rfc') }}">
-=======
-                <div>
-                    <label class="supliers-manager-slider-label">RFC</label>
-<<<<<<< HEAD
-                    <input class="users-manager-input" type="text" placeholder="XAXX010101000"
-                        name="rfc" id="create_rfc" value="{{ old('rfc') }}">
->>>>>>> 9f21f7d4ddd7b772e9904ef29e5899116acf3b89
-=======
                     <input class="users-manager-input" type="text" placeholder="XAXX010101000" name="rfc"
                         id="create_rfc" value="{{ old('rfc') }}">
->>>>>>> 04638f4537a2a9460f7400914815b28dcf8c8c55
                 </div>
                 <div>
                     <label class="supliers-manager-slider-label">CURP</label>
@@ -188,16 +161,5 @@
                     Usuario</button>
             </div>
         </form>
-<<<<<<< HEAD
-
-    </div>
-
-</div>
-=======
     </div>
 </div>
-<<<<<<< HEAD
-
->>>>>>> 9f21f7d4ddd7b772e9904ef29e5899116acf3b89
-=======
->>>>>>> 04638f4537a2a9460f7400914815b28dcf8c8c55

@@ -1,21 +1,22 @@
 {
-<<<<<<< HEAD
-  "resources/css/admin/app.css": {
-    "file": "assets/app-B1lJ0qMm.css",
-=======
   "resources/css/admin-quotes.css": {
     "file": "assets/admin-quotes-B9t4uuYe.css",
     "src": "resources/css/admin-quotes.css",
     "isEntry": true
   },
   "resources/css/admin/app.css": {
-<<<<<<< HEAD
-    "file": "assets/app-uNXdRO_L.css",
->>>>>>> 9f21f7d4ddd7b772e9904ef29e5899116acf3b89
-=======
-    "file": "assets/app-CYyke3zR.css",
->>>>>>> 04638f4537a2a9460f7400914815b28dcf8c8c55
+    "file": "assets/app-Dax9jOjx.css",
     "src": "resources/css/admin/app.css",
+    "isEntry": true
+  },
+  "resources/css/admin/roles.css": {
+    "file": "assets/roles-BINgigIa.css",
+    "src": "resources/css/admin/roles.css",
+    "isEntry": true
+  },
+  "resources/css/admin/technical-services.css": {
+    "file": "assets/technical-services-CDayPEvR.css",
+    "src": "resources/css/admin/technical-services.css",
     "isEntry": true
   },
   "resources/css/app.css": {
@@ -35,22 +36,22 @@
     "src": "resources/js/admin/google-ads.js",
     "isEntry": true
   },
-  "resources/js/admin/sidebar.js": {
-    "file": "assets/sidebar-CMuHmg7g.js",
-    "name": "sidebar",
-    "src": "resources/js/admin/sidebar.js",
-    "isEntry": true
-  },
-  "resources/js/admin/google-ads.js": {
-    "file": "assets/google-ads-Cuv0h1CS.js",
-    "name": "google-ads",
-    "src": "resources/js/admin/google-ads.js",
+  "resources/js/admin/roles.js": {
+    "file": "assets/roles-CpcDjtCP.js",
+    "name": "roles",
+    "src": "resources/js/admin/roles.js",
     "isEntry": true
   },
   "resources/js/admin/sidebar.js": {
     "file": "assets/sidebar-CMuHmg7g.js",
     "name": "sidebar",
     "src": "resources/js/admin/sidebar.js",
+    "isEntry": true
+  },
+  "resources/js/admin/technical-services.js": {
+    "file": "assets/technical-services-D-wOplR-.js",
+    "name": "technical-services",
+    "src": "resources/js/admin/technical-services.js",
     "isEntry": true
   },
   "resources/js/app.js": {

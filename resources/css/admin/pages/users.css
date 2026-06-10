@@ -89,11 +89,8 @@
     height: 36px;
     justify-content: center;
     width: 36px;
-<<<<<<< HEAD
-=======
     min-width: 36px;
     min-height: 36px;
->>>>>>> 9f21f7d4ddd7b772e9904ef29e5899116acf3b89
 }
 
 /* Header left user manager */
@@ -152,11 +149,7 @@
     width: 100%;
     table-layout: fixed;
 }
-<<<<<<< HEAD
-
-=======
  /* Scroll table */
->>>>>>> 9f21f7d4ddd7b772e9904ef29e5899116acf3b89
 .table-scroll {
     max-height: 420px;
     overflow-y: auto;
@@ -169,10 +162,6 @@
     font-weight: 600;
     padding: 16px;
     text-align: left;
-<<<<<<< HEAD
-    z-index: 2;
-=======
->>>>>>> 9f21f7d4ddd7b772e9904ef29e5899116acf3b89
     background-color: var(--bg-light);
     position: sticky;
     top: 0;
@@ -279,15 +268,11 @@
 .table-users-manager-action-btn.cancel:hover {
     background-color: rgb(240, 240, 240);
 }
-<<<<<<< HEAD
-
-=======
 .edit-delete-emergency-btn{
     position: relative;
     left: 20px;
     top: 20px;
 }
->>>>>>> 9f21f7d4ddd7b772e9904ef29e5899116acf3b89
 /* General content */
 .filters-clients-manager {
     display: flex;
@@ -360,11 +345,6 @@
     color: var(--text-body);
 }
 
-<<<<<<< HEAD
-
-/* Form create user*/
-
-=======
 .supliers-manager-custom-slider {
     position: relative;
     height: 6px;
@@ -388,7 +368,6 @@
 
 
 /* Form create user*/
->>>>>>> 9f21f7d4ddd7b772e9904ef29e5899116acf3b89
 .user-manager-modal {
     position: fixed;
     top: 0;
@@ -516,26 +495,15 @@
     box-sizing: border-box;
 }
 
-<<<<<<< HEAD
-.user-manager-form.access-sistem-form>div {
-=======
 .user-manager-form.access-sistem-form div {
-<<<<<<< HEAD
->>>>>>> 9f21f7d4ddd7b772e9904ef29e5899116acf3b89
-    position: relative;
-=======
->>>>>>> 04638f4537a2a9460f7400914815b28dcf8c8c55
     margin-bottom: 15px;
     display: flex;
     flex-direction: column;
 }
-<<<<<<< HEAD
-=======
 .last-column-user-manage{
     display: flex;
     justify-content: center;
 }
->>>>>>> 9f21f7d4ddd7b772e9904ef29e5899116acf3b89
 
 .users-manager-input.password {
     width: 100%;
@@ -546,13 +514,10 @@
     border-radius: 6px;
 }
 
-<<<<<<< HEAD
-=======
 .users-manager-input.password::-ms-reveal,
 .users-manager-input.password::-ms-clear {
     display: none;
 }
->>>>>>> 9f21f7d4ddd7b772e9904ef29e5899116acf3b89
 
 .password-eye-container-from-users {
     position: relative;
@@ -888,13 +853,6 @@
     border-radius: 8px;
 }
 
-<<<<<<< HEAD
-
-
-/* in construction... */
-
-=======
->>>>>>> 9f21f7d4ddd7b772e9904ef29e5899116acf3b89
 /* STATS */
 .stats {
     display: flex;
@@ -902,16 +860,10 @@
     margin-bottom: 20px;
 }
 
-<<<<<<< HEAD
-.stat-card {
-    background: white;
-    padding: 20px;
-=======
 .stat-card-supplier-index {
     background: var(--bg-light);
     padding: 8px 20px;
     box-shadow: var(--shadow-default);
->>>>>>> 9f21f7d4ddd7b772e9904ef29e5899116acf3b89
     border-radius: 12px;
     flex: 1;
 }
@@ -959,11 +911,7 @@
 
 .toast-notification {
     display: flex;
-<<<<<<< HEAD
-    align-items: flex-end;
-=======
     align-items: flex-start;
->>>>>>> 9f21f7d4ddd7b772e9904ef29e5899116acf3b89
     gap: 12px;
     padding: 14px 16px;
     border-radius: 10px;
@@ -973,10 +921,7 @@
     position: absolute;
     right: 0;
     bottom: 0;
-<<<<<<< HEAD
-=======
     z-index: 400;
->>>>>>> 9f21f7d4ddd7b772e9904ef29e5899116acf3b89
 }
 
 @keyframes toastIn {
@@ -1168,8 +1113,6 @@
 .delete-confirmation-modal-button:hover {
     background: var(--button-primary-color-hover-rinnai);
 }
-<<<<<<< HEAD
-=======
 
 
 /* Show user */
@@ -1419,9 +1362,6 @@
 .cfdi-status--info    { background: #dbeafe; color: #1e40af; }
 .cfdi-status--success { background: #dcfce7; color: #166534; }
 .cfdi-status--error   { background: #fee2e2; color: #991b1b; }
-<<<<<<< HEAD
->>>>>>> 9f21f7d4ddd7b772e9904ef29e5899116acf3b89
-=======
 
 .category-row{
     display: flex;
@@ -1555,4 +1495,3 @@
     font-size:12px;
     font-weight:600;
 }
->>>>>>> 04638f4537a2a9460f7400914815b28dcf8c8c55
