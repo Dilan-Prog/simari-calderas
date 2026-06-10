@@ -671,6 +671,11 @@
     border: 1px solid transparent;
     white-space: nowrap;
 }
+.ts-badge--draft {
+    background: #F9FAFB;
+    color: #6B7280;
+    border-color: #D1D5DB;
+}
 .ts-badge--scheduled {
     background: var(--ts-sched-bg);
     color: var(--ts-sched-text);

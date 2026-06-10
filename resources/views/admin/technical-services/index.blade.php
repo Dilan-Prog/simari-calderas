@@ -238,7 +238,7 @@
                 </tbody>
             </table>
 
-            @if(method_exists($services, 'links'))
+            @if(is_object($services) && method_exists($services, 'links'))
             <div class="ts-pagination">
                 <span class="ts-pagination__info">
                     Mostrando {{ $services->firstItem() }}–{{ $services->lastItem() }}

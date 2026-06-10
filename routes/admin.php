@@ -7,6 +7,7 @@ use App\Http\Controllers\Backend\ClientManageController;
 use App\Http\Controllers\Backend\ProductController;
 use App\Http\Controllers\Backend\QuoteController;
 use App\Http\Controllers\Backend\ServiceReportController;
+use App\Http\Controllers\Backend\TechnicalServiceController;
 use App\Http\Controllers\Backend\UserManageController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Backend\BrandController;
@@ -158,6 +159,36 @@ Route::prefix('service-reports')
         Route::get('/{report}/step/{step}', 'step')->name('step');
         Route::post('/{report}/step/{step}', 'saveStep')->name('save-step');
         Route::delete('/{report}/images/{image}', 'destroyImage')->name('images.destroy');
+    });
+
+// ============================================================
+// Servicios Técnicos
+// ============================================================
+Route::controller(TechnicalServiceController::class)
+    ->middleware('permission:technical-services')
+    ->prefix('technical-services')
+    ->name('technical-services.')
+    ->group(function () {
+        // Búsquedas AJAX — van primero para no colisionar con {service}
+        Route::get('/search-technicians', 'searchTechnicians')->name('search-technicians');
+        Route::get('/search-materials', 'searchMaterials')->name('search-materials');
+
+        // CRUD principal
+        Route::get('/', 'index')->name('index');
+        Route::get('/create', 'create')->name('create');
+        Route::post('/', 'store')->name('store');
+        Route::get('/{service}', 'show')->name('show');
+        Route::get('/{service}/edit', 'edit')->name('edit');
+        Route::delete('/{service}', 'destroy')->name('destroy');
+
+        // Formulario multi-etapa
+        Route::get('/{service}/step/{step}', 'step')->name('step');
+        Route::post('/{service}/step/{step}', 'saveStep')->name('save-step');
+
+        // Acciones especiales
+        Route::patch('/{service}/update-date', 'updateDate')->name('update-date');
+        Route::patch('/{service}/update-status', 'updateStatus')->name('update-status');
+        Route::get('/{service}/generate-report', 'generateReport')->name('generate-report');
     });
 
 // ============================================================

@@ -1,6 +1,6 @@
 @extends('admin.layouts.master')
 
-@section('title', 'Nuevo Servicio Técnico')
+@section('title', isset($service) && $service?->id ? 'Editar Servicio ' . $service->service_number : 'Nuevo Servicio Técnico')
 
 @push('styles')
     @vite('resources/css/admin/technical-services.css')
@@ -12,7 +12,7 @@
     {{-- ── Wizard progress bar ────────────────────── --}}
     @php
         $steps = [1 => 'Datos Generales', 2 => 'Técnicos', 3 => 'Materiales', 4 => 'Confirmar'];
-        $currentStep = $service->current_step ?? 1;
+        $currentStep = $service?->current_step ?? 1;
     @endphp
 
     <div class="ts-wizard-bar">
@@ -61,9 +61,13 @@
                          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="m9 18 6-6-6-6"/>
                     </svg>
-                    <span class="ts-breadcrumb__current">Nuevo Servicio</span>
+                    <span class="ts-breadcrumb__current">
+                        {{ $service?->id ? 'Editar Servicio' : 'Nuevo Servicio' }}
+                    </span>
                 </div>
-                <h1 class="ts-title" style="margin:0">Programar Nuevo Servicio</h1>
+                <h1 class="ts-title" style="margin:0">
+                    {{ $service?->id ? 'Editar Servicio' : 'Programar Nuevo Servicio' }}
+                </h1>
             </div>
             <div style="margin-left:auto;display:flex;align-items:center;gap:0.5rem">
                 <span class="ts-autosave" id="ts-autosave"></span>

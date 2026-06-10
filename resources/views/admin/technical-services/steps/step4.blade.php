@@ -18,25 +18,24 @@
         </div>
         <div class="ts-confirm-row">
             <span class="ts-confirm-row__key">Cliente</span>
-            <span class="ts-confirm-row__val">{{ $service->customer->name ?? $service->customer_name }}</span>
+            <span class="ts-confirm-row__val">
+                {{ $service->customer?->company ?: trim(($service->customer?->first_name ?? '') . ' ' . ($service->customer?->last_name ?? '')) }}
+            </span>
         </div>
         <div class="ts-confirm-row">
             <span class="ts-confirm-row__key">Fecha y hora</span>
             <span class="ts-confirm-row__val">
-                {{ $service->service_date ? \Carbon\Carbon::parse($service->service_date)->format('d M Y') : '—' }}
-                {{ $service->service_time ? '· ' . $service->service_time : '' }}
+                {{ $service->service_date ? $service->service_date->format('d M Y') : '—' }}
+                {{ $service->service_time ? '· ' . substr($service->service_time, 0, 5) : '' }}
             </span>
         </div>
         <div class="ts-confirm-row">
             <span class="ts-confirm-row__key">Duración estimada</span>
-            <span class="ts-confirm-row__val">{{ $service->estimated_duration ?? '—' }}</span>
+            <span class="ts-confirm-row__val">{{ $service->estimated_duration_label }}</span>
         </div>
         <div class="ts-confirm-row">
             <span class="ts-confirm-row__key">Prioridad</span>
-            <span class="ts-confirm-row__val">
-                @php $pl = ['normal'=>'Normal','high'=>'Alta','urgent'=>'Urgente']; @endphp
-                {{ $pl[$service->priority ?? 'normal'] ?? 'Normal' }}
-            </span>
+            <span class="ts-confirm-row__val">{{ $service->priority_label }}</span>
         </div>
         @if($service->address)
         <div class="ts-confirm-row">
@@ -64,12 +63,12 @@
             <div class="ts-confirm-row">
                 <span class="ts-confirm-row__key" style="display:flex;align-items:center;gap:0.5rem">
                     <div class="ts-tech-avatar" style="width:22px;height:22px;font-size:0.625rem;flex-shrink:0">
-                        {{ mb_strtoupper(mb_substr($tech->name,0,1)) }}
+                        {{ mb_strtoupper(mb_substr($tech->first_name, 0, 1)) }}
                     </div>
-                    {{ $tech->name }}
+                    {{ trim("{$tech->first_name} {$tech->last_name}") }}
                 </span>
                 <span class="ts-confirm-row__val" style="color:#9CA3AF;font-size:0.75rem">
-                    {{ $tech->email ?? '' }}
+                    {{ $tech->position ?? $tech->email ?? '' }}
                 </span>
             </div>
             @endforeach
@@ -86,9 +85,9 @@
         @else
             @foreach($service->plannedMaterials as $mat)
             <div class="ts-confirm-row">
-                <span class="ts-confirm-row__key">{{ $mat->name }}</span>
+                <span class="ts-confirm-row__key">{{ $mat->product_name }}</span>
                 <span class="ts-confirm-row__val">
-                    {{ $mat->quantity }} {{ $mat->unit ?? '' }}
+                    {{ $mat->quantity }} {{ $mat->unit_label }}
                 </span>
             </div>
             @endforeach
@@ -97,7 +96,7 @@
 
 </div>
 
-{{-- Wizard footer --}}
+{{-- Wizard footer — POST regular (no AJAX) --}}
 <div class="ts-wizard-footer">
     <a href="{{ route('admin.technical-services.step', [$service, 3]) }}" class="ts-btn">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
@@ -107,9 +106,9 @@
         Anterior
     </a>
 
-    <form action="{{ route('admin.technical-services.store') }}" method="POST">
+    <form action="{{ route('admin.technical-services.save-step', [$service, 4]) }}"
+          method="POST" style="display:inline">
         @csrf
-        <input type="hidden" name="service_id" value="{{ $service->id }}">
         <button type="submit" class="ts-btn ts-btn--primary">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
