@@ -7,9 +7,12 @@
 @endpush
 
 @section('content')
-<div class="roles-page">
+<div class="roles-page"
+    data-url-show="{{ url('admin/roles/mostrar-rol') }}"
+    data-url-update="{{ url('admin/roles/editar-rol') }}"
+    data-url-delete="{{ url('admin/roles/eliminar-rol') }}">
 
-    {{-- Breadcrumb + Header --}}
+    {{-- Breadcrumb --}}
     <div class="roles-header">
         <div class="roles-breadcrumb">
             <span>Panel de Control</span>
@@ -134,7 +137,9 @@
                             <span class="roles-badge roles-badge--default">{{ $role->permissions_count }} módulos</span>
                         @endif
                     </td>
-                    <td class="roles-cell-date">{{ $role->created_at ? \Carbon\Carbon::parse($role->created_at)->format('d M Y') : '—' }}</td>
+                    <td class="roles-cell-date">
+                        {{ $role->created_at ? \Carbon\Carbon::parse($role->created_at)->format('d M Y') : '—' }}
+                    </td>
                     <td>
                         <div class="roles-actions">
                             <button class="roles-action-btn" type="button" title="Ver"
@@ -201,169 +206,13 @@
 {{-- Overlay --}}
 <div id="roles-overlay" class="roles-overlay" onclick="closeAll()"></div>
 
-{{-- Drawer Crear --}}
-<div id="roles-drawer-create" class="roles-drawer">
-    <div class="roles-drawer__header">
-        <div>
-            <h2 class="roles-drawer__title">Nuevo Rol</h2>
-            <p class="roles-drawer__subtitle">Define nombre, descripcion y permisos</p>
-        </div>
-        <button class="roles-drawer__close" type="button" onclick="closeCreateDrawer()">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
-            </svg>
-        </button>
-    </div>
-    <div class="roles-drawer__body">
-        <form id="roles-create-form" method="POST" action="{{ route('admin.roles.store') }}"
-            onsubmit="serializePermissions('roles-create-form')">
-            @csrf
-            <div class="roles-field">
-                <label class="roles-label" for="create-name">Nombre del Rol <span class="roles-required">*</span></label>
-                <input type="text" id="create-name" name="name_role" class="roles-input"
-                    placeholder="Ej: Supervisor de Ventas" required>
-            </div>
-            <div class="roles-field">
-                <label class="roles-label" for="create-desc">Descripcion</label>
-                <textarea id="create-desc" name="description_role" class="roles-textarea" rows="3"
-                    placeholder="Describe las responsabilidades de este rol"></textarea>
-            </div>
-            <div class="roles-modules-header">
-                <span class="roles-label" style="margin:0">Modulos con acceso</span>
-                <div class="roles-modules-actions">
-                    <button type="button" class="roles-btn-link" onclick="selectAllModules('roles-create-form')">Seleccionar todos</button>
-                    <span class="roles-modules-sep">·</span>
-                    <button type="button" class="roles-btn-link" onclick="clearAllModules('roles-create-form')">Limpiar</button>
-                </div>
-            </div>
-            <div class="roles-modules-grid" id="create-modules-grid">
-                @foreach($modules as $key => $module)
-                <div class="roles-module-card" data-module="{{ $key }}" onclick="toggleModule(this)">
-                    <span class="roles-module-name">{{ $module['name'] }}</span>
-                    <div class="roles-toggle"></div>
-                </div>
-                @endforeach
-            </div>
-            <div id="roles-create-permissions-container"></div>
-        </form>
-    </div>
-    <div class="roles-drawer__footer">
-        <button type="button" class="roles-btn roles-btn--outline" onclick="closeCreateDrawer()">Cancelar</button>
-        <button type="submit" form="roles-create-form" class="roles-btn roles-btn--primary">Guardar Rol</button>
-    </div>
-</div>
-
-{{-- Drawer Editar --}}
-<div id="roles-drawer-edit" class="roles-drawer">
-    <div class="roles-drawer__header">
-        <div>
-            <h2 class="roles-drawer__title">Editar Rol</h2>
-            <p class="roles-drawer__subtitle">Modifica nombre, descripcion y permisos</p>
-        </div>
-        <button class="roles-drawer__close" type="button" onclick="closeEditDrawer()">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
-            </svg>
-        </button>
-    </div>
-    <div class="roles-drawer__body">
-        <form id="roles-edit-form" method="POST" action=""
-            onsubmit="serializePermissions('roles-edit-form')">
-            @csrf
-            @method('PUT')
-            <div class="roles-field">
-                <label class="roles-label" for="edit-name">Nombre del Rol <span class="roles-required">*</span></label>
-                <input type="text" id="edit-name" name="name_role" class="roles-input" required>
-            </div>
-            <div class="roles-field">
-                <label class="roles-label" for="edit-desc">Descripcion</label>
-                <textarea id="edit-desc" name="description_role" class="roles-textarea" rows="3"></textarea>
-            </div>
-            <div class="roles-modules-header">
-                <span class="roles-label" style="margin:0">Modulos con acceso</span>
-                <div class="roles-modules-actions">
-                    <button type="button" class="roles-btn-link" onclick="selectAllModules('roles-edit-form')">Seleccionar todos</button>
-                    <span class="roles-modules-sep">·</span>
-                    <button type="button" class="roles-btn-link" onclick="clearAllModules('roles-edit-form')">Limpiar</button>
-                </div>
-            </div>
-            <div class="roles-modules-grid" id="edit-modules-grid">
-                @foreach($modules as $key => $module)
-                <div class="roles-module-card" data-module="{{ $key }}" onclick="toggleModule(this)">
-                    <span class="roles-module-name">{{ $module['name'] }}</span>
-                    <div class="roles-toggle"></div>
-                </div>
-                @endforeach
-            </div>
-            <div id="roles-edit-permissions-container"></div>
-        </form>
-    </div>
-    <div class="roles-drawer__footer">
-        <button type="button" class="roles-btn roles-btn--outline" onclick="closeEditDrawer()">Cancelar</button>
-        <button type="submit" form="roles-edit-form" class="roles-btn roles-btn--primary">Guardar Cambios</button>
-    </div>
-</div>
-
-{{-- Modal Ver Detalle --}}
-<div id="roles-modal-show" class="roles-modal" style="display:none">
-    <div class="roles-modal__box">
-        <div class="roles-modal__header">
-            <h3 class="roles-modal__title">Detalle del Rol</h3>
-            <button class="roles-drawer__close" type="button" onclick="closeShowModal()">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
-                </svg>
-            </button>
-        </div>
-        <div id="roles-modal-show-body" class="roles-modal__body">
-            <div class="roles-modal-loading">Cargando...</div>
-        </div>
-    </div>
-</div>
-
-{{-- Modal Eliminar --}}
-<div id="roles-modal-delete" class="roles-modal" style="display:none">
-    <div class="roles-modal__box roles-modal__box--sm">
-        <div class="roles-modal__header">
-            <h3 class="roles-modal__title">Eliminar Rol</h3>
-            <button class="roles-drawer__close" type="button" onclick="closeDeleteModal()">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
-                </svg>
-            </button>
-        </div>
-        <div class="roles-modal__body">
-            <div class="roles-delete-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M3 6h18"/>
-                    <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
-                    <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
-                    <line x1="10" x2="10" y1="11" y2="17"/>
-                    <line x1="14" x2="14" y1="11" y2="17"/>
-                </svg>
-            </div>
-            <p class="roles-delete-title">Eliminar rol <strong id="roles-delete-name"></strong></p>
-            <p class="roles-delete-warning" id="roles-delete-warning"></p>
-        </div>
-        <form id="roles-delete-form" method="POST" action="">
-            @csrf
-            @method('DELETE')
-            <div class="roles-modal__footer">
-                <button type="button" class="roles-btn roles-btn--outline" onclick="closeDeleteModal()">Cancelar</button>
-                <button type="submit" class="roles-btn roles-btn--danger">Eliminar</button>
-            </div>
-        </form>
-    </div>
-</div>
+@include('admin.roles.partials._drawer_create')
+@include('admin.roles.partials._drawer_edit')
+@include('admin.roles.partials._modal_show')
+@include('admin.roles.partials._modal_delete')
 
 @endsection
 
 @push('scripts')
     @vite('resources/js/admin/roles.js')
 @endpush
-

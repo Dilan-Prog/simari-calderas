@@ -47,6 +47,7 @@ class RoleController extends Controller
     {
         $validated = $request->validate([
             'name_role'        => 'required|string|max:100|unique:roles,name_role',
+            'name_role_es'     => 'nullable|string|max:100',
             'description_role' => 'nullable|string|max:255',
             'permissions'      => 'nullable|array',
             'permissions.*'    => 'string',
@@ -54,7 +55,9 @@ class RoleController extends Controller
 
         $role = Role::create([
             'name_role'        => $validated['name_role'],
+            'name_role_es'     => $validated['name_role_es'] ?? $validated['name_role'],
             'description_role' => $validated['description_role'] ?? null,
+            'created_at'       => now(),
         ]);
 
         if (!empty($validated['permissions'])) {
@@ -73,6 +76,7 @@ class RoleController extends Controller
 
         $validated = $request->validate([
             'name_role'        => 'required|string|max:100|unique:roles,name_role,' . $id,
+            'name_role_es'     => 'nullable|string|max:100',
             'description_role' => 'nullable|string|max:255',
             'permissions'      => 'nullable|array',
             'permissions.*'    => 'string',
@@ -80,6 +84,7 @@ class RoleController extends Controller
 
         $role->update([
             'name_role'        => $validated['name_role'],
+            'name_role_es'     => $validated['name_role_es'] ?? $validated['name_role'],
             'description_role' => $validated['description_role'] ?? null,
         ]);
 
