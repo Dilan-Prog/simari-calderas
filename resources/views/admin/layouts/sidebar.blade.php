@@ -18,8 +18,10 @@
         }
     </style>
     @php
+        $authUser = auth()->user();
         $activeSection = match (true) {
             request()->routeIs('admin.dashboard') => 'dashboard',
+            request()->routeIs('admin.roles.*') => 'roles',
             request()->routeIs('admin.users.*') => 'usuarios',
             request()->routeIs('admin.clients.*') => 'clientes',
             request()->routeIs('admin.suppliers.*') => 'proveedores',
@@ -27,10 +29,13 @@
             request()->routeIs('admin.google-ads.*') => 'google-ads',
             request()->routeIs('admin.quotes.*') => 'cotizaciones',
             request()->routeIs('admin.service-reports.*') => 'reportes-servicio',
+            request()->routeIs('admin.technical-services.*') => 'servicios-tecnicos',
             default => '',
         };
     @endphp
     <nav class="sidebar-nav" id="sidebarNav">
+
+        {{-- Dashboard: siempre visible --}}
         <a class="sidebar-nav-item {{ $activeSection === 'dashboard' ? 'active' : '' }}"
             href="{{ route('admin.dashboard') }}" data-section="dashboard" data-label="Dashboard">
             <div class="sidebar-nav-item-left">
@@ -41,9 +46,28 @@
                     <rect width="7" height="9" x="14" y="12" rx="1" />
                     <rect width="7" height="5" x="3" y="16" rx="1" />
                 </svg>
-                <span class="sidebar-nav-item-label">Dashboard</span>
+                <span class="sidebar-nav-item-label">Inicio</span>
             </div>
         </a>
+
+        {{-- Roles: solo admin --}}
+        @if($authUser->isAdmin())
+        <a class="sidebar-nav-item {{ $activeSection === 'roles' ? 'active' : '' }}" data-section="roles"
+            data-label="Roles" href="{{ route('admin.roles.index') }}">
+            <div class="sidebar-nav-item-left">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shield"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"></path></svg>
+                <span class="sidebar-nav-item-label">Roles</span>
+            </div>
+            <svg class="sidebar-nav-chevron" xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round">
+                <path d="m9 18 6-6-6-6" />
+            </svg>
+        </a>
+        @endif
+
+        {{-- Usuarios: solo admin --}}
+        @if($authUser->isAdmin())
         <a class="sidebar-nav-item {{ $activeSection === 'usuarios' ? 'active' : '' }}" data-section="usuarios"
             data-label="Usuarios" href="{{ route('admin.users.index') }}">
             <div class="sidebar-nav-item-left">
@@ -62,6 +86,10 @@
                 <path d="m9 18 6-6-6-6" />
             </svg>
         </a>
+        @endif
+
+        {{-- Clientes --}}
+        @if($authUser->hasPermission('clients'))
         <a class="sidebar-nav-item {{ $activeSection === 'clientes' ? 'active' : '' }}" data-section="clientes"
             href="{{ route('admin.clients.index') }}" data-label="Clientes">
             <div class="sidebar-nav-item-left">
@@ -78,7 +106,10 @@
                 <span class="sidebar-nav-item-label">Clientes</span>
             </div>
         </a>
+        @endif
 
+        {{-- Proveedores --}}
+        @if($authUser->hasPermission('suppliers'))
         <a class="sidebar-nav-item {{ $activeSection === 'proveedores' ? 'active' : '' }}" data-section="proveedores"
             href="{{ route('admin.suppliers.index') }}" data-label="Proveedores">
             <div class="sidebar-nav-item-left">
@@ -99,8 +130,10 @@
                 <span class="sidebar-nav-item-label">Proveedores</span>
             </div>
         </a>
+        @endif
 
-
+        {{-- Productos --}}
+        @if($authUser->hasPermission('products'))
         <a class="sidebar-nav-item {{ $activeSection === 'productos' ? 'active' : '' }}" data-section="products"
             href="{{ route('admin.products.index') }}" data-label="Productos">
             <div class="sidebar-nav-item-left">
@@ -114,9 +147,11 @@
                 <span class="sidebar-nav-item-label">Productos</span>
             </div>
         </a>
+        @endif
 
-
-        <a class="sidebar-nav-item" data-section="coming-soon" data-label="Categorías" data-section="categories"
+        {{-- Categorías --}}
+        @if($authUser->hasPermission('categories'))
+        <a class="sidebar-nav-item" data-section="categories" data-label="Categorías"
             href="{{ route('admin.categories.index') }}">
             <div class="sidebar-nav-item-left">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
@@ -132,8 +167,11 @@
                 <span class="sidebar-nav-item-label">Categorías</span>
             </div>
         </a>
+        @endif
 
-        <a class="sidebar-nav-item" data-section="coming-soon" data-label="Marcas" data-section="Marcas"
+        {{-- Marcas --}}
+        @if($authUser->hasPermission('brands'))
+        <a class="sidebar-nav-item" data-section="brands" data-label="Marcas"
             href="{{ route('admin.brands.index') }}">
             <div class="sidebar-nav-item-left">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
@@ -147,7 +185,10 @@
                 <span class="sidebar-nav-item-label">Marcas</span>
             </div>
         </a>
+        @endif
 
+        {{-- Cotizaciones --}}
+        @if($authUser->hasPermission('quotes'))
         <a class="sidebar-nav-item {{ $activeSection === 'cotizaciones' ? 'active' : '' }}"
             href="{{ route('admin.quotes.index') }}" data-section="cotizaciones" data-label="Cotizaciones">
             <div class="sidebar-nav-item-left">
@@ -162,21 +203,38 @@
                 <span class="sidebar-nav-item-label">Cotizaciones</span>
             </div>
         </a>
+        @endif
+
+        {{-- Reportes de Servicio --}}
+        @if($authUser->hasPermission('service-reports'))
         <a class="sidebar-nav-item {{ $activeSection === 'reportes-servicio' ? 'active' : '' }}"
             href="{{ route('admin.service-reports.index') }}" data-section="reportes-servicio"
             data-label="Reporte de Servicios">
             <div class="sidebar-nav-item-left">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                    stroke-linejoin="round">
-                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z" />
-                    <path d="M14 2v6h6" />
-                    <path d="M8 13h8" />
-                    <path d="M8 17h5" />
-                </svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clipboard-list"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"></rect><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><path d="M12 11h4"></path><path d="M12 16h4"></path><path d="M8 11h.01"></path><path d="M8 16h.01"></path></svg>
                 <span class="sidebar-nav-item-label">Reporte de Servicios</span>
             </div>
         </a>
+        @endif
+
+        {{-- Órdenes de Compra --}}
+        @if($authUser->hasPermission('purchase-orders'))
+        <a class="sidebar-nav-item disabled" data-section="coming-soon" data-label="Órdenes de Compra">
+            <div class="sidebar-nav-item-left">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <circle cx="8" cy="21" r="1" />
+                    <circle cx="19" cy="21" r="1" />
+                    <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12" />
+                </svg>
+                <span class="sidebar-nav-item-label">Órdenes de Compra</span>
+            </div>
+        </a>
+        @endif
+
+        {{-- Órdenes --}}
+        @if($authUser->hasPermission('orders'))
         <a class="sidebar-nav-item disabled" data-section="coming-soon" data-label="Órdenes">
             <div class="sidebar-nav-item-left">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
@@ -189,21 +247,20 @@
                 <span class="sidebar-nav-item-label">Órdenes</span>
             </div>
         </a>
+        @endif
 
-
-        <a class="sidebar-nav-item disabled" data-section="coming-soon" data-label="Servicios Técnicos">
+        {{-- Servicios Técnicos --}}
+        @if($authUser->hasPermission('technical-services'))
+        <a class="sidebar-nav-item {{ $activeSection === 'servicios-tecnicos' ? 'active' : '' }}" href="{{ route('admin.technical-services.index') }}" data-section="coming-soon" data-label="Servicios Técnicos">
             <div class="sidebar-nav-item-left">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                    stroke-linejoin="round">
-                    <path
-                        d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
-                </svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clipboard-list"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"></rect><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><path d="M12 11h4"></path><path d="M12 16h4"></path><path d="M8 11h.01"></path><path d="M8 16h.01"></path></svg>
                 <span class="sidebar-nav-item-label">Servicios Técnicos</span>
             </div>
         </a>
+        @endif
 
-
+        {{-- Inventario --}}
+        @if($authUser->hasPermission('inventory'))
         <a class="sidebar-nav-item disabled" data-section="coming-soon" data-label="Inventario">
             <div class="sidebar-nav-item-left">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
@@ -216,6 +273,10 @@
                 <span class="sidebar-nav-item-label">Inventario</span>
             </div>
         </a>
+        @endif
+
+        {{-- Envíos --}}
+        @if($authUser->hasPermission('shipments'))
         <a class="sidebar-nav-item disabled" data-section="coming-soon" data-label="Envíos">
             <div class="sidebar-nav-item-left">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
@@ -230,8 +291,10 @@
                 <span class="sidebar-nav-item-label">Envíos</span>
             </div>
         </a>
+        @endif
 
-
+        {{-- Paqueterías --}}
+        @if($authUser->hasPermission('carriers'))
         <a class="sidebar-nav-item disabled" data-section="coming-soon" data-label="Paqueterías">
             <div class="sidebar-nav-item-left">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
@@ -246,8 +309,10 @@
                 <span class="sidebar-nav-item-label">Paqueterías</span>
             </div>
         </a>
+        @endif
 
-
+        {{-- Métodos de Pago --}}
+        @if($authUser->hasPermission('payment-methods'))
         <a class="sidebar-nav-item disabled" data-section="coming-soon" data-label="Métodos de Pago">
             <div class="sidebar-nav-item-left">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
@@ -259,8 +324,10 @@
                 <span class="sidebar-nav-item-label">Métodos de Pago</span>
             </div>
         </a>
+        @endif
 
-
+        {{-- Google Ads --}}
+        @if($authUser->hasPermission('google-ads'))
         <a class="sidebar-nav-item {{ $activeSection === 'google-ads' ? 'active' : '' }}"
             href="{{ route('admin.google-ads.index') }}" data-section="google-ads" data-label="Google Ads">
             <div class="sidebar-nav-item-left">
@@ -273,7 +340,10 @@
                 <span class="sidebar-nav-item-label">Google Ads</span>
             </div>
         </a>
+        @endif
 
+        {{-- Email Marketing --}}
+        @if($authUser->hasPermission('email-marketing'))
         <a class="sidebar-nav-item disabled" data-section="coming-soon" data-label="Email Marketing">
             <div class="sidebar-nav-item-left">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
@@ -285,8 +355,10 @@
                 <span class="sidebar-nav-item-label">Email Marketing</span>
             </div>
         </a>
+        @endif
 
-
+        {{-- Analíticas --}}
+        @if($authUser->hasPermission('analytics'))
         <a class="sidebar-nav-item disabled" data-section="coming-soon" data-label="Analíticas">
             <div class="sidebar-nav-item-left">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
@@ -300,8 +372,10 @@
                 <span class="sidebar-nav-item-label">Analíticas</span>
             </div>
         </a>
+        @endif
 
-
+        {{-- Auditoría Sistema --}}
+        @if($authUser->hasPermission('audit'))
         <a class="sidebar-nav-item disabled" data-section="coming-soon" data-label="Auditoría Sistema">
             <div class="sidebar-nav-item-left">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
@@ -313,6 +387,10 @@
                 <span class="sidebar-nav-item-label">Auditoría Sistema</span>
             </div>
         </a>
+        @endif
+
+        {{-- Blog --}}
+        @if($authUser->hasPermission('blog'))
         <a class="sidebar-nav-item disabled" data-section="coming-soon" data-label="Blog">
             <div class="sidebar-nav-item-left">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
@@ -327,6 +405,10 @@
                 <span class="sidebar-nav-item-label">Blog</span>
             </div>
         </a>
+        @endif
+
+        {{-- Menú --}}
+        @if($authUser->hasPermission('menu'))
         <a class="sidebar-nav-item disabled" data-section="coming-soon" data-label="Menú">
             <div class="sidebar-nav-item-left">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
@@ -339,8 +421,10 @@
                 <span class="sidebar-nav-item-label">Menú</span>
             </div>
         </a>
+        @endif
 
-
+        {{-- SEO Global --}}
+        @if($authUser->hasPermission('seo'))
         <a class="sidebar-nav-item disabled" data-section="coming-soon" data-label="SEO Global">
             <div class="sidebar-nav-item-left">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
@@ -353,7 +437,10 @@
                 <span class="sidebar-nav-item-label">SEO Global</span>
             </div>
         </a>
+        @endif
 
+        {{-- WhatsApp --}}
+        @if($authUser->hasPermission('whatsapp'))
         <a class="sidebar-nav-item disabled" data-section="coming-soon" data-label="WhatsApp">
             <div class="sidebar-nav-item-left">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
@@ -365,8 +452,10 @@
                 <span class="sidebar-nav-item-label">WhatsApp</span>
             </div>
         </a>
+        @endif
 
-
+        {{-- Configuración --}}
+        @if($authUser->hasPermission('settings'))
         <button class="sidebar-nav-item disabled" data-section="coming-soon" data-label="Configuración">
             <div class="sidebar-nav-item-left">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
@@ -378,7 +467,8 @@
                 </svg>
                 <span class="sidebar-nav-item-label">Configuración</span>
             </div>
-            </a>
+        </button>
+        @endif
 
     </nav>
     <div class="sidebar-footer">

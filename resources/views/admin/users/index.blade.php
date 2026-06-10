@@ -52,9 +52,9 @@
                                     <td>
                                         @php
                                             $roleClass = '';
-                                            $roleName = strtolower($user->role->name_role_es);
+                                            $roleName  = strtolower($user->role->name_role_es ?? '');
 
-                                            if ($roleName == 'administrador' || $roleName == 'admin') {
+                                            if ($roleName === 'administrador' || $roleName === 'admin') {
                                                 $roleClass = 'role-admin';
                                             } else {
                                                 $roleClass = 'role-employee';
@@ -62,7 +62,7 @@
                                         @endphp
 
                                         <span class="users-manager-badge {{ $roleClass }}">
-                                            {{ $user->role->name_role_es }}
+                                            {{ $user->role->name_role_es ?? 'Sin rol' }}
                                         </span>
                                     </td>
                                     <td>

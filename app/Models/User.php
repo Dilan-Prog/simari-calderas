@@ -6,6 +6,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use App\Models\Role;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
@@ -62,5 +63,41 @@ class User extends Authenticatable
     public function contactEmergency()
     {
         return $this->hasMany(ContactEmergency::class, 'user_id');
+    }
+
+    public function hasPermission(string $module): bool
+    {
+        // Admin siempre tiene acceso a todo
+        if ($this->isAdmin()) {
+            return true;
+        }
+
+        // Cache por 60 minutos para evitar queries repetidas
+        $permissions = cache()->remember(
+            "user_{$this->id}_permissions",
+            now()->addMinutes(60),
+            fn() => $this->role?->permissions()
+                        ->pluck('module')
+                        ->toArray() ?? []
+        );
+
+        return in_array($module, $permissions);
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->role?->isAdmin() ?? false;
+    }
+
+    // Limpia el cache de permisos de este usuario
+    public function clearPermissionsCache(): void
+    {
+        cache()->forget("user_{$this->id}_permissions");
+    }
+
+    // Accessor para nombre completo
+    public function getFullNameAttribute(): string
+    {
+        return "{$this->first_name} {$this->last_name}";
     }
 }
