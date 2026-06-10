@@ -25,10 +25,14 @@
                         Administra la información de tus clientes B2B
                     </p>
                 </div>
+<<<<<<< HEAD
 
 <<<<<<< HEAD
                 <button class="button-primary size-adjustment">
 =======
+=======
+                
+>>>>>>> 04638f4537a2a9460f7400914815b28dcf8c8c55
                 <button class="button-primary size-adjustment clients">
 >>>>>>> 9f21f7d4ddd7b772e9904ef29e5899116acf3b89
                     + Nuevo Cliente

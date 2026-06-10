@@ -90,7 +90,7 @@ class ClientManageController extends Controller
         $customer->company = $request->company;
         $customer->email = $request->email;
         $customer->phone = $request->phone;
-        $customer->password_hash = 'OdioAlosNegros';
+        $customer->password_hash = 'password'; // Modificar en las proximas funcionalidades
         $customer->rfc = $request->rfc;
         $customer->notes = $request->notes;
         $customer->document_type = $request->document_type;

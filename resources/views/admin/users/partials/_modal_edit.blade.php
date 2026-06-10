@@ -18,10 +18,9 @@
             <div class="user-manager-avatar-upload-container">
                 <div class="user-manager-avatar-upload">
                     <span class="user-manager-avatar-upload-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32"
-                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round"
-                            class="lucide lucide-camera text-gray-400">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
+                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round" class="lucide lucide-camera text-gray-400">
                             <path
                                 d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z">
                             </path>
@@ -34,7 +33,7 @@
             <div class="user-manager-form">
                 <div>
                     <label class="supliers-manager-slider-label">Nombre</label>
-                    <input class="users-manager-input" type="text" name="first_name"  id="edit_first_name">
+                    <input class="users-manager-input" type="text" name="first_name" id="edit_first_name">
                 </div>
                 <div>
                     <label class="supliers-manager-slider-label">Apellidos*</label>
@@ -54,8 +53,8 @@
                 </div>
                 <div>
                     <label class="supliers-manager-slider-label">CURP</label>
-                    <input class="users-manager-input" type="text" placeholder="XEXX010101HNEXXXA4"
-                        name="curp" id="edit_curp">
+                    <input class="users-manager-input" type="text" placeholder="XEXX010101HNEXXXA4" name="curp"
+                        id="edit_curp">
                 </div>
                 <div>
                     <label class="supliers-manager-slider-label">Número de Seguridad Social</label>
@@ -71,8 +70,8 @@
                 </div>
                 <div>
                     <label class="supliers-manager-slider-label">Teléfono</label>
-                    <input class="users-manager-input" type="text" placeholder="(049) 123-4567"
-                        name="phone" id="edit_phone">
+                    <input class="users-manager-input" type="text" placeholder="(049) 123-4567" name="phone"
+                        id="edit_phone">
                 </div>
                 <div>
                     <label class="supliers-manager-slider-label">Puesto / Cargo</label>
@@ -112,29 +111,33 @@
                 </div>
                 <div>
                     <label class="supliers-manager-slider-label">Nueva Contraseña</label>
-                    <input class="users-manager-input password" type="password" name="password"
-                        id="edit_password">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                        stroke-linejoin="round" class="lucide lucide-eye">
-                        <path
-                            d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0">
-                        </path>
-                        <circle cx="12" cy="12" r="3"></circle>
-                    </svg>
+                    <div class="password-eye-container-from-users">
+                        <input class="users-manager-input password" type="password" name="password"
+                            id="edit_password">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round" class="lucide lucide-eye eye-from-users">
+                            <path
+                                d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0">
+                            </path>
+                            <circle cx="12" cy="12" r="3"></circle>
+                        </svg>
+                    </div>
                 </div>
                 <div>
                     <label class="supliers-manager-slider-label">Confirmar Contraseña</label>
-                    <input class="users-manager-input password" type="password" name="password_confirmation"
-                        id="edit_password_confirmation">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                        stroke-linejoin="round" class="lucide lucide-eye">
-                        <path
-                            d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0">
-                        </path>
-                        <circle cx="12" cy="12" r="3"></circle>
-                    </svg>
+                    <div class="password-eye-container-from-users">
+                        <input class="users-manager-input password" type="password" name="password_confirmation"
+                            id="edit_password_confirmation">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round" class="lucide lucide-eye eye-from-users">
+                            <path
+                                d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0">
+                            </path>
+                            <circle cx="12" cy="12" r="3"></circle>
+                        </svg>
+                    </div>
                 </div>
             </div>
             <div class="user-manager-modal-footer">

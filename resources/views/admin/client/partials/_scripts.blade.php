@@ -42,6 +42,21 @@
             fiscalAddr.addEventListener('input', () => {
                 if (sameAsFiscal.checked) shippingAddr.value = fiscalAddr.value;
             });
+
+            // CALLING VALIDATE FUNCTIONS
+
+            // CREATE
+            dynamicPhone('#clientCreateModal [name="phone"]');
+            dynamicPhone('#clientCreateModal [name="whatsapp"]');
+            dynamicRFC('#clientCreateModal [name="rfc"]');
+            dynamicCP('#clientCreateModal [name="postal_code"]');
+
+            // EDIT
+            dynamicPhone('#clientEditForm [name="phone"]');
+            dynamicPhone('#clientEditForm [name="whatsapp"]');
+            dynamicRFC('#clientEditForm [name="rfc"]');
+            dynamicCP('#clientEditForm [name="postal_code"]');
+
         });
 
         // Show toast
@@ -170,8 +185,9 @@
                         editClientForm.querySelector('[name="email"]').value = customer.email ?? '';
                         editClientForm.querySelector('[name="phone"]').value = customer.phone ?? '';
                         editClientForm.querySelector('[name="rfc"]').value = customer.rfc ?? '';
-                        editClientForm.querySelector('[name="document_type"]').value = customer.document_type ?? '';
-                        editClientForm.querySelector('[name="source"]').value         = customer.source ?? '';
+                        editClientForm.querySelector('[name="document_type"]').value = customer
+                            .document_type ?? '';
+                        editClientForm.querySelector('[name="source"]').value = customer.source ?? '';
                         editClientForm.querySelector('[name="status"]').value = customer.status ??
                             'active';
                         editClientForm.querySelector('[name="notes"]').value = customer.notes ?? '';
@@ -185,7 +201,7 @@
                             ?.postal_code ?? '';
                         editClientForm.querySelector('[name="country"]').value = addr?.country ?? '';
                         editClientForm.querySelector('[name="reference"]').value = addr?.reference ??
-                        '';
+                            '';
 
                         // Same as fiscal detection
                         if (customer.customer_addresses?.length === 1) {
@@ -228,6 +244,13 @@
             const errorsContainer = document.getElementById('client-edit-errors');
             errorsContainer.style.display = 'none';
             errorsContainer.innerHTML = '';
+
+            const localErrors = validateFormFields(editClientForm);
+            if (localErrors.length > 0) {
+                errorsContainer.innerHTML = localErrors.map(msg => `<p>${msg}</p>`).join('');
+                errorsContainer.style.display = 'block';
+                return;
+            }
 
             const formData = new FormData(editClientForm);
             formData.append('_method', 'PUT');
@@ -292,7 +315,7 @@
                 const company = row.querySelector('.breadcrumb-clients-manager')?.textContent.toLowerCase() ??
                     '';
                 const email = row.querySelectorAll('.breadcrumb-clients-manager')[1]?.textContent
-                .toLowerCase() ?? '';
+                    .toLowerCase() ?? '';
                 const rfc = row.querySelector('.client-rfc')?.textContent.toLowerCase() ?? '';
                 const badge = row.querySelector('.users-manager-badge');
 
@@ -313,40 +336,40 @@
         clientStatusFilter.addEventListener('change', filterClients);
 
         // --- CFDI / Constancia SAT reader ---
-        const cfdiReadBtn   = document.getElementById('cfdiReadBtn');
+        const cfdiReadBtn = document.getElementById('cfdiReadBtn');
         const cfdiFileInput = document.getElementById('cfdiFileInput');
-        const cfdiFileName  = document.getElementById('cfdiFileName');
-        const cfdiStatus    = document.getElementById('cfdiStatus');
+        const cfdiFileName = document.getElementById('cfdiFileName');
+        const cfdiStatus = document.getElementById('cfdiStatus');
 
         const cfdiFieldMap = {
-            rfc:           '[name="rfc"]',
-            full_name:     '[name="full_name"]',
-            company:       '[name="company"]',
+            rfc: '[name="rfc"]',
+            full_name: '[name="full_name"]',
+            company: '[name="company"]',
             document_type: '[name="document_type"]',
             address_line1: '[name="address_line1"]',
-            city:          '[name="city"]',
-            state:         '[name="state"]',
-            postal_code:   '[name="postal_code"]',
-            country:       '[name="country"]',
-            status:        '[name="status"]',
+            city: '[name="city"]',
+            state: '[name="state"]',
+            postal_code: '[name="postal_code"]',
+            country: '[name="country"]',
+            status: '[name="status"]',
         };
 
         function cfdiShowStatus(type, message) {
             cfdiStatus.style.display = 'block';
-            cfdiStatus.className     = `cfdi-status cfdi-status--${type}`;
-            cfdiStatus.textContent   = message;
+            cfdiStatus.className = `cfdi-status cfdi-status--${type}`;
+            cfdiStatus.textContent = message;
         }
 
         if (cfdiReadBtn) {
             cfdiReadBtn.addEventListener('click', () => cfdiFileInput.click());
 
-            cfdiFileInput.addEventListener('change', async function () {
+            cfdiFileInput.addEventListener('change', async function() {
                 if (!this.files.length) return;
 
                 const file = this.files[0];
                 cfdiFileName.textContent = file.name;
-                cfdiReadBtn.disabled     = true;
-                cfdiReadBtn.textContent  = '⏳ Leyendo...';
+                cfdiReadBtn.disabled = true;
+                cfdiReadBtn.textContent = '⏳ Leyendo...';
                 cfdiShowStatus('info', 'Procesando el PDF, espera un momento...');
 
                 const formData = new FormData();
@@ -356,7 +379,7 @@
                 try {
                     const response = await fetch('{{ route('admin.clients.parse-cfdi') }}', {
                         method: 'POST',
-                        body:   formData,
+                        body: formData,
                     });
 
                     const data = await response.json();
@@ -380,11 +403,80 @@
                 } catch (err) {
                     cfdiShowStatus('error', 'Error de conexión. Intenta de nuevo.');
                 } finally {
-                    cfdiReadBtn.disabled    = false;
+                    cfdiReadBtn.disabled = false;
                     cfdiReadBtn.textContent = '📄 Seleccionar Constancia (PDF)';
-                    cfdiFileInput.value     = '';
+                    cfdiFileInput.value = '';
                 }
             });
         }
+
+        // VALIDATIONS
+
+        // REGEX
+        const REGEX = {
+            email: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+            phone: /^\d{10}$/,
+            rfc: /^([A-ZÑ&]{3,4}) ?(\d{2}(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])) ?([A-Z\d]{3})$/,
+            cp: /^\d{5}$/
+        }
+
+        // DYNAMIC FUNCTION PHONE
+        function dynamicPhone(selector) {
+            const input = document.querySelector(selector);
+            if (!input) return;
+            input.addEventListener('input', (e) => {
+                let value = e.target.value.replace(/\D/g, '');
+                if (value.length > 10)
+                    value = value.slice(0, 13);
+                e.target.value = value;
+            })
+        }
+
+        // DYNAMIC FUNCTION CP
+
+        function dynamicCP(selector) {
+            const input = document.querySelector(selector);
+            if (!input) return;
+            input.addEventListener('input', (e) => {
+                let value = e.target.value.replace(/\D/g, '');
+                if (value.length > 5)
+                    value = value.slice(0, 5);
+                e.target.value = value;
+            })
+        }
+
+        // DYNAMIC FUNCTION RFC
+        function dynamicRFC(selector) {
+            const input = document.querySelector(selector);
+            if (!input) return;
+            input.addEventListener('input', (e) => {
+                let value = e.target.value.toUpperCase().replace(/[^A-Z0-9&Ñ]/g, '');
+                if (value.length > 13)
+                    value = value.slice(0, 13);
+                e.target.value = value;
+            })
+        }
+
+        // SUBMIT VALIDATE
+
+        const validateFormFields = (form) => {
+            const errors = [];
+            const email = form.querySelector('[name="email"]')?.value.trim();
+            const phone = form.querySelector('[name="phone"]')?.value.trim();
+            const whatsapp = form.querySelector('[name="whatsapp"]')?.value.trim(); // Ajusta el name si es diferente
+            const rfc = form.querySelector('[name="rfc"]')?.value.trim();
+            const cp = form.querySelector('[name="postal_code"]')?.value.trim();
+
+            if (email && !REGEX.email.test(email)) errors.push('El formato del Correo Electrónico no es válido.');
+            if (phone && !REGEX.phone.test(phone)) errors.push(
+                'El Teléfono debe contener exactamente 10 dígitos numéricos.');
+            if (whatsapp && !REGEX.phone.test(whatsapp)) errors.push(
+                'El WhatsApp debe contener exactamente 10 dígitos numéricos.');
+            if (rfc && !REGEX.rfc.test(rfc)) errors.push(
+                'El RFC no tiene un formato válido (Ej: VECJ880326XXX o ABC900511XXX).');
+            if (cp && !REGEX.cp.test(cp)) errors.push('El Código Postal debe contener exactamente 5 dígitos.');
+
+            return errors;
+        };
     </script>
 @endpush

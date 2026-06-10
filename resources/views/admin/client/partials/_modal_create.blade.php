@@ -7,7 +7,7 @@
             <h2>Nuevo Cliente</h2>
             <button type="button" class="table-users-manager-action-btn cancel" id="closeClientModal">✕</button>
         </div>
-
+        
         {{-- Form --}}
         <form class="user-manager-modal-body" id="clientCreateForm"
             action="{{ route('admin.clients.store') }}" method="POST" novalidate>
