@@ -37,7 +37,13 @@ class ProductController extends Controller
     {
         $categories = Category::where('is_active', true)
             ->whereNull('parent_id')
-            ->with(['children' => fn($q) => $q->where('is_active', true)->select('id', 'name', 'parent_id')])
+            ->with(['children' => function ($q) {
+                $q->where('is_active', true)
+                    ->with(['children' => function ($q2) {
+                        $q2->where('is_active', true)->select('id', 'name', 'parent_id');
+                    }])
+                    ->select('id', 'name', 'parent_id');
+            }])
             ->get(['id', 'name']);
 
         $brands = Brand::where('is_active', true)->get(['id', 'name']);
@@ -54,7 +60,6 @@ class ProductController extends Controller
         $request->validate([
             'name'              => 'required|string|max:255',
             'sku'               => 'required|string|max:100|unique:products,sku',
-            'model'             => 'nullable|string|max:255',
             'price'             => 'required|numeric|min:0',
             'cost'              => 'nullable|numeric|min:0',
             'compare_price'     => 'nullable|numeric|min:0',
@@ -80,7 +85,6 @@ class ProductController extends Controller
         $product = new Products();
         $product->name              = $request->name;
         $product->sku               = $request->sku;
-        $product->model             = $request->model;
         $product->slug              = $request->slug
             ? Str::slug($request->slug)
             : Str::slug($request->name);
@@ -140,7 +144,13 @@ class ProductController extends Controller
 
         $categories = Category::where('is_active', true)
             ->whereNull('parent_id')
-            ->with(['children' => fn($q) => $q->where('is_active', true)->select('id', 'name', 'parent_id')])
+            ->with(['children' => function ($q) {
+                $q->where('is_active', true)
+                    ->with(['children' => function ($q2) {
+                        $q2->where('is_active', true)->select('id', 'name', 'parent_id');
+                    }])
+                    ->select('id', 'name', 'parent_id');
+            }])
             ->get(['id', 'name']);
 
         $brands = Brand::where('is_active', true)->get(['id', 'name']);
@@ -158,7 +168,6 @@ class ProductController extends Controller
         $request->validate([
             'name'              => 'required|string|max:255',
             'sku'               => 'required|string|max:100|unique:products,sku,' . $id,
-            'model'             => 'nullable|string|max:255',
             'price'             => 'required|numeric|min:0',
             'cost'              => 'nullable|numeric|min:0',
             'compare_price'     => 'nullable|numeric|min:0',
@@ -185,7 +194,6 @@ class ProductController extends Controller
 
         $product->name              = $request->name;
         $product->sku               = $request->sku;
-        $product->model             = $request->model;
         $product->slug              = $request->slug
             ? Str::slug($request->slug)
             : Str::slug($request->name);

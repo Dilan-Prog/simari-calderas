@@ -11,6 +11,7 @@ class Brand extends Model
 
     protected $fillable = [
         'name', 'slug', 'description', 'logo_url', 'is_active',
+        'seo_title', 'seo_description',
     ];
 
     protected $casts = [

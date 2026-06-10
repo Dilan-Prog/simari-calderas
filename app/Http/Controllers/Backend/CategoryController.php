@@ -14,7 +14,7 @@ class CategoryController extends Controller
         $categories = Category::with('parent')
             ->orderBy('sort_order')
             ->orderBy('name')
-            ->get();
+            ->paginate(15);
 
         return view('admin.categories.index', compact('categories'));
     }
@@ -41,6 +41,8 @@ class CategoryController extends Controller
         $category->image_url   = $request->image_url   ?? null;
         $category->is_active   = $request->boolean('is_active', true);
         $category->sort_order  = $request->sort_order  ?? 0;
+        $category->seo_title     = $request->seo_title     ?? null;
+        $category->seo_description = $request->seo_description ?? null;
         $category->save();
 
         return response()->json([
@@ -51,7 +53,7 @@ class CategoryController extends Controller
 
     public function edit(string $id)
     {
-        $category = Category::with('parent')->findOrFail($id);
+        $category = Category::with(['parent.parent'])->findOrFail($id);
         return response()->json($category);
     }
 
@@ -76,6 +78,8 @@ class CategoryController extends Controller
         $category->image_url   = $request->image_url   ?? null;
         $category->is_active   = $request->boolean('is_active', true);
         $category->sort_order  = $request->sort_order  ?? 0;
+        $category->seo_title     = $request->seo_title     ?? null;
+        $category->seo_description = $request->seo_description ?? null;
         $category->save();
 
         return response()->json([

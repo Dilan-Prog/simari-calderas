@@ -6,6 +6,16 @@
         const cancelSupplierCreateBtn = document.getElementById('cancelSupplierCreateModal');
         const openSupplierBtn = document.querySelector('.button-primary.size-adjustment.suppliers');
 
+        //  Validations
+
+        // Create
+        dynamicPhone('#supplierCreateForm [name="phone"]');
+        dynamicRFC('#supplierCreateForm [name="rfc"]');
+
+        // Edit
+        dynamicPhone('#supplierEditForm [name="phone"]');
+        dynamicRFC('#supplierEditForm [name="rfc"]');
+
         const closeCreateSupplierWithAnim = () => {
             const content = supplierCreateModal.querySelector('.user-manager-modal-content');
             if (content) {
@@ -111,6 +121,13 @@
             const errorsContainer = document.getElementById('supplier-edit-errors');
             errorsContainer.style.display = 'none';
             errorsContainer.innerHTML = '';
+            const localErrors = validateSupplierFields(supplierEditForm);
+
+            if (localErrors.length > 0) {
+                errorsContainer.innerHTML = localErrors.map(msg => `<p>⚠️ ${msg}</p>`).join('');
+                errorsContainer.style.display = 'block';
+                return;
+            }
 
             const formData = new FormData(supplierEditForm);
             formData.append('_method', 'PUT');
@@ -323,27 +340,27 @@
         });
 
         // --- CFDI / Constancia SAT reader (Proveedor) ---
-        (function () {
-            const btn      = document.getElementById('supplierCfdiReadBtn');
-            const input    = document.getElementById('supplierCfdiFileInput');
+        (function() {
+            const btn = document.getElementById('supplierCfdiReadBtn');
+            const input = document.getElementById('supplierCfdiFileInput');
             const fileName = document.getElementById('supplierCfdiFileName');
-            const status   = document.getElementById('supplierCfdiStatus');
-            const form     = document.getElementById('supplierCreateForm');
+            const status = document.getElementById('supplierCfdiStatus');
+            const form = document.getElementById('supplierCreateForm');
 
             function showStatus(type, message) {
                 status.style.display = 'block';
-                status.className     = `cfdi-status cfdi-status--${type}`;
-                status.textContent   = message;
+                status.className = `cfdi-status cfdi-status--${type}`;
+                status.textContent = message;
             }
 
             btn.addEventListener('click', () => input.click());
 
-            input.addEventListener('change', async function () {
+            input.addEventListener('change', async function() {
                 if (!this.files.length) return;
 
                 fileName.textContent = this.files[0].name;
-                btn.disabled         = true;
-                btn.textContent      = '⏳ Leyendo...';
+                btn.disabled = true;
+                btn.textContent = '⏳ Leyendo...';
                 showStatus('info', 'Procesando el PDF, espera un momento...');
 
                 const formData = new FormData();
@@ -351,9 +368,9 @@
                 formData.append('_token', document.querySelector('meta[name="csrf-token"]').content);
 
                 try {
-                    const res  = await fetch('{{ route('admin.clients.parse-cfdi') }}', {
+                    const res = await fetch('{{ route('admin.clients.parse-cfdi') }}', {
                         method: 'POST',
-                        body:   formData,
+                        body: formData,
                     });
                     const data = await res.json();
 
@@ -364,11 +381,11 @@
 
                     // Mapeo: campos CFDI → campos del formulario de proveedor
                     const map = {
-                        rfc:       '[name="rfc"]',
+                        rfc: '[name="rfc"]',
                         full_name: '[name="contact_name"]',
-                        company:   '[name="company_name"]',
-                        phone:     '[name="phone"]',
-                        email:     '[name="email"]',
+                        company: '[name="company_name"]',
+                        phone: '[name="phone"]',
+                        email: '[name="email"]',
                     };
 
                     let filled = 0;
@@ -401,11 +418,54 @@
                 } catch {
                     showStatus('error', 'Error de conexión. Intenta de nuevo.');
                 } finally {
-                    btn.disabled    = false;
+                    btn.disabled = false;
                     btn.textContent = '📄 Seleccionar Constancia (PDF)';
-                    input.value     = '';
+                    input.value = '';
                 }
             });
         })();
+
+
+        // VALIDATIONS
+        const regex = {
+            email: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+            phone: /^\d{10}$/,
+            rfc: /^([A-ZÑ&]{3,4}) ?(\d{2}(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])) ?([A-Z\d]{3})$/
+        };
+
+        function dynamicPhone(selector) {
+            const input = document.querySelector(selector);
+            if (!input) return;
+            input.addEventListener('input', function(e) {
+                let value = e.target.value.replace(/\D/g, '');
+                if (value.length > 10) value = value.slice(0, 10);
+                e.target.value = value;
+            });
+        }
+
+        function dynamicRFC(selector) {
+            const input = document.querySelector(selector);
+            if (!input) return;
+            input.addEventListener('input', function(e) {
+                let value = e.target.value.toUpperCase().replace(/[^A-Z0-9&Ñ]/g, '');
+                if (value.length > 13) value = value.slice(0, 13);
+                e.target.value = value;
+            });
+        }
+
+        function validateSupplierFields(form) {
+            const errors = [];
+            const email = form.querySelector('[name="email"]')?.value.trim();
+            const phone = form.querySelector('[name="phone"]')?.value.trim();
+            const rfc = form.querySelector('[name="rfc"]')?.value.trim();
+
+            if (email && !regex.email.test(email)) errors.push('El formato del Correo Electrónico no es válido.');
+            if (phone && !regex.phone.test(phone)) errors.push(
+                'El Teléfono debe contener exactamente 10 dígitos numéricos.');
+            if (rfc && !regex.rfc.test(rfc)) errors.push(
+                'El RFC no tiene un formato válido (Ej: ABC900511XXX o VECJ880326XXX).');
+
+            return errors;
+        }
     </script>
 @endpush

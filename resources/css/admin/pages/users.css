@@ -496,7 +496,6 @@
 }
 
 .user-manager-form.access-sistem-form div {
-    position: relative;
     margin-bottom: 15px;
     display: flex;
     flex-direction: column;
@@ -520,15 +519,27 @@
     display: none;
 }
 
-.lucide-eye {
+.password-eye-container-from-users {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.password-eye-container-from-users.users-manager-input {
+    width: 100%;
+    padding-right: 40px;
+}
+
+.eye-from-users{
     position: absolute;
     right: 12px;
-    bottom: 10px;
+    top: 20px;
     cursor: pointer;
     color: #6b7280;
     transition: color 0.2s;
-    display: flex;
-    align-items: center;
+    transform: translateY(-50%);
+    flex-shrink: 0;
 }
 
 .toggle-icon:hover,
@@ -1351,3 +1362,136 @@
 .cfdi-status--info    { background: #dbeafe; color: #1e40af; }
 .cfdi-status--success { background: #dcfce7; color: #166534; }
 .cfdi-status--error   { background: #fee2e2; color: #991b1b; }
+
+.category-row{
+    display: flex;
+    justify-content: space-between;
+}
+
+.clients-manager-table.brand-table th{
+    background-color: #1A2535;
+    color: var(--text-muted);
+}
+
+/* Tipografía de Marca */
+.brand-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-black);
+    margin: 0 0 2px 0;
+}
+
+.brand-products-count {
+    font-size: 12px;
+    color: var(--text-description-color);
+    display: block;
+}
+
+/* Badges (Píldoras de colores) */
+.brand-slug-badge {
+    display: inline-block;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+    border: 1px solid #e1e1e1;
+    color: var(--text-body);
+}
+
+.brand-status-badge {
+    display: inline-block;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.status-active {
+    background-color: #f0fff3;
+    color: #3cbe40;
+    border: 1px solid #8bff8f;
+}
+
+.status-inactive {
+    background-color: #f3f4f6;
+    color: #4b5563;
+    border: 1px solid #acb5c1;
+
+}
+
+/* Imágenes y Placeholders */
+.brand-logo-img {
+    width: 48px;
+    height: 32px;
+    object-fit: contain;
+    border-radius: 16px; /* Para que quede ovalado como en la foto 1 */
+    border: 1px solid #e5e7eb;
+    background-color: #ffffff;
+    padding: 2px;
+}
+
+.brand-logo-placeholder {
+    width: 40px;
+    height: 40px;
+    background-color: #f3f4f6;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #e5e7eb;
+}
+
+/* Botones de Acción */
+.actions-container {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.action-btn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: #6b7280;
+    padding: 6px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.action-btn:hover {
+    color: #111827;
+    background-color: #f3f4f6;
+}
+
+.principal-categorie-from-table{
+    padding:3px 10px;
+    border-radius:6px;
+    background:#fff3ec;
+    color:#ff6213;
+    border:1px solid #ff621340;
+    font-size:12px;
+    font-weight:600;
+}
+
+.subcategorie-categorie-from-table{
+    padding:3px 10px;
+    border-radius:6px;
+    background:#eff6ff;
+    color:#3b82f6;
+    border:1px solid #3b82f640;
+    font-size:12px;
+    font-weight:600;
+}
+
+.children-categorie-from-table{
+    padding:3px 10px;
+    border-radius:6px;
+    background:#f5f3ff;
+    color:#8b5cf6;
+    border:1px solid #8b5cf640;
+    font-size:12px;
+    font-weight:600;
+}

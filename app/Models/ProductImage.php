@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Storage;
 
 class ProductImage extends Model
 {
@@ -20,6 +19,10 @@ class ProductImage extends Model
 
     public function getUrlAttribute(): string
     {
-        return Storage::url($this->image_url);
+        if (str_starts_with($this->image_url, 'http')) {
+            return $this->image_url;
+        }
+
+        return asset($this->image_url);
     }
 }

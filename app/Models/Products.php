@@ -56,6 +56,13 @@ class Products extends Model
         return $this->belongsTo(Brand::class, 'brand_id');
     }
 
+    public function getCoverImageUrlAttribute(?string $value): ?string
+    {
+        if (!$value) return null;
+        if (str_starts_with($value, 'http')) return $value;
+        return asset($value);
+    }
+
     public function images()
     {
         return $this->hasMany(ProductImage::class, 'product_id')->orderBy('sort_order');

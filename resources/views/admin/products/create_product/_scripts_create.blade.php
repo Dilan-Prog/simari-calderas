@@ -59,9 +59,9 @@
 
             /* ── Validation helpers ── */
             function getErrorAnchor(el) {
-                return (el.parentElement && el.parentElement.classList.contains('pform-price-wrap'))
-                    ? el.parentElement
-                    : el;
+                return (el.parentElement && el.parentElement.classList.contains('pform-price-wrap')) ?
+                    el.parentElement :
+                    el;
             }
 
             function showFieldError(el, msg) {
@@ -78,8 +78,12 @@
                     const errEl = getErrorAnchor(el).nextElementSibling;
                     if (errEl && errEl.classList.contains('pform-error-msg')) errEl.remove();
                 };
-                el.addEventListener('input', clearFn, { once: true });
-                el.addEventListener('change', clearFn, { once: true });
+                el.addEventListener('input', clearFn, {
+                    once: true
+                });
+                el.addEventListener('change', clearFn, {
+                    once: true
+                });
             }
 
             function clearAllErrors() {
@@ -91,35 +95,70 @@
                 tabs.forEach(t => t.classList.remove('active'));
                 panels.forEach(p => p.classList.remove('active'));
                 document.getElementById(panelId).classList.add('active');
-                tabs.forEach(t => { if (t.dataset.tab === panelId) t.classList.add('active'); });
+                tabs.forEach(t => {
+                    if (t.dataset.tab === panelId) t.classList.add('active');
+                });
             }
 
             function validateForm() {
                 clearAllErrors();
-                const required = [
-                    { el: document.getElementById('pformName'),               msg: 'El nombre del producto es obligatorio',      panel: 'pformPanel0' },
-                    { el: document.getElementById('pformCost'),               msg: 'El costo del artículo es obligatorio',        panel: 'pformPanel2' },
-                    { el: document.getElementById('pformPrice'),              msg: 'El precio de venta es obligatorio',           panel: 'pformPanel2' },
-                    { el: document.querySelector('[name="stock"]'),           msg: 'El inventario disponible es obligatorio',     panel: 'pformPanel2' },
-                    { el: document.getElementById('pformCategoryMain'),       msg: 'La categoría principal es obligatoria',       panel: 'pformPanel3' },
-                    { el: document.querySelector('select[name="brand_id"]'),  msg: 'La marca es obligatoria',                    panel: 'pformPanel3' },
+                const required = [{
+                        el: document.getElementById('pformName'),
+                        msg: 'El nombre del producto es obligatorio',
+                        panel: 'pformPanel0'
+                    },
+                    {
+                        el: document.getElementById('pformCost'),
+                        msg: 'El costo del artículo es obligatorio',
+                        panel: 'pformPanel2'
+                    },
+                    {
+                        el: document.getElementById('pformPrice'),
+                        msg: 'El precio de venta es obligatorio',
+                        panel: 'pformPanel2'
+                    },
+                    {
+                        el: document.querySelector('[name="stock"]'),
+                        msg: 'El inventario disponible es obligatorio',
+                        panel: 'pformPanel2'
+                    },
+                    {
+                        el: document.getElementById('pformCategoryMain'),
+                        msg: 'La categoría principal es obligatoria',
+                        panel: 'pformPanel3'
+                    },
+                    {
+                        el: document.querySelector('select[name="brand_id"]'),
+                        msg: 'La marca es obligatoria',
+                        panel: 'pformPanel0'
+                    },
                 ];
 
                 let firstErrorEl = null;
                 let firstErrorPanel = null;
 
-                required.forEach(({ el, msg, panel }) => {
+                required.forEach(({
+                    el,
+                    msg,
+                    panel
+                }) => {
                     if (!el) return;
                     const empty = el.tagName === 'SELECT' ? !el.value : !el.value.trim();
                     if (empty) {
                         showFieldError(el, msg);
-                        if (!firstErrorEl) { firstErrorEl = el; firstErrorPanel = panel; }
+                        if (!firstErrorEl) {
+                            firstErrorEl = el;
+                            firstErrorPanel = panel;
+                        }
                     }
                 });
 
                 if (firstErrorEl) {
                     switchToPanel(firstErrorPanel);
-                    setTimeout(() => firstErrorEl.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
+                    setTimeout(() => firstErrorEl.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'center'
+                    }), 100);
                     return false;
                 }
                 return true;
@@ -196,11 +235,12 @@
             });
 
             /* ── Badge toggle cards ── */
-            document.querySelectorAll('.pform-badge-card:not(#badgeFeatured):not(#badgeNew):not(#badgeRecommended)').forEach(function(card) {
-                card.addEventListener('click', function() {
-                    this.classList.toggle('active');
+            document.querySelectorAll('.pform-badge-card:not(#badgeFeatured):not(#badgeNew):not(#badgeRecommended)')
+                .forEach(function(card) {
+                    card.addEventListener('click', function() {
+                        this.classList.toggle('active');
+                    });
                 });
-            });
 
             /* ── Tags ── */
             function addTag() {
@@ -358,24 +398,41 @@
         /* ── Category cascade ── */
         const categoryMain = document.getElementById('pformCategoryMain');
         const categorySub = document.getElementById('pformCategorySub');
+        const categoryChild = document.getElementById('pformCategoryChild');
         const breadcrumb = document.getElementById('pformBreadcrumbText');
 
-        // Subcategories data from backend
-        const subcategories = @json(
-            $categories->mapWithKeys(fn($c) => [
-                    $c->id => $c->children->map(fn($s) => ['id' => $s->id, 'name' => $s->name]),
-                ]));
+        @php
+            $subcategoriesForJs = $categories->mapWithKeys(function($c) {
+                return [
+                    $c->id => $c->children->map(function($s) {
+                        return [
+                            'id' => $s->id,
+                            'name' => $s->name,
+                            'children' => $s->children->map(function($ch) {
+                                return [
+                                    'id' => $ch->id,
+                                    'name' => $ch->name,
+                                ];
+                            })->values()->toArray(),
+                        ];
+                    })->values()->toArray(),
+                ];
+            })->toArray();
+        @endphp
+
+        const subcategories = @json($subcategoriesForJs);
 
         categoryMain.addEventListener('change', function() {
             const id = this.value;
             const name = this.options[this.selectedIndex].text;
             const subs = subcategories[id] ?? [];
 
-            // Update breadcrumb
             breadcrumb.textContent = id ? `Catálogo > ${name}` : 'Catálogo';
 
-            // Update subcategory select
             categorySub.innerHTML = '<option value="">Seleccionar...</option>';
+            categoryChild.innerHTML = '<option value="">Seleccionar subcategoría primero...</option>';
+            categoryChild.disabled = true;
+
             if (subs.length > 0) {
                 subs.forEach(sub => {
                     const opt = document.createElement('option');
@@ -386,6 +443,35 @@
                 categorySub.disabled = false;
             } else {
                 categorySub.disabled = true;
+            }
+        });
+
+        categorySub.addEventListener('change', function() {
+            const subId = this.value;
+            const subName = this.options[this.selectedIndex].text;
+            const mainName = categoryMain.options[categoryMain.selectedIndex].text;
+
+            // Find children of selected sub
+            const mainId = categoryMain.value;
+            const mainSubs = subcategories[mainId] ?? [];
+            const subObj = mainSubs.find(s => String(s.id) === String(subId));
+            const children = subObj?.children ?? [];
+
+            breadcrumb.textContent = subId ?
+                `Catálogo > ${mainName} > ${subName}` :
+                `Catálogo > ${mainName}`;
+
+            categoryChild.innerHTML = '<option value="">Seleccionar...</option>';
+            if (children.length > 0) {
+                children.forEach(child => {
+                    const opt = document.createElement('option');
+                    opt.value = child.id;
+                    opt.textContent = child.name;
+                    categoryChild.appendChild(opt);
+                });
+                categoryChild.disabled = false;
+            } else {
+                categoryChild.disabled = true;
             }
         });
 
@@ -415,11 +501,11 @@
         }
 
         /* ── Image Gallery ── */
-        (function () {
-            const input       = document.getElementById('pformImageInput');
-            const dropzone    = document.querySelector('#pformPanel1 .pform-dropzone');
+        (function() {
+            const input = document.getElementById('pformImageInput');
+            const dropzone = document.querySelector('#pformPanel1 .pform-dropzone');
             const placeholder = document.getElementById('pformImagePlaceholder');
-            const grid        = document.getElementById('pformImageGrid');
+            const grid = document.getElementById('pformImageGrid');
             let dt = new DataTransfer();
 
             function renderPreviews() {
@@ -429,26 +515,31 @@
                     return;
                 }
                 placeholder.style.display = 'none';
-                Array.from(dt.files).forEach(function (file, index) {
+                Array.from(dt.files).forEach(function(file, index) {
                     const item = document.createElement('div');
-                    item.style.cssText = 'position:relative;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;';
+                    item.style.cssText =
+                        'position:relative;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;';
 
                     const img = document.createElement('img');
                     img.src = URL.createObjectURL(file);
                     img.style.cssText = 'width:100%;height:100px;object-fit:cover;display:block;';
 
                     const info = document.createElement('div');
-                    info.style.cssText = 'padding:4px 6px;font-size:11px;color:#6b7280;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;';
+                    info.style.cssText =
+                        'padding:4px 6px;font-size:11px;color:#6b7280;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;';
                     info.title = file.name;
                     info.textContent = file.name + ' · ' + (file.size / 1024).toFixed(0) + ' KB';
 
                     const btn = document.createElement('button');
                     btn.type = 'button';
                     btn.textContent = '✕';
-                    btn.style.cssText = 'position:absolute;top:4px;right:4px;background:#dc2626;color:#fff;border:none;border-radius:50%;width:22px;height:22px;cursor:pointer;font-size:13px;line-height:1;display:flex;align-items:center;justify-content:center;';
-                    btn.addEventListener('click', function () {
+                    btn.style.cssText =
+                        'position:absolute;top:4px;right:4px;background:#dc2626;color:#fff;border:none;border-radius:50%;width:22px;height:22px;cursor:pointer;font-size:13px;line-height:1;display:flex;align-items:center;justify-content:center;';
+                    btn.addEventListener('click', function() {
                         const newDt = new DataTransfer();
-                        Array.from(dt.files).forEach(function (f, i) { if (i !== index) newDt.items.add(f); });
+                        Array.from(dt.files).forEach(function(f, i) {
+                            if (i !== index) newDt.items.add(f);
+                        });
                         dt = newDt;
                         input.files = dt.files;
                         renderPreviews();
@@ -461,28 +552,30 @@
                 });
             }
 
-            input.addEventListener('change', function () {
-                Array.from(this.files).forEach(function (f) { dt.items.add(f); });
+            input.addEventListener('change', function() {
+                Array.from(this.files).forEach(function(f) {
+                    dt.items.add(f);
+                });
                 input.files = dt.files;
                 renderPreviews();
             });
 
-            dropzone.addEventListener('dragover', function (e) {
+            dropzone.addEventListener('dragover', function(e) {
                 e.preventDefault();
                 this.style.borderColor = '#ff6213';
                 this.style.background = '#fff7f5';
             });
 
-            dropzone.addEventListener('dragleave', function () {
+            dropzone.addEventListener('dragleave', function() {
                 this.style.borderColor = '';
                 this.style.background = '';
             });
 
-            dropzone.addEventListener('drop', function (e) {
+            dropzone.addEventListener('drop', function(e) {
                 e.preventDefault();
                 this.style.borderColor = '';
                 this.style.background = '';
-                Array.from(e.dataTransfer.files).forEach(function (f) {
+                Array.from(e.dataTransfer.files).forEach(function(f) {
                     if (['image/png', 'image/jpeg', 'image/jpg'].includes(f.type)) dt.items.add(f);
                 });
                 input.files = dt.files;

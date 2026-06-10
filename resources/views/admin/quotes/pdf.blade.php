@@ -5,7 +5,6 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 <title>{{ $quote->quote_number }}</title>
 <style>
-
 @page {
     margin: 130px 0px 70px 0px;
 }
@@ -20,7 +19,9 @@ body {
     margin: 0;
     padding: 0;
 }
-
+/* ════════════════════════════════════════════════════
+   HEADER FIJO — abarca todo el ancho del papel
+   ════════════════════════════════════════════════════ */
 #pdf-header {
     position: fixed;
     top: -130px;
