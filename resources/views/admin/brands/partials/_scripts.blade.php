@@ -66,8 +66,51 @@
         // Submit
         brandForm.addEventListener('submit', async (e) => {
             e.preventDefault();
+
+            document.querySelectorAll('.field-error-msg').forEach(el => el.remove());
+            document.querySelectorAll('.is-invalid').forEach(el => {
+                el.classList.remove('is-invalid');
+            });
             brandErrors.style.display = 'none';
             brandErrors.innerHTML = '';
+
+            let hasErrors = false;
+            const nameInput = document.getElementById('brandName');
+            const slugInput = document.getElementById('brandSlug');
+
+            const showFieldError = (element, message) => {
+                element.classList.add('is-invalid');
+
+                const errorSpan = document.createElement('span');
+                errorSpan.className = 'field-error-msg';
+                errorSpan.innerText = message;
+
+                const container = element.closest('.mb-3') || element.closest('.mb-4') || element
+                    .parentElement;
+                if (container) {
+                    container.appendChild(errorSpan);
+                }
+                hasErrors = true;
+            };
+
+            if (!nameInput.value.trim()) {
+                showFieldError(nameInput, 'El nombre de la marca es obligatorio.');
+            }
+
+            if (!slugInput.value.trim()) {
+                showFieldError(slugInput, 'El slug (URL) de la marca es obligatorio.');
+            }
+
+            if (hasErrors) {
+                const firstInvalid = document.querySelector('.is-invalid');
+                if (firstInvalid) {
+                    firstInvalid.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'center'
+                    });
+                }
+                return;
+            }
 
             const formData = new FormData(brandForm);
             const url = isBrandEditMode ?
@@ -99,6 +142,9 @@
                     const errorList = Object.values(data.errors).flat();
                     brandErrors.innerHTML = errorList.map(m => `<p>${m}</p>`).join('');
                     brandErrors.style.display = 'block';
+
+                    if (data.errors.name) showFieldError(nameInput, data.errors.name[0]);
+                    if (data.errors.slug) showFieldError(slugInput, data.errors.slug[0]);
                 }
             } catch (err) {
                 console.error('Error:', err);
