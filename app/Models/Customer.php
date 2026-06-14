@@ -5,17 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-<<<<<<< HEAD
-class Customer extends Model
-{
-    use HasFactory;
-=======
 
 class Customer extends Model
 {
     use HasFactory;
 
->>>>>>> 9f21f7d4ddd7b772e9904ef29e5899116acf3b89
     protected $fillable = [
         'first_name',
         'last_name',
@@ -23,14 +17,6 @@ class Customer extends Model
         'phone',
         'password_hash',
         'document_type',
-<<<<<<< HEAD
-        'document_number',
-        'birth_date',
-        'status',
-        'source',
-        'company',
-    ];
-=======
         'status',
         'source',
         'company',
@@ -46,5 +32,4 @@ class Customer extends Model
     {
         return $this->hasOne(CustomerAddress::class)->where('is_default', true);
     }
->>>>>>> 9f21f7d4ddd7b772e9904ef29e5899116acf3b89
 }
