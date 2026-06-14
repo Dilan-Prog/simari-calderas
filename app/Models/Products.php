@@ -8,8 +8,6 @@ use Illuminate\Database\Eloquent\Model;
 class Products extends Model
 {
     use HasFactory;
-<<<<<<< HEAD
-=======
 
     protected $fillable = [
         'category_id',
@@ -80,5 +78,4 @@ class Products extends Model
             'supplier_id'
         )->withPivot('cost', 'lead_time_days', 'is_primary');
     }
->>>>>>> 9f21f7d4ddd7b772e9904ef29e5899116acf3b89
 }

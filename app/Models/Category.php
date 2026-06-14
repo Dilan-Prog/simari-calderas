@@ -8,8 +8,6 @@ use Illuminate\Database\Eloquent\Model;
 class Category extends Model
 {
     use HasFactory;
-<<<<<<< HEAD
-=======
 
     protected $table = 'product_categories';
 
@@ -46,5 +44,4 @@ class Category extends Model
     {
         return $this->hasMany(Products::class, 'category_id');
     }
->>>>>>> 9f21f7d4ddd7b772e9904ef29e5899116acf3b89
 }

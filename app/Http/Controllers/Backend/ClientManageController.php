@@ -3,18 +3,10 @@
 namespace App\Http\Controllers\Backend;
 
 use App\Http\Controllers\Controller;
-<<<<<<< HEAD
-use App\Models\ContactEmergency;
-use App\Models\Customer;
-use App\Models\User;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
-=======
 use App\Models\Customer;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Smalot\PdfParser\Parser;
->>>>>>> 9f21f7d4ddd7b772e9904ef29e5899116acf3b89
 
 class ClientManageController extends Controller
 {
@@ -23,15 +15,6 @@ class ClientManageController extends Controller
      */
     public function index()
     {
-<<<<<<< HEAD
-        // $customer = Customer::get(['id','first_name', 'last_name','company', 'email', 'phone']);
-        return view('admin.client.index');
-    }
-
-    public function information()
-    {
-        return view('admin.client.show');
-=======
         $customers = Customer::with('customer_addresses:city,state,customer_id,id')
             ->get(['id', 'first_name', 'last_name', 'company', 'email', 'phone', 'rfc', 'status', 'source']);
 
@@ -42,7 +25,6 @@ class ClientManageController extends Controller
     {
     $customer = Customer::with(['customer_addresses'])->findOrFail($id);
     return view('admin.client.partials.show', compact('customer'));
->>>>>>> 9f21f7d4ddd7b772e9904ef29e5899116acf3b89
     }
 
     /**
@@ -58,9 +40,6 @@ class ClientManageController extends Controller
      */
     public function store(Request $request)
     {
-<<<<<<< HEAD
-        //
-=======
         $nameParts = explode(' ', trim($request->full_name), 2);
         $firstName = $nameParts[0];
         $lastName = $nameParts[1] ?? '';
@@ -241,7 +220,6 @@ class ClientManageController extends Controller
                 'error' => 'No se pudo leer el PDF. Verifica que sea una Constancia de Situación Fiscal del SAT.',
             ], 422);
         }
->>>>>>> 9f21f7d4ddd7b772e9904ef29e5899116acf3b89
     }
 
     /**
@@ -257,16 +235,12 @@ class ClientManageController extends Controller
      */
     public function edit(string $id)
     {
-<<<<<<< HEAD
-        //
-=======
         $customer = Customer::with(['customer_addresses' => function ($query) {
             $query->select('id', 'customer_id', 'city', 'state', 'address_line1',
                 'address_line2', 'postal_code', 'country', 'reference');
         }])->findOrFail($id);
 
         return response()->json($customer);
->>>>>>> 9f21f7d4ddd7b772e9904ef29e5899116acf3b89
     }
 
     /**
@@ -274,9 +248,6 @@ class ClientManageController extends Controller
      */
     public function update(Request $request, string $id)
     {
-<<<<<<< HEAD
-        //
-=======
         $customer = Customer::findOrFail($id);
 
         $nameParts = explode(' ', trim($request->full_name), 2);
@@ -352,7 +323,6 @@ class ClientManageController extends Controller
             'success' => true,
             'customer' => $customer->load('customer_addresses'),
         ]);
->>>>>>> 9f21f7d4ddd7b772e9904ef29e5899116acf3b89
     }
 
     /**
@@ -360,15 +330,11 @@ class ClientManageController extends Controller
      */
     public function destroy(string $id)
     {
-<<<<<<< HEAD
-        //
-=======
         $customer = Customer::findOrFail($id);
         abort_if($customer->id === auth()->id(), 403, 'No puedes eliminarte a ti mismo.');
         $customer->customer_addresses()->delete();
         $customer->delete();
 
         return redirect()->route('admin.clients.index')->with('success', 'Cliente eliminado correctamente.');
->>>>>>> 9f21f7d4ddd7b772e9904ef29e5899116acf3b89
     }
 }

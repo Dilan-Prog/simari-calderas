@@ -3,27 +3,6 @@
 namespace App\Http\Controllers\Backend;
 
 use App\Http\Controllers\Controller;
-<<<<<<< HEAD
-use Illuminate\Http\Request;
-
-class ProductController extends Controller
-{
-    public function index()
-    {
-        return view('admin.products.index');
-    }
-    public function create()
-    {
-        return view('admin.products.create');
-    }
-    public function store(Request $request)
-    {
-        // Validar y guardar el producto
-    }
-    public function edit($id)
-    {
-        
-=======
 use App\Traits\ImageUploadTrait;
 use Illuminate\Http\Request;
 use App\Models\Products;
@@ -296,6 +275,5 @@ class ProductController extends Controller
 
         return redirect()->route('admin.products.index')
             ->with('success', 'Producto eliminado correctamente.');
->>>>>>> 9f21f7d4ddd7b772e9904ef29e5899116acf3b89
     }
 }
