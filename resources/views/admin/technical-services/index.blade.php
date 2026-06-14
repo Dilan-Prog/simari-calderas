@@ -113,14 +113,18 @@
             </div>
         </div>
 
-        <div id="ts-calendar"
-             data-services='@json($services)'
-             data-month="{{ $currentMonth->month }}"
-             data-year="{{ $currentYear }}">
-        </div>
+        <script>
+        window.__tsConfig = {
+            services: @json($calendarServices),
+            month: {{ $currentMonth->month }},
+            year: {{ $currentYear }}
+        };
+        </script>
+        <div id="ts-calendar"></div>
 
         <div class="ts-legend">
             <span class="ts-legend__label">Leyenda:</span>
+            <span class="ts-legend__item ts-legend__item--draft">Borrador</span>
             <span class="ts-legend__item ts-legend__item--scheduled">Programado</span>
             <span class="ts-legend__item ts-legend__item--in_progress">En Proceso</span>
             <span class="ts-legend__item ts-legend__item--completed">Completado</span>

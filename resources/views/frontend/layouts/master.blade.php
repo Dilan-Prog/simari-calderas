@@ -66,6 +66,19 @@
     <style>
         {!! $critical !!}
     </style> --}}
+<<<<<<< HEAD
+    <script async src="https://www.googletagmanager.com/gtag/js?id=AW-18002291598">
+        </script>
+        <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'AW-18002291598');
+        </script>
+    <!-- End Google Tag Manager -->
+
+=======
     <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-RVXX78K31C"></script>
 <script>
@@ -76,6 +89,7 @@
   gtag('config', 'G-RVXX78K31C');
   // Analytics
 </script>
+>>>>>>> 9f21f7d4ddd7b772e9904ef29e5899116acf3b89
   </head>
   <body>
 
@@ -97,6 +111,12 @@
           const storedGclid = localStorage.getItem('gclid');
           const alreadySent = localStorage.getItem('gclid_sent') === storedGclid;
 
+<<<<<<< HEAD
+          console.log('Guardando GCLID:', storedGclid);
+          console.log('Already sent:', alreadySent);
+          console.log('Current URL:', window.location.href);
+=======
+>>>>>>> 9f21f7d4ddd7b772e9904ef29e5899116acf3b89
           if (!storedGclid || alreadySent) return;
 
           fetch('/api/v1/google-ads', {

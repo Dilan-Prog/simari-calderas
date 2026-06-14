@@ -233,9 +233,12 @@
             <div class="ts-mat-list">
                 @foreach($service->plannedMaterials as $mat)
                 <div class="ts-mat-item">
-                    <span class="ts-mat-item__name">{{ $mat->name }}</span>
+                    <span class="ts-mat-item__name">{{ $mat->product_name }}</span>
                     <span class="ts-mat-item__qty">{{ $mat->quantity }}</span>
                     <span class="ts-mat-item__unit">{{ $mat->unit ?? '' }}</span>
+                    @if($mat->notes)
+                        <span style="font-size:0.75rem;color:#9CA3AF">— {{ $mat->notes }}</span>
+                    @endif
                 </div>
                 @endforeach
             </div>
