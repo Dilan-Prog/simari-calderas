@@ -119,12 +119,9 @@
     height: 36px;
     justify-content: center;
     width: 36px;
-<<<<<<< HEAD
-=======
     min-width: 36px;
     min-height: 36px;
     flex-shrink: 0;
->>>>>>> 9f21f7d4ddd7b772e9904ef29e5899116acf3b89
 }
 
 /* Header left user manager */
@@ -210,11 +207,7 @@
 
 .user-manager-table-cell,
 .clients-manager-table-cell {
-<<<<<<< HEAD
-    align-items: center;
-=======
     align-items: flex-start;
->>>>>>> 9f21f7d4ddd7b772e9904ef29e5899116acf3b89
     display: flex;
     gap: 12px;
 }
@@ -784,8 +777,6 @@
 .del-confirm-btn-delete:hover {
     background: #dc2626;
 }
-<<<<<<< HEAD
-=======
 
 /* Modal create user  */
 /* ── Client modal content — wider panel ── */
@@ -868,4 +859,3 @@
 .client-modal-toggle input:checked + .client-modal-toggle-slider::before {
     transform: translateX(20px);
 }
->>>>>>> 9f21f7d4ddd7b772e9904ef29e5899116acf3b89

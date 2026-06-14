@@ -3,13 +3,6 @@
 namespace App\Http\Controllers\Backend;
 
 use App\Http\Controllers\Controller;
-<<<<<<< HEAD
-use Illuminate\Http\Request;
-
-class CategoryController extends Controller
-{
-    //
-=======
 use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -111,5 +104,4 @@ class CategoryController extends Controller
 
         return response()->json(['success' => true]);
     }
->>>>>>> 9f21f7d4ddd7b772e9904ef29e5899116acf3b89
 }
