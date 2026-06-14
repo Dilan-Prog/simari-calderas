@@ -202,8 +202,7 @@ class TechnicalServiceService
         $query = TechnicalService::query()
             ->with(['serviceType', 'assignedTechnicians', 'customer'])
             ->whereMonth('service_date', $month)
-            ->whereYear('service_date', $year)
-            ->whereNotIn('status', ['draft']);
+            ->whereYear('service_date', $year);
 
         if ($technicianId) {
             $query->byTechnician($technicianId);

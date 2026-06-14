@@ -11,12 +11,17 @@
     $searchUrl = route('admin.technical-services.search-technicians');
 @endphp
 
-<form id="ts-wizard-form"
-      data-step="1"
-      data-save-url="{{ $saveUrl }}"
-      data-step-url="{{ $stepUrl }}"
-      data-index-url="{{ $indexUrl }}"
-      data-search-tech-url="{{ $searchUrl }}">
+<script>
+window.__tsConfig = {
+    step: 1,
+    isEdit: {{ $isEdit ? 'true' : 'false' }},
+    saveUrl: "{{ $saveUrl }}",
+    stepUrl: "{{ $stepUrl }}",
+    indexUrl: "{{ $indexUrl }}",
+    searchTechUrl: "{{ $searchUrl }}"
+};
+</script>
+<form id="ts-wizard-form">
 
     <div class="ts-card">
         <h2 class="ts-card__title">Datos Generales</h2>
@@ -26,29 +31,27 @@
         <div class="ts-form-grid" style="gap:1rem">
 
             {{-- Folio + Fecha + Hora --}}
-            <div class="ts-form-grid ts-form-grid--2">
+            <div class="ts-form-grid ts-form-grid--3">
                 <div class="ts-field">
                     <label class="ts-label">Folio</label>
                     <input type="text" class="ts-input ts-input--disabled"
                            value="{{ $service?->service_number ?? 'Auto-generado' }}" disabled>
                 </div>
-                <div class="ts-form-grid ts-form-grid--2">
-                    <div class="ts-field">
-                        <label class="ts-label">Fecha <span class="ts-label__req">*</span></label>
-                        <input type="date" name="service_date" class="ts-input" required
-                               value="{{ old('service_date', $service?->service_date
-                                    ? $service->service_date->format('Y-m-d')
-                                    : now()->format('Y-m-d')) }}">
-                        <span class="ts-field-error"></span>
-                    </div>
-                    <div class="ts-field">
-                        <label class="ts-label">Hora <span class="ts-label__req">*</span></label>
-                        <input type="time" name="service_time" class="ts-input" required
-                               value="{{ old('service_time', $service?->service_time
-                                    ? substr($service->service_time, 0, 5)
-                                    : '09:00') }}">
-                        <span class="ts-field-error"></span>
-                    </div>
+                <div class="ts-field">
+                    <label class="ts-label">Fecha <span class="ts-label__req">*</span></label>
+                    <input type="date" name="service_date" class="ts-input" required
+                           value="{{ old('service_date', $service?->service_date
+                                ? $service->service_date->format('Y-m-d')
+                                : now()->format('Y-m-d')) }}">
+                    <span class="ts-field-error"></span>
+                </div>
+                <div class="ts-field">
+                    <label class="ts-label">Hora <span class="ts-label__req">*</span></label>
+                    <input type="time" name="service_time" class="ts-input" required
+                           value="{{ old('service_time', $service?->service_time
+                                ? substr($service->service_time, 0, 5)
+                                : '09:00') }}">
+                    <span class="ts-field-error"></span>
                 </div>
             </div>
 

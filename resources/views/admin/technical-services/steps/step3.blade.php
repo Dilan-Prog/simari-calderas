@@ -1,43 +1,88 @@
-<form id="ts-wizard-form"
-      data-step="3"
-      data-save-url="{{ route('admin.technical-services.save-step', [$service, 3]) }}"
-      data-step-url="{{ route('admin.technical-services.step', [$service, '__STEP__']) }}"
-      data-index-url="{{ route('admin.technical-services.index') }}"
-      data-search-tech-url="{{ route('admin.technical-services.search-technicians') }}">
+<script>
+window.__tsConfig = {
+    step: 3,
+    isEdit: true,
+    saveUrl: "{{ route('admin.technical-services.save-step', [$service, 3]) }}",
+    stepUrl: "{{ route('admin.technical-services.step', [$service, '__STEP__']) }}",
+    indexUrl: "{{ route('admin.technical-services.index') }}",
+    searchTechUrl: "{{ route('admin.technical-services.search-technicians') }}",
+    searchMaterialUrl: "{{ route('admin.technical-services.search-materials') }}"
+};
+</script>
+<form id="ts-wizard-form">
 
     <div class="ts-card">
         <h2 class="ts-card__title">Materiales Planificados</h2>
         <p class="ts-card__subtitle">Lista de materiales necesarios para el servicio</p>
         <div class="ts-card__divider"></div>
+        <div class="inline-product-search" id="inlineProductSearch">
+            <div class="inline-product-search__input-wrap">
+                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15"
+                        viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"
+                        class="inline-product-search__icon" aria-hidden="true">
+                    <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+                </svg>
+                <input type="text"
+                        id="inlineProductInput"
+                        class="inline-product-search__input"
+                        placeholder="Buscar por nombre, SKU, marca o categoría..."
+                        autocomplete="off">
+                <button type="button"
+                        class="inline-product-search__clear"
+                        id="inlineProductClear"
+                        style="display:none"
+                        aria-label="Limpiar búsqueda">✕</button>
+            </div>
 
+            <div class="inline-product-search__dropdown"
+                    id="inlineProductDropdown"
+                    style="display:none">
+                <div class="inline-product-search__loading"
+                        id="inlineProductLoading"
+                        style="display:none">
+                    <span class="inline-product-search__spinner"></span>
+                    Buscando productos...
+                </div>
+                <div class="inline-product-search__empty"
+                        id="inlineProductEmpty"
+                        style="display:none">
+                    Sin resultados para "<span id="inlineProductEmptyQuery"></span>"
+                </div>
+                <ul class="inline-product-search__list" id="inlineProductList"></ul>
+            </div>
+        </div>
         <div style="overflow-x:auto">
             <table class="ts-materials-table">
                 <thead>
                     <tr>
-                        <th style="width:40%">MATERIAL / DESCRIPCIÓN</th>
-                        <th style="width:15%">CANTIDAD</th>
-                        <th style="width:15%">UNIDAD</th>
-                        <th style="width:25%">NOTAS</th>
+                        <th style="width:38%">MATERIAL / DESCRIPCIÓN</th>
+                        <th style="width:12%">CANTIDAD</th>
+                        <th style="width:18%">UNIDAD</th>
+                        <th style="width:27%">NOTAS</th>
                         <th style="width:5%"></th>
                     </tr>
                 </thead>
                 <tbody id="ts-materials-tbody">
+                    @php $units = ['litros','kg','piezas','metros','galones','otro']; @endphp
                     @forelse($plannedMaterials as $i => $mat)
                     <tr>
                         <td>
-                            <input type="text" name="materials[{{ $i }}][name]"
+                            <input type="text" name="materials[{{ $i }}][product_name]"
                                    class="ts-mat-input" placeholder="Nombre del material"
-                                   value="{{ $mat->name ?? '' }}">
+                                   value="{{ $mat->product_name ?? '' }}">
                         </td>
                         <td>
                             <input type="number" name="materials[{{ $i }}][quantity]"
-                                   class="ts-mat-input" min="0" step="any" placeholder="0"
-                                   value="{{ $mat->quantity ?? '' }}">
+                                   class="ts-mat-input" min="1" step="1" placeholder="1"
+                                   value="{{ $mat->quantity ?? 1 }}">
                         </td>
                         <td>
-                            <input type="text" name="materials[{{ $i }}][unit]"
-                                   class="ts-mat-input" placeholder="Unidad"
-                                   value="{{ $mat->unit ?? '' }}">
+                            <select name="materials[{{ $i }}][unit]" class="ts-mat-input ts-mat-select">
+                                @foreach($units as $u)
+                                    <option value="{{ $u }}" {{ ($mat->unit ?? 'piezas') === $u ? 'selected' : '' }}>{{ $u }}</option>
+                                @endforeach
+                            </select>
                         </td>
                         <td>
                             <input type="text" name="materials[{{ $i }}][notes]"
@@ -57,16 +102,19 @@
                     @empty
                     <tr>
                         <td>
-                            <input type="text" name="materials[0][name]"
+                            <input type="text" name="materials[0][product_name]"
                                    class="ts-mat-input" placeholder="Nombre del material">
                         </td>
                         <td>
                             <input type="number" name="materials[0][quantity]"
-                                   class="ts-mat-input" min="0" step="any" placeholder="0">
+                                   class="ts-mat-input" min="1" step="1" placeholder="1" value="1">
                         </td>
                         <td>
-                            <input type="text" name="materials[0][unit]"
-                                   class="ts-mat-input" placeholder="Unidad">
+                            <select name="materials[0][unit]" class="ts-mat-input ts-mat-select">
+                                @foreach(['litros','kg','piezas','metros','galones','otro'] as $u)
+                                    <option value="{{ $u }}" {{ $u === 'piezas' ? 'selected' : '' }}>{{ $u }}</option>
+                                @endforeach
+                            </select>
                         </td>
                         <td>
                             <input type="text" name="materials[0][notes]"
