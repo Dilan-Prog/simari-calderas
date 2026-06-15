@@ -72,6 +72,33 @@
             </a>
             @endif
 
+            @if($service->status === 'cancelled')
+            <a href="{{ route('admin.technical-services.index') }}" class="ts-btn ts-btn--success">
+                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"/>
+                </svg>
+                OK
+            </a>
+
+            <form action="{{ route('admin.technical-services.destroy', $service) }}"
+                  method="POST"
+                  style="display:inline"
+                  onsubmit="return confirm('¿Eliminar definitivamente el servicio {{ $service->service_number }}? Esta acción no se puede deshacer.');">
+                @csrf
+                @method('DELETE')
+                <button type="submit" class="ts-btn ts-btn--danger">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none"
+                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 6h18"/>
+                        <path d="M8 6V4h8v2"/>
+                        <path d="M19 6l-1 14H6L5 6"/>
+                    </svg>
+                    Eliminar
+                </button>
+            </form>
+            @endif
+
             @if($service->status === 'scheduled')
             <button type="button" class="ts-btn ts-btn--warning"
                     onclick="TechnicalServices.updateServiceStatus({{ $service->id }}, 'in_progress')">
@@ -96,6 +123,7 @@
             </button>
             @endif
 
+            @if($service->isEditable())
             <a href="{{ route('admin.technical-services.edit', $service) }}" class="ts-btn">
                 <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none"
                      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -104,6 +132,8 @@
                 </svg>
                 Editar
             </a>
+            @endif
+
             @if(!in_array($service->status, ['cancelled','completed']))
             <button type="button" class="ts-btn ts-btn--danger"
                     onclick="TechnicalServices.confirmCancelService({{ $service->id }}, '{{ $service->service_number }}')">

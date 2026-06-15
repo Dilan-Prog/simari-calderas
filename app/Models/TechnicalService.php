@@ -215,6 +215,6 @@ class TechnicalService extends Model
 
     public function isDeletable(): bool
     {
-        return $this->status === 'draft';
+        return in_array($this->status, ['draft', 'cancelled'], true);
     }
 }

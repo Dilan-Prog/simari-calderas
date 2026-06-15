@@ -266,7 +266,7 @@ class TechnicalServiceController extends Controller
         if (!$service->isDeletable()) {
             return redirect()
                 ->route('admin.technical-services.index')
-                ->with('error', 'Solo se pueden eliminar servicios en estado Borrador.');
+                ->with('error', 'Solo se pueden eliminar servicios en estado Borrador o Cancelado.');
         }
 
         $number = $service->service_number;
