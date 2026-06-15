@@ -17,6 +17,7 @@
         tooltip: { el: null, serviceId: null },
         autosaveTimer: null,
         autosaveLastSaved: null,
+        isSavingStep: false,
     };
 
     // ── DOM refs (set on init) ───────────────────────────────
@@ -573,10 +574,17 @@
         const form = document.getElementById('ts-wizard-form');
         if (!form) return;
 
+        if (state.isSavingStep) return;
+
         const cfg = window.__tsConfig ?? {};
         const step = parseInt(cfg.step ?? 1);
         const url = cfg.saveUrl;
         if (!url) return;
+
+        state.isSavingStep = true;
+
+        const btnNext = document.getElementById('ts-btn-next');
+        if (btnNext) btnNext.disabled = true;
 
         const formData = new FormData(form);
 
@@ -601,6 +609,9 @@
         } catch (err) {
             showNotification('Error de red al guardar.', 'error');
             console.error(err);
+        } finally {
+            state.isSavingStep = false;
+            if (btnNext) btnNext.disabled = false;
         }
     }
 
@@ -622,10 +633,17 @@
         const form = document.getElementById('ts-wizard-form');
         if (!form) return;
 
+        const cfg = window.__tsConfig ?? {};
+
+        // En alta nueva no hay un registro estable que actualizar, así que el
+        // autosave crearía un nuevo servicio en cada pausa.
+        if (!cfg.isEdit) return;
+
         form.addEventListener('input', () => {
             clearTimeout(state.autosaveTimer);
             setAutosaveStatus('saving');
             state.autosaveTimer = setTimeout(async () => {
+                if (state.isSavingStep) return;
                 const url = (window.__tsConfig ?? {}).saveUrl;
                 if (!url) return;
                 const formData = new FormData(form);
