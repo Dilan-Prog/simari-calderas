@@ -1353,6 +1353,18 @@ input[type="time"].ts-input {
     border-color: #FECACA;
 }
 .ts-btn--danger:hover { background: #FEE2E2; }
+.ts-btn--warning {
+    background: #FFFBEB;
+    color: #D97706;
+    border-color: #FDE68A;
+}
+.ts-btn--warning:hover { background: #FEF3C7; }
+.ts-btn--success {
+    background: #F0FDF4;
+    color: #16A34A;
+    border-color: #BBF7D0;
+}
+.ts-btn--success:hover { background: #DCFCE7; }
 
 /* ============================================================
    SHOW PAGE

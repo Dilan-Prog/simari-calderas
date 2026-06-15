@@ -71,6 +71,31 @@
                 Generar Reporte
             </a>
             @endif
+
+            @if($service->status === 'scheduled')
+            <button type="button" class="ts-btn ts-btn--warning"
+                    onclick="TechnicalServices.updateServiceStatus({{ $service->id }}, 'in_progress')">
+                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"/>
+                    <polyline points="12 6 12 12 16 14"/>
+                </svg>
+                Marcar En Proceso
+            </button>
+            @endif
+
+            @if($service->status === 'in_progress')
+            <button type="button" class="ts-btn ts-btn--success"
+                    onclick="TechnicalServices.updateServiceStatus({{ $service->id }}, 'completed')">
+                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                    <polyline points="22 4 12 14.01 9 11.01"/>
+                </svg>
+                Marcar Completado
+            </button>
+            @endif
+
             <a href="{{ route('admin.technical-services.edit', $service) }}" class="ts-btn">
                 <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none"
                      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
