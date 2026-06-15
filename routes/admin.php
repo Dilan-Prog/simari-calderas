@@ -178,6 +178,7 @@ Route::controller(TechnicalServiceController::class)
         Route::get('/', 'index')->name('index');
         Route::get('/create', 'create')->name('create');
         Route::post('/', 'store')->name('store');
+        Route::get('/{service}/draft-context', 'draftContext')->name('draft-context');
         Route::get('/{service}', 'show')->name('show');
         Route::get('/{service}/edit', 'edit')->name('edit');
         Route::delete('/{service}', 'destroy')->name('destroy');

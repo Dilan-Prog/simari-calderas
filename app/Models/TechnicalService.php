@@ -14,6 +14,7 @@ class TechnicalService extends Model
     protected $fillable = [
         'service_number',
         'service_code',
+        'draft_token',
         'customer_id',
         'created_by_user_id',
         'from_quote_id',

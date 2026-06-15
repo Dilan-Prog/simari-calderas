@@ -288,5 +288,11 @@
 @endsection
 
 @push('scripts')
+<script>
+window.__tsCurrentService = {
+    id: {{ $service->id }},
+    status: @json($service->status),
+};
+</script>
     @vite('resources/js/admin/technical-services.js')
 @endpush

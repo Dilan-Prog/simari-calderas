@@ -54,7 +54,7 @@ class TechnicalServiceController extends Controller
         }
 
         $services = $viewMode === 'table'
-            ? $tableQuery->paginate(15)->withQueryString()
+            ? $tableQuery->paginate(15)->appends($request->query())
             : $tableQuery->get();
 
         return view('admin.technical-services.index', compact(
@@ -92,6 +92,7 @@ class TechnicalServiceController extends Controller
     public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([
+            'draft_token'        => 'nullable|string|max:255',
             'customer_id'        => 'required|exists:customers,id',
             'service_type_id'    => 'required|exists:service_types,id',
             'service_date'       => 'required|date',
@@ -115,6 +116,8 @@ class TechnicalServiceController extends Controller
             'service_id'        => $service->id,
             'save_url'          => route('admin.technical-services.save-step', [$service, 1]),
             'step_url_template' => route('admin.technical-services.step', [$service, '__STEP__']),
+            'step1_url'         => route('admin.technical-services.step', [$service, 1]),
+            'draft_token'       => $service->draft_token,
         ]);
     }
 
@@ -194,7 +197,10 @@ class TechnicalServiceController extends Controller
         // Step 4: final confirmation — change status to scheduled
         if ($step === 4) {
             $this->tsService->updateStatus($service, 'scheduled', null, auth()->id());
-            $service->update(['current_step' => 4]);
+            $service->update([
+                'current_step' => 4,
+                'draft_token'  => null,
+            ]);
 
             return redirect()
                 ->route('admin.technical-services.show', $service)
@@ -226,6 +232,18 @@ class TechnicalServiceController extends Controller
         ]);
 
         return view('admin.technical-services.show', compact('service'));
+    }
+
+    public function draftContext(TechnicalService $service): JsonResponse
+    {
+        return response()->json([
+            'service_id'  => $service->id,
+            'status'      => $service->status,
+            'is_editable'  => $service->isEditable(),
+            'current_step' => $service->current_step,
+            'step1_url'   => route('admin.technical-services.step', [$service, 1]),
+            'save_url'    => route('admin.technical-services.save-step', [$service, 1]),
+        ]);
     }
 
     // ── Edit ───────────────────────────────────────────────────────────────────

@@ -20,6 +20,8 @@
         isSavingStep: false,
     };
 
+    const DRAFT_STORAGE_KEY = 'ts:technical-service-draft';
+
     // ── DOM refs (set on init) ───────────────────────────────
     let calendarEl, calendarView, tableView, tooltip, overlay, quickModal;
 
@@ -576,16 +578,175 @@
         );
     }
 
+    function readDraftState() {
+        try {
+            const raw = localStorage.getItem(DRAFT_STORAGE_KEY);
+            return raw ? JSON.parse(raw) : null;
+        } catch {
+            return null;
+        }
+    }
+
+    function generateUuidFallback() {
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+            const r = Math.random() * 16 | 0;
+            const v = c === 'x' ? r : (r & 0x3) | 0x8;
+            return v.toString(16);
+        });
+    }
+
+    function writeDraftState(patch) {
+        try {
+            const current = readDraftState() ?? {};
+            const next = { ...current, ...patch };
+            localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(next));
+            return next;
+        } catch {
+            return null;
+        }
+    }
+
+    function clearDraftState() {
+        try {
+            localStorage.removeItem(DRAFT_STORAGE_KEY);
+        } catch { /* silent */ }
+    }
+
+    function invalidateDraftFlow(message) {
+        const cfg = window.__tsConfig ?? {};
+        cfg.saveUrl = '';
+        cfg.isEdit = false;
+        window.__tsConfig = cfg;
+
+        const tokenInput = document.getElementById('ts-draft-token');
+        if (tokenInput) tokenInput.value = '';
+
+        clearTimeout(state.autosaveTimer);
+        state.isSavingStep = false;
+        setAutosaveStatus('error', 'Borrador cerrado');
+        showNotification(message ?? 'El borrador fue cerrado en otra pestaña. Recarga para continuar.', 'error');
+    }
+
+    function ensureDraftToken() {
+        const form = document.getElementById('ts-wizard-form');
+        if (!form) return null;
+
+        let draft = readDraftState();
+        if (!draft?.draft_token) {
+            draft = writeDraftState({
+                draft_token: (crypto?.randomUUID?.() ?? generateUuidFallback()),
+            });
+        }
+
+        const tokenInput = document.getElementById('ts-draft-token');
+        if (tokenInput && draft?.draft_token) {
+            tokenInput.value = draft.draft_token;
+        }
+
+        if (window.__tsConfig) {
+            window.__tsConfig.draftToken = draft?.draft_token ?? null;
+        }
+
+        return draft;
+    }
+
+    async function restoreOrRedirectDraft() {
+        const cfg = window.__tsConfig ?? {};
+        const draft = readDraftState();
+
+        if (window.__tsCurrentService?.status && window.__tsCurrentService.status !== 'draft') {
+            if (draft?.service_id === window.__tsCurrentService.id) {
+                clearDraftState();
+            }
+            return;
+        }
+
+        const isCreateFlow = !cfg.isEdit && (cfg.saveUrl ?? '').includes('/technical-services');
+        if (isCreateFlow && draft?.service_id && draft?.step_url) {
+            const baseUrl = cfg.technicalServicesBaseUrl ?? '/admin/technical-services';
+            try {
+                const res = await fetch(`${baseUrl}/${draft.service_id}/draft-context`, {
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                    },
+                });
+
+                if (!res.ok) {
+                    clearDraftState();
+                    return false;
+                }
+
+                const data = await res.json();
+                if (data.is_editable && data.status === 'draft' && data.step1_url) {
+                    if (String(window.location.pathname) !== String(new URL(draft.step_url ?? data.step1_url, window.location.origin).pathname)) {
+                        window.location.replace(draft.step_url ?? data.step1_url);
+                        return true;
+                    }
+                }
+
+                clearDraftState();
+                return false;
+            } catch {
+                return false;
+            }
+        }
+
+        return false;
+    }
+
+    function initDraftStorageSync() {
+        window.addEventListener('storage', (event) => {
+            if (event.key !== DRAFT_STORAGE_KEY) return;
+
+            const cfg = window.__tsConfig ?? {};
+            const isDraftFlow = !cfg.isEdit && (cfg.saveUrl ?? '').includes('/technical-services');
+            if (!isDraftFlow) return;
+
+            if (!event.newValue) {
+                invalidateDraftFlow();
+            }
+        });
+    }
+
     function syncConfigAfterDraftCreated(data) {
         if (!data) return;
+
+        if (!data.service_id || !data.save_url) {
+            showNotification('La sincronización del borrador falló: faltan service_id o save_url.', 'error');
+            setAutosaveStatus('error', 'Sin sincronización');
+            return false;
+        }
 
         const cfg = window.__tsConfig ?? {};
         cfg.isEdit = true;
 
-        if (data.save_url) cfg.saveUrl = data.save_url;
+        cfg.saveUrl = data.save_url;
         if (data.step_url_template) cfg.stepUrl = data.step_url_template;
+        if (data.step1_url) cfg.step1Url = data.step1_url;
+        cfg.serviceId = data.service_id;
+        cfg.draftToken = data.draft_token ?? cfg.draftToken ?? null;
 
         window.__tsConfig = cfg;
+        writeDraftState({
+            draft_token: cfg.draftToken,
+            service_id: data.service_id,
+            save_url: data.save_url,
+            step_url: data.step1_url ?? data.step_url_template,
+            updated_at: new Date().toISOString(),
+        });
+
+        if (data.step1_url) {
+            try {
+                history.replaceState({}, '', data.step1_url);
+            } catch (err) {
+                console.error(err);
+                showNotification('No se pudo sincronizar la URL del borrador.', 'error');
+                return false;
+            }
+        }
+
+        return true;
     }
 
     async function saveCurrentStep() {
@@ -594,7 +755,14 @@
 
         if (state.isSavingStep) return;
 
+        ensureDraftToken();
+
         const cfg = window.__tsConfig ?? {};
+        if (!cfg.saveUrl) {
+            showNotification('No hay URL de guardado configurada.', 'error');
+            return;
+        }
+
         const step = parseInt(cfg.step ?? 1);
         const url = cfg.saveUrl;
         if (!url) return;
@@ -618,6 +786,15 @@
             }
             const data = await res.json();
             if (data.success || data.redirect) {
+                if (data.service_id) {
+                    writeDraftState({
+                        service_id: data.service_id,
+                        draft_token: data.draft_token ?? cfg.draftToken ?? null,
+                        save_url: data.save_url ?? url,
+                        step_url: data.step1_url ?? data.step_url_template ?? null,
+                        updated_at: new Date().toISOString(),
+                    });
+                }
                 window.location.href = data.redirect ??
                     (cfg.stepUrl ?? '').replace('__STEP__', step + 1);
             } else {
@@ -651,53 +828,76 @@
         const form = document.getElementById('ts-wizard-form');
         if (!form) return;
 
-        form.addEventListener('input', () => {
-            clearTimeout(state.autosaveTimer);
-            setAutosaveStatus('saving');
-            state.autosaveTimer = setTimeout(async () => {
-                if (state.isSavingStep) return;
+        ensureDraftToken();
 
-                if (!hasRequiredValues(form)) {
-                    setAutosaveStatus('saved', 'Completa campos requeridos para autoguardar');
-                    return;
-                }
+        // Verifica si existe un borrador previo almacenado y, si sigue editable,
+        // reabre el mismo servicio antes de enganchar autosave.
+        restoreOrRedirectDraft().then((restored) => {
+            if (restored) return;
 
-                const url = (window.__tsConfig ?? {}).saveUrl;
-                if (!url) return;
-                const formData = new FormData(form);
+            ensureDraftToken();
 
-                state.isSavingStep = true;
-                try {
-                    const res = await fetch(url, {
-                        method: 'POST',
-                        headers: { 'X-CSRF-TOKEN': csrfToken(), 'Accept': 'application/json' },
-                        body: formData,
-                    });
-                    if (!res.ok) return;
-                    const data = await res.json();
-
-                    syncConfigAfterDraftCreated(data);
-
-                    if (data.success || data.redirect) {
-                        state.autosaveLastSaved = new Date();
-                        setAutosaveStatus('saved');
-                    }
-                } catch { /* silent */ }
-                finally {
-                    state.isSavingStep = false;
-                }
-            }, 2000);
-        });
-
-        setInterval(() => {
-            if (state.autosaveLastSaved) {
-                const secs = Math.round((Date.now() - state.autosaveLastSaved) / 1000);
-                const msg = secs < 60
-                    ? `Guardado hace ${secs}s`
-                    : `Guardado hace ${Math.floor(secs/60)}min`;
-                setAutosaveStatus('saved', msg);
+            const cfg = window.__tsConfig ?? {};
+            if (!cfg.saveUrl) {
+                showNotification('No se puede iniciar autosave: falta saveUrl.', 'error');
+                return;
             }
-        }, 30000);
+
+            form.addEventListener('input', () => {
+                clearTimeout(state.autosaveTimer);
+                setAutosaveStatus('saving');
+                state.autosaveTimer = setTimeout(async () => {
+                    if (state.isSavingStep) return;
+
+                    if (!hasRequiredValues(form)) {
+                        setAutosaveStatus('saved', 'Completa campos requeridos para autoguardar');
+                        return;
+                    }
+
+                    const url = (window.__tsConfig ?? {}).saveUrl;
+                    if (!url) return;
+                    const formData = new FormData(form);
+
+                    state.isSavingStep = true;
+                    try {
+                        const res = await fetch(url, {
+                            method: 'POST',
+                            headers: { 'X-CSRF-TOKEN': csrfToken(), 'Accept': 'application/json' },
+                            body: formData,
+                        });
+                        if (!res.ok) {
+                            showNotification(`Error del servidor (${res.status}).`, 'error');
+                            setAutosaveStatus('error', 'Error al guardar');
+                            return;
+                        }
+                        const data = await res.json();
+
+                        const synced = syncConfigAfterDraftCreated(data);
+                        if (!synced) {
+                            return;
+                        }
+
+                        if (data.success || data.redirect) {
+                            state.autosaveLastSaved = new Date();
+                            setAutosaveStatus('saved');
+                        }
+                    } catch { /* silent */ }
+                    finally {
+                        state.isSavingStep = false;
+                    }
+                }, 2000);
+            });
+
+            setInterval(() => {
+                if (state.autosaveLastSaved) {
+                    const secs = Math.round((Date.now() - state.autosaveLastSaved) / 1000);
+                    const msg = secs < 60
+                        ? `Guardado hace ${secs}s`
+                        : `Guardado hace ${Math.floor(secs/60)}min`;
+                    setAutosaveStatus('saved', msg);
+                }
+            }, 30000);
+        });
     }
 
     function setAutosaveStatus(status, customMsg) {
@@ -1045,6 +1245,15 @@
         tableView    = document.getElementById('ts-table-view');
         overlay      = document.getElementById('ts-quick-overlay');
         quickModal   = document.getElementById('ts-quick-modal');
+
+        initDraftStorageSync();
+
+        if (window.__tsCurrentService?.status && window.__tsCurrentService.status !== 'draft') {
+            const draft = readDraftState();
+            if (draft?.service_id === window.__tsCurrentService.id) {
+                clearDraftState();
+            }
+        }
 
         // Create tooltip element
         tooltip = document.getElementById('ts-tooltip');
