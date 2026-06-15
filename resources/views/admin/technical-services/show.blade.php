@@ -209,10 +209,10 @@
                 @foreach($service->assignedTechnicians as $tech)
                 <div class="ts-tech-item">
                     <div class="ts-tech-avatar-lg">
-                        {{ mb_strtoupper(mb_substr($tech->name, 0, 2)) }}
+                        {{ mb_strtoupper(mb_substr($tech->full_name, 0, 2)) }}
                     </div>
                     <div class="ts-tech-info">
-                        <div class="ts-tech-info__name">{{ $tech->name }}</div>
+                        <div class="ts-tech-info__name">{{ $tech->full_name }}</div>
                         <div class="ts-tech-info__role">{{ $tech->email ?? '—' }}</div>
                     </div>
                 </div>
@@ -256,12 +256,6 @@
                     {{ $service->created_at ? \Carbon\Carbon::parse($service->created_at)->format('d M Y H:i') : '—' }}
                 </span>
             </div>
-            @if(isset($service->createdBy) && $service->createdBy)
-            <div class="ts-detail-field">
-                <span class="ts-detail-label">Creado por</span>
-                <span class="ts-detail-value">{{ $service->createdBy->name }}</span>
-            </div>
-            @endif
         </div>
     </div>
 

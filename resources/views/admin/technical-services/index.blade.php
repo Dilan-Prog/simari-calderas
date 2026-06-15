@@ -66,7 +66,7 @@
                 <select class="ts-select" id="ts-filter-tech">
                     <option value="">Todos los técnicos</option>
                     @foreach($technicians as $tech)
-                        <option value="{{ $tech->id }}">{{ $tech->name }}</option>
+                        <option value="{{ $tech->id }}">{{ $tech->full_name }}</option>
                     @endforeach
                 </select>
                 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
@@ -182,8 +182,8 @@
                         <td>
                             <div class="ts-table-techs">
                                 @foreach($service->assignedTechnicians->take(3) as $tech)
-                                    <div class="ts-tech-avatar" title="{{ $tech->name }}">
-                                        {{ mb_strtoupper(mb_substr($tech->name, 0, 1)) }}
+                                    <div class="ts-tech-avatar" title="{{ $tech->full_name }}">
+                                        {{ mb_strtoupper(mb_substr($tech->full_name, 0, 1)) }}
                                     </div>
                                 @endforeach
                                 @if($service->assignedTechnicians->count() > 3)
