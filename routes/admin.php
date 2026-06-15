@@ -59,6 +59,7 @@ Route::controller(ClientManageController::class)
         Route::put('/clientes/editar-cliente/{id}', 'update')->name('clients.update');
         Route::delete('/clientes/eliminar-cliente/{id}', 'destroy')->name('clients.destroy');
         Route::get('/clientes/informacion/{id}', 'information')->name('clients.information');
+        Route::post('/clientes/{id}/acceso', 'grantAccess')->name('clients.grant-access');
     });
 
 // ============================================================

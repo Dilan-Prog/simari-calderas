@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Backend;
 
 use App\Http\Controllers\Controller;
 use App\Models\Customer;
-use App\Models\Product;
+use App\Models\Products;
 use App\Models\TechnicalService;
 use App\Services\TechnicalServiceService;
 use Illuminate\Http\JsonResponse;
@@ -28,40 +28,37 @@ class TechnicalServiceController extends Controller
         $currentYear  = $year;
         $technicians  = $this->tsService->getTechnicians();
 
-        if ($viewMode === 'table') {
-            $query = TechnicalService::with(['customer', 'serviceType', 'assignedTechnicians'])
-                ->latest('service_date');
-
-            if ($request->filled('technician_id')) {
-                $query->byTechnician((int) $request->technician_id);
-            }
-            if ($request->filled('status')) {
-                $query->byStatus($request->status);
-            }
-            if ($request->filled('date_from')) {
-                $query->whereDate('service_date', '>=', $request->date_from);
-            }
-            if ($request->filled('date_to')) {
-                $query->whereDate('service_date', '<=', $request->date_to);
-            }
-
-            $services = $query->paginate(15)->withQueryString();
-
-            return view('admin.technical-services.index', compact(
-                'services', 'technicians', 'currentMonth', 'currentYear', 'viewMode'
-            ));
-        }
-
-        // Calendar view
-        $services = $this->tsService->getCalendarEvents(
+        // Calendar events — always computed for the JS config
+        $calendarServices = $this->tsService->getCalendarEvents(
             $month,
             $year,
             $request->filled('technician_id') ? (int) $request->technician_id : null,
             $request->filled('status') ? $request->status : null
         );
 
+        // Table paginator — only built when table view is active
+        $tableQuery = TechnicalService::with(['customer', 'serviceType', 'assignedTechnicians'])
+            ->latest('service_date');
+
+        if ($request->filled('technician_id')) {
+            $tableQuery->byTechnician((int) $request->technician_id);
+        }
+        if ($request->filled('status')) {
+            $tableQuery->byStatus($request->status);
+        }
+        if ($request->filled('date_from')) {
+            $tableQuery->whereDate('service_date', '>=', $request->date_from);
+        }
+        if ($request->filled('date_to')) {
+            $tableQuery->whereDate('service_date', '<=', $request->date_to);
+        }
+
+        $services = $viewMode === 'table'
+            ? $tableQuery->paginate(15)->withQueryString()
+            : $tableQuery->get();
+
         return view('admin.technical-services.index', compact(
-            'services', 'technicians', 'currentMonth', 'currentYear', 'viewMode'
+            'services', 'calendarServices', 'technicians', 'currentMonth', 'currentYear', 'viewMode'
         ));
     }
 
@@ -163,6 +160,7 @@ class TechnicalServiceController extends Controller
 
         return view('admin.technical-services.create', compact(
             'service',
+            'step',
             'serviceTypes',
             'customers',
             'technicians',
@@ -349,7 +347,7 @@ class TechnicalServiceController extends Controller
             return response()->json(['materials' => []]);
         }
 
-        $materials = Product::where('is_active', 1)
+        $materials = Products::where('is_active', 1)
             ->where(function ($query) use ($q) {
                 $query->where('name', 'like', "%{$q}%")
                       ->orWhere('sku', 'like', "%{$q}%");

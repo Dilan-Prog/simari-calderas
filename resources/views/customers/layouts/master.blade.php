@@ -14,8 +14,6 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap"
         media="print" onload="this.media='all'">
     {{-- @vite(['resources/css/app.css', 'resources/js/app.js']) --}}
-    @vite(['resources/css/admin/app.css'])
-    @vite(['resources/js/admin/sidebar.js'])
     @stack('styles')
     <style>
     .val-error-input,.val-error-select{border-color:#e3342f!important;box-shadow:0 0 0 2px rgba(227,52,47,.18)!important;}
@@ -28,13 +26,13 @@
         <div class="admin-spinner"></div>
     </div>
 
-    @include('admin.layouts.sidebar')
-    @include('admin.layouts.toast')
+    @include('customers.layouts.sidebar')
+    @include('customers.layouts.toast')
     <section class="admin-main">
-        @include('admin.layouts.navbar')
+        @include('customers.layouts.navbar')
         @yield('content')
     </section>
-    @include('admin.layouts.scripts')
+    @include('customers.layouts.scripts')
     @stack('scripts')
 </body>
 </html>

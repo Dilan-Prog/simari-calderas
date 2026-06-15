@@ -12,7 +12,7 @@
     {{-- ── Wizard progress bar ────────────────────── --}}
     @php
         $steps = [1 => 'Datos Generales', 2 => 'Técnicos', 3 => 'Materiales', 4 => 'Confirmar'];
-        $currentStep = $service?->current_step ?? 1;
+        $currentStep = $step ?? $service?->current_step ?? 1;
     @endphp
 
     <div class="ts-wizard-bar">

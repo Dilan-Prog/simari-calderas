@@ -66,7 +66,7 @@
                 <select class="ts-select" id="ts-filter-tech">
                     <option value="">Todos los técnicos</option>
                     @foreach($technicians as $tech)
-                        <option value="{{ $tech->id }}">{{ $tech->name }}</option>
+                        <option value="{{ $tech->id }}">{{ $tech->full_name }}</option>
                     @endforeach
                 </select>
                 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
@@ -113,14 +113,18 @@
             </div>
         </div>
 
-        <div id="ts-calendar"
-             data-services='@json($services)'
-             data-month="{{ $currentMonth->month }}"
-             data-year="{{ $currentYear }}">
-        </div>
+        <script>
+        window.__tsConfig = {
+            services: @json($calendarServices),
+            month: {{ $currentMonth->month }},
+            year: {{ $currentYear }}
+        };
+        </script>
+        <div id="ts-calendar"></div>
 
         <div class="ts-legend">
             <span class="ts-legend__label">Leyenda:</span>
+            <span class="ts-legend__item ts-legend__item--draft">Borrador</span>
             <span class="ts-legend__item ts-legend__item--scheduled">Programado</span>
             <span class="ts-legend__item ts-legend__item--in_progress">En Proceso</span>
             <span class="ts-legend__item ts-legend__item--completed">Completado</span>
@@ -178,8 +182,8 @@
                         <td>
                             <div class="ts-table-techs">
                                 @foreach($service->assignedTechnicians->take(3) as $tech)
-                                    <div class="ts-tech-avatar" title="{{ $tech->name }}">
-                                        {{ mb_strtoupper(mb_substr($tech->name, 0, 1)) }}
+                                    <div class="ts-tech-avatar" title="{{ $tech->full_name }}">
+                                        {{ mb_strtoupper(mb_substr($tech->full_name, 0, 1)) }}
                                     </div>
                                 @endforeach
                                 @if($service->assignedTechnicians->count() > 3)

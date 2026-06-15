@@ -108,7 +108,6 @@
                                                 data-name="{{ $user->first_name }} {{ $user->last_name }}"
                                                 data-email="{{ $user->email }}"
                                                 data-initial="{{ strtoupper(substr($user->first_name, 0, 1)) }}">
-
                                                 {{-- delete svg --}}
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
                                                     viewBox="0 0 24 24" fill="none" stroke="currentColor"

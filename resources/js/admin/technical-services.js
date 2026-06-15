@@ -50,15 +50,17 @@
 
     function statusClass(s) {
         return {
+            draft:       'ts-event--draft',
             scheduled:   'ts-event--scheduled',
             in_progress: 'ts-event--in_progress',
             completed:   'ts-event--completed',
             cancelled:   'ts-event--cancelled',
-        }[s] ?? 'ts-event--scheduled';
+        }[s] ?? 'ts-event--draft';
     }
 
     function statusLabel(s) {
         return {
+            draft:       'Borrador',
             scheduled:   'Programado',
             in_progress: 'En Proceso',
             completed:   'Completado',
@@ -417,16 +419,32 @@
         const techs = (sv.assigned_technicians ?? [])
             .map(t => t.name).join(', ') || '—';
 
+        const timeRange = sv.service_time ? sv.service_time.substring(0, 5) : null;
+        const timeEnd   = sv.service_time_end ? ' — ' + sv.service_time_end.substring(0, 5) : '';
+
         tooltip.innerHTML = `
-            <div class="ts-tooltip__num">${sv.service_number ?? ''}</div>
-            <div class="ts-tooltip__title">${sv.service_type_label ?? 'Servicio'} — ${sv.customer_name ?? ''}</div>
-            <div class="ts-tooltip__row">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M8 2v4M16 2v4M3 10h18"/></svg>
-                ${formatDateDisplay(sv.service_date)} ${sv.service_time ? '· ' + sv.service_time : ''}
+            <div class="ts-tooltip__header">
+                <svg class="ts-tooltip__icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+                </svg>
+                <div class="ts-tooltip__title">${sv.service_type_label ?? 'Servicio'}</div>
             </div>
-            <div class="ts-tooltip__row">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                ${techs}
+            <div class="ts-tooltip__info-row">
+                <span class="ts-tooltip__label">Cliente:</span>
+                <span class="ts-tooltip__value">${sv.customer_name ?? '—'}</span>
+            </div>
+            <div class="ts-tooltip__info-row">
+                <span class="ts-tooltip__label">Técnico:</span>
+                <span class="ts-tooltip__value">${techs}</span>
+            </div>
+            ${timeRange ? `
+            <div class="ts-tooltip__info-row">
+                <span class="ts-tooltip__label">Hora:</span>
+                <span class="ts-tooltip__value">${timeRange}${timeEnd}</span>
+            </div>` : ''}
+            <div class="ts-tooltip__info-row">
+                <span class="ts-tooltip__label">Status:</span>
+                <span class="ts-tooltip__badge ts-tooltip__badge--${sv.status ?? 'draft'}">${statusLabel(sv.status)}</span>
             </div>
         `;
 
@@ -516,17 +534,19 @@
         }
         if (btnBack) {
             btnBack.addEventListener('click', () => {
-                const step = parseInt(form.dataset.step ?? 1);
+                const cfg = window.__tsConfig ?? {};
+                const step = parseInt(cfg.step ?? 1);
                 if (step > 1) {
-                    window.location.href = form.dataset.stepUrl.replace('__STEP__', step - 1);
+                    window.location.href = (cfg.stepUrl ?? '').replace('__STEP__', step - 1);
                 } else {
-                    window.location.href = form.dataset.indexUrl;
+                    window.location.href = cfg.indexUrl ?? '/';
                 }
             });
         }
 
         initTechnicianSearch();
         initMaterialRows();
+        initMaterialSearch();
         startAutosave();
     }
 
@@ -553,29 +573,34 @@
         const form = document.getElementById('ts-wizard-form');
         if (!form) return;
 
-        const step = parseInt(form.dataset.step ?? 1);
-        const url = form.dataset.saveUrl;
+        const cfg = window.__tsConfig ?? {};
+        const step = parseInt(cfg.step ?? 1);
+        const url = cfg.saveUrl;
         if (!url) return;
 
         const formData = new FormData(form);
-        formData.append('_method', 'PUT');
 
         try {
             const res = await fetch(url, {
                 method: 'POST',
-                headers: { 'X-CSRF-TOKEN': csrfToken() },
+                headers: { 'X-CSRF-TOKEN': csrfToken(), 'Accept': 'application/json' },
                 body: formData,
             });
+            if (!res.ok && res.status !== 422) {
+                showNotification(`Error del servidor (${res.status}).`, 'error');
+                return;
+            }
             const data = await res.json();
             if (data.success || data.redirect) {
                 window.location.href = data.redirect ??
-                    form.dataset.stepUrl.replace('__STEP__', step + 1);
+                    (cfg.stepUrl ?? '').replace('__STEP__', step + 1);
             } else {
                 showNotification(data.message ?? 'Error al guardar.', 'error');
                 if (data.errors) showFieldErrors(data.errors);
             }
-        } catch {
+        } catch (err) {
             showNotification('Error de red al guardar.', 'error');
+            console.error(err);
         }
     }
 
@@ -601,14 +626,13 @@
             clearTimeout(state.autosaveTimer);
             setAutosaveStatus('saving');
             state.autosaveTimer = setTimeout(async () => {
-                const url = form.dataset.saveUrl;
+                const url = (window.__tsConfig ?? {}).saveUrl;
                 if (!url) return;
                 const formData = new FormData(form);
-                formData.append('_method', 'PUT');
                 try {
                     const res = await fetch(url, {
                         method: 'POST',
-                        headers: { 'X-CSRF-TOKEN': csrfToken() },
+                        headers: { 'X-CSRF-TOKEN': csrfToken(), 'Accept': 'application/json' },
                         body: formData,
                     });
                     const data = await res.json();
@@ -665,7 +689,7 @@
         if (!results) return;
 
         try {
-            const searchUrl = document.getElementById('ts-wizard-form')?.dataset.searchTechUrl;
+            const searchUrl = (window.__tsConfig ?? {}).searchTechUrl;
             if (!searchUrl) return;
             const res = await fetch(`${searchUrl}?q=${encodeURIComponent(q)}`, {
                 headers: { 'X-CSRF-TOKEN': csrfToken(), 'Accept': 'application/json' },
@@ -701,7 +725,10 @@
         const input = document.getElementById('ts-tech-search-input');
         if (!list) return;
 
-        if (document.querySelector(`.ts-assigned-item[data-tech-id="${id}"]`)) {
+        const alreadyAdded = Array.from(
+            list.querySelectorAll('input[name="technician_ids[]"]')
+        ).some(inp => inp.value == id);
+        if (alreadyAdded) {
             if (results) results.classList.remove('ts-tech-results--open');
             return;
         }
@@ -711,7 +738,6 @@
 
         const item = document.createElement('div');
         item.className = 'ts-assigned-item';
-        item.dataset.techId = id;
         item.innerHTML = `
             <div class="ts-tech-avatar">${initials(name)}</div>
             <div style="flex:1">
@@ -745,23 +771,181 @@
         if (btn) btn.addEventListener('click', addMaterialRow);
     }
 
+    const UNIT_OPTIONS = ['litros','kg','piezas','metros','galones','otro'];
+
+    function unitSelect(name, selected = 'piezas') {
+        const opts = UNIT_OPTIONS.map(u =>
+            `<option value="${u}"${u === selected ? ' selected' : ''}>${u}</option>`
+        ).join('');
+        return `<select name="${name}" class="ts-mat-input ts-mat-select">${opts}</select>`;
+    }
+
+    function deleteBtn() {
+        return `<button type="button" class="ts-action-btn ts-action-btn--danger"
+                        onclick="this.closest('tr').remove()" title="Eliminar fila">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                         stroke-width="2"><path d="M3 6h18M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                </button>`;
+    }
+
     function addMaterialRow() {
         const tbody = document.querySelector('#ts-materials-tbody');
         if (!tbody) return;
         const idx = tbody.querySelectorAll('tr').length;
         const tr = document.createElement('tr');
         tr.innerHTML = `
-            <td><input type="text" name="materials[${idx}][name]" class="ts-mat-input" placeholder="Nombre del material"></td>
-            <td><input type="number" name="materials[${idx}][quantity]" class="ts-mat-input" min="0" step="any" placeholder="0"></td>
-            <td><input type="text" name="materials[${idx}][unit]" class="ts-mat-input" placeholder="Unidad"></td>
+            <td><input type="text" name="materials[${idx}][product_name]" class="ts-mat-input" placeholder="Nombre del material"></td>
+            <td><input type="number" name="materials[${idx}][quantity]" class="ts-mat-input" min="1" step="1" value="1"></td>
+            <td>${unitSelect(`materials[${idx}][unit]`)}</td>
             <td><input type="text" name="materials[${idx}][notes]" class="ts-mat-input" placeholder="Notas (opcional)"></td>
-            <td>
-                <button type="button" class="ts-action-btn ts-action-btn--danger"
-                        onclick="this.closest('tr').remove()" title="Eliminar fila">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
-                </button>
-            </td>`;
+            <td>${deleteBtn()}</td>`;
         tbody.appendChild(tr);
+    }
+
+    // ── Material inline search ───────────────────────────────
+    function initMaterialSearch() {
+        const input    = document.getElementById('inlineProductInput');
+        const dropdown = document.getElementById('inlineProductDropdown');
+        const list     = document.getElementById('inlineProductList');
+        const loading  = document.getElementById('inlineProductLoading');
+        const empty    = document.getElementById('inlineProductEmpty');
+        const emptyQ   = document.getElementById('inlineProductEmptyQuery');
+        const clearBtn = document.getElementById('inlineProductClear');
+        if (!input) return;
+
+        const searchUrl = (window.__tsConfig ?? {}).searchMaterialUrl;
+        if (!searchUrl) return;
+
+        let debounceTimer = null;
+        let currentQuery  = '';
+
+        function showLoading() {
+            loading.style.display  = 'flex';
+            empty.style.display    = 'none';
+            list.style.display     = 'none';
+            dropdown.style.display = 'block';
+        }
+
+        function showResults(items) {
+            loading.style.display = 'none';
+            if (!items.length) {
+                empty.style.display    = 'flex';
+                if (emptyQ) emptyQ.textContent = currentQuery;
+                list.style.display     = 'none';
+            } else {
+                empty.style.display    = 'none';
+                list.style.display     = 'block';
+                renderMatResults(items);
+            }
+        }
+
+        function hideDropdown() {
+            dropdown.style.display = 'none';
+            list.innerHTML = '';
+        }
+
+        function renderMatResults(products) {
+            list.innerHTML = '';
+            products.forEach(p => {
+                const li = document.createElement('li');
+                li.className = 'inline-product-search__item';
+                const price = parseFloat(p.price ?? 0)
+                    .toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                li.innerHTML = `
+                    <div class="inline-product-search__item-info">
+                        <span class="inline-product-search__item-name">${escapeHtml(p.name)}</span>
+                        <span class="inline-product-search__item-sku">SKU: ${escapeHtml(p.sku ?? '—')}</span>
+                    </div>
+                    <div class="inline-product-search__item-right">
+                        <span class="inline-product-search__item-price">$${price}</span>
+                        <button type="button" class="inline-product-search__add-btn" aria-label="Agregar">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                 fill="none" stroke="currentColor" stroke-width="2.5">
+                                <path d="M12 5v14"/><path d="M5 12h14"/>
+                            </svg>
+                        </button>
+                    </div>`;
+                li.querySelector('.inline-product-search__add-btn').addEventListener('click', () => {
+                    addMaterialRowFromProduct(p);
+                    input.value = '';
+                    clearBtn.style.display = 'none';
+                    hideDropdown();
+                    input.focus();
+                });
+                list.appendChild(li);
+            });
+        }
+
+        async function fetchMats(q) {
+            try {
+                const url = new URL(searchUrl, window.location.origin);
+                url.searchParams.set('q', q);
+                const res = await fetch(url.toString(), {
+                    headers: { 'X-Requested-With': 'XMLHttpRequest', 'X-CSRF-TOKEN': csrfToken() },
+                });
+                if (!res.ok) throw new Error();
+                const data = await res.json();
+                return data.materials ?? [];
+            } catch { return []; }
+        }
+
+        input.addEventListener('input', function () {
+            const q = this.value.trim();
+            clearBtn.style.display = q ? 'block' : 'none';
+            clearTimeout(debounceTimer);
+            if (q.length < 2) { hideDropdown(); return; }
+            currentQuery = q;
+            showLoading();
+            debounceTimer = setTimeout(async () => {
+                const products = await fetchMats(q);
+                if (currentQuery === q) showResults(products);
+            }, 300);
+        });
+
+        clearBtn.addEventListener('click', () => {
+            input.value = '';
+            clearBtn.style.display = 'none';
+            hideDropdown();
+            input.focus();
+        });
+
+        document.addEventListener('click', e => {
+            if (!e.target.closest('#inlineProductSearch')) hideDropdown();
+        });
+
+        input.addEventListener('keydown', e => {
+            if (e.key === 'Escape') { hideDropdown(); input.blur(); }
+        });
+    }
+
+    function addMaterialRowFromProduct(p) {
+        const tbody = document.querySelector('#ts-materials-tbody');
+        if (!tbody) return;
+
+        // Eliminar la fila vacía inicial si todavía no tiene datos
+        const rows = tbody.querySelectorAll('tr');
+        if (rows.length === 1) {
+            const inputs = rows[0].querySelectorAll('input');
+            if (Array.from(inputs).every(i => !i.value.trim())) rows[0].remove();
+        }
+
+        const idx = tbody.querySelectorAll('tr').length;
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td><input type="text" name="materials[${idx}][product_name]" class="ts-mat-input"
+                       value="${escapeAttr(p.name)}" placeholder="Nombre del material"></td>
+            <td><input type="number" name="materials[${idx}][quantity]" class="ts-mat-input"
+                       min="1" step="1" value="1"></td>
+            <td>${unitSelect(`materials[${idx}][unit]`)}</td>
+            <td><input type="text" name="materials[${idx}][notes]" class="ts-mat-input"
+                       placeholder="Notas (opcional)"></td>
+            <td>${deleteBtn()}</td>`;
+        tbody.appendChild(tr);
+    }
+
+    function escapeHtml(s) {
+        return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;')
+                              .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     }
 
     // ── Cancel service confirmation ──────────────────────────
@@ -826,14 +1010,12 @@
             document.body.appendChild(tooltip);
         }
 
-        // Load services from data attribute
+        // Load services from window config
         if (calendarEl) {
-            try {
-                state.services = JSON.parse(calendarEl.dataset.services ?? '[]');
-            } catch { state.services = []; }
-
-            const m = parseInt(calendarEl.dataset.month);
-            const y = parseInt(calendarEl.dataset.year);
+            const cfg = window.__tsConfig ?? {};
+            state.services = Array.isArray(cfg.services) ? cfg.services : [];
+            const m = parseInt(cfg.month);
+            const y = parseInt(cfg.year);
             if (!isNaN(m) && !isNaN(y)) {
                 state.currentDate = new Date(y, m - 1, 1);
             }

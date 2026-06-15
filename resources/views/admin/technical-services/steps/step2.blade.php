@@ -1,9 +1,14 @@
-<form id="ts-wizard-form"
-      data-step="2"
-      data-save-url="{{ route('admin.technical-services.save-step', [$service, 2]) }}"
-      data-step-url="{{ route('admin.technical-services.step', [$service, '__STEP__']) }}"
-      data-index-url="{{ route('admin.technical-services.index') }}"
-      data-search-tech-url="{{ route('admin.technical-services.search-technicians') }}">
+<script>
+window.__tsConfig = {
+    step: 2,
+    isEdit: true,
+    saveUrl: "{{ route('admin.technical-services.save-step', [$service, 2]) }}",
+    stepUrl: "{{ route('admin.technical-services.step', [$service, '__STEP__']) }}",
+    indexUrl: "{{ route('admin.technical-services.index') }}",
+    searchTechUrl: "{{ route('admin.technical-services.search-technicians') }}"
+};
+</script>
+<form id="ts-wizard-form">
 
     <div class="ts-card">
         <h2 class="ts-card__title">Asignación de Técnicos</h2>
@@ -35,13 +40,14 @@
             </summary>
             <div style="display:flex;flex-wrap:wrap;gap:0.5rem;padding-top:0.75rem">
                 @foreach($technicians as $tech)
+                @php $techName = trim($tech->first_name . ' ' . $tech->last_name); @endphp
                 <button type="button"
-                        onclick="TechnicalServices.addTechnician({{ $tech->id }}, '{{ addslashes($tech->name) }}', '{{ addslashes($tech->email ?? '') }}')"
+                        onclick="TechnicalServices.addTechnician({{ $tech->id }}, '{{ addslashes($techName) }}', '{{ addslashes($tech->position ?? $tech->email ?? '') }}')"
                         class="ts-btn" style="height:32px;font-size:0.75rem">
                     <div class="ts-tech-avatar" style="width:20px;height:20px;font-size:0.5625rem">
-                        {{ mb_strtoupper(mb_substr($tech->name,0,1)) }}
+                        {{ mb_strtoupper(mb_substr($techName, 0, 1)) }}
                     </div>
-                    {{ $tech->name }}
+                    {{ $techName }}
                 </button>
                 @endforeach
             </div>
@@ -54,11 +60,12 @@
             </label>
             <div id="ts-assigned-list" class="ts-assigned-list">
                 @forelse($assignedTechnicians as $tech)
-                <div class="ts-assigned-item" data-tech-id="{{ $tech->id }}">
-                    <div class="ts-tech-avatar">{{ mb_strtoupper(mb_substr($tech->name,0,1)) }}</div>
+                @php $techName = trim($tech->first_name . ' ' . $tech->last_name); @endphp
+                <div class="ts-assigned-item">
+                    <div class="ts-tech-avatar">{{ mb_strtoupper(mb_substr($techName, 0, 1)) }}</div>
                     <div style="flex:1">
-                        <div class="ts-assigned-item__name">{{ $tech->name }}</div>
-                        <div class="ts-assigned-item__role">{{ $tech->email ?? '' }}</div>
+                        <div class="ts-assigned-item__name">{{ $techName }}</div>
+                        <div class="ts-assigned-item__role">{{ $tech->position ?? $tech->email ?? '' }}</div>
                     </div>
                     <input type="hidden" name="technician_ids[]" value="{{ $tech->id }}">
                     <button type="button" class="ts-remove-tech"

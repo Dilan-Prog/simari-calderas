@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Customer;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
 use Smalot\PdfParser\Parser;
 
 class ClientManageController extends Controller
@@ -16,7 +18,7 @@ class ClientManageController extends Controller
     public function index()
     {
         $customers = Customer::with('customer_addresses:city,state,customer_id,id')
-            ->get(['id', 'first_name', 'last_name', 'company', 'email', 'phone', 'rfc', 'status', 'source']);
+            ->get(['id', 'first_name', 'last_name', 'company', 'email', 'phone', 'rfc', 'status', 'source', 'password_hash']);
 
         return view('admin.client.index', compact('customers'));
     }
@@ -69,7 +71,6 @@ class ClientManageController extends Controller
         $customer->company = $request->company;
         $customer->email = $request->email;
         $customer->phone = $request->phone;
-        $customer->password_hash = 'password'; // Modificar en las proximas funcionalidades
         $customer->rfc = $request->rfc;
         $customer->notes = $request->notes;
         $customer->document_type = $request->document_type;
@@ -322,6 +323,39 @@ class ClientManageController extends Controller
         return response()->json([
             'success' => true,
             'customer' => $customer->load('customer_addresses'),
+        ]);
+    }
+
+    public function grantAccess(Request $request, string $id): JsonResponse
+    {
+        $customer = Customer::findOrFail($id);
+
+        $validator = Validator::make($request->all(), [
+            'password' => 'required|string|min:8|confirmed',
+        ], [
+            'password.required'  => 'La contraseña es obligatoria.',
+            'password.min'       => 'La contraseña debe tener al menos 8 caracteres.',
+            'password.confirmed' => 'Las contraseñas no coinciden.',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error de validación',
+                'errors'  => $validator->errors(),
+            ], 422);
+        }
+
+        $hadAccess = !empty($customer->password_hash);
+
+        $customer->password_hash = Hash::make($request->password);
+        $customer->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => $hadAccess
+                ? 'Contraseña actualizada correctamente.'
+                : 'Acceso al portal otorgado correctamente.',
         ]);
     }
 
