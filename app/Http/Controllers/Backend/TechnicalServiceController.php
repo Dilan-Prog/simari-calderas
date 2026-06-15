@@ -109,9 +109,12 @@ class TechnicalServiceController extends Controller
         $service = $this->tsService->store($validated, auth()->id());
 
         return response()->json([
-            'success'  => true,
-            'message'  => "Servicio {$service->service_number} creado correctamente.",
-            'redirect' => route('admin.technical-services.step', [$service, 2]),
+            'success'           => true,
+            'message'           => "Servicio {$service->service_number} creado correctamente.",
+            'redirect'          => route('admin.technical-services.step', [$service, 2]),
+            'service_id'        => $service->id,
+            'save_url'          => route('admin.technical-services.save-step', [$service, 1]),
+            'step_url_template' => route('admin.technical-services.step', [$service, '__STEP__']),
         ]);
     }
 

@@ -570,6 +570,24 @@
         return valid;
     }
 
+    function hasRequiredValues(form) {
+        return Array.from(form.querySelectorAll('[required]')).every(el =>
+            String(el.value ?? '').trim().length > 0
+        );
+    }
+
+    function syncConfigAfterDraftCreated(data) {
+        if (!data) return;
+
+        const cfg = window.__tsConfig ?? {};
+        cfg.isEdit = true;
+
+        if (data.save_url) cfg.saveUrl = data.save_url;
+        if (data.step_url_template) cfg.stepUrl = data.step_url_template;
+
+        window.__tsConfig = cfg;
+    }
+
     async function saveCurrentStep() {
         const form = document.getElementById('ts-wizard-form');
         if (!form) return;
@@ -633,32 +651,41 @@
         const form = document.getElementById('ts-wizard-form');
         if (!form) return;
 
-        const cfg = window.__tsConfig ?? {};
-
-        // En alta nueva no hay un registro estable que actualizar, así que el
-        // autosave crearía un nuevo servicio en cada pausa.
-        if (!cfg.isEdit) return;
-
         form.addEventListener('input', () => {
             clearTimeout(state.autosaveTimer);
             setAutosaveStatus('saving');
             state.autosaveTimer = setTimeout(async () => {
                 if (state.isSavingStep) return;
+
+                if (!hasRequiredValues(form)) {
+                    setAutosaveStatus('saved', 'Completa campos requeridos para autoguardar');
+                    return;
+                }
+
                 const url = (window.__tsConfig ?? {}).saveUrl;
                 if (!url) return;
                 const formData = new FormData(form);
+
+                state.isSavingStep = true;
                 try {
                     const res = await fetch(url, {
                         method: 'POST',
                         headers: { 'X-CSRF-TOKEN': csrfToken(), 'Accept': 'application/json' },
                         body: formData,
                     });
+                    if (!res.ok) return;
                     const data = await res.json();
+
+                    syncConfigAfterDraftCreated(data);
+
                     if (data.success || data.redirect) {
                         state.autosaveLastSaved = new Date();
                         setAutosaveStatus('saved');
                     }
                 } catch { /* silent */ }
+                finally {
+                    state.isSavingStep = false;
+                }
             }, 2000);
         });
 
