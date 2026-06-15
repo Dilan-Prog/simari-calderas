@@ -710,7 +710,19 @@
     }
 
     function syncConfigAfterDraftCreated(data) {
-        if (!data) return;
+        if (!data) return true;
+
+        const hasDraftMetadata = Boolean(
+            data.service_id ||
+            data.save_url ||
+            data.step_url_template ||
+            data.step1_url ||
+            data.draft_token
+        );
+
+        if (!hasDraftMetadata) {
+            return true;
+        }
 
         if (!data.service_id || !data.save_url) {
             showNotification('La sincronización del borrador falló: faltan service_id o save_url.', 'error');
