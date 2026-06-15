@@ -419,16 +419,32 @@
         const techs = (sv.assigned_technicians ?? [])
             .map(t => t.name).join(', ') || '—';
 
+        const timeRange = sv.service_time ? sv.service_time.substring(0, 5) : null;
+        const timeEnd   = sv.service_time_end ? ' — ' + sv.service_time_end.substring(0, 5) : '';
+
         tooltip.innerHTML = `
-            <div class="ts-tooltip__num">${sv.service_number ?? ''}</div>
-            <div class="ts-tooltip__title">${sv.service_type_label ?? 'Servicio'} — ${sv.customer_name ?? ''}</div>
-            <div class="ts-tooltip__row">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M8 2v4M16 2v4M3 10h18"/></svg>
-                ${formatDateDisplay(sv.service_date)} ${sv.service_time ? '· ' + sv.service_time : ''}
+            <div class="ts-tooltip__header">
+                <svg class="ts-tooltip__icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+                </svg>
+                <div class="ts-tooltip__title">${sv.service_type_label ?? 'Servicio'}</div>
             </div>
-            <div class="ts-tooltip__row">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                ${techs}
+            <div class="ts-tooltip__info-row">
+                <span class="ts-tooltip__label">Cliente:</span>
+                <span class="ts-tooltip__value">${sv.customer_name ?? '—'}</span>
+            </div>
+            <div class="ts-tooltip__info-row">
+                <span class="ts-tooltip__label">Técnico:</span>
+                <span class="ts-tooltip__value">${techs}</span>
+            </div>
+            ${timeRange ? `
+            <div class="ts-tooltip__info-row">
+                <span class="ts-tooltip__label">Hora:</span>
+                <span class="ts-tooltip__value">${timeRange}${timeEnd}</span>
+            </div>` : ''}
+            <div class="ts-tooltip__info-row">
+                <span class="ts-tooltip__label">Status:</span>
+                <span class="ts-tooltip__badge ts-tooltip__badge--${sv.status ?? 'draft'}">${statusLabel(sv.status)}</span>
             </div>
         `;
 
