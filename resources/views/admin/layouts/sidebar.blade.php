@@ -475,10 +475,10 @@
     </nav>
     <div class="sidebar-footer">
         <div class="sidebar-profile">
-            <div class="sidebar-avatar">AD</div>
+            <div class="sidebar-avatar">{{ mb_strtoupper(mb_substr(auth()->user()->full_name, 0, 2)) }}</div>
             <div class="sidebar-profile-info">
-                <p class="sidebar-profile-name">Admin User</p>
-                <span class="sidebar-profile-email">admin@simari.com</span>
+                <p class="sidebar-profile-name">{{ auth()->user()->full_name }}</p>
+                <span class="sidebar-profile-email">{{ auth()->user()->email }}</span>
             </div>
         </div>
         <form method="POST" action="{{ route('logout') }}">
