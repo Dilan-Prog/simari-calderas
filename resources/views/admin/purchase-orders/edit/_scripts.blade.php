@@ -40,6 +40,17 @@
                 supplierInfoCard.style.display = 'block';
             }
 
+            if (supplierSelect.value) {
+                const opt = supplierSelect.options[supplierSelect.selectedIndex];
+                document.getElementById('infoCompany').textContent = opt.dataset.company || '—';
+                document.getElementById('infoContact').textContent = opt.dataset.contact || '—';
+                document.getElementById('infoEmail').textContent = opt.dataset.email || '—';
+                document.getElementById('infoPhone').textContent = opt.dataset.phone || '—';
+                document.getElementById('infoRfc').textContent = opt.dataset.rfc || '—';
+                document.getElementById('infoTerms').textContent = opt.dataset.terms || '—';
+                supplierInfoCard.style.display = 'block';
+            }
+
             //  Totals
             function fmt(n) {
                 return '$' + (parseFloat(n) || 0).toLocaleString('es-MX', {
@@ -104,8 +115,8 @@
                     ${item.fromCatalog
                         ? `<p class="po-item-name">${item.name}</p>`
                         : `<input type="text" class="po-item-input" data-field="name"
-                                        value="${item.name}"
-                                        placeholder="Descripción del producto o servicio">`
+                                            value="${item.name}"
+                                            placeholder="Descripción del producto o servicio">`
                     }
                     <input type="text" class="po-item-comment" data-field="comment"
                         value="${item.comment}" placeholder="Comentario opcional...">
