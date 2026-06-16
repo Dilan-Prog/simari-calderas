@@ -61,10 +61,40 @@
                       cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; }
     .sr-btn-outline:hover { background: #F9FAFB; color: #374151; }
 
-    @media (max-width: 768px) {
-        .sr-create-wrap { padding: 16px; }
+    @media (max-width: 1023px) {
+        .sr-create-wrap { padding: 16px 16px 100px; }
         .sr-grid-2 { grid-template-columns: 1fr; }
         .sr-step-label { display: none; }
+        .sr-progress { padding: 12px 16px; overflow-x: auto; }
+        .sr-form-card { max-height: none; overflow-y: visible; }
+        .sr-form-body  { overflow-y: visible; }
+        .sr-input { height: 48px; font-size: 16px; }
+
+        /* Canvas de firma más alto en mobile para firmar con el dedo */
+        #signatureCanvas { min-height: 220px; }
+        .sr-canvas-hint { font-size: 13px; }
+        .sr-canvas-toolbar { flex-direction: row; }
+
+        /* Instrucción firma en mobile */
+        .sr-mobile-sign-hint {
+            font-size: 13px; color: #6B7280; text-align: center;
+            padding: 8px 0 4px; display: block;
+        }
+
+        .sr-form-footer {
+            position: sticky; bottom: 0; background: #fff; z-index: 20;
+            box-shadow: 0 -4px 12px rgba(0,0,0,0.08);
+            padding: 12px 16px; margin: 0 -24px;
+            flex-direction: column-reverse; gap: 8px;
+        }
+        .sr-btn-primary, .sr-btn-outline {
+            width: 100%; height: 52px; justify-content: center;
+            text-align: center; font-size: 15px;
+        }
+        .sr-btn-outline { display: flex; }
+    }
+    @media (min-width: 1024px) {
+        .sr-mobile-sign-hint { display: none !important; }
     }
 </style>
 @endpush
@@ -110,6 +140,7 @@
                 {{-- Canvas --}}
                 <div class="sr-field">
                     <label class="sr-label">Firma <span class="sr-req">*</span></label>
+                    <span class="sr-mobile-sign-hint">✍️ Firme con el dedo en el área de abajo</span>
                     <div class="sr-canvas-wrap">
                         <canvas id="signatureCanvas" height="200"></canvas>
                         <div class="sr-canvas-empty" id="canvasEmpty">

@@ -55,10 +55,24 @@
                       cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; }
     .sr-btn-outline:hover { background: #F9FAFB; color: #374151; }
 
-    @media (max-width: 768px) {
-        .sr-create-wrap { padding: 16px; }
+    @media (max-width: 1023px) {
+        .sr-create-wrap { padding: 16px 16px 100px; }
         .sr-dl { grid-template-columns: 1fr; }
         .sr-step-label { display: none; }
+        .sr-progress { padding: 12px 16px; overflow-x: auto; }
+        .sr-mini-table { font-size: 11px; }
+        .sr-mini-table thead th, .sr-mini-table tbody td { padding: 6px 8px; }
+        .sr-form-footer {
+            position: sticky; bottom: 0; background: #fff; z-index: 20;
+            box-shadow: 0 -4px 12px rgba(0,0,0,0.08);
+            padding: 12px 16px;
+            flex-direction: column-reverse; gap: 8px;
+        }
+        .sr-btn-primary, .sr-btn-outline {
+            width: 100%; height: 52px; justify-content: center;
+            text-align: center; font-size: 15px;
+        }
+        .sr-btn-outline { display: flex; }
     }
 </style>
 @endpush

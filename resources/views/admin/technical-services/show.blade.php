@@ -172,7 +172,7 @@
         </div>
     </div>
 
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+    <div class="ts-show-grid">
 
         {{-- ── General info ──────────────────────── --}}
         <div class="ts-card">

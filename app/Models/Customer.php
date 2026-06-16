@@ -23,6 +23,10 @@ class Customer extends Model
         'notes'
     ];
 
+    protected $hidden = [
+        'password_hash',
+    ];
+
     public function customer_addresses()
     {
         return $this->hasMany(CustomerAddress::class);

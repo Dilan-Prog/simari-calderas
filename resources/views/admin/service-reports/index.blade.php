@@ -583,6 +583,88 @@
             align-items: flex-start;
         }
     }
+
+    /* ── MOBILE CARDS ── */
+    .sr-mobile-cards { display: none; flex-direction: column; }
+    .sr-mobile-card {
+        background: var(--background--white);
+        border-radius: 12px;
+        border: 1px solid #F3F4F6;
+        box-shadow: var(--shadow-sm);
+        padding: 16px;
+        margin-bottom: 12px;
+    }
+    .sr-mobile-card__top {
+        display: flex; align-items: center;
+        justify-content: space-between; margin-bottom: 6px;
+    }
+    .sr-mobile-card__num {
+        font-size: 12px; font-weight: 600;
+        color: var(--secondary-color); font-family: monospace;
+        text-decoration: none;
+    }
+    .sr-mobile-card__type {
+        font-size: 15px; font-weight: 600; color: #111827; margin-bottom: 6px;
+    }
+    .sr-mobile-card__meta {
+        font-size: 13px; color: var(--text-description-color); margin-bottom: 4px;
+    }
+    .sr-mobile-card__company {
+        font-size: 13px; color: #374151; margin-bottom: 4px;
+    }
+    .sr-mobile-card__analyst {
+        font-size: 12px; color: var(--text-description-color); margin-bottom: 10px;
+    }
+    .sr-mobile-card__divider { height: 1px; background: #F3F4F6; margin: 8px 0; }
+    .sr-mobile-card__footer {
+        display: flex; align-items: center; justify-content: flex-end;
+    }
+    .sr-mobile-card__btn {
+        display: inline-flex; align-items: center; gap: 4px;
+        height: 32px; padding: 0 12px; border-radius: 6px;
+        border: 1px solid var(--secondary-color); color: var(--secondary-color);
+        background: transparent; font-size: 12px; font-weight: 500;
+        text-decoration: none; font-family: var(--font-family);
+        transition: background 0.15s;
+    }
+    .sr-mobile-card__btn:hover { background: #FFF7ED; color: var(--secondary-color); }
+    .sr-mobile-empty {
+        text-align: center; padding: 40px 16px;
+        font-size: 14px; color: var(--text-description-color);
+    }
+
+    /* Botón nuevo reporte sticky en mobile */
+    .sr-mobile-new-btn {
+        display: none;
+        position: fixed; bottom: 16px; right: 16px;
+        z-index: 100;
+        height: 52px; padding: 0 20px; border-radius: 26px;
+        background: var(--button-primary-color);
+        color: #fff; font-size: 14px; font-weight: 600;
+        font-family: var(--font-family);
+        border: none; cursor: pointer;
+        box-shadow: 0 4px 16px rgba(255,98,19,0.4);
+        text-decoration: none;
+        align-items: center; gap: 8px;
+        transition: background 0.15s;
+    }
+    .sr-mobile-new-btn:hover { background: var(--button-primary-color-hover); color: #fff; }
+
+    @media (max-width: 1023px) {
+        .sr-wrapper { padding: 16px; padding-bottom: 80px; }
+        .sr-table-card { display: none; }
+        .sr-filters { display: none; }
+        .sr-page-header { flex-direction: row; align-items: center; }
+        .sr-btn-new { display: none; }
+        .sr-mobile-cards { display: flex; }
+        .sr-mobile-new-btn { display: inline-flex; }
+        .sr-page-subtitle { display: none; }
+    }
+
+    @media (min-width: 1024px) {
+        .sr-mobile-cards { display: none !important; }
+        .sr-mobile-new-btn { display: none !important; }
+    }
 </style>
 @endpush
 
@@ -913,6 +995,60 @@
     </div>
 
 </div>
+
+{{-- ── MOBILE CARDS (ocultas en desktop) ── --}}
+<div class="sr-mobile-cards">
+    @if($reports->isEmpty())
+        <div class="sr-mobile-empty">No hay reportes registrados</div>
+    @else
+        @foreach($reports as $report)
+            @php
+                $mBadgeClass = match($report->status) {
+                    'draft'       => 'sr-badge--draft',
+                    'in_progress' => 'sr-badge--in-progress',
+                    'completed'   => 'sr-badge--completed',
+                    'signed'      => 'sr-badge--signed',
+                    default       => 'sr-badge--draft',
+                };
+                $mBadgeLabel = match($report->status) {
+                    'draft'       => 'Borrador',
+                    'in_progress' => 'En Proceso',
+                    'completed'   => 'Completado',
+                    'signed'      => 'Firmado',
+                    default       => $report->status,
+                };
+            @endphp
+            <div class="sr-mobile-card">
+                <div class="sr-mobile-card__top">
+                    <a href="{{ route('admin.service-reports.show', $report) }}" class="sr-mobile-card__num">
+                        {{ $report->report_number }}
+                    </a>
+                    <span class="sr-badge {{ $mBadgeClass }}">{{ $mBadgeLabel }}</span>
+                </div>
+                <div class="sr-mobile-card__type">{{ $report->service_type }}</div>
+                <div class="sr-mobile-card__meta">📅 {{ $report->service_date }}</div>
+                <div class="sr-mobile-card__company">🏢 {{ $report->customer_name }}</div>
+                <div class="sr-mobile-card__analyst">👤 Encargado: {{ $report->assigned_user_name }}</div>
+                <div class="sr-mobile-card__divider"></div>
+                <div class="sr-mobile-card__footer">
+                    <a href="{{ route('admin.service-reports.show', $report) }}" class="sr-mobile-card__btn">
+                        Ver →
+                    </a>
+                </div>
+            </div>
+        @endforeach
+    @endif
+</div>
+
+{{-- Botón nuevo reporte flotante en mobile --}}
+<a href="{{ route('admin.service-reports.create') }}" class="sr-mobile-new-btn">
+    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M5 12h14"/><path d="M12 5v14"/>
+    </svg>
+    Nuevo Reporte
+</a>
+
 @endsection
 
 @push('scripts')

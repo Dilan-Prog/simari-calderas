@@ -62,10 +62,51 @@
                       cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; }
     .sr-btn-outline:hover { background: #F9FAFB; color: #374151; }
 
-    @media (max-width: 768px) {
-        .sr-create-wrap { padding: 16px; }
+    /* Mobile camera buttons */
+    .sr-mobile-camera-section {
+        display: none;
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+    .sr-camera-btn-label, .sr-gallery-btn-label {
+        flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+        gap: 8px; padding: 20px 12px; border-radius: 12px; cursor: pointer;
+        font-size: 14px; font-weight: 500; font-family: 'Inter', sans-serif;
+        transition: background 0.15s; text-align: center;
+    }
+    .sr-camera-btn-label {
+        background: #ff6213; color: #fff; border: none;
+    }
+    .sr-camera-btn-label:hover { background: #de4a00; }
+    .sr-gallery-btn-label {
+        background: #F9FAFB; color: #374151;
+        border: 1px solid #D1D5DB;
+    }
+    .sr-gallery-btn-label:hover { background: #F3F4F6; }
+    .sr-camera-btn-label svg, .sr-gallery-btn-label svg { flex-shrink: 0; }
+    .sr-hidden-file-input { display: none !important; }
+
+    @media (max-width: 1023px) {
+        .sr-create-wrap { padding: 16px 16px 100px; }
         .sr-step-label { display: none; }
-        .sr-img-grid { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); }
+        .sr-progress { padding: 12px 16px; overflow-x: auto; }
+        .sr-img-grid { grid-template-columns: repeat(2, 1fr); }
+        .sr-upload-zone { display: none; }
+        .sr-mobile-camera-section { display: flex; }
+        .sr-form-footer {
+            position: sticky; bottom: 0; background: #fff; z-index: 20;
+            box-shadow: 0 -4px 12px rgba(0,0,0,0.08);
+            padding: 12px 16px; border-top: none; margin-top: 16px;
+            flex-direction: column-reverse; gap: 8px;
+        }
+        .sr-btn-primary, .sr-btn-outline {
+            width: 100%; height: 52px; justify-content: center;
+            text-align: center; font-size: 15px;
+        }
+        .sr-btn-outline { display: flex; }
+    }
+    @media (min-width: 1024px) {
+        .sr-mobile-camera-section { display: none !important; }
     }
 </style>
 @endpush
@@ -103,6 +144,31 @@
         </div>
 
         <div class="sr-form-body">
+
+            {{-- Botones cámara/galería (solo visible en mobile) --}}
+            <div class="sr-mobile-camera-section">
+                <label class="sr-camera-btn-label">
+                    <input type="file" name="images[]" accept="image/*" capture="environment"
+                           class="sr-hidden-file-input" id="cameraInput">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none"
+                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3z"/>
+                        <circle cx="12" cy="13" r="3"/>
+                    </svg>
+                    📷 Tomar foto
+                </label>
+                <label class="sr-gallery-btn-label">
+                    <input type="file" name="images[]" accept="image/*" multiple
+                           class="sr-hidden-file-input" id="galleryInput">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none"
+                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect width="18" height="18" x="3" y="3" rx="2" ry="2"/>
+                        <circle cx="9" cy="9" r="2"/>
+                        <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>
+                    </svg>
+                    🖼️ De galería
+                </label>
+            </div>
 
             {{-- Existing images --}}
             @if($images->count())
@@ -188,6 +254,13 @@
     input.addEventListener('change', function () {
         showPreviews(this.files);
     });
+
+    // Mobile camera/gallery inputs
+    var cameraInput  = document.getElementById('cameraInput');
+    var galleryInput = document.getElementById('galleryInput');
+    function handleMobileFiles(files) { showPreviews(files); }
+    if (cameraInput)  cameraInput.addEventListener('change',  function () { handleMobileFiles(this.files); });
+    if (galleryInput) galleryInput.addEventListener('change', function () { handleMobileFiles(this.files); });
 
     zone.addEventListener('dragover', function (e) {
         e.preventDefault();

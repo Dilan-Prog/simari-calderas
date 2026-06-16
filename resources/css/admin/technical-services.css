@@ -1633,3 +1633,179 @@ input[type="time"].ts-input {
     .ts-nav-title { min-width: 120px; font-size: 0.875rem; }
     .ts-legend { gap: 0.5rem; }
 }
+
+/* ============================================================
+   MOBILE — NUEVOS ELEMENTOS (prefijo ts-mobile-)
+   ============================================================ */
+
+/* Toolbar móvil: buscador + filtro estado */
+.ts-mobile-toolbar {
+    display: none;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+.ts-mobile-search-wrap { position: relative; }
+.ts-mobile-search-wrap > svg {
+    position: absolute; left: 0.75rem; top: 50%;
+    transform: translateY(-50%); pointer-events: none;
+    color: var(--ts-text-muted);
+}
+.ts-mobile-search {
+    width: 100%; height: 48px;
+    padding: 0 0.75rem 0 2.5rem;
+    border-radius: 8px; border: 1px solid var(--ts-border);
+    font-size: 16px; font-family: var(--ts-font);
+    color: var(--ts-text-title); background: var(--ts-bg-white);
+    box-sizing: border-box; outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+}
+.ts-mobile-search:focus {
+    border-color: var(--ts-primary);
+    box-shadow: 0 0 0 3px rgba(255,98,19,0.12);
+}
+.ts-mobile-select-wrap { position: relative; }
+.ts-mobile-select-wrap > svg {
+    position: absolute; right: 0.75rem; top: 50%;
+    transform: translateY(-50%); pointer-events: none;
+    color: var(--ts-text-muted);
+}
+.ts-mobile-status-select {
+    width: 100%; height: 48px;
+    padding: 0 2.25rem 0 0.75rem;
+    border-radius: 8px; border: 1px solid var(--ts-border);
+    font-size: 16px; font-family: var(--ts-font);
+    color: var(--ts-text-body); background: var(--ts-bg-white);
+    appearance: none; -webkit-appearance: none;
+    box-sizing: border-box; outline: none; cursor: pointer;
+    transition: border-color 0.15s;
+}
+.ts-mobile-status-select:focus { border-color: var(--ts-primary); }
+
+/* Cards móvil para listado de servicios */
+.ts-mobile-cards {
+    display: none;
+    flex-direction: column;
+}
+.ts-mobile-card {
+    background: var(--ts-bg-white);
+    border-radius: 12px;
+    box-shadow: var(--ts-shadow-sm);
+    border: 1px solid var(--ts-border-light);
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+}
+.ts-mobile-card--hidden { display: none !important; }
+.ts-mobile-card__top {
+    display: flex; align-items: center;
+    justify-content: space-between; margin-bottom: 0.375rem;
+}
+.ts-mobile-card__num {
+    font-size: 0.75rem; font-weight: 600;
+    color: var(--ts-primary); font-family: monospace;
+}
+.ts-mobile-card__type {
+    font-size: 0.9375rem; font-weight: 600;
+    color: var(--ts-text-title); margin-bottom: 0.5rem;
+}
+.ts-mobile-card__meta {
+    display: flex; align-items: center; gap: 0.75rem;
+    font-size: 0.8125rem; color: var(--ts-text-muted);
+    margin-bottom: 0.25rem; flex-wrap: wrap;
+}
+.ts-mobile-card__company {
+    font-size: 0.8125rem; color: var(--ts-text-body); margin-bottom: 0.625rem;
+}
+.ts-mobile-card__divider {
+    height: 1px; background: var(--ts-border-light); margin: 0.625rem 0;
+}
+.ts-mobile-card__footer {
+    display: flex; align-items: center;
+    justify-content: space-between; gap: 0.5rem;
+}
+.ts-mobile-card__techs {
+    font-size: 0.75rem; color: var(--ts-text-muted);
+    flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.ts-mobile-card__btn {
+    display: inline-flex; align-items: center; gap: 0.25rem;
+    height: 32px; padding: 0 0.75rem; border-radius: 6px;
+    border: 1px solid var(--ts-primary); color: var(--ts-primary);
+    background: transparent; font-size: 0.75rem; font-weight: 500;
+    text-decoration: none; font-family: var(--ts-font);
+    transition: background 0.15s; flex-shrink: 0; white-space: nowrap;
+}
+.ts-mobile-card__btn:hover { background: #FFF7F4; color: var(--ts-primary); }
+.ts-mobile-empty {
+    text-align: center; padding: 2.5rem 1rem;
+    font-size: 0.875rem; color: var(--ts-text-muted);
+}
+
+/* Grid 2 col del show — overrideable en mobile */
+.ts-show-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+/* ============================================================
+   BREAKPOINT MOBILE  (< 1024px) — ocultar desktop, mostrar mobile
+   ============================================================ */
+@media (max-width: 1023px) {
+    .ts-page { padding: 1rem; }
+
+    /* Ocultar elementos solo-desktop */
+    .ts-header-actions { display: none !important; }
+    .ts-toolbar        { display: none !important; }
+    #ts-calendar-view  { display: none !important; }
+    #ts-table-view     { display: none !important; }
+
+    /* Mostrar elementos solo-mobile */
+    .ts-mobile-toolbar { display: flex; }
+    .ts-mobile-cards   { display: flex; }
+
+    /* Header index */
+    .ts-header-top { margin-bottom: 0.75rem; }
+    .ts-subtitle   { display: none; }
+
+    /* Show page */
+    .ts-show-header    { flex-direction: column; gap: 0.75rem; }
+    .ts-show-actions   { flex-direction: column; width: 100%; }
+    .ts-show-actions .ts-btn {
+        width: 100%; justify-content: center;
+        height: 48px; font-size: 0.9375rem;
+    }
+    .ts-show-grid { grid-template-columns: 1fr; }
+    .ts-timeline  { flex-wrap: wrap; gap: 0.5rem; }
+    .ts-tl-arrow  { width: 12px; }
+    .ts-card      { padding: 1rem; }
+
+    /* Formulario wizard */
+    .ts-form-container { padding: 1rem; }
+    .ts-input, .ts-select-field, .ts-textarea {
+        font-size: 16px;
+        height: 48px;
+    }
+    .ts-textarea { height: auto; }
+    .ts-wizard-footer {
+        position: sticky; bottom: 0;
+        background: var(--ts-bg-white);
+        z-index: 20; padding: 0.75rem 1rem;
+        margin: 0 -1rem -1rem;
+        border-top: 1px solid var(--ts-border-light);
+        box-shadow: 0 -4px 12px rgba(0,0,0,0.08);
+    }
+    .ts-wizard-footer .ts-btn { height: 48px; flex: 1; justify-content: center; }
+    .ts-wizard-bar { overflow-x: auto; padding: 0.75rem 1rem; }
+    .ts-step__label { display: none; }
+    .ts-step-connector { width: 1.5rem; }
+}
+
+/* ============================================================
+   BREAKPOINT DESKTOP  (>= 1024px) — forzar ocultar mobile
+   ============================================================ */
+@media (min-width: 1024px) {
+    .ts-mobile-toolbar { display: none !important; }
+    .ts-mobile-cards   { display: none !important; }
+    .ts-show-grid      { grid-template-columns: 1fr 1fr; }
+}
