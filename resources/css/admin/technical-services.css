@@ -1770,12 +1770,23 @@ input[type="time"].ts-input {
 
     /* Show page */
     .ts-show-header    { flex-direction: column; gap: 0.75rem; }
-    .ts-show-actions   { flex-direction: column; width: 100%; }
-    .ts-show-actions .ts-btn {
-        width: 100%; justify-content: center;
-        height: 48px; font-size: 0.9375rem;
-    }
+    .ts-show-actions   { display: none !important; }
     .ts-show-grid { grid-template-columns: 1fr; }
+
+    /* Mobile sticky action footer (show page) */
+    .ts-show-mobile-actions {
+        position: sticky; bottom: 0;
+        background: var(--ts-bg-white);
+        z-index: 20;
+        padding: 0.75rem 1rem;
+        margin: 1rem -1rem -1rem;
+        border-top: 1px solid var(--ts-border-light);
+        box-shadow: 0 -4px 12px rgba(0,0,0,0.08);
+        display: flex; flex-direction: column; gap: 0.5rem;
+    }
+    .ts-show-mobile-actions .ts-btn {
+        width: 100%; justify-content: center; height: 48px; font-size: 0.9375rem;
+    }
     .ts-timeline  { flex-wrap: wrap; gap: 0.5rem; }
     .ts-tl-arrow  { width: 12px; }
     .ts-card      { padding: 1rem; }
@@ -1799,13 +1810,59 @@ input[type="time"].ts-input {
     .ts-wizard-bar { overflow-x: auto; padding: 0.75rem 1rem; }
     .ts-step__label { display: none; }
     .ts-step-connector { width: 1.5rem; }
+
+    /* ── Step 2: búsqueda y asignación de técnicos ── */
+    .ts-tech-search { height: 48px; font-size: 16px; }
+    .ts-remove-tech { width: 36px; height: 36px; }
+    .ts-assigned-item { padding: 0.875rem 0.75rem; }
+    .ts-tech-fallback-btn { height: 44px !important; font-size: 0.875rem !important; padding: 0 0.875rem !important; }
+
+    /* ── Step 3: búsqueda de producto ── */
+    .inline-product-search__input-wrap { min-height: 48px; }
+    .inline-product-search__input { font-size: 16px; }
+
+    /* ── Step 3: tabla de materiales → layout de tarjeta ── */
+    .ts-materials-table,
+    .ts-materials-table tbody { display: block; }
+    .ts-materials-table thead { display: none; }
+    .ts-materials-table tbody tr {
+        display: grid;
+        grid-template-columns: 80px 1fr 1fr 40px;
+        grid-template-rows: auto auto auto;
+        gap: 0.375rem;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid var(--ts-border-light);
+    }
+    .ts-materials-table td { padding: 0; border: none; }
+    .ts-materials-table td:nth-child(1) { grid-column: 1 / 4; grid-row: 1; }
+    .ts-materials-table td:nth-child(2) { grid-column: 1;     grid-row: 2; }
+    .ts-materials-table td:nth-child(3) { grid-column: 2 / 4; grid-row: 2; }
+    .ts-materials-table td:nth-child(4) { grid-column: 1 / -1; grid-row: 3; }
+    .ts-materials-table td:nth-child(5) { grid-column: 4; grid-row: 1; display: flex; align-items: center; justify-content: center; }
+    .ts-mat-input { height: 44px; font-size: 16px; }
+
+    /* ── Index: mobile cards ── */
+    .ts-mobile-card__btn { height: 44px; padding: 0 1rem; font-size: 0.875rem; }
+
+    /* ── FAB: Nuevo Servicio ── */
+    .ts-fab-new {
+        position: fixed; bottom: 24px; right: 20px;
+        width: 56px; height: 56px; border-radius: 50%;
+        background: var(--ts-primary); color: #fff;
+        display: flex; align-items: center; justify-content: center;
+        box-shadow: 0 4px 16px rgba(255,98,19,0.4);
+        z-index: 100; text-decoration: none; border: none; cursor: pointer;
+    }
+    .ts-fab-new svg { flex-shrink: 0; }
 }
 
 /* ============================================================
    BREAKPOINT DESKTOP  (>= 1024px) — forzar ocultar mobile
    ============================================================ */
 @media (min-width: 1024px) {
-    .ts-mobile-toolbar { display: none !important; }
-    .ts-mobile-cards   { display: none !important; }
-    .ts-show-grid      { grid-template-columns: 1fr 1fr; }
+    .ts-mobile-toolbar        { display: none !important; }
+    .ts-mobile-cards          { display: none !important; }
+    .ts-show-grid             { grid-template-columns: 1fr 1fr; }
+    .ts-show-mobile-actions   { display: none !important; }
+    .ts-fab-new               { display: none !important; }
 }

@@ -73,12 +73,20 @@
         /* Canvas de firma más alto en mobile para firmar con el dedo */
         #signatureCanvas { min-height: 220px; }
         .sr-canvas-hint { font-size: 13px; }
-        .sr-canvas-toolbar { flex-direction: row; }
+        .sr-canvas-toolbar .sr-btn-clear { display: none; }
 
         /* Instrucción firma en mobile */
         .sr-mobile-sign-hint {
             font-size: 13px; color: #6B7280; text-align: center;
             padding: 8px 0 4px; display: block;
+        }
+
+        /* Botón limpiar arriba del canvas (solo mobile) */
+        .sr-mobile-canvas-bar {
+            display: flex; justify-content: flex-end; margin-bottom: 6px;
+        }
+        .sr-mobile-canvas-bar .sr-btn-clear {
+            height: 36px; padding: 0 16px; font-size: 13px;
         }
 
         .sr-form-footer {
@@ -94,7 +102,8 @@
         .sr-btn-outline { display: flex; }
     }
     @media (min-width: 1024px) {
-        .sr-mobile-sign-hint { display: none !important; }
+        .sr-mobile-sign-hint    { display: none !important; }
+        .sr-mobile-canvas-bar   { display: none !important; }
     }
 </style>
 @endpush
@@ -141,6 +150,9 @@
                 <div class="sr-field">
                     <label class="sr-label">Firma <span class="sr-req">*</span></label>
                     <span class="sr-mobile-sign-hint">✍️ Firme con el dedo en el área de abajo</span>
+                    <div class="sr-mobile-canvas-bar">
+                        <button type="button" class="sr-btn-clear" id="btnClearMobile">Limpiar firma</button>
+                    </div>
                     <div class="sr-canvas-wrap">
                         <canvas id="signatureCanvas" height="200"></canvas>
                         <div class="sr-canvas-empty" id="canvasEmpty">
@@ -253,13 +265,17 @@
     canvas.addEventListener('touchmove',  draw,      { passive: false });
     canvas.addEventListener('touchend',   stopDraw);
 
-    document.getElementById('btnClear').addEventListener('click', function () {
+    function clearSignature() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         hasStroke = false;
         empty.classList.remove('hidden');
         signBtn.disabled = true;
         dataIn.value = '';
-    });
+    }
+
+    document.getElementById('btnClear').addEventListener('click', clearSignature);
+    const btnClearMobile = document.getElementById('btnClearMobile');
+    if (btnClearMobile) btnClearMobile.addEventListener('click', clearSignature);
 
     document.getElementById('signForm').addEventListener('submit', function (e) {
         if (!hasStroke) {
