@@ -1,7 +1,17 @@
-<aside class="admin-sidebar">
-    <div class="sidebar-logo" onclick="window.location.href = '{{ route('home') }}'">
-        <img src="{{ asset('images/logo/equiterm-logo-blanco-color-3x.png') }}" alt="Equiterm Industries"
-            fetchpriority="low" loading="lazy" onerror="this.style.display='none'">
+<div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+<aside class="admin-sidebar" id="adminSidebar">
+    <div class="sidebar-header">
+        <a class="sidebar-logo-link" href="{{ route('home') }}">
+            <img src="{{ asset('images/logo/equiterm-logo-blanco-color-3x.png') }}" alt="Equiterm Industries"
+                fetchpriority="low" loading="lazy" onerror="this.style.display='none'">
+        </a>
+        <button class="sidebar-collapse-btn" id="sidebarCollapseBtn" title="Plegar menú">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="m15 18-6-6 6-6"/>
+            </svg>
+        </button>
     </div>
     <style>
         /* Temporal: deshabilitar enlaces visualmente sin tocar lógica
@@ -296,8 +306,8 @@
         @endif
 
         {{-- Paqueterías --}}
-        @if($authUser->hasPermission('carriers'))
-        <a class="sidebar-nav-item disabled" data-section="coming-soon" data-label="Paqueterías">
+        @if($authUser->hasPermission('deliveries'))
+        <a href="{{ route('admin.deliveries.index') }}"  class="sidebar-nav-item {{ $activeSection === 'deliveries' ? 'active' : ''}}" data-section="coming-soon" data-label="Paqueterías">
             <div class="sidebar-nav-item-left">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -491,7 +501,7 @@
                     <polyline points="16 17 21 12 16 7" />
                     <line x1="21" x2="9" y1="12" y2="12" />
                 </svg>
-                Salir del Panel
+                <span class="sidebar-logout-label">Salir del Panel</span>
             </button>
         </form>
     </div>
