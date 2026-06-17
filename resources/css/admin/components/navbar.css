@@ -30,6 +30,17 @@
     height: 100vh;
     overflow: hidden;
     min-width: 0;
+    transition: margin-left 0.3s ease;
+}
+
+.admin-main.sidebar-collapsed {
+    margin-left: 68px;
+}
+
+@media (max-width: 1023px) {
+    .admin-main {
+        margin-left: 0 !important;
+    }
 }
 
 
@@ -43,6 +54,45 @@
     justify-content: space-between;
     padding: 0 32px;
     flex-shrink: 0;
+    gap: 12px;
+}
+
+.admin-top-header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+}
+
+/* ── Botón hamburger (solo mobile) ── */
+.admin-hamburger-btn {
+    display: none;
+    width: 36px;
+    height: 36px;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    color: #9ca3af;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: background-color 0.15s ease, color 0.15s ease;
+    padding: 0;
+    flex-shrink: 0;
+}
+
+.admin-hamburger-btn:hover {
+    background-color: #2E3A46;
+    color: #ffffff;
+}
+
+@media (max-width: 1023px) {
+    .admin-top-header {
+        padding: 0 16px;
+    }
+    .admin-hamburger-btn {
+        display: flex;
+    }
 }
 
 .admin-breadcrumb {
