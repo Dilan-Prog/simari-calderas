@@ -280,10 +280,9 @@
         </div>
     </div>
 
-</div>
 
-{{-- ── MOBILE CARDS (ocultas en desktop) ─────────────────── --}}
-<div class="ts-mobile-cards" id="ts-mobile-cards">
+    {{-- ── MOBILE CARDS (ocultas en desktop) ─────────────────── --}}
+    <div class="ts-mobile-cards" id="ts-mobile-cards">
     @php
         $mStatusClasses = [
             'scheduled'   => 'ts-badge--scheduled',
@@ -333,7 +332,17 @@
         <p>No hay servicios registrados</p>
     </div>
     @endforelse
-</div>
+    </div>
+
+    {{-- FAB: Nuevo Servicio (solo mobile) --}}
+    <a href="{{ route('admin.technical-services.create') }}" class="ts-fab-new" title="Nuevo Servicio">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M5 12h14M12 5v14"/>
+        </svg>
+    </a>
+
+</div>{{-- /ts-page --}}
 
 {{-- Quick create modal (calendar cell click) --}}
 <div class="ts-overlay" id="ts-quick-overlay">

@@ -994,60 +994,60 @@
         @endif
     </div>
 
-</div>
-
-{{-- ── MOBILE CARDS (ocultas en desktop) ── --}}
-<div class="sr-mobile-cards">
-    @if($reports->isEmpty())
-        <div class="sr-mobile-empty">No hay reportes registrados</div>
-    @else
-        @foreach($reports as $report)
-            @php
-                $mBadgeClass = match($report->status) {
-                    'draft'       => 'sr-badge--draft',
-                    'in_progress' => 'sr-badge--in-progress',
-                    'completed'   => 'sr-badge--completed',
-                    'signed'      => 'sr-badge--signed',
-                    default       => 'sr-badge--draft',
-                };
-                $mBadgeLabel = match($report->status) {
-                    'draft'       => 'Borrador',
-                    'in_progress' => 'En Proceso',
-                    'completed'   => 'Completado',
-                    'signed'      => 'Firmado',
-                    default       => $report->status,
-                };
-            @endphp
-            <div class="sr-mobile-card">
-                <div class="sr-mobile-card__top">
-                    <a href="{{ route('admin.service-reports.show', $report) }}" class="sr-mobile-card__num">
-                        {{ $report->report_number }}
-                    </a>
-                    <span class="sr-badge {{ $mBadgeClass }}">{{ $mBadgeLabel }}</span>
+    {{-- ── MOBILE CARDS (ocultas en desktop) ── --}}
+    <div class="sr-mobile-cards">
+        @if($reports->isEmpty())
+            <div class="sr-mobile-empty">No hay reportes registrados</div>
+        @else
+            @foreach($reports as $report)
+                @php
+                    $mBadgeClass = match($report->status) {
+                        'draft'       => 'sr-badge--draft',
+                        'in_progress' => 'sr-badge--in-progress',
+                        'completed'   => 'sr-badge--completed',
+                        'signed'      => 'sr-badge--signed',
+                        default       => 'sr-badge--draft',
+                    };
+                    $mBadgeLabel = match($report->status) {
+                        'draft'       => 'Borrador',
+                        'in_progress' => 'En Proceso',
+                        'completed'   => 'Completado',
+                        'signed'      => 'Firmado',
+                        default       => $report->status,
+                    };
+                @endphp
+                <div class="sr-mobile-card">
+                    <div class="sr-mobile-card__top">
+                        <a href="{{ route('admin.service-reports.show', $report) }}" class="sr-mobile-card__num">
+                            {{ $report->report_number }}
+                        </a>
+                        <span class="sr-badge {{ $mBadgeClass }}">{{ $mBadgeLabel }}</span>
+                    </div>
+                    <div class="sr-mobile-card__type">{{ $report->service_type }}</div>
+                    <div class="sr-mobile-card__meta">📅 {{ $report->service_date }}</div>
+                    <div class="sr-mobile-card__company">🏢 {{ $report->customer_name }}</div>
+                    <div class="sr-mobile-card__analyst">👤 Encargado: {{ $report->assigned_user_name }}</div>
+                    <div class="sr-mobile-card__divider"></div>
+                    <div class="sr-mobile-card__footer">
+                        <a href="{{ route('admin.service-reports.show', $report) }}" class="sr-mobile-card__btn">
+                            Ver →
+                        </a>
+                    </div>
                 </div>
-                <div class="sr-mobile-card__type">{{ $report->service_type }}</div>
-                <div class="sr-mobile-card__meta">📅 {{ $report->service_date }}</div>
-                <div class="sr-mobile-card__company">🏢 {{ $report->customer_name }}</div>
-                <div class="sr-mobile-card__analyst">👤 Encargado: {{ $report->assigned_user_name }}</div>
-                <div class="sr-mobile-card__divider"></div>
-                <div class="sr-mobile-card__footer">
-                    <a href="{{ route('admin.service-reports.show', $report) }}" class="sr-mobile-card__btn">
-                        Ver →
-                    </a>
-                </div>
-            </div>
-        @endforeach
-    @endif
-</div>
+            @endforeach
+        @endif
+    </div>
 
-{{-- Botón nuevo reporte flotante en mobile --}}
-<a href="{{ route('admin.service-reports.create') }}" class="sr-mobile-new-btn">
-    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M5 12h14"/><path d="M12 5v14"/>
-    </svg>
-    Nuevo Reporte
-</a>
+    {{-- Botón nuevo reporte flotante en mobile --}}
+    <a href="{{ route('admin.service-reports.create') }}" class="sr-mobile-new-btn">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M5 12h14"/><path d="M12 5v14"/>
+        </svg>
+        Nuevo Reporte
+    </a>
+
+</div>{{-- /sr-wrapper --}}
 
 @endsection
 

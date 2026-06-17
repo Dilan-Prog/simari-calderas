@@ -213,6 +213,47 @@
         .sr-doc-photos-grid { grid-template-columns: 1fr; }
         .sr-doc-sig-grid { grid-template-columns: 1fr; }
     }
+
+    /* ── Mobile (< 1024px) ───────────────────────────────────────────────────────── */
+    @media (max-width: 1023px) {
+        .sr-show-wrap { padding-bottom: 130px; }
+
+        /* Ocultar acciones del topbar — van al sticky footer */
+        .sr-show-actions { display: none !important; }
+
+        /* Topbar solo muestra título + badge */
+        .sr-show-topbar { flex-direction: column; gap: 8px; margin-bottom: 16px; }
+        .sr-show-title { font-size: 20px; }
+
+        /* Tabla de mediciones: scroll horizontal */
+        .sr-doc-meas-wrap { -webkit-overflow-scrolling: touch; }
+
+        /* Footer sticky de acciones */
+        .sr-show-mobile-actions {
+            position: sticky; bottom: 0;
+            background: #fff; z-index: 20;
+            padding: 12px 16px;
+            border-top: 1px solid #E5E7EB;
+            box-shadow: 0 -4px 12px rgba(0,0,0,0.08);
+            display: flex; flex-direction: column; gap: 8px;
+        }
+        .sr-show-mobile-actions .sr-btn,
+        .sr-show-mobile-actions .sr-btn-danger-link {
+            width: 100%; height: 48px; justify-content: center;
+            text-align: center; font-size: 15px; display: flex;
+            align-items: center;
+        }
+        .sr-btn-danger-link {
+            height: 40px; padding: 0 16px; border-radius: 6px; font-size: 13px; font-weight: 500;
+            font-family: var(--font-family); cursor: pointer; display: inline-flex; align-items: center;
+            gap: 6px; text-decoration: none; border: 1px solid #FECACA;
+            background: #fff; color: #DC2626; transition: background .15s;
+        }
+        .sr-btn-danger-link:hover { background: #FEF2F2; }
+    }
+    @media (min-width: 1024px) {
+        .sr-show-mobile-actions { display: none !important; }
+    }
 </style>
 @endpush
 
@@ -684,6 +725,44 @@
         </div>{{-- /right panel --}}
 
     </div>{{-- /sr-show-grid --}}
+
+    {{-- ── Mobile sticky action footer ─────────────────────────────────────────── --}}
+    <div class="sr-show-mobile-actions">
+        @if($report->isEditable())
+            @if($report->current_step >= 5)
+                <a href="{{ route('admin.service-reports.step', [$report, 6]) }}" class="sr-btn sr-btn-sign">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/></svg>
+                    Firmar Reporte
+                </a>
+            @else
+                <a href="{{ route('admin.service-reports.step', [$report, $report->current_step + 1]) }}" class="sr-btn sr-btn-sign">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                    Continuar — Paso {{ $report->current_step + 1 }}
+                </a>
+            @endif
+        @endif
+
+        <a href="{{ route('admin.service-reports.download-pdf', $report) }}" class="sr-btn sr-btn-outline">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+            Descargar PDF
+        </a>
+
+        @if($report->isEditable())
+            <a href="{{ route('admin.service-reports.edit', $report) }}" class="sr-btn sr-btn-outline">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/></svg>
+                Editar
+            </a>
+        @endif
+
+        @if($report->isDeletable())
+            <form method="POST" action="{{ route('admin.service-reports.destroy', $report) }}"
+                  style="display:contents"
+                  onsubmit="return confirm('¿Eliminar este reporte? Esta acción no se puede deshacer.')">
+                @csrf @method('DELETE')
+                <button type="submit" class="sr-btn sr-btn-danger sr-btn-danger-link">Eliminar</button>
+            </form>
+        @endif
+    </div>
 
 </div>{{-- /sr-show-wrap --}}
 
