@@ -25,11 +25,6 @@ class Supplier extends Model
     ];
 
     // Relationships
-
-    public function purchaseOrders()
-    {
-        return $this->hasMany(PurchaseOrder::class);
-    }
     public function products()
     {
         return $this->belongsToMany(Products::class, 'suppliers_products', 'supplier_id', 'product_id')

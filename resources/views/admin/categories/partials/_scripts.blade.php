@@ -30,12 +30,6 @@
         // Reset form
         const resetCategoryForm = () => {
             categoryForm.reset();
-
-            document.querySelectorAll('.field-error-msg').forEach(el => el.remove());
-            document.querySelectorAll('.is-invalid').forEach(el => {
-                el.classList.remove('is-invalid');
-            });
-
             document.getElementById('categorySlug').value = '';
             document.getElementById('categorySortOrder').value = '1';
             document.getElementById('categoryIsActive').value = '1';
@@ -45,8 +39,6 @@
             isEditMode = false;
             document.getElementById('categoryModalTitle').textContent = 'Nueva Categoría';
             document.getElementById('categorySubmitBtn').textContent = 'Crear Categoría';
-
-            document.getElementById('categoryLevel').dispatchEvent(new Event('change'));
         };
 
         // Open create modal
@@ -55,60 +47,25 @@
             categoryModal.style.display = 'flex';
         });
 
-        // Close modal events
+        // Close modal
         document.getElementById('closeCategoryModal').addEventListener('click', () => closeCategoryWithAnim());
         document.getElementById('cancelCategoryModal').addEventListener('click', () => closeCategoryWithAnim());
         categoryModal.addEventListener('click', (e) => {
             if (e.target === categoryModal) closeCategoryWithAnim();
         });
 
-        // Helper to normalize strings into slug segments
-        function toSlugSegment(value) {
-            return value.toLowerCase()
-                .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-                .replace(/[^a-z0-9\s-]/g, '')
-                .trim().replace(/\s+/g, '-');
-        }
-
-        // Core function to build hierarchy slugs
-        function buildSlug() {
-            const level = parseInt(document.getElementById('categoryLevel').value);
-            const name = document.getElementById('categoryName').value;
-            const parentSel = document.getElementById('categoryParent');
-            const nameSlug = toSlugSegment(name);
-
-            if (level === 1) {
-                document.getElementById('categorySlug').value = nameSlug;
-                return;
-            }
-
-            const parentOption = parentSel.options[parentSel.selectedIndex];
-
-            if (!parentOption || !parentOption.value) {
-                document.getElementById('categorySlug').value = nameSlug;
-                return;
-            }
-
-            const parentName = parentOption.text.replace(/^[—\s]+/, '').trim();
-            const parentSlug = toSlugSegment(parentName);
-
-            if (level === 2) {
-                document.getElementById('categorySlug').value = `${parentSlug}/${nameSlug}`;
-            } else if (level === 3) {
-                const grandparentSlug = parentOption.dataset.parentSlug ?? '';
-                const prefix = grandparentSlug ? `${grandparentSlug}/${parentSlug}` : parentSlug;
-                document.getElementById('categorySlug').value = `${prefix}/${nameSlug}`;
-            }
-        }
-
+        // Auto-generate slug from name
         document.getElementById('categoryName').addEventListener('input', function() {
-            if (!isEditMode) buildSlug();
+            if (!isEditMode) {
+                const slug = this.value.toLowerCase()
+                    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+                    .replace(/[^a-z0-9\s-]/g, '')
+                    .trim().replace(/\s+/g, '-');
+                document.getElementById('categorySlug').value = slug;
+            }
         });
 
-        document.getElementById('categoryParent').addEventListener('change', function() {
-            buildSlug();
-        });
-
+        // Filter parent options by level
         document.getElementById('categoryLevel').addEventListener('change', function() {
             const level = parseInt(this.value);
             const parent = document.getElementById('categoryParent');
@@ -120,68 +77,19 @@
                     (level === 3 && optLevel === 2) ? '' : 'none';
             });
 
+            parent.value = '';
             parent.disabled = level === 1;
-
-            if (document.activeElement === this) {
-                parent.value = '';
-            }
-
-            buildSlug();
         });
 
-        // SUBMIT
+        // Submit form (create or update)
         categoryForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-
-            document.querySelectorAll('.field-error-msg').forEach(el => el.remove());
-            document.querySelectorAll('.is-invalid').forEach(el => {
-                el.classList.remove('is-invalid');
-            });
             errorsContainer.style.display = 'none';
+            errorsContainer.innerHTML = '';
 
-            let hasErrors = false;
-
-            const nameInput = document.getElementById('categoryName');
-            const parentSelect = document.getElementById('categoryParent');
-            const level = parseInt(document.getElementById('categoryLevel').value);
-
-            const showError = (element, message) => {
-                element.classList.add('is-invalid');
-
-                const errorSpan = document.createElement('span');
-                errorSpan.className = 'field-error-msg';
-                errorSpan.innerText = message;
-
-                const container = element.closest('.mb-3') || element.closest('.mb-4') || element.parentElement;
-                if (container) {
-                    container.appendChild(errorSpan);
-                }
-                hasErrors = true;
-            };
-
-            // Validaciones locales
-            if (!nameInput.value.trim()) {
-                showError(nameInput, 'El nombre de la categoría es obligatorio.');
-            }
-
-            if (level > 1 && !parentSelect.value) {
-                showError(parentSelect, 'Debes seleccionar una categoría padre para este nivel.');
-            }
-
-            if (hasErrors) {
-                const firstInvalid = document.querySelector('.is-invalid');
-                if (firstInvalid) {
-                    firstInvalid.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'center'
-                    });
-                }
-                return;
-            }
-
-            // --- Envío Fetch ---
             const formData = new FormData(categoryForm);
 
+            // Fix — ensure parent_id is empty for level 1
             if (document.getElementById('categoryLevel').value === '1') {
                 formData.set('parent_id', '');
             }
@@ -211,17 +119,13 @@
                     const errorList = Object.values(data.errors).flat();
                     errorsContainer.innerHTML = errorList.map(m => `<p>${m}</p>`).join('');
                     errorsContainer.style.display = 'block';
-
-                    // Asignar errores devueltos por el servidor a los inputs correspondientes
-                    if (data.errors.name) showError(nameInput, data.errors.name[0]);
-                    if (data.errors.parent_id) showError(parentSelect, data.errors.parent_id[0]);
                 }
             } catch (err) {
                 console.error('Error:', err);
             }
         });
 
-        // Edit Mode Loader
+        // Edit
         document.querySelectorAll('.btn-edit-category').forEach(btn => {
             btn.addEventListener('click', () => {
                 const id = btn.dataset.id;
@@ -244,15 +148,28 @@
                         document.getElementById('categoryImageUrl').value = cat.image_url ?? '';
                         document.getElementById('categorySortOrder').value = cat.sort_order ?? 0;
                         document.getElementById('categoryIsActive').value = cat.is_active ? '1' : '0';
+                        document.getElementById('categoryParent').value = cat.parent_id ?? '';
                         document.getElementById('categorySeoTitle').value = cat.seo_title ?? '';
                         document.getElementById('categorySeoDesc').value = cat.seo_description ?? '';
 
-                        const level = cat.parent_id ? (cat.parent?.parent_id ? 3 : 2) : 1;
+                        const level = cat.parent_id ?
+                            (cat.parent?.parent_id ? 3 : 2) :
+                            1;
+
                         const levelSelect = document.getElementById('categoryLevel');
                         const parentSelect = document.getElementById('categoryParent');
+                        const allOptions = parentSelect.querySelectorAll('option[data-level]');
 
                         levelSelect.value = level;
-                        levelSelect.dispatchEvent(new Event('change'));
+
+                        allOptions.forEach(opt => {
+                            const optLevel = parseInt(opt.dataset.level);
+                            opt.style.display = (level === 2 && optLevel === 1) ||
+                                (level === 3 && optLevel === 2) ? '' : 'none';
+                        });
+
+                        parentSelect.disabled = level === 1;
+
 
                         parentSelect.value = cat.parent_id ?? '';
 
@@ -263,7 +180,7 @@
             });
         });
 
-        // Delete action handlers
+        // Delete modal
         const deleteCategoryModal = document.getElementById('deleteCategoryModal');
         let deleteCategoryId = null;
 
@@ -272,13 +189,14 @@
                 deleteCategoryId = btn.dataset.id;
                 document.getElementById('delCategoryName').textContent = btn.dataset.name;
                 document.getElementById('delCategorySlug').textContent = '/' + btn.dataset.slug;
-                document.getElementById('delCategoryAvatar').textContent = btn.dataset.name.charAt(0)
-                    .toUpperCase();
+                document.getElementById('delCategoryAvatar').textContent =
+                    btn.dataset.name.charAt(0).toUpperCase();
                 deleteCategoryModal.classList.add('active');
             });
         });
 
-        document.getElementById('delCategoryCancel').addEventListener('click', () => deleteCategoryModal.classList.remove('active'));
+        document.getElementById('delCategoryCancel').addEventListener('click', () =>
+            deleteCategoryModal.classList.remove('active'));
         deleteCategoryModal.addEventListener('click', (e) => {
             if (e.target === deleteCategoryModal) deleteCategoryModal.classList.remove('active');
         });
@@ -311,7 +229,7 @@
             }
         });
 
-        // Index Table Search and filtering
+        // Search and filter
         const categorySearch = document.getElementById('categorySearch');
         const categoryLevelFilter = document.getElementById('categoryLevelFilter');
         const categoryStatusFilter = document.getElementById('categoryStatusFilter');
@@ -340,14 +258,19 @@
         categoryStatusFilter.addEventListener('change', filterCategories);
         btnFilter.addEventListener('click', filterCategories);
 
-        // Tree structure toggle rows view
+
+        categorySearch.addEventListener('input', filterCategories);
+        categoryLevelFilter.addEventListener('change', filterCategories);
+
         document.querySelectorAll('[data-toggle]').forEach(function(el) {
             el.addEventListener('click', function() {
+                const targetId = this.dataset.toggle;
                 const parentRow = this.closest('tr');
                 const allRows = Array.from(document.querySelectorAll('#categoriesTable tbody tr'));
                 const parentIndex = allRows.indexOf(parentRow);
                 const parentLevel = parseInt(parentRow.dataset.level);
 
+                // Find all descendant rows
                 let i = parentIndex + 1;
                 while (i < allRows.length) {
                     const rowLevel = parseInt(allRows[i].dataset.level);

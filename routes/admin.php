@@ -14,7 +14,6 @@ use App\Http\Controllers\Backend\BrandController;
 use App\Http\Controllers\Backend\DeliveryController;
 use App\Http\Controllers\Backend\RoleController;
 use App\Http\Controllers\Backend\SupplierManageController;
-use App\Http\Controllers\Backend\PurchaseOrderController;
 
 // ============================================================
 // Dashboard — sin permiso, todos los usuarios autenticados
@@ -139,22 +138,6 @@ Route::controller(QuoteController::class)
         Route::get('/{quote}/pdf-preview', 'previewPdf')->name('pdf-preview');
         Route::post('/{quote}/enviar-correo', 'sendEmail')->name('send-email');
         Route::patch('/{quote}/estado', 'updateStatus')->name('update-status');
-    });
-
-// ============================================================
-// Órdenes de Compra
-// ============================================================
-Route::controller(PurchaseOrderController::class)
-    ->middleware('permission:purchase-orders')
-    ->group(function () {
-        Route::get('/ordenes-compra',                  'index')->name('purchase-orders.index');
-        Route::get('/ordenes-compra/nueva',            'create')->name('purchase-orders.create');
-        Route::post('/ordenes-compra/nueva',           'store')->name('purchase-orders.store');
-        Route::get('/ordenes-compra/{id}',             'show')->name('purchase-orders.show');
-        Route::get('/ordenes-compra/editar/{id}',      'edit')->name('purchase-orders.edit');
-        Route::put('/ordenes-compra/editar/{id}',      'update')->name('purchase-orders.update');
-        Route::delete('/ordenes-compra/eliminar/{id}', 'destroy')->name('purchase-orders.destroy');
-        Route::patch('/ordenes-compra/estado/{id}',    'updateStatus')->name('purchase-orders.status');
     });
 
 // ============================================================
