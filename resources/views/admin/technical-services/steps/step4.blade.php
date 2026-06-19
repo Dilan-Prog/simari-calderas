@@ -98,15 +98,7 @@
 
 {{-- Wizard footer — POST regular (no AJAX) --}}
 <div class="ts-wizard-footer">
-    <a href="{{ route('admin.technical-services.step', [$service, 3]) }}" class="ts-btn">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="m12 19-7-7 7-7M19 12H5"/>
-        </svg>
-        Anterior
-    </a>
-
-    <form action="{{ route('admin.technical-services.save-step', [$service, 4]) }}"
+    <form class="ts-form" action="{{ route('admin.technical-services.save-step', [$service, 4]) }}"
           method="POST" style="display:inline">
         @csrf
         <button type="submit" class="ts-btn ts-btn--primary">
@@ -117,4 +109,12 @@
             Confirmar y Programar
         </button>
     </form>
+    <a href="{{ route('admin.technical-services.step', [$service, 3]) }}" class="ts-btn">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m12 19-7-7 7-7M19 12H5"/>
+        </svg>
+        Anterior
+    </a>
+
 </div>

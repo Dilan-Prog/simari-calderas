@@ -1632,6 +1632,8 @@ input[type="time"].ts-input {
 @media (max-width: 480px) {
     .ts-nav-title { min-width: 120px; font-size: 0.875rem; }
     .ts-legend { gap: 0.5rem; }
+    .ts-wizard-footer .ts-btn { width: 100%; }
+    .ts-wizard-footer .ts-form { width: 100%; }
 }
 
 /* ============================================================
