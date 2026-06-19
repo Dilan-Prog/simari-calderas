@@ -651,7 +651,7 @@
     .sr-mobile-new-btn:hover { background: var(--button-primary-color-hover); color: #fff; }
 
     @media (max-width: 1023px) {
-        .sr-wrapper { padding: 16px; padding-bottom: 80px; }
+        .sr-wrapper { padding: 16px; padding-bottom: 80px; overflow-y: auto; height: 650px; min-height: 600px; }
         .sr-table-card { display: none; }
         .sr-filters { display: none; }
         .sr-page-header { flex-direction: row; align-items: center; }
