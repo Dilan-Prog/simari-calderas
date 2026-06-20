@@ -81,14 +81,14 @@ class Products extends Model
         )->withPivot('cost', 'lead_time_days', 'is_primary');
     }
     // Subcategory
-    public function subcategory()
-    {
-        return $this->belongsTo(Category::class, 'subcategory_id');
-    }
+    // public function subcategory()
+    // {
+    //     return $this->belongsTo(Category::class, 'subcategory_id');
+    // }
 
-    // Child Category
-    public function childCategory()
-    {
-        return $this->belongsTo(Category::class, 'child_category_id');
-    }
+    // // Child Category
+    // public function childCategory()
+    // {
+    //     return $this->belongsTo(Category::class, 'child_category_id');
+    // }
 }
