@@ -290,8 +290,8 @@
                                 <p class="sr-doc-photos-col-label">Antes del servicio</p>
                                 <div class="sr-doc-photos-inner">
                                     @foreach($report->images->take(2) as $img)
-                                        <div class="sr-photo-item" onclick="openLightbox('{{ $img->url }}')">
-                                            <img src="{{ $img->url }}" alt="Evidencia">
+                                        <div class="sr-photo-item" onclick="openLightbox('{{ asset($img->path) }}')">
+                                            <img src="{{ asset($img->path) }}" alt="Evidencia">
                                         </div>
                                     @endforeach
                                     @for($pi = $report->images->take(2)->count(); $pi < 2; $pi++)
