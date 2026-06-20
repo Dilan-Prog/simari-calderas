@@ -12,6 +12,7 @@
             border-color: #dc2626 !important;
             box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1) !important;
         }
+
         .pform-error-msg {
             color: #dc2626;
             font-size: 12px;
@@ -21,6 +22,7 @@
             align-items: center;
             gap: 4px;
         }
+
         .pform-error-msg::before {
             content: '';
             display: inline-block;
@@ -106,8 +108,9 @@
                 </button>
 
                 <button class="pform-tab" data-tab="pformPanel1" type="button" role="tab">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
                         <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
                         <circle cx="9" cy="9" r="2" />
                         <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
@@ -167,7 +170,8 @@
 
         {{-- ── Scrollable content ── --}}
         <div class="pform-content-area">
-            <form id="productCreateForm" method="POST" action="{{ route('admin.products.store') }}" enctype="multipart/form-data" novalidate>
+            <form id="productCreateForm" method="POST" action="{{ route('admin.products.store') }}"
+                enctype="multipart/form-data" novalidate>
                 @csrf
                 <input type="hidden" name="is_active" value="1">
                 <input type="hidden" name="is_featured" id="pformIsFeatured" value="0">
@@ -268,11 +272,12 @@
                                 <p class="pform-dropzone-text">Haz clic para subir imágenes o arrástralas aquí</p>
                                 <p class="pform-dropzone-sub">PNG, JPG, JPEG hasta 10MB por imagen</p>
                                 <input type="file" id="pformImageInput" name="images[]"
-                                    accept="image/png,image/jpeg,image/jpg"
-                                    multiple style="display:none">
+                                    accept="image/png,image/jpeg,image/jpg" multiple style="display:none">
                             </label>
 
-                            <div id="pformImageGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:12px;margin-top:16px;"></div>
+                            <div id="pformImageGrid"
+                                style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:12px;margin-top:16px;">
+                            </div>
 
                             <div class="pform-placeholder" id="pformImagePlaceholder" style="padding:40px 32px">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="56" height="56"
@@ -416,7 +421,8 @@
                                 <div class="pform-grid-3">
                                     <div class="pform-field">
                                         <label class="pform-label">SKU <span class="pform-required">*</span></label>
-                                        <input type="text" class="pform-input" placeholder="PROD-001" required value="{{ $sku }}" disabled>
+                                        <input type="text" class="pform-input" placeholder="PROD-001" required
+                                            value="{{ $sku }}" disabled>
                                     </div>
                                     <div class="pform-field">
                                         <label class="pform-label">Inventario Disponible <span
@@ -497,7 +503,8 @@
                                     {{-- Subcategoría — hijos de la categoría seleccionada --}}
                                     <div class="pform-field">
                                         <label class="pform-label">Subcategoría</label>
-                                        <select class="pform-select" name="subcategory_id" id="pformCategorySub"
+                                        <select class="pform-select" id="pformCategorySub"
+                                        {{-- name="subcategory_id" --}}
                                             disabled>
                                             <option value="">Seleccionar categoría primero...</option>
                                         </select>
@@ -506,7 +513,8 @@
                                     {{-- Child category from db --}}
                                     <div class="pform-field">
                                         <label class="pform-label">Categoría Hija</label>
-                                        <select class="pform-select" name="child_category_id" id="pformCategoryChild"
+                                        <select class="pform-select" id="pformCategoryChild"
+                                        {{-- name="child_category_id" --}}
                                             disabled>
                                             <option value="">Seleccionar subcategoría primero...</option>
                                         </select>
