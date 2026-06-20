@@ -16,6 +16,7 @@ export default defineConfig({
                 'resources/js/admin/roles.js',
                 'resources/css/admin/technical-services.css',
                 'resources/js/admin/technical-services.js',
+                'resources/css/service-reports.css',
             ],
             refresh: true,
         }),

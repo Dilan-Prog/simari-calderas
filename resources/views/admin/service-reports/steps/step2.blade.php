@@ -1,127 +1,12 @@
-@extends('admin.layouts.master')
+﻿@extends('admin.layouts.master')
 @section('title', 'Reporte ' . $report->report_number . ' — Paso 2')
 
 @push('styles')
-<style>
-    .sr-create-wrap { font-family: 'Inter', sans-serif; background: #F8F9FA; min-height: 100%; padding: 32px; }
-    .sr-progress { display: flex; align-items: center; background: #fff; border-radius: 8px;
-                   box-shadow: 0 1px 2px rgba(0,0,0,.06); padding: 20px 24px; margin-bottom: 24px; }
-    .sr-step-item { display: flex; flex-direction: column; align-items: center; flex: 1; position: relative; }
-    .sr-step-item:not(:last-child)::after {
-        content: ''; position: absolute; top: 16px; left: 60%; width: 80%; height: 2px; background: #E5E7EB; z-index: 0;
-    }
-    .sr-step-item.done::after { background: #ff6213; }
-    .sr-step-circle { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
-                      font-size: 13px; font-weight: 600; z-index: 1; border: 2px solid #E5E7EB; background: #fff; color: #9CA3AF; }
-    .sr-step-item.active .sr-step-circle { border-color: #ff6213; background: #ff6213; color: #fff; }
-    .sr-step-item.done   .sr-step-circle { border-color: #ff6213; background: #fff; color: #ff6213; }
-    .sr-step-label { font-size: 11px; color: #9CA3AF; margin-top: 6px; text-align: center; white-space: nowrap; }
-    .sr-step-item.active .sr-step-label, .sr-step-item.done .sr-step-label { color: #374151; }
-
-    .sr-form-card { background: #fff; border-radius: 8px; box-shadow: 0 1px 2px rgba(0,0,0,.06); display: flex; flex-direction: column; max-height: 420px; overflow-y: auto; }
-    .sr-form-header { padding: 20px 24px; border-bottom: 1px solid #F3F4F6; }
-    .sr-form-header h2 { margin: 0 0 4px; font-size: 16px; font-weight: 600; color: #111827; }
-    .sr-form-header p  { margin: 0; font-size: 13px; color: #6B7280; }
-    .sr-form-body  { padding: 24px; overflow-y: auto; flex: 1; }
-    .sr-form-footer { padding: 16px 24px; border-top: 1px solid #F3F4F6; display: flex; justify-content: space-between; gap: 12px; }
-
-    .sr-label { font-size: 13px; font-weight: 500; color: #374151; display: block; margin-bottom: 6px; }
-    .sr-input, .sr-select, .sr-textarea {
-        height: 40px; padding: 0 12px; border-radius: 6px; border: 1px solid #D1D5DB;
-        font-size: 13px; font-family: 'Inter', sans-serif; color: #111827; background: #fff;
-        outline: none; width: 100%; box-sizing: border-box; transition: border-color .15s, box-shadow .15s;
-    }
-    .sr-textarea { height: auto; padding: 10px 12px; resize: vertical; min-height: 160px; }
-    .sr-input:focus, .sr-select:focus, .sr-textarea:focus { border-color: #ff6213; box-shadow: 0 0 0 3px rgba(255,98,19,.12); }
-    .sr-field { margin-bottom: 16px; }
-
-    /* Measurements table */
-    .sr-meas-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-    .sr-meas-table thead th { background: #1A2535; color: #D1D5DC; font-size: 11px; font-weight: 600;
-                               text-transform: uppercase; letter-spacing: .06em; padding: 10px 12px; text-align: left; }
-    .sr-meas-table tbody tr { border-bottom: 1px solid #F3F4F6; }
-    .sr-meas-table tbody td { padding: 6px 8px; vertical-align: middle; }
-    .sr-meas-table .sr-input { height: 34px; font-size: 12px; }
-    /* Range badge */
-    .sr-range-badge { display: inline-flex; align-items: center; gap: 3px; font-size: 11px; font-weight: 600;
-                      padding: 3px 8px; border-radius: 4px; white-space: nowrap; line-height: 1.4; }
-    .sr-range-ok  { background: #F0FDF4; color: #16A34A; border: 1px solid #BBF7D0; }
-    .sr-range-bad { background: #FEF2F2; color: #DC2626; border: 1px solid #FECACA; }
-    .sr-range-nd  { background: #F3F4F6; color: #9CA3AF; border: 1px solid #E5E7EB; }
-
-    /* Range bar */
-    .sr-range-bar-wrap { margin-top: 5px; }
-    .sr-range-bar-track { position: relative; height: 6px; background: #E5E7EB; border-radius: 3px; overflow: visible; }
-    .sr-range-bar-valid { position: absolute; top: 0; height: 100%; border-radius: 3px;
-                          background: #D1FAE5; border: 1px solid #6EE7B7; transition: all .2s; }
-    .sr-range-bar-valid.bad { background: #FEE2E2; border-color: #FCA5A5; }
-    .sr-range-bar-pin { position: absolute; top: 50%; width: 10px; height: 10px; border-radius: 50%;
-                        transform: translate(-50%, -50%); border: 2px solid #fff;
-                        box-shadow: 0 1px 3px rgba(0,0,0,.2); transition: all .2s; background: #9CA3AF; }
-    .sr-range-bar-pin.ok  { background: #16A34A; }
-    .sr-range-bar-pin.bad { background: #DC2626; }
-    .sr-btn-add-row {
-        margin-top: 12px; height: 36px; padding: 0 16px; border-radius: 6px; border: 1px dashed #D1D5DB;
-        background: #fff; color: #6B7280; font-size: 13px; font-family: 'Inter', sans-serif;
-        cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: border-color .15s, color .15s;
-    }
-    .sr-btn-add-row:hover { border-color: #ff6213; color: #ff6213; }
-    .sr-btn-del-row { width: 28px; height: 28px; border-radius: 4px; border: none; background: transparent;
-                      color: #9CA3AF; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-    .sr-btn-del-row:hover { background: #FEF2F2; color: #DC2626; }
-
-    /* Checkboxes */
-    .sr-systems-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-    .sr-checkbox-item { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #374151;
-                        padding: 8px 12px; border: 1px solid #E5E7EB; border-radius: 6px; cursor: pointer;
-                        transition: border-color .15s, background .15s; }
-    .sr-checkbox-item:hover { border-color: #ff6213; background: #FFF7ED; }
-    .sr-checkbox-item input[type=checkbox]:checked + span { color: #111827; font-weight: 500; }
-
-    /* Buttons */
-    .sr-btn-primary { height: 40px; padding: 0 20px; border-radius: 8px; background: #ff6213; color: #fff;
-                      font-size: 13px; font-weight: 500; font-family: 'Inter', sans-serif; border: none; cursor: pointer; transition: background .15s; }
-    .sr-btn-primary:hover { background: #de4a00; }
-    .sr-btn-outline { height: 40px; padding: 0 20px; border-radius: 8px; border: 1px solid #D1D5DB;
-                      background: #fff; color: #374151; font-size: 13px; font-family: 'Inter', sans-serif; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; }
-    .sr-btn-outline:hover { background: #F9FAFB; color: #374151; }
-
-    /* Custom fields */
-    .sr-custom-row { display: grid; grid-template-columns: 2fr 1fr 2fr auto; gap: 8px; align-items: end; margin-bottom: 10px; }
-
-    @media (max-width: 1023px) {
-        .sr-create-wrap { padding: 16px 16px 100px; }
-        .sr-systems-grid { grid-template-columns: 1fr 1fr; }
-        .sr-custom-row { grid-template-columns: 1fr; }
-        .sr-step-label { display: none; }
-        .sr-progress { padding: 12px 16px; overflow-x: auto; }
-        .sr-form-card { max-height: none; overflow-y: visible; }
-        .sr-form-body  { overflow-y: visible; }
-        .sr-input, .sr-select { height: 48px; font-size: 16px; }
-        .sr-textarea { font-size: 16px; min-height: 160px; }
-        /* Tabla de mediciones: scroll horizontal */
-        .sr-meas-table .sr-input { height: 40px; font-size: 14px; }
-        .sr-form-footer {
-            position: sticky; bottom: 0; background: #fff; z-index: 20;
-            box-shadow: 0 -4px 12px rgba(0,0,0,0.08);
-            padding: 12px 16px; margin: 0 -24px;
-            flex-direction: column-reverse; gap: 8px;
-        }
-        .sr-btn-primary, .sr-btn-outline {
-            width: 100%; height: 52px; justify-content: center;
-            text-align: center; font-size: 15px;
-        }
-        .sr-btn-outline { display: flex; }
-        /* Checkboxes en 1 col en pantallas muy pequeñas */
-    }
-    @media (max-width: 480px) {
-        .sr-systems-grid { grid-template-columns: 1fr; }
-    }
-</style>
+    @vite('resources/css/service-reports.css')
 @endpush
 
 @section('content')
-<div class="sr-create-wrap">
+<div class="sr-create-wrap sr-page-step2">
 
     {{-- Breadcrumb --}}
     <div style="font-size:12px; color:#6B7280; margin-bottom:16px; display:flex; align-items:center; gap:6px;">
@@ -170,7 +55,7 @@
 
                 {{-- ── VARIANT A: Análisis Químico ── --}}
                 @if($report->usesMeasurementsForm())
-                    <div style="overflow-x:auto;">
+                    <div class="sr-meas-scroll">
                         <table class="sr-meas-table" id="measTable">
                             <thead>
                                 <tr>
@@ -187,13 +72,16 @@
                             <tbody id="measBody">
                                 @forelse($report->measurements as $idx => $m)
                                     <tr data-idx="{{ $idx }}">
-                                        <td style="color:#9CA3AF; font-size:12px; width:32px; text-align:center;">{{ $idx + 1 }}</td>
-                                        <td><input type="text" name="measurements[{{ $idx }}][parameter]" class="sr-input" value="{{ old("measurements.$idx.parameter", $m->parameter) }}" required placeholder="Ej: pH"></td>
-                                        <td><input type="text" name="measurements[{{ $idx }}][unit]"      class="sr-input" value="{{ old("measurements.$idx.unit", $m->unit) }}" placeholder="Unidad pH"></td>
-                                        <td><input type="text" name="measurements[{{ $idx }}][result]"   class="sr-input sr-result" value="{{ old("measurements.$idx.result", $m->result) }}" placeholder="7.4"></td>
-                                        <td><input type="number" step="any" name="measurements[{{ $idx }}][limit_min]" class="sr-input sr-lmin" value="{{ old("measurements.$idx.limit_min", $m->limit_min) }}" placeholder="6.5"></td>
-                                        <td><input type="number" step="any" name="measurements[{{ $idx }}][limit_max]" class="sr-input sr-lmax" value="{{ old("measurements.$idx.limit_max", $m->limit_max) }}" placeholder="8.5"></td>
-                                        <td style="min-width:110px;">
+                                        <td class="sr-meas-num">
+                                            <span class="sr-meas-num-short">{{ $idx + 1 }}</span>
+                                            <span class="sr-meas-num-full">Medición {{ $idx + 1 }}</span>
+                                        </td>
+                                        <td data-label="Parámetro"><input type="text" name="measurements[{{ $idx }}][parameter]" class="sr-input" value="{{ old("measurements.$idx.parameter", $m->parameter) }}" required placeholder="Ej: pH"></td>
+                                        <td data-label="Unidad"><input type="text" name="measurements[{{ $idx }}][unit]"      class="sr-input" value="{{ old("measurements.$idx.unit", $m->unit) }}" placeholder="Unidad pH"></td>
+                                        <td data-label="Resultado"><input type="text" name="measurements[{{ $idx }}][result]"   class="sr-input sr-result" value="{{ old("measurements.$idx.result", $m->result) }}" placeholder="7.4"></td>
+                                        <td data-label="Límite Mín."><input type="number" step="any" name="measurements[{{ $idx }}][limit_min]" class="sr-input sr-lmin" value="{{ old("measurements.$idx.limit_min", $m->limit_min) }}" placeholder="6.5"></td>
+                                        <td data-label="Límite Máx."><input type="number" step="any" name="measurements[{{ $idx }}][limit_max]" class="sr-input sr-lmax" value="{{ old("measurements.$idx.limit_max", $m->limit_max) }}" placeholder="8.5"></td>
+                                        <td data-label="Rango" style="min-width:110px;">
                                             <span class="sr-range-badge sr-range-nd">— S/L</span>
                                             <div class="sr-range-bar-wrap" style="display:none;">
                                                 <div class="sr-range-bar-track">
@@ -202,17 +90,20 @@
                                                 </div>
                                             </div>
                                         </td>
-                                        <td><button type="button" class="sr-btn-del-row" onclick="removeRow(this)">✕</button></td>
+                                        <td class="sr-meas-del"><button type="button" class="sr-btn-del-row" onclick="removeRow(this)">✕</button></td>
                                     </tr>
                                 @empty
                                     <tr data-idx="0">
-                                        <td style="color:#9CA3AF; font-size:12px; width:32px; text-align:center;">1</td>
-                                        <td><input type="text" name="measurements[0][parameter]" class="sr-input" required placeholder="Ej: pH"></td>
-                                        <td><input type="text" name="measurements[0][unit]"      class="sr-input" placeholder="Unidad pH"></td>
-                                        <td><input type="text" name="measurements[0][result]"    class="sr-input sr-result" placeholder="7.4"></td>
-                                        <td><input type="number" step="any" name="measurements[0][limit_min]" class="sr-input sr-lmin" placeholder="6.5"></td>
-                                        <td><input type="number" step="any" name="measurements[0][limit_max]" class="sr-input sr-lmax" placeholder="8.5"></td>
-                                        <td style="min-width:110px;">
+                                        <td class="sr-meas-num">
+                                            <span class="sr-meas-num-short">1</span>
+                                            <span class="sr-meas-num-full">1</span>
+                                        </td>
+                                        <td data-label="Parámetro"><input type="text" name="measurements[0][parameter]" class="sr-input" required placeholder="Ej: pH"></td>
+                                        <td data-label="Unidad"><input type="text" name="measurements[0][unit]"      class="sr-input" placeholder="Unidad pH"></td>
+                                        <td data-label="Resultado"><input type="text" name="measurements[0][result]"    class="sr-input sr-result" placeholder="7.4"></td>
+                                        <td data-label="Límite Mín."><input type="number" step="any" name="measurements[0][limit_min]" class="sr-input sr-lmin" placeholder="6.5"></td>
+                                        <td data-label="Límite Máx."><input type="number" step="any" name="measurements[0][limit_max]" class="sr-input sr-lmax" placeholder="8.5"></td>
+                                        <td data-label="Rango" style="min-width:110px;">
                                             <span class="sr-range-badge sr-range-nd">— S/L</span>
                                             <div class="sr-range-bar-wrap" style="display:none;">
                                                 <div class="sr-range-bar-track">
@@ -221,7 +112,7 @@
                                                 </div>
                                             </div>
                                         </td>
-                                        <td><button type="button" class="sr-btn-del-row" onclick="removeRow(this)">✕</button></td>
+                                        <td class="sr-meas-del"><button type="button" class="sr-btn-del-row" onclick="removeRow(this)">✕</button></td>
                                     </tr>
                                 @endforelse
                             </tbody>
@@ -394,13 +285,16 @@
         const tr = document.createElement('tr');
         tr.dataset.idx = idx;
         tr.innerHTML = `
-            <td style="color:#9CA3AF;font-size:12px;width:32px;text-align:center;">${idx + 1}</td>
-            <td><input type="text" name="measurements[${idx}][parameter]" class="sr-input" required placeholder="Ej: Dureza Total"></td>
-            <td><input type="text" name="measurements[${idx}][unit]"      class="sr-input" placeholder="Mg/l"></td>
-            <td><input type="text" name="measurements[${idx}][result]"    class="sr-input sr-result" placeholder="0.0"></td>
-            <td><input type="number" step="any" name="measurements[${idx}][limit_min]" class="sr-input sr-lmin" placeholder="0"></td>
-            <td><input type="number" step="any" name="measurements[${idx}][limit_max]" class="sr-input sr-lmax" placeholder="0"></td>
-            <td style="min-width:110px;">
+            <td class="sr-meas-num">
+                <span class="sr-meas-num-short">${idx + 1}</span>
+                <span class="sr-meas-num-full">Medición ${idx + 1}</span>
+            </td>
+            <td data-label="Parámetro"><input type="text" name="measurements[${idx}][parameter]" class="sr-input" required placeholder="Ej: Dureza Total"></td>
+            <td data-label="Unidad"><input type="text" name="measurements[${idx}][unit]"      class="sr-input" placeholder="Mg/l"></td>
+            <td data-label="Resultado"><input type="text" name="measurements[${idx}][result]"    class="sr-input sr-result" placeholder="0.0"></td>
+            <td data-label="Límite Mín."><input type="number" step="any" name="measurements[${idx}][limit_min]" class="sr-input sr-lmin" placeholder="0"></td>
+            <td data-label="Límite Máx."><input type="number" step="any" name="measurements[${idx}][limit_max]" class="sr-input sr-lmax" placeholder="0"></td>
+            <td data-label="Rango" style="min-width:110px;">
                 <span class="sr-range-badge sr-range-nd">— S/L</span>
                 <div class="sr-range-bar-wrap" style="display:none;">
                     <div class="sr-range-bar-track">
@@ -409,7 +303,7 @@
                     </div>
                 </div>
             </td>
-            <td><button type="button" class="sr-btn-del-row" onclick="removeRow(this)">✕</button></td>`;
+            <td class="sr-meas-del"><button type="button" class="sr-btn-del-row" onclick="removeRow(this)">✕</button></td>`;
         tbody.appendChild(tr);
     });
 
@@ -419,7 +313,8 @@
         btn.closest('tr').remove();
         // Re-number first column
         tbody.querySelectorAll('tr').forEach((tr, i) => {
-            tr.cells[0].textContent = i + 1;
+            tr.querySelector('.sr-meas-num-short').textContent = i + 1;
+            tr.querySelector('.sr-meas-num-full').textContent = 'Medición ' + (i + 1);
         });
     };
     @endif
