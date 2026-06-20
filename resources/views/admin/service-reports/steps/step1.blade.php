@@ -101,7 +101,7 @@
         .sr-step-label { display: none; }
         .sr-progress { padding: 12px 16px; overflow-x: auto; }
         .sr-form-card { max-height: none; overflow-y: visible; }
-        .sr-form-body  { overflow-y: visible; }
+        .sr-form-body  { overflow-y: visible; he }
         .sr-input, .sr-select { height: 48px; font-size: 16px; }
         .sr-textarea { font-size: 16px; }
         .sr-form-footer {

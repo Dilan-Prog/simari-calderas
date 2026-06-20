@@ -25,7 +25,7 @@
     .sr-step-item.active .sr-step-label, .sr-step-item.done .sr-step-label { color: #374151; }
 
     /* Form card */
-    .sr-form-card { background: #fff; border-radius: 8px; box-shadow: 0 1px 2px rgba(0,0,0,.06); display: flex; flex-direction: column; max-height: 420px; overflow-y: auto; }
+    .sr-form-card { background: #fff; border-radius: 8px; box-shadow: 0 1px 2px rgba(0,0,0,.06); display: flex; flex-direction: column; max-height: 750px; overflow-y: auto; overflow-x: hidden; }
     .sr-form-header { padding: 20px 24px; border-bottom: 1px solid #F3F4F6; }
     .sr-form-header h2 { margin: 0 0 4px; font-size: 16px; font-weight: 600; color: #111827; }
     .sr-form-header p  { margin: 0; font-size: 13px; color: #6B7280; }
@@ -92,17 +92,20 @@
         height: 40px; padding: 0 20px; border-radius: 8px; border: 1px solid #D1D5DB;
         background: #fff; color: #374151; font-size: 13px; font-family: 'Inter', sans-serif;
         cursor: pointer; transition: background .15s;
+        text-decoration: none; align-items: center;
     }
     .sr-btn-outline:hover { background: #F9FAFB; }
 
-    @media (max-width: 1023px) {
+
+    @media (min-width: 1024px) and (max-width: 1441px)  {
         .sr-create-wrap { padding: 16px 16px 100px; }
         .sr-grid-2, .sr-grid-3 { grid-template-columns: 1fr; }
         .sr-step-label { display: none; }
         .sr-progress { padding: 12px 16px; overflow-x: auto; }
 
         /* Sin max-height en mobile — scroll natural */
-        .sr-form-card { max-height: none; overflow-y: visible; }
+        .sr-form-card { max-height: 650px; }
+
         .sr-form-body  { overflow-y: visible; }
 
         /* Inputs más grandes para tacto */
@@ -114,15 +117,20 @@
             position: sticky; bottom: 0;
             background: #fff; z-index: 20;
             box-shadow: 0 -4px 12px rgba(0,0,0,0.08);
-            padding: 12px 16px; margin: 0 -24px;
+            padding: 12px 16px; margin: 0;
             flex-direction: column-reverse; gap: 8px;
         }
         .sr-btn-primary, .sr-btn-outline {
             width: 100%; height: 52px; justify-content: center;
-            text-align: center; font-size: 15px;
+            text-align: center; font-size: 15px; box-sizing: border-box;
         }
         .sr-btn-outline { display: flex; }
     }
+    @media (min-width:320px ) and (max-width: 768px) {
+         .sr-form-card { max-height: 500px; }
+
+    }
+
 </style>
 @endpush
 
