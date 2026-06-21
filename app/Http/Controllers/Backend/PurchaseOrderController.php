@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\PurchaseOrder;
 use App\Models\Supplier;
 use App\Models\Products;;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 
 class PurchaseOrderController extends Controller
@@ -122,7 +123,10 @@ class PurchaseOrderController extends Controller
 
     public function show(string $id)
     {
-        // Pendiente de implementar
+        $order = PurchaseOrder::with(['supplier', 'createdBy', 'items'])
+            ->findOrFail($id);
+
+        return view('admin.purchase-orders.show.show', compact('order'));
     }
 
     public function edit(string $id)
@@ -236,5 +240,23 @@ class PurchaseOrderController extends Controller
         $order->status = $request->status;
         $order->save();
         return response()->json(['success' => true]);
+    }
+
+    public function downloadPdf(string $id)
+    {
+        $order = PurchaseOrder::with(['supplier', 'items'])->findOrFail($id);
+        $pdf = Pdf::loadView('admin.purchase-orders.pdf', compact('order'))
+            ->setPaper('a4', 'portrait');
+
+        return $pdf->download("{$order->po_number}.pdf");
+    }
+
+    public function previewPdf(string $id)
+    {
+        $order = PurchaseOrder::with(['supplier', 'items'])->findOrFail($id);
+        $pdf = Pdf::loadView('admin.purchase-orders.pdf', compact('order'))
+            ->setPaper('a4', 'portrait');
+
+        return $pdf->stream("{$order->po_number}.pdf");
     }
 }

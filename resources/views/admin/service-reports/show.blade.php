@@ -1,6 +1,5 @@
-﻿@extends('admin.layouts.master')
+@extends('admin.layouts.master')
 @section('title', 'Reporte ' . $report->report_number)
-
 @push('styles')
     @vite('resources/css/service-reports.css')
 @endpush
@@ -104,15 +103,17 @@
 
     {{-- Two-column grid --}}
     <div class="sr-show-grid">
-
         {{-- ══ LEFT — Document card ══ --}}
         <div class="sr-doc-card">
-
             {{-- Document header --}}
             <div class="sr-doc-header">
                 <div class="sr-doc-header-brand">
-                    <p class="sr-doc-brand-name">QUITERM INDUSTRIES</p>
-                    <p class="sr-doc-brand-tag">Soluciones Térmicas Industriales</p>
+                    <img src="{{ asset('images/logo/equiterm-logo-blanco-color-3x.png') }}"
+                             alt="Equiterm Industries" style="height:28px;width:auto;display:block;">
+                    <div class="sr-doc-header__company-meta">
+                            <p>administracion@equitermindustries.com.mx</p>
+                            <p>México, Aguascalientes</p>
+                        </div>
                 </div>
                 <div class="sr-doc-header-folio">
                     <p class="sr-doc-rpt-label">Reporte Técnico</p>

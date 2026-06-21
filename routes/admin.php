@@ -155,6 +155,8 @@ Route::controller(PurchaseOrderController::class)
         Route::put('/ordenes-compra/editar/{id}',      'update')->name('purchase-orders.update');
         Route::delete('/ordenes-compra/eliminar/{id}', 'destroy')->name('purchase-orders.destroy');
         Route::patch('/ordenes-compra/estado/{id}',    'updateStatus')->name('purchase-orders.status');
+        Route::get('/ordenes-compra/{id}/pdf',         'downloadPdf')->name('purchase-orders.pdf');
+        Route::get('/ordenes-compra/{id}/pdf-preview', 'previewPdf')->name('purchase-orders.pdf-preview');
     });
 
 // ============================================================
