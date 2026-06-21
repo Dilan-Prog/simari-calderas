@@ -49,7 +49,8 @@ class PurchaseOrderController extends Controller
         $suppliers = Supplier::where('status', 'active')
             ->get(['id', 'company_name', 'contact_name', 'email', 'phone', 'rfc', 'payment_terms']);
 
-        $nextPoNumber = PurchaseOrder::generatePoNumber();
+        $nextPoNumber          = PurchaseOrder::generatePoNumber();
+        $nextInternalReference = PurchaseOrder::generateInternalReference();
 
         $catalogProducts = Products::where('is_active', true)
             ->get(['id', 'name', 'sku', 'cost'])
@@ -60,20 +61,24 @@ class PurchaseOrderController extends Controller
                 'price' => (float) $p->cost,
             ]);
 
-        return view('admin.purchase-orders.create.create', compact('suppliers', 'nextPoNumber', 'catalogProducts'));
+        return view(
+            'admin.purchase-orders.create.create',
+            compact('suppliers', 'nextPoNumber', 'nextInternalReference', 'catalogProducts')
+        );
     }
 
     public function store(Request $request)
     {
         $request->validate([
-            'supplier_id'  => 'required|exists:suppliers,id',
-            'order_date'   => 'required|date',
-            'status'       => 'required|in:pending,accepted,rejected',
-            'subtotal'     => 'required|numeric|min:0',
-            'tax_rate'     => 'required|numeric|min:0|max:100',
-            'tax_total'    => 'required|numeric|min:0',
-            'total'        => 'required|numeric|min:0',
-            'items'        => 'required|array|min:1',
+            'supplier_id'        => 'required|exists:suppliers,id',
+            'order_date'         => 'required|date',
+            'status'             => 'required|in:pending,accepted,rejected',
+            'internal_reference' => 'required|string|max:50|unique:purchase_orders,internal_reference',
+            'subtotal'           => 'required|numeric|min:0',
+            'tax_rate'           => 'required|numeric|min:0|max:100',
+            'tax_total'          => 'required|numeric|min:0',
+            'total'              => 'required|numeric|min:0',
+            'items'              => 'required|array|min:1',
             'items.*.product_name' => 'required|string|max:180',
             'items.*.quantity'     => 'required|integer|min:1',
             'items.*.unit_price'   => 'required|numeric|min:0',

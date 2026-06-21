@@ -50,4 +50,13 @@ class PurchaseOrder extends Model
         $seq   = $last ? (intval(substr($last, -4)) + 1) : 1;
         return 'PO-' . $year . '-' . str_pad($seq, 4, '0', STR_PAD_LEFT);
     }
+
+    // Auto-generate internal reference: PO-DDMMYYYY-XXXX (sequence resets daily)
+    public static function generateInternalReference(): string
+    {
+        $date  = now()->format('dmY');
+        $last  = static::where('internal_reference', 'like', "PO-{$date}-%")->max('internal_reference');
+        $seq   = $last ? (intval(substr($last, -4)) + 1) : 1;
+        return 'PO-' . $date . '-' . str_pad($seq, 4, '0', STR_PAD_LEFT);
+    }
 }

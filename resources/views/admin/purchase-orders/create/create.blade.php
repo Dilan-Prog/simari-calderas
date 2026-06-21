@@ -101,8 +101,8 @@
 
                     <div class="po-form-group">
                         <label class="po-label">REFERENCIA INTERNA</label>
-                        <input type="text" name="internal_reference" class="po-input"
-                            placeholder="Ej: REF-2026-001">
+                        <input type="text" name="internal_reference" class="po-input po-item-input--readonly"
+                            value="{{ $nextInternalReference }}" readonly>
                     </div>
 
                     <div class="po-form-group">
