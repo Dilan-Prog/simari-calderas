@@ -62,6 +62,7 @@ Route::controller(ClientManageController::class)
         Route::delete('/clientes/eliminar-cliente/{id}', 'destroy')->name('clients.destroy');
         Route::get('/clientes/informacion/{id}', 'information')->name('clients.information');
         Route::post('/clientes/{id}/acceso', 'grantAccess')->name('clients.grant-access');
+        Route::patch('/clientes/{id}/estado', 'updateStatus')->name('clients.update-status');
     });
 
 // ============================================================

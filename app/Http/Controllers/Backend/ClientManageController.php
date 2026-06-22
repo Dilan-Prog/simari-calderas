@@ -359,6 +359,26 @@ class ClientManageController extends Controller
         ]);
     }
 
+    public function updateStatus(Request $request, string $id): JsonResponse
+    {
+        $customer = Customer::findOrFail($id);
+
+        $request->validate([
+            'status' => 'required|in:active,inactive,suspended',
+        ]);
+
+        $customer->status = $request->status;
+        $customer->save();
+
+        $labels = ['active' => 'activado', 'inactive' => 'desactivado', 'suspended' => 'suspendido'];
+
+        return response()->json([
+            'success' => true,
+            'status'  => $customer->status,
+            'message' => 'Panel del cliente ' . $labels[$customer->status] . ' correctamente.',
+        ]);
+    }
+
     /**
      * Remove the specified resource from storage.
      */
