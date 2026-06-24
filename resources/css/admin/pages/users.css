@@ -2103,7 +2103,12 @@
 .po-btn-save:hover { background: #e55510; }
 /* ── Validation errors ──────────────────────────────────── */
 .po-field-error {
-    border-color: #ef4444 !important;
+    border-color: #ef4444;
+}
+
+.val-error-select {
+    border: 1.5px solid #ef4444;
+    background-color: #fef2f2;
 }
 
 .po-error-msg {
@@ -2358,6 +2363,120 @@
     .po-summary__row {
         flex-wrap: wrap;
         gap: 6px;
+    }
+
+    .table-container-users-manager {
+        border: none;
+        box-shadow: none;
+        background: transparent;
+    }
+
+    .table-container-users-manager table,
+    .table-container-users-manager thead,
+    .table-container-users-manager tbody,
+    .table-container-users-manager tr,
+    .table-container-users-manager th,
+    .table-container-users-manager td {
+        display: block;
+        width: 100%;
+    }
+
+    /* Oculta el thead en móvil */
+    .table-container-users-manager thead {
+        display: none;
+    }
+
+    /* Quita el scroll horizontal */
+    .table-container-users-manager .table-scroll {
+        max-height: none;
+        overflow-x: visible;
+    }
+
+    /* Cada fila se convierte en carta */
+    .table-container-users-manager .table-row-user-manager {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        background: white;
+        border-radius: 12px;
+        border: 1px solid var(--border-color);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        padding: 16px;
+        margin-bottom: 12px;
+    }
+
+    /* Quita el borde superior que viene del td */
+    .table-container-users-manager .table-row-user-manager td {
+        border-top: none;
+        padding: 0;
+        font-size: 13px;
+    }
+
+    /* Primera celda — avatar + nombre */
+    .table-container-users-manager .user-manager-table-cell {
+        align-items: center;
+        gap: 10px;
+    }
+
+    /* Separador entre secciones de la carta */
+    .table-container-users-manager .table-row-user-manager td:not(:first-child) {
+        padding-top: 10px;
+        border-top: 1px solid #f3f4f6;
+    }
+
+    /* Email */
+    .table-container-users-manager .table-row-user-manager td:nth-child(2)::before {
+        content: 'Email: ';
+        font-size: 11px;
+        font-weight: 600;
+        color: #9ca3af;
+        text-transform: uppercase;
+        display: block;
+        margin-bottom: 2px;
+    }
+
+    /* Rol */
+    .table-container-users-manager .table-row-user-manager td:nth-child(3)::before {
+        content: 'Rol: ';
+        font-size: 11px;
+        font-weight: 600;
+        color: #9ca3af;
+        text-transform: uppercase;
+        display: block;
+        margin-bottom: 4px;
+    }
+
+    /* Estado */
+    .table-container-users-manager .table-row-user-manager td:nth-child(4)::before {
+        content: 'Estado: ';
+        font-size: 11px;
+        font-weight: 600;
+        color: #9ca3af;
+        text-transform: uppercase;
+        display: block;
+        margin-bottom: 4px;
+    }
+
+    /* Acciones — fila horizontal */
+    .table-container-users-manager .table-row-user-manager td:last-child {
+        padding-top: 12px;
+        border-top: 1px solid #f3f4f6;
+    }
+
+    .table-container-users-manager .header-right-user-manager {
+        justify-content: flex-end;
+        gap: 8px;
+    }
+
+    /* Header en móvil — apilado */
+    .users-manager-main {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .users-manager-main .button-primary.size-adjustment {
+        width: 100%;
     }
 }
 
