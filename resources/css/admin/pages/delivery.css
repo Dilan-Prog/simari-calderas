@@ -1,0 +1,80 @@
+/* ════════════════════════════════════════
+   DELIVERY PAGE
+════════════════════════════════════════ */
+/*
+Delivery cards 
+ */
+.card-btn-edit {
+    height: 40px;
+    padding: 0 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    border: 1px solid #3b82f6; 
+    color: #3b82f6;
+    background: transparent;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background .2s;
+    white-space: nowrap;
+    flex-grow: 1;
+}
+.card-btn-edit:hover {
+    background: rgba(59, 130, 246, 0.1);
+}
+
+.card-btn-delete {
+    height: 40px;
+    width: 40px; 
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #ef4444; 
+    color: #ef4444;
+    background: transparent;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background .2s;
+    flex-shrink: 0;
+}
+.card-btn-delete:hover {
+    background: rgba(239, 68, 68, 0.1);
+}
+
+/* ============================================================
+pop up modals 
+============================================================ */
+.delivery-modal-overlay {
+    display: none; 
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+}
+
+
+.delivery-modal-overlay.active {
+    display: flex;
+}
+
+
+.delivery-modal-content {
+    background: #fff;
+    border-radius: 16px;
+    width: 100%;
+    max-width: 500px;
+    box-shadow: 0 14px 38px rgba(0, 0, 0, 0.16);
+    font-family: var(--font-family);
+    animation: modalIn 0.2s ease-out;
+}
+
+@keyframes modalIn {
+    from { transform: scale(0.95); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}

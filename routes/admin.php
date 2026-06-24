@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Backend\BrandController;
 use App\Http\Controllers\Backend\RoleController;
 use App\Http\Controllers\Backend\SupplierManageController;
+use App\Http\Controllers\Backend\DeliveryController;
 
 // ============================================================
 // Dashboard — sin permiso, todos los usuarios autenticados
@@ -202,4 +203,15 @@ Route::controller(GoogleAdsController::class)
         Route::get('/', 'index')->name('index');
         Route::get('/datatable', 'datatable')->name('datatable');
         Route::get('/{id}', 'show')->name('show');
+    });
+// ============================================================
+// Paqueterías 
+// ============================================================
+Route::controller(DeliveryController::class)
+    -> middleware('permission:carriers')
+    ->prefix('deliveries')
+    ->name('deliveries.')
+    ->group(function () {
+        Route::get('/', 'index')->name('index');
+        
     });
