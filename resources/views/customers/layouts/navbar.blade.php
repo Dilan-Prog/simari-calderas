@@ -13,7 +13,7 @@
             <div class="admin-breadcrumb">
                 <strong>Panel de Control</strong>
                 <span class="bc-sep">/</span>
-                <span class="bc-current" id="breadcrumbSection">Usuarios</span>
+                <span class="bc-current" id="breadcrumbSection">Dashboard</span>
             </div>
         </div>
         <div class="admin-header-actions">

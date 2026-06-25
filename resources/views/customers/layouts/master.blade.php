@@ -28,13 +28,13 @@
         <div class="admin-spinner"></div>
     </div>
 
-    @include('admin.layouts.sidebar')
-    @include('admin.layouts.toast')
+    @include('customers.layouts.sidebar')
+    @include('customers.layouts.toast')
     <section class="admin-main">
-        @include('admin.layouts.navbar')
+        @include('customers.layouts.navbar')
         @yield('content')
     </section>
-    @include('admin.layouts.scripts')
+    @include('customers.layouts.scripts')
     @stack('scripts')
 </body>
 </html>

@@ -1,4 +1,4 @@
-@extends('customer.layouts.master')
+@extends('customers.layouts.master')
 @section('title')
     Dashboard - Cliente
 @endsection
