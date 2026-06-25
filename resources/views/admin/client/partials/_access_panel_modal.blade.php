@@ -5,8 +5,8 @@
         {{-- Header --}}
         <div class="access-modal-header">
             <div class="access-modal-header-text">
-                <h3 id="accessModalTitle" class="access-modal-title">Otorgar acceso al portal</h3>
-                <p class="access-modal-subtitle">Define una contraseña para que el cliente pueda iniciar sesión</p>
+                <h3 class="access-modal-title">Acceso del cliente</h3>
+                <p class="access-modal-subtitle">Controla el estado del panel y la contraseña del cliente</p>
             </div>
             <button type="button" class="access-modal-close-btn" onclick="closeAccessModal()">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
@@ -24,6 +24,21 @@
                 <p class="access-modal-customer-email" id="accessModalEmail"></p>
             </div>
         </div>
+
+        {{-- Status: client panel state --}}
+        <div class="access-status-row">
+            <div class="access-status-info">
+                <span class="access-status-label">Estado del panel</span>
+                <span id="accessStatusBadge" class="users-manager-badge status">Activo</span>
+            </div>
+            <button type="button" id="accessStatusToggleBtn" class="button-secondary size-adjustment"
+                onclick="toggleClientStatus()">
+                Desactivar panel del cliente
+            </button>
+        </div>
+
+        {{-- Section title: password reset --}}
+        <h4 id="accessPasswordSectionTitle" class="access-section-title">Restablecer contraseña</h4>
 
         {{-- Banner: already has access --}}
         <div id="accessModalExistingBanner" class="access-modal-banner hidden">
@@ -114,25 +129,27 @@
 @push('scripts')
 <script>
 (function () {
-    function openAccessModal(customerId, customerName, customerEmail, hasAccess) {
+    function openAccessModal(customerId, customerName, customerEmail, hasAccess, status) {
         document.getElementById('accessCustomerId').value = customerId;
         document.getElementById('accessModalName').textContent = customerName;
         document.getElementById('accessModalEmail').textContent = customerEmail;
         document.getElementById('accessModalAvatar').textContent = customerName.charAt(0).toUpperCase();
 
-        const title      = document.getElementById('accessModalTitle');
-        const submitText = document.getElementById('accessSubmitText');
-        const banner     = document.getElementById('accessModalExistingBanner');
+        const sectionTitle = document.getElementById('accessPasswordSectionTitle');
+        const submitText   = document.getElementById('accessSubmitText');
+        const banner       = document.getElementById('accessModalExistingBanner');
 
         if (hasAccess) {
-            title.textContent      = 'Restablecer contraseña';
-            submitText.textContent = 'Actualizar contraseña';
+            sectionTitle.textContent = 'Restablecer contraseña';
+            submitText.textContent   = 'Actualizar contraseña';
             banner.classList.remove('hidden');
         } else {
-            title.textContent      = 'Otorgar acceso al portal';
-            submitText.textContent = 'Otorgar acceso';
+            sectionTitle.textContent = 'Otorgar acceso al portal';
+            submitText.textContent   = 'Otorgar acceso';
             banner.classList.add('hidden');
         }
+
+        renderClientStatus(status || 'inactive');
 
         document.getElementById('accessPassword').value             = '';
         document.getElementById('accessPasswordConfirmation').value = '';
@@ -143,6 +160,65 @@
 
     function closeAccessModal() {
         document.getElementById('accessModalOverlay').classList.remove('active');
+    }
+
+    function renderClientStatus(status) {
+        const badge      = document.getElementById('accessStatusBadge');
+        const toggleBtn  = document.getElementById('accessStatusToggleBtn');
+        const labels     = { active: 'Activo', inactive: 'Inactivo', suspended: 'Suspendido' };
+        const classes    = { active: 'status', inactive: 'status-inactive', suspended: 'status-suspended' };
+
+        badge.dataset.status = status;
+        badge.textContent    = labels[status] || labels.inactive;
+        badge.className      = 'users-manager-badge ' + (classes[status] || classes.inactive);
+
+        toggleBtn.textContent = status === 'active'
+            ? 'Desactivar panel del cliente'
+            : 'Activar panel del cliente';
+    }
+
+    async function toggleClientStatus() {
+        const customerId = document.getElementById('accessCustomerId').value;
+        const badge      = document.getElementById('accessStatusBadge');
+        const toggleBtn  = document.getElementById('accessStatusToggleBtn');
+        const newStatus  = badge.dataset.status === 'active' ? 'inactive' : 'active';
+
+        toggleBtn.disabled = true;
+
+        try {
+            const response = await fetch(`/admin/clientes/${customerId}/estado`, {
+                method: 'PATCH',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                },
+                body: JSON.stringify({ status: newStatus }),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                showClientToast(data.message || 'Ocurrió un error', 'error');
+                return;
+            }
+
+            renderClientStatus(data.status);
+            showClientToast(data.message);
+
+            const tableBadge = document.getElementById(`statusBadge-${customerId}`);
+            if (tableBadge) {
+                const classes = { active: 'status', inactive: 'status-inactive', suspended: 'status-suspended' };
+                const labels  = { active: 'Activo', inactive: 'Inactivo', suspended: 'Suspendido' };
+                tableBadge.dataset.status = data.status;
+                tableBadge.textContent    = labels[data.status];
+                tableBadge.className      = 'users-manager-badge ' + classes[data.status];
+            }
+        } catch (err) {
+            showClientToast('Error de conexión. Intenta de nuevo.', 'error');
+        } finally {
+            toggleBtn.disabled = false;
+        }
     }
 
     function clearAccessErrors() {
@@ -264,6 +340,7 @@
     window.openAccessModal  = openAccessModal;
     window.closeAccessModal = closeAccessModal;
     window.toggleAccessPassword = toggleAccessPassword;
+    window.toggleClientStatus = toggleClientStatus;
 })();
 </script>
 @endpush

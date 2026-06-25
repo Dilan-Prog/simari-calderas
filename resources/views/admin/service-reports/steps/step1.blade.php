@@ -1,126 +1,12 @@
-@extends('admin.layouts.master')
+﻿@extends('admin.layouts.master')
 @section('title', 'Reporte ' . $report->report_number . ' — Paso 1')
 
 @push('styles')
-<style>
-    .sr-create-wrap { font-family: 'Inter', sans-serif; background: #F8F9FA; flex: 1; overflow-y: auto; padding: 32px 32px 48px; }
-
-    /* Progress bar */
-    .sr-progress { display: flex; align-items: center; background: #fff; border-radius: 8px;
-                   box-shadow: 0 1px 2px rgba(0,0,0,.06); padding: 20px 24px; margin-bottom: 24px; gap: 0; }
-    .sr-step-item { display: flex; flex-direction: column; align-items: center; flex: 1; position: relative; }
-    .sr-step-item:not(:last-child)::after {
-        content: ''; position: absolute; top: 16px; left: 60%; width: 80%; height: 2px;
-        background: #E5E7EB; z-index: 0;
-    }
-    .sr-step-item.done::after, .sr-step-item.active::after { background: #ff6213; }
-    .sr-step-circle {
-        width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center;
-        justify-content: center; font-size: 13px; font-weight: 600; z-index: 1;
-        border: 2px solid #E5E7EB; background: #fff; color: #9CA3AF;
-    }
-    .sr-step-item.active  .sr-step-circle { border-color: #ff6213; background: #ff6213; color: #fff; }
-    .sr-step-item.done    .sr-step-circle { border-color: #ff6213; background: #fff; color: #ff6213; }
-    .sr-step-label { font-size: 11px; color: #9CA3AF; margin-top: 6px; text-align: center; white-space: nowrap; }
-    .sr-step-item.active .sr-step-label, .sr-step-item.done .sr-step-label { color: #374151; }
-
-    /* Form card */
-    .sr-form-card { background: #fff; border-radius: 8px; box-shadow: 0 1px 2px rgba(0,0,0,.06); }
-    .sr-form-header { padding: 20px 24px; border-bottom: 1px solid #F3F4F6; }
-    .sr-form-header h2 { margin: 0 0 4px; font-size: 16px; font-weight: 600; color: #111827; }
-    .sr-form-header p  { margin: 0; font-size: 13px; color: #6B7280; }
-    .sr-form-body  { padding: 24px; }
-    .sr-form-footer { padding: 16px 24px; border-top: 1px solid #F3F4F6;
-                      display: flex; justify-content: space-between; align-items: center; gap: 12px; }
-
-    /* Field groups */
-    .sr-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-    .sr-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
-    .sr-full   { grid-column: 1 / -1; }
-    .sr-section-title { font-size: 13px; font-weight: 600; color: #374151; text-transform: uppercase;
-                        letter-spacing: .05em; padding: 16px 0 8px; border-bottom: 1px solid #F3F4F6;
-                        margin-bottom: 16px; grid-column: 1 / -1; }
-    .sr-field { display: flex; flex-direction: column; gap: 6px; }
-    .sr-label { font-size: 13px; font-weight: 500; color: #374151; }
-    .sr-label .sr-req { color: #ff6213; }
-    .sr-input, .sr-select, .sr-textarea {
-        height: 40px; padding: 0 12px; border-radius: 6px; border: 1px solid #D1D5DB;
-        font-size: 13px; font-family: 'Inter', sans-serif; color: #111827;
-        background: #fff; outline: none; width: 100%; box-sizing: border-box;
-        transition: border-color .15s, box-shadow .15s;
-    }
-    .sr-textarea { height: auto; padding: 10px 12px; resize: vertical; }
-    .sr-input:focus, .sr-select:focus, .sr-textarea:focus {
-        border-color: #ff6213; box-shadow: 0 0 0 3px rgba(255,98,19,.12);
-    }
-    .sr-select { appearance: none; -webkit-appearance: none; cursor: pointer; }
-    .sr-select-wrap { position: relative; }
-    .sr-select-wrap::after {
-        content: ''; pointer-events: none; position: absolute; right: 12px; top: 50%;
-        transform: translateY(-50%); border: 5px solid transparent;
-        border-top-color: #6B7280; margin-top: 3px;
-    }
-    .sr-input.is-invalid, .sr-select.is-invalid { border-color: #DC2626; }
-    .sr-error { font-size: 12px; color: #DC2626; }
-    .sr-hint  { font-size: 12px; color: #9CA3AF; }
-
-    /* Customer dropdown */
-    .sr-client-select-wrap { position: relative; }
-    .sr-client-dropdown {
-        position: absolute; z-index: 50; top: calc(100% + 4px); left: 0; right: 0;
-        background: #fff; border: 1px solid #E5E7EB; border-radius: 6px;
-        box-shadow: 0 4px 16px rgba(0,0,0,.12); max-height: 240px; overflow-y: auto;
-    }
-    .sr-client-dropdown__item {
-        padding: 10px 14px; cursor: pointer; border-bottom: 1px solid #F3F4F6; transition: background .1s;
-    }
-    .sr-client-dropdown__item:last-child { border-bottom: none; }
-    .sr-client-dropdown__item:hover { background: #FFF7ED; }
-    .sr-client-dropdown__item.hidden { display: none; }
-    .sr-client-dropdown__name    { display: block; font-size: 13px; font-weight: 600; color: #111827; }
-    .sr-client-dropdown__company { display: block; font-size: 12px; color: #6B7280; }
-    .sr-client-dropdown__empty   { padding: 10px 14px; font-size: 13px; color: #9CA3AF; }
-
-    /* Buttons */
-    .sr-btn-primary {
-        height: 40px; padding: 0 20px; border-radius: 8px; background: #ff6213; color: #fff;
-        font-size: 13px; font-weight: 500; font-family: 'Inter', sans-serif;
-        border: none; cursor: pointer; transition: background .15s;
-    }
-    .sr-btn-primary:hover { background: #de4a00; }
-    .sr-btn-outline {
-        height: 40px; padding: 0 20px; border-radius: 8px; border: 1px solid #D1D5DB;
-        background: #fff; color: #374151; font-size: 13px; font-family: 'Inter', sans-serif;
-        cursor: pointer; transition: background .15s; text-decoration: none; display: inline-flex; align-items: center;
-    }
-    .sr-btn-outline:hover { background: #F9FAFB; }
-
-    @media (max-width: 1023px) {
-        .sr-create-wrap { padding: 16px 16px 100px; }
-        .sr-grid-2, .sr-grid-3 { grid-template-columns: 1fr; }
-        .sr-step-label { display: none; }
-        .sr-progress { padding: 12px 16px; overflow-x: auto; }
-        .sr-form-card { max-height: none; overflow-y: visible; }
-        .sr-form-body  { overflow-y: visible; }
-        .sr-input, .sr-select { height: 48px; font-size: 16px; }
-        .sr-textarea { font-size: 16px; }
-        .sr-form-footer {
-            position: sticky; bottom: 0; background: #fff; z-index: 20;
-            box-shadow: 0 -4px 12px rgba(0,0,0,0.08);
-            padding: 12px 16px; margin: 0 -24px;
-            flex-direction: column-reverse; gap: 8px;
-        }
-        .sr-btn-primary, .sr-btn-outline {
-            width: 100%; height: 52px; justify-content: center;
-            text-align: center; font-size: 15px;
-        }
-        .sr-btn-outline { display: flex; }
-    }
-</style>
+    @vite('resources/css/service-reports.css')
 @endpush
 
 @section('content')
-<div class="sr-create-wrap">
+<div class="sr-create-wrap sr-page-step1">
 
     {{-- Breadcrumb --}}
     <div style="font-size:12px; color:#6B7280; margin-bottom:16px; display:flex; align-items:center; gap:6px;">

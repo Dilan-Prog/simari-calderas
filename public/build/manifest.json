@@ -5,7 +5,7 @@
     "isEntry": true
   },
   "resources/css/admin/app.css": {
-    "file": "assets/app-ZL751Tg6.css",
+    "file": "assets/app-MjXjtQ81.css",
     "src": "resources/css/admin/app.css",
     "isEntry": true
   },
@@ -15,13 +15,18 @@
     "isEntry": true
   },
   "resources/css/admin/technical-services.css": {
-    "file": "assets/technical-services-yqRE98em.css",
+    "file": "assets/technical-services-C7PVQOPz.css",
     "src": "resources/css/admin/technical-services.css",
     "isEntry": true
   },
   "resources/css/app.css": {
     "file": "assets/app-Cd7BWfNo.css",
     "src": "resources/css/app.css",
+    "isEntry": true
+  },
+  "resources/css/service-reports.css": {
+    "file": "assets/service-reports-bxERy6gF.css",
+    "src": "resources/css/service-reports.css",
     "isEntry": true
   },
   "resources/js/admin-quotes.js": {
