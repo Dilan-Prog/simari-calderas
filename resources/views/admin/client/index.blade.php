@@ -21,7 +21,7 @@
                         Administra la información de tus clientes B2B
                     </p>
                 </div>
-                
+
                 <button class="button-primary size-adjustment clients">
                     + Nuevo Cliente
                 </button>
@@ -147,16 +147,32 @@
                                                 $statusClass = match ($customer->status) {
                                                     'active' => 'status',
                                                     'inactive' => 'status-inactive',
-                                                    'suspended' => 'status-inactive',
+                                                    'suspended' => 'status-suspended',
                                                     default => 'status',
                                                 };
                                             @endphp
                                             <span class="users-manager-badge {{ $statusClass }}"
+                                                id="statusBadge-{{ $customer->id }}"
                                                 data-status="{{ $customer->status }}">{{ $statusLabel }}</span>
                                         </td>
 
                                         <td>
                                             <div class="header-right-user-manager buttons">
+                                                @php $hasAccess = !empty($customer->password_hash); @endphp
+                                                <button type="button"
+                                                    class="table-users-manager-action-btn access_panel {{ $hasAccess ? 'access-granted' : '' }}"
+                                                    title="{{ $hasAccess ? 'Restablecer contraseña del portal' : 'Otorgar acceso al portal' }}"
+                                                    data-customer-id="{{ $customer->id }}"
+                                                    data-has-access="{{ $hasAccess ? 'true' : 'false' }}"
+                                                    onclick="openAccessModal({{ $customer->id }}, '{{ addslashes($customer->first_name . ' ' . $customer->last_name) }}', '{{ addslashes($customer->email) }}', {{ $hasAccess ? 'true' : 'false' }}, '{{ $customer->status }}')">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+                                                        viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                                        class="lucide lucide-lock">
+                                                        <rect width="18" height="11" x="3" y="11" rx="2" ry="2"/>
+                                                        <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                                                    </svg>
+                                                </button>
                                                 <button class="table-users-manager-action-btn edit"
                                                     onclick="window.location='{{ route('admin.clients.information', $customer->id) }}'">
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
@@ -211,6 +227,7 @@
                     </div>
                 </div>
             </main>
+            @include('admin.client.partials._access_panel_modal')
             @include('admin.client.partials._modal_create')
             @include('admin.client.partials._edit_modal')
             @include('admin.client.partials._scripts')

@@ -18,10 +18,14 @@ window.__tsConfig = {
     saveUrl: "{{ $saveUrl }}",
     stepUrl: "{{ $stepUrl }}",
     indexUrl: "{{ $indexUrl }}",
-    searchTechUrl: "{{ $searchUrl }}"
+    searchTechUrl: "{{ $searchUrl }}",
+    technicalServicesBaseUrl: "{{ url('/admin/technical-services') }}",
+    serviceId: {{ $isEdit ? $service->id : 'null' }},
+    currentUrl: window.location.pathname
 };
 </script>
 <form id="ts-wizard-form">
+    <input type="hidden" name="draft_token" id="ts-draft-token" value="{{ old('draft_token') }}">
 
     <div class="ts-card">
         <h2 class="ts-card__title">Datos Generales</h2>

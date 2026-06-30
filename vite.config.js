@@ -18,6 +18,8 @@ export default defineConfig({
                 'resources/js/admin/technical-services.js',
                 'resources/css/admin/roles.css',
                 'resources/css/admin/pages/delivery.css',
+                'resources/css/service-reports.css',
+                
             ],
             refresh: true,
         }),

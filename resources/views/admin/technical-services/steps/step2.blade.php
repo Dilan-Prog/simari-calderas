@@ -43,7 +43,7 @@ window.__tsConfig = {
                 @php $techName = trim($tech->first_name . ' ' . $tech->last_name); @endphp
                 <button type="button"
                         onclick="TechnicalServices.addTechnician({{ $tech->id }}, '{{ addslashes($techName) }}', '{{ addslashes($tech->position ?? $tech->email ?? '') }}')"
-                        class="ts-btn" style="height:32px;font-size:0.75rem">
+                        class="ts-btn ts-tech-fallback-btn">
                     <div class="ts-tech-avatar" style="width:20px;height:20px;font-size:0.5625rem">
                         {{ mb_strtoupper(mb_substr($techName, 0, 1)) }}
                     </div>

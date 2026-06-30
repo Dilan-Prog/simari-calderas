@@ -54,12 +54,9 @@
 
     {{-- ── Layout ─────────────────────────────────────── --}}
     <div class="quotes-layout">
-
         {{-- ════ MAIN: Quote preview (PDF-style) ════ --}}
         <div class="quotes-main">
-
             <div class="quote-preview">
-
                 {{-- Encabezado oscuro del documento --}}
                 <div class="quote-preview__header--dark">
                     <div>

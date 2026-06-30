@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Backend;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\Delivery;
 
 class DeliveryController extends Controller
 {
@@ -12,31 +13,18 @@ class DeliveryController extends Controller
      */
    public function index()
 {
-    $paqueterias = [];
-    
-    // Lista de nombres reales para que el jefe lo vea más profesional
-    $nombresBase = ['FedEx', 'DHL', 'Estafeta', 'UPS', 'MercadoLibre', 'Redpack', 'Castores', 'Tresguerras'];
+   $deliveries = Delivery::get([
+        'id', 
+        'name', 
+        'code', 
+        'tracking_url_template', 
+        'phone', 
+        'website', 
+        'is_active', 
+        'created_at'
+    ]);
 
-    // Ciclo que da 30 vueltas para crear 30 registros
-    for ($i = 1; $i <= 30; $i++) {
-        
-       
-        $nombreAleatorio = $nombresBase[array_rand($nombresBase)];
-
-        $paqueterias[] = (object) [
-            'id' => $i,
-            
-            'nombre' => $nombreAleatorio . ' #' . $i,
-            
-            'tiempo_entrega' => rand(1, 3) . '-' . rand(4, 7) . ' días',
-           
-            'cobertura' => ($i % 3 == 0) ? 'Local' : 'Nacional',
-            
-            'estado' => ($i % 4 == 0) ? 'Inactiva' : 'Activa'
-        ];
-    }
-
-    return view('admin.delivery.index', compact('paqueterias'));
+    return view('admin.delivery.index', compact('deliveries'));
 }
 
     /**
@@ -53,6 +41,24 @@ class DeliveryController extends Controller
     public function store(Request $request)
     {
         //
+        $request->validate([
+        'name'                  => 'required|string|max:120|unique:carriers,name',
+        'code'                  => 'required|string|max:50|unique:carriers,code',
+        'tracking_url_template' => 'nullable|string|max:255',
+        'phone'                 => 'nullable|string|max:30',
+        'website'               => 'nullable|string|max:255',
+    ]);
+
+    $delivery = new Delivery;
+    $delivery->name = $request->name;
+    $delivery->code = $request->code;
+    $delivery->tracking_url_template = $request->tracking_url_template;
+    $delivery->phone = $request->phone;
+    $delivery->website = $request->website;
+    $delivery->is_active = $request->is_active;
+    $delivery->save();
+    return redirect()->route('admin.deliveries.index')
+                     ->with('success', 'Paquetería creada correctamente.');
     }
 
     /**
@@ -76,7 +82,33 @@ class DeliveryController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+    
+    $delivery = Delivery::findOrFail($id);
+
+    
+    $request->validate([
+        'name'                  => 'required|string|max:120|unique:carriers,name,' . $id,
+        'code'                  => 'required|string|max:50|unique:carriers,code,' . $id,
+        'tracking_url_template' => 'nullable|string|max:255',
+        'phone'                 => 'nullable|string|max:30',
+        'website'               => 'nullable|string|max:255',
+        'is_active'             => 'required|in:1,0',
+    ]);
+
+    
+    $delivery->name = $request->name;
+    $delivery->code = $request->code;
+    $delivery->tracking_url_template = $request->tracking_url_template;
+    $delivery->phone = $request->phone;
+    $delivery->website = $request->website;
+    $delivery->is_active = $request->is_active;
+    
+    
+    $delivery->save();
+
+
+    return redirect()->route('admin.deliveries.index')
+                     ->with('success', 'Paquetería actualizada correctamente.');    
     }
 
     /**
@@ -84,6 +116,9 @@ class DeliveryController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $delivery = Delivery::findOrFail($id);
+        $delivery->delete();
+
+        return redirect()->route('admin.deliveries.index')->with('success', 'Paquetería eliminada correctamente.');
     }
 }

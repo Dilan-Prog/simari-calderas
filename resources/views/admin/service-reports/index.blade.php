@@ -1,591 +1,9 @@
-@extends('admin.layouts.master')
+﻿@extends('admin.layouts.master')
 @section('title', 'Reportes de Servicio')
 
 @push('styles')
-<style>
-    :root {
-        --background-primary:           #141516;
-        --background-primary-white:     #F8F9FA;
-        --background--white:            #ffffff;
-        --header-footer-color:          #1A2535;
-        --border-header-footer-color:   #2E3A46;
-        --text-white-color:             #ffffff;
-        --text-subwhite-color:          #D1D5DC;
-        --text-description-color:       #6B7280;
-        --secondary-color:              #ff6213;
-        --button-primary-color:         #ff6213;
-        --button-primary-color-hover:   #de4a00;
-        --font-family:                  'Inter', sans-serif;
-        --shadow-sm:                    0 1px 2px rgba(0, 0, 0, 0.06);
-        --shadow-md:                    0 10px 20px rgba(0, 0, 0, 0.1);
-    }
-
-    .sr-wrapper {
-        font-family: var(--font-family);
-        background-color: var(--background-primary-white);
-        min-height: 100%;
-        padding: 32px;
-    }
-
-    /* ── PAGE HEADER ── */
-    .sr-page-header {
-        display: flex;
-        align-items: flex-start;
-        justify-content: space-between;
-        gap: 16px;
-        margin-bottom: 24px;
-    }
-
-    .sr-breadcrumb {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        font-size: 12px;
-        color: var(--text-description-color);
-        margin-bottom: 8px;
-    }
-
-    .sr-breadcrumb span.sr-breadcrumb-current {
-        color: #374151;
-        font-weight: 500;
-    }
-
-    .sr-page-title {
-        font-size: 24px;
-        font-weight: 700;
-        color: #111827;
-        line-height: 1.25;
-        margin: 0 0 4px 0;
-    }
-
-    .sr-page-subtitle {
-        font-size: 14px;
-        color: var(--text-description-color);
-        margin: 0;
-    }
-
-    .sr-btn-new {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        height: 40px;
-        padding: 0 16px;
-        border-radius: 8px;
-        background-color: var(--button-primary-color);
-        color: var(--text-white-color);
-        font-size: 13px;
-        font-weight: 500;
-        font-family: var(--font-family);
-        border: none;
-        cursor: pointer;
-        box-shadow: var(--shadow-md);
-        text-decoration: none;
-        white-space: nowrap;
-        transition: background-color 0.15s ease;
-    }
-
-    .sr-btn-new:hover {
-        background-color: var(--button-primary-color-hover);
-        color: var(--text-white-color);
-        text-decoration: none;
-    }
-
-    /* ── FILTERS ── */
-    .sr-filters {
-        background-color: var(--background--white);
-        border-radius: 8px;
-        box-shadow: var(--shadow-sm);
-        padding: 16px;
-        margin-bottom: 24px;
-    }
-
-    .sr-filters-grid {
-        display: grid;
-        grid-template-columns: 4fr 2fr 2fr 3fr 1fr;
-        gap: 12px;
-        align-items: center;
-    }
-
-    .sr-input-wrap {
-        position: relative;
-    }
-
-    .sr-input-wrap .sr-input-icon {
-        position: absolute;
-        left: 12px;
-        top: 50%;
-        transform: translateY(-50%);
-        color: #9CA3AF;
-        pointer-events: none;
-        display: flex;
-        align-items: center;
-    }
-
-    .sr-input {
-        width: 100%;
-        height: 40px;
-        padding: 0 12px 0 36px;
-        border-radius: 6px;
-        border: 1px solid #D1D5DB;
-        font-size: 13px;
-        font-family: var(--font-family);
-        color: #111827;
-        background-color: var(--background--white);
-        outline: none;
-        box-sizing: border-box;
-        transition: border-color 0.15s ease, box-shadow 0.15s ease;
-    }
-
-    .sr-input::placeholder {
-        color: #9CA3AF;
-    }
-
-    .sr-input:focus {
-        border-color: var(--secondary-color);
-        box-shadow: 0 0 0 3px rgba(255, 98, 19, 0.12);
-    }
-
-    .sr-select-wrap {
-        position: relative;
-    }
-
-    .sr-select-wrap .sr-select-icon {
-        position: absolute;
-        right: 12px;
-        top: 50%;
-        transform: translateY(-50%);
-        color: #6B7280;
-        pointer-events: none;
-        display: flex;
-        align-items: center;
-    }
-
-    .sr-select {
-        width: 100%;
-        height: 40px;
-        padding: 0 32px 0 12px;
-        border-radius: 6px;
-        border: 1px solid #D1D5DB;
-        font-size: 13px;
-        font-family: var(--font-family);
-        color: #111827;
-        background-color: var(--background--white);
-        outline: none;
-        appearance: none;
-        -webkit-appearance: none;
-        cursor: pointer;
-        box-sizing: border-box;
-        transition: border-color 0.15s ease, box-shadow 0.15s ease;
-    }
-
-    .sr-select:focus {
-        border-color: var(--secondary-color);
-        box-shadow: 0 0 0 3px rgba(255, 98, 19, 0.12);
-    }
-
-    .sr-date-btn {
-        width: 100%;
-        height: 40px;
-        border-radius: 6px;
-        border: 1px solid #D1D5DB;
-        background-color: var(--background--white);
-        font-size: 13px;
-        font-family: var(--font-family);
-        color: #9CA3AF;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        padding: 0 12px;
-        cursor: pointer;
-        outline: none;
-        transition: border-color 0.15s ease;
-        box-sizing: border-box;
-    }
-
-    .sr-date-btn:hover,
-    .sr-date-btn:focus {
-        border-color: var(--secondary-color);
-    }
-
-    .sr-date-btn:hover .sr-date-cal-icon,
-    .sr-date-btn:focus .sr-date-cal-icon {
-        color: var(--secondary-color);
-    }
-
-    .sr-date-btn span {
-        flex: 1;
-        text-align: left;
-    }
-
-    .sr-date-cal-icon {
-        color: #9CA3AF;
-        display: flex;
-        align-items: center;
-        flex-shrink: 0;
-        transition: color 0.15s ease;
-    }
-
-    .sr-date-chev-icon {
-        color: #6B7280;
-        display: flex;
-        align-items: center;
-        flex-shrink: 0;
-    }
-
-    .sr-btn-filter {
-        width: 100%;
-        height: 40px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 6px;
-        border: 1px solid var(--secondary-color);
-        color: var(--secondary-color);
-        background-color: transparent;
-        font-family: var(--font-family);
-        cursor: pointer;
-        transition: background-color 0.15s ease;
-        box-sizing: border-box;
-    }
-
-    .sr-btn-filter:hover {
-        background-color: #FFF7ED;
-    }
-
-    /* ── TABLE CARD ── */
-    .sr-table-card {
-        background-color: var(--background--white);
-        border-radius: 8px;
-        box-shadow: var(--shadow-sm);
-        overflow: hidden;
-    }
-
-    .sr-table-scroll {
-        overflow-x: auto;
-    }
-
-    .sr-table {
-        width: 100%;
-        border-collapse: collapse;
-    }
-
-    .sr-table thead tr {
-        background-color: var(--header-footer-color);
-        height: 44px;
-    }
-
-    .sr-table thead th {
-        padding: 0 20px;
-        text-align: left;
-        font-size: 12px;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-        color: var(--text-subwhite-color);
-        white-space: nowrap;
-    }
-
-    .sr-table tbody tr {
-        height: 52px;
-        border-bottom: 1px solid #F3F4F6;
-        cursor: pointer;
-        transition: background-color 0.15s ease;
-    }
-
-    .sr-table tbody tr:last-child {
-        border-bottom: none;
-    }
-
-    .sr-table tbody tr:hover {
-        background-color: rgba(255, 247, 237, 0.5);
-    }
-
-    .sr-table tbody td {
-        padding: 0 20px;
-        vertical-align: middle;
-    }
-
-    .sr-folio-link {
-        font-size: 13px;
-        font-weight: 600;
-        color: var(--secondary-color);
-        text-decoration: none;
-        font-variant-numeric: tabular-nums;
-    }
-
-    .sr-folio-link:hover {
-        text-decoration: underline;
-        color: var(--secondary-color);
-    }
-
-    .sr-td-client {
-        font-size: 14px;
-        color: #111827;
-        font-weight: 500;
-    }
-
-    .sr-td-type,
-    .sr-td-assigned {
-        font-size: 13px;
-        color: #374151;
-    }
-
-    .sr-td-date {
-        font-size: 13px;
-        color: var(--text-description-color);
-    }
-
-    /* ── BADGES ── */
-    .sr-badge {
-        display: inline-flex;
-        align-items: center;
-        padding: 4px 10px;
-        border-radius: 4px;
-        font-size: 12px;
-        font-weight: 500;
-        border: 1px solid;
-        white-space: nowrap;
-    }
-
-    .sr-badge--draft {
-        background-color: #F3F4F6;
-        color: #6B7280;
-        border-color: #D1D5DB;
-    }
-
-    .sr-badge--in-progress {
-        background-color: #EFF6FF;
-        color: #3B82F6;
-        border-color: #BFDBFE;
-    }
-
-    .sr-badge--completed {
-        background-color: #F0FDF4;
-        color: #16A34A;
-        border-color: #BBF7D0;
-    }
-
-    .sr-badge--signed {
-        background-color: #F5F3FF;
-        color: #7C3AED;
-        border-color: #DDD6FE;
-    }
-
-    /* ── ACTION BUTTONS ── */
-    .sr-actions {
-        display: flex;
-        align-items: center;
-        gap: 4px;
-    }
-
-    .sr-action-btn {
-        width: 32px;
-        height: 32px;
-        border-radius: 6px;
-        border: none;
-        background-color: transparent;
-        color: #6B7280;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        transition: background-color 0.15s ease, color 0.15s ease;
-        text-decoration: none;
-        flex-shrink: 0;
-    }
-
-    .sr-action-btn:hover {
-        background-color: #F3F4F6;
-        color: var(--secondary-color);
-    }
-
-    .sr-action-btn--delete:hover {
-        background-color: #FEF2F2;
-        color: #DC2626;
-    }
-
-    .sr-action-btn--delete {
-        color: #6B7280;
-    }
-
-    /* ── EMPTY STATE ── */
-    .sr-empty-state {
-        padding: 64px 24px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-        gap: 12px;
-    }
-
-    .sr-empty-state svg {
-        color: #D1D5DB;
-    }
-
-    .sr-empty-state p {
-        font-size: 14px;
-        color: var(--text-description-color);
-        margin: 0;
-    }
-
-    /* ── PAGINATION ── */
-    .sr-pagination {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 16px 20px;
-        border-top: 1px solid #F3F4F6;
-    }
-
-    .sr-pagination-info {
-        font-size: 13px;
-        color: var(--text-description-color);
-    }
-
-    .sr-pagination-info strong {
-        font-weight: 600;
-        color: #111827;
-    }
-
-    .sr-pagination-nav {
-        display: flex;
-        align-items: center;
-        gap: 4px;
-    }
-
-    .sr-page-btn {
-        width: 32px;
-        height: 32px;
-        border-radius: 6px;
-        border: 1px solid #D1D5DB;
-        background-color: transparent;
-        color: #6B7280;
-        font-size: 13px;
-        font-family: var(--font-family);
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        text-decoration: none;
-        transition: background-color 0.15s ease;
-    }
-
-    .sr-page-btn:hover {
-        background-color: #F9FAFB;
-        color: #374151;
-        text-decoration: none;
-    }
-
-    .sr-page-btn--active {
-        background-color: var(--secondary-color);
-        border-color: var(--secondary-color);
-        color: var(--text-white-color);
-        font-weight: 500;
-    }
-
-    .sr-page-btn--active:hover {
-        background-color: var(--button-primary-color-hover);
-        color: var(--text-white-color);
-    }
-
-    .sr-page-btn:disabled {
-        opacity: 0.45;
-        cursor: not-allowed;
-        pointer-events: none;
-    }
-
-    /* Laravel default pagination override */
-    .sr-pagination-nav .pagination {
-        display: flex;
-        align-items: center;
-        gap: 4px;
-        margin: 0;
-        padding: 0;
-        list-style: none;
-    }
-
-    .sr-pagination-nav .pagination li span,
-    .sr-pagination-nav .pagination li a {
-        width: 32px;
-        height: 32px;
-        border-radius: 6px;
-        border: 1px solid #D1D5DB;
-        background-color: transparent;
-        color: #374151;
-        font-size: 13px;
-        font-family: var(--font-family);
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        text-decoration: none;
-        transition: background-color 0.15s ease;
-    }
-
-    .sr-pagination-nav .pagination li a:hover {
-        background-color: #F9FAFB;
-    }
-
-    .sr-pagination-nav .pagination li.active span {
-        background-color: var(--secondary-color);
-        border-color: var(--secondary-color);
-        color: var(--text-white-color);
-        font-weight: 500;
-    }
-
-    .sr-pagination-nav .pagination li.disabled span {
-        opacity: 0.45;
-        cursor: not-allowed;
-    }
-
-    /* ── RESPONSIVE ── */
-    @media (max-width: 1024px) {
-        .sr-filters-grid {
-            grid-template-columns: 1fr 1fr;
-        }
-
-        .sr-filters-grid > *:first-child {
-            grid-column: 1 / -1;
-        }
-
-        .sr-filters-grid > *:nth-child(5) {
-            grid-column: 1 / -1;
-        }
-    }
-
-    @media (max-width: 640px) {
-        .sr-wrapper {
-            padding: 16px;
-        }
-
-        .sr-page-header {
-            flex-direction: column;
-            align-items: flex-start;
-        }
-
-        .sr-filters-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .sr-filters-grid > * {
-            grid-column: 1 / -1;
-        }
-
-        .sr-table-scroll {
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-        }
-
-        .sr-pagination {
-            flex-direction: column;
-            gap: 12px;
-            align-items: flex-start;
-        }
-    }
-</style>
+    @vite('resources/css/service-reports.css')
 @endpush
-
 @section('content')
 <div class="sr-wrapper">
 
@@ -912,7 +330,61 @@
         @endif
     </div>
 
-</div>
+    {{-- ── MOBILE CARDS (ocultas en desktop) ── --}}
+    <div class="sr-mobile-cards">
+        @if($reports->isEmpty())
+            <div class="sr-mobile-empty">No hay reportes registrados</div>
+        @else
+            @foreach($reports as $report)
+                @php
+                    $mBadgeClass = match($report->status) {
+                        'draft'       => 'sr-badge--draft',
+                        'in_progress' => 'sr-badge--in-progress',
+                        'completed'   => 'sr-badge--completed',
+                        'signed'      => 'sr-badge--signed',
+                        default       => 'sr-badge--draft',
+                    };
+                    $mBadgeLabel = match($report->status) {
+                        'draft'       => 'Borrador',
+                        'in_progress' => 'En Proceso',
+                        'completed'   => 'Completado',
+                        'signed'      => 'Firmado',
+                        default       => $report->status,
+                    };
+                @endphp
+                <div class="sr-mobile-card">
+                    <div class="sr-mobile-card__top">
+                        <a href="{{ route('admin.service-reports.show', $report) }}" class="sr-mobile-card__num">
+                            {{ $report->report_number }}
+                        </a>
+                        <span class="sr-badge {{ $mBadgeClass }}">{{ $mBadgeLabel }}</span>
+                    </div>
+                    <div class="sr-mobile-card__type">{{ $report->service_type }}</div>
+                    <div class="sr-mobile-card__meta">📅 {{ $report->service_date }}</div>
+                    <div class="sr-mobile-card__company">🏢 {{ $report->customer_name }}</div>
+                    <div class="sr-mobile-card__analyst">👤 Encargado: {{ $report->assigned_user_name }}</div>
+                    <div class="sr-mobile-card__divider"></div>
+                    <div class="sr-mobile-card__footer">
+                        <a href="{{ route('admin.service-reports.show', $report) }}" class="sr-mobile-card__btn">
+                            Ver →
+                        </a>
+                    </div>
+                </div>
+            @endforeach
+        @endif
+    </div>
+
+    {{-- Botón nuevo reporte flotante en mobile --}}
+    <a href="{{ route('admin.service-reports.create') }}" class="sr-mobile-new-btn">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M5 12h14"/><path d="M12 5v14"/>
+        </svg>
+        Nuevo Reporte
+    </a>
+
+</div>{{-- /sr-wrapper --}}
+
 @endsection
 
 @push('scripts')

@@ -1,77 +1,12 @@
-@extends('admin.layouts.master')
+﻿@extends('admin.layouts.master')
 @section('title', 'Reporte ' . $report->report_number . ' — Paso 4')
 
 @push('styles')
-<style>
-    .sr-create-wrap { font-family: 'Inter', sans-serif; background: #F8F9FA; flex: 1; overflow-y: auto; padding: 32px; }
-    .sr-progress { display: flex; align-items: center; background: #fff; border-radius: 8px;
-                   box-shadow: 0 1px 2px rgba(0,0,0,.06); padding: 20px 24px; margin-bottom: 24px; }
-    .sr-step-item { display: flex; flex-direction: column; align-items: center; flex: 1; position: relative; }
-    .sr-step-item:not(:last-child)::after { content: ''; position: absolute; top: 16px; left: 60%; width: 80%; height: 2px; background: #E5E7EB; z-index: 0; }
-    .sr-step-item.done::after { background: #ff6213; }
-    .sr-step-circle { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
-                      font-size: 13px; font-weight: 600; z-index: 1; border: 2px solid #E5E7EB; background: #fff; color: #9CA3AF; }
-    .sr-step-item.active .sr-step-circle { border-color: #ff6213; background: #ff6213; color: #fff; }
-    .sr-step-item.done   .sr-step-circle { border-color: #ff6213; background: #fff; color: #ff6213; }
-    .sr-step-label { font-size: 11px; color: #9CA3AF; margin-top: 6px; text-align: center; white-space: nowrap; }
-    .sr-step-item.active .sr-step-label, .sr-step-item.done .sr-step-label { color: #374151; }
-
-    .sr-form-card { background: #fff; border-radius: 8px; box-shadow: 0 1px 2px rgba(0,0,0,.06); overflow: hidden; }
-    .sr-form-header { padding: 20px 24px; border-bottom: 1px solid #F3F4F6; }
-    .sr-form-header h2 { margin: 0 0 4px; font-size: 16px; font-weight: 600; color: #111827; }
-    .sr-form-header p  { margin: 0; font-size: 13px; color: #6B7280; }
-    .sr-form-body  { padding: 24px; }
-    .sr-form-footer { padding: 16px 24px; border-top: 1px solid #F3F4F6; display: flex; justify-content: space-between; gap: 12px; }
-
-    /* Upload zone */
-    .sr-upload-zone {
-        border: 2px dashed #D1D5DB; border-radius: 8px; padding: 32px 24px;
-        text-align: center; cursor: pointer; transition: border-color .2s, background .2s;
-        position: relative;
-    }
-    .sr-upload-zone:hover, .sr-upload-zone.drag-over { border-color: #ff6213; background: #FFF7F3; }
-    .sr-upload-zone input[type="file"] {
-        position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
-    }
-    .sr-upload-icon { color: #D1D5DB; margin-bottom: 12px; }
-    .sr-upload-zone:hover .sr-upload-icon { color: #ff6213; }
-    .sr-upload-text { font-size: 14px; font-weight: 500; color: #374151; margin: 0 0 4px; }
-    .sr-upload-hint { font-size: 12px; color: #9CA3AF; margin: 0; }
-
-    /* Image grid */
-    .sr-img-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; margin-top: 20px; }
-    .sr-img-item { position: relative; border-radius: 8px; overflow: hidden;
-                   border: 1px solid #E5E7EB; aspect-ratio: 1 / 1; background: #F9FAFB; }
-    .sr-img-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
-    .sr-img-item-new { border-style: dashed; border-color: #ff6213; }
-    .sr-img-delete { position: absolute; top: 6px; right: 6px; width: 24px; height: 24px;
-                     border-radius: 50%; background: rgba(0,0,0,.55); color: #fff; border: none;
-                     font-size: 14px; line-height: 1; cursor: pointer; display: flex; align-items: center;
-                     justify-content: center; padding: 0; transition: background .15s; }
-    .sr-img-delete:hover { background: #DC2626; }
-    .sr-img-new-badge { position: absolute; bottom: 6px; left: 6px; font-size: 10px; font-weight: 600;
-                        background: #ff6213; color: #fff; padding: 2px 6px; border-radius: 4px; }
-
-    .sr-empty-hint { text-align: center; padding: 12px 0; font-size: 13px; color: #9CA3AF; }
-
-    .sr-btn-primary { height: 40px; padding: 0 20px; border-radius: 8px; background: #ff6213; color: #fff;
-                      font-size: 13px; font-weight: 500; font-family: 'Inter', sans-serif; border: none; cursor: pointer; transition: background .15s; }
-    .sr-btn-primary:hover { background: #de4a00; }
-    .sr-btn-outline { height: 40px; padding: 0 20px; border-radius: 8px; border: 1px solid #D1D5DB;
-                      background: #fff; color: #374151; font-size: 13px; font-family: 'Inter', sans-serif;
-                      cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; }
-    .sr-btn-outline:hover { background: #F9FAFB; color: #374151; }
-
-    @media (max-width: 768px) {
-        .sr-create-wrap { padding: 16px; }
-        .sr-step-label { display: none; }
-        .sr-img-grid { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); }
-    }
-</style>
+    @vite('resources/css/service-reports.css')
 @endpush
 
 @section('content')
-<div class="sr-create-wrap">
+<div class="sr-create-wrap sr-page-step4">
 
     <div style="font-size:12px; color:#6B7280; margin-bottom:16px; display:flex; align-items:center; gap:6px;">
         <a href="{{ route('admin.service-reports.index') }}" style="color:#6B7280; text-decoration:none;">Reportes</a>
@@ -103,6 +38,31 @@
         </div>
 
         <div class="sr-form-body">
+
+            {{-- Botones cámara/galería (solo visible en mobile) --}}
+            <div class="sr-mobile-camera-section">
+                <label class="sr-camera-btn-label">
+                    <input type="file" name="images[]" accept="image/*" capture="environment"
+                           class="sr-hidden-file-input" id="cameraInput">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none"
+                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3z"/>
+                        <circle cx="12" cy="13" r="3"/>
+                    </svg>
+                    📷 Tomar foto
+                </label>
+                <label class="sr-gallery-btn-label">
+                    <input type="file" name="images[]" accept="image/*" multiple
+                           class="sr-hidden-file-input" id="galleryInput">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none"
+                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect width="18" height="18" x="3" y="3" rx="2" ry="2"/>
+                        <circle cx="9" cy="9" r="2"/>
+                        <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>
+                    </svg>
+                    🖼️ De galería
+                </label>
+            </div>
 
             {{-- Existing images --}}
             @if($images->count())
@@ -188,6 +148,13 @@
     input.addEventListener('change', function () {
         showPreviews(this.files);
     });
+
+    // Mobile camera/gallery inputs
+    var cameraInput  = document.getElementById('cameraInput');
+    var galleryInput = document.getElementById('galleryInput');
+    function handleMobileFiles(files) { showPreviews(files); }
+    if (cameraInput)  cameraInput.addEventListener('change',  function () { handleMobileFiles(this.files); });
+    if (galleryInput) galleryInput.addEventListener('change', function () { handleMobileFiles(this.files); });
 
     zone.addEventListener('dragover', function (e) {
         e.preventDefault();

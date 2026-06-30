@@ -484,7 +484,8 @@
                                     {{-- Subcategoría --}}
                                     <div class="pform-field">
                                         <label class="pform-label">Subcategoría</label>
-                                        <select class="pform-select" name="subcategory_id" id="pformCategorySub"
+                                        <select class="pform-select" id="pformCategorySub"
+                                        {{-- name="subcategory_id"  --}}
                                             {{ $product->category_id ? '' : 'disabled' }}>
                                             <option value="">Seleccionar categoría primero...</option>
                                             @if ($product->category && $product->category->children->count())

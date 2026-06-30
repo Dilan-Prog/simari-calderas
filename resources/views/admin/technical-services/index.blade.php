@@ -9,6 +9,30 @@
 @section('content')
 <div class="ts-page" id="ts-page">
 
+    {{-- Toolbar móvil (oculto en desktop) --}}
+    <div class="ts-mobile-toolbar">
+        <div class="ts-mobile-search-wrap">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+            </svg>
+            <input type="search" class="ts-mobile-search" id="ts-mobile-search" placeholder="Buscar servicio...">
+        </div>
+        <div class="ts-mobile-select-wrap">
+            <select class="ts-mobile-status-select" id="ts-mobile-status-filter">
+                <option value="">Todos los estados</option>
+                <option value="scheduled">Programado</option>
+                <option value="in_progress">En Proceso</option>
+                <option value="completed">Completado</option>
+                <option value="cancelled">Cancelado</option>
+            </select>
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m6 9 6 6 6-6"/>
+            </svg>
+        </div>
+    </div>
+
     {{-- Breadcrumb --}}
     <div class="ts-breadcrumb">
         <span>Panel de Control</span>
@@ -66,7 +90,7 @@
                 <select class="ts-select" id="ts-filter-tech">
                     <option value="">Todos los técnicos</option>
                     @foreach($technicians as $tech)
-                        <option value="{{ $tech->id }}">{{ $tech->name }}</option>
+                        <option value="{{ $tech->id }}">{{ $tech->full_name }}</option>
                     @endforeach
                 </select>
                 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
@@ -182,8 +206,8 @@
                         <td>
                             <div class="ts-table-techs">
                                 @foreach($service->assignedTechnicians->take(3) as $tech)
-                                    <div class="ts-tech-avatar" title="{{ $tech->name }}">
-                                        {{ mb_strtoupper(mb_substr($tech->name, 0, 1)) }}
+                                    <div class="ts-tech-avatar" title="{{ $tech->full_name }}">
+                                        {{ mb_strtoupper(mb_substr($tech->full_name, 0, 1)) }}
                                     </div>
                                 @endforeach
                                 @if($service->assignedTechnicians->count() > 3)
@@ -256,7 +280,69 @@
         </div>
     </div>
 
-</div>
+
+    {{-- ── MOBILE CARDS (ocultas en desktop) ─────────────────── --}}
+    <div class="ts-mobile-cards" id="ts-mobile-cards">
+    @php
+        $mStatusClasses = [
+            'scheduled'   => 'ts-badge--scheduled',
+            'in_progress' => 'ts-badge--in-progress',
+            'completed'   => 'ts-badge--completed',
+            'cancelled'   => 'ts-badge--cancelled',
+        ];
+        $mStatusLabels = [
+            'scheduled'   => 'Programado',
+            'in_progress' => 'En Proceso',
+            'completed'   => 'Completado',
+            'cancelled'   => 'Cancelado',
+        ];
+    @endphp
+    @forelse($services as $service)
+    <div class="ts-mobile-card"
+         data-status="{{ $service->status }}"
+         data-search="{{ strtolower($service->service_number . ' ' . $service->customer_name . ' ' . $service->service_type_label . ' ' . ($service->customer_company ?? '')) }}">
+        <div class="ts-mobile-card__top">
+            <span class="ts-mobile-card__num">{{ $service->service_number }}</span>
+            <span class="ts-badge {{ $mStatusClasses[$service->status] ?? '' }}">
+                {{ $mStatusLabels[$service->status] ?? $service->status }}
+            </span>
+        </div>
+        <div class="ts-mobile-card__type">{{ $service->service_type_label }}</div>
+        <div class="ts-mobile-card__meta">
+            <span>📅 {{ $service->service_date ? \Carbon\Carbon::parse($service->service_date)->format('d M Y') : '—' }}</span>
+            @if($service->service_time)
+                <span>⏰ {{ $service->service_time }}</span>
+            @endif
+        </div>
+        <div class="ts-mobile-card__company">
+            🏢 {{ $service->customer_name }}{{ $service->customer_company ? ' — ' . $service->customer_company : '' }}
+        </div>
+        <div class="ts-mobile-card__divider"></div>
+        <div class="ts-mobile-card__footer">
+            <span class="ts-mobile-card__techs">
+                👤 {{ $service->assignedTechnicians->pluck('full_name')->implode(', ') ?: 'Sin técnicos' }}
+            </span>
+            <a href="{{ route('admin.technical-services.show', $service) }}" class="ts-mobile-card__btn">
+                Ver →
+            </a>
+        </div>
+    </div>
+    @empty
+    <div class="ts-mobile-empty">
+        <p>No hay servicios registrados</p>
+    </div>
+    @endforelse
+    </div>
+
+    {{-- FAB: Nuevo Servicio (solo mobile) --}}
+    <a href="{{ route('admin.technical-services.create') }}" class="ts-fab-new" title="Nuevo Servicio">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M5 12h14M12 5v14"/>
+        </svg>
+    </a>
+
+</div>{{-- /ts-page --}}
 
 {{-- Quick create modal (calendar cell click) --}}
 <div class="ts-overlay" id="ts-quick-overlay">
@@ -307,4 +393,24 @@
 
 @push('scripts')
     @vite('resources/js/admin/technical-services.js')
+<script>
+(function () {
+    var searchInput  = document.getElementById('ts-mobile-search');
+    var statusSelect = document.getElementById('ts-mobile-status-filter');
+    var cards        = document.querySelectorAll('#ts-mobile-cards .ts-mobile-card');
+
+    function filterCards() {
+        var q      = (searchInput ? searchInput.value.trim().toLowerCase() : '');
+        var status = (statusSelect ? statusSelect.value : '');
+        cards.forEach(function (card) {
+            var matchSearch = !q      || (card.dataset.search || '').includes(q);
+            var matchStatus = !status || card.dataset.status === status;
+            card.classList.toggle('ts-mobile-card--hidden', !(matchSearch && matchStatus));
+        });
+    }
+
+    if (searchInput)  searchInput.addEventListener('input',  filterCards);
+    if (statusSelect) statusSelect.addEventListener('change', filterCards);
+})();
+</script>
 @endpush

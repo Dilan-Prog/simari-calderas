@@ -275,9 +275,15 @@
                     const errorList = Object.values(data.errors).flat();
                     errorsContainer.innerHTML = errorList.map(msg => `<p>${msg}</p>`).join('');
                     errorsContainer.style.display = 'block';
+                } else {
+                    errorsContainer.innerHTML =
+                        `<p>${data.message ?? 'Ocurrió un error al guardar el cliente. Intenta de nuevo.'}</p>`;
+                    errorsContainer.style.display = 'block';
                 }
             } catch (err) {
                 console.error('Error updating client:', err);
+                errorsContainer.innerHTML = '<p>Error de conexión. Intenta de nuevo.</p>';
+                errorsContainer.style.display = 'block';
             }
         });
 

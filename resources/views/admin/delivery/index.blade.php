@@ -22,14 +22,14 @@ Paqueterías - Admin
 </button>
     </div>
 
-    {{-- Grid 3 columnas --}}
+    {{-- Grid 3 cols --}}
     <div class="dash-stats-grid" style="grid-template-columns: repeat(3, 1fr);">
         
-        @foreach($paqueterias as $paquete)
+        @foreach($deliveries as $delivery)
             <div class="dash-stat-card" style="display: flex; flex-direction: column; justify-content: space-between;">
                 
                 <div>
-                    {{-- Icono y Status --}}
+                    {{-- Icon / status --}}
                     <div class="dash-stat-card-top">
                         <div class="dash-stat-icon blue">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
@@ -41,32 +41,32 @@ Paqueterías - Admin
                             </svg>
                         </div>
                         
-                        {{-- Usando la clase dash-stat-badge --}}
-                        @if($paquete->estado == 'Activa')
-                            <span class="dash-stat-badge">{{ $paquete->estado }}</span>
+                        {{-- label activa /inactiva --}}
+                        @if($delivery->is_active == 1)
+                            <span class="dash-stat-badge">Activa</span>
                         @else
-                            <span class="dash-stat-badge" style="color: #6b7280; background: #f3f4f6;">{{ $paquete->estado }}</span>
+                            <span class="dash-stat-badge" style="color: #6b7280; background: #f3f4f6;">Inactiva</span>
                         @endif
                     </div>
 
-                    {{-- Textos --}}
+                    {{-- text --}}
                     <div style="margin-bottom: 24px;">
-                        <h4 class="dash-stat-value" style="font-size: 16px; margin-bottom: 8px;">{{ $paquete->nombre }}</h4>
-                        <p style="margin: 0 0 4px 0; font-size: 13px; color: #6b7280;">Tiempo: {{ $paquete->tiempo_entrega }}</p>
-                        <p style="margin: 0; font-size: 13px; color: #6b7280;">Cobertura: {{ $paquete->cobertura }}</p>
+                        <h4 class="dash-stat-value" style="font-size: 16px; margin-bottom: 8px;">{{ $delivery->name }}</h4>
+                        <p style="margin: 0 0 4px 0; font-size: 13px; color: #6b7280;">Código: {{ $delivery->code }}</p>
+                        <p style="margin: 0; font-size: 13px; color: #6b7280;">Teléfono: {{ $delivery->phone }}</p>
                     </div>
                 </div>
 
-                {{-- Botones Editar--}}
+                {{-- edit button --}}
                 <div style="display: flex; gap: 12px;">
-                    <button class="card-btn-edit" onclick="document.getElementById('modalEditarOverlay{{ $paquete->id }}').classList.add('active')">
+                    <button class="card-btn-edit" onclick="document.getElementById('modalEditarOverlay{{ $delivery->id }}').classList.add('active')">
                         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
                         </svg>
                         Editar
                     </button>
-                {{-- Botones Eliminar--}}                    
-                    <button class="card-btn-delete" onclick="document.getElementById('modalEliminarOverlay{{ $paquete->id }}').classList.add('active')">
+                {{-- delete button --}}                    
+                    <button class="card-btn-delete" onclick="document.getElementById('modalEliminarOverlay{{ $delivery->id }}').classList.add('active')">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                           <polyline points="3 6 5 6 21 6"></polyline>
         <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>

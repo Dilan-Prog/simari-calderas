@@ -1,76 +1,12 @@
-@extends('admin.layouts.master')
+﻿@extends('admin.layouts.master')
 @section('title', 'Reporte ' . $report->report_number . ' — Firma')
 
 @push('styles')
-<style>
-    .sr-create-wrap { font-family: 'Inter', sans-serif; background: #F8F9FA; min-height: 100%; padding: 32px; }
-    .sr-progress { display: flex; align-items: center; background: #fff; border-radius: 8px;
-                   box-shadow: 0 1px 2px rgba(0,0,0,.06); padding: 20px 24px; margin-bottom: 24px; }
-    .sr-step-item { display: flex; flex-direction: column; align-items: center; flex: 1; position: relative; }
-    .sr-step-item:not(:last-child)::after { content: ''; position: absolute; top: 16px; left: 60%; width: 80%; height: 2px; background: #E5E7EB; z-index: 0; }
-    .sr-step-item.done::after { background: #ff6213; }
-    .sr-step-circle { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
-                      font-size: 13px; font-weight: 600; z-index: 1; border: 2px solid #E5E7EB; background: #fff; color: #9CA3AF; }
-    .sr-step-item.active .sr-step-circle { border-color: #ff6213; background: #ff6213; color: #fff; }
-    .sr-step-item.done   .sr-step-circle { border-color: #ff6213; background: #fff; color: #ff6213; }
-    .sr-step-label { font-size: 11px; color: #9CA3AF; margin-top: 6px; text-align: center; white-space: nowrap; }
-    .sr-step-item.active .sr-step-label, .sr-step-item.done .sr-step-label { color: #374151; }
-
-    .sr-form-card { background: #fff; border-radius: 8px; box-shadow: 0 1px 2px rgba(0,0,0,.06); display: flex; flex-direction: column; max-height: 420px; overflow-y: auto; }
-    .sr-form-header { padding: 20px 24px; border-bottom: 1px solid #F3F4F6; }
-    .sr-form-header h2 { margin: 0 0 4px; font-size: 16px; font-weight: 600; color: #111827; }
-    .sr-form-header p  { margin: 0; font-size: 13px; color: #6B7280; }
-    .sr-form-body  { padding: 24px; overflow-y: auto; flex: 1; }
-    .sr-form-footer { padding: 16px 24px; border-top: 1px solid #F3F4F6; display: flex; justify-content: space-between; gap: 12px; }
-
-    /* Canvas */
-    .sr-canvas-wrap { border: 2px solid #D1D5DB; border-radius: 8px; overflow: hidden;
-                       cursor: crosshair; background: #fff; position: relative; }
-    .sr-canvas-wrap:focus-within { border-color: #ff6213; }
-    #signatureCanvas { display: block; width: 100%; touch-action: none; }
-    .sr-canvas-toolbar { padding: 8px 12px; background: #F9FAFB; border-top: 1px solid #F3F4F6;
-                          display: flex; align-items: center; justify-content: space-between; }
-    .sr-canvas-hint { font-size: 12px; color: #9CA3AF; }
-    .sr-btn-clear { height: 30px; padding: 0 14px; border-radius: 6px; border: 1px solid #D1D5DB;
-                    background: #fff; font-size: 12px; color: #6B7280; cursor: pointer; transition: background .15s; }
-    .sr-btn-clear:hover { background: #FEF2F2; color: #DC2626; border-color: #FECACA; }
-
-    /* Empty state overlay */
-    .sr-canvas-empty {
-        position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
-        pointer-events: none; font-size: 13px; color: #D1D5DB; gap: 8px;
-    }
-    .sr-canvas-empty.hidden { display: none; }
-
-    .sr-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-    .sr-label { font-size: 13px; font-weight: 500; color: #374151; display: block; margin-bottom: 6px; }
-    .sr-label .sr-req { color: #ff6213; }
-    .sr-input { height: 40px; padding: 0 12px; border-radius: 6px; border: 1px solid #D1D5DB;
-                font-size: 13px; font-family: 'Inter', sans-serif; color: #111827; background: #fff;
-                outline: none; width: 100%; box-sizing: border-box; transition: border-color .15s, box-shadow .15s; }
-    .sr-input:focus { border-color: #ff6213; box-shadow: 0 0 0 3px rgba(255,98,19,.12); }
-    .sr-field { margin-bottom: 16px; }
-    .sr-error { font-size: 12px; color: #DC2626; display: block; margin-top: 4px; }
-
-    .sr-btn-primary { height: 40px; padding: 0 20px; border-radius: 8px; background: #ff6213; color: #fff;
-                      font-size: 13px; font-weight: 500; font-family: 'Inter', sans-serif; border: none; cursor: pointer; transition: background .15s; }
-    .sr-btn-primary:hover:not(:disabled) { background: #de4a00; }
-    .sr-btn-primary:disabled { opacity: .5; cursor: not-allowed; }
-    .sr-btn-outline { height: 40px; padding: 0 20px; border-radius: 8px; border: 1px solid #D1D5DB;
-                      background: #fff; color: #374151; font-size: 13px; font-family: 'Inter', sans-serif;
-                      cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; }
-    .sr-btn-outline:hover { background: #F9FAFB; color: #374151; }
-
-    @media (max-width: 768px) {
-        .sr-create-wrap { padding: 16px; }
-        .sr-grid-2 { grid-template-columns: 1fr; }
-        .sr-step-label { display: none; }
-    }
-</style>
+    @vite('resources/css/service-reports.css')
 @endpush
 
 @section('content')
-<div class="sr-create-wrap">
+<div class="sr-create-wrap sr-page-step6">
 
     <div style="font-size:12px; color:#6B7280; margin-bottom:16px; display:flex; align-items:center; gap:6px;">
         <a href="{{ route('admin.service-reports.index') }}" style="color:#6B7280; text-decoration:none;">Reportes</a>
@@ -110,6 +46,10 @@
                 {{-- Canvas --}}
                 <div class="sr-field">
                     <label class="sr-label">Firma <span class="sr-req">*</span></label>
+                    <span class="sr-mobile-sign-hint">✍️ Firme con el dedo en el área de abajo</span>
+                    <div class="sr-mobile-canvas-bar">
+                        <button type="button" class="sr-btn-clear" id="btnClearMobile">Limpiar firma</button>
+                    </div>
                     <div class="sr-canvas-wrap">
                         <canvas id="signatureCanvas" height="200"></canvas>
                         <div class="sr-canvas-empty" id="canvasEmpty">
@@ -222,13 +162,17 @@
     canvas.addEventListener('touchmove',  draw,      { passive: false });
     canvas.addEventListener('touchend',   stopDraw);
 
-    document.getElementById('btnClear').addEventListener('click', function () {
+    function clearSignature() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         hasStroke = false;
         empty.classList.remove('hidden');
         signBtn.disabled = true;
         dataIn.value = '';
-    });
+    }
+
+    document.getElementById('btnClear').addEventListener('click', clearSignature);
+    const btnClearMobile = document.getElementById('btnClearMobile');
+    if (btnClearMobile) btnClearMobile.addEventListener('click', clearSignature);
 
     document.getElementById('signForm').addEventListener('submit', function (e) {
         if (!hasStroke) {

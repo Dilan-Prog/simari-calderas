@@ -9,8 +9,10 @@ use App\Models\ServiceMaterialPlanned;
 use App\Models\ServiceType;
 use App\Models\TechnicalService;
 use App\Models\User;
+use Illuminate\Database\QueryException;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class TechnicalServiceService
 {
@@ -46,34 +48,75 @@ class TechnicalServiceService
 
     public function store(array $data, int $userId): TechnicalService
     {
-        return DB::transaction(function () use ($data, $userId) {
-            $number = $this->generateServiceNumber();
+        $draftToken = $data['draft_token'] ?? (string) Str::uuid();
 
-            $service = TechnicalService::create([
-                'service_number'     => $number,
-                'service_code'       => $number,
-                'created_by_user_id' => $userId,
-                'customer_id'        => $data['customer_id'],
-                'service_type_id'    => $data['service_type_id'],
-                'service_date'       => $data['service_date'],
-                'service_time'       => $data['service_time'] ?? null,
-                'estimated_duration' => $this->parseDuration($data['estimated_duration'] ?? null),
-                'priority'           => $data['priority'] ?? 'normal',
-                'description'        => $data['description'] ?? null,
-                'address'            => $data['address'] ?? null,
-                'reference'          => $data['reference'] ?? null,
-                'location'           => $data['location'] ?? null,
-                'week_number'        => $data['week_number'] ?? null,
-                'from_quote_id'      => $data['from_quote_id'] ?? null,
-                'status'             => 'draft',
-                'current_step'       => 1,
-                'requested_at'       => now(),
-            ]);
+        for ($attempt = 1; $attempt <= 5; $attempt++) {
+            try {
+                return DB::transaction(function () use ($data, $userId, $draftToken) {
+                    $existing = TechnicalService::where('draft_token', $draftToken)->first();
+                    if ($existing) {
+                        return $existing;
+                    }
 
-            $this->log($service, 'created', null, $userId);
+                    $number = $this->generateServiceNumber();
 
-            return $service;
-        });
+                    $service = TechnicalService::create([
+                        'service_number'     => $number,
+                        'service_code'       => $number,
+                        'draft_token'        => $draftToken,
+                        'created_by_user_id' => $userId,
+                        'customer_id'        => $data['customer_id'],
+                        'service_type_id'    => $data['service_type_id'],
+                        'service_date'       => $data['service_date'],
+                        'service_time'       => $data['service_time'] ?? null,
+                        'estimated_duration' => $this->parseDuration($data['estimated_duration'] ?? null),
+                        'priority'           => $data['priority'] ?? 'normal',
+                        'description'        => $data['description'] ?? null,
+                        'address'            => $data['address'] ?? null,
+                        'reference'          => $data['reference'] ?? null,
+                        'location'           => $data['location'] ?? null,
+                        'week_number'        => $data['week_number'] ?? null,
+                        'from_quote_id'      => $data['from_quote_id'] ?? null,
+                        'status'             => 'draft',
+                        'current_step'       => 1,
+                        'requested_at'       => now(),
+                    ]);
+
+                    $this->log($service, 'created', null, $userId);
+
+                    return $service;
+                });
+            } catch (QueryException $e) {
+                if ($this->isDuplicateDraftToken($e)) {
+                    return TechnicalService::where('draft_token', $draftToken)->firstOrFail();
+                }
+
+                if ($this->isDuplicateServiceNumber($e) && $attempt < 5) {
+                    continue;
+                }
+
+                throw $e;
+            }
+        }
+
+        throw new \RuntimeException('Unable to create technical service draft.');
+    }
+
+    private function isDuplicateDraftToken(QueryException $e): bool
+    {
+        return $this->isDuplicateKeyFor($e, 'draft_token');
+    }
+
+    private function isDuplicateServiceNumber(QueryException $e): bool
+    {
+        return $this->isDuplicateKeyFor($e, 'service_number');
+    }
+
+    private function isDuplicateKeyFor(QueryException $e, string $needle): bool
+    {
+        $message = $e->getMessage();
+
+        return (int) ($e->errorInfo[1] ?? 0) === 1062 && Str::contains($message, $needle);
     }
 
     // ── Guardar etapa ──────────────────────────────────────────────────────────
@@ -96,6 +139,13 @@ class TechnicalServiceService
 
             return $service->fresh();
         });
+    }
+
+    private function normalizeDraftToken(?string $draftToken): string
+    {
+        return is_string($draftToken) && Str::isUuid($draftToken)
+            ? $draftToken
+            : (string) Str::uuid();
     }
 
     private function applyStep1(TechnicalService $service, array $data): void

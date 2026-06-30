@@ -71,6 +71,59 @@
                 Generar Reporte
             </a>
             @endif
+
+            @if($service->status === 'cancelled')
+            <a href="{{ route('admin.technical-services.index') }}" class="ts-btn ts-btn--success">
+                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"/>
+                </svg>
+                OK
+            </a>
+
+            <form action="{{ route('admin.technical-services.destroy', $service) }}"
+                  method="POST"
+                  style="display:inline"
+                  onsubmit="return confirm('¿Eliminar definitivamente el servicio {{ $service->service_number }}? Esta acción no se puede deshacer.');">
+                @csrf
+                @method('DELETE')
+                <button type="submit" class="ts-btn ts-btn--danger">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none"
+                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 6h18"/>
+                        <path d="M8 6V4h8v2"/>
+                        <path d="M19 6l-1 14H6L5 6"/>
+                    </svg>
+                    Eliminar
+                </button>
+            </form>
+            @endif
+
+            @if($service->status === 'scheduled')
+            <button type="button" class="ts-btn ts-btn--warning"
+                    onclick="TechnicalServices.updateServiceStatus({{ $service->id }}, 'in_progress')">
+                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"/>
+                    <polyline points="12 6 12 12 16 14"/>
+                </svg>
+                Marcar En Proceso
+            </button>
+            @endif
+
+            @if($service->status === 'in_progress')
+            <button type="button" class="ts-btn ts-btn--success"
+                    onclick="TechnicalServices.updateServiceStatus({{ $service->id }}, 'completed')">
+                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                    <polyline points="22 4 12 14.01 9 11.01"/>
+                </svg>
+                Marcar Completado
+            </button>
+            @endif
+
+            @if($service->isEditable())
             <a href="{{ route('admin.technical-services.edit', $service) }}" class="ts-btn">
                 <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none"
                      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -79,6 +132,8 @@
                 </svg>
                 Editar
             </a>
+            @endif
+
             @if(!in_array($service->status, ['cancelled','completed']))
             <button type="button" class="ts-btn ts-btn--danger"
                     onclick="TechnicalServices.confirmCancelService({{ $service->id }}, '{{ $service->service_number }}')">
@@ -117,7 +172,7 @@
         </div>
     </div>
 
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+    <div class="ts-show-grid">
 
         {{-- ── General info ──────────────────────── --}}
         <div class="ts-card">
@@ -209,10 +264,10 @@
                 @foreach($service->assignedTechnicians as $tech)
                 <div class="ts-tech-item">
                     <div class="ts-tech-avatar-lg">
-                        {{ mb_strtoupper(mb_substr($tech->name, 0, 2)) }}
+                        {{ mb_strtoupper(mb_substr($tech->full_name, 0, 2)) }}
                     </div>
                     <div class="ts-tech-info">
-                        <div class="ts-tech-info__name">{{ $tech->name }}</div>
+                        <div class="ts-tech-info__name">{{ $tech->full_name }}</div>
                         <div class="ts-tech-info__role">{{ $tech->email ?? '—' }}</div>
                     </div>
                 </div>
@@ -256,18 +311,106 @@
                     {{ $service->created_at ? \Carbon\Carbon::parse($service->created_at)->format('d M Y H:i') : '—' }}
                 </span>
             </div>
-            @if(isset($service->createdBy) && $service->createdBy)
-            <div class="ts-detail-field">
-                <span class="ts-detail-label">Creado por</span>
-                <span class="ts-detail-value">{{ $service->createdBy->name }}</span>
-            </div>
-            @endif
         </div>
+    </div>
+
+    {{-- ── Mobile sticky action footer ──────────── --}}
+    <div class="ts-show-mobile-actions">
+        @if($service->status === 'completed')
+        <a href="{{ route('admin.technical-services.generate-report', $service) }}"
+           class="ts-btn ts-btn--primary">
+            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+                <path d="M16 13H8M16 17H8M10 9H8"/>
+            </svg>
+            Generar Reporte
+        </a>
+        @endif
+
+        @if($service->status === 'scheduled')
+        <button type="button" class="ts-btn ts-btn--warning"
+                onclick="TechnicalServices.updateServiceStatus({{ $service->id }}, 'in_progress')">
+            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <polyline points="12 6 12 12 16 14"/>
+            </svg>
+            Marcar En Proceso
+        </button>
+        @endif
+
+        @if($service->status === 'in_progress')
+        <button type="button" class="ts-btn ts-btn--success"
+                onclick="TechnicalServices.updateServiceStatus({{ $service->id }}, 'completed')">
+            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                <polyline points="22 4 12 14.01 9 11.01"/>
+            </svg>
+            Marcar Completado
+        </button>
+        @endif
+
+        @if($service->isEditable())
+        <a href="{{ route('admin.technical-services.edit', $service) }}" class="ts-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/>
+                <path d="m15 5 4 4"/>
+            </svg>
+            Editar
+        </a>
+        @endif
+
+        @if($service->status === 'cancelled')
+        <a href="{{ route('admin.technical-services.index') }}" class="ts-btn ts-btn--success">
+            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"/>
+            </svg>
+            OK
+        </a>
+        <form action="{{ route('admin.technical-services.destroy', $service) }}"
+              method="POST" style="display:contents"
+              onsubmit="return confirm('¿Eliminar definitivamente el servicio {{ $service->service_number }}? Esta acción no se puede deshacer.');">
+            @csrf
+            @method('DELETE')
+            <button type="submit" class="ts-btn ts-btn--danger">
+                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 6h18"/>
+                    <path d="M8 6V4h8v2"/>
+                    <path d="M19 6l-1 14H6L5 6"/>
+                </svg>
+                Eliminar
+            </button>
+        </form>
+        @endif
+
+        @if(!in_array($service->status, ['cancelled','completed']))
+        <button type="button" class="ts-btn ts-btn--danger"
+                onclick="TechnicalServices.confirmCancelService({{ $service->id }}, '{{ $service->service_number }}')">
+            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="m15 9-6 6M9 9l6 6"/>
+            </svg>
+            Cancelar Servicio
+        </button>
+        @endif
     </div>
 
 </div>
 @endsection
 
 @push('scripts')
+<script>
+window.__tsCurrentService = {
+    id: {{ $service->id }},
+    status: @json($service->status),
+};
+</script>
     @vite('resources/js/admin/technical-services.js')
 @endpush
