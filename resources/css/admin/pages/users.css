@@ -2557,6 +2557,130 @@
         font-size: 13px;
         padding: 10px;
     }
+
+
+    @media (max-width: 768px) {
+
+    /* ── Clients table → cards ── */
+    .table-container-clients-manager {
+        border: none;
+        box-shadow: none;
+        background: transparent;
+    }
+
+    .table-container-clients-manager table,
+    .table-container-clients-manager thead,
+    .table-container-clients-manager tbody,
+    .table-container-clients-manager tr,
+    .table-container-clients-manager th,
+    .table-container-clients-manager td {
+        display: block;
+        width: 100%;
+    }
+
+    .table-container-clients-manager thead {
+        display: none;
+    }
+
+    .table-container-clients-manager .table-scroll {
+        max-height: none;
+        overflow-x: visible;
+        overflow-y: auto;
+    }
+
+    /* Cada fila → carta */
+    .table-container-clients-manager tbody tr {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        background: white;
+        border-radius: 12px;
+        border: 1px solid var(--border-color);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        padding: 16px;
+        margin-bottom: 12px;
+    }
+
+    .table-container-clients-manager tbody tr td {
+        border-top: none;
+        padding: 0;
+        font-size: 13px;
+    }
+
+    /* Separador entre celdas */
+    .table-container-clients-manager tbody tr td:not(:first-child) {
+        padding-top: 8px;
+        border-top: 1px solid #f3f4f6;
+    }
+
+    /* Labels automáticos por posición */
+    .table-container-clients-manager tbody tr td:nth-child(2)::before {
+        content: 'Cliente: ';
+        font-size: 11px;
+        font-weight: 700;
+        color: #9ca3af;
+        text-transform: uppercase;
+        display: block;
+        margin-bottom: 2px;
+    }
+
+    .table-container-clients-manager tbody tr td:nth-child(3)::before {
+        content: 'Contacto: ';
+        font-size: 11px;
+        font-weight: 700;
+        color: #9ca3af;
+        text-transform: uppercase;
+        display: block;
+        margin-bottom: 2px;
+    }
+
+    .table-container-clients-manager tbody tr td:nth-child(4)::before {
+        content: 'RFC: ';
+        font-size: 11px;
+        font-weight: 700;
+        color: #9ca3af;
+        text-transform: uppercase;
+        display: block;
+        margin-bottom: 2px;
+    }
+
+    .table-container-clients-manager tbody tr td:nth-child(5)::before {
+        content: 'Estado: ';
+        font-size: 11px;
+        font-weight: 700;
+        color: #9ca3af;
+        text-transform: uppercase;
+        display: block;
+        margin-bottom: 4px;
+    }
+
+    /* Acciones al final */
+    .table-container-clients-manager tbody tr td:last-child {
+        padding-top: 12px;
+        border-top: 1px solid #f1f5f9;
+    }
+
+    .table-container-clients-manager .header-right-user-manager {
+        justify-content: flex-end;
+        gap: 8px;
+    }
+
+    /* Header en móvil */
+    .clients-manager-main {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .clients-manager-main .button-primary.size-adjustment {
+        width: 100%;
+    }
+
+    .filters-clients-manager {
+        flex-direction: column;
+        gap: 10px;
+    }
+}
 }
 
 /* ============================================================
