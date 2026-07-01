@@ -21,12 +21,10 @@
         <div class="del-confirm-actions">
             <button type="button" class="button-secondary size-adjustment"
                 id="delClientConfirmCancel">Cancelar</button>
-            <form id="deleteClientForm" method="POST">
-                @csrf
-                @method('DELETE')
-                <button type="submit"
-                    class="button-primary size-adjustment delete-confirmation-modal-button">Eliminar</button>
-            </form>
+            <button type="button" id="delClientConfirmBtn"
+                class="button-primary size-adjustment delete-confirmation-modal-button">
+                Eliminar
+            </button>
         </div>
     </div>
 </div>
