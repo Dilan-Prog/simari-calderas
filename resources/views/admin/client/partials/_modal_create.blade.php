@@ -7,7 +7,7 @@
             <h2>Nuevo Cliente</h2>
             <button type="button" class="table-users-manager-action-btn cancel" id="closeClientModal">✕</button>
         </div>
-        
+
         {{-- Form --}}
         <form class="user-manager-modal-body" id="clientCreateForm"
             action="{{ route('admin.clients.store') }}" method="POST" novalidate>
@@ -164,7 +164,7 @@
     </div>
 </div>
 
-@push('scripts')
+{{-- @push('scripts')
 <script>
 (function () {
     const form = document.getElementById('clientCreateForm');
@@ -225,4 +225,4 @@
     });
 })();
 </script>
-@endpush
+@endpush --}}

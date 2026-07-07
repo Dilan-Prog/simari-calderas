@@ -5,8 +5,13 @@
     "isEntry": true
   },
   "resources/css/admin/app.css": {
-    "file": "assets/app-DOeDDrYa.css",
+    "file": "assets/app-iTHtuYeZ.css",
     "src": "resources/css/admin/app.css",
+    "isEntry": true
+  },
+  "resources/css/admin/pages/delivery.css": {
+    "file": "assets/delivery-fveut9fJ.css",
+    "src": "resources/css/admin/pages/delivery.css",
     "isEntry": true
   },
   "resources/css/admin/roles.css": {
