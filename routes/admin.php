@@ -226,12 +226,17 @@ Route::controller(GoogleAdsController::class)
         Route::get('/datatable', 'datatable')->name('datatable');
         Route::get('/{id}', 'show')->name('show');
     });
-
+// ============================================================
+// Paqueterías 
+// ============================================================
 Route::controller(DeliveryController::class)
-    ->middleware('permission:deliveries')
+    -> middleware('permission:carriers')
     ->prefix('deliveries')
     ->name('deliveries.')
     ->group(function () {
         Route::get('/', 'index')->name('index');
-        Route::get('/crear-paqueteria', 'store')->name('store');
+        Route::post('/crear', 'store')->name('store');
+        Route::put('/editar/{id}', 'update')->name('update');
+        Route::delete('/eliminar/{id}', 'destroy')->name('destroy');
     });
+       
