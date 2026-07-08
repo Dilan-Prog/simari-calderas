@@ -16,6 +16,6 @@ class ServiceReportImage extends Model
 
     public function getUrlAttribute(): string
     {
-        return asset('storage/' . $this->path);
+        return asset($this->path);
     }
 }
