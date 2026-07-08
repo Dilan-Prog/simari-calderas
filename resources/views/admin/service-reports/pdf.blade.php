@@ -514,17 +514,17 @@ thead { display: table-header-group; }
     @if($report->images->isNotEmpty())
         <div class="section-title">Evidencia Fotográfica ({{ $report->images->count() }})</div>
         <table style="width:100%; border-collapse:collapse; margin-bottom:16px;">
-            @foreach($report->images->chunk(3) as $row)
+            @foreach($report->images->chunk(2) as $row)
             <tr>
                 @foreach($row as $img)
-                <td style="width:33%; padding:4px; vertical-align:top;">
+                <td style="width:50%; padding:6px; vertical-align:top;">
                     <img src="{{ public_path($img->path) }}"
-                         style="width:100%; max-height:160px; object-fit:cover; border-radius:4px; border:1px solid #e5e5e5; display:block;"
+                         style="width:100%; max-height:280px; object-fit:cover; border-radius:4px; border:1px solid #e5e5e5; display:block;"
                          alt="Evidencia">
                 </td>
                 @endforeach
-                @for($j = $row->count(); $j < 3; $j++)
-                <td style="width:33%; padding:4px;"></td>
+                @for($j = $row->count(); $j < 2; $j++)
+                <td style="width:50%; padding:6px;"></td>
                 @endfor
             </tr>
             @endforeach

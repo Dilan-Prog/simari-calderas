@@ -6,7 +6,7 @@ use Intervention\Image\Facades\Image;
 
 trait ImageUploadTrait
 {
-    public function uploadImages(array $files, string $folder = 'products'): array
+    public function uploadImages(array $files, string $folder = 'products', int $width = 1200, int $quality = 85): array
     {
         $paths = [];
         $dir   = public_path($folder);
@@ -21,11 +21,11 @@ trait ImageUploadTrait
             $path     = $folder . '/' . $filename;
 
             Image::make($file)
-                ->resize(1200, null, function ($constraint) {
+                ->resize($width, null, function ($constraint) {
                     $constraint->aspectRatio();
                     $constraint->upsize();
                 })
-                ->save(public_path($path), 85);
+                ->save(public_path($path), $quality);
 
             $paths[] = $path;
         }
