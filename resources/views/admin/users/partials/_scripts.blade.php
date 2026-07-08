@@ -63,24 +63,44 @@
             });
         }
 
-        // NSS
-        function bindAlphanumericInput(input) {
+        function bindEmergencyPhones(container) {
+            container.querySelectorAll('[name="emergency_phone[]"]').forEach(input => {
+                if (input.dataset.phoneBound) return;
+                input.dataset.phoneBound = '1';
+                bindPhoneInput(input);
+            });
+        }
+
+        function bindLettersOnly(input) {
             input.addEventListener('input', function() {
-                this.value = this.value.replace(/[^a-zA-Z0-9]/g, '');
+                this.value = this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]/g, '');
             });
             input.addEventListener('paste', function(e) {
                 e.preventDefault();
                 const text = (e.clipboardData || window.clipboardData).getData('text');
-                this.value = (this.value + text).replace(/[^a-zA-Z0-9]/g, '');
+                this.value = (this.value + text).replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]/g, '');
             });
         }
 
-        function bindEmergencyPhones(container) {
-            container.querySelectorAll('[name="emergency_phone[]"]').forEach(input => {
-                // Evitar doble binding
-                if (input.dataset.phoneBound) return;
-                input.dataset.phoneBound = '1';
-                bindPhoneInput(input);
+        function bindNumericOnly(input) {
+            input.addEventListener('input', function() {
+                this.value = this.value.replace(/[^0-9]/g, '');
+            });
+            input.addEventListener('paste', function(e) {
+                e.preventDefault();
+                const text = (e.clipboardData || window.clipboardData).getData('text');
+                this.value = (this.value + text).replace(/[^0-9]/g, '');
+            });
+        }
+
+        function bindCurpInput(input) {
+            input.addEventListener('input', function() {
+                this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 18);
+            });
+            input.addEventListener('paste', function(e) {
+                e.preventDefault();
+                const text = (e.clipboardData || window.clipboardData).getData('text');
+                this.value = (this.value + text).toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 18);
             });
         }
 
@@ -88,6 +108,7 @@
 
         const updateUserUrl = '{{ route('admin.users.update', ':id') }}';
         const showUserUrl = '{{ route('admin.users.show', ':id') }}';
+
         // --- Helpers ---
         const closeModalWithAnim = (m) => {
             const mc = m.querySelector('.user-manager-modal-content');
@@ -152,6 +173,10 @@
             inputs[0].value = data.name || '';
             inputs[1].value = data.phone || '';
             inputs[2].value = data.relationship || '';
+
+            bindLettersOnly(inputs[0]);
+            bindLettersOnly(inputs[2]);
+
             div.querySelector('.' + deleteBtnClass).addEventListener('click', onDelete);
             return div;
         }
@@ -161,10 +186,22 @@
         const modal = document.getElementById('userModal');
         const closeBtn = document.getElementById('closeModal');
         const cancelBtn = document.getElementById('cancelModal');
-        const createSsn = document.querySelector('#userCreateForm [name="social_segurity_number"]')
-        const createPhone = document.querySelector('#userCreateForm [name="phone"]')
-        if (createSsn) bindAlphanumericInput(createSsn);
-        if (createPhone) bindPhoneInput(createPhone)
+
+        const createSsn = document.querySelector('#userCreateForm [name="social_segurity_number"]');
+        const createPhone = document.querySelector('#userCreateForm [name="phone"]');
+        const createCurp = document.querySelector('#userCreateForm [name="curp"]');
+        const createFirstName = document.querySelector('#userCreateForm [name="first_name"]');
+        const createLastName = document.querySelector('#userCreateForm [name="last_name"]');
+        const createPosition = document.querySelector('#userCreateForm [name="position"]');
+
+        if (createSsn) bindNumericOnly(createSsn);
+        if (createPhone) bindPhoneInput(createPhone);
+        if (createCurp) bindCurpInput(createCurp);
+        if (createFirstName) bindLettersOnly(createFirstName);
+        if (createLastName) bindLettersOnly(createLastName);
+        if (createPosition) bindLettersOnly(createPosition);
+
+
         if (openBtn) openBtn.addEventListener('click', () => {
             modal.style.display = 'flex';
         });
@@ -237,15 +274,19 @@
             ['first_name', 'Nombre'],
             ['last_name', 'Apellidos'],
             ['email', 'Email'],
+            ['phone', 'Teléfono'],
+            ['rfc', 'RFC'],
+            ['role_id', 'Role'],
             ['status', 'Estado'],
             ['password', 'Contraseña'],
             ['password_confirmation', 'Confirmar Contraseña'],
         ];
         valBind(createUserForm, createUserFields);
         createUserForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+
             const firstErr = valRun(createUserForm, createUserFields);
             if (firstErr) {
-                e.preventDefault();
                 firstErr.scrollIntoView({
                     behavior: 'smooth',
                     block: 'center'
@@ -259,7 +300,6 @@
             const pwd = createUserForm.querySelector('[name="password"]');
             const pwdCon = createUserForm.querySelector('[name="password_confirmation"]');
             if (pwd.value !== pwdCon.value) {
-                e.preventDefault();
                 valMark(createUserForm, 'password_confirmation', 'Confirmar Contraseña');
                 const msg = createUserForm.querySelector('.val-error-msg[data-for="password_confirmation"]');
                 if (msg) msg.textContent = 'Las contraseñas no coinciden';
@@ -267,7 +307,9 @@
                     behavior: 'smooth',
                     block: 'center'
                 });
+                return;
             }
+            createUserForm.submit();
         });
 
         // --- Edit modal ---
@@ -278,10 +320,20 @@
         const editEcContainer = document.getElementById('edit-emergency-contacts-container');
         const editAddBtn = document.getElementById('editAddEmergencyContact');
         const editEcText = document.getElementById('editEmergencyText');
+
         const editSsn = document.querySelector('#editUserForm [name="social_segurity_number"]');
         const editPhone = document.querySelector('#editUserForm [name="phone"]');
-        if (editSsn) bindAlphanumericInput(editSsn);
+        const editCurp = document.querySelector('#editUserForm [name="curp"]');
+        const editFirstName = document.querySelector('#editUserForm [name="first_name"]');
+        const editLastName = document.querySelector('#editUserForm [name="last_name"]');
+        const editPosition = document.querySelector('#editUserForm [name="position"]');
+
+        if (editSsn) bindNumericOnly(editSsn);
         if (editPhone) bindPhoneInput(editPhone);
+        if (editCurp) bindCurpInput(editCurp);
+        if (editFirstName) bindLettersOnly(editFirstName);
+        if (editLastName) bindLettersOnly(editLastName);
+        if (editPosition) bindLettersOnly(editPosition);
 
         function updateEditUI() {
             const total = editEcContainer.querySelectorAll('.emergency-contact-item').length;
@@ -363,6 +415,9 @@
             ['first_name', 'Nombre'],
             ['last_name', 'Apellidos'],
             ['email', 'Email'],
+            ['phone', 'Teléfono'],
+            ['rfc', 'RFC'],
+            ['role_id', 'Role'],
             ['status', 'Estado'],
         ];
         valBind(editForm, editUserFields);
@@ -570,7 +625,7 @@
             // Personal info
             document.getElementById('showFirstName').textContent = firstName || '—';
             document.getElementById('showLastName').textContent = lastName || '—';
-            document.getElementById('showBirthdate').textContent = user.birthdate || '—';
+            // document.getElementById('showBirthdate').textContent = user.birthdate || '—';
             document.getElementById('showRfc').textContent = user.rfc || '—';
             document.getElementById('showCurp').textContent = user.curp || '—';
             document.getElementById('showSsn').textContent = user.social_segurity_number || '—';

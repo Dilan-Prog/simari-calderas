@@ -35,10 +35,10 @@
                         <span class="show-user-field-label">APELLIDOS</span>
                         <span class="show-user-field-value" id="showLastName">—</span>
                     </div>
-                    <div class="show-user-field">
+                    {{-- <div class="show-user-field">
                         <span class="show-user-field-label">FECHA DE NACIMIENTO</span>
                         <span class="show-user-field-value" id="showBirthdate">—</span>
-                    </div>
+                    </div> --}}
                     <div class="show-user-field">
                         <span class="show-user-field-label">RFC</span>
                         <span class="show-user-field-value" id="showRfc">—</span>

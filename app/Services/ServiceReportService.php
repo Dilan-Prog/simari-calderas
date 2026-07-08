@@ -165,7 +165,7 @@ class ServiceReportService
 
     public function saveImages(ServiceReport $report, array $files): void
     {
-        $paths = $this->uploadImages($files, "service-reports/{$report->id}");
+        $paths = $this->uploadImages($files, "service-reports/{$report->id}", width: 1800, quality: 92);
 
         $lastSort = $report->images()->max('sort_order') ?? -1;
 

@@ -25,8 +25,8 @@ class ClientManageController extends Controller
 
     public function information(string $id)
     {
-    $customer = Customer::with(['customer_addresses'])->findOrFail($id);
-    return view('admin.client.partials.show', compact('customer'));
+        $customer = Customer::with(['customer_addresses'])->findOrFail($id);
+        return view('admin.client.partials.show', compact('customer'));
     }
 
     /**
@@ -52,7 +52,7 @@ class ClientManageController extends Controller
             'email' => 'required|email|max:150|unique:customers,email',
             'phone' => 'nullable|string|max:30',
             'rfc' => 'nullable|string|max:20',
-            'document_type' => 'nullable|string|max:30',
+            'document_type' => 'string|max:30',
             'source' => 'nullable|string|max:50',
             'status' => 'required|in:active,inactive,suspended',
             'address_line1' => 'nullable|string|max:255',
@@ -76,12 +76,13 @@ class ClientManageController extends Controller
         $customer->document_type = $request->document_type;
         $customer->source = $request->source;
         $customer->status = $request->status;
+        $customer->password_hash = 'TemporalPassword';
         $customer->save();
 
         if ($request->filled('address_line1')) {
             $customer->customer_addresses()->create([
                 'label' => 'fiscal',
-                'recipient_name' => $firstName.' '.$lastName,
+                'recipient_name' => $firstName . ' ' . $lastName,
                 'phone' => $request->phone,
                 'address_line1' => $request->address_line1,
                 'address_line2' => $request->address_line2,
@@ -109,7 +110,6 @@ class ClientManageController extends Controller
                 $rawText .= $page->getText();
             }
 
-            // Normalizar: un solo espacio, sin saltos de línea
             $text = preg_replace('/\s+/', ' ', $rawText);
 
             // RFC
@@ -122,7 +122,7 @@ class ClientManageController extends Controller
             if (preg_match('/CURP:\s*([A-Z]{4}\d{6}[HM][A-Z]{5}[A-Z0-9]\d)/i', $text, $m))
                 $curp = trim($m[1]);
 
-            // Nombre(s) — labels concatenados sin espacios
+            // Names — concatenated labels without spaces
             $nombres = '';
             if (preg_match('/Nombre\(s\):\s*(.+?)(?=PrimerApellido:|Primer Apellido:)/i', $text, $m))
                 $nombres = trim($m[1]);
@@ -137,53 +137,53 @@ class ClientManageController extends Controller
 
             $fullName = trim("$nombres $apellido1 $apellido2");
 
-            // Empresa — Nombre Comercial, fallback al nombre completo
+            // Company — Commercial Name, fallback to full name
             $company = '';
             if (preg_match('/NombreComercial:\s*(.+?)(?=Datosdel|Datos del)/i', $text, $m))
                 $company = trim($m[1]);
             if (empty($company)) $company = $fullName;
 
-            // Código Postal
+            // Postal Code
             $postalCode = '';
             if (preg_match('/C[oó]digoPostal:(\d{5})/i', $text, $m))
                 $postalCode = trim($m[1]);
 
-            // Tipo de Vialidad
+            // Street Type
             $tipoVialidad = '';
             if (preg_match('/TipodeVialidad:\s*(.+?)(?=NombredeVialidad:)/i', $text, $m))
                 $tipoVialidad = trim($m[1]);
 
-            // Nombre de Vialidad
+            // Street Name
             $nombreVialidad = '';
             if (preg_match('/NombredeVialidad:\s*(.+?)(?=N[uú]meroExterior:)/i', $text, $m))
                 $nombreVialidad = trim($m[1]);
 
-            // Número Exterior
+            // Exterior Number
             $numExterior = '';
             if (preg_match('/N[uú]meroExterior:\s*(\S+?)(?=N[uú]meroInterior:)/i', $text, $m))
                 $numExterior = trim($m[1]);
 
-            // Número Interior
+            // Interior Number
             $numInterior = '';
             if (preg_match('/N[uú]meroInterior:\s*(.+?)(?=NombredelaColonia:)/i', $text, $m))
                 $numInterior = trim($m[1]);
 
-            // Colonia
+            // Neighborhood
             $colonia = '';
             if (preg_match('/NombredelaColonia:\s*(.+?)(?=NombredelaLocalidad:)/i', $text, $m))
                 $colonia = trim($m[1]);
 
-            // Ciudad (Localidad)
+            // City (Locality)
             $city = '';
             if (preg_match('/NombredelaLocalidad:\s*(.+?)(?=NombredelMunicipio)/i', $text, $m))
                 $city = trim($m[1]);
 
-            // Estado (Entidad Federativa)
+            // State (Federal Entity)
             $state = '';
             if (preg_match('/NombredelaEntidadFederativa:\s*(.+?)(?=EntreCalle:)/i', $text, $m))
                 $state = trim($m[1]);
 
-            // Construir dirección
+            // Build address
             $parts = array_filter([
                 $tipoVialidad,
                 $nombreVialidad,
@@ -193,7 +193,7 @@ class ClientManageController extends Controller
             ]);
             $addressLine1 = implode(' ', $parts);
 
-            // Fecha de nacimiento desde CURP (posiciones 4-9: AAMMDD)
+            // Birth Date from CURP (positions 4-9: AAMMDD)
             $birthDate = '';
             if (!empty($curp) && strlen($curp) >= 10) {
                 $yy       = substr($curp, 4, 2);
@@ -215,7 +215,6 @@ class ClientManageController extends Controller
                 'country'       => 'México',
                 'status'        => 'active',
             ]);
-
         } catch (\Exception) {
             return response()->json([
                 'error' => 'No se pudo leer el PDF. Verifica que sea una Constancia de Situación Fiscal del SAT.',
@@ -237,8 +236,17 @@ class ClientManageController extends Controller
     public function edit(string $id)
     {
         $customer = Customer::with(['customer_addresses' => function ($query) {
-            $query->select('id', 'customer_id', 'city', 'state', 'address_line1',
-                'address_line2', 'postal_code', 'country', 'reference');
+            $query->select(
+                'id',
+                'customer_id',
+                'city',
+                'state',
+                'address_line1',
+                'address_line2',
+                'postal_code',
+                'country',
+                'reference'
+            );
         }])->findOrFail($id);
 
         return response()->json($customer);
@@ -258,7 +266,7 @@ class ClientManageController extends Controller
         $request->validate([
             'full_name' => 'required|string|max:200',
             'company' => 'nullable|string|max:150',
-            'email' => 'required|email|max:150|unique:customers,email,'.$id,
+            'email' => 'required|email|max:150|unique:customers,email,' . $id,
             'phone' => 'nullable|string|max:30',
             'rfc' => 'nullable|string|max:20',
             'document_type' => 'nullable|string|max:30',
@@ -291,34 +299,34 @@ class ClientManageController extends Controller
 
         if ($request->filled('address_line1')) {
             $customer->customer_addresses()->create([
-            'label'          => 'fiscal',
-            'recipient_name' => $firstName . ' ' . $lastName,
-            'phone'          => $request->phone,
-            'address_line1'  => $request->address_line1,
-            'address_line2'  => $request->address_line1,
-            'city'           => $request->city,
-            'state'          => $request->state,
-            'postal_code'    => $request->postal_code,
-            'country'        => $request->country ?? 'México',
-            'reference'      => $request->reference,
-            'is_default'     => true,
-    ]);
+                'label'          => 'fiscal',
+                'recipient_name' => $firstName . ' ' . $lastName,
+                'phone'          => $request->phone,
+                'address_line1'  => $request->address_line1,
+                'address_line2'  => $request->address_line1,
+                'city'           => $request->city,
+                'state'          => $request->state,
+                'postal_code'    => $request->postal_code,
+                'country'        => $request->country ?? 'México',
+                'reference'      => $request->reference,
+                'is_default'     => true,
+            ]);
 
-    if (!$request->boolean('same_as_fiscal') && $request->filled('address_line2')) {
-        $customer->customer_addresses()->create([
-            'label'          => 'envio',
-            'recipient_name' => $firstName . ' ' . $lastName,
-            'phone'          => $request->phone,
-            'address_line1'  => $request->address_line2,
-            'address_line2'  => $request->address_line2,
-            'city'           => $request->city,
-            'state'          => $request->state,
-            'postal_code'    => $request->postal_code,
-            'country'        => $request->country ?? 'México',
-            'is_default'     => false,
-        ]);
-    }
-}
+            if (!$request->boolean('same_as_fiscal') && $request->filled('address_line2')) {
+                $customer->customer_addresses()->create([
+                    'label'          => 'envio',
+                    'recipient_name' => $firstName . ' ' . $lastName,
+                    'phone'          => $request->phone,
+                    'address_line1'  => $request->address_line2,
+                    'address_line2'  => $request->address_line2,
+                    'city'           => $request->city,
+                    'state'          => $request->state,
+                    'postal_code'    => $request->postal_code,
+                    'country'        => $request->country ?? 'México',
+                    'is_default'     => false,
+                ]);
+            }
+        }
 
         return response()->json([
             'success' => true,
@@ -384,11 +392,28 @@ class ClientManageController extends Controller
      */
     public function destroy(string $id)
     {
-        $customer = Customer::findOrFail($id);
-        abort_if($customer->id === auth()->id(), 403, 'No puedes eliminarte a ti mismo.');
+        $customer = Customer::withCount([
+            'orders',        // ajusta según tus relaciones reales
+            'quotes',
+            'serviceReports',
+        ])->findOrFail($id);
+
+        // Detectar dependencias
+        $blocking = [];
+        if (($customer->orders_count         ?? 0) > 0) $blocking[] = $customer->orders_count . ' orden(es)';
+        if (($customer->quotes_count         ?? 0) > 0) $blocking[] = $customer->quotes_count . ' cotización(es)';
+        if (($customer->service_reports_count ?? 0) > 0) $blocking[] = $customer->service_reports_count . ' reporte(s) de servicio';
+
+        if (!empty($blocking)) {
+            return response()->json([
+                'success' => false,
+                'message' => "El cliente {$customer->first_name} {$customer->last_name} no puede ser eliminado porque tiene " . implode(', ', $blocking) . ' asignados.',
+            ], 422);
+        }
+
         $customer->customer_addresses()->delete();
         $customer->delete();
 
-        return redirect()->route('admin.clients.index')->with('success', 'Cliente eliminado correctamente.');
+        return response()->json(['success' => true]);
     }
 }
