@@ -10,9 +10,7 @@
                     <h1>Gestión de Proveedores</h1>
                     <p class="breadcrumb-clients-manager main">Administra tus proveedores y sus productos</p>
                 </div>
-                <button type="button" class="button-primary size-adjustment suppliers">
-                    + Nuevo Proveedor
-                </button>
+                <button class="button-primary size-adjustment new-supplier-btn">+ Nuevo Proveedor</button>
             </header>
 
             {{-- Stats --}}
