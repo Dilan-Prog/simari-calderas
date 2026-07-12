@@ -1,307 +1,541 @@
-    <script>
-        // ── Helpers de validación inline ─────────────────────────────
-        function valClear(form, name) {
+<script>
+    // ── Helpers de validación inline ────────────────────────
+    function valClear(form, name) {
+        const f = form.querySelector(`[name="${name}"]`);
+        if (!f) return;
+        f.classList.remove('val-error-input', 'val-error-select');
+        const wrapper = f.closest('.password-eye-container-from-users');
+        if (wrapper) wrapper.classList.remove('has-error');
+        form.querySelectorAll(`.val-error-msg[data-for="${name}"]`).forEach(el => el.remove());
+    }
+
+    function valMark(form, name, label) {
+        const f = form.querySelector(`[name="${name}"]`);
+        if (!f) return;
+        f.classList.add(f.tagName === 'SELECT' ? 'val-error-select' : 'val-error-input');
+        const wrapper = f.closest('.password-eye-container-from-users');
+        if (!form.querySelector(`.val-error-msg[data-for="${name}"]`)) {
+            const msg = document.createElement('span');
+            msg.className = 'val-error-msg';
+            msg.dataset.for = name;
+            msg.textContent = `El campo "${label}" es requerido`;
+            if (wrapper) {
+                wrapper.classList.add('has-error');
+                wrapper.insertAdjacentElement('afterend', msg);
+            } else {
+                f.insertAdjacentElement('afterend', msg);
+            }
+        }
+    }
+
+    function valRun(form, fields) {
+        let first = null;
+        fields.forEach(([name, label]) => {
             const f = form.querySelector(`[name="${name}"]`);
             if (!f) return;
-            f.classList.remove('val-error-input', 'val-error-select');
-            const wrapper = f.closest('.password-eye-container-from-users')
-            if (wrapper) wrapper.classList.remove('has-error');
-            form.querySelectorAll(`.val-error-msg[data-for="${name}"]`).forEach(el => el.remove());
-        }
+            const empty = f.tagName === 'SELECT' ? f.value === '' : f.value.trim() === '';
+            if (empty) {
+                valMark(form, name, label);
+                if (!first) first = f;
+            } else valClear(form, name);
+        });
+        return first;
+    }
 
-        function valMark(form, name, label) {
+    function valBind(form, fields) {
+        fields.forEach(([name]) => {
             const f = form.querySelector(`[name="${name}"]`);
             if (!f) return;
-            f.classList.add(f.tagName === 'SELECT' ? 'val-error-select' : 'val-error-input');
-            const wrapper = f.closest('.password-eye-container-from-users');
-
-            if (!form.querySelector(`.val-error-msg[data-for="${name}"]`)) {
-                const msg = document.createElement('span');
-                msg.className = 'val-error-msg';
-                msg.dataset.for = name;
-                msg.textContent = `El campo "${label}" es requerido`;
-
-                if (wrapper) {
-                    wrapper.classList.add('has-error');
-                    wrapper.insertAdjacentElement('afterend', msg);
-                } else {
-                    f.insertAdjacentElement('afterend', msg);
-                }
-            }
-        }
-
-        function valRun(form, fields) {
-            let first = null;
-            fields.forEach(([name, label]) => {
-                const f = form.querySelector(`[name="${name}"]`);
-                if (!f) return;
-                const empty = f.tagName === 'SELECT' ? f.value === '' : f.value.trim() === '';
-                if (empty) {
-                    valMark(form, name, label);
-                    if (!first) first = f;
-                } else valClear(form, name);
-            });
-            return first;
-        }
-
-        function valBind(form, fields) {
-            fields.forEach(([name]) => {
-                const f = form.querySelector(`[name="${name}"]`);
-                if (!f) return;
-                f.addEventListener(f.tagName === 'SELECT' ? 'change' : 'input', () => valClear(form, name));
-            });
-        }
-
-        function bindPhoneInput(input) {
-            input.addEventListener('input', function() {
-                this.value = this.value.replace(/[^0-9]/g, '').slice(0, 14);
-            });
-            input.addEventListener('paste', function(e) {
-                e.preventDefault();
-                const text = (e.clipboardData || window.clipboardData).getData('text');
-                this.value = (this.value + text).replace(/[^0-9]/g, '').slice(0, 14);
-            });
-        }
-
-        function bindEmergencyPhones(container) {
-            container.querySelectorAll('[name="emergency_phone[]"]').forEach(input => {
-                if (input.dataset.phoneBound) return;
-                input.dataset.phoneBound = '1';
-                bindPhoneInput(input);
-            });
-        }
-
-        function bindLettersOnly(input) {
-            input.addEventListener('input', function() {
-                this.value = this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]/g, '');
-            });
-            input.addEventListener('paste', function(e) {
-                e.preventDefault();
-                const text = (e.clipboardData || window.clipboardData).getData('text');
-                this.value = (this.value + text).replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]/g, '');
-            });
-        }
-
-        function bindNumericOnly(input) {
-            input.addEventListener('input', function() {
-                this.value = this.value.replace(/[^0-9]/g, '');
-            });
-            input.addEventListener('paste', function(e) {
-                e.preventDefault();
-                const text = (e.clipboardData || window.clipboardData).getData('text');
-                this.value = (this.value + text).replace(/[^0-9]/g, '');
-            });
-        }
-
-        function bindCurpInput(input) {
-            input.addEventListener('input', function() {
-                this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 18);
-            });
-            input.addEventListener('paste', function(e) {
-                e.preventDefault();
-                const text = (e.clipboardData || window.clipboardData).getData('text');
-                this.value = (this.value + text).toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 18);
-            });
-        }
-
-        // ─────────────────────────────────────────────────────────────
-
-        const updateUserUrl = '{{ route('admin.users.update', ':id') }}';
-        const showUserUrl = '{{ route('admin.users.show', ':id') }}';
-
-        // --- Helpers ---
-        const closeModalWithAnim = (m) => {
-            const mc = m.querySelector('.user-manager-modal-content');
-            if (mc) {
-                mc.style.transform = 'translateX(100%)';
-                mc.style.transition = 'transform 0.2s ease-in';
-            }
-            m.style.transition = 'opacity 0.2s ease-in';
-            setTimeout(() => {
-                m.style.display = 'none';
-                if (mc) {
-                    mc.style.transform = '';
-                    mc.style.transition = '';
-                }
-                m.style.transition = '';
-            }, 300);
-        };
-
-        const maxContacts = 5;
-
-        const setFieldValue = (form, name, value) => {
-            const field = form.querySelector(`[name="${name}"]`);
-            if (!field) return;
-            field.value = value ?? '';
-        };
-
-        // --- Factory: builds a contact row for both modals ---
-        function buildContactRow(data = {}, deleteBtnClass, onDelete) {
-            const div = document.createElement('div');
-            div.className = 'user-manager-form user-manager-form-3 emergency-contact-item';
-            div.innerHTML = `
-    <div>
-        <label class="supliers-manager-slider-label email">Nombre del Contacto</label>
-        <input type="text" class="users-manager-input" name="emergency_contact_name[]"
-            placeholder="Ej: Juan Pérez">
-    </div>
-    <div>
-        <label class="supliers-manager-slider-label email">Teléfono</label>
-        <input type="text" class="users-manager-input" name="emergency_phone[]"
-            placeholder="(449) 123-4567">
-    </div>
-
-    <div class="last-column-user-manage">
-        <div>
-            <label class="supliers-manager-slider-label email">Parentesco</label>
-            <input type="text" class="users-manager-input" name="relationship[]"
-            placeholder="Ej: Hermano/a, Esposo/a">
-        </div>
-        <button type="button" class="table-users-manager-action-btn delete ${deleteBtnClass}">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
-                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M3 6h18"></path>
-                <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
-                <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
-                <line x1="10" x2="10" y1="11" y2="17"></line>
-                <line x1="14" x2="14" y1="11" y2="17"></line>
-            </svg>
-        </button>
-    </div>`;
-            // Set values via DOM property (not attribute) to avoid HTML injection
-            const inputs = div.querySelectorAll('input');
-            inputs[0].value = data.name || '';
-            inputs[1].value = data.phone || '';
-            inputs[2].value = data.relationship || '';
-
-            bindLettersOnly(inputs[0]);
-            bindLettersOnly(inputs[2]);
-
-            div.querySelector('.' + deleteBtnClass).addEventListener('click', onDelete);
-            return div;
-        }
-
-        // --- Create modal ---
-        const openBtn = document.querySelector('.button-primary.size-adjustment');
-        const modal = document.getElementById('userModal');
-        const closeBtn = document.getElementById('closeModal');
-        const cancelBtn = document.getElementById('cancelModal');
-
-        const createSsn = document.querySelector('#userCreateForm [name="social_segurity_number"]');
-        const createPhone = document.querySelector('#userCreateForm [name="phone"]');
-        const createCurp = document.querySelector('#userCreateForm [name="curp"]');
-        const createFirstName = document.querySelector('#userCreateForm [name="first_name"]');
-        const createLastName = document.querySelector('#userCreateForm [name="last_name"]');
-        const createPosition = document.querySelector('#userCreateForm [name="position"]');
-
-        if (createSsn) bindNumericOnly(createSsn);
-        if (createPhone) bindPhoneInput(createPhone);
-        if (createCurp) bindCurpInput(createCurp);
-        if (createFirstName) bindLettersOnly(createFirstName);
-        if (createLastName) bindLettersOnly(createLastName);
-        if (createPosition) bindLettersOnly(createPosition);
-
-
-        if (openBtn) openBtn.addEventListener('click', () => {
-            modal.style.display = 'flex';
+            f.addEventListener(f.tagName === 'SELECT' ? 'change' : 'input',
+                () => valClear(form, name));
         });
-        if (closeBtn) closeBtn.addEventListener('click', () => closeModalWithAnim(modal));
-        if (cancelBtn) cancelBtn.addEventListener('click', () => closeModalWithAnim(modal));
+    }
 
-        let clickStartedOutside = false;
-        window.addEventListener('mousedown', (e) => {
-            clickStartedOutside = (e.target === modal || e.target === editModal);
+    // ── Format binds ────────────────────────────────────────
+    function bindPhoneInput(input) {
+        input.addEventListener('input', function() {
+            this.value = this.value.replace(/[^0-9]/g, '').slice(0, 14);
         });
-        window.addEventListener('mouseup', (e) => {
-            if (clickStartedOutside && (e.target === modal || e.target === editModal)) {
-                if (e.target === modal) closeModalWithAnim(modal);
-                if (e.target === editModal) closeModalWithAnim(editModal);
-            }
-            clickStartedOutside = false;
-        });
-
-        // --- Create modal emergency contacts ---
-        const addBtn = document.getElementById('addEmergencyContact');
-        const container = document.getElementById('emergency-contacts-container');
-        const textCounter = document.getElementById('emergencyText');
-
-        function updateUI() {
-            const rows = container.querySelectorAll('.emergency-contact-item');
-            const total = rows.length;
-
-            textCounter.textContent = `Agregar otro contacto de emergencia (${total}/${maxContacts})`;
-            addBtn.style.display = total >= maxContacts ? 'none' : 'flex';
-            rows.forEach(row => {
-                const btn = row.querySelector('.edit-delete-emergency-btn');
-
-                if (total > 1) {
-                    btn.style.display = 'inline-flex';
-                } else {
-                    btn.style.display = 'none';
-                }
-            });
-        }
-
-        function addCreateContactRow(data = {}) {
-            const row = buildContactRow(data, 'edit-delete-emergency-btn', () => {
-                const total = container.querySelectorAll('.emergency-contact-item').length;
-
-                if (total > 1) {
-                    row.remove();
-                    updateUI();
-                }
-            });
-            container.appendChild(row);
-            bindEmergencyPhones(container);
-            updateUI();
-        }
-
-        // Seed the first row via JS so the factory controls all rows
-        container.innerHTML = '';
-        addCreateContactRow();
-
-        addBtn.addEventListener('click', () => {
-            if (container.querySelectorAll('.emergency-contact-item').length < maxContacts) {
-                addCreateContactRow();
-            }
-        });
-
-        updateUI();
-
-        // --- Validación formulario CREAR usuario ---
-        const createUserForm = document.getElementById('userCreateForm');
-        const createUserFields = [
-            ['first_name', 'Nombre'],
-            ['last_name', 'Apellidos'],
-            ['email', 'Email'],
-            ['phone', 'Teléfono'],
-            ['rfc', 'RFC'],
-            ['role_id', 'Role'],
-            ['status', 'Estado'],
-            ['password', 'Contraseña'],
-            ['password_confirmation', 'Confirmar Contraseña'],
-        ];
-        valBind(createUserForm, createUserFields);
-        createUserForm.addEventListener('submit', (e) => {
+        input.addEventListener('paste', function(e) {
             e.preventDefault();
+            const text = (e.clipboardData || window.clipboardData).getData('text');
+            this.value = (this.value + text).replace(/[^0-9]/g, '').slice(0, 14);
+        });
+    }
 
-            const firstErr = valRun(createUserForm, createUserFields);
-            if (firstErr) {
-                firstErr.scrollIntoView({
+    function bindEmergencyPhones(container) {
+        container.querySelectorAll('[name="emergency_phone[]"]').forEach(input => {
+            if (input.dataset.phoneBound) return;
+            input.dataset.phoneBound = '1';
+            bindPhoneInput(input);
+        });
+    }
+
+    function bindLettersOnly(input) {
+        input.addEventListener('input', function() {
+            this.value = this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]/g, '');
+        });
+        input.addEventListener('paste', function(e) {
+            e.preventDefault();
+            const text = (e.clipboardData || window.clipboardData).getData('text');
+            this.value = (this.value + text).replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]/g, '');
+        });
+    }
+
+    function bindNumericOnly(input) {
+        input.addEventListener('input', function() {
+            this.value = this.value.replace(/[^0-9]/g, '');
+        });
+        input.addEventListener('paste', function(e) {
+            e.preventDefault();
+            const text = (e.clipboardData || window.clipboardData).getData('text');
+            this.value = (this.value + text).replace(/[^0-9]/g, '');
+        });
+    }
+
+    function bindCurpInput(input) {
+        input.addEventListener('input', function() {
+            this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 18);
+        });
+        input.addEventListener('paste', function(e) {
+            e.preventDefault();
+            const text = (e.clipboardData || window.clipboardData).getData('text');
+            this.value = (this.value + text).toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 18);
+        });
+    }
+
+    // ── URLs ────────────────────────────────────────────────
+    const updateUserUrl = '{{ route('admin.users.update', ':id') }}';
+    const showUserUrl = '{{ route('admin.users.show', ':id') }}';
+
+    // ── Helpers ─────────────────────────────────────────────
+    const closeModalWithAnim = (m) => {
+        const mc = m.querySelector('.user-manager-modal-content');
+        if (mc) {
+            mc.style.transform = 'translateX(100%)';
+            mc.style.transition = 'transform 0.2s ease-in';
+        }
+        m.style.transition = 'opacity 0.2s ease-in';
+        setTimeout(() => {
+            m.style.display = 'none';
+            if (mc) {
+                mc.style.transform = '';
+                mc.style.transition = '';
+            }
+            m.style.transition = '';
+        }, 300);
+    };
+
+    const maxContacts = 5;
+
+    const setFieldValue = (form, name, value) => {
+        const field = form.querySelector(`[name="${name}"]`);
+        if (!field) return;
+        field.value = value ?? '';
+    };
+
+    // ── Contact row factory ─────────────────────────────────
+    function buildContactRow(data = {}, deleteBtnClass, onDelete) {
+        const div = document.createElement('div');
+        div.className = 'user-manager-form user-manager-form-3 emergency-contact-item';
+        div.innerHTML = `
+            <div>
+                <label class="supliers-manager-slider-label email">Nombre del Contacto</label>
+                <input type="text" class="users-manager-input" name="emergency_contact_name[]"
+                    placeholder="Ej: Juan Pérez">
+            </div>
+            <div>
+                <label class="supliers-manager-slider-label email">Teléfono</label>
+                <input type="text" class="users-manager-input" name="emergency_phone[]"
+                    placeholder="(449) 123-4567">
+            </div>
+            <div class="last-column-user-manage">
+                <div>
+                    <label class="supliers-manager-slider-label email">Parentesco</label>
+                    <input type="text" class="users-manager-input" name="relationship[]"
+                        placeholder="Ej: Hermano/a, Esposo/a">
+                </div>
+                <button type="button" class="table-users-manager-action-btn delete ${deleteBtnClass}">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
+                        <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
+                        <line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/>
+                    </svg>
+                </button>
+            </div>`;
+
+        const inputs = div.querySelectorAll('input');
+        inputs[0].value = data.name || '';
+        inputs[1].value = data.phone || '';
+        inputs[2].value = data.relationship || '';
+
+        bindLettersOnly(inputs[0]);
+        bindLettersOnly(inputs[2]);
+
+        div.querySelector('.' + deleteBtnClass).addEventListener('click', onDelete);
+        return div;
+    }
+
+    // ── Create modal ────────────────────────────────────────
+    const openBtn = document.querySelector('.button-primary.size-adjustment');
+    const modal = document.getElementById('userModal');
+    const closeBtn = document.getElementById('closeModal');
+    const cancelBtn = document.getElementById('cancelModal');
+
+    // Formulario create — declarado ANTES de usarlo
+    const createUserForm = document.getElementById('userCreateForm');
+
+    // Format binds create
+    const createSsn = createUserForm?.querySelector('[name="social_segurity_number"]');
+    const createPhone = createUserForm?.querySelector('[name="phone"]');
+    const createCurp = createUserForm?.querySelector('[name="curp"]');
+    const createFirstName = createUserForm?.querySelector('[name="first_name"]');
+    const createLastName = createUserForm?.querySelector('[name="last_name"]');
+    const createPosition = createUserForm?.querySelector('[name="position"]');
+
+    if (createSsn) bindNumericOnly(createSsn);
+    if (createPhone) bindPhoneInput(createPhone);
+    if (createCurp) bindCurpInput(createCurp);
+    if (createFirstName) bindLettersOnly(createFirstName);
+    if (createLastName) bindLettersOnly(createLastName);
+    if (createPosition) bindLettersOnly(createPosition);
+
+    // Limpiar errores de campos únicos al escribir — CREATE
+    ['email', 'rfc', 'curp', 'social_segurity_number'].forEach(fieldName => {
+        const el = createUserForm?.querySelector(`[name="${fieldName}"]`);
+        if (el) el.addEventListener('input', () => valClear(createUserForm, fieldName));
+    });
+
+    if (openBtn) openBtn.addEventListener('click', () => modal.style.display = 'flex');
+    if (closeBtn) closeBtn.addEventListener('click', () => closeModalWithAnim(modal));
+    if (cancelBtn) cancelBtn.addEventListener('click', () => closeModalWithAnim(modal));
+
+    let clickStartedOutside = false;
+    window.addEventListener('mousedown', (e) => {
+        clickStartedOutside = (e.target === modal || e.target === editModal);
+    });
+    window.addEventListener('mouseup', (e) => {
+        if (clickStartedOutside && (e.target === modal || e.target === editModal)) {
+            if (e.target === modal) closeModalWithAnim(modal);
+            if (e.target === editModal) closeModalWithAnim(editModal);
+        }
+        clickStartedOutside = false;
+    });
+
+    // Create emergency contacts
+    const addBtn = document.getElementById('addEmergencyContact');
+    const container = document.getElementById('emergency-contacts-container');
+    const textCounter = document.getElementById('emergencyText');
+
+    function updateUI() {
+        const rows = container.querySelectorAll('.emergency-contact-item');
+        const total = rows.length;
+        textCounter.textContent = `Agregar otro contacto de emergencia (${total}/${maxContacts})`;
+        addBtn.style.display = total >= maxContacts ? 'none' : 'flex';
+        rows.forEach(row => {
+            const btn = row.querySelector('.edit-delete-emergency-btn');
+            if (btn) btn.style.display = total > 1 ? 'inline-flex' : 'none';
+        });
+    }
+
+    function addCreateContactRow(data = {}) {
+        const row = buildContactRow(data, 'edit-delete-emergency-btn', () => {
+            const total = container.querySelectorAll('.emergency-contact-item').length;
+            if (total > 1) {
+                row.remove();
+                updateUI();
+            }
+        });
+        container.appendChild(row);
+        bindEmergencyPhones(container);
+        updateUI();
+    }
+
+    container.innerHTML = '';
+    addCreateContactRow();
+    addBtn.addEventListener('click', () => {
+        if (container.querySelectorAll('.emergency-contact-item').length < maxContacts) {
+            addCreateContactRow();
+        }
+    });
+    updateUI();
+
+    // Create fields & validation
+    const createUserFields = [
+        ['first_name', 'Nombre'],
+        ['last_name', 'Apellidos'],
+        ['email', 'Email'],
+        ['phone', 'Teléfono'],
+        ['rfc', 'RFC'],
+        ['role_id', 'Role'],
+        ['status', 'Estado'],
+        ['password', 'Contraseña'],
+        ['password_confirmation', 'Confirmar Contraseña'],
+    ];
+    valBind(createUserForm, createUserFields);
+
+    // Create submit — AJAX
+    createUserForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const firstErr = valRun(createUserForm, createUserFields);
+        if (firstErr) {
+            firstErr.scrollIntoView({
+                behavior: 'smooth',
+                block: 'center'
+            });
+            try {
+                firstErr.focus();
+            } catch (_) {}
+            return;
+        }
+
+        const pwd = createUserForm.querySelector('[name="password"]');
+        const pwdCon = createUserForm.querySelector('[name="password_confirmation"]');
+        if (pwd.value !== pwdCon.value) {
+            valMark(createUserForm, 'password_confirmation', 'Confirmar Contraseña');
+            const msg = createUserForm.querySelector('.val-error-msg[data-for="password_confirmation"]');
+            if (msg) msg.textContent = 'Las contraseñas no coinciden';
+            pwdCon.scrollIntoView({
+                behavior: 'smooth',
+                block: 'center'
+            });
+            return;
+        }
+
+        const errorsContainer = document.getElementById('create-user-errors');
+        if (errorsContainer) {
+            errorsContainer.style.display = 'none';
+            errorsContainer.innerHTML = '';
+        }
+
+        try {
+            const response = await fetch('{{ route('admin.users.store') }}', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json',
+                },
+                body: new FormData(createUserForm),
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                closeModalWithAnim(modal);
+                createUserForm.reset();
+                container.innerHTML = '';
+                addCreateContactRow();
+                sessionStorage.setItem('userCreatedToast', '1');
+                setTimeout(() => window.location.reload(), 400);
+            } else if (response.status === 422) {
+                let firstMarked = null;
+
+                if (data.errors?.email) {
+                    valMark(createUserForm, 'email', 'Email');
+                    const msg = createUserForm.querySelector('.val-error-msg[data-for="email"]');
+                    if (msg) msg.textContent = data.errors.email[0];
+                    if (!firstMarked) firstMarked = createUserForm.querySelector('[name="email"]');
+                }
+                if (data.errors?.rfc) {
+                    valMark(createUserForm, 'rfc', 'RFC');
+                    const msg = createUserForm.querySelector('.val-error-msg[data-for="rfc"]');
+                    if (msg) msg.textContent = data.errors.rfc[0];
+                    if (!firstMarked) firstMarked = createUserForm.querySelector('[name="rfc"]');
+                }
+                if (data.errors?.curp) {
+                    valMark(createUserForm, 'curp', 'CURP');
+                    const msg = createUserForm.querySelector('.val-error-msg[data-for="curp"]');
+                    if (msg) msg.textContent = data.errors.curp[0];
+                    if (!firstMarked) firstMarked = createUserForm.querySelector('[name="curp"]');
+                }
+                if (data.errors?.social_segurity_number) {
+                    valMark(createUserForm, 'social_segurity_number', 'NSS');
+                    const msg = createUserForm.querySelector(
+                        '.val-error-msg[data-for="social_segurity_number"]');
+                    if (msg) msg.textContent = data.errors.social_segurity_number[0];
+                    if (!firstMarked) firstMarked = createUserForm.querySelector(
+                        '[name="social_segurity_number"]');
+                }
+
+                const nonFieldErrors = Object.keys(data.errors ?? {})
+                    .filter(k => !['email', 'rfc', 'curp', 'social_segurity_number'].includes(k))
+                    .flatMap(k => data.errors[k]);
+
+                if (nonFieldErrors.length > 0 && errorsContainer) {
+                    errorsContainer.innerHTML = nonFieldErrors.map(m => `<p>${m}</p>`).join('');
+                    errorsContainer.style.display = 'block';
+                }
+
+                if (firstMarked) {
+                    firstMarked.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'center'
+                    });
+                }
+            }
+        } catch (err) {
+            console.error('Error al crear usuario:', err);
+        }
+    });
+
+    // ── Edit modal ──────────────────────────────────────────
+    const editModal = document.getElementById('editUserModal');
+    const closeEditBtn = document.getElementById('closeEditModal');
+    const cancelEditBtn = document.getElementById('cancelEditModal');
+    const editForm = document.getElementById('editUserForm');
+    const editEcContainer = document.getElementById('edit-emergency-contacts-container');
+    const editAddBtn = document.getElementById('editAddEmergencyContact');
+    const editEcText = document.getElementById('editEmergencyText');
+
+    const editSsn = editForm?.querySelector('[name="social_segurity_number"]');
+    const editPhone = editForm?.querySelector('[name="phone"]');
+    const editCurp = editForm?.querySelector('[name="curp"]');
+    const editFirstName = editForm?.querySelector('[name="first_name"]');
+    const editLastName = editForm?.querySelector('[name="last_name"]');
+    const editPosition = editForm?.querySelector('[name="position"]');
+
+    if (editSsn) bindNumericOnly(editSsn);
+    if (editPhone) bindPhoneInput(editPhone);
+    if (editCurp) bindCurpInput(editCurp);
+    if (editFirstName) bindLettersOnly(editFirstName);
+    if (editLastName) bindLettersOnly(editLastName);
+    if (editPosition) bindLettersOnly(editPosition);
+
+    // Limpiar errores de campos únicos al escribir — EDIT
+    ['email', 'rfc', 'curp', 'social_segurity_number'].forEach(fieldName => {
+        const el = editForm?.querySelector(`[name="${fieldName}"]`);
+        if (el) el.addEventListener('input', () => valClear(editForm, fieldName));
+    });
+
+    if (closeEditBtn) closeEditBtn.addEventListener('click', () => closeModalWithAnim(editModal));
+    if (cancelEditBtn) cancelEditBtn.addEventListener('click', () => closeModalWithAnim(editModal));
+
+    function updateEditUI() {
+        const total = editEcContainer.querySelectorAll('.emergency-contact-item').length;
+        editEcText.textContent = `Agregar otro contacto de emergencia (${total}/${maxContacts})`;
+        editAddBtn.style.display = total >= maxContacts ? 'none' : 'flex';
+    }
+
+    function addEditContactRow(data = {}) {
+        const row = buildContactRow(data, 'edit-delete-emergency-btn', () => {
+            row.remove();
+            updateEditUI();
+        });
+        editEcContainer.appendChild(row);
+        bindEmergencyPhones(editEcContainer);
+        updateEditUI();
+    }
+
+    editAddBtn.addEventListener('click', () => {
+        if (editEcContainer.querySelectorAll('.emergency-contact-item').length < maxContacts) {
+            addEditContactRow();
+        }
+    });
+
+    let currentUserId = null;
+
+    const openEditModal = async (id) => {
+        currentUserId = id;
+
+        const errorsContainer = document.getElementById('edit-errors-container');
+        errorsContainer.style.display = 'none';
+        errorsContainer.innerHTML = '';
+        editEcContainer.innerHTML = '';
+        editModal.style.display = 'flex';
+
+        try {
+            const response = await fetch(showUserUrl.replace(':id', id), {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                },
+            });
+
+            if (!response.ok) throw new Error('No se pudo cargar el usuario');
+
+            const user = await response.json();
+
+            setFieldValue(editForm, 'first_name', user.first_name);
+            setFieldValue(editForm, 'last_name', user.last_name);
+            setFieldValue(editForm, 'birthdate', user.birthdate);
+            setFieldValue(editForm, 'rfc', user.rfc);
+            setFieldValue(editForm, 'curp', user.curp);
+            setFieldValue(editForm, 'social_segurity_number', user.social_segurity_number);
+            setFieldValue(editForm, 'email', user.email);
+            setFieldValue(editForm, 'phone', user.phone);
+            setFieldValue(editForm, 'position', user.position);
+            setFieldValue(editForm, 'role_id', user.role_id);
+            setFieldValue(editForm, 'status', user.status);
+            setFieldValue(editForm, 'password', '');
+            setFieldValue(editForm, 'password_confirmation', '');
+
+            const contacts = user.contact_emergency || [];
+            if (contacts.length === 0) {
+                addEditContactRow();
+            } else {
+                contacts.forEach(c => addEditContactRow({
+                    name: c.name,
+                    phone: c.phone,
+                    relationship: c.relationship,
+                }));
+            }
+        } catch (err) {
+            console.error('Error al cargar usuario:', err);
+        }
+    };
+
+    // Edit fields & validation
+    const editUserFields = [
+        ['first_name', 'Nombre'],
+        ['last_name', 'Apellidos'],
+        ['email', 'Email'],
+        ['phone', 'Teléfono'],
+        ['rfc', 'RFC'],
+        ['role_id', 'Role'],
+        ['status', 'Estado'],
+    ];
+    valBind(editForm, editUserFields);
+
+    // Edit submit
+    editForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const firstErr = valRun(editForm, editUserFields);
+        if (firstErr) {
+            firstErr.scrollIntoView({
+                behavior: 'smooth',
+                block: 'center'
+            });
+            try {
+                firstErr.focus();
+            } catch (_) {}
+            return;
+        }
+
+        const pwd = editForm.querySelector('[name="password"]');
+        const pwdCon = editForm.querySelector('[name="password_confirmation"]');
+        if (pwd.value || pwdCon.value) {
+            if (!pwd.value) {
+                valMark(editForm, 'password', 'Contraseña');
+                pwd.scrollIntoView({
                     behavior: 'smooth',
                     block: 'center'
                 });
-                try {
-                    firstErr.focus();
-                } catch (_) {}
                 return;
             }
-
-            const pwd = createUserForm.querySelector('[name="password"]');
-            const pwdCon = createUserForm.querySelector('[name="password_confirmation"]');
+            if (!pwdCon.value) {
+                valMark(editForm, 'password_confirmation', 'Confirmar Contraseña');
+                pwdCon.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'center'
+                });
+                return;
+            }
             if (pwd.value !== pwdCon.value) {
-                valMark(createUserForm, 'password_confirmation', 'Confirmar Contraseña');
-                const msg = createUserForm.querySelector('.val-error-msg[data-for="password_confirmation"]');
+                valMark(editForm, 'password_confirmation', 'Confirmar Contraseña');
+                const msg = editForm.querySelector('.val-error-msg[data-for="password_confirmation"]');
                 if (msg) msg.textContent = 'Las contraseñas no coinciden';
                 pwdCon.scrollIntoView({
                     behavior: 'smooth',
@@ -309,404 +543,285 @@
                 });
                 return;
             }
-            createUserForm.submit();
-        });
-
-        // --- Edit modal ---
-        const editModal = document.getElementById('editUserModal');
-        const closeEditBtn = document.getElementById('closeEditModal');
-        const cancelEditBtn = document.getElementById('cancelEditModal');
-        const editForm = document.getElementById('editUserForm');
-        const editEcContainer = document.getElementById('edit-emergency-contacts-container');
-        const editAddBtn = document.getElementById('editAddEmergencyContact');
-        const editEcText = document.getElementById('editEmergencyText');
-
-        const editSsn = document.querySelector('#editUserForm [name="social_segurity_number"]');
-        const editPhone = document.querySelector('#editUserForm [name="phone"]');
-        const editCurp = document.querySelector('#editUserForm [name="curp"]');
-        const editFirstName = document.querySelector('#editUserForm [name="first_name"]');
-        const editLastName = document.querySelector('#editUserForm [name="last_name"]');
-        const editPosition = document.querySelector('#editUserForm [name="position"]');
-
-        if (editSsn) bindNumericOnly(editSsn);
-        if (editPhone) bindPhoneInput(editPhone);
-        if (editCurp) bindCurpInput(editCurp);
-        if (editFirstName) bindLettersOnly(editFirstName);
-        if (editLastName) bindLettersOnly(editLastName);
-        if (editPosition) bindLettersOnly(editPosition);
-
-        function updateEditUI() {
-            const total = editEcContainer.querySelectorAll('.emergency-contact-item').length;
-            editEcText.textContent = `Agregar otro contacto de emergencia (${total}/${maxContacts})`;
-            editAddBtn.style.display = total >= maxContacts ? 'none' : 'flex';
         }
 
-        function addEditContactRow(data = {}) {
-            const row = buildContactRow(data, 'edit-delete-emergency-btn', () => {
-                row.remove();
-                updateEditUI();
+        const errorsContainer = document.getElementById('edit-errors-container');
+        errorsContainer.style.display = 'none';
+        errorsContainer.innerHTML = '';
+
+        const url = updateUserUrl.replace(':id', currentUserId);
+        const formData = new FormData(editForm);
+        formData.append('_method', 'PUT');
+
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json',
+                },
+                body: formData,
             });
-            editEcContainer.appendChild(row);
-            bindEmergencyPhones(editEcContainer);
-            updateEditUI();
-        }
 
-        editAddBtn.addEventListener('click', () => {
-            if (editEcContainer.querySelectorAll('.emergency-contact-item').length < maxContacts) {
-                addEditContactRow();
-            }
-        });
-
-        let currentUserId = null;
-
-        const openEditModal = async (id) => {
-            currentUserId = id;
-
-            const errorsContainer = document.getElementById('edit-errors-container');
-            errorsContainer.style.display = 'none';
-            errorsContainer.innerHTML = '';
-            editEcContainer.innerHTML = '';
-            editModal.style.display = 'flex';
-
-            try {
-
-                const response = await fetch(showUserUrl.replace(':id', id), {
-                    headers: {
-                        'Accept': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                    },
-                });
-
-                if (!response.ok) throw new Error('No se pudo cargar el usuario');
-
-                const user = await response.json();
-
-                setFieldValue(editForm, 'first_name', user.first_name);
-                setFieldValue(editForm, 'last_name', user.last_name);
-                setFieldValue(editForm, 'birthdate', user.birthdate);
-                setFieldValue(editForm, 'rfc', user.rfc);
-                setFieldValue(editForm, 'curp', user.curp);
-                setFieldValue(editForm, 'social_segurity_number', user.social_segurity_number);
-                setFieldValue(editForm, 'email', user.email);
-                setFieldValue(editForm, 'phone', user.phone);
-                setFieldValue(editForm, 'position', user.position);
-                setFieldValue(editForm, 'role_id', user.role_id);
-                setFieldValue(editForm, 'status', user.status);
-                setFieldValue(editForm, 'password', '');
-                setFieldValue(editForm, 'password_confirmation', '');
-
-                const contacts = user.contact_emergency || [];
-                if (contacts.length === 0) {
-                    addEditContactRow();
-                } else {
-                    contacts.forEach(c => addEditContactRow({
-                        name: c.name,
-                        phone: c.phone,
-                        relationship: c.relationship,
-                    }));
-                }
-            } catch (err) {
-                console.error('Error al cargar usuario:', err);
-            }
-        };
-
-        // Bind validación edit (una sola vez, el form es estático)
-        const editUserFields = [
-            ['first_name', 'Nombre'],
-            ['last_name', 'Apellidos'],
-            ['email', 'Email'],
-            ['phone', 'Teléfono'],
-            ['rfc', 'RFC'],
-            ['role_id', 'Role'],
-            ['status', 'Estado'],
-        ];
-        valBind(editForm, editUserFields);
-
-        editForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-
-            const firstErr = valRun(editForm, editUserFields);
-            if (firstErr) {
-                firstErr.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'center'
-                });
+            const data = await response.json();
+            console.log('Edit response:', response.status, data);
+            if (response.ok) {
+                closeModalWithAnim(editModal);
                 try {
-                    firstErr.focus();
-                } catch (_) {}
-                return;
-            }
-
-            const pwd = editForm.querySelector('[name="password"]');
-            const pwdCon = editForm.querySelector('[name="password_confirmation"]');
-            if (pwd.value || pwdCon.value) {
-                if (!pwd.value) {
-                    valMark(editForm, 'password', 'Contraseña');
-                    pwd.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'center'
-                    });
-                    return;
-                }
-                if (!pwdCon.value) {
-                    valMark(editForm, 'password_confirmation', 'Confirmar Contraseña');
-                    pwdCon.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'center'
-                    });
-                    return;
-                }
-                if (pwd.value !== pwdCon.value) {
-                    valMark(editForm, 'password_confirmation', 'Confirmar Contraseña');
-                    const msg = editForm.querySelector('.val-error-msg[data-for="password_confirmation"]');
-                    if (msg) msg.textContent = 'Las contraseñas no coinciden';
-                    pwdCon.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'center'
-                    });
-                    return;
-                }
-            }
-            const errorsContainer = document.getElementById('edit-errors-container');
-            errorsContainer.style.display = 'none';
-            errorsContainer.innerHTML = '';
-
-            const url = updateUserUrl.replace(':id', currentUserId);
-            const formData = new FormData(editForm);
-            formData.append('_method', 'PUT');
-
-            try {
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                        'Accept': 'application/json',
-                    },
-                    body: formData,
-                });
-
-                const data = await response.json();
-
-                if (response.ok) {
-                    closeModalWithAnim(editModal);
                     updateTableRow(data.user);
+                } catch (err) {
+                    console.error('updateTableRow error:', err.message, err.stack);
+                }
+                setTimeout(() => {
                     showToast('Usuario actualizado correctamente');
-                } else if (response.status === 422) {
-                    const errorList = Object.values(data.errors).flat();
-                    errorsContainer.innerHTML = errorList.map(msg => `<p>${msg}</p>`).join('');
+                }, 350);
+            } else if (response.status === 422) {
+                let firstMarked = null;
+
+                if (data.errors?.email) {
+                    valMark(editForm, 'email', 'Email');
+                    const msg = editForm.querySelector('.val-error-msg[data-for="email"]');
+                    if (msg) msg.textContent = data.errors.email[0];
+                    if (!firstMarked) firstMarked = editForm.querySelector('[name="email"]');
+                }
+                if (data.errors?.rfc) {
+                    valMark(editForm, 'rfc', 'RFC');
+                    const msg = editForm.querySelector('.val-error-msg[data-for="rfc"]');
+                    if (msg) msg.textContent = data.errors.rfc[0];
+                    if (!firstMarked) firstMarked = editForm.querySelector('[name="rfc"]');
+                }
+                if (data.errors?.curp) {
+                    valMark(editForm, 'curp', 'CURP');
+                    const msg = editForm.querySelector('.val-error-msg[data-for="curp"]');
+                    if (msg) msg.textContent = data.errors.curp[0];
+                    if (!firstMarked) firstMarked = editForm.querySelector('[name="curp"]');
+                }
+                if (data.errors?.social_segurity_number) {
+                    valMark(editForm, 'social_segurity_number', 'NSS');
+                    const msg = editForm.querySelector('.val-error-msg[data-for="social_segurity_number"]');
+                    if (msg) msg.textContent = data.errors.social_segurity_number[0];
+                    if (!firstMarked) firstMarked = editForm.querySelector(
+                        '[name="social_segurity_number"]');
+                }
+
+                const nonFieldErrors = Object.keys(data.errors ?? {})
+                    .filter(k => !['email', 'rfc', 'curp', 'social_segurity_number'].includes(k))
+                    .flatMap(k => data.errors[k]);
+
+                if (nonFieldErrors.length > 0) {
+                    errorsContainer.innerHTML = nonFieldErrors.map(m => `<p>${m}</p>`).join('');
                     errorsContainer.style.display = 'block';
                 }
-            } catch (err) {
-                console.error('Error al actualizar usuario:', err);
-            }
-        });
 
-        function updateTableRow(user) {
-            const editBtn = document.querySelector(`.btn-edit-user[data-id="${user.id}"]`);
-            if (!editBtn) return;
-            const row = editBtn.closest('tr');
-
-            row.querySelector('.users-manager-name-user').textContent =
-                `${user.first_name} ${user.last_name}`;
-            row.querySelector('.breadcrumb-users-manager.main').textContent = user.email;
-
-            const badge = row.querySelector('.users-manager-badge[class*="role-"]');
-            if (badge) {
-                const roleName = user.role ? user.role.name_role_es : '';
-                const lower = roleName.toLowerCase();
-                badge.className = 'users-manager-badge ' +
-                    (lower === 'administrador' || lower === 'admin' ? 'role-admin' : 'role-employee');
-                badge.textContent = roleName;
-            }
-
-            const statusBadge = row.querySelector('.users-manager-badge.status, .users-manager-badge.status-inactive');
-            if (statusBadge) {
-                if (user.status === 'active') {
-                    statusBadge.className = 'users-manager-badge status';
-                    statusBadge.textContent = 'Activo';
-                } else {
-                    statusBadge.className = 'users-manager-badge status-inactive';
-                    statusBadge.textContent = 'Inactivo';
+                if (firstMarked) {
+                    firstMarked.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'center'
+                    });
                 }
             }
+        } catch (err) {
+            console.error('Error al actualizar usuario:', err);
+        }
+    });
 
-            const deleteBtn = row.querySelector('.btn-delete-user');
-            if (deleteBtn) {
-                deleteBtn.dataset.name = `${user.first_name} ${user.last_name}`;
-                deleteBtn.dataset.email = user.email;
-                deleteBtn.dataset.initial = user.first_name.charAt(0).toUpperCase();
-            }
+    // ── Update table row ────────────────────────────────────
+    function updateTableRow(user) {
+        const editBtn = document.querySelector(`.btn-edit-user[data-id="${user.id}"]`);
+        if (!editBtn) return;
+        const row = editBtn.closest('tr');
+
+        const nameEl = row.querySelector('.users-manager-name-user');
+        if (nameEl) nameEl.textContent = `${user.first_name} ${user.last_name}`;
+
+        const emailEl = row.querySelector('.breadcrumb-users-manager.main');
+        if (emailEl) emailEl.textContent = user.email;
+
+        const badge = row.querySelector('.users-manager-badge[class*="role-"]');
+        if (badge && user.role) {
+            const roleName = user.role.name_role_es ?? '';
+            const lower = roleName.toLowerCase();
+            badge.className = 'users-manager-badge ' +
+                (lower.includes('admin') ? 'role-admin' : 'role-employee');
+            badge.textContent = roleName;
         }
 
-        function showToast(message, type = 'success') {
-            const toast = document.createElement('div');
-            toast.className = `toast toast-${type}`;
-            toast.textContent = message;
-            document.body.appendChild(toast);
-            setTimeout(() => toast.remove(), 3000);
-        }
-
-        document.querySelectorAll('.btn-edit-user').forEach(btn => {
-            btn.addEventListener('click', () => openEditModal(btn.dataset.id));
-        });
-
-        if (closeEditBtn) closeEditBtn.addEventListener('click', () => closeModalWithAnim(editModal));
-        if (cancelEditBtn) cancelEditBtn.addEventListener('click', () => closeModalWithAnim(editModal));
-
-        // Delete confirmation modal
-        const deleteModal = document.getElementById('deleteUserModal');
-        const deleteForm = document.getElementById('deleteUserForm');
-        const delCancelBtn = document.getElementById('delConfirmCancel');
-        const deleteBaseUrl = '{{ url('/admin/usuarios/eliminar-usuario') }}';
-
-        document.querySelectorAll('.btn-delete-user').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const id = btn.dataset.id;
-                const name = btn.dataset.name;
-                const email = btn.dataset.email;
-                const initial = btn.dataset.initial;
-
-                document.getElementById('delConfirmName').textContent = name;
-                document.getElementById('delConfirmEmail').textContent = email;
-                document.getElementById('delConfirmAvatar').textContent = initial;
-
-                deleteForm.action = deleteBaseUrl + '/' + id;
-                deleteModal.classList.add('active');
-            });
-        });
-        delCancelBtn.addEventListener('click', () => deleteModal.classList.remove('active'));
-        deleteModal.addEventListener('click', (e) => {
-            if (e.target === deleteModal) deleteModal.classList.remove('active');
-        });
-
-
-        // --- Show modal ---
-        const showModal = document.getElementById('showUserModal');
-        const closeShowBtn = document.getElementById('closeShowModal');
-        const cancelShowBtn = document.getElementById('cancelShowModal');
-
-        document.querySelectorAll('.btn-show-user').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const id = btn.getAttribute('data-id');
-                fetch(showUserUrl.replace(':id', id), {
-                        headers: {
-                            'Accept': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                        }
-                    })
-                    .then(res => res.json())
-                    .then(user => fillShowModal(user))
-                    .catch(err => console.error('Error loading user:', err));
-            });
-        });
-
-
-        const fillShowModal = (user) => {
-            const firstName = user.first_name || '';
-            const lastName = user.last_name || '';
-
-            // Hero
-            document.getElementById('showAvatar').textContent = firstName.charAt(0).toUpperCase();
-            document.getElementById('showFullName').textContent = firstName + ' ' + lastName;
-            document.getElementById('showEmailHero').textContent = user.email || '—';
-
-            // Role badge
-            const roleBadge = document.getElementById('showRoleBadge');
-            const roleName = user.role?.name_role_es || '—';
-            roleBadge.textContent = roleName;
-            roleBadge.className = 'users-manager-badge ' + (roleName.toLowerCase().includes('admin') ? 'role-admin' :
-                'role-employee');
-
-            // Status badge
-            const statusBadge = document.getElementById('showStatusBadge');
+        const statusBadge = row.querySelector(
+            '.users-manager-badge.status, .users-manager-badge.status-inactive');
+        if (statusBadge) {
+            statusBadge.className = 'users-manager-badge ' +
+                (user.status === 'active' ? 'status' : 'status-inactive');
             statusBadge.textContent = user.status === 'active' ? 'Activo' : 'Inactivo';
-            statusBadge.className = 'users-manager-badge ' + (user.status === 'active' ? 'status' : 'status-inactive');
+        }
 
-            // Personal info
-            document.getElementById('showFirstName').textContent = firstName || '—';
-            document.getElementById('showLastName').textContent = lastName || '—';
-            // document.getElementById('showBirthdate').textContent = user.birthdate || '—';
-            document.getElementById('showRfc').textContent = user.rfc || '—';
-            document.getElementById('showCurp').textContent = user.curp || '—';
-            document.getElementById('showSsn').textContent = user.social_segurity_number || '—';
+        const deleteBtn = row.querySelector('.btn-delete-user');
+        if (deleteBtn) {
+            deleteBtn.dataset.name = `${user.first_name} ${user.last_name}`;
+            deleteBtn.dataset.email = user.email;
+            deleteBtn.dataset.initial = user.first_name.charAt(0).toUpperCase();
+        }
+    }
 
-            // Contact
-            document.getElementById('showEmail').textContent = user.email || '—';
-            document.getElementById('showPhone').textContent = user.phone || '—';
-            document.getElementById('showPosition').textContent = user.position || '—';
+    // ── Toast ───────────────────────────────────────────────
+    function showToast(message, type = 'success') {
+        const toast = document.createElement('div');
+        toast.className = `toast toast-${type}`;
+        toast.textContent = message;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+    }
 
-            // Emergency contacts
-            const ecContainer = document.getElementById('showEmergencyContainer');
-            ecContainer.innerHTML = '';
-            if (user.contact_emergency && user.contact_emergency.length > 0) {
-                user.contact_emergency.forEach(c => {
-                    ecContainer.innerHTML += `
-                <div class="show-user-field">
-                    <span class="show-user-field-label">NOMBRE DEL CONTACTO</span>
-                    <span class="show-user-field-value">${c.name || '—'}</span>
-                </div>
-                <div class="show-user-field">
-                    <span class="show-user-field-label">TELÉFONO</span>
-                    <span class="show-user-field-value">${c.phone || '—'}</span>
-                </div>
-                <div class="show-user-field">
-                    <span class="show-user-field-label">PARENTESCO</span>
-                    <span class="show-user-field-value">${c.relationship || '—'}</span>
-                </div>`;
-                });
-            } else {
-                ecContainer.innerHTML = '<p class="show-user-field-value">Sin contactos de emergencia.</p>';
-            }
+    // ── Edit btn in table ───────────────────────────────────
+    document.querySelectorAll('.btn-edit-user').forEach(btn => {
+        btn.addEventListener('click', () => openEditModal(btn.dataset.id));
+    });
 
-            // Account
-            const showRoleText = document.getElementById('showRoleText');
-            const showStatusText = document.getElementById('showStatusText');
+    if (closeEditBtn) closeEditBtn.addEventListener('click', () => closeModalWithAnim(editModal));
+    if (cancelEditBtn) cancelEditBtn.addEventListener('click', () => closeModalWithAnim(editModal));
 
-            showRoleText.textContent = roleName;
-            showRoleText.className = 'users-manager-badge ' + (roleName.toLowerCase().includes('admin') ? 'role-admin' :
-                'role-employee');
+    // ── Delete modal ────────────────────────────────────────
+    const deleteModal = document.getElementById('deleteUserModal');
+    const deleteForm = document.getElementById('deleteUserForm');
+    const delCancelBtn = document.getElementById('delConfirmCancel');
+    const deleteBaseUrl = '{{ url('/admin/usuarios/eliminar-usuario') }}';
 
-            showStatusText.textContent = user.status === 'active' ? 'Activo' : 'Inactivo';
-            showStatusText.className = 'users-manager-badge ' + (user.status === 'active' ? 'status' :
-                'status-inactive');
-            document.getElementById('showCreatedAt').textContent = user.created_at ?
-                new Date(user.created_at).toLocaleDateString('es-MX', {
-                    day: 'numeric',
-                    month: 'long',
-                    year: 'numeric'
-                }) :
-                '—';
-
-            // Store current user id for edit button
-            showModal.dataset.currentId = user.id;
-            showModal.classList.add('active');
-        };
-
-        closeShowBtn.addEventListener('click', () => showModal.classList.remove('active'));
-        cancelShowBtn.addEventListener('click', () => showModal.classList.remove('active'));
-        showModal.addEventListener('click', (e) => {
-            if (e.target === showModal) showModal.classList.remove('active');
+    document.querySelectorAll('.btn-delete-user').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.getElementById('delConfirmName').textContent = btn.dataset.name;
+            document.getElementById('delConfirmEmail').textContent = btn.dataset.email;
+            document.getElementById('delConfirmAvatar').textContent = btn.dataset.initial;
+            deleteForm.action = deleteBaseUrl + '/' + btn.dataset.id;
+            deleteModal.classList.add('active');
         });
+    });
 
+    delCancelBtn.addEventListener('click', () => deleteModal.classList.remove('active'));
+    deleteModal.addEventListener('click', (e) => {
+        if (e.target === deleteModal) deleteModal.classList.remove('active');
+    });
 
-        // "Edit User" button inside show modal — opens edit modal
-        showEditBtn.addEventListener('click', () => {
-            const id = showModal.dataset.currentId;
-            const editBtn = document.querySelector('.btn-edit-user[data-id="' + id + '"]');
-            showModal.classList.remove('active');
-            if (editBtn) editBtn.click();
+    // ── Show modal ──────────────────────────────────────────
+    const showModal = document.getElementById('showUserModal');
+    const closeShowBtn = document.getElementById('closeShowModal');
+    const cancelShowBtn = document.getElementById('cancelShowModal');
+    const showEditBtn = document.getElementById('showEditBtn');
+
+    document.querySelectorAll('.btn-show-user').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const id = btn.getAttribute('data-id');
+            fetch(showUserUrl.replace(':id', id), {
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    }
+                })
+                .then(res => res.json())
+                .then(user => fillShowModal(user))
+                .catch(err => console.error('Error loading user:', err));
         });
+    });
 
-        // --- Password visibility toggle ---
-        document.querySelectorAll('.lucide-eye').forEach(eyeIcon => {
-            eyeIcon.addEventListener('click', () => {
-                const input = eyeIcon.previousElementSibling;
-                if (!input || input.tagName !== 'INPUT') return;
-                const showing = input.type === 'text';
-                input.type = showing ? 'password' : 'text';
-                eyeIcon.innerHTML = showing ?
-                    `<path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"></path><circle cx="12" cy="12" r="3"></circle>` :
-                    `<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line>`;
+    const fillShowModal = (user) => {
+        const firstName = user.first_name || '';
+        const lastName = user.last_name || '';
+
+        document.getElementById('showAvatar').textContent = firstName.charAt(0).toUpperCase();
+        document.getElementById('showFullName').textContent = firstName + ' ' + lastName;
+        document.getElementById('showEmailHero').textContent = user.email || '—';
+
+        const roleBadge = document.getElementById('showRoleBadge');
+        const roleName = user.role?.name_role_es || '—';
+        roleBadge.textContent = roleName;
+        roleBadge.className = 'users-manager-badge ' +
+            (roleName.toLowerCase().includes('admin') ? 'role-admin' : 'role-employee');
+
+        const statusBadge = document.getElementById('showStatusBadge');
+        statusBadge.textContent = user.status === 'active' ? 'Activo' : 'Inactivo';
+        statusBadge.className = 'users-manager-badge ' +
+            (user.status === 'active' ? 'status' : 'status-inactive');
+
+        document.getElementById('showFirstName').textContent = firstName || '—';
+        document.getElementById('showLastName').textContent = lastName || '—';
+        document.getElementById('showRfc').textContent = user.rfc || '—';
+        document.getElementById('showCurp').textContent = user.curp || '—';
+        document.getElementById('showSsn').textContent = user.social_segurity_number || '—';
+        document.getElementById('showEmail').textContent = user.email || '—';
+        document.getElementById('showPhone').textContent = user.phone || '—';
+        document.getElementById('showPosition').textContent = user.position || '—';
+
+        const ecContainer = document.getElementById('showEmergencyContainer');
+        ecContainer.innerHTML = '';
+        if (user.contact_emergency && user.contact_emergency.length > 0) {
+            user.contact_emergency.forEach(c => {
+                ecContainer.innerHTML += `
+                    <div class="show-user-field">
+                        <span class="show-user-field-label">NOMBRE DEL CONTACTO</span>
+                        <span class="show-user-field-value">${c.name || '—'}</span>
+                    </div>
+                    <div class="show-user-field">
+                        <span class="show-user-field-label">TELÉFONO</span>
+                        <span class="show-user-field-value">${c.phone || '—'}</span>
+                    </div>
+                    <div class="show-user-field">
+                        <span class="show-user-field-label">PARENTESCO</span>
+                        <span class="show-user-field-value">${c.relationship || '—'}</span>
+                    </div>`;
             });
+        } else {
+            ecContainer.innerHTML = '<p class="show-user-field-value">Sin contactos de emergencia.</p>';
+        }
+
+        const showRoleText = document.getElementById('showRoleText');
+        const showStatusText = document.getElementById('showStatusText');
+
+        showRoleText.textContent = roleName;
+        showRoleText.className = 'users-manager-badge ' +
+            (roleName.toLowerCase().includes('admin') ? 'role-admin' : 'role-employee');
+
+        showStatusText.textContent = user.status === 'active' ? 'Activo' : 'Inactivo';
+        showStatusText.className = 'users-manager-badge ' +
+            (user.status === 'active' ? 'status' : 'status-inactive');
+
+        document.getElementById('showCreatedAt').textContent = user.created_at ?
+            new Date(user.created_at).toLocaleDateString('es-MX', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric'
+            }) :
+            '—';
+
+        showModal.dataset.currentId = user.id;
+        showModal.classList.add('active');
+    };
+
+    closeShowBtn.addEventListener('click', () => showModal.classList.remove('active'));
+    cancelShowBtn.addEventListener('click', () => showModal.classList.remove('active'));
+    showModal.addEventListener('click', (e) => {
+        if (e.target === showModal) showModal.classList.remove('active');
+    });
+
+    showEditBtn.addEventListener('click', () => {
+        const id = showModal.dataset.currentId;
+        const editBtn = document.querySelector('.btn-edit-user[data-id="' + id + '"]');
+        showModal.classList.remove('active');
+        if (editBtn) editBtn.click();
+    });
+
+    // ── Password toggle ─────────────────────────────────────
+    document.querySelectorAll('.lucide-eye').forEach(eyeIcon => {
+        eyeIcon.addEventListener('click', () => {
+            const input = eyeIcon.previousElementSibling;
+            if (!input || input.tagName !== 'INPUT') return;
+            const showing = input.type === 'text';
+            input.type = showing ? 'password' : 'text';
+            eyeIcon.innerHTML = showing ?
+                `<path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"></path><circle cx="12" cy="12" r="3"></circle>` :
+                `<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line>`;
         });
-    </script>
+    });
+    
+    if (sessionStorage.getItem('userCreatedToast')) {
+        sessionStorage.removeItem('userCreatedToast');
+        setTimeout(() => showToast('Usuario creado correctamente.'), 300);
+    }
+</script>

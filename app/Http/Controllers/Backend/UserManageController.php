@@ -13,8 +13,19 @@ class UserManageController extends Controller
     public function index()
     {
         $users = User::with(['role:id,name_role_es', 'contactEmergency'])
-            ->get(['id', 'first_name', 'last_name', 'email', 'role_id', 'status'
-            , 'rfc', 'curp', 'social_segurity_number', 'phone', 'position']);
+            ->get([
+                'id',
+                'first_name',
+                'last_name',
+                'email',
+                'role_id',
+                'status',
+                'rfc',
+                'curp',
+                'social_segurity_number',
+                'phone',
+                'position'
+            ]);
 
         $roles = Role::select('id', 'name_role_es')->get();
 
@@ -67,8 +78,10 @@ class UserManageController extends Controller
                 }
             }
         }
-
-        return redirect()->route('admin.users.index')->with('success', 'Usuario creado correctamente.');
+        return response()->json([
+            'success' => true,
+            'user'    => $user->load('role'),
+        ]);
     }
 
     public function show(string $id)
@@ -85,13 +98,13 @@ class UserManageController extends Controller
         $request->validate([
             'first_name' => 'required|string|max:100',
             'last_name' => 'required|string|max:100',
-            'email' => 'required|email|max:255|unique:users,email,'.$id,
+            'email' => 'required|email|max:255|unique:users,email,' . $id,
             'position' => 'nullable|string|max:150',
             'phone' => 'required|string|max:30',
             'status' => 'required|in:active,inactive,suspended',
-            'rfc' => 'required|string|max:15|unique:users,rfc,'.$id,
-            'curp' => 'nullable|string|max:18|unique:users,curp,'.$id,
-            'social_segurity_number' => 'nullable|string|max:20|unique:users,social_segurity_number,'.$id,
+            'rfc' => 'required|string|max:15|unique:users,rfc,' . $id,
+            'curp' => 'nullable|string|max:18|unique:users,curp,' . $id,
+            'social_segurity_number' => 'nullable|string|max:20|unique:users,social_segurity_number,' . $id,
             'role_id' => 'required|integer|exists:roles,id',
             'password' => 'nullable|string|min:8|confirmed',
             'emergency_contact_name' => 'nullable|array',
