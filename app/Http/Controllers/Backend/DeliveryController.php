@@ -11,21 +11,20 @@ class DeliveryController extends Controller
     /**
      * Display a listing of the resource.
      */
-   public function index()
-{
-   $deliveries = Delivery::get([
-        'id', 
-        'name', 
-        'code', 
-        'tracking_url_template', 
-        'phone', 
-        'website', 
-        'is_active', 
-        'created_at'
-    ]);
+   public function index(){
+        $deliveries = Delivery::get([
+                'id',
+                'name',
+                'code',
+                'tracking_url_template',
+                'phone',
+                'website',
+                'is_active',
+                'created_at'
+            ]);
 
-    return view('admin.delivery.index', compact('deliveries'));
-}
+            return view('admin.delivery.index', compact('deliveries'));
+    }
 
     /**
      * Show the form for creating a new resource.
@@ -82,10 +81,10 @@ class DeliveryController extends Controller
      */
     public function update(Request $request, string $id)
     {
-    
+
     $delivery = Delivery::findOrFail($id);
 
-    
+
     $request->validate([
         'name'                  => 'required|string|max:120|unique:carriers,name,' . $id,
         'code'                  => 'required|string|max:50|unique:carriers,code,' . $id,
@@ -95,20 +94,20 @@ class DeliveryController extends Controller
         'is_active'             => 'required|in:1,0',
     ]);
 
-    
+
     $delivery->name = $request->name;
     $delivery->code = $request->code;
     $delivery->tracking_url_template = $request->tracking_url_template;
     $delivery->phone = $request->phone;
     $delivery->website = $request->website;
     $delivery->is_active = $request->is_active;
-    
-    
+
+
     $delivery->save();
 
 
     return redirect()->route('admin.deliveries.index')
-                     ->with('success', 'Paquetería actualizada correctamente.');    
+                     ->with('success', 'Paquetería actualizada correctamente.');
     }
 
     /**
