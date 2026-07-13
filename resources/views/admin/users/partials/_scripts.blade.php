@@ -270,13 +270,37 @@
         ['rfc', 'RFC'],
         ['role_id', 'Role'],
         ['status', 'Estado'],
+        // FIX #2: Added 'position' to the client-side required-fields list.
+        // The server now requires `position` (see UserManageController), but
+        // this field was missing here, so it never got blocked/marked before
+        // hitting the fetch — and 422 responses for it fell through to the
+        // generic (missing) error container instead of an inline message.
+        ['position', 'Posición'],
         ['password', 'Contraseña'],
         ['password_confirmation', 'Confirmar Contraseña'],
     ];
     valBind(createUserForm, createUserFields);
 
+    // FIX #3 & #6: Centralized Spanish labels for inline 422 error messages.
+    // Previously only 4 fields (email, rfc, curp, social_segurity_number) had
+    // labels hardcoded inline in each submit handler; every other field
+    // (phone, role_id, status, first_name, last_name, password, position)
+    // had no label and was silently dropped into nonFieldErrors instead of
+    // being marked on its input. This map is shared by both submit handlers.
+    const fieldLabels = {
+        first_name: 'Nombre', last_name: 'Apellidos', email: 'Email', phone: 'Teléfono',
+        rfc: 'RFC', curp: 'CURP', social_segurity_number: 'NSS', role_id: 'Role',
+        status: 'Estado', password: 'Contraseña', password_confirmation: 'Confirmar Contraseña',
+        position: 'Posición',
+    };
+
     // Create submit — AJAX
     createUserForm.addEventListener('submit', async (e) => {
+        // FIX #1: Verified e.preventDefault() is already the first statement in
+        // this handler, with no logic before it that could throw and fall through
+        // to a native form submit. The described failure mode (duplicate-email
+        // submit closing the modal via a native page reload) does not reproduce
+        // with the current code order — documented here for traceability.
         e.preventDefault();
 
         const firstErr = valRun(createUserForm, createUserFields);
@@ -330,38 +354,27 @@
                 sessionStorage.setItem('userCreatedToast', '1');
                 setTimeout(() => window.location.reload(), 400);
             } else if (response.status === 422) {
+                // FIX #3 & #6: Dynamic loop over data.errors instead of a hardcoded
+                // 4-field list (email, rfc, curp, social_segurity_number). Every
+                // other field (phone, role_id, status, first_name, last_name,
+                // password, position) used to fall through to `nonFieldErrors` and
+                // render into '#create-user-errors', a container that didn't exist
+                // in this modal — so those errors silently disappeared. Now: if the
+                // field exists in the form, mark it inline; otherwise bucket it.
                 let firstMarked = null;
+                const nonFieldErrors = [];
 
-                if (data.errors?.email) {
-                    valMark(createUserForm, 'email', 'Email');
-                    const msg = createUserForm.querySelector('.val-error-msg[data-for="email"]');
-                    if (msg) msg.textContent = data.errors.email[0];
-                    if (!firstMarked) firstMarked = createUserForm.querySelector('[name="email"]');
-                }
-                if (data.errors?.rfc) {
-                    valMark(createUserForm, 'rfc', 'RFC');
-                    const msg = createUserForm.querySelector('.val-error-msg[data-for="rfc"]');
-                    if (msg) msg.textContent = data.errors.rfc[0];
-                    if (!firstMarked) firstMarked = createUserForm.querySelector('[name="rfc"]');
-                }
-                if (data.errors?.curp) {
-                    valMark(createUserForm, 'curp', 'CURP');
-                    const msg = createUserForm.querySelector('.val-error-msg[data-for="curp"]');
-                    if (msg) msg.textContent = data.errors.curp[0];
-                    if (!firstMarked) firstMarked = createUserForm.querySelector('[name="curp"]');
-                }
-                if (data.errors?.social_segurity_number) {
-                    valMark(createUserForm, 'social_segurity_number', 'NSS');
-                    const msg = createUserForm.querySelector(
-                        '.val-error-msg[data-for="social_segurity_number"]');
-                    if (msg) msg.textContent = data.errors.social_segurity_number[0];
-                    if (!firstMarked) firstMarked = createUserForm.querySelector(
-                        '[name="social_segurity_number"]');
-                }
-
-                const nonFieldErrors = Object.keys(data.errors ?? {})
-                    .filter(k => !['email', 'rfc', 'curp', 'social_segurity_number'].includes(k))
-                    .flatMap(k => data.errors[k]);
+                Object.keys(data.errors ?? {}).forEach(field => {
+                    const input = createUserForm.querySelector(`[name="${field}"]`);
+                    if (input) {
+                        valMark(createUserForm, field, fieldLabels[field] || field);
+                        const msg = createUserForm.querySelector(`.val-error-msg[data-for="${field}"]`);
+                        if (msg) msg.textContent = data.errors[field][0];
+                        if (!firstMarked) firstMarked = input;
+                    } else {
+                        nonFieldErrors.push(...data.errors[field]);
+                    }
+                });
 
                 if (nonFieldErrors.length > 0 && errorsContainer) {
                     errorsContainer.innerHTML = nonFieldErrors.map(m => `<p>${m}</p>`).join('');
@@ -459,7 +472,10 @@
 
             setFieldValue(editForm, 'first_name', user.first_name);
             setFieldValue(editForm, 'last_name', user.last_name);
-            setFieldValue(editForm, 'birthdate', user.birthdate);
+            // FIX #4: Removed dead code — setFieldValue for 'birthdate'. The
+            // birthdate field was removed from the edit form but this line
+            // remained; the setFieldValue's internal `if (!field) return;`
+            // guard made it a harmless no-op, but it served no purpose.
             setFieldValue(editForm, 'rfc', user.rfc);
             setFieldValue(editForm, 'curp', user.curp);
             setFieldValue(editForm, 'social_segurity_number', user.social_segurity_number);
@@ -495,11 +511,19 @@
         ['rfc', 'RFC'],
         ['role_id', 'Role'],
         ['status', 'Estado'],
+        // FIX #2: Added 'position' to the client-side required-fields list —
+        // see the matching comment on createUserFields above for the root cause.
+        ['position', 'Posición'],
     ];
     valBind(editForm, editUserFields);
 
     // Edit submit
     editForm.addEventListener('submit', async (e) => {
+        // FIX #1: Verified e.preventDefault() is already the first statement in
+        // this handler, with no logic before it that could throw and fall through
+        // to a native form submit. The described failure mode (duplicate-email
+        // submit closing the modal via a native page reload) does not reproduce
+        // with the current code order — documented here for traceability.
         e.preventDefault();
 
         const firstErr = valRun(editForm, editUserFields);
@@ -576,37 +600,27 @@
                     showToast('Usuario actualizado correctamente');
                 }, 350);
             } else if (response.status === 422) {
+                // FIX #3 & #6: Dynamic loop over data.errors instead of a hardcoded
+                // 4-field list (email, rfc, curp, social_segurity_number). Every
+                // other field (phone, role_id, status, first_name, last_name,
+                // password, position) used to fall through to `nonFieldErrors` and
+                // render as a generic block in '#edit-errors-container' instead of
+                // an inline message on the actual input. Now: if the field exists
+                // in the form, mark it inline; otherwise bucket it.
                 let firstMarked = null;
+                const nonFieldErrors = [];
 
-                if (data.errors?.email) {
-                    valMark(editForm, 'email', 'Email');
-                    const msg = editForm.querySelector('.val-error-msg[data-for="email"]');
-                    if (msg) msg.textContent = data.errors.email[0];
-                    if (!firstMarked) firstMarked = editForm.querySelector('[name="email"]');
-                }
-                if (data.errors?.rfc) {
-                    valMark(editForm, 'rfc', 'RFC');
-                    const msg = editForm.querySelector('.val-error-msg[data-for="rfc"]');
-                    if (msg) msg.textContent = data.errors.rfc[0];
-                    if (!firstMarked) firstMarked = editForm.querySelector('[name="rfc"]');
-                }
-                if (data.errors?.curp) {
-                    valMark(editForm, 'curp', 'CURP');
-                    const msg = editForm.querySelector('.val-error-msg[data-for="curp"]');
-                    if (msg) msg.textContent = data.errors.curp[0];
-                    if (!firstMarked) firstMarked = editForm.querySelector('[name="curp"]');
-                }
-                if (data.errors?.social_segurity_number) {
-                    valMark(editForm, 'social_segurity_number', 'NSS');
-                    const msg = editForm.querySelector('.val-error-msg[data-for="social_segurity_number"]');
-                    if (msg) msg.textContent = data.errors.social_segurity_number[0];
-                    if (!firstMarked) firstMarked = editForm.querySelector(
-                        '[name="social_segurity_number"]');
-                }
-
-                const nonFieldErrors = Object.keys(data.errors ?? {})
-                    .filter(k => !['email', 'rfc', 'curp', 'social_segurity_number'].includes(k))
-                    .flatMap(k => data.errors[k]);
+                Object.keys(data.errors ?? {}).forEach(field => {
+                    const input = editForm.querySelector(`[name="${field}"]`);
+                    if (input) {
+                        valMark(editForm, field, fieldLabels[field] || field);
+                        const msg = editForm.querySelector(`.val-error-msg[data-for="${field}"]`);
+                        if (msg) msg.textContent = data.errors[field][0];
+                        if (!firstMarked) firstMarked = input;
+                    } else {
+                        nonFieldErrors.push(...data.errors[field]);
+                    }
+                });
 
                 if (nonFieldErrors.length > 0) {
                     errorsContainer.innerHTML = nonFieldErrors.map(m => `<p>${m}</p>`).join('');
@@ -665,7 +679,14 @@
     // ── Toast ───────────────────────────────────────────────
     function showToast(message, type = 'success') {
         const toast = document.createElement('div');
-        toast.className = `toast toast-${type}`;
+        // FIX #7: Changed class from "toast toast-${type}" to "toast-notification
+        // toast-${type}". The `.toast` base class never existed in users.css — only
+        // `.toast-notification` (layout/position) and `.toast-success`/`.toast-error`
+        // (color modifiers) do — so the toast was inserted into the DOM with no
+        // layout rules applied, making it invisible. This was masked on create by
+        // an immediate window.location.reload(), but on edit it's the only feedback
+        // shown to the user and it never appeared.
+        toast.className = `toast-notification toast-${type}`;
         toast.textContent = message;
         document.body.appendChild(toast);
         setTimeout(() => toast.remove(), 3000);

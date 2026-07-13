@@ -35,10 +35,9 @@
                         <span class="show-user-field-label">APELLIDOS</span>
                         <span class="show-user-field-value" id="showLastName">—</span>
                     </div>
-                    {{-- <div class="show-user-field">
-                        <span class="show-user-field-label">FECHA DE NACIMIENTO</span>
-                        <span class="show-user-field-value" id="showBirthdate">—</span>
-                    </div> --}}
+                    {{-- FIX #4: Removed commented-out birthdate block (was lines
+                         38-41). The birthdate field no longer exists in the user
+                         flow — this was dead markup left from a previous version. --}}
                     <div class="show-user-field">
                         <span class="show-user-field-label">RFC</span>
                         <span class="show-user-field-value" id="showRfc">—</span>

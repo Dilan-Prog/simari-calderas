@@ -154,6 +154,13 @@
                 </div>
             </div>
 
+            {{-- FIX #3: Added missing #create-user-errors container. The JS 422
+                 handler (_scripts.blade.php) already targeted this ID to render
+                 non-field validation errors, but it never existed in this modal —
+                 those errors were computed and then silently dropped. Mirrors
+                 #edit-errors-container from _modal_edit.blade.php for consistency. --}}
+            <div id="create-user-errors" class="edit-errors" style="display:none;"></div>
+
             <!-- BUTTON -->
             <div class="user-manager-modal-footer">
                 <button type="button" id="cancelModal" class="button-secondary size-adjustment">Cancelar</button>
