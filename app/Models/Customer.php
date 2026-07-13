@@ -41,4 +41,21 @@ class Customer extends Authenticatable
     {
         return $this->hasOne(CustomerAddress::class)->where('is_default', true);
     }
+
+    // FIX QA-11: Added missing relations — destroy() in ClientManageController
+    // called withCount(['orders', 'quotes', 'serviceReports']), but none of
+    // those relation methods existed on this model, so every delete attempt
+    // crashed with a BadMethodCallException. 'services' (table `services`,
+    // App\Models\TechnicalService) is this domain's actual "order" concept —
+    // there is no separate Order model. Quote has no customer_id (guest-only
+    // fields), so it cannot be related here.
+    public function services()
+    {
+        return $this->hasMany(TechnicalService::class);
+    }
+
+    public function serviceReports()
+    {
+        return $this->hasMany(ServiceReport::class);
+    }
 }

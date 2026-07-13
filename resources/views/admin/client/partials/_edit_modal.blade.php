@@ -31,8 +31,11 @@
                 </div>
                 <div>
                     <label class="supliers-manager-slider-label">Email *</label>
+                    {{-- FIX QA-4: Added text-transform: lowercase for immediate visual
+                         feedback while typing. The actual value is already forced to
+                         lowercase in JS (dynamicEmailLowercase), this is just cosmetic. --}}
                     <input class="users-manager-input" type="email" name="email"
-                        placeholder="correo@empresa.mx">
+                        style="text-transform: lowercase" placeholder="correo@empresa.mx">
                 </div>
                 <div>
                     <label class="supliers-manager-slider-label">Teléfono</label>
@@ -51,11 +54,15 @@
                 </div>
                 <div>
                     <label class="supliers-manager-slider-label">Tipo de documento</label>
+                    {{-- FIX QA-8 Part A: Added missing 'cfdi' option so this select
+                         has the exact same options as the create modal — without it,
+                         a customer with document_type=cfdi couldn't be preselected. --}}
                     <select class="users-manager-select" name="document_type">
                         <option value="">Seleccionar...</option>
                         <option value="ine">INE</option>
                         <option value="pasaporte">Pasaporte</option>
                         <option value="curp">CURP</option>
+                        <option value="cfdi">CFDI</option>
                     </select>
                 </div>
                 <div>

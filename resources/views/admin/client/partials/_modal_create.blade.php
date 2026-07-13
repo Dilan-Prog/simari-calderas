@@ -1,5 +1,13 @@
 {{-- Create client modal --}}
-<div id="clientCreateModal" class="user-manager-modal client-manage-modal">
+{{-- FIX QA-10: This modal had no error-display markup at all. Since the create
+     form is a native submit (not AJAX), a server-side validation failure (e.g.
+     duplicate email/RFC, or the QA-1/QA-3/QA-5/QA-6 regex rules) did a
+     redirect()->back()->withErrors() with nothing on the page to show it — the
+     modal just reappeared closed with no feedback. Auto-open the modal and
+     render the generic error list when $errors is populated, mirroring the
+     #client-edit-errors container already used in the edit modal. --}}
+<div id="clientCreateModal" class="user-manager-modal client-manage-modal"
+    @if ($errors->any()) style="display:flex" @endif>
     <div class="user-manager-modal-content client-modal-content">
 
         {{-- Header --}}
@@ -7,6 +15,14 @@
             <h2>Nuevo Cliente</h2>
             <button type="button" class="table-users-manager-action-btn cancel" id="closeClientModal">✕</button>
         </div>
+
+        @if ($errors->any())
+            <div class="user-manager-errors">
+                @foreach ($errors->all() as $error)
+                    <p>{{ $error }}</p>
+                @endforeach
+            </div>
+        @endif
 
         {{-- Form --}}
         <form class="user-manager-modal-body" id="clientCreateForm"
@@ -41,8 +57,12 @@
                 </div>
                 <div>
                     <label class="supliers-manager-slider-label">Email *</label>
+                    {{-- FIX QA-4: Added text-transform: lowercase for immediate visual
+                         feedback while typing. The actual value is already forced to
+                         lowercase in JS (dynamicEmailLowercase), this is just cosmetic. --}}
                     <input class="users-manager-input" type="email" name="email"
-                        placeholder="correo@empresa.mx" value="{{ old('email') }}">
+                        style="text-transform: lowercase" placeholder="correo@empresa.mx"
+                        value="{{ old('email') }}">
                 </div>
                 <div>
                     <label class="supliers-manager-slider-label">Teléfono *</label>
