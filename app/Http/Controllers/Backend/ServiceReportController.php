@@ -146,8 +146,9 @@ class ServiceReportController extends Controller
 
         $this->validateStep($request, $report, $step);
 
+        $imagesFailed = 0;
         if ($step === 4 && $request->hasFile('images')) {
-            $this->service->saveImages($report, $request->file('images'));
+            $imagesFailed = $this->service->saveImages($report, $request->file('images'));
         }
 
         $this->service->updateStep($report, $request->all(), $step);
@@ -155,13 +156,24 @@ class ServiceReportController extends Controller
         // Step 6 = signature — handled by sign()
         $nextStep = $step + 1;
 
-        if ($nextStep > 6) {
-            return redirect()->route('admin.service-reports.show', $report)
-                ->with('success', 'Reporte completado exitosamente.');
+        $redirect = $nextStep > 6
+            ? redirect()->route('admin.service-reports.show', $report)->with('success', 'Reporte completado exitosamente.')
+            : redirect()->route('admin.service-reports.step', [$report, $nextStep])->with('success', "Paso {$step} guardado correctamente.");
+
+        if ($imagesFailed > 0) {
+            // FIX: images that GD/Intervention can't decode (unsupported
+            // format like HEIC, or a corrupted upload) used to crash the
+            // whole step with an uncaught exception and no feedback at all.
+            // Now the good images are saved and the user is told how many
+            // were skipped and why.
+            $message = $imagesFailed === 1
+                ? 'No se pudo procesar 1 imagen (formato no compatible o archivo dañado). Las demás se guardaron correctamente.'
+                : "No se pudieron procesar {$imagesFailed} imágenes (formato no compatible o archivos dañados). Las demás se guardaron correctamente.";
+
+            return $redirect->withErrors(['images' => $message]);
         }
 
-        return redirect()->route('admin.service-reports.step', [$report, $nextStep])
-            ->with('success', "Paso {$step} guardado correctamente.");
+        return $redirect;
     }
 
     // ── Show ───────────────────────────────────────────────────────────────────

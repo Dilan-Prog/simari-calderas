@@ -243,6 +243,16 @@
                 });
 
             /* ── Tags ── */
+            // FIX BUG 3: chips were purely visual with no way to reach the
+            // server. syncTagsHidden() collects the current chip text into
+            // the hidden #pformTagsHidden input as a JSON array string,
+            // called on every add/remove so it's always in sync at submit.
+            function syncTagsHidden() {
+                const values = Array.from(document.querySelectorAll('#pformTagList .pform-tag-chip'))
+                    .map(chip => chip.textContent);
+                document.getElementById('pformTagsHidden').value = JSON.stringify(values);
+            }
+
             function addTag() {
                 const input = document.getElementById('pformTagInput');
                 const val = input.value.trim();
@@ -253,10 +263,12 @@
                 chip.title = 'Clic para eliminar';
                 chip.addEventListener('click', function() {
                     this.remove();
+                    syncTagsHidden();
                 });
                 document.getElementById('pformTagList').appendChild(chip);
                 input.value = '';
                 input.focus();
+                syncTagsHidden();
             }
 
             document.getElementById('pformTagAdd').addEventListener('click', addTag);
@@ -307,6 +319,13 @@
 
             document.getElementById('pformSeoClose').addEventListener('click', function() {
                 seoModal.style.display = 'none';
+            });
+
+            // FIX BUG 6: "Guardar Producto" inside the SEO panel just clicks
+            // the real "Publicar Producto" button, reusing its existing
+            // validateForm() + submit flow instead of duplicating it.
+            document.getElementById('pformSeoSaveBtn').addEventListener('click', function() {
+                document.getElementById('pformBtnPublish').click();
             });
 
             /* ── SEO: title char counter ── */
@@ -582,5 +601,23 @@
                 renderPreviews();
             });
         })();
+
+        /* ── FIX (Documentación tab): visual feedback for the 6 document
+           uploads — the inputs are visually hidden behind a "Subir" label,
+           so without this the user had no confirmation a file was picked. ── */
+        document.querySelectorAll('.pform-doc-input').forEach(function(input) {
+            const row = input.closest('.pform-doc-row');
+            const info = row?.querySelector('.pform-doc-info p');
+            const originalText = info?.textContent;
+            input.addEventListener('change', function() {
+                if (this.files.length && info) {
+                    info.textContent = '📎 ' + this.files[0].name;
+                    info.style.color = '#16a34a';
+                } else if (info && originalText) {
+                    info.textContent = originalText;
+                    info.style.color = '';
+                }
+            });
+        });
     </script>
 @endpush

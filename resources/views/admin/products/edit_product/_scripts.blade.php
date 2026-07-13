@@ -251,20 +251,36 @@
                 });
 
             /* ── Tags ── */
-            function addTag() {
-                const input = document.getElementById('pformTagInput');
-                const val = input.value.trim();
-                if (!val) return;
+            // FIX BUG 3: chips were purely visual with no way to reach the
+            // server, and Edit never showed previously saved tags at all.
+            // syncTagsHidden() collects the current chip text into the
+            // hidden #pformTagsHidden input as a JSON array string.
+            function syncTagsHidden() {
+                const values = Array.from(document.querySelectorAll('#pformTagList .pform-tag-chip'))
+                    .map(chip => chip.textContent);
+                document.getElementById('pformTagsHidden').value = JSON.stringify(values);
+            }
+
+            function addTagChip(val) {
                 const chip = document.createElement('span');
                 chip.className = 'pform-tag-chip';
                 chip.textContent = val;
                 chip.title = 'Clic para eliminar';
                 chip.addEventListener('click', function() {
                     this.remove();
+                    syncTagsHidden();
                 });
                 document.getElementById('pformTagList').appendChild(chip);
+            }
+
+            function addTag() {
+                const input = document.getElementById('pformTagInput');
+                const val = input.value.trim();
+                if (!val) return;
+                addTagChip(val);
                 input.value = '';
                 input.focus();
+                syncTagsHidden();
             }
 
             document.getElementById('pformTagAdd').addEventListener('click', addTag);
@@ -275,12 +291,21 @@
                 }
             });
 
+            // FIX BUG 3: pre-populate the chips from the product's saved
+            // tags when opening the edit form.
+            @json($product->tags ?? []).forEach(addTagChip);
+            syncTagsHidden();
+
             /* ── Specs ── */
             const addSpecBtn = document.getElementById('pformAddSpec');
             const specsList = document.getElementById('pformSpecsList');
             const specsEmpty = document.getElementById('pformSpecsEmpty');
 
-            addSpecBtn.addEventListener('click', function() {
+            // FIX BUG 4: extracted the row-building logic out of the click
+            // handler into a reusable function so the same markup can be
+            // used both for a brand-new row and for rows pre-populated from
+            // the product's saved specifications.
+            function addSpecRow(key = '', value = '') {
                 specsEmpty.style.display = 'none';
                 specsList.style.display = 'flex';
 
@@ -295,6 +320,9 @@
                     '</svg>' +
                     '</button>';
 
+                row.querySelector('[name="spec_key[]"]').value = key;
+                row.querySelector('[name="spec_value[]"]').value = value;
+
                 row.querySelector('.pform-spec-del').addEventListener('click', function() {
                     row.remove();
                     if (specsList.children.length === 0) {
@@ -304,6 +332,18 @@
                 });
 
                 specsList.appendChild(row);
+            }
+
+            addSpecBtn.addEventListener('click', () => addSpecRow());
+
+            // FIX BUG 4: pre-populate spec rows from the product's saved
+            // specifications JSON when opening the edit form. Previously
+            // Edit always showed the empty state even if specs were saved,
+            // and re-submitting without manually re-adding them wiped the
+            // column (update() sets specifications = null when spec_key is
+            // absent).
+            @json(json_decode($product->specifications ?? '[]', true) ?? []).forEach(function(spec) {
+                addSpecRow(spec.key ?? '', spec.value ?? '');
             });
 
             /* ── SEO modal ── */
@@ -315,6 +355,13 @@
 
             document.getElementById('pformSeoClose').addEventListener('click', function() {
                 seoModal.style.display = 'none';
+            });
+
+            // FIX BUG 6: "Aplicar cambios SEO" inside the SEO panel just
+            // clicks the real "Publicar Producto" button, reusing its
+            // existing validateForm() + submit flow instead of duplicating it.
+            document.getElementById('pformSeoSaveBtn').addEventListener('click', function() {
+                document.getElementById('pformBtnPublish').click();
             });
 
             /* ── SEO: title char counter ── */
@@ -628,5 +675,23 @@
                 });
             }
         })();
+
+        /* ── FIX (Documentación tab): visual feedback for the 6 document
+           uploads — same as create, confirms a file was picked before
+           submitting. ── */
+        document.querySelectorAll('.pform-doc-input').forEach(function(input) {
+            const row = input.closest('.pform-doc-row');
+            const info = row?.querySelector('.pform-doc-info p');
+            const originalHtml = info?.innerHTML;
+            input.addEventListener('change', function() {
+                if (this.files.length && info) {
+                    info.textContent = '📎 ' + this.files[0].name + ' (nuevo, reemplazará al actual)';
+                    info.style.color = '#16a34a';
+                } else if (info && originalHtml) {
+                    info.innerHTML = originalHtml;
+                    info.style.color = '';
+                }
+            });
+        });
     </script>
 @endpush

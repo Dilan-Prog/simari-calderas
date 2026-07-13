@@ -39,31 +39,6 @@
 
         <div class="sr-form-body">
 
-            {{-- Botones cámara/galería (solo visible en mobile) --}}
-            <div class="sr-mobile-camera-section">
-                <label class="sr-camera-btn-label">
-                    <input type="file" name="images[]" accept="image/*" capture="environment"
-                           class="sr-hidden-file-input" id="cameraInput">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none"
-                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3z"/>
-                        <circle cx="12" cy="13" r="3"/>
-                    </svg>
-                    📷 Tomar foto
-                </label>
-                <label class="sr-gallery-btn-label">
-                    <input type="file" name="images[]" accept="image/*" multiple
-                           class="sr-hidden-file-input" id="galleryInput">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none"
-                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <rect width="18" height="18" x="3" y="3" rx="2" ry="2"/>
-                        <circle cx="9" cy="9" r="2"/>
-                        <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>
-                    </svg>
-                    🖼️ De galería
-                </label>
-            </div>
-
             {{-- Existing images --}}
             @if($images->count())
                 <p style="font-size:13px; font-weight:500; color:#374151; margin:0 0 12px;">
@@ -94,6 +69,33 @@
                   id="uploadForm">
                 @csrf
 
+                {{-- Botones cámara/galería (solo visible en mobile). Ninguno lleva
+                     name="images[]": solo alimentan el acumulador JS de abajo, que
+                     sincroniza todo hacia #imageInput (el único input que se envía). --}}
+                <div class="sr-mobile-camera-section">
+                    <label class="sr-camera-btn-label">
+                        <input type="file" accept="image/*" capture="environment"
+                               class="sr-hidden-file-input" id="cameraInput">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none"
+                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3z"/>
+                            <circle cx="12" cy="13" r="3"/>
+                        </svg>
+                        📷 Tomar foto
+                    </label>
+                    <label class="sr-gallery-btn-label">
+                        <input type="file" accept="image/*" multiple
+                               class="sr-hidden-file-input" id="galleryInput">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none"
+                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect width="18" height="18" x="3" y="3" rx="2" ry="2"/>
+                            <circle cx="9" cy="9" r="2"/>
+                            <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>
+                        </svg>
+                        🖼️ De galería
+                    </label>
+                </div>
+
                 <div class="sr-upload-zone" id="uploadZone">
                     <input type="file" name="images[]" id="imageInput" multiple accept="image/*">
                     <div class="sr-upload-icon">
@@ -112,7 +114,10 @@
 
                 <div class="sr-form-footer" style="padding:16px 0 0; border-top:none; margin-top:20px;">
                     <a href="{{ route('admin.service-reports.step', [$report, 3]) }}" class="sr-btn-outline">← Anterior</a>
-                    <button type="submit" class="sr-btn-primary">Guardar y continuar →</button>
+                    <div style="display:flex; gap:12px;">
+                        <button type="submit" id="skipImagesBtn" class="sr-btn-outline">Colocar después</button>
+                        <button type="submit" class="sr-btn-primary">Guardar y continuar →</button>
+                    </div>
                 </div>
             </form>
 
@@ -124,37 +129,97 @@
 @push('scripts')
 <script>
 (function () {
-    const input      = document.getElementById('imageInput');
-    const zone       = document.getElementById('uploadZone');
-    const previewGrid = document.getElementById('previewGrid');
+    const input        = document.getElementById('imageInput');
+    const zone         = document.getElementById('uploadZone');
+    const previewGrid  = document.getElementById('previewGrid');
+    const cameraInput  = document.getElementById('cameraInput');
+    const galleryInput = document.getElementById('galleryInput');
 
-    function showPreviews(files) {
+    // FIX: camera/gallery/dropzone used to be 3 independent inputs, each
+    // overwriting the previous selection and 2 of them living outside the
+    // <form> entirely (so those files never reached the server). Now all
+    // three feed a single accumulator that's synced into #imageInput, the
+    // only input actually named images[] and submitted with the form.
+    let acc = new DataTransfer();
+    let renderGen = 0;
+
+    function syncInput() {
+        input.files = acc.files;
+    }
+
+    function renderPreviews() {
         previewGrid.innerHTML = '';
+        const files = acc.files;
         if (!files.length) { previewGrid.style.display = 'none'; return; }
         previewGrid.style.display = 'grid';
-        Array.from(files).forEach(function (file) {
+        // Guard against FileReader callbacks from a stale (superseded)
+        // render still landing after a newer renderPreviews() call already
+        // cleared the grid — without this, fast successive selections
+        // (e.g. camera then gallery before the first preview finishes
+        // decoding) duplicate thumbnails.
+        const gen = ++renderGen;
+        Array.from(files).forEach(function (file, index) {
             const reader = new FileReader();
             reader.onload = function (e) {
+                if (gen !== renderGen) return;
                 const wrap = document.createElement('div');
                 wrap.className = 'sr-img-item sr-img-item-new';
                 wrap.innerHTML = '<img src="' + e.target.result + '" alt="">'
                                + '<span class="sr-img-new-badge">Nueva</span>';
+                const delBtn = document.createElement('button');
+                delBtn.type = 'button';
+                delBtn.className = 'sr-img-delete';
+                delBtn.title = 'Quitar';
+                delBtn.textContent = '×';
+                delBtn.addEventListener('click', function () {
+                    const rest = new DataTransfer();
+                    Array.from(acc.files).forEach(function (f, i) {
+                        if (i !== index) rest.items.add(f);
+                    });
+                    acc = rest;
+                    syncInput();
+                    renderPreviews();
+                });
+                wrap.appendChild(delBtn);
                 previewGrid.appendChild(wrap);
             };
             reader.readAsDataURL(file);
         });
     }
 
+    function addFiles(fileList) {
+        Array.from(fileList).forEach(function (f) { acc.items.add(f); });
+        syncInput();
+        renderPreviews();
+    }
+
     input.addEventListener('change', function () {
-        showPreviews(this.files);
+        addFiles(this.files);
     });
 
-    // Mobile camera/gallery inputs
-    var cameraInput  = document.getElementById('cameraInput');
-    var galleryInput = document.getElementById('galleryInput');
-    function handleMobileFiles(files) { showPreviews(files); }
-    if (cameraInput)  cameraInput.addEventListener('change',  function () { handleMobileFiles(this.files); });
-    if (galleryInput) galleryInput.addEventListener('change', function () { handleMobileFiles(this.files); });
+    if (cameraInput) {
+        cameraInput.addEventListener('change', function () {
+            addFiles(this.files);
+            this.value = '';
+        });
+    }
+    if (galleryInput) {
+        galleryInput.addEventListener('change', function () {
+            addFiles(this.files);
+            this.value = '';
+        });
+    }
+
+    const skipBtn = document.getElementById('skipImagesBtn');
+    if (skipBtn) {
+        skipBtn.addEventListener('click', function () {
+            // "Colocar después": skip uploading images now and just advance
+            // to the next step. Clear the accumulator first so this submit
+            // (to the same save-step route) goes out with zero images.
+            acc = new DataTransfer();
+            syncInput();
+        });
+    }
 
     zone.addEventListener('dragover', function (e) {
         e.preventDefault();
@@ -166,10 +231,8 @@
     zone.addEventListener('drop', function (e) {
         e.preventDefault();
         zone.classList.remove('drag-over');
-        const dt = e.dataTransfer;
-        if (dt.files.length) {
-            input.files = dt.files;
-            showPreviews(dt.files);
+        if (e.dataTransfer.files.length) {
+            addFiles(e.dataTransfer.files);
         }
     });
 })();

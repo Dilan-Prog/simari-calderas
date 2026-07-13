@@ -163,7 +163,7 @@ class ServiceReportService
         }
     }
 
-    public function saveImages(ServiceReport $report, array $files): void
+    public function saveImages(ServiceReport $report, array $files): int
     {
         $paths = $this->uploadImages($files, "service-reports/{$report->id}", width: 1800, quality: 92);
 
@@ -176,6 +176,8 @@ class ServiceReportService
                 'sort_order'        => $lastSort + $i + 1,
             ]);
         }
+
+        return count($files) - count($paths);
     }
 
     public function deleteReportImage(ServiceReportImage $image): void
