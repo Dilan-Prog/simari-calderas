@@ -106,11 +106,24 @@
     let drawing   = false;
     let hasStroke = false;
 
-    // Size canvas to its CSS width
+    // Size the canvas bitmap to its CSS box. FIX: this used to set only
+    // canvas.width, so on mobile (CSS min-height: 220px vs the 200px height
+    // attribute) the bitmap was stretched vertically and strokes landed
+    // offset from the finger. Both dimensions must match the CSS box, and
+    // context styles must be re-applied because resizing resets them.
+    function applyCtxStyles() {
+        ctx.strokeStyle = '#111827';
+        ctx.lineWidth   = 2;
+        ctx.lineCap     = 'round';
+        ctx.lineJoin    = 'round';
+    }
     function resize() {
         const w = canvas.offsetWidth;
+        const h = canvas.offsetHeight || 200;
         const saved = canvas.toDataURL();
-        canvas.width = w;
+        canvas.width  = w;
+        canvas.height = h;
+        applyCtxStyles();
         if (hasStroke) {
             const img = new Image();
             img.onload = () => ctx.drawImage(img, 0, 0);
@@ -119,11 +132,6 @@
     }
     resize();
     window.addEventListener('resize', resize);
-
-    ctx.strokeStyle = '#111827';
-    ctx.lineWidth   = 2;
-    ctx.lineCap     = 'round';
-    ctx.lineJoin    = 'round';
 
     function getPos(e) {
         const rect = canvas.getBoundingClientRect();

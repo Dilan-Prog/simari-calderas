@@ -332,7 +332,14 @@ class ServiceReportController extends Controller
                 'analyst_name'        => 'nullable|string|max:150',
                 'analyst_position'    => 'nullable|string|max:100',
             ],
-            4, 5 => [],
+            // Step 4 had no rules at all: any file type/size reached the
+            // image processor directly. Limits mirror what the UI promises
+            // ("JPG, PNG, WEBP · Máximo 5 MB por imagen").
+            4 => [
+                'images'   => 'nullable|array',
+                'images.*' => 'image|mimes:jpeg,jpg,png,webp|max:5120',
+            ],
+            5 => [],
             6 => [
                 'signature_data'     => 'required|string',
                 'signature_name'     => 'required|string|max:150',
@@ -342,7 +349,11 @@ class ServiceReportController extends Controller
             default => [],
         };
 
-        $request->validate($rules);
+        $request->validate($rules, [
+            'images.*.image' => 'Uno de los archivos no es una imagen válida.',
+            'images.*.mimes' => 'Formato de imagen no compatible. Usa JPG, PNG o WEBP.',
+            'images.*.max'   => 'Cada imagen debe pesar máximo 5 MB.',
+        ]);
     }
 
     private function step2Rules(ServiceReport $report): array

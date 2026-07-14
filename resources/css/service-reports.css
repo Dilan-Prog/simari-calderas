@@ -332,11 +332,20 @@
 }
 @media (min-width: 320px) and (max-width: 768px) {
     .sr-form-card {display: flex; flex-direction: column; max-height: none; overflow-y: visible;}
-    .sr-page-create .sr-form-card { max-height: 500px; }
 }
 @media (max-width: 1023px) {
-    .sr-page-step1, .sr-page-step2, .sr-page-step3,
-    .sr-page-step4, .sr-page-step5, .sr-page-step6 { padding: 16px 16px 100px; }
+    /* FIX móvil: el contenedor padre (.admin-main) es overflow:hidden, así que
+       CADA página del módulo debe scrollear por sí misma. Sin esto, el contenido
+       que no cabe en el viewport (incluidos los botones Guardar/Firmar) queda
+       cortado e inalcanzable en teléfonos. */
+    /* padding-bottom moderado: un padding-bottom grande en el contenedor de
+       scroll desplaza el rectángulo sticky hacia arriba y el footer flota a
+       media pantalla en lugar de pegarse al borde inferior. */
+    .sr-page-create, .sr-page-step1, .sr-page-step2, .sr-page-step3,
+    .sr-page-step4, .sr-page-step5, .sr-page-step6 {
+        padding: 16px 16px 24px;
+        flex: 1; min-height: 0; overflow-y: auto;
+    }
 
     .sr-create-wrap .sr-grid-2,
     .sr-create-wrap .sr-grid-3 { display: flex; flex-direction: column; }
@@ -344,10 +353,14 @@
     .sr-create-wrap .sr-step-label { display: none; }
     .sr-create-wrap .sr-progress { padding: 12px 16px; overflow-x: auto; }
 
+    /* Un solo scroll (el de la página): las cards ya no scrollean internamente.
+       overflow (ambos ejes) visible: si un eje queda hidden, el otro computa
+       a auto y la card vuelve a capturar el sticky del footer. */
+    .sr-page-create .sr-form-card,
     .sr-page-step1 .sr-form-card,
     .sr-page-step2 .sr-form-card,
     .sr-page-step3 .sr-form-card,
-    .sr-page-step6 .sr-form-card { max-height: 600px; overflow-y: auto; box-sizing: border-box; }
+    .sr-page-step6 .sr-form-card { max-height: none; overflow: visible; box-sizing: border-box; }
     .sr-page-step1 .sr-form-body,
     .sr-page-step2 .sr-form-body,
     .sr-page-step3 .sr-form-body,
@@ -359,9 +372,7 @@
     /* Mediciones: tabla → tarjetas apiladas */
     .sr-page-step2 .sr-meas-table { display: block; }
     .sr-page-step2 .sr-meas-table thead { display: none; }
-    .sr-page-step2 .sr-meas-table tbody {
-        display: block; max-height: 50vh; overflow-y: auto; -webkit-overflow-scrolling: touch;
-    }
+    .sr-page-step2 .sr-meas-table tbody { display: block; }
     .sr-page-step2 .sr-meas-table tbody tr {
         display: block; position: relative; border: 1px solid #E5E7EB; border-radius: 8px;
         padding: 38px 12px 12px; margin-bottom: 12px; background: #fff;
@@ -382,12 +393,16 @@
     .sr-page-step2 .sr-systems-grid { grid-template-columns: 1fr 1fr; }
     .sr-page-step2 .sr-custom-row { grid-template-columns: 1fr; }
 
+    .sr-page-create .sr-form-footer,
     .sr-page-step1 .sr-form-footer,
     .sr-page-step2 .sr-form-footer,
     .sr-page-step3 .sr-form-footer,
     .sr-page-step6 .sr-form-footer {
         position: sticky; bottom: 0; background: #fff; z-index: 20;
-        box-shadow: 0 -4px 12px rgba(0,0,0,0.08); padding: 12px 16px; margin: 0 -24px;
+        box-shadow: 0 -4px 12px rgba(0,0,0,0.08); padding: 12px 16px;
+        /* margin 0 (antes 0 -24px): el margen negativo hacía el footer más
+           ancho que la card y generaba scroll horizontal en toda la página */
+        margin: 0;
         flex-direction: column-reverse; gap: 8px;
     }
     .sr-page-step4 .sr-form-footer {
@@ -598,6 +613,20 @@
     .sr-wrapper .sr-table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
     .sr-wrapper .sr-pagination { flex-direction: column; gap: 12px; align-items: flex-start; }
 }
+@media (max-width: 1023px) {
+    /* FIX móvil: .admin-main es overflow:hidden — el wrapper del index debe
+       scrollear por sí mismo o la lista queda cortada e inalcanzable. */
+    .sr-wrapper { flex: 1; min-height: 0; overflow-y: auto; padding: 16px 16px 90px; }
+    /* FIX móvil: las tarjetas existían pero solo se mostraban en el rango
+       laptop (1024–1440). En teléfono se veía la tabla ancha con scroll
+       horizontal. Ahora teléfono y tablet también usan tarjetas + botón
+       flotante, igual que laptop. */
+    .sr-wrapper .sr-table-card { display: none; }
+    .sr-wrapper .sr-btn-new { display: none; }
+    .sr-wrapper .sr-mobile-cards { display: flex; }
+    .sr-wrapper .sr-mobile-new-btn { display: inline-flex; }
+    .sr-wrapper .sr-page-subtitle { display: none; }
+}
 @media (max-width: 1024px) {
     .sr-wrapper .sr-filters-grid { grid-template-columns: 1fr 1fr; }
     .sr-wrapper .sr-filters-grid > *:first-child { grid-column: 1 / -1; }
@@ -755,6 +784,12 @@
     .sr-show-wrap .sr-doc-body { padding: 20px; }
     .sr-show-wrap .sr-doc-photos-grid { grid-template-columns: 1fr; }
     .sr-show-wrap .sr-doc-sig-grid { grid-template-columns: 1fr; }
+    /* FIX móvil: el header del documento desbordaba a la derecha (folio cortado) */
+    .sr-show-wrap .sr-doc-header { padding: 16px 20px; flex-wrap: wrap; gap: 12px; }
+    .sr-show-wrap .sr-doc-header-folio { text-align: left; }
+    .sr-show-wrap .sr-doc-rpt-number { font-size: 16px; }
+    .sr-show-wrap .sr-doc-header .sr-doc-header__company-meta { font-size: 11px; }
+    .sr-show-wrap .sr-doc-header .sr-doc-header__company-meta p { overflow-wrap: anywhere; }
 }
 @media (max-width: 900px) {
     .sr-show-wrap .sr-show-grid { grid-template-columns: 1fr; }

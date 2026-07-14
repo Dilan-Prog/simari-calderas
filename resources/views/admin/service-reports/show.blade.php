@@ -519,13 +519,16 @@
         @endif
     </div>
 
-</div>{{-- /sr-show-wrap --}}
+    {{-- Lightbox. FIX: vivía fuera de .sr-show-wrap pero todo su CSS está
+         scopeado como `.sr-show-wrap .sr-lightbox` — nunca aplicaba, se veía
+         un "× Evidencia" roto al pie de la página y el zoom de fotos no
+         funcionaba. Dentro del wrapper los estilos ya lo ocultan/posicionan. --}}
+    <div class="sr-lightbox" id="srLightbox" onclick="closeLightbox()">
+        <button class="sr-lightbox-close" onclick="closeLightbox()">×</button>
+        <img src="" id="srLightboxImg" alt="Evidencia" onclick="event.stopPropagation()">
+    </div>
 
-{{-- Lightbox --}}
-<div class="sr-lightbox" id="srLightbox" onclick="closeLightbox()">
-    <button class="sr-lightbox-close" onclick="closeLightbox()">×</button>
-    <img src="" id="srLightboxImg" alt="Evidencia" onclick="event.stopPropagation()">
-</div>
+</div>{{-- /sr-show-wrap --}}
 
 {{-- Modal PDF --}}
 <div id="sr-pdf-modal" style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,.65); align-items:center; justify-content:center;">
@@ -567,6 +570,13 @@ function closeLightbox() {
 }
 
 function openPdfModal() {
+    // FIX móvil: iOS Safari no renderiza PDFs embebidos en <iframe> (el modal
+    // quedaba en blanco). En pantallas angostas se abre la vista previa en
+    // una pestaña nueva, donde el visor nativo del teléfono sí funciona.
+    if (window.innerWidth < 1024) {
+        window.open('{{ route('admin.service-reports.pdf-preview', $report) }}', '_blank');
+        return;
+    }
     const modal = document.getElementById('sr-pdf-modal');
     const frame = document.getElementById('sr-pdf-frame');
     modal.style.display = 'flex';
