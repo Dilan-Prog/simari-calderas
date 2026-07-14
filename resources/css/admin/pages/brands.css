@@ -1,0 +1,60 @@
+/* ============================================================
+   MARCAS — extracted out of the old shared "users.css".
+   ============================================================ */
+
+.clients-manager-table.brand-table th {
+    background-color: #1A2535;
+    color: var(--text-muted);
+}
+
+.brand-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-black);
+    margin: 0 0 2px 0;
+}
+
+.brand-products-count {
+    font-size: 12px;
+    color: var(--text-description-color);
+    display: block;
+}
+
+.brand-slug-badge {
+    display: inline-block;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+    border: 1px solid #e1e1e1;
+    color: var(--text-body);
+}
+
+.brand-status-badge {
+    display: inline-block;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.brand-logo-img {
+    width: 48px;
+    height: 32px;
+    object-fit: contain;
+    border-radius: 16px;
+    border: 1px solid #e5e7eb;
+    background-color: #ffffff;
+    padding: 2px;
+}
+
+.brand-logo-placeholder {
+    width: 40px;
+    height: 40px;
+    background-color: #f3f4f6;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #e5e7eb;
+}

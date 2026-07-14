@@ -1,4 +1,7 @@
 @extends('admin.layouts.master')
+@push('styles')
+    @vite('resources/css/admin/pages/usuarios.css')
+@endpush
 @section('title')
     Gestor de usuarios - Admin
 @endsection

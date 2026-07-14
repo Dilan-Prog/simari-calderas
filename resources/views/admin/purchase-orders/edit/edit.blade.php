@@ -1,5 +1,8 @@
 @extends('admin.layouts.master')
 @section('title', 'Editar Orden de Compra - Admin')
+@push('styles')
+    @vite('resources/css/admin/pages/purchase-orders.css')
+@endpush
 @section('content')
     <div class="po-page">
 

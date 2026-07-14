@@ -131,8 +131,9 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 34px;
-    height: 34px;
+    /* FIX QA: bumped from 34x34 to the 44x44 minimum touch target. */
+    width: 44px;
+    height: 44px;
     border-radius: 6px;
     border: none;
     background: transparent;
@@ -304,8 +305,9 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 34px;
-    height: 34px;
+    /* FIX QA: bumped from 34x34 to the 44x44 minimum touch target. */
+    width: 44px;
+    height: 44px;
     border-radius: 8px;
     border: none;
     background: transparent;

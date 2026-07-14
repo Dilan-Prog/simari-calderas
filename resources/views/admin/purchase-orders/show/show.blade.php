@@ -1,5 +1,8 @@
 @extends('admin.layouts.master')
 @section('title', 'Ver Orden de Compra - Admin')
+@push('styles')
+    @vite('resources/css/admin/pages/purchase-orders.css')
+@endpush
 @section('content')
     @php
         $statusConfig = match ($order->status) {

@@ -1,4 +1,7 @@
 @extends('admin.layouts.master')
+@push('styles')
+    @vite('resources/css/admin/pages/categories.css')
+@endpush
 @section('title')
     Categorías de Productos - Admin
 @endsection

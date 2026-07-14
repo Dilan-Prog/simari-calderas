@@ -724,7 +724,7 @@
 
             if (!fullName) {
                 valMark(form, 'full_name', 'Nombre');
-                errors.push('THE NAME FIELD IS REQUIRED.');
+                errors.push('El campo "Nombre" es requerido.');
             }
 
             // FIX QA-7: 'company' had a required asterisk (*) in the view but no
@@ -732,12 +732,12 @@
             // pattern used for full_name.
             if (!company) {
                 valMark(form, 'company', 'Empresa');
-                errors.push('THE COMPANY FIELD IS REQUIRED.');
+                errors.push('El campo "Empresa" es requerido.');
             }
 
             if (!documentType || documentType === 'seleccione' || documentType.toLowerCase().includes('select')) {
                 valMark(form, 'document_type', 'Tipo de Documento');
-                errors.push('THE DOCUMENT TYPE FIELD IS REQUIRED.');
+                errors.push('El campo "Tipo de Documento" es requerido.');
             }
 
             // FIX QA-6: Was comparing documentType.toLowerCase() instead of
@@ -745,7 +745,7 @@
             // the wrong field's value.
             if (!source || source === 'seleccione' || source.toLowerCase().includes('select')) {
                 valMark(form, 'source', 'Origen');
-                errors.push('THE SOURCE FIELD IS REQUIRED.');
+                errors.push('El campo "Origen" es requerido.');
             }
 
             // FIX QA-7: 'email' and 'phone' had a required asterisk (*) in the
@@ -754,31 +754,31 @@
             // required/else-format pattern already used for 'rfc' below.
             if (!email) {
                 valMark(form, 'email', 'Correo Electrónico');
-                errors.push('THE EMAIL FIELD IS REQUIRED.');
+                errors.push('El campo "Correo Electrónico" es requerido.');
             } else if (!REGEX.email.test(email)) {
                 valMark(form, 'email', 'Correo Electrónico');
-                errors.push('THE EMAIL FORMAT IS NOT VALID.');
+                errors.push('El formato del correo electrónico no es válido.');
             }
             if (!phone) {
                 valMark(form, 'phone', 'Teléfono');
-                errors.push('THE PHONE FIELD IS REQUIRED.');
+                errors.push('El campo "Teléfono" es requerido.');
             } else if (!REGEX.phone.test(phone)) {
                 valMark(form, 'phone', 'Teléfono');
-                errors.push('THE PHONE MUST CONTAIN EXACTLY 10 NUMERIC DIGITS.');
+                errors.push('El teléfono debe contener exactamente 10 dígitos numéricos.');
             }
             if (whatsapp && !REGEX.phone.test(whatsapp)) {
-                errors.push('WHATSAPP MUST CONTAIN EXACTLY 10 NUMERIC DIGITS.');
+                errors.push('El WhatsApp debe contener exactamente 10 dígitos numéricos.');
             }
             if (!rfc) {
                 valMark(form, 'rfc', 'RFC');
-                errors.push('THE RFC FIELD IS REQUIRED.');
+                errors.push('El campo "RFC" es requerido.');
             } else if (!REGEX.rfc.test(rfc)) {
                 valMarkFormat(form, 'rfc', 'El formato del RFC no es válido (ej. VECJ880326XXX).');
-                errors.push('THE RFC DOES NOT HAVE A VALID FORMAT.');
+                errors.push('El formato del RFC no es válido.');
             }
             if (cp && !REGEX.cp.test(cp)) {
                 valMark(form, 'postal_code', 'Código Postal');
-                errors.push('THE POSTAL CODE MUST CONTAIN EXACTLY 5 DIGITS.');
+                errors.push('El código postal debe contener exactamente 5 dígitos.');
             }
             const emailInput = form.querySelector('[name="email"]');
             if (emailInput) emailInput.value = emailInput.value.toLowerCase();

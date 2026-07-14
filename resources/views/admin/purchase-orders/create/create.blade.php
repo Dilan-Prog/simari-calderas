@@ -1,8 +1,11 @@
 @extends('admin.layouts.master')
 @section('title', 'Nueva Orden de Compra - Admin')
 
+{{-- FIX (bug de arquitectura): apuntaba a public/css/purchase-orders.css,
+     un archivo que nunca existió (404 silencioso) — esta página siempre
+     dependió por completo del bundle global de users.css para su estilo. --}}
 @push('styles')
-<link rel="stylesheet" href="{{ asset('css/purchase-orders.css') }}">
+    @vite('resources/css/admin/pages/purchase-orders.css')
 @endpush
 
 @section('content')

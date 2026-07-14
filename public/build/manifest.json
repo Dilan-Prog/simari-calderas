@@ -5,13 +5,43 @@
     "isEntry": true
   },
   "resources/css/admin/app.css": {
-    "file": "assets/app-Dm3e9NdO.css",
+    "file": "assets/app-RxJ05BE3.css",
     "src": "resources/css/admin/app.css",
+    "isEntry": true
+  },
+  "resources/css/admin/pages/brands.css": {
+    "file": "assets/brands-3uzwPQJr.css",
+    "src": "resources/css/admin/pages/brands.css",
+    "isEntry": true
+  },
+  "resources/css/admin/pages/categories.css": {
+    "file": "assets/categories-BFcuhgRY.css",
+    "src": "resources/css/admin/pages/categories.css",
+    "isEntry": true
+  },
+  "resources/css/admin/pages/clientes.css": {
+    "file": "assets/clientes-1UogtnUl.css",
+    "src": "resources/css/admin/pages/clientes.css",
     "isEntry": true
   },
   "resources/css/admin/pages/delivery.css": {
     "file": "assets/delivery-fveut9fJ.css",
     "src": "resources/css/admin/pages/delivery.css",
+    "isEntry": true
+  },
+  "resources/css/admin/pages/proveedores.css": {
+    "file": "assets/proveedores-zRzxrRaM.css",
+    "src": "resources/css/admin/pages/proveedores.css",
+    "isEntry": true
+  },
+  "resources/css/admin/pages/purchase-orders.css": {
+    "file": "assets/purchase-orders-Bg2xRxHf.css",
+    "src": "resources/css/admin/pages/purchase-orders.css",
+    "isEntry": true
+  },
+  "resources/css/admin/pages/usuarios.css": {
+    "file": "assets/usuarios-Bw1Vm7qI.css",
+    "src": "resources/css/admin/pages/usuarios.css",
     "isEntry": true
   },
   "resources/css/admin/roles.css": {
@@ -30,7 +60,7 @@
     "isEntry": true
   },
   "resources/css/service-reports.css": {
-    "file": "assets/service-reports-QyYbWhqa.css",
+    "file": "assets/service-reports-DsJp3BpD.css",
     "src": "resources/css/service-reports.css",
     "isEntry": true
   },

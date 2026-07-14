@@ -19,7 +19,12 @@ export default defineConfig({
                 'resources/css/admin/roles.css',
                 'resources/css/admin/pages/delivery.css',
                 'resources/css/service-reports.css',
-                
+                'resources/css/admin/pages/usuarios.css',
+                'resources/css/admin/pages/clientes.css',
+                'resources/css/admin/pages/proveedores.css',
+                'resources/css/admin/pages/categories.css',
+                'resources/css/admin/pages/brands.css',
+                'resources/css/admin/pages/purchase-orders.css',
             ],
             refresh: true,
         }),

@@ -1,4 +1,7 @@
 @extends('admin.layouts.master')
+@push('styles')
+    @vite('resources/css/admin/pages/brands.css')
+@endpush
 @section('title')
     Gestión de Marcas - Admin
 @endsection

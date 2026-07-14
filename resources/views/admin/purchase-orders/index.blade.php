@@ -1,4 +1,7 @@
 @extends('admin.layouts.master')
+@push('styles')
+    @vite('resources/css/admin/pages/purchase-orders.css')
+@endpush
 @section('title')
     Órdenes de Compra - Admin
 @endsection

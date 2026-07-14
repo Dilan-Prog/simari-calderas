@@ -1,4 +1,7 @@
 @extends('admin.layouts.master')
+@push('styles')
+    @vite('resources/css/admin/pages/proveedores.css')
+@endpush
 @section('title')
     Gestor de Proveedores - Admin
 @endsection
