@@ -59,7 +59,11 @@
         <div class="prod-content-area">
 
             {{-- List view --}}
+            {{-- FIX BUG 12: wrapped the table in .products-table-wrapper so the
+                 module CSS can scope the mobile card transformation and the
+                 vertical scroll container without touching global styles. --}}
             <div class="prod-list-container" id="prodListView">
+                <div class="products-table-wrapper">
                 <table class="prod-table">
                     <colgroup>
                         <col style="width:30%">
@@ -92,7 +96,7 @@
                             @endphp
                             <tr data-name="{{ strtolower($product->name) }}" data-sku="{{ strtolower($product->sku) }}"
                                 data-status="{{ $statusVal }}">
-                                <td>
+                                <td data-label="Producto">
                                     <div class="prod-cell-product">
                                         <div class="prod-thumb">
                                             @if ($thumbUrl)
@@ -116,18 +120,18 @@
                                         </div>
                                     </div>
                                 </td>
-                                <td>{{ $product->sku }}</td>
-                                <td><span class="prod-price">${{ number_format($product->price, 0) }}</span></td>
-                                <td><span class="prod-price">${{ number_format($product->cost ?? 0, 0) }}</span></td>
-                                <td>
+                                <td data-label="SKU">{{ $product->sku }}</td>
+                                <td data-label="Precio"><span class="prod-price">${{ number_format($product->price, 0) }}</span></td>
+                                <td data-label="Costo"><span class="prod-price">${{ number_format($product->cost ?? 0, 0) }}</span></td>
+                                <td data-label="Stock">
                                     <span class="prod-stock {{ $stockClass }}">
                                         {{ $product->stock ?? 0 }} unidades
                                     </span>
                                 </td>
-                                <td>
+                                <td data-label="Estado">
                                     <span class="prod-badge {{ $statusClass }}">{{ $statusLabel }}</span>
                                 </td>
-                                <td>
+                                <td data-label="Acciones">
                                     <div class="prod-actions">
                                         <button class="prod-action-btn edit" type="button"
                                             onclick="window.location.href='{{ route('admin.products.edit', $product->id) }}'">
@@ -168,6 +172,7 @@
                         </tr>
                     </tbody>
                 </table>
+                </div>
             </div>
 
             {{-- Grid view --}}
@@ -250,7 +255,10 @@
 
             <div class="prod-summary-bar">
                 <span id="prodCountLabel">Mostrando {{ $products->count() }} de {{ $products->count() }} productos</span>
-                <span>Total en inventario: {{ $products->sum('stock') }} {{ $products->first()->stock_unit ?? 'unidades' }}</span>
+                {{-- FIX BUG 11: stock_unit is now a real column (BUG 9), and the
+                     controller selects it. Added the null-safe operator so an
+                     empty $products collection doesn't error on ->first(). --}}
+                <span>Total en inventario: {{ $products->sum('stock') }} {{ $products->first()?->stock_unit ?? 'unidades' }}</span>
             </div>
         </div>
     </div>

@@ -47,13 +47,24 @@ class ClientManageController extends Controller
         $lastName = $nameParts[1] ?? '';
 
         $request->validate([
-            'full_name' => 'required|string|max:200',
-            'company' => 'nullable|string|max:150',
+            // FIX QA-1: Added regex — letters and spaces only (matches the
+            // real-time dynamicLettersOnly() filter already applied in JS).
+            'full_name' => ['required', 'string', 'max:200', 'regex:/^[a-zA-ZÀ-ÿ\s]+$/'],
+            // FIX QA-3: Added regex — alphanumeric + spaces only (matches the
+            // real-time dynamicAlphanumeric() filter already applied in JS).
+            'company' => ['nullable', 'string', 'max:150', 'regex:/^[a-zA-ZÀ-ÿ0-9\s]+$/'],
             'email' => 'required|email|max:150|unique:customers,email',
             'phone' => 'nullable|string|max:30',
             'rfc' => 'nullable|string|max:20',
-            'document_type' => 'string|max:30',
-            'source' => 'nullable|string|max:50',
+            // FIX QA-5: Changed to 'required|in:...' — document_type is NOT NULL
+            // in the DB but had no required rule, so a request bypassing the JS
+            // guard (direct POST, missing field) passed validation and crashed
+            // the INSERT with a silent 500 QueryException instead of a 422.
+            'document_type' => 'required|in:ine,pasaporte,curp,cfdi',
+            // FIX QA-6: Changed to 'required|in:...' — source is NOT NULL in the
+            // DB but had no required rule, causing the same silent 500 pattern
+            // as document_type (QA-5) when the field is missing/empty.
+            'source' => 'required|in:web,whatsapp,admin,campaña,referido',
             'status' => 'required|in:active,inactive,suspended',
             'address_line1' => 'nullable|string|max:255',
             'address_line2' => 'nullable|string|max:255',
@@ -62,14 +73,20 @@ class ClientManageController extends Controller
             'postal_code' => 'nullable|string|max:20',
             'country' => 'nullable|string|max:100',
             'reference' => 'nullable|string|max:255',
-            'notes' => 'nullable|string',
+            // FIX QA-3: Added regex — alphanumeric + spaces only (matches the
+            // real-time dynamicAlphanumeric() filter already applied in JS).
+            'notes' => ['nullable', 'string', 'regex:/^[a-zA-ZÀ-ÿ0-9\s]+$/'],
         ]);
 
         $customer = new Customer;
         $customer->first_name = $firstName;
         $customer->last_name = $lastName;
         $customer->company = $request->company;
-        $customer->email = $request->email;
+        // FIX QA-4: Added strtolower() so the stored value is always lowercase
+        // even if the request bypasses the JS real-time lowercasing (direct API
+        // call). Applied after validation, so the unique:customers,email check
+        // above still runs against the raw submitted value.
+        $customer->email = strtolower($request->email);
         $customer->phone = $request->phone;
         $customer->rfc = $request->rfc;
         $customer->notes = $request->notes;
@@ -264,13 +281,22 @@ class ClientManageController extends Controller
         $lastName = $nameParts[1] ?? '';
 
         $request->validate([
-            'full_name' => 'required|string|max:200',
-            'company' => 'nullable|string|max:150',
+            // FIX QA-1: Added regex — letters and spaces only (matches the
+            // real-time dynamicLettersOnly() filter already applied in JS).
+            'full_name' => ['required', 'string', 'max:200', 'regex:/^[a-zA-ZÀ-ÿ\s]+$/'],
+            // FIX QA-3: Added regex — alphanumeric + spaces only (matches the
+            // real-time dynamicAlphanumeric() filter already applied in JS).
+            'company' => ['nullable', 'string', 'max:150', 'regex:/^[a-zA-ZÀ-ÿ0-9\s]+$/'],
             'email' => 'required|email|max:150|unique:customers,email,' . $id,
             'phone' => 'nullable|string|max:30',
             'rfc' => 'nullable|string|max:20',
-            'document_type' => 'nullable|string|max:30',
-            'source' => 'nullable|string|max:50',
+            // FIX QA-5: document_type is NOT NULL in the DB; require it here too
+            // so update() matches store() and a bypassed/missing value returns
+            // a 422 instead of crashing the UPDATE with a QueryException.
+            'document_type' => 'required|in:ine,pasaporte,curp,cfdi',
+            // FIX QA-6: Changed to 'required|in:...' — same NOT NULL mismatch as
+            // document_type, mirrored here so update() matches store().
+            'source' => 'required|in:web,whatsapp,admin,campaña,referido',
             'status' => 'required|in:active,inactive,suspended',
             'address_line1' => 'nullable|string|max:255',
             'address_line2' => 'nullable|string|max:255',
@@ -279,13 +305,18 @@ class ClientManageController extends Controller
             'postal_code' => 'nullable|string|max:20',
             'country' => 'nullable|string|max:100',
             'reference' => 'nullable|string|max:255',
-            'notes' => 'nullable|string',
+            // FIX QA-3: Added regex — alphanumeric + spaces only (matches the
+            // real-time dynamicAlphanumeric() filter already applied in JS).
+            'notes' => ['nullable', 'string', 'regex:/^[a-zA-ZÀ-ÿ0-9\s]+$/'],
         ]);
 
         $customer->first_name = $firstName;
         $customer->last_name = $lastName;
         $customer->company = $request->company;
-        $customer->email = $request->email;
+        // FIX QA-4: Added strtolower() so the stored value is always lowercase
+        // even if the request bypasses the JS real-time lowercasing (direct API
+        // call). Applied after validation — the unique rule is untouched.
+        $customer->email = strtolower($request->email);
         $customer->phone = $request->phone;
         $customer->rfc = $request->rfc;
         $customer->document_type = $request->document_type;
@@ -392,16 +423,20 @@ class ClientManageController extends Controller
      */
     public function destroy(string $id)
     {
+        // FIX QA-11: withCount(['orders', 'quotes', 'serviceReports']) crashed
+        // with a BadMethodCallException on every delete — none of those
+        // relations existed on Customer. Replaced with the relations that
+        // actually exist: 'services' (TechnicalService, this domain's real
+        // "order" concept) and 'serviceReports'. Dropped 'quotes' — Quote has
+        // no customer_id (guest-only fields), so it can't be counted per customer.
         $customer = Customer::withCount([
-            'orders',        // ajusta según tus relaciones reales
-            'quotes',
+            'services',
             'serviceReports',
         ])->findOrFail($id);
 
         // Detectar dependencias
         $blocking = [];
-        if (($customer->orders_count         ?? 0) > 0) $blocking[] = $customer->orders_count . ' orden(es)';
-        if (($customer->quotes_count         ?? 0) > 0) $blocking[] = $customer->quotes_count . ' cotización(es)';
+        if (($customer->services_count        ?? 0) > 0) $blocking[] = $customer->services_count . ' orden(es) de servicio';
         if (($customer->service_reports_count ?? 0) > 0) $blocking[] = $customer->service_reports_count . ' reporte(s) de servicio';
 
         if (!empty($blocking)) {

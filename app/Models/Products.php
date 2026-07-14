@@ -15,6 +15,10 @@ class Products extends Model
         'name',
         'slug',
         'sku',
+        // FIX (reported bug): 'model' has a real column and a name="model"
+        // input in both forms, but was never in $fillable nor assigned in
+        // the controller — it was silently discarded on every save.
+        'model',
         'short_description',
         'description',
         'price',
@@ -32,6 +36,19 @@ class Products extends Model
         'is_recommended',
         'seo_title',
         'seo_description',
+        // FIX BUG 3: tags column added via
+        // 2026_07_13_195742_add_tags_and_seo_extra_fields_to_products_table.
+        'tags',
+        // FIX BUG 5: seo_keywords + Open Graph columns added in the same
+        // migration.
+        'seo_keywords',
+        'og_title',
+        'og_description',
+        'og_image',
+        // FIX BUG 9: currency + stock_unit columns added via
+        // 2026_07_13_201018_add_currency_and_stock_unit_to_products_table.
+        'currency',
+        'stock_unit',
     ];
 
     protected $casts = [
@@ -42,6 +59,9 @@ class Products extends Model
         'price'       => 'decimal:2',
         'cost'        => 'decimal:2',
         'compare_price' => 'decimal:2',
+        // FIX BUG 3: cast tags to a PHP array automatically so the edit
+        // view can read $product->tags directly without manual json_decode.
+        'tags'        => 'array',
     ];
 
     // Belongs to a category
@@ -68,6 +88,16 @@ class Products extends Model
         return $this->hasMany(ProductImage::class, 'product_id')->orderBy('sort_order');
     }
 
+    // FIX (Documentación tab): added so the "Documentación" panel can save
+    // and recover the 6 document uploads (ficha técnica, manual, catálogo,
+    // certificación, garantía, adicional) — this relation and the
+    // ProductDocument model didn't exist before; the uploads were purely
+    // decorative (no name= attribute, no backend logic at all).
+    public function documents()
+    {
+        return $this->hasMany(ProductDocument::class, 'product_id');
+    }
+
     // Many-to-many with suppliers
     public function suppliers()
     {
@@ -77,5 +107,22 @@ class Products extends Model
             'product_id',
             'supplier_id'
         )->withPivot('cost', 'lead_time_days', 'is_primary');
+    }
+
+    // FIX BUG 2: Added so destroy() can check for blocking purchase order
+    // items before deleting — purchase_order_items.product_id has an
+    // onDelete('restrict') FK, so deleting a referenced product previously
+    // crashed with an uncaught QueryException.
+    public function purchaseOrderItems()
+    {
+        return $this->hasMany(PurchaseOrderItem::class, 'product_id');
+    }
+
+    // FIX BUG 2: Added so destroy() can check for blocking planned service
+    // materials before deleting — service_materials_planned.product_id has
+    // an onDelete('restrict') FK, same crash risk as purchaseOrderItems().
+    public function serviceMaterialPlans()
+    {
+        return $this->hasMany(ServiceMaterialPlanned::class, 'product_id');
     }
 }

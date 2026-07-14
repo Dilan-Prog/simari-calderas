@@ -20,14 +20,24 @@ trait ImageUploadTrait
             $filename = uniqid() . '.' . $ext;
             $path     = $folder . '/' . $filename;
 
-            Image::make($file)
-                ->resize($width, null, function ($constraint) {
-                    $constraint->aspectRatio();
-                    $constraint->upsize();
-                })
-                ->save(public_path($path), $quality);
+            try {
+                Image::make($file)
+                    ->resize($width, null, function ($constraint) {
+                        $constraint->aspectRatio();
+                        $constraint->upsize();
+                    })
+                    ->save(public_path($path), $quality);
 
-            $paths[] = $path;
+                $paths[] = $path;
+            } catch (\Throwable $e) {
+                // A file GD/Intervention can't decode (corrupted upload, or a
+                // format like HEIC this server's GD build doesn't support)
+                // used to throw uncaught and crash the whole batch, discarding
+                // every image already processed in the same request. Skip just
+                // the bad file instead — callers can compare count($files) to
+                // the returned array to detect and report partial failures.
+                continue;
+            }
         }
 
         return $paths;

@@ -270,7 +270,10 @@
                                     <line x1="12" x2="12" y1="3" y2="15" />
                                 </svg>
                                 <p class="pform-dropzone-text">Haz clic para subir imágenes o arrástralas aquí</p>
-                                <p class="pform-dropzone-sub">PNG, JPG, JPEG hasta 10MB por imagen</p>
+                                {{-- FIX (reported bug): text said 10MB but the server rule
+                                     (images.* => image|mimes:jpeg,jpg,png|max:2048) only allows
+                                     2MB (2048 KB) — the UI was promising 5x more than it accepts. --}}
+                                <p class="pform-dropzone-sub">PNG, JPG, JPEG hasta 2MB por imagen</p>
                                 <input type="file" id="pformImageInput" name="images[]"
                                     accept="image/png,image/jpeg,image/jpg" multiple style="display:none">
                             </label>
@@ -354,14 +357,20 @@
                                         <label class="pform-label">Precio de Oferta</label>
                                         <div class="pform-price-wrap">
                                             <span class="pform-price-prefix">$</span>
+                                            {{-- FIX BUG 8: added name="compare_price" — the field
+                                                 existed and had a real column + validation rule, but
+                                                 was never actually submitted on create (edit already
+                                                 had it). --}}
                                             <input type="number" class="pform-input pform-input-prefixed"
-                                                placeholder="0.00" step="0.01" min="0">
+                                                name="compare_price" placeholder="0.00" step="0.01" min="0">
                                         </div>
                                         <p class="pform-hint">Opcional: precio en promoción</p>
                                     </div>
                                     <div class="pform-field">
                                         <label class="pform-label">Moneda</label>
-                                        <select class="pform-select">
+                                        {{-- FIX BUG 9: added name="currency" — existed but was
+                                             never submitted. --}}
+                                        <select class="pform-select" name="currency">
                                             <option value="MXN">MXN - Peso Mexicano</option>
                                             <option value="USD">USD - Dólar Americano</option>
                                             <option value="EUR">EUR - Euro</option>
@@ -432,7 +441,9 @@
                                     </div>
                                     <div class="pform-field">
                                         <label class="pform-label">Unidad de Medida</label>
-                                        <select class="pform-select">
+                                        {{-- FIX BUG 9: added name="stock_unit" — existed but was
+                                             never submitted. --}}
+                                        <select class="pform-select" name="stock_unit">
                                             <option value="pieza">Pieza</option>
                                             <option value="juego">Juego</option>
                                             <option value="kit">Kit</option>
@@ -551,6 +562,10 @@
                                     <p class="pform-hint">Las etiquetas ayudan a los clientes a encontrar el producto.
                                         Presiona Enter o clic en Agregar.</p>
                                     <div class="pform-tag-chips" id="pformTagList"></div>
+                                    {{-- FIX BUG 3: hidden field synced by JS with the JSON-encoded
+                                         tag chips — previously the chips were purely visual and
+                                         never reached the server. --}}
+                                    <input type="hidden" name="tags" id="pformTagsHidden" value="">
                                 </div>
                             </div>
 
@@ -717,6 +732,9 @@
                                         <h3>Ficha Técnica (PDF)</h3>
                                         <p>Documento con las especificaciones técnicas detalladas</p>
                                     </div>
+                                    {{-- FIX (Documentación tab): added name="doc_ficha" — the 6
+                                         upload slots had no name= at all, so nothing ever reached
+                                         the server despite product_documents already existing. --}}
                                     <label class="pform-doc-upload">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15"
                                             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -726,7 +744,7 @@
                                             <line x1="12" x2="12" y1="3" y2="15" />
                                         </svg>
                                         Subir
-                                        <input type="file" hidden accept=".pdf">
+                                        <input type="file" hidden accept=".pdf" name="doc_ficha" class="pform-doc-input">
                                     </label>
                                 </div>
 
@@ -755,7 +773,7 @@
                                             <line x1="12" x2="12" y1="3" y2="15" />
                                         </svg>
                                         Subir
-                                        <input type="file" hidden accept=".pdf">
+                                        <input type="file" hidden accept=".pdf" name="doc_manual" class="pform-doc-input">
                                     </label>
                                 </div>
 
@@ -784,7 +802,7 @@
                                             <line x1="12" x2="12" y1="3" y2="15" />
                                         </svg>
                                         Subir
-                                        <input type="file" hidden accept=".pdf">
+                                        <input type="file" hidden accept=".pdf" name="doc_catalogo" class="pform-doc-input">
                                     </label>
                                 </div>
 
@@ -813,7 +831,7 @@
                                             <line x1="12" x2="12" y1="3" y2="15" />
                                         </svg>
                                         Subir
-                                        <input type="file" hidden accept=".pdf">
+                                        <input type="file" hidden accept=".pdf" name="doc_certificacion" class="pform-doc-input">
                                     </label>
                                 </div>
 
@@ -842,7 +860,7 @@
                                             <line x1="12" x2="12" y1="3" y2="15" />
                                         </svg>
                                         Subir
-                                        <input type="file" hidden accept=".pdf">
+                                        <input type="file" hidden accept=".pdf" name="doc_garantia" class="pform-doc-input">
                                     </label>
                                 </div>
 
@@ -868,7 +886,7 @@
                                             <line x1="12" x2="12" y1="3" y2="15" />
                                         </svg>
                                         Subir
-                                        <input type="file" hidden accept=".pdf,.doc,.docx">
+                                        <input type="file" hidden accept=".pdf,.doc,.docx" name="doc_otro" class="pform-doc-input">
                                     </label>
                                 </div>
 
@@ -910,6 +928,14 @@
                         <div class="pform-seo-score" id="pformSeoScoreVal">0%</div>
                         <p class="pform-hint" style="margin:4px 0 0;text-align:center">Puntuación SEO</p>
                     </div>
+                    {{-- FIX BUG 6: convenience save button for the Marketing team so
+                         they don't have to close the SEO panel to save. It does not
+                         submit on its own — it triggers the same validated "Publicar
+                         Producto" flow via a programmatic click, so no logic is
+                         duplicated and the rest of the form is never ignored. --}}
+                    <button type="button" class="pform-btn primary" id="pformSeoSaveBtn">
+                        Guardar Producto
+                    </button>
                 </div>
             </div>
 
@@ -964,7 +990,10 @@
 
                         <div class="pform-field">
                             <label class="pform-label">Palabras Clave (Keywords)</label>
-                            <input type="text" class="pform-input"
+                            {{-- FIX BUG 5: added name="seo_keywords" + form= — the input
+                                 existed but was never submitted (no name= at all). --}}
+                            <input type="text" class="pform-input" name="seo_keywords"
+                                form="productCreateForm"
                                 placeholder="caldera, industrial, vapor, alta presión">
                             <p class="pform-hint">Separa las palabras clave con comas</p>
                         </div>
@@ -993,18 +1022,21 @@
 
                         <div class="pform-field">
                             <label class="pform-label">Título para Redes Sociales</label>
-                            <input type="text" class="pform-input" placeholder="Bomba de Calor Rinnai 20HP">
+                            {{-- FIX BUG 5: added name="og_title" + form= — Open Graph fields
+                                 existed visually but were never submitted. --}}
+                            <input type="text" class="pform-input" name="og_title" form="productCreateForm"
+                                placeholder="Bomba de Calor Rinnai 20HP">
                         </div>
 
                         <div class="pform-field">
                             <label class="pform-label">Descripción para Redes Sociales</label>
-                            <textarea class="pform-textarea" rows="3"
+                            <textarea class="pform-textarea" rows="3" name="og_description" form="productCreateForm"
                                 placeholder="Descripción que aparecerá cuando se comparta en Facebook, LinkedIn, etc."></textarea>
                         </div>
 
                         <div class="pform-field" style="margin-bottom:0">
                             <label class="pform-label">Imagen para Redes Sociales</label>
-                            <input type="url" class="pform-input"
+                            <input type="url" class="pform-input" name="og_image" form="productCreateForm"
                                 placeholder="URL de la imagen (1200x630px recomendado)">
                             <p class="pform-hint">Recomendado: 1200x630px &bull; Máximo: 5MB &bull; Formato: JPG o PNG
                             </p>

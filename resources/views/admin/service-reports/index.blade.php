@@ -169,7 +169,7 @@
                                 <td class="sr-td-client">{{ $report->customer_name }}</td>
 
                                 {{-- TIPO DE SERVICIO --}}
-                                <td class="sr-td-type">{{ $report->service_type }}</td>
+                                <td class="sr-td-type">{{ $report->service_type_label }}</td>
 
                                 {{-- ENCARGADO --}}
                                 <td class="sr-td-assigned">{{ $report->assigned_user_name }}</td>
@@ -359,7 +359,7 @@
                         </a>
                         <span class="sr-badge {{ $mBadgeClass }}">{{ $mBadgeLabel }}</span>
                     </div>
-                    <div class="sr-mobile-card__type">{{ $report->service_type }}</div>
+                    <div class="sr-mobile-card__type">{{ $report->service_type_label }}</div>
                     <div class="sr-mobile-card__meta">📅 {{ $report->service_date }}</div>
                     <div class="sr-mobile-card__company">🏢 {{ $report->customer_name }}</div>
                     <div class="sr-mobile-card__analyst">👤 Encargado: {{ $report->assigned_user_name }}</div>

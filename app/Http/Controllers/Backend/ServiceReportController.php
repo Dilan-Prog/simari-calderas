@@ -146,8 +146,9 @@ class ServiceReportController extends Controller
 
         $this->validateStep($request, $report, $step);
 
+        $imagesFailed = 0;
         if ($step === 4 && $request->hasFile('images')) {
-            $this->service->saveImages($report, $request->file('images'));
+            $imagesFailed = $this->service->saveImages($report, $request->file('images'));
         }
 
         $this->service->updateStep($report, $request->all(), $step);
@@ -155,13 +156,24 @@ class ServiceReportController extends Controller
         // Step 6 = signature — handled by sign()
         $nextStep = $step + 1;
 
-        if ($nextStep > 6) {
-            return redirect()->route('admin.service-reports.show', $report)
-                ->with('success', 'Reporte completado exitosamente.');
+        $redirect = $nextStep > 6
+            ? redirect()->route('admin.service-reports.show', $report)->with('success', 'Reporte completado exitosamente.')
+            : redirect()->route('admin.service-reports.step', [$report, $nextStep])->with('success', "Paso {$step} guardado correctamente.");
+
+        if ($imagesFailed > 0) {
+            // FIX: images that GD/Intervention can't decode (unsupported
+            // format like HEIC, or a corrupted upload) used to crash the
+            // whole step with an uncaught exception and no feedback at all.
+            // Now the good images are saved and the user is told how many
+            // were skipped and why.
+            $message = $imagesFailed === 1
+                ? 'No se pudo procesar 1 imagen (formato no compatible o archivo dañado). Las demás se guardaron correctamente.'
+                : "No se pudieron procesar {$imagesFailed} imágenes (formato no compatible o archivos dañados). Las demás se guardaron correctamente.";
+
+            return $redirect->withErrors(['images' => $message]);
         }
 
-        return redirect()->route('admin.service-reports.step', [$report, $nextStep])
-            ->with('success', "Paso {$step} guardado correctamente.");
+        return $redirect;
     }
 
     // ── Show ───────────────────────────────────────────────────────────────────
@@ -320,7 +332,14 @@ class ServiceReportController extends Controller
                 'analyst_name'        => 'nullable|string|max:150',
                 'analyst_position'    => 'nullable|string|max:100',
             ],
-            4, 5 => [],
+            // Step 4 had no rules at all: any file type/size reached the
+            // image processor directly. Limits mirror what the UI promises
+            // ("JPG, PNG, WEBP · Máximo 5 MB por imagen").
+            4 => [
+                'images'   => 'nullable|array',
+                'images.*' => 'image|mimes:jpeg,jpg,png,webp|max:5120',
+            ],
+            5 => [],
             6 => [
                 'signature_data'     => 'required|string',
                 'signature_name'     => 'required|string|max:150',
@@ -330,7 +349,11 @@ class ServiceReportController extends Controller
             default => [],
         };
 
-        $request->validate($rules);
+        $request->validate($rules, [
+            'images.*.image' => 'Uno de los archivos no es una imagen válida.',
+            'images.*.mimes' => 'Formato de imagen no compatible. Usa JPG, PNG o WEBP.',
+            'images.*.max'   => 'Cada imagen debe pesar máximo 5 MB.',
+        ]);
     }
 
     private function step2Rules(ServiceReport $report): array

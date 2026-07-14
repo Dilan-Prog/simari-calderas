@@ -169,7 +169,10 @@
                                     <input type="hidden" name="sku" value="{{ $product->sku }}" />
                                 </div>
                                 <div class="pform-field">
-                                    <label class="pform-label" for="pformBrand">Marca</label>
+                                    {{-- FIX BUG 7: added the missing asterisk — create already
+                                         marks Marca as required, edit didn't even though the
+                                         required attribute was already there. --}}
+                                    <label class="pform-label" for="pformBrand">Marca <span class="pform-required">*</span></label>
                                     <select id="pformBrand" name="brand_id" class="pform-select" required>
                                         <option value="">Seleccionar...</option>
                                         @foreach ($brands as $brand)
@@ -239,7 +242,10 @@
                                     <line x1="12" x2="12" y1="3" y2="15" />
                                 </svg>
                                 <p class="pform-dropzone-text">Haz clic para subir imágenes o arrástralas aquí</p>
-                                <p class="pform-dropzone-sub">PNG, JPG, JPEG hasta 10MB por imagen</p>
+                                {{-- FIX (reported bug): text said 10MB but the server rule
+                                     (images.* => image|mimes:jpeg,jpg,png|max:2048) only allows
+                                     2MB (2048 KB) — the UI was promising 5x more than it accepts. --}}
+                                <p class="pform-dropzone-sub">PNG, JPG, JPEG hasta 2MB por imagen</p>
                                 <input type="file" id="pformImageInput" name="images[]"
                                     accept="image/png,image/jpeg,image/jpg" multiple style="display:none">
                             </label>
@@ -343,10 +349,12 @@
                                     </div>
                                     <div class="pform-field">
                                         <label class="pform-label">Moneda</label>
-                                        <select class="pform-select">
-                                            <option value="MXN">MXN - Peso Mexicano</option>
-                                            <option value="USD">USD - Dólar Americano</option>
-                                            <option value="EUR">EUR - Euro</option>
+                                        {{-- FIX BUG 9: added name="currency" + preselected value —
+                                             existed but was never submitted nor recovered. --}}
+                                        <select class="pform-select" name="currency">
+                                            <option value="MXN" {{ ($product->currency ?? 'MXN') == 'MXN' ? 'selected' : '' }}>MXN - Peso Mexicano</option>
+                                            <option value="USD" {{ ($product->currency ?? 'MXN') == 'USD' ? 'selected' : '' }}>USD - Dólar Americano</option>
+                                            <option value="EUR" {{ ($product->currency ?? 'MXN') == 'EUR' ? 'selected' : '' }}>EUR - Euro</option>
                                         </select>
                                     </div>
                                 </div>
@@ -412,13 +420,15 @@
                                     </div>
                                     <div class="pform-field">
                                         <label class="pform-label">Unidad de Medida</label>
-                                        <select class="pform-select">
-                                            <option value="pieza">Pieza</option>
-                                            <option value="juego">Juego</option>
-                                            <option value="kit">Kit</option>
-                                            <option value="metro">Metro</option>
-                                            <option value="kg">Kilogramo</option>
-                                            <option value="litro">Litro</option>
+                                        {{-- FIX BUG 9: added name="stock_unit" + preselected value —
+                                             existed but was never submitted nor recovered. --}}
+                                        <select class="pform-select" name="stock_unit">
+                                            <option value="pieza" {{ ($product->stock_unit ?? 'pieza') == 'pieza' ? 'selected' : '' }}>Pieza</option>
+                                            <option value="juego" {{ ($product->stock_unit ?? 'pieza') == 'juego' ? 'selected' : '' }}>Juego</option>
+                                            <option value="kit" {{ ($product->stock_unit ?? 'pieza') == 'kit' ? 'selected' : '' }}>Kit</option>
+                                            <option value="metro" {{ ($product->stock_unit ?? 'pieza') == 'metro' ? 'selected' : '' }}>Metro</option>
+                                            <option value="kg" {{ ($product->stock_unit ?? 'pieza') == 'kg' ? 'selected' : '' }}>Kilogramo</option>
+                                            <option value="litro" {{ ($product->stock_unit ?? 'pieza') == 'litro' ? 'selected' : '' }}>Litro</option>
                                         </select>
                                     </div>
                                 </div>
@@ -536,6 +546,10 @@
                                     </div>
                                     <p class="pform-hint">Las etiquetas ayudan a los clientes a encontrar el producto.</p>
                                     <div class="pform-tag-chips" id="pformTagList"></div>
+                                    {{-- FIX BUG 3: hidden field synced by JS with the JSON-encoded
+                                         tag chips; JS also pre-populates the chips from
+                                         $product->tags on page load. --}}
+                                    <input type="hidden" name="tags" id="pformTagsHidden" value="">
                                 </div>
                             </div>
 
@@ -678,8 +692,21 @@
                             <p class="pform-hint" style="margin-bottom:24px">Sube archivos PDF y documentos relacionados
                                 con el producto</p>
 
+                            {{-- FIX (Documentación tab): each row now carries a real field
+                                 name (mapped 1:1 to product_documents.type) and, if the
+                                 product already has a document of that type, shows it with
+                                 a download link — previously always looked empty even when
+                                 documents existed, because nothing ever saved them. --}}
                             <div class="pform-doc-list">
-                                @foreach ([['Ficha Técnica (PDF)', 'Documento con las especificaciones técnicas detalladas'], ['Manual de Instalación', 'Guía paso a paso para la instalación del producto'], ['Catálogo del Producto', 'Catálogo comercial con información del producto'], ['Certificaciones', 'Certificados de calidad, normas y homologaciones'], ['Garantía', 'Documento de términos de garantía'], ['Documento Adicional', 'Cualquier otro documento técnico relevante']] as $doc)
+                                @foreach ([
+                                    ['Ficha Técnica (PDF)', 'Documento con las especificaciones técnicas detalladas', 'ficha', 'doc_ficha', '.pdf'],
+                                    ['Manual de Instalación', 'Guía paso a paso para la instalación del producto', 'manual', 'doc_manual', '.pdf'],
+                                    ['Catálogo del Producto', 'Catálogo comercial con información del producto', 'catalogo', 'doc_catalogo', '.pdf'],
+                                    ['Certificaciones', 'Certificados de calidad, normas y homologaciones', 'certificacion', 'doc_certificacion', '.pdf'],
+                                    ['Garantía', 'Documento de términos de garantía', 'garantia', 'doc_garantia', '.pdf'],
+                                    ['Documento Adicional', 'Cualquier otro documento técnico relevante', 'otro', 'doc_otro', '.pdf,.doc,.docx'],
+                                ] as $doc)
+                                    @php $existingDoc = $product->documents->firstWhere('type', $doc[2]); @endphp
                                     <div class="pform-doc-row">
                                         <div class="pform-doc-icon">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
@@ -694,7 +721,15 @@
                                         </div>
                                         <div class="pform-doc-info">
                                             <h3>{{ $doc[0] }}</h3>
-                                            <p>{{ $doc[1] }}</p>
+                                            @if ($existingDoc)
+                                                <p>
+                                                    <a href="{{ $existingDoc->url }}" target="_blank" rel="noopener"
+                                                        style="color:#1d4ed8">📎 {{ $existingDoc->original_name }}</a>
+                                                    — sube otro para reemplazarlo
+                                                </p>
+                                            @else
+                                                <p>{{ $doc[1] }}</p>
+                                            @endif
                                         </div>
                                         <label class="pform-doc-upload">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15"
@@ -705,7 +740,7 @@
                                                 <line x1="12" x2="12" y1="3" y2="15" />
                                             </svg>
                                             Subir
-                                            <input type="file" hidden accept=".pdf,.doc,.docx">
+                                            <input type="file" hidden accept="{{ $doc[4] }}" name="{{ $doc[3] }}" class="pform-doc-input">
                                         </label>
                                     </div>
                                 @endforeach
@@ -748,6 +783,14 @@
                         <div class="pform-seo-score" id="pformSeoScoreVal">0%</div>
                         <p class="pform-hint" style="margin:4px 0 0;text-align:center">Puntuación SEO</p>
                     </div>
+                    {{-- FIX BUG 6: convenience save button for the Marketing team so
+                         they don't have to close the SEO panel to save. It does not
+                         submit on its own — it triggers the same validated "Publicar
+                         Producto" flow via a programmatic click, so no logic is
+                         duplicated and the rest of the form is never ignored. --}}
+                    <button type="button" class="pform-btn primary" id="pformSeoSaveBtn">
+                        Aplicar cambios SEO
+                    </button>
                 </div>
             </div>
 
@@ -798,9 +841,51 @@
 
                         <div class="pform-field">
                             <label class="pform-label">Palabras Clave (Keywords)</label>
-                            <input type="text" class="pform-input"
+                            {{-- FIX BUG 5: added name="seo_keywords" + value — existed but was
+                                 never submitted nor recovered. --}}
+                            <input type="text" class="pform-input" name="seo_keywords" form="productEditForm"
+                                value="{{ $product->seo_keywords ?? '' }}"
                                 placeholder="caldera, industrial, vapor, alta presión">
                             <p class="pform-hint">Separa las palabras clave con comas</p>
+                        </div>
+                    </div>
+
+                    {{-- FIX BUG 5: added the entire "Redes Sociales (Open Graph)" panel —
+                         it existed in create_product/create.blade.php but was completely
+                         missing here, so QA never saw it in Edit. --}}
+                    <div class="pform-panel" style="margin-bottom:0">
+                        <h2 class="pform-panel-title" style="display:flex;align-items:center;gap:8px">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
+                                fill="none" stroke="var(--secondary-color)" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <circle cx="18" cy="5" r="3" />
+                                <circle cx="6" cy="12" r="3" />
+                                <circle cx="18" cy="19" r="3" />
+                                <line x1="8.59" x2="15.42" y1="13.51" y2="17.49" />
+                                <line x1="15.41" x2="8.59" y1="6.51" y2="10.49" />
+                            </svg>
+                            Redes Sociales (Open Graph)
+                        </h2>
+
+                        <div class="pform-field">
+                            <label class="pform-label">Título para Redes Sociales</label>
+                            <input type="text" class="pform-input" name="og_title" form="productEditForm"
+                                value="{{ $product->og_title ?? '' }}" placeholder="Bomba de Calor Rinnai 20HP">
+                        </div>
+
+                        <div class="pform-field">
+                            <label class="pform-label">Descripción para Redes Sociales</label>
+                            <textarea class="pform-textarea" rows="3" name="og_description" form="productEditForm"
+                                placeholder="Descripción que aparecerá cuando se comparta en Facebook, LinkedIn, etc.">{{ $product->og_description ?? '' }}</textarea>
+                        </div>
+
+                        <div class="pform-field" style="margin-bottom:0">
+                            <label class="pform-label">Imagen para Redes Sociales</label>
+                            <input type="url" class="pform-input" name="og_image" form="productEditForm"
+                                value="{{ $product->og_image ?? '' }}"
+                                placeholder="URL de la imagen (1200x630px recomendado)">
+                            <p class="pform-hint">Recomendado: 1200x630px &bull; Máximo: 5MB &bull; Formato: JPG o PNG
+                            </p>
                         </div>
                     </div>
 

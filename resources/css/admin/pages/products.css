@@ -439,4 +439,83 @@
     .prod-page-header { padding: 16px; }
     .prod-content-area { padding: 16px; }
     .prod-grid-container { grid-template-columns: 1fr; }
+
+    /* FIX BUG 12: table -> stacked cards on mobile. Each <tr> becomes a
+       card; each <td> shows its column via ::before + data-label. */
+    .products-table-wrapper {
+        max-height: 70vh;
+        overflow-y: auto;
+    }
+
+    .products-table-wrapper table,
+    .products-table-wrapper thead,
+    .products-table-wrapper tbody,
+    .products-table-wrapper tr,
+    .products-table-wrapper th,
+    .products-table-wrapper td {
+        display: block;
+    }
+
+    .products-table-wrapper thead {
+        display: none;
+    }
+
+    .products-table-wrapper tbody tr {
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        padding: 12px;
+        margin-bottom: 12px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .products-table-wrapper tbody tr:last-child {
+        margin-bottom: 0;
+    }
+
+    .products-table-wrapper td {
+        padding: 8px 0;
+        border-bottom: 1px solid #f3f4f6;
+        text-align: left !important;
+    }
+
+    .products-table-wrapper td:last-child {
+        border-bottom: none;
+    }
+
+    .products-table-wrapper td::before {
+        content: attr(data-label);
+        display: block;
+        font-size: 11px;
+        font-weight: 600;
+        color: #6b7280;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        margin-bottom: 4px;
+    }
+
+    /* The "Producto" cell already carries its own visual label (name + SKU
+       line), so the generic ::before label would be redundant there. */
+    .products-table-wrapper td[data-label="Producto"]::before {
+        display: none;
+    }
+}
+
+/* FIX BUG 13: laptop range — tighten spacing so every column stays visible
+   without the table overflowing or truncating data. */
+@media (min-width: 769px) and (max-width: 1366px) {
+    .prod-table {
+        table-layout: auto;
+        font-size: 0.82rem;
+    }
+
+    .prod-table th,
+    .prod-table td {
+        padding: 8px 6px;
+    }
+
+    .prod-name {
+        white-space: normal;
+        word-break: break-word;
+    }
 }

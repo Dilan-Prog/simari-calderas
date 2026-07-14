@@ -290,6 +290,15 @@
                         if (docTypeSelect) {
                             docTypeSelect.value = customer.document_type ?? '';
                             if (docTypeSelect.value !== (customer.document_type ?? '')) {
+                                // FIX QA-8 Part B: This branch used to run silently for
+                                // every customer with document_type='cfdi', since that
+                                // option didn't exist in this select (Part A fixed the
+                                // missing option). Kept as a defensive fallback for any
+                                // future/legacy value that still doesn't match, now with
+                                // a warning so a mismatch is visible during debugging.
+                                console.warn(
+                                    `document_type "${customer.document_type}" no coincide con ninguna opción del select; se agregó dinámicamente.`
+                                );
                                 const opt = document.createElement('option');
                                 opt.value = customer.document_type;
                                 opt.textContent = customer.document_type;
@@ -697,12 +706,15 @@
         const validateFormFields = (form) => {
             const errors = [];
 
-            ['full_name', 'document_type', 'source', 'email', 'phone', 'rfc', 'postal_code'].forEach(name => {
+            // FIX QA-7: Added 'company' to the clear list so its red outline
+            // resets on re-submit like the other required fields.
+            ['full_name', 'document_type', 'source', 'email', 'phone', 'company', 'rfc', 'postal_code'].forEach(name => {
                 valClear(form, name);
             });
 
             const fullName = form.querySelector('[name="full_name"]')?.value.trim();
             const documentType = form.querySelector('[name="document_type"]')?.value.trim();
+            const company = form.querySelector('[name="company"]')?.value.trim();
             const email = form.querySelector('[name="email"]')?.value.trim();
             const phone = form.querySelector('[name="phone"]')?.value.trim();
             const whatsapp = form.querySelector('[name="whatsapp"]')?.value.trim();
@@ -715,21 +727,42 @@
                 errors.push('THE NAME FIELD IS REQUIRED.');
             }
 
+            // FIX QA-7: 'company' had a required asterisk (*) in the view but no
+            // client-side validation at all — extended with the same required
+            // pattern used for full_name.
+            if (!company) {
+                valMark(form, 'company', 'Empresa');
+                errors.push('THE COMPANY FIELD IS REQUIRED.');
+            }
+
             if (!documentType || documentType === 'seleccione' || documentType.toLowerCase().includes('select')) {
                 valMark(form, 'document_type', 'Tipo de Documento');
                 errors.push('THE DOCUMENT TYPE FIELD IS REQUIRED.');
             }
 
-            if (!source || source === 'seleccione' || documentType.toLowerCase().includes('select')) {
+            // FIX QA-6: Was comparing documentType.toLowerCase() instead of
+            // source.toLowerCase() — a copy-paste bug that made this guard check
+            // the wrong field's value.
+            if (!source || source === 'seleccione' || source.toLowerCase().includes('select')) {
                 valMark(form, 'source', 'Origen');
                 errors.push('THE SOURCE FIELD IS REQUIRED.');
             }
 
-            if (email && !REGEX.email.test(email)) {
+            // FIX QA-7: 'email' and 'phone' had a required asterisk (*) in the
+            // view but were only checked for format when non-empty — an empty
+            // value silently skipped both checks. Extended with the same
+            // required/else-format pattern already used for 'rfc' below.
+            if (!email) {
+                valMark(form, 'email', 'Correo Electrónico');
+                errors.push('THE EMAIL FIELD IS REQUIRED.');
+            } else if (!REGEX.email.test(email)) {
                 valMark(form, 'email', 'Correo Electrónico');
                 errors.push('THE EMAIL FORMAT IS NOT VALID.');
             }
-            if (phone && !REGEX.phone.test(phone)) {
+            if (!phone) {
+                valMark(form, 'phone', 'Teléfono');
+                errors.push('THE PHONE FIELD IS REQUIRED.');
+            } else if (!REGEX.phone.test(phone)) {
                 valMark(form, 'phone', 'Teléfono');
                 errors.push('THE PHONE MUST CONTAIN EXACTLY 10 NUMERIC DIGITS.');
             }
