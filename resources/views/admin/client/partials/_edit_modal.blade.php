@@ -25,7 +25,12 @@
                         placeholder="Ej: Juan Pérez">
                 </div>
                 <div>
-                    <label class="supliers-manager-slider-label">Empresa</label>
+                    {{-- FIX QA-12: missing the * that Crear already has for this
+                         field — validateFormFields() (shared by both forms in
+                         _scripts.blade.php) already blocks saving with company
+                         empty, so the label was silently understating what the
+                         form actually enforces. --}}
+                    <label class="supliers-manager-slider-label">Empresa *</label>
                     <input class="users-manager-input" type="text" name="company"
                         placeholder="Ej: Acme S.A. de C.V.">
                 </div>
@@ -38,7 +43,8 @@
                         style="text-transform: lowercase" placeholder="correo@empresa.mx">
                 </div>
                 <div>
-                    <label class="supliers-manager-slider-label">Teléfono</label>
+                    {{-- FIX QA-12: same missing-asterisk issue as Empresa above. --}}
+                    <label class="supliers-manager-slider-label">Teléfono *</label>
                     <input class="users-manager-input" type="text" name="phone"
                         placeholder="(555) 123-4567">
                 </div>
@@ -48,12 +54,16 @@
                         placeholder="5551234567">
                 </div>
                 <div>
-                    <label class="supliers-manager-slider-label">RFC</label>
+                    {{-- FIX QA-12: same missing-asterisk issue as Empresa above. --}}
+                    <label class="supliers-manager-slider-label">RFC *</label>
                     <input class="users-manager-input" type="text" name="rfc"
                         placeholder="XAXX010101000">
                 </div>
                 <div>
-                    <label class="supliers-manager-slider-label">Tipo de documento</label>
+                    {{-- FIX QA-12: this field is required by validateFormFields()
+                         and by the server (required|in:...) in BOTH forms, but
+                         neither Crear nor Editar showed a required asterisk. --}}
+                    <label class="supliers-manager-slider-label">Tipo de documento *</label>
                     {{-- FIX QA-8 Part A: Added missing 'cfdi' option so this select
                          has the exact same options as the create modal — without it,
                          a customer with document_type=cfdi couldn't be preselected. --}}
@@ -66,7 +76,9 @@
                     </select>
                 </div>
                 <div>
-                    <label class="supliers-manager-slider-label">¿Cómo nos conoció?</label>
+                    {{-- FIX QA-12: same missing-required-asterisk issue as
+                         "Tipo de documento" above. --}}
+                    <label class="supliers-manager-slider-label">¿Cómo nos conoció? *</label>
                     <select class="users-manager-select" name="source">
                         <option value="">Seleccionar...</option>
                         <option value="web">Web</option>

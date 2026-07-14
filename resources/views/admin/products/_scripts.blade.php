@@ -131,6 +131,13 @@
                             ?.closest('.prod-grid-card');
                         if (card) card.remove();
                         showProductToast(data.message ?? 'Producto eliminado correctamente.');
+                        // FIX QA: removing the row/card left "Mostrando X de Y
+                        // productos" and "Total en inventario" stale at their
+                        // pre-delete values (Y and the stock sum are only
+                        // computed server-side on page load). A reload keeps
+                        // both counters accurate without duplicating that
+                        // arithmetic in JS.
+                        setTimeout(() => window.location.reload(), 1200);
                     } else {
                         deleteProductModal.classList.remove('active');
                         showProductToast(data.message ?? 'No se pudo eliminar el producto.', 'error');

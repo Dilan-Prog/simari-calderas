@@ -27,7 +27,7 @@
                 </div>
                 <div>
                     <label class="supliers-manager-slider-label">Teléfono</label>
-                    <input class="users-manager-input" type="text" name="phone" placeholder="(449) 123-4567">
+                    <input class="users-manager-input" type="text" name="phone" placeholder="(449) 123-4567" maxlength="20">
                 </div>
                 <div>
                     <label class="supliers-manager-slider-label">Email</label>

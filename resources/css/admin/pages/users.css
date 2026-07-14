@@ -2412,8 +2412,12 @@
         font-size: 13px;
     }
 
-    /* Primera celda — avatar + nombre */
+    /* Primera celda — avatar + nombre. display:flex explícito: la regla
+       ".table-container-users-manager td { display:block }" de arriba tiene
+       más especificidad que la base ".user-manager-table-cell { display:flex }"
+       y la pisaba, dejando el avatar apilado sobre el nombre en vez de al lado. */
     .table-container-users-manager .user-manager-table-cell {
+        display: flex;
         align-items: center;
         gap: 10px;
     }
@@ -2607,14 +2611,28 @@
         font-size: 13px;
     }
 
+    /* Primera celda — avatar/ícono + nombre (Clientes y Proveedores comparten
+       esta clase). Mismo problema de especificidad que en Usuarios: sin
+       display:flex explícito aquí, la regla "td { display:block }" de arriba
+       pisa la base ".clients-manager-table-cell { display:flex }". */
+    .table-container-clients-manager .clients-manager-table-cell {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
     /* Separador entre celdas */
     .table-container-clients-manager tbody tr td:not(:first-child) {
         padding-top: 8px;
         border-top: 1px solid #f3f4f6;
     }
 
-    /* Labels automáticos por posición */
-    .table-container-clients-manager tbody tr td:nth-child(2)::before {
+    /* Labels automáticos por posición — SOLO filas de Clientes (6 columnas).
+       Las filas de Proveedores (tr.supplier-row, 8 columnas) reutilizan esta
+       misma clase .table-container-clients-manager pero con otro orden de
+       columnas; antes estas reglas también las alcanzaban y mostraban
+       etiquetas equivocadas (ej. "RFC:" sobre "Condiciones de Pago"). */
+    .table-container-clients-manager tbody tr:not(.supplier-row) td:nth-child(2)::before {
         content: 'Cliente: ';
         font-size: 11px;
         font-weight: 700;
@@ -2624,7 +2642,7 @@
         margin-bottom: 2px;
     }
 
-    .table-container-clients-manager tbody tr td:nth-child(3)::before {
+    .table-container-clients-manager tbody tr:not(.supplier-row) td:nth-child(3)::before {
         content: 'Contacto: ';
         font-size: 11px;
         font-weight: 700;
@@ -2634,7 +2652,7 @@
         margin-bottom: 2px;
     }
 
-    .table-container-clients-manager tbody tr td:nth-child(4)::before {
+    .table-container-clients-manager tbody tr:not(.supplier-row) td:nth-child(4)::before {
         content: 'RFC: ';
         font-size: 11px;
         font-weight: 700;
@@ -2644,7 +2662,7 @@
         margin-bottom: 2px;
     }
 
-    .table-container-clients-manager tbody tr td:nth-child(5)::before {
+    .table-container-clients-manager tbody tr:not(.supplier-row) td:nth-child(5)::before {
         content: 'Estado: ';
         font-size: 11px;
         font-weight: 700;
@@ -2654,7 +2672,71 @@
         margin-bottom: 4px;
     }
 
-    /* Acciones al final */
+    /* Labels automáticos por posición — SOLO filas de Proveedores (8 columnas:
+       Empresa, Contacto, Email/Teléfono, Condiciones, Calidad, Cumplimiento,
+       Estado, Acciones). La columna 1 (empresa) no lleva label, igual que en
+       Clientes, porque el nombre ya es visualmente el título de la carta. */
+    .table-container-clients-manager tbody tr.supplier-row td:nth-child(2)::before {
+        content: 'Contacto: ';
+        font-size: 11px;
+        font-weight: 700;
+        color: #9ca3af;
+        text-transform: uppercase;
+        display: block;
+        margin-bottom: 2px;
+    }
+
+    .table-container-clients-manager tbody tr.supplier-row td:nth-child(3)::before {
+        content: 'Email / Teléfono: ';
+        font-size: 11px;
+        font-weight: 700;
+        color: #9ca3af;
+        text-transform: uppercase;
+        display: block;
+        margin-bottom: 2px;
+    }
+
+    .table-container-clients-manager tbody tr.supplier-row td:nth-child(4)::before {
+        content: 'Condiciones de Pago: ';
+        font-size: 11px;
+        font-weight: 700;
+        color: #9ca3af;
+        text-transform: uppercase;
+        display: block;
+        margin-bottom: 2px;
+    }
+
+    .table-container-clients-manager tbody tr.supplier-row td:nth-child(5)::before {
+        content: 'Calidad: ';
+        font-size: 11px;
+        font-weight: 700;
+        color: #9ca3af;
+        text-transform: uppercase;
+        display: block;
+        margin-bottom: 4px;
+    }
+
+    .table-container-clients-manager tbody tr.supplier-row td:nth-child(6)::before {
+        content: 'Cumplimiento: ';
+        font-size: 11px;
+        font-weight: 700;
+        color: #9ca3af;
+        text-transform: uppercase;
+        display: block;
+        margin-bottom: 4px;
+    }
+
+    .table-container-clients-manager tbody tr.supplier-row td:nth-child(7)::before {
+        content: 'Estado: ';
+        font-size: 11px;
+        font-weight: 700;
+        color: #9ca3af;
+        text-transform: uppercase;
+        display: block;
+        margin-bottom: 4px;
+    }
+
+    /* Acciones al final (ambas tablas) */
     .table-container-clients-manager tbody tr td:last-child {
         padding-top: 12px;
         border-top: 1px solid #f1f5f9;

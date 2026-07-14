@@ -5,6 +5,14 @@
             <button type="button" class="table-users-manager-action-btn cancel" id="closeSupplierCreateModal">✕</button>
         </div>
 
+        {{-- FIX: the submit handler in _scripts.blade.php already looked up
+             this container by id to show client- and server-side (422)
+             errors, but no element with this id existed anywhere in this
+             modal — so validation failures (phone > 20 chars, rating out of
+             1-5) failed completely silently: click Guardar, nothing visibly
+             happens. --}}
+        <div id="supplier-create-errors" class="user-manager-errors" style="display:none;"></div>
+
         <form class="user-manager-modal-body" id="supplierCreateForm" action="{{ route('admin.suppliers.store') }}"
             method="POST" novalidate>
             @csrf
@@ -43,7 +51,7 @@
                 <div>
                     <label class="supliers-manager-slider-label">Teléfono *</label>
                     <input class="users-manager-input" type="text" name="phone" placeholder="(449) 123-4567"
-                        value="{{ old('phone') }}">
+                        maxlength="20" value="{{ old('phone') }}">
                 </div>
                 <div>
                     <label class="supliers-manager-slider-label">Email *</label>

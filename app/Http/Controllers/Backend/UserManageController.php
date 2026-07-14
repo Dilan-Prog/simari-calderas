@@ -15,6 +15,10 @@ class UserManageController extends Controller
 {
     public function index()
     {
+        // FIX QA: 'created_at' was missing from this explicit column select,
+        // so index.blade.php's join-date column silently rendered blank for
+        // every user (the value was genuinely null on this partial-select
+        // model, not just unformatted).
         $users = User::with(['role:id,name_role_es', 'contactEmergency'])
             ->get([
                 'id',
@@ -27,7 +31,8 @@ class UserManageController extends Controller
                 'curp',
                 'social_segurity_number',
                 'phone',
-                'position'
+                'position',
+                'created_at'
             ]);
 
         $roles = Role::select('id', 'name_role_es')->get();

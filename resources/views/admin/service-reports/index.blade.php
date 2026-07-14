@@ -52,13 +52,17 @@
 
                 {{-- Tipo --}}
                 <div class="sr-select-wrap">
+                    {{-- FIX QA: these option values ("quimico", "mantenimiento"...)
+                         never matched the real service_type enum stored in the DB
+                         ("chemical_analysis", "maintenance_preventive"..., see
+                         ServiceReportService::getServiceTypes()) — selecting ANY
+                         type here always returned zero results. Now using the
+                         real enum values/labels so every type is filterable. --}}
                     <select name="type" class="sr-select">
                         <option value="">Todos los tipos</option>
-                        <option value="quimico"       {{ request('type') == 'quimico'       ? 'selected' : '' }}>Análisis Químico</option>
-                        <option value="mantenimiento" {{ request('type') == 'mantenimiento' ? 'selected' : '' }}>Mantenimiento</option>
-                        <option value="inspeccion"    {{ request('type') == 'inspeccion'    ? 'selected' : '' }}>Inspección</option>
-                        <option value="limpieza"      {{ request('type') == 'limpieza'      ? 'selected' : '' }}>Limpieza</option>
-                        <option value="calibracion"   {{ request('type') == 'calibracion'   ? 'selected' : '' }}>Calibración</option>
+                        @foreach($serviceTypes as $value => $label)
+                            <option value="{{ $value }}" {{ request('type') == $value ? 'selected' : '' }}>{{ $label }}</option>
+                        @endforeach
                     </select>
                     <span class="sr-select-icon">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">

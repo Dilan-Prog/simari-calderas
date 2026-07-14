@@ -499,6 +499,16 @@
     .products-table-wrapper td[data-label="Producto"]::before {
         display: none;
     }
+
+    /* FIX QA: .prod-name's base rule is white-space:nowrap (fine for the
+       fixed-width desktop table column). The laptop range (769–1366px,
+       below) already overrides this, but the mobile card range never did —
+       a long hyphenated name with no spaces (e.g. "DC2800-CE-1F0-210-00000-0")
+       had nowhere to wrap and overflowed past the card's edge. */
+    .prod-name {
+        white-space: normal;
+        word-break: break-word;
+    }
 }
 
 /* FIX BUG 13: laptop range — tighten spacing so every column stays visible

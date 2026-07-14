@@ -49,7 +49,14 @@ class ServiceReportController extends Controller
 
         $reports = $query->paginate(15)->withQueryString();
 
-        return view('admin.service-reports.index', compact('reports'));
+        // FIX QA: the "Tipo de Servicio" filter's <option value=""> attributes
+        // used to be hand-typed guesses ("quimico", "mantenimiento"...) that
+        // never matched the real service_type enum, so the filter always
+        // returned zero results. Pass the same canonical list the create
+        // wizard already uses so the dropdown values are guaranteed correct.
+        $serviceTypes = $this->service->getServiceTypes();
+
+        return view('admin.service-reports.index', compact('reports', 'serviceTypes'));
     }
 
     // ── Create ─────────────────────────────────────────────────────────────────

@@ -80,7 +80,9 @@
                         placeholder="XAXX010101000" value="{{ old('rfc') }}">
                 </div>
                 <div>
-                    <label class="supliers-manager-slider-label">Tipo de documento</label>
+                    {{-- FIX QA-12: required by validateFormFields() and by the
+                         server (required|in:...), but had no visual indicator. --}}
+                    <label class="supliers-manager-slider-label">Tipo de documento *</label>
                     <select class="users-manager-select" name="document_type">
                         <option value="">Seleccionar...</option>
                         <option value="ine" {{ old('document_type') == 'ine' ? 'selected' : '' }}>INE</option>
@@ -90,7 +92,9 @@
                     </select>
                 </div>
                 <div>
-                    <label class="supliers-manager-slider-label">¿Cómo nos conoció?</label>
+                    {{-- FIX QA-12: same missing-required-asterisk issue as
+                         "Tipo de documento" above. --}}
+                    <label class="supliers-manager-slider-label">¿Cómo nos conoció? *</label>
                     <select class="users-manager-select" name="source">
                         <option value="">Seleccionar...</option>
                         <option value="web" {{ old('source') == 'web' ? 'selected' : '' }}>Web</option>
@@ -106,7 +110,10 @@
             <h3>Direcciones</h3>
             <div class="client-modal-address-section">
                 <div>
-                    <label class="supliers-manager-slider-label">Dirección Fiscal *</label>
+                    {{-- FIX QA-12: the * here was stale — this field is nullable
+                         server-side and not checked by validateFormFields();
+                         Editar's equivalent label already had no asterisk. --}}
+                    <label class="supliers-manager-slider-label">Dirección Fiscal</label>
                     <textarea class="users-manager-input client-modal-textarea" name="address_line1"
                         placeholder="Calle, número, colonia...">{{ old('address_line1') }}</textarea>
                 </div>
@@ -120,23 +127,27 @@
                     <label for="sameAsFiscal" class="supliers-manager-slider-label">Misma que fiscal</label>
                 </div>
                 <div class="user-manager-form client-modal-address-grid">
+                    {{-- FIX QA-12: removed stale required asterisks (*) from Ciudad,
+                         Estado, C.P. and País — all four are nullable server-side
+                         and none is checked by validateFormFields(); Editar's
+                         equivalent labels already had no asterisk. --}}
                     <div>
-                        <label class="supliers-manager-slider-label">Ciudad *</label>
+                        <label class="supliers-manager-slider-label">Ciudad</label>
                         <input class="users-manager-input" type="text" name="city"
                             placeholder="Ej: CDMX" value="{{ old('city') }}">
                     </div>
                     <div>
-                        <label class="supliers-manager-slider-label">Estado *</label>
+                        <label class="supliers-manager-slider-label">Estado</label>
                         <input class="users-manager-input" type="text" name="state"
                             placeholder="Ej: CDMX" value="{{ old('state') }}">
                     </div>
                     <div>
-                        <label class="supliers-manager-slider-label">C.P. *</label>
+                        <label class="supliers-manager-slider-label">C.P.</label>
                         <input class="users-manager-input" type="text" name="postal_code"
                             placeholder="12345" value="{{ old('postal_code') }}">
                     </div>
                     <div>
-                        <label class="supliers-manager-slider-label">País *</label>
+                        <label class="supliers-manager-slider-label">País</label>
                         <input class="users-manager-input" type="text" name="country"
                             placeholder="México" value="{{ old('country', 'México') }}">
                     </div>

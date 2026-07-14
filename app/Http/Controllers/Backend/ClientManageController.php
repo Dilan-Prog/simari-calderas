@@ -97,12 +97,20 @@ class ClientManageController extends Controller
         $customer->save();
 
         if ($request->filled('address_line1')) {
+            // FIX QA-12: this only ever created ONE 'fiscal' address, cramming
+            // the "Dirección de Envío" form field into that same record's
+            // address_line2 column — same_as_fiscal was never checked and no
+            // 'envio' address was ever created. update() already does this
+            // correctly (two separate address records); mirrored here so a
+            // client created with a different shipping address doesn't lose
+            // it, and doesn't get silently restructured the first time
+            // someone opens Editar.
             $customer->customer_addresses()->create([
                 'label' => 'fiscal',
                 'recipient_name' => $firstName . ' ' . $lastName,
                 'phone' => $request->phone,
                 'address_line1' => $request->address_line1,
-                'address_line2' => $request->address_line2,
+                'address_line2' => $request->address_line1,
                 'city' => $request->city,
                 'state' => $request->state,
                 'postal_code' => $request->postal_code,
@@ -110,6 +118,21 @@ class ClientManageController extends Controller
                 'reference' => $request->reference,
                 'is_default' => true,
             ]);
+
+            if (!$request->boolean('same_as_fiscal') && $request->filled('address_line2')) {
+                $customer->customer_addresses()->create([
+                    'label' => 'envio',
+                    'recipient_name' => $firstName . ' ' . $lastName,
+                    'phone' => $request->phone,
+                    'address_line1' => $request->address_line2,
+                    'address_line2' => $request->address_line2,
+                    'city' => $request->city,
+                    'state' => $request->state,
+                    'postal_code' => $request->postal_code,
+                    'country' => $request->country ?? 'México',
+                    'is_default' => false,
+                ]);
+            }
         }
 
         return redirect()->route('admin.clients.index')->with('success', 'Cliente creado correctamente.');

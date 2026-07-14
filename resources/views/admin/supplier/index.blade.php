@@ -82,7 +82,7 @@
                             <tr>
                                 <th>EMPRESA</th>
                                 <th>CONTACTO</th>
-                                <th>CONTACTO</th>
+                                <th>EMAIL / TELÉFONO</th>
                                 <th>CONDICIONES DE PAGO</th>
                                 <th>CALIDAD</th>
                                 <th>CUMPLIMIENTO</th>

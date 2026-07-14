@@ -37,13 +37,19 @@
                             @foreach ($users as $user)
                                 <tr class="table-row-user-manager">
                                     <td class="user-manager-table-cell">
+                                        {{-- FIX QA: avatar letter and join date were hardcoded
+                                             ("M" / "9 feb 2024") for every row regardless of the
+                                             actual user. --}}
                                         <div class="avatar-user-manager">
-                                            M
+                                            {{ strtoupper(substr($user->first_name, 0, 1)) }}
                                         </div>
                                         <div>
                                             <p class="users-manager-name-user">{{ $user->first_name }}
                                                 {{ $user->last_name }}</p>
-                                            <span class="users-manager-date-user">9 feb 2024</span>
+                                            {{-- ->locale('es') is a per-instance Carbon override, not a
+                                                 global config change — the app's default locale is 'en'
+                                                 (config/app.php, shared/out of this module's scope). --}}
+                                            <span class="users-manager-date-user">{{ $user->created_at?->locale('es')->translatedFormat('j M Y') }}</span>
                                         </div>
                                     </td>
                                     <td>

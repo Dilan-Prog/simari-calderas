@@ -300,15 +300,20 @@
         if (cPhone && cPhone.length > 20) {
             createErrors.push('El teléfono no puede tener más de 20 caracteres.');
         }
-        if (cRatingQ && (parseInt(cRatingQ) < 1 || parseInt(cRatingQ) > 5)) {
+        // FIX: rating inputs default to "0" (= sin calificar todavía, valor
+        // legítimo — así se muestran las estrellas vacías y el filtro
+        // "Rating mínimo: 0/5"). "0" && (0 < 1) era truthy, así que este
+        // check rechazaba SIEMPRE el formulario de creación incluso sin
+        // tocar los ratings — ningún proveedor se podía crear jamás.
+        if (cRatingQ && cRatingQ !== '0' && (parseInt(cRatingQ) < 1 || parseInt(cRatingQ) > 5)) {
             createErrors.push('El rating de calidad debe ser entre 1 y 5.');
         }
-        if (cRatingC && (parseInt(cRatingC) < 1 || parseInt(cRatingC) > 5)) {
+        if (cRatingC && cRatingC !== '0' && (parseInt(cRatingC) < 1 || parseInt(cRatingC) > 5)) {
             createErrors.push('El rating de cumplimiento debe ser entre 1 y 5.');
         }
 
         if (createErrors.length > 0) {
-            const errBox = document.getElementById('supplierCreateErrors');
+            const errBox = document.getElementById('supplier-create-errors');
             if (errBox) {
                 errBox.innerHTML     = createErrors.map(m => `<p>${m}</p>`).join('');
                 errBox.style.display = 'block';
@@ -335,7 +340,7 @@
                 showSupplierToast('Proveedor creado correctamente.');
                 setTimeout(() => window.location.reload(), 1500);
             } else if (res.status === 422) {
-                const errBox = document.getElementById('supplierCreateErrors');
+                const errBox = document.getElementById('supplier-create-errors');
                 if (errBox) {
                     errBox.innerHTML     = Object.values(data.errors).flat().map(m => `<p>${m}</p>`).join('');
                     errBox.style.display = 'block';
@@ -420,7 +425,7 @@
 
                 form.dataset.supplierId = id;
 
-                const errBox = document.getElementById('supplierEditErrors');
+                const errBox = document.getElementById('supplier-edit-errors');
                 if (errBox) { errBox.style.display = 'none'; errBox.innerHTML = ''; }
 
                 supplierEditModal.style.display = 'flex';
@@ -443,7 +448,7 @@
         }
 
         if (editErrors.length > 0) {
-            const errBox = document.getElementById('supplierEditErrors');
+            const errBox = document.getElementById('supplier-edit-errors');
             if (errBox) {
                 errBox.innerHTML     = editErrors.map(m => `<p>${m}</p>`).join('');
                 errBox.style.display = 'block';
@@ -472,7 +477,7 @@
                 updateSupplierTableRow(data.supplier);
                 showSupplierToast('Proveedor actualizado correctamente.');
             } else if (res.status === 422) {
-                const errBox = document.getElementById('supplierEditErrors');
+                const errBox = document.getElementById('supplier-edit-errors');
                 if (errBox) {
                     errBox.innerHTML     = Object.values(data.errors).flat().map(m => `<p>${m}</p>`).join('');
                     errBox.style.display = 'block';
