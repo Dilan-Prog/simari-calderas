@@ -78,6 +78,7 @@
                         <tr>
                             <th>Producto</th>
                             <th>SKU</th>
+                            <th>Categoría</th>
                             <th>Precio</th>
                             <th>Costo</th>
                             <th>Stock</th>
@@ -121,6 +122,7 @@
                                     </div>
                                 </td>
                                 <td data-label="SKU">{{ $product->sku }}</td>
+                                <td data-label="Categoría">{{ $product->category->name ?? '—' }}</td>
                                 <td data-label="Precio"><span class="prod-price">${{ number_format($product->price, 0) }}</span></td>
                                 <td data-label="Costo"><span class="prod-price">${{ number_format($product->cost ?? 0, 0) }}</span></td>
                                 <td data-label="Stock">
@@ -159,7 +161,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="7">
+                                <td colspan="8">
                                     <p class="prod-empty">No hay productos registrados.</p>
                                 </td>
                             </tr>
@@ -207,6 +209,10 @@
                             <p class="prod-grid-cat">SKU: {{ $product->sku }}</p>
                         </div>
                         <div class="prod-grid-meta">
+                            <div class="prod-grid-meta-row">
+                                <span class="prod-grid-meta-label">Categoría</span>
+                                <span class="prod-grid-meta-val">{{ $product->category->name ?? '—' }}</span>
+                            </div>
                             <div class="prod-grid-meta-row">
                                 <span class="prod-grid-meta-label">Precio</span>
                                 <span class="prod-grid-meta-val price">${{ number_format($product->price, 0) }}</span>

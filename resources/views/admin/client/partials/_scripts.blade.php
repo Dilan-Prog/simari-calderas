@@ -659,7 +659,15 @@
             input.addEventListener('input', function() {
                 const pos = this.selectionStart;
                 this.value = this.value.toLowerCase();
-                this.setSelectionRange(pos, pos);
+                // FIX: input[type=email] does not support setSelectionRange per the
+                // HTML spec (Chrome/Firefox throw InvalidStateError) — only
+                // text/search/URL/tel/password do. Restoring the cursor position is
+                // a nice-to-have, so swallow the exception instead of letting it
+                // abort this handler (which was breaking the lowercase transform
+                // itself on every keystroke).
+                try {
+                    this.setSelectionRange(pos, pos);
+                } catch (_) {}
             });
             input.addEventListener('paste', function(e) {
                 e.preventDefault();

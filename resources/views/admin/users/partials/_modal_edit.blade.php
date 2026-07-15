@@ -40,7 +40,7 @@
                     <input class="users-manager-input" type="text" name="last_name" id="edit_last_name">
                 </div>
                 <div>
-                    <label class="supliers-manager-slider-label">RFC</label>
+                    <label class="supliers-manager-slider-label">RFC*</label>
                     <input class="users-manager-input" type="text" placeholder="XAXX010101000" name="rfc"
                         id="edit_rfc">
                 </div>
@@ -62,12 +62,12 @@
                     <input class="users-manager-input" type="email" name="email" id="edit_email">
                 </div>
                 <div>
-                    <label class="supliers-manager-slider-label">Teléfono</label>
+                    <label class="supliers-manager-slider-label">Teléfono*</label>
                     <input class="users-manager-input" type="text" placeholder="(049) 123-4567" name="phone"
                         id="edit_phone">
                 </div>
                 <div>
-                    <label class="supliers-manager-slider-label">Puesto / Cargo</label>
+                    <label class="supliers-manager-slider-label">Puesto / Cargo*</label>
                     <input class="users-manager-input" type="text" placeholder="Ej. Técnico de Mantenimiento"
                         name="position" id="edit_position">
                 </div>

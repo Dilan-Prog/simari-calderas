@@ -67,8 +67,9 @@
 /* ── Botón hamburger (solo mobile) ── */
 .admin-hamburger-btn {
     display: none;
-    width: 36px;
-    height: 36px;
+    /* FIX QA: bumped from 36x36 to the 44x44 minimum touch target. */
+    width: 44px;
+    height: 44px;
     align-items: center;
     justify-content: center;
     background: transparent;
@@ -125,8 +126,9 @@
 /* Botón notificaciones */
 .admin-notif-btn {
     position: relative;
-    width: 36px;
-    height: 36px;
+    /* FIX QA: bumped from 36x36 to the 44x44 minimum touch target. */
+    width: 44px;
+    height: 44px;
     display: flex;
     align-items: center;
     justify-content: center;

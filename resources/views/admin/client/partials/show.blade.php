@@ -306,10 +306,9 @@
                     editClientForm.querySelector('[name="company"]').value        = customer.company       ?? '';
                     editClientForm.querySelector('[name="email"]').value          = customer.email         ?? '';
                     editClientForm.querySelector('[name="phone"]').value          = customer.phone         ?? '';
+                    editClientForm.querySelector('[name="whatsapp"]').value       = customer.whatsapp      ?? '';
                     editClientForm.querySelector('[name="rfc"]').value            = customer.rfc           ?? '';
                     editClientForm.querySelector('[name="document_type"]').value  = customer.document_type ?? '';
-                    editClientForm.querySelector('[name="document_numer"]').value = customer.document_numer ?? '';
-                    editClientForm.querySelector('[name="birth_date"]').value     = customer.birth_date    ?? '';
                     editClientForm.querySelector('[name="source"]').value         = customer.source        ?? '';
                     editClientForm.querySelector('[name="status"]').value         = customer.status        ?? 'active';
                     editClientForm.querySelector('[name="address_line1"]').value  = addr?.address_line1    ?? '';
@@ -319,6 +318,7 @@
                     editClientForm.querySelector('[name="postal_code"]').value    = addr?.postal_code      ?? '';
                     editClientForm.querySelector('[name="country"]').value        = addr?.country          ?? '';
                     editClientForm.querySelector('[name="reference"]').value      = addr?.reference        ?? '';
+                    editClientForm.querySelector('[name="notes"]').value          = customer.notes         ?? '';
 
                     editClientModal.style.display = 'flex';
                 })

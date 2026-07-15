@@ -924,6 +924,10 @@
     border: none;
     padding: 10px;
     cursor: pointer;
+    /* FIX QA: bumped from ~38px to the 44px minimum touch target. */
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
 }
 
 .tab-show-client.active {
