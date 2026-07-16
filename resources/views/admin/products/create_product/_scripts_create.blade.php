@@ -235,7 +235,7 @@
             });
 
             /* ── Badge toggle cards ── */
-            document.querySelectorAll('.pform-badge-card:not(#badgeFeatured):not(#badgeNew):not(#badgeRecommended)')
+            document.querySelectorAll('.pform-badge-card:not(#badgeFeatured):not(#badgeNew):not(#badgeRecommended):not(#badgePublishOnWebsite)')
                 .forEach(function(card) {
                     card.addEventListener('click', function() {
                         this.classList.toggle('active');
@@ -519,64 +519,148 @@
             });
         }
 
+        const badgePublishOnWebsite = document.getElementById('badgePublishOnWebsite');
+        if (badgePublishOnWebsite) {
+            badgePublishOnWebsite.addEventListener('click', function() {
+                this.classList.toggle('active');
+                document.getElementById('pformPublishOnWebsite').value = this.classList.contains('active') ? 1 : 0;
+            });
+        }
+
         /* ── Image Gallery ── */
         (function() {
             const input = document.getElementById('pformImageInput');
-            const dropzone = document.querySelector('#pformPanel1 .pform-dropzone');
+            const dropzone = document.getElementById('pformDropzone');
             const placeholder = document.getElementById('pformImagePlaceholder');
             const grid = document.getElementById('pformImageGrid');
-            let dt = new DataTransfer();
+            const urlInputsWrap = document.getElementById('pformImageUrlInputs');
+            const orderInputsWrap = document.getElementById('pformImageOrderInputs');
+
+            // Combined, orderable list: {type:'file', file:File} | {type:'url', url:string}
+            let items = [];
+            let dragSrcIndex = null;
+
+            function syncFormInputs() {
+                const newDt = new DataTransfer();
+                items.forEach(function(item) {
+                    if (item.type === 'file') newDt.items.add(item.file);
+                });
+                input.files = newDt.files;
+
+                urlInputsWrap.innerHTML = '';
+                orderInputsWrap.innerHTML = '';
+                items.forEach(function(item) {
+                    if (item.type === 'url') {
+                        const h = document.createElement('input');
+                        h.type = 'hidden';
+                        h.name = 'image_urls[]';
+                        h.value = item.url;
+                        urlInputsWrap.appendChild(h);
+                    }
+                    const o = document.createElement('input');
+                    o.type = 'hidden';
+                    o.name = 'image_source_order[]';
+                    o.value = item.type;
+                    orderInputsWrap.appendChild(o);
+                });
+            }
 
             function renderPreviews() {
                 grid.innerHTML = '';
-                if (dt.files.length === 0) {
+                if (items.length === 0) {
                     placeholder.style.display = '';
+                    syncFormInputs();
                     return;
                 }
                 placeholder.style.display = 'none';
-                Array.from(dt.files).forEach(function(file, index) {
-                    const item = document.createElement('div');
-                    item.style.cssText =
-                        'position:relative;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;';
+
+                items.forEach(function(item, index) {
+                    const el = document.createElement('div');
+                    el.className = 'pform-img-item';
+                    el.draggable = true;
+                    el.title = 'Arrastra para reordenar';
 
                     const img = document.createElement('img');
-                    img.src = URL.createObjectURL(file);
-                    img.style.cssText = 'width:100%;height:100px;object-fit:cover;display:block;';
+                    img.className = 'pform-img-item-thumb';
+                    img.src = item.type === 'file' ? URL.createObjectURL(item.file) : item.url;
+                    el.appendChild(img);
+
+                    if (index === 0) {
+                        const badge = document.createElement('span');
+                        badge.className = 'pform-img-item-badge';
+                        badge.textContent = 'Portada';
+                        el.appendChild(badge);
+                    }
 
                     const info = document.createElement('div');
-                    info.style.cssText =
-                        'padding:4px 6px;font-size:11px;color:#6b7280;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;';
-                    info.title = file.name;
-                    info.textContent = file.name + ' · ' + (file.size / 1024).toFixed(0) + ' KB';
+                    info.className = 'pform-img-item-info';
+                    if (item.type === 'file') {
+                        info.title = item.file.name;
+                        info.textContent = item.file.name + ' · ' + (item.file.size / 1024).toFixed(0) + ' KB';
+                    } else {
+                        info.title = item.url;
+                        info.textContent = 'Imagen por URL';
+                    }
+                    el.appendChild(info);
 
                     const btn = document.createElement('button');
                     btn.type = 'button';
+                    btn.className = 'pform-img-item-remove';
                     btn.textContent = '✕';
-                    btn.style.cssText =
-                        'position:absolute;top:4px;right:4px;background:#dc2626;color:#fff;border:none;border-radius:50%;width:22px;height:22px;cursor:pointer;font-size:13px;line-height:1;display:flex;align-items:center;justify-content:center;';
                     btn.addEventListener('click', function() {
-                        const newDt = new DataTransfer();
-                        Array.from(dt.files).forEach(function(f, i) {
-                            if (i !== index) newDt.items.add(f);
-                        });
-                        dt = newDt;
-                        input.files = dt.files;
+                        items.splice(index, 1);
+                        renderPreviews();
+                    });
+                    el.appendChild(btn);
+
+                    el.addEventListener('dragstart', function(e) {
+                        dragSrcIndex = index;
+                        el.classList.add('is-dragging');
+                        e.dataTransfer.effectAllowed = 'move';
+                    });
+                    el.addEventListener('dragend', function() {
+                        el.classList.remove('is-dragging');
+                    });
+                    el.addEventListener('dragover', function(e) {
+                        e.preventDefault();
+                        if (dragSrcIndex === null || dragSrcIndex === index) return;
+                        el.classList.add('drag-over');
+                    });
+                    el.addEventListener('dragleave', function() {
+                        el.classList.remove('drag-over');
+                    });
+                    el.addEventListener('drop', function(e) {
+                        e.preventDefault();
+                        el.classList.remove('drag-over');
+                        if (dragSrcIndex === null || dragSrcIndex === index) return;
+                        const moved = items.splice(dragSrcIndex, 1)[0];
+                        items.splice(index, 0, moved);
+                        dragSrcIndex = null;
                         renderPreviews();
                     });
 
-                    item.appendChild(img);
-                    item.appendChild(info);
-                    item.appendChild(btn);
-                    grid.appendChild(item);
+                    grid.appendChild(el);
                 });
+
+                syncFormInputs();
             }
 
             input.addEventListener('change', function() {
                 Array.from(this.files).forEach(function(f) {
-                    dt.items.add(f);
+                    items.push({
+                        type: 'file',
+                        file: f
+                    });
                 });
-                input.files = dt.files;
                 renderPreviews();
+            });
+
+            // Clicking the dropzone opens the "subir archivo / usar URL"
+            // choice modal instead of jumping straight to the OS file
+            // picker. Dropping a file directly onto it still works without
+            // the extra step, since that's already an unambiguous action.
+            dropzone.addEventListener('click', function() {
+                openImageSourceModal();
             });
 
             dropzone.addEventListener('dragover', function(e) {
@@ -595,10 +679,212 @@
                 this.style.borderColor = '';
                 this.style.background = '';
                 Array.from(e.dataTransfer.files).forEach(function(f) {
-                    if (['image/png', 'image/jpeg', 'image/jpg'].includes(f.type)) dt.items.add(f);
+                    if (['image/png', 'image/jpeg', 'image/jpg'].includes(f.type)) {
+                        items.push({
+                            type: 'file',
+                            file: f
+                        });
+                    }
                 });
-                input.files = dt.files;
                 renderPreviews();
+            });
+
+            /* ── "Agregar Imagen" modal: subir archivo / URL / biblioteca ── */
+            const modal = document.getElementById('imageSourceModal');
+            const uploadRow = document.getElementById('imgSourceUploadRow');
+            const urlPanel = document.getElementById('imgSourceUrlPanel');
+            const fileBtn = document.getElementById('imgSourceFileBtn');
+            const urlBtn = document.getElementById('imgSourceUrlBtn');
+            const backBtn = document.getElementById('imgSourceBackBtn');
+            const cancelBtn = document.getElementById('imageSourceCancel');
+            const urlInput = document.getElementById('imgUrlInput');
+            const urlPreviewWrap = document.getElementById('imgUrlPreviewWrap');
+            const urlPreviewImg = document.getElementById('imgUrlPreviewImg');
+            const urlStatus = document.getElementById('imgUrlStatus');
+            const urlAddBtn = document.getElementById('imgUrlAddBtn');
+            let urlIsValid = false;
+
+            function openImageSourceModal() {
+                resetImageSourceModal();
+                modal.classList.add('active');
+                librarySearch.value = '';
+                loadLibrary(1, false);
+            }
+
+            function closeImageSourceModal() {
+                modal.classList.remove('active');
+                resetImageSourceModal();
+            }
+
+            function resetImageSourceModal() {
+                uploadRow.style.display = '';
+                urlPanel.style.display = 'none';
+                urlInput.value = '';
+                urlPreviewWrap.style.display = 'none';
+                urlStatus.textContent = '';
+                urlIsValid = false;
+                urlAddBtn.disabled = true;
+            }
+
+            fileBtn.addEventListener('click', function() {
+                closeImageSourceModal();
+                input.click();
+            });
+
+            urlBtn.addEventListener('click', function() {
+                uploadRow.style.display = 'none';
+                urlPanel.style.display = 'block';
+                urlInput.focus();
+            });
+
+            backBtn.addEventListener('click', function() {
+                uploadRow.style.display = '';
+                urlPanel.style.display = 'none';
+                urlInput.value = '';
+                urlPreviewWrap.style.display = 'none';
+                urlStatus.textContent = '';
+                urlIsValid = false;
+                urlAddBtn.disabled = true;
+            });
+            cancelBtn.addEventListener('click', closeImageSourceModal);
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) closeImageSourceModal();
+            });
+
+            let urlCheckTimer = null;
+            urlInput.addEventListener('input', function() {
+                clearTimeout(urlCheckTimer);
+                urlIsValid = false;
+                urlAddBtn.disabled = true;
+                const value = this.value.trim();
+                if (!value) {
+                    urlPreviewWrap.style.display = 'none';
+                    urlStatus.textContent = '';
+                    return;
+                }
+                urlStatus.textContent = 'Comprobando imagen...';
+                urlCheckTimer = setTimeout(function() {
+                    const testImg = new Image();
+                    testImg.onload = function() {
+                        urlPreviewImg.src = value;
+                        urlPreviewWrap.style.display = 'block';
+                        urlStatus.textContent = 'Imagen encontrada.';
+                        urlIsValid = true;
+                        urlAddBtn.disabled = false;
+                    };
+                    testImg.onerror = function() {
+                        urlPreviewWrap.style.display = 'none';
+                        urlStatus.textContent = 'No se pudo cargar esa URL como imagen. Verifica que sea un enlace directo a una imagen.';
+                    };
+                    testImg.src = value;
+                }, 400);
+            });
+
+            urlAddBtn.addEventListener('click', function() {
+                if (!urlIsValid) return;
+                items.push({
+                    type: 'url',
+                    url: urlInput.value.trim()
+                });
+                closeImageSourceModal();
+                renderPreviews();
+            });
+
+            /* ── Biblioteca: imágenes ya subidas en cualquier producto ── */
+            const librarySearch = document.getElementById('imgLibrarySearch');
+            const libraryGrid = document.getElementById('imgLibraryGrid');
+            const libraryEmpty = document.getElementById('imgLibraryEmpty');
+            const libraryLoading = document.getElementById('imgLibraryLoading');
+            const libraryLoadMore = document.getElementById('imgLibraryLoadMore');
+            const libraryUrl = '{{ route('admin.products.images.library') }}';
+            let libraryNextPage = 1;
+            let librarySearchTimer = null;
+
+            function isUrlAlreadyPending(url) {
+                return items.some(function(it) {
+                    return it.type === 'url' && it.url === url;
+                });
+            }
+
+            function renderLibraryItems(libraryItems, append) {
+                if (!append) libraryGrid.innerHTML = '';
+                libraryItems.forEach(function(libItem) {
+                    const cell = document.createElement('button');
+                    cell.type = 'button';
+                    cell.className = 'img-library-item';
+                    cell.title = libItem.product_name + (libItem.product_sku ? ' · ' + libItem.product_sku : '');
+
+                    const img = document.createElement('img');
+                    img.src = libItem.url;
+                    img.loading = 'lazy';
+                    cell.appendChild(img);
+
+                    const label = document.createElement('span');
+                    label.className = 'img-library-item-label';
+                    label.textContent = libItem.product_name || 'Sin nombre';
+                    cell.appendChild(label);
+
+                    const alreadyAdded = isUrlAlreadyPending(libItem.url);
+                    if (alreadyAdded) {
+                        cell.classList.add('is-added');
+                        cell.disabled = true;
+                        cell.title += ' — ya agregada';
+                    }
+
+                    cell.addEventListener('click', function() {
+                        if (isUrlAlreadyPending(libItem.url)) return;
+                        items.push({
+                            type: 'url',
+                            url: libItem.url
+                        });
+                        renderPreviews();
+                        cell.classList.add('is-added');
+                        cell.disabled = true;
+                    });
+
+                    libraryGrid.appendChild(cell);
+                });
+            }
+
+            async function loadLibrary(page, append) {
+                libraryLoading.style.display = 'block';
+                libraryLoadMore.style.display = 'none';
+                try {
+                    const params = new URLSearchParams({
+                        page: page
+                    });
+                    if (librarySearch.value.trim()) params.set('search', librarySearch.value.trim());
+
+                    const response = await fetch(libraryUrl + '?' + params.toString(), {
+                        headers: {
+                            'Accept': 'application/json'
+                        },
+                    });
+                    const data = await response.json();
+
+                    renderLibraryItems(data.data, append);
+                    libraryEmpty.style.display = (!append && data.data.length === 0) ? 'block' : 'none';
+
+                    if (data.has_more) {
+                        libraryNextPage = data.next_page;
+                        libraryLoadMore.style.display = 'block';
+                    }
+                } catch (err) {
+                    console.error('Error loading image library:', err);
+                } finally {
+                    libraryLoading.style.display = 'none';
+                }
+            }
+
+            librarySearch.addEventListener('input', function() {
+                clearTimeout(librarySearchTimer);
+                librarySearchTimer = setTimeout(function() {
+                    loadLibrary(1, false);
+                }, 350);
+            });
+
+            libraryLoadMore.addEventListener('click', function() {
+                loadLibrary(libraryNextPage, true);
             });
         })();
 

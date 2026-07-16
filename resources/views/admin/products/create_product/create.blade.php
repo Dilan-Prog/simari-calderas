@@ -177,6 +177,7 @@
                 <input type="hidden" name="is_featured" id="pformIsFeatured" value="0">
                 <input type="hidden" name="is_new" id="pformIsNew" value="0">
                 <input type="hidden" name="is_recommended" id="pformIsRecommended" value="0">
+                <input type="hidden" name="publish_on_website" id="pformPublishOnWebsite" value="0">
                 <div class="pform-panel-wrap">
 
                     {{-- Panel 0: Información Básica --}}
@@ -259,9 +260,9 @@
                         <div class="pform-panel">
                             <h2 class="pform-panel-title">Galería de Imágenes del Producto</h2>
                             <p class="pform-hint" style="margin-bottom:24px">Sube y organiza las imágenes de tu producto.
-                                Arrastra para reordenar.</p>
+                                Arrastra las miniaturas para reordenar.</p>
 
-                            <label class="pform-dropzone" for="pformImageInput">
+                            <div class="pform-dropzone" id="pformDropzone">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48"
                                     viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="1.5"
                                     stroke-linecap="round" stroke-linejoin="round">
@@ -269,14 +270,20 @@
                                     <polyline points="17 8 12 3 7 8" />
                                     <line x1="12" x2="12" y1="3" y2="15" />
                                 </svg>
-                                <p class="pform-dropzone-text">Haz clic para subir imágenes o arrástralas aquí</p>
+                                <p class="pform-dropzone-text">Haz clic para agregar una imagen o arrástrala aquí</p>
                                 {{-- FIX (reported bug): text said 10MB but the server rule
                                      (images.* => image|mimes:jpeg,jpg,png|max:2048) only allows
                                      2MB (2048 KB) — the UI was promising 5x more than it accepts. --}}
-                                <p class="pform-dropzone-sub">PNG, JPG, JPEG hasta 2MB por imagen</p>
+                                <p class="pform-dropzone-sub">PNG, JPG, JPEG hasta 2MB por imagen, o pega una URL</p>
                                 <input type="file" id="pformImageInput" name="images[]"
                                     accept="image/png,image/jpeg,image/jpg" multiple style="display:none">
-                            </label>
+                            </div>
+
+                            {{-- Hidden inputs kept in sync by JS: one image_urls[] per pending
+                                 "usar URL" image, plus image_source_order[] recording the final
+                                 file/url interleaving so the server can rebuild sort_order. --}}
+                            <div id="pformImageUrlInputs" style="display:none"></div>
+                            <div id="pformImageOrderInputs" style="display:none"></div>
 
                             <div id="pformImageGrid"
                                 style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:12px;margin-top:16px;">
@@ -631,6 +638,26 @@
                                             </div>
                                         </div>
                                         <p class="pform-badge-sub">Aparecerá en sugerencias y recomendaciones</p>
+                                    </button>
+
+                                    <button type="button" class="pform-badge-card" id="badgePublishOnWebsite">
+                                        <div class="pform-badge-card-header">
+                                            <div class="pform-badge-icon">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                                                    viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                    <circle cx="12" cy="12" r="10" />
+                                                    <path d="M2 12h20" />
+                                                    <path
+                                                        d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+                                                </svg>
+                                            </div>
+                                            <div>
+                                                <div class="pform-badge-name">Publicar en sitio web</div>
+                                                <div class="pform-toggle"></div>
+                                            </div>
+                                        </div>
+                                        <p class="pform-badge-sub">Se mostrará en el catálogo público del sitio web</p>
                                     </button>
 
                                 </div>
@@ -1125,5 +1152,6 @@
             </div>
         </div>
     </div>
+    @include('admin.products.partials._image_source_modal')
     @include('admin.products.create_product._scripts_create')
 @endsection

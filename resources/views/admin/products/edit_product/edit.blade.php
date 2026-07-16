@@ -141,6 +141,7 @@
                 <input type="hidden" name="is_featured" id="pformIsFeatured" value="{{ $product->is_featured ? 1 : 0 }}">
                 <input type="hidden" name="is_new" id="pformIsNew" value="{{ $product->is_new ? 1 : 0 }}">
                 <input type="hidden" name="is_recommended" id="pformIsRecommended" value="{{ $product->is_recommended ? 1 : 0 }}">
+                <input type="hidden" name="publish_on_website" id="pformPublishOnWebsite" value="{{ $product->publish_on_website ? 1 : 0 }}">
                 <div class="pform-panel-wrap">
                     {{-- Panel 0: Información Básica --}}
                     <div class="pform-tab-panel active" id="pformPanel0" role="tabpanel">
@@ -231,9 +232,10 @@
                         <div class="pform-panel">
                             <h2 class="pform-panel-title">Galería de Imágenes del Producto</h2>
                             <p class="pform-hint" style="margin-bottom:24px">Sube y organiza las imágenes de tu producto.
+                                Arrastra las miniaturas para reordenar.
                             </p>
 
-                            <label class="pform-dropzone" for="pformImageInput">
+                            <div class="pform-dropzone" id="pformDropzone">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48"
                                     viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="1.5"
                                     stroke-linecap="round" stroke-linejoin="round">
@@ -241,26 +243,32 @@
                                     <polyline points="17 8 12 3 7 8" />
                                     <line x1="12" x2="12" y1="3" y2="15" />
                                 </svg>
-                                <p class="pform-dropzone-text">Haz clic para subir imágenes o arrástralas aquí</p>
+                                <p class="pform-dropzone-text">Haz clic para agregar una imagen o arrástrala aquí</p>
                                 {{-- FIX (reported bug): text said 10MB but the server rule
                                      (images.* => image|mimes:jpeg,jpg,png|max:2048) only allows
                                      2MB (2048 KB) — the UI was promising 5x more than it accepts. --}}
-                                <p class="pform-dropzone-sub">PNG, JPG, JPEG hasta 2MB por imagen</p>
+                                <p class="pform-dropzone-sub">PNG, JPG, JPEG hasta 2MB por imagen, o pega una URL</p>
                                 <input type="file" id="pformImageInput" name="images[]"
                                     accept="image/png,image/jpeg,image/jpg" multiple style="display:none">
-                            </label>
+                            </div>
 
-                            {{-- Imágenes existentes --}}
+                            <div id="pformImageUrlInputs" style="display:none"></div>
+                            <div id="pformImageOrderInputs" style="display:none"></div>
+
+                            {{-- Imágenes existentes — arrastra para reordenar; el orden se
+                                 guarda al instante (AJAX), sin esperar a "Guardar Cambios". --}}
                             @if($product->images->count())
                             <div id="pformExistingGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:12px;margin-top:16px;">
                                 @foreach($product->images as $img)
-                                <div class="pform-existing-img" data-id="{{ $img->id }}" style="position:relative;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;">
-                                    <img src="{{ $img->url }}" alt="" style="width:100%;height:100px;object-fit:cover;display:block;">
-                                    <div style="padding:4px 6px;font-size:11px;color:#6b7280;">Imagen #{{ $loop->iteration }}</div>
+                                <div class="pform-img-item pform-existing-img" data-id="{{ $img->id }}" draggable="true" title="Arrastra para reordenar">
+                                    <img src="{{ $img->url }}" alt="" class="pform-img-item-thumb">
+                                    @if($loop->first)
+                                        <span class="pform-img-item-badge">Portada</span>
+                                    @endif
+                                    <div class="pform-img-item-info">Imagen #{{ $loop->iteration }}</div>
                                     <input type="checkbox" name="delete_images[]" value="{{ $img->id }}" id="delImg{{ $img->id }}" style="display:none">
-                                    <button type="button" class="pform-del-existing"
-                                        onclick="toggleDeleteImg({{ $img->id }})"
-                                        style="position:absolute;top:4px;right:4px;background:#dc2626;color:#fff;border:none;border-radius:50%;width:22px;height:22px;cursor:pointer;font-size:13px;line-height:1;display:flex;align-items:center;justify-content:center;">✕</button>
+                                    <button type="button" class="pform-img-item-remove pform-del-existing"
+                                        onclick="toggleDeleteImg({{ $img->id }})">✕</button>
                                 </div>
                                 @endforeach
                             </div>
@@ -622,6 +630,28 @@
                                         </div>
                                         <p class="pform-badge-sub">Aparecerá en sugerencias y recomendaciones</p>
                                     </button>
+
+                                    <button type="button"
+                                        class="pform-badge-card {{ $product->publish_on_website ? 'active' : '' }}"
+                                        id="badgePublishOnWebsite">
+                                        <div class="pform-badge-card-header">
+                                            <div class="pform-badge-icon">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                                                    viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                    <circle cx="12" cy="12" r="10" />
+                                                    <path d="M2 12h20" />
+                                                    <path
+                                                        d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+                                                </svg>
+                                            </div>
+                                            <div>
+                                                <div class="pform-badge-name">Publicar en sitio web</div>
+                                                <div class="pform-toggle"></div>
+                                            </div>
+                                        </div>
+                                        <p class="pform-badge-sub">Se mostrará en el catálogo público del sitio web</p>
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -950,5 +980,6 @@
             </div>
         </div>
     </div>
+    @include('admin.products.partials._image_source_modal')
     @include('admin.products.edit_product._scripts')
 @endsection

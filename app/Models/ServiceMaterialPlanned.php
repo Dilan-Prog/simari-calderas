@@ -31,7 +31,7 @@ class ServiceMaterialPlanned extends Model
 
     public function product(): BelongsTo
     {
-        return $this->belongsTo(Product::class)->withDefault();
+        return $this->belongsTo(Products::class)->withDefault();
     }
 
     // ── Accessors ──────────────────────────────────────────────────────────────

@@ -154,6 +154,161 @@
             deleteProductModal.addEventListener('click', (e) => {
                 if (e.target === deleteProductModal) deleteProductModal.classList.remove('active');
             });
+
+            // Import products modal
+            const importModal = document.getElementById('importProductsModal');
+            const btnOpenImportModal = document.getElementById('btnOpenImportModal');
+            const importFileInput = document.getElementById('importFileInput');
+            const importDropzone = document.getElementById('importDropzone');
+            const importDropzoneText = document.getElementById('importDropzoneText');
+            const importDropzoneHint = document.getElementById('importDropzoneHint');
+            const importStatus = document.getElementById('importStatus');
+            const importResultDetail = document.getElementById('importResultDetail');
+            const importModalCancel = document.getElementById('importModalCancel');
+            const btnDoImport = document.getElementById('btnDoImport');
+            let importSelectedFile = null;
+
+            function resetImportModal() {
+                importSelectedFile = null;
+                importFileInput.value = '';
+                importDropzone.classList.remove('has-file');
+                importDropzoneText.innerHTML = '<strong>Haz clic para seleccionar un archivo</strong>';
+                importDropzoneHint.textContent = '.xlsx, .xls o .csv';
+                importStatus.style.display = 'none';
+                importResultDetail.style.display = 'none';
+                importResultDetail.innerHTML = '';
+                btnDoImport.disabled = true;
+            }
+
+            function setImportFile(file) {
+                if (!file) return;
+                importSelectedFile = file;
+                importDropzone.classList.add('has-file');
+                importDropzoneText.innerHTML = `<strong>${escapeHtml(file.name)}</strong>`;
+                importDropzoneHint.textContent = 'Haz clic para cambiar el archivo';
+                btnDoImport.disabled = false;
+            }
+
+            btnOpenImportModal.addEventListener('click', () => {
+                resetImportModal();
+                importModal.classList.add('active');
+            });
+            importModalCancel.addEventListener('click', () => importModal.classList.remove('active'));
+            importModal.addEventListener('click', (e) => {
+                if (e.target === importModal) importModal.classList.remove('active');
+            });
+
+            importDropzone.addEventListener('click', () => importFileInput.click());
+            importDropzone.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    importFileInput.click();
+                }
+            });
+            importFileInput.addEventListener('change', function() {
+                if (this.files.length) setImportFile(this.files[0]);
+            });
+
+            ['dragover', 'dragenter'].forEach(evt => {
+                importDropzone.addEventListener(evt, (e) => {
+                    e.preventDefault();
+                    importDropzone.classList.add('is-dragover');
+                });
+            });
+            ['dragleave', 'dragend'].forEach(evt => {
+                importDropzone.addEventListener(evt, () => importDropzone.classList.remove('is-dragover'));
+            });
+            importDropzone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                importDropzone.classList.remove('is-dragover');
+                if (e.dataTransfer.files.length) {
+                    importFileInput.files = e.dataTransfer.files;
+                    setImportFile(e.dataTransfer.files[0]);
+                }
+            });
+
+            function importShowStatus(type, message) {
+                importStatus.style.display = 'block';
+                importStatus.className = `prod-import-status prod-import-status--${type}`;
+                importStatus.textContent = message;
+            }
+
+            function escapeHtml(str) {
+                const div = document.createElement('div');
+                div.textContent = str;
+                return div.innerHTML;
+            }
+
+            btnDoImport.addEventListener('click', async () => {
+                if (!importSelectedFile) return;
+                btnDoImport.disabled = true;
+                importResultDetail.style.display = 'none';
+                importResultDetail.innerHTML = '';
+                importShowStatus('info', 'Procesando archivo, esto puede tardar unos segundos...');
+
+                const formData = new FormData();
+                formData.append('file', importSelectedFile);
+
+                try {
+                    const response = await fetch('{{ route('admin.products.import') }}', {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                            'Accept': 'application/json',
+                        },
+                        body: formData,
+                    });
+                    const data = await response.json();
+
+                    if (!response.ok || !data.success) {
+                        importShowStatus('error', data.message ?? 'No se pudo importar el archivo.');
+                        btnDoImport.disabled = false;
+                        return;
+                    }
+
+                    const dupCount = data.skipped_duplicates.length;
+                    const failCount = data.failures.length;
+                    const imgFailCount = (data.image_download_failures ?? []).length;
+                    let summary = `${data.created} producto(s) creados. ${dupCount} omitido(s) por SKU duplicado. ${failCount} fila(s) con error.`;
+                    if (imgFailCount) {
+                        summary += ` ${imgFailCount} imagen(es) no se pudieron descargar.`;
+                    }
+                    importShowStatus('success', summary);
+
+                    let html = '';
+                    if (dupCount) {
+                        html += '<p><strong>Omitidos por SKU duplicado:</strong></p><ul>' +
+                            data.skipped_duplicates.map(d => `<li>Fila ${d.row}: SKU ${escapeHtml(d.sku)}</li>`).join('') +
+                            '</ul>';
+                    }
+                    if (failCount) {
+                        html += '<p><strong>Filas con error:</strong></p><ul>' +
+                            data.failures.map(f =>
+                                `<li>Fila ${f.row} (${escapeHtml(f.campo)}): ${escapeHtml(f.errores.join(', '))}</li>`
+                            ).join('') + '</ul>';
+                    }
+                    if (imgFailCount) {
+                        html += '<p><strong>Productos creados pero sin la imagen (no se pudo descargar):</strong></p><ul>' +
+                            data.image_download_failures.map(f =>
+                                `<li>SKU ${escapeHtml(f.sku)}: ${escapeHtml(f.url)}</li>`
+                            ).join('') + '</ul>';
+                    }
+                    if (html) {
+                        importResultDetail.innerHTML = html;
+                        importResultDetail.style.display = 'block';
+                    }
+
+                    if (data.created > 0) {
+                        setTimeout(() => window.location.reload(), 2500);
+                    } else {
+                        btnDoImport.disabled = false;
+                    }
+                } catch (err) {
+                    console.error('Error importing products:', err);
+                    importShowStatus('error', 'Error de conexión. Intenta de nuevo.');
+                    btnDoImport.disabled = false;
+                }
+            });
         })();
     </script>
 @endpush

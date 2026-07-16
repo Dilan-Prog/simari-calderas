@@ -29,6 +29,59 @@ class ProductController extends Controller
     ];
 
     /**
+     * Persists newly added gallery images — both uploaded files and
+     * "usar URL" entries — in the exact order the user arranged them in the
+     * unified preview grid. The client sends image_source_order[] (a list
+     * of 'file'/'url' tokens reflecting the final on-screen order) since
+     * files and URLs travel as two separate form fields and would otherwise
+     * lose their relative interleaving.
+     */
+    private function saveProductImages(Products $product, Request $request, int $startingSortOrder): void
+    {
+        $uploadedPaths = $request->hasFile('images') ? $this->uploadImages($request->file('images')) : [];
+
+        $urlPaths = [];
+        if ($request->filled('image_urls')) {
+            foreach ($request->image_urls as $url) {
+                $path = $this->downloadImageFromUrl($url);
+                if ($path) {
+                    $urlPaths[] = $path;
+                }
+            }
+        }
+
+        if (empty($uploadedPaths) && empty($urlPaths)) {
+            return;
+        }
+
+        $sortOrder = $startingSortOrder;
+        $fileIdx   = 0;
+        $urlIdx    = 0;
+
+        foreach ($request->input('image_source_order', []) as $type) {
+            $path = null;
+            if ($type === 'file' && array_key_exists($fileIdx, $uploadedPaths)) {
+                $path = $uploadedPaths[$fileIdx++];
+            } elseif ($type === 'url' && array_key_exists($urlIdx, $urlPaths)) {
+                $path = $urlPaths[$urlIdx++];
+            }
+            if ($path !== null) {
+                ProductImage::create(['product_id' => $product->id, 'image_url' => $path, 'sort_order' => $sortOrder++]);
+            }
+        }
+
+        // Anything not accounted for by image_source_order (missing/stale
+        // on the client) is still appended, so an upload never silently
+        // disappears.
+        foreach (array_slice($uploadedPaths, $fileIdx) as $path) {
+            ProductImage::create(['product_id' => $product->id, 'image_url' => $path, 'sort_order' => $sortOrder++]);
+        }
+        foreach (array_slice($urlPaths, $urlIdx) as $path) {
+            ProductImage::create(['product_id' => $product->id, 'image_url' => $path, 'sort_order' => $sortOrder++]);
+        }
+    }
+
+    /**
      * Replace the product's document of the given type with the uploaded
      * file. Each of the 6 slots in the UI is a single fixed spot, so a new
      * upload replaces (not adds to) the previous one for that type.
@@ -95,9 +148,7 @@ class ProductController extends Controller
 
         $brands = Brand::where('is_active', true)->get(['id', 'name']);
 
-        $lastProduct = Products::orderBy('id', 'desc')->first();
-        $nextNumber = $lastProduct ? (intval(substr($lastProduct->sku, 5)) + 1) : 1;
-        $sku = 'ALMC-' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
+        $sku = \App\Services\ProductSkuGenerator::next();
 
         return view('admin.products.create_product.create', compact('categories', 'brands', 'sku'));
     }
@@ -142,9 +193,14 @@ class ProductController extends Controller
             'is_featured'       => 'nullable|boolean',
             'is_new'            => 'nullable|boolean',
             'is_recommended'    => 'nullable|boolean',
+            'publish_on_website' => 'nullable|boolean',
             'availability'      => 'nullable|in:available,on_order,out_of_stock',
             'images'            => 'nullable|array',
             'images.*'          => 'image|mimes:jpeg,jpg,png|max:2048',
+            'image_urls'        => 'nullable|array',
+            'image_urls.*'      => 'url|max:2048',
+            'image_source_order'   => 'nullable|array',
+            'image_source_order.*' => 'in:file,url',
             // FIX (Documentación tab): added validation for the 6 document
             // uploads — previously had no name= at all, so nothing reached
             // the server to validate.
@@ -196,6 +252,7 @@ class ProductController extends Controller
         $product->is_featured       = $request->boolean('is_featured', false);
         $product->is_new            = $request->boolean('is_new', false);
         $product->is_recommended    = $request->boolean('is_recommended', false);
+        $product->publish_on_website = $request->boolean('publish_on_website', false);
         $product->availability      = $request->availability ?? 'available';
         // Save specifications
         if ($request->filled('spec_key')) {
@@ -213,16 +270,7 @@ class ProductController extends Controller
 
         $product->save();
 
-        if ($request->hasFile('images')) {
-            $paths = $this->uploadImages($request->file('images'));
-            foreach ($paths as $i => $path) {
-                ProductImage::create([
-                    'product_id' => $product->id,
-                    'image_url'  => $path,
-                    'sort_order' => $i,
-                ]);
-            }
-        }
+        $this->saveProductImages($product, $request, 0);
 
         // FIX (Documentación tab): save each uploaded document slot.
         foreach (self::DOCUMENT_FIELDS as $field => $type) {
@@ -298,9 +346,14 @@ class ProductController extends Controller
             'is_featured'       => 'nullable|boolean',
             'is_new'            => 'nullable|boolean',
             'is_recommended'    => 'nullable|boolean',
+            'publish_on_website' => 'nullable|boolean',
             'availability'      => 'nullable|in:available,on_order,out_of_stock',
             'images'            => 'nullable|array',
             'images.*'          => 'image|mimes:jpeg,jpg,png|max:2048',
+            'image_urls'        => 'nullable|array',
+            'image_urls.*'      => 'url|max:2048',
+            'image_source_order'   => 'nullable|array',
+            'image_source_order.*' => 'in:file,url',
             'delete_images'     => 'nullable|array',
             'delete_images.*'   => 'integer|exists:product_images,id',
             // FIX (Documentación tab): mirrors store() — validation for the
@@ -351,6 +404,7 @@ class ProductController extends Controller
         $product->is_featured       = $request->boolean('is_featured', false);
         $product->is_new            = $request->boolean('is_new', false);
         $product->is_recommended    = $request->boolean('is_recommended', false);
+        $product->publish_on_website = $request->boolean('publish_on_website', false);
         $product->availability      = $request->availability ?? 'available';
 
         // Save specifications
@@ -380,19 +434,17 @@ class ProductController extends Controller
                 $this->deleteImage($img->image_url);
                 $img->delete();
             }
-        }
 
-        if ($request->hasFile('images')) {
-            $existingCount = $product->images()->count();
-            $paths = $this->uploadImages($request->file('images'));
-            foreach ($paths as $i => $path) {
-                ProductImage::create([
-                    'product_id' => $product->id,
-                    'image_url'  => $path,
-                    'sort_order' => $existingCount + $i,
-                ]);
+            // Close any gaps left by the deletion (e.g. sort_order 0,2,3 ->
+            // 0,1,2) so newly added images continue the sequence cleanly.
+            foreach ($product->images()->orderBy('sort_order')->get() as $i => $img) {
+                if ($img->sort_order !== $i) {
+                    $img->update(['sort_order' => $i]);
+                }
             }
         }
+
+        $this->saveProductImages($product, $request, $product->images()->count());
 
         // FIX (Documentación tab): save/replace each uploaded document slot.
         foreach (self::DOCUMENT_FIELDS as $field => $type) {
@@ -403,6 +455,77 @@ class ProductController extends Controller
 
         return redirect()->route('admin.products.index')
             ->with('success', 'Producto actualizado correctamente.');
+    }
+
+    /**
+     * Lists gallery images across the whole catalog (not just the current
+     * product) so the "Agregar Imagen" modal can offer reusing an image
+     * already uploaded to another product instead of uploading it again.
+     * Read-only; reusing one is handled client-side by feeding its URL
+     * through the same "usar URL" pipeline that downloads/copies a fresh
+     * local file — this keeps each product's images independent, so
+     * deleting one never affects another product that reused the same
+     * source image.
+     */
+    public function mediaLibrary(Request $request)
+    {
+        $query = ProductImage::with('product:id,name,sku')
+            ->whereHas('product')
+            ->orderBy('id', 'desc');
+
+        if ($request->filled('search')) {
+            $term = $request->search;
+            $query->whereHas('product', function ($q) use ($term) {
+                $q->where('name', 'like', "%{$term}%")->orWhere('sku', 'like', "%{$term}%");
+            });
+        }
+
+        $images = $query->paginate(24, ['*'], 'page', (int) $request->input('page', 1));
+
+        return response()->json([
+            'data' => $images->getCollection()->map(fn ($img) => [
+                'id'           => $img->id,
+                'url'          => $img->url,
+                'product_name' => $img->product->name,
+                'product_sku'  => $img->product->sku,
+            ]),
+            'has_more'  => $images->hasMorePages(),
+            'next_page' => $images->currentPage() + 1,
+        ]);
+    }
+
+    /**
+     * Persists a new drag-and-drop order for a product's already-saved
+     * gallery images. Called via AJAX the moment the user drops an image
+     * in its new position — unlike delete_images (batched with the main
+     * form save), reordering existing images takes effect immediately.
+     */
+    public function reorderImages(Request $request, string $id)
+    {
+        $product = Products::findOrFail($id);
+
+        $request->validate([
+            'order'   => 'required|array|min:1',
+            'order.*' => 'integer|exists:product_images,id',
+        ]);
+
+        $images = ProductImage::whereIn('id', $request->order)
+            ->where('product_id', $product->id)
+            ->get()
+            ->keyBy('id');
+
+        if ($images->count() !== count($request->order)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'El orden recibido no coincide con las imágenes de este producto.',
+            ], 422);
+        }
+
+        foreach (array_values($request->order) as $i => $imageId) {
+            $images[$imageId]->update(['sort_order' => $i]);
+        }
+
+        return response()->json(['success' => true]);
     }
 
     public function destroy(string $id)

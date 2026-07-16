@@ -5,6 +5,7 @@ use App\Http\Controllers\Backend\AdminController;
 use App\Http\Controllers\Backend\CategoryController;
 use App\Http\Controllers\Backend\ClientManageController;
 use App\Http\Controllers\Backend\ProductController;
+use App\Http\Controllers\Backend\ProductImportExportController;
 use App\Http\Controllers\Backend\QuoteController;
 use App\Http\Controllers\Backend\ServiceReportController;
 use App\Http\Controllers\Backend\TechnicalServiceController;
@@ -92,6 +93,19 @@ Route::controller(ProductController::class)
         Route::get('/productos/editar/{id}', 'edit')->name('products.edit');
         Route::put('/productos/editar/{id}', 'update')->name('products.update');
         Route::delete('/productos/eliminar/{id}', 'destroy')->name('products.destroy');
+        Route::post('/productos/{id}/imagenes/reordenar', 'reorderImages')->name('products.images.reorder');
+        Route::get('/productos/imagenes/biblioteca', 'mediaLibrary')->name('products.images.library');
+    });
+
+// ============================================================
+// Productos — Importar / Exportar Excel
+// ============================================================
+Route::controller(ProductImportExportController::class)
+    ->middleware('permission:products')
+    ->group(function () {
+        Route::get('/productos/importar/plantilla', 'downloadTemplate')->name('products.import.template');
+        Route::post('/productos/importar', 'import')->name('products.import');
+        Route::get('/productos/exportar', 'export')->name('products.export');
     });
 
 // ============================================================

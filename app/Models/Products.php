@@ -34,6 +34,9 @@ class Products extends Model
         'is_featured',
         'is_new',
         'is_recommended',
+        // Independiente de is_active: controla si el producto se muestra en
+        // el futuro catálogo público del sitio web (aún no conectado).
+        'publish_on_website',
         'seo_title',
         'seo_description',
         // FIX BUG 3: tags column added via
@@ -56,6 +59,7 @@ class Products extends Model
         'is_featured'     => 'boolean',
         'is_new'          => 'boolean',
         'is_recommended'  => 'boolean',
+        'publish_on_website' => 'boolean',
         'price'       => 'decimal:2',
         'cost'        => 'decimal:2',
         'compare_price' => 'decimal:2',

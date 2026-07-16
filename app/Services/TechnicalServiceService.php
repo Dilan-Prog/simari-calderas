@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\Models\Customer;
-use App\Models\Product;
 use App\Models\ServiceLog;
 use App\Models\ServiceMaterialPlanned;
 use App\Models\ServiceType;

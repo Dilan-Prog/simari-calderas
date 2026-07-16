@@ -10,15 +10,35 @@
                     <h1 class="prod-title">Productos</h1>
                     <p class="prod-subtitle">Gestiona el catálogo de productos industriales</p>
                 </div>
-                <button class="prod-btn-new" type="button"
-                    onclick="window.location.href='{{ route('admin.products.create') }}'">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M5 12h14" />
-                        <path d="M12 5v14" />
-                    </svg>
-                    Nuevo Producto
-                </button>
+                <div class="prod-header-actions">
+                    <a href="{{ route('admin.products.export') }}" class="prod-btn-outline">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 15V3" />
+                            <path d="m7 10 5 5 5-5" />
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                        </svg>
+                        Exportar
+                    </a>
+                    <button class="prod-btn-outline" type="button" id="btnOpenImportModal">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 3v12" />
+                            <path d="m7 8 5-5 5 5" />
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                        </svg>
+                        Importar Productos
+                    </button>
+                    <button class="prod-btn-new" type="button"
+                        onclick="window.location.href='{{ route('admin.products.create') }}'">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M5 12h14" />
+                            <path d="M12 5v14" />
+                        </svg>
+                        Nuevo Producto
+                    </button>
+                </div>
             </div>
 
             <div class="prod-toolbar">
@@ -270,4 +290,5 @@
     </div>
 @endsection
 @include('admin.products.partials._delete_modal')
+@include('admin.products.partials._import_modal')
 @include('admin.products._scripts')
