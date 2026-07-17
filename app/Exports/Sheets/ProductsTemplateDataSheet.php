@@ -111,6 +111,15 @@ class ProductsTemplateDataSheet implements FromArray, WithHeadings, WithTitle, W
 
     public function styles(Worksheet $sheet)
     {
+        // Precio (H), Precio Comparativo (I) y Costo (J) son montos en
+        // pesos: sin este formato, Excel las trata como texto/número plano
+        // y no se ven como dinero al llenarlas. Se aplica a un rango amplio
+        // (hasta la fila 1000) para cubrir cuánto sea que el usuario
+        // extienda la plantilla al capturar su catálogo.
+        $sheet->getStyle('H2:J1000')
+            ->getNumberFormat()
+            ->setFormatCode('"$"#,##0');
+
         return [
             1 => [
                 'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],

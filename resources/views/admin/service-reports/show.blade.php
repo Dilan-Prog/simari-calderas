@@ -461,7 +461,7 @@
                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
                     Descargar PDF
                 </a>
-                @if($report->isEditable())
+                @if($report->isEditable() || auth()->user()->isAdmin())
                     <a href="{{ route('admin.service-reports.step', [$report, 4]) }}" class="sr-action-btn sr-action-btn--secondary">
                         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
                         Agregar Imágenes al reporte
@@ -545,7 +545,7 @@
             </div>
         </div>
         <iframe id="sr-pdf-frame" src="" style="flex:1; border:none; background:#525659;" title="Vista previa PDF"></iframe>
-        @if($report->isEditable())
+        @if($report->isEditable() || auth()->user()->isAdmin())
             <div style="display:flex; align-items:center; justify-content:center; padding:12px 18px; background:#fff; border-top:1px solid #E5E7EB; flex-shrink:0;">
                 <a href="{{ route('admin.service-reports.step', [$report, 4]) }}"
                    style="display:inline-flex; align-items:center; gap:6px; background:#fff; color:#374151; border:1px solid #D1D5DB; padding:7px 14px; border-radius:5px; font-size:12px; font-weight:600; cursor:pointer; text-decoration:none;">

@@ -147,8 +147,40 @@ class ServiceReportController extends Controller
     public function saveStep(Request $request, ServiceReport $report, int $step)
     {
         if (!$report->isEditable()) {
-            return redirect()->route('admin.service-reports.show', $report)
-                ->with('error', 'Este reporte ya está firmado y no puede ser modificado.');
+            // A signed report is normally fully frozen, except: an
+            // administrator may still attach more photographic evidence
+            // (step 4 only) after the fact. This branch handles exactly
+            // that case and returns early — it deliberately skips
+            // validateStep()/updateStep() so nothing else about the signed
+            // report (other fields, current_step) gets touched or the
+            // wizard reopened.
+            if ($step !== 4 || !auth()->user()->isAdmin()) {
+                return redirect()->route('admin.service-reports.show', $report)
+                    ->with('error', 'Este reporte ya está firmado y no puede ser modificado.');
+            }
+
+            $request->validate([
+                'images'   => 'nullable|array',
+                'images.*' => 'image|mimes:jpeg,jpg,png,webp|max:5120',
+            ]);
+
+            $imagesFailed = 0;
+            if ($request->hasFile('images')) {
+                $imagesFailed = $this->service->saveImages($report, $request->file('images'));
+            }
+
+            $redirect = redirect()->route('admin.service-reports.show', $report)
+                ->with('success', 'Imágenes agregadas correctamente.');
+
+            if ($imagesFailed > 0) {
+                $message = $imagesFailed === 1
+                    ? 'No se pudo procesar 1 imagen (formato no compatible o archivo dañado). Las demás se guardaron correctamente.'
+                    : "No se pudieron procesar {$imagesFailed} imágenes (formato no compatible o archivos dañados). Las demás se guardaron correctamente.";
+
+                return $redirect->withErrors(['images' => $message]);
+            }
+
+            return $redirect;
         }
 
         $this->validateStep($request, $report, $step);
@@ -277,6 +309,13 @@ class ServiceReportController extends Controller
 
     public function destroyImage(ServiceReport $report, ServiceReportImage $image)
     {
+        // Mirrors the saveStep() guard: once signed, only an admin may
+        // still touch the report's images (add or remove) — everyone else
+        // is frozen out, same as the rest of the report.
+        if (!$report->isEditable() && !auth()->user()->isAdmin()) {
+            return back()->with('error', 'Este reporte ya está firmado; solo un administrador puede modificar sus imágenes.');
+        }
+
         $this->service->deleteReportImage($image);
 
         return back()->with('success', 'Imagen eliminada correctamente.');
