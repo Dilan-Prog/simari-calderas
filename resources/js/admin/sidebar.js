@@ -3,6 +3,13 @@
 
     const STORAGE_KEY = 'admin_sidebar_collapsed';
     const BREAKPOINT  = 1024;
+    // Below this width (covers common 1280/1366/1440 laptop screens), the
+    // 256px expanded sidebar leaves too little room for the content — most
+    // module layouts (tables, two-column forms) were sized assuming more
+    // space than that. Default to the 68px collapsed sidebar on first load
+    // in this range to give those pages the room they need; a user who has
+    // explicitly toggled the sidebar before always keeps their own choice.
+    const LAPTOP_BREAKPOINT = 1440;
 
     const sidebar        = document.getElementById('adminSidebar');
     const adminMain      = document.querySelector('.admin-main');
@@ -16,10 +23,25 @@
         return window.innerWidth < BREAKPOINT;
     }
 
+    function getDesiredCollapsed() {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (stored !== null) return stored === '1';
+        return window.innerWidth < LAPTOP_BREAKPOINT;
+    }
+
     /* ── Desktop: collapse / expand ── */
-    function setCollapsed(collapsed) {
+    // Applies the visual state only — used for the automatic laptop-width
+    // default, which must NOT get written to localStorage, or it would
+    // permanently overwrite "no preference yet" with whatever the very
+    // first page load's width happened to produce.
+    function applyCollapsed(collapsed) {
         sidebar.classList.toggle('collapsed', collapsed);
         if (adminMain) adminMain.classList.toggle('sidebar-collapsed', collapsed);
+    }
+
+    // Applies AND persists — used when the user explicitly toggles it.
+    function setCollapsed(collapsed) {
+        applyCollapsed(collapsed);
         localStorage.setItem(STORAGE_KEY, collapsed ? '1' : '0');
     }
 
@@ -43,8 +65,7 @@
     /* ── Init ── */
     function init() {
         if (!isMobile()) {
-            const wasCollapsed = localStorage.getItem(STORAGE_KEY) === '1';
-            setCollapsed(wasCollapsed);
+            applyCollapsed(getDesiredCollapsed());
         } else {
             sidebar.classList.remove('collapsed');
             if (adminMain) adminMain.classList.remove('sidebar-collapsed');
@@ -90,8 +111,7 @@
     window.addEventListener('resize', function () {
         if (!isMobile()) {
             closeMobileSidebar();
-            const wasCollapsed = localStorage.getItem(STORAGE_KEY) === '1';
-            setCollapsed(wasCollapsed);
+            applyCollapsed(getDesiredCollapsed());
         } else {
             sidebar.classList.remove('collapsed');
             if (adminMain) adminMain.classList.remove('sidebar-collapsed');
