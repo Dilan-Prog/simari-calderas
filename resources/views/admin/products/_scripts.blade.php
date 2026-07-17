@@ -261,7 +261,9 @@
                     const data = await response.json();
 
                     if (!response.ok || !data.success) {
-                        importShowStatus('error', data.message ?? 'No se pudo importar el archivo.');
+                        let msg = data.message ?? 'No se pudo importar el archivo.';
+                        if (data.debug) msg += ' — Detalle: ' + data.debug;
+                        importShowStatus('error', msg);
                         btnDoImport.disabled = false;
                         return;
                     }
