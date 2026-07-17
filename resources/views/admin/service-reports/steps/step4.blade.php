@@ -31,6 +31,26 @@
         </div>
     @endif
 
+    @php
+        $isSigned = $report->status === 'signed';
+        $isAdmin = auth()->user()->isAdmin();
+        // Signed report: only an admin can still touch images (add or
+        // remove) here. Anyone else gets a read-only view of what's saved.
+        $canManageImages = !$isSigned || $isAdmin;
+    @endphp
+
+    @if($isSigned)
+        @if($isAdmin)
+            <div style="background:#FFFBEB; border:1px solid #FDE68A; border-radius:6px; padding:10px 16px; margin-bottom:16px; font-size:13px; color:#92400E;">
+                Este reporte ya está firmado. Como administrador puedes seguir agregando imágenes de evidencia; el resto del contenido ya no se puede modificar.
+            </div>
+        @else
+            <div style="background:#F3F4F6; border:1px solid #E5E7EB; border-radius:6px; padding:10px 16px; margin-bottom:16px; font-size:13px; color:#4B5563;">
+                Este reporte ya está firmado y no se pueden agregar ni eliminar imágenes.
+            </div>
+        @endif
+    @endif
+
     <div class="sr-form-card">
         <div class="sr-form-header">
             <h2>Paso 4 — Evidencia Fotográfica</h2>
@@ -48,14 +68,16 @@
                     @foreach($images as $img)
                         <div class="sr-img-item">
                             <img src="{{ $img->url }}" alt="Evidencia">
-                            <form method="POST"
-                                  action="{{ route('admin.service-reports.images.destroy', [$report, $img]) }}"
-                                  onsubmit="return confirm('¿Eliminar esta imagen?');"
-                                  style="display:contents;">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="sr-img-delete" title="Eliminar">×</button>
-                            </form>
+                            @if($canManageImages)
+                                <form method="POST"
+                                      action="{{ route('admin.service-reports.images.destroy', [$report, $img]) }}"
+                                      onsubmit="return confirm('¿Eliminar esta imagen?');"
+                                      style="display:contents;">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="sr-img-delete" title="Eliminar">×</button>
+                                </form>
+                            @endif
                         </div>
                     @endforeach
                 </div>
@@ -63,6 +85,7 @@
             @endif
 
             {{-- Upload new images --}}
+            @if($canManageImages)
             <form method="POST"
                   action="{{ route('admin.service-reports.save-step', [$report, 4]) }}"
                   enctype="multipart/form-data"
@@ -113,13 +136,19 @@
                 <div id="previewGrid" class="sr-img-grid" style="display:none;"></div>
 
                 <div class="sr-form-footer" style="padding:16px 0 0; border-top:none; margin-top:20px;">
-                    <a href="{{ route('admin.service-reports.step', [$report, 3]) }}" class="sr-btn-outline">← Anterior</a>
-                    <div style="display:flex; gap:12px;">
-                        <button type="submit" id="skipImagesBtn" class="sr-btn-outline">Colocar después</button>
-                        <button type="submit" class="sr-btn-primary">Guardar y continuar →</button>
-                    </div>
+                    @if($isSigned)
+                        <a href="{{ route('admin.service-reports.show', $report) }}" class="sr-btn-outline">← Volver al reporte</a>
+                        <button type="submit" class="sr-btn-primary">Agregar imágenes</button>
+                    @else
+                        <a href="{{ route('admin.service-reports.step', [$report, 3]) }}" class="sr-btn-outline">← Anterior</a>
+                        <div style="display:flex; gap:12px;">
+                            <button type="submit" id="skipImagesBtn" class="sr-btn-outline">Colocar después</button>
+                            <button type="submit" class="sr-btn-primary">Guardar y continuar →</button>
+                        </div>
+                    @endif
                 </div>
             </form>
+            @endif
 
         </div>
     </div>
@@ -134,6 +163,10 @@
     const previewGrid  = document.getElementById('previewGrid');
     const cameraInput  = document.getElementById('cameraInput');
     const galleryInput = document.getElementById('galleryInput');
+
+    // Signed report viewed by a non-admin: the upload form isn't rendered
+    // at all (read-only view), so there's nothing to wire up here.
+    if (!input) return;
 
     // FIX: camera/gallery/dropzone used to be 3 independent inputs, each
     // overwriting the previous selection and 2 of them living outside the

@@ -19,3 +19,6 @@ yarn-error.log
 /.idea
 /.vscode
 .claude/
+/public/products
+/public/service-reports
+/public/product-documents

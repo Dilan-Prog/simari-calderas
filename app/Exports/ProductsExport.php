@@ -58,6 +58,14 @@ class ProductsExport implements FromQuery, WithHeadings, WithMapping, ShouldAuto
 
     public function styles(Worksheet $sheet)
     {
+        // Precio (H), Precio Comparativo (I) y Costo (J) son montos en
+        // pesos — sin este formato se ven como números planos en vez de
+        // dinero al abrir el archivo.
+        $lastRow = max(2, $sheet->getHighestRow());
+        $sheet->getStyle("H2:J{$lastRow}")
+            ->getNumberFormat()
+            ->setFormatCode('"$"#,##0');
+
         return [
             1 => ['font' => ['bold' => true]],
         ];
