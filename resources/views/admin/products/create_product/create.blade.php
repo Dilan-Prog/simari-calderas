@@ -222,6 +222,12 @@
                             </div>
 
                             <div class="pform-field">
+                                <label class="pform-label" for="pformSupplierSku">SKU Proveedor</label>
+                                <input type="text" id="pformSupplierSku" class="pform-input" name="supplier_sku"
+                                    placeholder="Código con el que el proveedor identifica este producto" />
+                            </div>
+
+                            <div class="pform-field">
                                 <label class="pform-label" for="pformShortDesc">Descripción Corta</label>
                                 <textarea id="pformShortDesc" class="pform-textarea" rows="3" maxlength="200" name="short_description"
                                     placeholder="Resumen breve del producto (aparecerá en las tarjetas del catálogo)"></textarea>

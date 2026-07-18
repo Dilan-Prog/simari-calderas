@@ -170,6 +170,7 @@ class ProductController extends Controller
             // product. Option A chosen: make it truly required.
             'brand_id'          => 'required|exists:brands,id',
             'model'             => 'nullable|string|max:100',
+            'supplier_sku'      => 'nullable|string|max:100',
             'price'             => 'required|numeric|min:0',
             'cost'              => 'nullable|numeric|min:0',
             'compare_price'     => 'nullable|numeric|min:0',
@@ -221,6 +222,7 @@ class ProductController extends Controller
         // FIX (reported bug): 'model' has a real column and a name="model"
         // input in the view, but was never assigned — always lost silently.
         $product->model              = $request->model         ?? null;
+        $product->supplier_sku      = $request->supplier_sku   ?? null;
         $product->price             = $request->price;
         $product->cost              = $request->cost           ?? 0;
         $product->compare_price     = $request->compare_price  ?? null;
@@ -323,6 +325,7 @@ class ProductController extends Controller
             // FIX BUG 7: mirrors store() — brand_id is now truly required.
             'brand_id'          => 'required|exists:brands,id',
             'model'             => 'nullable|string|max:100',
+            'supplier_sku'      => 'nullable|string|max:100',
             'price'             => 'required|numeric|min:0',
             'cost'              => 'nullable|numeric|min:0',
             'compare_price'     => 'nullable|numeric|min:0',
@@ -374,6 +377,7 @@ class ProductController extends Controller
         // FIX (reported bug): 'model' has a real column and a name="model"
         // input in the view, but was never assigned — always lost silently.
         $product->model              = $request->model         ?? null;
+        $product->supplier_sku      = $request->supplier_sku   ?? null;
         $product->price             = $request->price;
         $product->cost              = $request->cost           ?? 0;
         $product->compare_price     = $request->compare_price  ?? null;

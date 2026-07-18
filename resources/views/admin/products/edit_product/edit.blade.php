@@ -194,6 +194,13 @@
                             </div>
 
                             <div class="pform-field">
+                                <label class="pform-label" for="pformSupplierSku">SKU Proveedor</label>
+                                <input type="text" id="pformSupplierSku" name="supplier_sku" class="pform-input"
+                                    placeholder="Código con el que el proveedor identifica este producto"
+                                    value="{{ $product->supplier_sku ?? '' }}" />
+                            </div>
+
+                            <div class="pform-field">
                                 <label class="pform-label" for="pformShortDesc">Descripción Corta</label>
                                 <textarea id="pformShortDesc" name="short_description" class="pform-textarea" rows="3" maxlength="200"
                                     placeholder="Resumen breve del producto">{{ $product->short_description }}</textarea>

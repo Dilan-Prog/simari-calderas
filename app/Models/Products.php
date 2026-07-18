@@ -19,6 +19,7 @@ class Products extends Model
         // input in both forms, but was never in $fillable nor assigned in
         // the controller — it was silently discarded on every save.
         'model',
+        'supplier_sku',
         'short_description',
         'description',
         'price',

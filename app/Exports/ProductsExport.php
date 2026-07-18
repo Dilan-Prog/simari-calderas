@@ -20,7 +20,7 @@ class ProductsExport implements FromQuery, WithHeadings, WithMapping, ShouldAuto
     public function headings(): array
     {
         return [
-            'Nombre', 'SKU', 'Modelo', 'Categoría', 'Marca',
+            'Nombre', 'SKU', 'Modelo', 'SKU Proveedor', 'Categoría', 'Marca',
             'Descripción Corta', 'Descripción', 'Precio', 'Precio Comparativo',
             'Costo', 'Stock', 'Unidad Stock', 'Moneda', 'Disponibilidad',
             'Activo', 'Destacado', 'Nuevo', 'Recomendado', 'Publicar Web', 'Imagen URL',
@@ -36,6 +36,7 @@ class ProductsExport implements FromQuery, WithHeadings, WithMapping, ShouldAuto
             $product->name,
             $product->sku,
             $product->model,
+            $product->supplier_sku,
             $product->category->name ?? '',
             $product->brand->name ?? '',
             $product->short_description,
@@ -58,11 +59,12 @@ class ProductsExport implements FromQuery, WithHeadings, WithMapping, ShouldAuto
 
     public function styles(Worksheet $sheet)
     {
-        // Precio (H), Precio Comparativo (I) y Costo (J) son montos en
+        // Precio (I), Precio Comparativo (J) y Costo (K) son montos en
         // pesos — sin este formato se ven como números planos en vez de
-        // dinero al abrir el archivo.
+        // dinero al abrir el archivo. (Corrimiento de una columna por el
+        // nuevo campo "SKU Proveedor" insertado antes de Categoría.)
         $lastRow = max(2, $sheet->getHighestRow());
-        $sheet->getStyle("H2:J{$lastRow}")
+        $sheet->getStyle("I2:K{$lastRow}")
             ->getNumberFormat()
             ->setFormatCode('"$"#,##0');
 

@@ -106,6 +106,7 @@ class ProductsImport implements ToModel, WithHeadingRow, WithValidation, WithBat
             'name' => $row['nombre'],
             'sku' => $row['sku'],
             'model' => $row['modelo'] ?? null,
+            'supplier_sku' => $row['sku_proveedor'] ?? null,
             'category_id' => $categoryId,
             'brand_id' => $brandId,
             'short_description' => $row['descripcion_corta'] ?? null,

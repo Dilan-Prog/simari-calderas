@@ -23,7 +23,7 @@ class ProductsTemplateDataSheet implements FromArray, WithHeadings, WithTitle, W
     public function headings(): array
     {
         return [
-            'Nombre', 'SKU', 'Modelo', 'Categoría', 'Marca',
+            'Nombre', 'SKU', 'Modelo', 'SKU Proveedor', 'Categoría', 'Marca',
             'Descripción Corta', 'Descripción', 'Precio', 'Precio Comparativo',
             'Costo', 'Stock', 'Unidad Stock', 'Moneda', 'Disponibilidad',
             'Activo', 'Destacado', 'Nuevo', 'Recomendado', 'Publicar Web', 'Imagen URL',
@@ -42,7 +42,7 @@ class ProductsTemplateDataSheet implements FromArray, WithHeadings, WithTitle, W
 
         return [
             [
-                'Caldera Industrial 500L', $skus[0], 'CI-500',
+                'Caldera Industrial 500L', $skus[0], 'CI-500', 'PROV-CI500',
                 $categories[0], $brands[0],
                 'Caldera industrial de alta eficiencia',
                 'Caldera de vapor industrial de 500 litros, ideal para procesos productivos continuos.',
@@ -50,7 +50,7 @@ class ProductsTemplateDataSheet implements FromArray, WithHeadings, WithTitle, W
                 'Si', 'Si', 'No', 'Si', 'Si', '',
             ],
             [
-                'Calentador Solar 200L', $skus[1], 'CS-200',
+                'Calentador Solar 200L', $skus[1], 'CS-200', 'PROV-CS200',
                 $categories[1], $brands[1],
                 'Sistema de calentamiento solar residencial',
                 'Calentador solar de tubos evacuados, capacidad 200 litros, incluye kit de instalación.',
@@ -58,7 +58,7 @@ class ProductsTemplateDataSheet implements FromArray, WithHeadings, WithTitle, W
                 'Si', 'No', 'Si', 'No', 'Si', '',
             ],
             [
-                'Caldereta a Gas 100L', $skus[2], 'CG-100',
+                'Caldereta a Gas 100L', $skus[2], 'CG-100', '',
                 $categories[2], $brands[2],
                 'Caldereta compacta para uso comercial',
                 'Caldereta a gas natural/LP de 100 litros, encendido electrónico, panel digital.',
@@ -111,12 +111,12 @@ class ProductsTemplateDataSheet implements FromArray, WithHeadings, WithTitle, W
 
     public function styles(Worksheet $sheet)
     {
-        // Precio (H), Precio Comparativo (I) y Costo (J) son montos en
+        // Precio (I), Precio Comparativo (J) y Costo (K) son montos en
         // pesos: sin este formato, Excel las trata como texto/número plano
         // y no se ven como dinero al llenarlas. Se aplica a un rango amplio
         // (hasta la fila 1000) para cubrir cuánto sea que el usuario
         // extienda la plantilla al capturar su catálogo.
-        $sheet->getStyle('H2:J1000')
+        $sheet->getStyle('I2:K1000')
             ->getNumberFormat()
             ->setFormatCode('"$"#,##0');
 
@@ -134,10 +134,10 @@ class ProductsTemplateDataSheet implements FromArray, WithHeadings, WithTitle, W
     public function columnWidths(): array
     {
         return [
-            'A' => 28, 'B' => 14, 'C' => 12, 'D' => 20, 'E' => 16,
-            'F' => 30, 'G' => 45, 'H' => 12, 'I' => 14, 'J' => 12,
-            'K' => 10, 'L' => 14, 'M' => 10, 'N' => 16,
-            'O' => 10, 'P' => 12, 'Q' => 10, 'R' => 14, 'S' => 14, 'T' => 40,
+            'A' => 28, 'B' => 14, 'C' => 12, 'D' => 16, 'E' => 20, 'F' => 16,
+            'G' => 30, 'H' => 45, 'I' => 12, 'J' => 14, 'K' => 12,
+            'L' => 10, 'M' => 14, 'N' => 10, 'O' => 16,
+            'P' => 10, 'Q' => 12, 'R' => 10, 'S' => 14, 'T' => 14, 'U' => 40,
         ];
     }
 }

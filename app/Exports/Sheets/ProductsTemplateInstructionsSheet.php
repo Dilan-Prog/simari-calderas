@@ -26,6 +26,7 @@ class ProductsTemplateInstructionsSheet implements FromArray, WithTitle, WithSty
             ['Nombre', 'Sí', 'Texto libre.'],
             ['SKU', 'Sí', 'Código único del producto. No debe repetirse con uno ya existente.'],
             ['Modelo', 'No', 'Texto libre.'],
+            ['SKU Proveedor', 'No', 'Texto libre. Código con el que el proveedor identifica este producto (uso interno, distinto del SKU propio).'],
             ['Categoría', 'Sí', 'Debe coincidir EXACTAMENTE con el nombre de una categoría ya registrada en el sistema (no distingue mayúsculas/minúsculas).'],
             ['Marca', 'Sí', 'Debe coincidir EXACTAMENTE con el nombre de una marca ya registrada en el sistema (no distingue mayúsculas/minúsculas).'],
             ['Descripción Corta', 'No', 'Texto libre, resumen breve.'],
@@ -65,14 +66,14 @@ class ProductsTemplateInstructionsSheet implements FromArray, WithTitle, WithSty
         $sheet->getStyle('A4:C4')->getFont()->setBold(true)->getColor()->setRGB('FFFFFF');
         $sheet->getStyle('A4:C4')->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB('1F3B57');
 
-        foreach (range(5, 24) as $row) {
+        foreach (range(5, 25) as $row) {
             $sheet->getStyle("C{$row}")->getAlignment()->setWrapText(true);
         }
 
-        $sheet->getStyle('A26')->getFont()->setBold(true);
-        $sheet->mergeCells('A26:C26');
+        $sheet->getStyle('A27')->getFont()->setBold(true);
+        $sheet->mergeCells('A27:C27');
 
-        foreach (range(27, 31) as $row) {
+        foreach (range(28, 32) as $row) {
             $sheet->mergeCells("A{$row}:C{$row}");
             $sheet->getStyle("A{$row}")->getAlignment()->setWrapText(true);
         }
