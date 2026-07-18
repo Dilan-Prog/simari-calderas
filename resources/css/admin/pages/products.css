@@ -309,6 +309,13 @@
     overflow: hidden;
 }
 
+/* Scroll lives inside the table itself so the header can stay fixed while
+   only the product rows scroll — independent of the page's own scroll. */
+.products-table-wrapper {
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
 .prod-table {
     width: 100%;
     border-collapse: collapse;
@@ -316,10 +323,12 @@
 
 .prod-table thead {
     background: #f9fafb;
-    border-bottom: 1px solid #e5e7eb;
 }
 
 .prod-table th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
     padding: 12px 24px;
     text-align: left;
     font-size: 11px;
@@ -328,6 +337,8 @@
     text-transform: uppercase;
     letter-spacing: 0.06em;
     white-space: nowrap;
+    background: #f9fafb;
+    box-shadow: inset 0 -1px 0 #e5e7eb;
 }
 
 .prod-table th:last-child {

@@ -41,20 +41,42 @@
                 </div>
             </div>
 
-            <div class="prod-toolbar">
+            <form class="prod-toolbar" id="prodFilterForm" method="GET">
                 <div class="prod-search-wrap">
                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="11" cy="11" r="8" />
                         <path d="m21 21-4.3-4.3" />
                     </svg>
-                    <input type="text" id="prodSearch" class="prod-search-input" placeholder="Buscar por nombre o SKU..."
-                        autocomplete="off" />
+                    <input type="text" name="search" id="prodSearch" class="prod-search-input"
+                        placeholder="Buscar por nombre o SKU..." autocomplete="off"
+                        value="{{ request('search') }}" />
                 </div>
-                <select id="prodStatusFilter" class="prod-filter-select">
+                <select name="category_id" id="prodCategoryFilter" class="prod-filter-select">
+                    <option value="">Todas las categorías</option>
+                    @foreach ($categories as $category)
+                        <option value="{{ $category->id }}" @selected(request('category_id') == $category->id)>
+                            {{ $category->name }}
+                        </option>
+                    @endforeach
+                </select>
+                <select name="stock" id="prodStockFilter" class="prod-filter-select">
+                    <option value="all">Todo el stock</option>
+                    <option value="in_stock" @selected(request('stock') === 'in_stock')>En stock</option>
+                    <option value="out_of_stock" @selected(request('stock') === 'out_of_stock')>Agotados</option>
+                </select>
+                <select name="status" id="prodStatusFilter" class="prod-filter-select">
                     <option value="all">Todos los estados</option>
-                    <option value="active">Activos</option>
-                    <option value="inactive">Inactivos</option>
+                    <option value="active" @selected(request('status') === 'active')>Activos</option>
+                    <option value="inactive" @selected(request('status') === 'inactive')>Inactivos</option>
+                </select>
+                <select name="per_page" id="prodPerPage" class="prod-filter-select">
+                    @foreach ($perPageOptions as $option)
+                        <option value="{{ $option }}" @selected((string) request('per_page', 25) === (string) $option)>
+                            {{ $option }}
+                        </option>
+                    @endforeach
+                    <option value="all" @selected(request('per_page') === 'all')>Todos</option>
                 </select>
                 <div class="prod-view-toggle">
                     <button class="prod-view-btn" id="btnViewGrid" data-view="grid" type="button">
@@ -73,7 +95,7 @@
                         </svg>
                     </button>
                 </div>
-            </div>
+            </form>
         </div>
 
         <div class="prod-content-area">
@@ -86,12 +108,13 @@
                 <div class="products-table-wrapper">
                 <table class="prod-table">
                     <colgroup>
-                        <col style="width:30%">
-                        <col style="width:10%">
+                        <col style="width:26%">
+                        <col style="width:9%">
                         <col style="width:12%">
+                        <col style="width:9%">
+                        <col style="width:9%">
+                        <col style="width:9%">
                         <col style="width:10%">
-                        <col style="width:10%">
-                        <col style="width:12%">
                         <col style="width:16%">
                     </colgroup>
                     <thead>
@@ -182,16 +205,10 @@
                         @empty
                             <tr>
                                 <td colspan="8">
-                                    <p class="prod-empty">No hay productos registrados.</p>
+                                    <p class="prod-empty">No se encontraron productos con los filtros actuales.</p>
                                 </td>
                             </tr>
                         @endforelse
-
-                        <tr id="prodEmptyRow" style="display:none;">
-                            <td colspan="7">
-                                <p class="prod-empty">No se encontraron productos con los filtros actuales.</p>
-                            </td>
-                        </tr>
                     </tbody>
                 </table>
                 </div>
@@ -280,12 +297,15 @@
             </div>
 
             <div class="prod-summary-bar">
-                <span id="prodCountLabel">Mostrando {{ $products->count() }} de {{ $products->count() }} productos</span>
+                <span id="prodCountLabel">Mostrando {{ $products->count() }} de {{ $totalFiltered }} productos</span>
                 {{-- FIX BUG 11: stock_unit is now a real column (BUG 9), and the
-                     controller selects it. Added the null-safe operator so an
-                     empty $products collection doesn't error on ->first(). --}}
-                <span>Total en inventario: {{ $products->sum('stock') }} {{ $products->first()?->stock_unit ?? 'unidades' }}</span>
+                     controller selects it. --}}
+                <span>Total en inventario: {{ $stockSum }} {{ $firstStockUnit ?? 'unidades' }}</span>
             </div>
+
+            @if ($products instanceof \Illuminate\Pagination\LengthAwarePaginator)
+                {{ $products->links('admin.components.pagination') }}
+            @endif
         </div>
     </div>
 @endsection

@@ -1,40 +1,33 @@
 @push('scripts')
     <script>
         (function() {
-            const TOTAL = {{ $products->count() }};
-            const searchInput = document.getElementById('prodSearch');
-            const statusFilter = document.getElementById('prodStatusFilter');
             const btnGrid = document.getElementById('btnViewGrid');
             const btnList = document.getElementById('btnViewList');
             const listView = document.getElementById('prodListView');
             const gridView = document.getElementById('prodGridView');
-            const emptyRow = document.getElementById('prodEmptyRow');
-            const countLabel = document.getElementById('prodCountLabel');
-            const tableRows = document.querySelectorAll('#prodTableBody tr[data-name]');
-            const gridCards = document.querySelectorAll('#prodGridView .prod-grid-card');
 
-            function applyFilters() {
-                const query = searchInput.value.trim().toLowerCase();
-                const status = statusFilter.value;
-                let visible = 0;
+            // FIX: search/status/stock/category/per_page are now filtered and
+            // paginated server-side (see ProductController::index) instead of
+            // hiding already-loaded rows with JS — with hundreds of products,
+            // loading everything on every page view was the actual "carga
+            // pesada" being asked to fix, not just how the table looked.
+            const filterForm     = document.getElementById('prodFilterForm');
+            const searchInput    = document.getElementById('prodSearch');
+            const categoryFilter = document.getElementById('prodCategoryFilter');
+            const stockFilter    = document.getElementById('prodStockFilter');
+            const statusFilter   = document.getElementById('prodStatusFilter');
+            const perPageSelect  = document.getElementById('prodPerPage');
 
-                tableRows.forEach((row, i) => {
-                    const card = gridCards[i];
-                    const nameMatch = row.dataset.name.includes(query) || row.dataset.sku.includes(query);
-                    const stMatch = status === 'all' || row.dataset.status === status;
-                    const show = nameMatch && stMatch;
+            [categoryFilter, stockFilter, statusFilter, perPageSelect].forEach(select => {
+                select.addEventListener('change', () => filterForm.submit());
+            });
 
-                    row.style.display = show ? '' : 'none';
-                    if (card) card.style.display = show ? '' : 'none';
-                    if (show) visible++;
-                });
-
-                emptyRow.style.display = visible === 0 ? '' : 'none';
-                countLabel.textContent = `Mostrando ${visible} de ${TOTAL} productos`;
-            }
-
-            searchInput.addEventListener('input', applyFilters);
-            statusFilter.addEventListener('change', applyFilters);
+            // Debounce free-text search so it doesn't reload on every keystroke.
+            let searchDebounce = null;
+            searchInput.addEventListener('input', () => {
+                clearTimeout(searchDebounce);
+                searchDebounce = setTimeout(() => filterForm.submit(), 600);
+            });
 
             function setView(view) {
                 if (view === 'grid') {

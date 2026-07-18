@@ -16,7 +16,14 @@ class CategoryController extends Controller
             ->orderBy('name')
             ->paginate(15);
 
-        return view('admin.categories.index', compact('categories'));
+        // FIX: the "Categoría Padre" select in the create/edit modal was
+        // reusing the paginated $categories list above (only 15 rows on the
+        // current page), so most categories — including main ones sitting
+        // past page 1 — never showed up as selectable parents. This is the
+        // full, unpaginated list dedicated to that dropdown.
+        $allCategories = Category::orderBy('sort_order')->orderBy('name')->get();
+
+        return view('admin.categories.index', compact('categories', 'allCategories'));
     }
 
     public function store(Request $request)

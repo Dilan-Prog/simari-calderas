@@ -371,9 +371,7 @@
                 Mostrando <strong>{{ $quotes->firstItem() }}-{{ $quotes->lastItem() }}</strong>
                 de <strong>{{ $quotes->total() }}</strong> cotizaciones
             </span>
-            @if($quotes->hasPages())
-            {{ $quotes->appends(request()->query())->links() }}
-            @endif
+            {{ $quotes->appends(request()->query())->links('admin.components.pagination') }}
         </div>
         @endif
     </div>

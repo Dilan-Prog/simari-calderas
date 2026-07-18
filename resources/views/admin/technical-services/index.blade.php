@@ -273,7 +273,7 @@
                     de {{ $services->total() }} registros
                 </span>
                 <div class="ts-pagination__links">
-                    {{ $services->links() }}
+                    {{ $services->links('admin.components.pagination') }}
                 </div>
             </div>
             @endif

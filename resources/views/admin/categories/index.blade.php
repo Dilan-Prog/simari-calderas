@@ -242,31 +242,8 @@
             Mostrando <strong>{{ $categories->firstItem() }}–{{ $categories->lastItem() }}</strong>
             de <strong>{{ $categories->total() }}</strong> categorías
         </p>
-        <div style="display:flex;gap:4px;align-items:center;">
-            <a href="{{ $categories->url(1) }}"
-                class="table-users-manager-action-btn edit {{ $categories->onFirstPage() ? 'disabled' : '' }}"
-                style="font-size:12px;padding:6px 10px;">«</a>
-            <a href="{{ $categories->previousPageUrl() ?? '#' }}"
-                class="table-users-manager-action-btn edit {{ $categories->onFirstPage() ? 'disabled' : '' }}"
-                style="font-size:12px;padding:6px 10px;">‹</a>
-            @foreach ($categories->getUrlRange(
-                max(1, $categories->currentPage() - 2),
-                min($categories->lastPage(), $categories->currentPage() + 2)
-            ) as $page => $url)
-                <a href="{{ $url }}"
-                    class="{{ $page == $categories->currentPage() ? 'button-primary' : 'table-users-manager-action-btn edit' }}"
-                    style="font-size:12px;padding:6px 10px;min-width:32px;text-align:center;">
-                    {{ $page }}
-                </a>
-            @endforeach
-            <a href="{{ $categories->nextPageUrl() ?? '#' }}"
-                class="table-users-manager-action-btn edit {{ !$categories->hasMorePages() ? 'disabled' : '' }}"
-                style="font-size:12px;padding:6px 10px;">›</a>
-            <a href="{{ $categories->url($categories->lastPage()) }}"
-                class="table-users-manager-action-btn edit {{ !$categories->hasMorePages() ? 'disabled' : '' }}"
-                style="font-size:12px;padding:6px 10px;">»</a>
-        </div>
     </div>
+    {{ $categories->links('admin.components.pagination') }}
 
     {{-- Legend --}}
     <div style="margin-top:16px;display:flex;align-items:center;gap:12px;font-size:13px;color:#6b7280;">

@@ -249,6 +249,16 @@
                 </tbody>
             </table>
         </div>
+
+        @if ($orders->hasPages())
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:16px;padding:0 4px;">
+                <p style="margin:0;font-size:13px;color:#6b7280;">
+                    Mostrando <strong>{{ $orders->firstItem() }}–{{ $orders->lastItem() }}</strong>
+                    de <strong>{{ $orders->total() }}</strong> órdenes
+                </p>
+            </div>
+            {{ $orders->links('admin.components.pagination') }}
+        @endif
     </main>
 </section>
 

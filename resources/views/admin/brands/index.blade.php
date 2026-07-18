@@ -150,38 +150,13 @@
             </main>
 
             {{-- Pagination --}}
-            <div
-                style="display:flex;justify-content:space-between;align-items:center;
-                    margin-top:16px;padding:0 4px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:16px;padding:0 4px;">
                 <p class="breadcrumb-clients-manager">
                     Mostrando <strong>{{ $brands->firstItem() }}–{{ $brands->lastItem() }}</strong>
                     de <strong>{{ $brands->total() }}</strong> marcas
                 </p>
-                <div style="display:flex;gap:4px;align-items:center;">
-                    {{-- First --}}
-                    <a href="{{ $brands->url(1) }}"
-                        class="table-users-manager-action-btn edit {{ $brands->onFirstPage() ? 'disabled' : '' }}"
-                        style="font-size:12px;padding:6px 10px;">«</a>
-                    <a href="{{ $brands->previousPageUrl() ?? '#' }}"
-                        class="table-users-manager-action-btn edit {{ $brands->onFirstPage() ? 'disabled' : '' }}"
-                        style="font-size:12px;padding:6px 10px;">‹</a>
-
-                    @foreach ($brands->getUrlRange(max(1, $brands->currentPage() - 2), min($brands->lastPage(), $brands->currentPage() + 2)) as $page => $url)
-                        <a href="{{ $url }}"
-                            class="{{ $page == $brands->currentPage() ? 'button-primary' : 'table-users-manager-action-btn edit' }}"
-                            style="font-size:12px;padding:6px 10px;min-width:32px;text-align:center;">
-                            {{ $page }}
-                        </a>
-                    @endforeach
-
-                    <a href="{{ $brands->nextPageUrl() ?? '#' }}"
-                        class="table-users-manager-action-btn edit {{ !$brands->hasMorePages() ? 'disabled' : '' }}"
-                        style="font-size:12px;padding:6px 10px;">›</a>
-                    <a href="{{ $brands->url($brands->lastPage()) }}"
-                        class="table-users-manager-action-btn edit {{ !$brands->hasMorePages() ? 'disabled' : '' }}"
-                        style="font-size:12px;padding:6px 10px;">»</a>
-                </div>
             </div>
+            {{ $brands->links('admin.components.pagination') }}
         </section>
     </div>
 @endsection

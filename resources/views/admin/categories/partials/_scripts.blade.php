@@ -112,6 +112,7 @@
         });
 
         document.getElementById('categoryParent').addEventListener('change', function() {
+            syncCategoryParentDisplay();
             buildSlug();
         });
 
@@ -127,12 +128,85 @@
             });
 
             parent.disabled = level === 1;
+            document.getElementById('categoryParentSearch').disabled = level === 1;
 
             if (document.activeElement === this) {
                 parent.value = '';
             }
 
+            syncCategoryParentDisplay();
             buildSlug();
+        });
+
+        // Combobox de búsqueda para "Categoría Padre": el <select> original
+        // sigue siendo la fuente de la verdad (mismas <option data-level>,
+        // sigue enviándose en el FormData); esto solo agrega una capa de
+        // búsqueda/estilo encima para no duplicar la lógica de niveles.
+        const categoryParentSelect = document.getElementById('categoryParent');
+        const categoryParentSearch = document.getElementById('categoryParentSearch');
+        const categoryParentList = document.getElementById('categoryParentList');
+
+        function getVisibleParentOptions() {
+            return Array.from(categoryParentSelect.options).filter(opt => opt.style.display !== 'none');
+        }
+
+        function renderParentList(term = '') {
+            const needle = term.toLowerCase().trim();
+            categoryParentList.innerHTML = '';
+
+            const matches = getVisibleParentOptions().filter(opt =>
+                !needle || opt.text.toLowerCase().includes(needle)
+            );
+
+            if (matches.length === 0) {
+                const li = document.createElement('li');
+                li.className = 'cat-combobox-empty';
+                li.textContent = 'Sin resultados';
+                categoryParentList.appendChild(li);
+                return;
+            }
+
+            matches.forEach(opt => {
+                const li = document.createElement('li');
+                li.className = 'cat-combobox-option' + (opt.value === categoryParentSelect.value ? ' active' : '');
+                li.textContent = opt.value ? opt.text.replace(/^[—\s]+/, '') : opt.text;
+                li.addEventListener('mousedown', (e) => {
+                    e.preventDefault();
+                    categoryParentSelect.value = opt.value;
+                    categoryParentSelect.dispatchEvent(new Event('change'));
+                    closeParentList();
+                });
+                categoryParentList.appendChild(li);
+            });
+        }
+
+        function openParentList() {
+            if (categoryParentSelect.disabled) return;
+            renderParentList(categoryParentSearch.value);
+            categoryParentList.classList.add('open');
+        }
+
+        function closeParentList() {
+            categoryParentList.classList.remove('open');
+        }
+
+        function syncCategoryParentDisplay() {
+            const opt = categoryParentSelect.options[categoryParentSelect.selectedIndex];
+            categoryParentSearch.value = (opt && opt.value) ? opt.text.replace(/^[—\s]+/, '') : '';
+        }
+
+        categoryParentSearch.addEventListener('focus', openParentList);
+        categoryParentSearch.addEventListener('input', () => {
+            if (!categoryParentSearch.value.trim()) {
+                categoryParentSelect.value = '';
+            }
+            openParentList();
+        });
+        categoryParentSearch.addEventListener('blur', () => {
+            setTimeout(() => {
+                closeParentList();
+                syncCategoryParentDisplay();
+            }, 120);
         });
 
         // SUBMIT
@@ -171,7 +245,7 @@
             }
 
             if (level > 1 && !parentSelect.value) {
-                showError(parentSelect, 'Debes seleccionar una categoría padre para este nivel.');
+                showError(categoryParentSearch, 'Debes seleccionar una categoría padre para este nivel.');
             }
 
             if (hasErrors) {
@@ -221,7 +295,7 @@
 
                     // Asignar errores devueltos por el servidor a los inputs correspondientes
                     if (data.errors.name) showError(nameInput, data.errors.name[0]);
-                    if (data.errors.parent_id) showError(parentSelect, data.errors.parent_id[0]);
+                    if (data.errors.parent_id) showError(categoryParentSearch, data.errors.parent_id[0]);
                 }
             } catch (err) {
                 console.error('Error:', err);
@@ -251,7 +325,6 @@
                         document.getElementById('categoryImageUrl').value = cat.image_url ?? '';
                         document.getElementById('categorySortOrder').value = cat.sort_order ?? 0;
                         document.getElementById('categoryIsActive').value = cat.is_active ? '1' : '0';
-                        document.getElementById('categoryParent').value = cat.parent_id ?? '';
                         document.getElementById('categorySeoTitle').value = cat.seo_title ?? '';
                         document.getElementById('categorySeoDesc').value = cat.seo_description ?? '';
 
@@ -261,11 +334,16 @@
 
                         const levelSelect = document.getElementById('categoryLevel');
                         const parentSelect = document.getElementById('categoryParent');
-                        const allOptions = parentSelect.querySelectorAll('option[data-level]');
 
                         levelSelect.value = level;
+                        // FIX: dispatch 'change' so the level-based option
+                        // filtering (which options are hidden per level) is
+                        // actually applied when opening edit mode — it was
+                        // never triggered before, only on manual level switches.
+                        levelSelect.dispatchEvent(new Event('change'));
 
                         parentSelect.value = cat.parent_id ?? '';
+                        syncCategoryParentDisplay();
 
                         errorsContainer.style.display = 'none';
                         categoryModal.style.display = 'flex';

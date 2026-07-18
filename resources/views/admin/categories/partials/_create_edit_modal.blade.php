@@ -22,14 +22,19 @@
                     </div>
                     <div>
                         <label class="supliers-manager-slider-label">Categoría Padre</label>
-                        <select class="users-manager-select" id="categoryParent" name="parent_id">
-                            <option value="">Ninguna (Categoría Principal)</option>
-                            @foreach ($categories as $cat)
-                                <option value="{{ $cat->id }}" data-level="{{ $cat->level }}">
-                                    {{ str_repeat('— ', $cat->level - 1) }}{{ $cat->name }}
-                                </option>
-                            @endforeach
-                        </select>
+                        <div class="cat-combobox" id="categoryParentCombobox">
+                            <input type="text" class="users-manager-input cat-combobox-input"
+                                id="categoryParentSearch" placeholder="Buscar categoría..." autocomplete="off">
+                            <select class="cat-combobox-native-select" id="categoryParent" name="parent_id">
+                                <option value="">Ninguna (Categoría Principal)</option>
+                                @foreach ($allCategories as $cat)
+                                    <option value="{{ $cat->id }}" data-level="{{ $cat->level }}">
+                                        {{ str_repeat('— ', $cat->level - 1) }}{{ $cat->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            <ul class="cat-combobox-list" id="categoryParentList"></ul>
+                        </div>
                     </div>
                 </div>
 

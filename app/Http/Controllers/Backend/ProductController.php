@@ -110,27 +110,75 @@ class ProductController extends Controller
             'created_at'    => now(),
         ]);
     }
-    public function index()
-    {
-        $products = Products::with(['category', 'brand', 'images'])->get([
-            'id',
-            'name',
-            'sku',
-            'price',
-            'cost',
-            'stock',
-            // FIX BUG 11/9: stock_unit is now a real column (see BUG 9) —
-            // added here so index.blade.php's inventory summary shows the
-            // real unit instead of always falling back to 'unidades'.
-            'stock_unit',
-            'is_active',
-            'is_featured',
-            'cover_image_url',
-            'category_id',
-            'brand_id',
-        ]);
+    // Options exposed to the "Mostrar" per-page selector in index.blade.php.
+    private const PER_PAGE_OPTIONS = [10, 25, 50, 100, 200, 300, 400, 500];
 
-        return view('admin.products.index', compact('products'));
+    public function index(Request $request)
+    {
+        $query = Products::query()
+            ->with(['category', 'brand', 'images'])
+            ->select([
+                'id',
+                'name',
+                'sku',
+                'price',
+                'cost',
+                'stock',
+                // FIX BUG 11/9: stock_unit is now a real column (see BUG 9) —
+                // added here so index.blade.php's inventory summary shows the
+                // real unit instead of always falling back to 'unidades'.
+                'stock_unit',
+                'is_active',
+                'is_featured',
+                'cover_image_url',
+                'category_id',
+                'brand_id',
+            ]);
+
+        if ($search = $request->input('search')) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('sku', 'like', "%{$search}%");
+            });
+        }
+
+        if (in_array($request->input('status'), ['active', 'inactive'], true)) {
+            $query->where('is_active', $request->input('status') === 'active');
+        }
+
+        if (in_array($request->input('stock'), ['in_stock', 'out_of_stock'], true)) {
+            $request->input('stock') === 'out_of_stock'
+                ? $query->where('stock', '<=', 0)
+                : $query->where('stock', '>', 0);
+        }
+
+        if ($categoryId = $request->input('category_id')) {
+            $query->where('category_id', $categoryId);
+        }
+
+        // Totals over the filtered set, computed before pagination/get()
+        // consumes the query builder below.
+        $totalFiltered  = (clone $query)->count();
+        $stockSum       = (clone $query)->sum('stock');
+        $firstStockUnit = (clone $query)->value('stock_unit');
+
+        $perPageInput = $request->input('per_page', 25);
+        $showAll      = $perPageInput === 'all';
+        $perPage      = $showAll ? $totalFiltered : (int) $perPageInput;
+
+        $products = $showAll
+            ? $query->get()
+            : $query->paginate(max($perPage, 1))->withQueryString();
+
+        $categories = Category::orderBy('name')->get(['id', 'name']);
+
+        return view('admin.products.index', compact(
+            'products',
+            'categories',
+            'totalFiltered',
+            'stockSum',
+            'firstStockUnit'
+        ))->with('perPageOptions', self::PER_PAGE_OPTIONS);
     }
 
     public function create()

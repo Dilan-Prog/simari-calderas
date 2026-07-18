@@ -5,7 +5,7 @@
     "isEntry": true
   },
   "resources/css/admin/app.css": {
-    "file": "assets/app-Cw7xyH40.css",
+    "file": "assets/app-CRSlRp8Y.css",
     "src": "resources/css/admin/app.css",
     "isEntry": true
   },
@@ -15,7 +15,7 @@
     "isEntry": true
   },
   "resources/css/admin/pages/categories.css": {
-    "file": "assets/categories-BFcuhgRY.css",
+    "file": "assets/categories-CGIjqMOy.css",
     "src": "resources/css/admin/pages/categories.css",
     "isEntry": true
   },
@@ -83,7 +83,7 @@
     "isEntry": true
   },
   "resources/js/admin/sidebar.js": {
-    "file": "assets/sidebar-BzKW2IQ1.js",
+    "file": "assets/sidebar-DQ3XuP6L.js",
     "name": "sidebar",
     "src": "resources/js/admin/sidebar.js",
     "isEntry": true
