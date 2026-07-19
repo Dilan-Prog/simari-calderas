@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\Backend\AdminController;
 use App\Http\Controllers\Frontend\HomeController;
+use App\Http\Controllers\Frontend\Shop\CatalogController;
+use App\Http\Controllers\Frontend\Shop\ProductController as ShopProductController;
 use App\Http\Controllers\Frontend\SitemapController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -42,8 +44,14 @@ Route::get('/crear-admin', function () {
 
     return '✅ Usuario creado!';
 });
+Route::controller(CatalogController::class)->group(function () {
+    Route::get('/', 'home')->name('home');
+    Route::get('/catalogo', 'index')->name('catalog.index');
+    Route::get('/catalogo/{categorySlug}', 'category')->name('catalog.category');
+});
+Route::get('/producto/{slug}', [ShopProductController::class, 'show'])->name('product.show');
+
 Route::controller(HomeController::class)->group(function () {
-    Route::get('/', 'index')->name('home');
     Route::get('/nuestra-empresa', 'company')->name('company');
     Route::get('/contacto', 'contact')->name('contact');
     Route::get('/aviso-privacidad', 'privacyNotice')->name('privacy-notice');

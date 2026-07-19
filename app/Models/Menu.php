@@ -1,0 +1,30 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class Menu extends Model
+{
+    protected $fillable = ['name', 'location', 'is_active'];
+
+    protected $casts = [
+        'is_active' => 'boolean',
+    ];
+
+    public function items()
+    {
+        return $this->hasMany(MenuItem::class);
+    }
+
+    public function rootItems()
+    {
+        return $this->items()
+            ->whereNull('parent_id')
+            ->where('is_active', true)
+            ->orderBy('sort_order')
+            ->with(['children' => function ($q) {
+                $q->where('is_active', true)->orderBy('sort_order');
+            }]);
+    }
+}

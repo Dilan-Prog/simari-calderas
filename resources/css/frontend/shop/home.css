@@ -1,0 +1,59 @@
+@import 'shared.css';
+
+.eq-shop-home {
+    font-family: var(--font-family);
+    background: #fff;
+    color: #141516;
+}
+
+.eq-shop-home .eq-shop-home__empty { padding: 80px 0; text-align: center; color: #9ca3af; width: 95%; margin: 0 auto; }
+
+/* Hero slider */
+.eq-shop-home .hero-slider { position: relative; min-height: 330px; background: var(--background-primary); overflow: hidden; }
+.eq-shop-home .hero-slider__track { display: flex; height: 330px; transition: transform .6s ease; }
+.eq-shop-home .hero-slider__slide { flex: 0 0 100%; display: block; background-size: cover; background-position: center; }
+.eq-shop-home .hero-slider__nav {
+    position: absolute; top: 50%; transform: translateY(-50%); z-index: 2; background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.25); border-radius: 50%; width: 44px; height: 44px; color: #fff; cursor: pointer;
+}
+.eq-shop-home .hero-slider__nav--prev { left: 24px; }
+.eq-shop-home .hero-slider__nav--next { right: 24px; }
+.eq-shop-home .hero-slider__dots { position: absolute; bottom: 24px; left: 0; width: 100%; display: flex; justify-content: center; gap: 10px; z-index: 2; }
+.eq-shop-home .hero-slider__dots button { width: 24px; height: 8px; border-radius: 4px; border: none; background: rgba(255,255,255,0.4); cursor: pointer; padding: 0; }
+.eq-shop-home .hero-slider__dots button.is-active { background: var(--secondary-color); }
+
+/* Brand carousel */
+.eq-shop-home .brand-carousel { padding: 36px 0; border-bottom: 1px solid rgba(0,0,0,0.06); }
+.eq-shop-home .brand-carousel__label { text-align: center; color: #4b5563; font-size: 12.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; margin-bottom: 22px; }
+.eq-shop-home .brand-carousel__track { display: flex; gap: 16px; overflow-x: auto; width: 95%; margin: 0 auto; scrollbar-width: none; }
+.eq-shop-home .brand-carousel__item {
+    flex: 0 0 max(140px, calc((100% - 5*16px)/6)); min-width: 0; height: 80px; border: 1px solid rgba(0,0,0,0.08);
+    border-radius: 8px; display: flex; align-items: center; justify-content: center; padding: 12px;
+}
+.eq-shop-home .brand-carousel__item img { max-width: 100%; max-height: 100%; object-fit: contain; }
+.eq-shop-home .brand-carousel__name { font-size: 14px; font-weight: 700; color: #374151; text-align: center; letter-spacing: .02em; }
+
+/* Category grid */
+.eq-shop-home .category-grid { padding: 48px 0; width: 95%; margin: 0 auto; }
+.eq-shop-home .category-grid__title { font-size: clamp(16px, 3vw, 20px); font-weight: 800; margin: 0 0 20px; }
+.eq-shop-home .category-grid__items { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; }
+@media (max-width: 900px) {
+    .eq-shop-home .category-grid__items { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 560px) {
+    .eq-shop-home .category-grid__items { grid-template-columns: repeat(2, 1fr); }
+}
+.eq-shop-home .category-grid__item {
+    border: 1px solid rgba(0,0,0,0.08); border-radius: 8px; padding: 18px; display: flex; flex-direction: column;
+    align-items: center; gap: 14px; text-decoration: none; color: inherit; transition: box-shadow .2s, transform .2s;
+}
+.eq-shop-home .category-grid__item:hover { box-shadow: 0 10px 24px rgba(0,0,0,0.1); transform: translateY(-3px); }
+.eq-shop-home .category-grid__img-wrap { width: 100%; height: 110px; border-radius: 6px; overflow: hidden; background: #f5f6f7; }
+.eq-shop-home .category-grid__img-wrap img { width: 100%; height: 100%; object-fit: cover; }
+.eq-shop-home .category-grid__item span { font-size: 14px; font-weight: 700; color: var(--secondary-color); text-align: center; }
+
+/* Banners */
+.eq-shop-home .home-banner { width: 95%; margin: 32px auto; border-radius: 8px; overflow: hidden; }
+.eq-shop-home .home-banner img { width: 100%; display: block; }
+.eq-shop-home .home-dual-banner { width: 95%; margin: 0 auto 32px; display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; }
+.eq-shop-home .home-dual-banner__item img { width: 100%; border-radius: 8px; display: block; }

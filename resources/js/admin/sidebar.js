@@ -18,6 +18,8 @@
     const backdrop       = document.getElementById('sidebarBackdrop');
     const overlay        = document.getElementById('adminNavOverlay');
     const navItems       = document.querySelectorAll('.sidebar-nav-item[data-section]');
+    const groupHeaders   = document.querySelectorAll('.sidebar-nav-group-header[data-group-toggle]');
+    const GROUP_STORAGE_PREFIX = 'admin_sidebar_group_';
 
     function isMobile() {
         return window.innerWidth < BREAKPOINT;
@@ -62,8 +64,45 @@
         document.body.style.overflow = '';
     }
 
+    /* ── Grupos del sidebar (Ecommerce / Servicios / Administración) ── */
+    // Colapsados por defecto; se auto-expande únicamente el grupo que
+    // contiene la sección activa, para no perder el contexto de dónde
+    // está parado el usuario. La preferencia explícita de cada usuario
+    // (una vez que hace click) se recuerda por grupo en localStorage.
+    function getGroupExpanded(groupName, defaultExpanded) {
+        const stored = localStorage.getItem(GROUP_STORAGE_PREFIX + groupName);
+        if (stored !== null) return stored === '1';
+        return defaultExpanded;
+    }
+
+    function setGroupExpanded(groupName, expanded) {
+        localStorage.setItem(GROUP_STORAGE_PREFIX + groupName, expanded ? '1' : '0');
+    }
+
+    function applyGroupState(groupEl, expanded) {
+        groupEl.classList.toggle('is-expanded', expanded);
+    }
+
+    function initGroups() {
+        groupHeaders.forEach(function (header) {
+            const groupEl = header.closest('.sidebar-nav-group');
+            if (!groupEl) return;
+
+            const groupName = header.dataset.groupToggle;
+            const defaultExpanded = groupEl.classList.contains('has-active');
+            applyGroupState(groupEl, getGroupExpanded(groupName, defaultExpanded));
+
+            header.addEventListener('click', function () {
+                const nowExpanded = !groupEl.classList.contains('is-expanded');
+                applyGroupState(groupEl, nowExpanded);
+                setGroupExpanded(groupName, nowExpanded);
+            });
+        });
+    }
+
     /* ── Init ── */
     function init() {
+        initGroups();
         if (!isMobile()) {
             applyCollapsed(getDesiredCollapsed());
         } else {

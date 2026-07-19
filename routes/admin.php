@@ -16,6 +16,10 @@ use App\Http\Controllers\Backend\DeliveryController;
 use App\Http\Controllers\Backend\RoleController;
 use App\Http\Controllers\Backend\SupplierManageController;
 use App\Http\Controllers\Backend\PurchaseOrderController;
+use App\Http\Controllers\Backend\SettingController;
+use App\Http\Controllers\Backend\HomeSectionController;
+use App\Http\Controllers\Backend\MenuController;
+use App\Http\Controllers\Backend\CollectionController;
 
 // ============================================================
 // Dashboard — sin permiso, todos los usuarios autenticados
@@ -252,5 +256,73 @@ Route::controller(DeliveryController::class)
         Route::post('/crear', 'store')->name('store');
         Route::put('/editar/{id}', 'update')->name('update');
         Route::delete('/eliminar/{id}', 'destroy')->name('destroy');
+    });
+
+// ============================================================
+// Configuración del sitio
+// ============================================================
+Route::controller(SettingController::class)
+    ->middleware('permission:settings')
+    ->group(function () {
+        Route::get('/configuracion-sitio', 'index')->name('settings.index');
+        Route::put('/configuracion-sitio', 'update')->name('settings.update');
+    });
+
+// ============================================================
+// Inicio - Secciones (page builder del home público)
+// ============================================================
+Route::controller(HomeSectionController::class)
+    ->middleware('permission:home-sections')
+    ->group(function () {
+        Route::get('/inicio-secciones', 'index')->name('home-sections.index');
+        Route::post('/inicio-secciones/crear', 'store')->name('home-sections.store');
+        Route::get('/inicio-secciones/editar/{id}', 'edit')->name('home-sections.edit');
+        Route::put('/inicio-secciones/editar/{id}', 'update')->name('home-sections.update');
+        Route::delete('/inicio-secciones/eliminar/{id}', 'destroy')->name('home-sections.destroy');
+        Route::post('/inicio-secciones/reordenar', 'reorder')->name('home-sections.reorder');
+        Route::get('/inicio-secciones/{homeSection}/slides', 'slidesPage')->name('home-sections.slides.view');
+        Route::get('/inicio-secciones/{homeSection}/slides/listado', 'slides')->name('home-sections.slides.index');
+        Route::post('/inicio-secciones/{homeSection}/slides', 'storeSlide')->name('home-sections.slides.store');
+        Route::put('/inicio-secciones/{homeSection}/slides/{slide}', 'updateSlide')->name('home-sections.slides.update');
+        Route::delete('/inicio-secciones/{homeSection}/slides/{slide}', 'destroySlide')->name('home-sections.slides.destroy');
+        Route::post('/inicio-secciones/{homeSection}/slides/reordenar', 'reorderSlides')->name('home-sections.slides.reorder');
+    });
+
+// ============================================================
+// Menús de navegación
+// ============================================================
+Route::controller(MenuController::class)
+    ->middleware('permission:menus')
+    ->group(function () {
+        Route::get('/menus', 'index')->name('menus.index');
+        Route::get('/menus/nuevo', 'create')->name('menus.create');
+        Route::post('/menus/nuevo', 'store')->name('menus.store');
+        Route::get('/menus/{menu}/editar', 'edit')->name('menus.edit');
+        Route::put('/menus/{menu}/editar', 'update')->name('menus.update');
+        Route::delete('/menus/{menu}/eliminar', 'destroy')->name('menus.destroy');
+        Route::post('/menus/{menu}/items', 'storeItem')->name('menus.items.store');
+        Route::put('/menus/{menu}/items/{item}', 'updateItem')->name('menus.items.update');
+        Route::delete('/menus/{menu}/items/{item}', 'destroyItem')->name('menus.items.destroy');
+        Route::post('/menus/{menu}/items/reordenar', 'reorderItems')->name('menus.items.reorder');
+    });
+
+// ============================================================
+// Colecciones (manuales y automáticas, estilo Shopify)
+// ============================================================
+Route::controller(CollectionController::class)
+    ->middleware('permission:collections')
+    ->prefix('colecciones')
+    ->name('collections.')
+    ->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::post('/crear', 'store')->name('store');
+        Route::get('/editar/{id}', 'edit')->name('edit');
+        Route::put('/editar/{id}', 'update')->name('update');
+        Route::delete('/eliminar/{id}', 'destroy')->name('destroy');
+        Route::get('/buscar-productos', 'searchProducts')->name('products.search');
+        Route::get('/{collection}/productos', 'show')->name('show');
+        Route::post('/{collection}/productos', 'addProduct')->name('products.add');
+        Route::delete('/{collection}/productos/{product}', 'removeProduct')->name('products.remove');
+        Route::post('/{collection}/productos/reordenar', 'reorderProducts')->name('products.reorder');
     });
        
