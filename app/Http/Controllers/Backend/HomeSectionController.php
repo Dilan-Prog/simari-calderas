@@ -8,23 +8,71 @@ use App\Models\Category;
 use App\Models\Collection;
 use App\Models\HomeSection;
 use App\Models\HomeSectionSlide;
+use App\Models\Products;
 use Illuminate\Http\Request;
 
 class HomeSectionController extends Controller
 {
     protected array $types = [
         'hero_slider', 'banner', 'dual_banner', 'product_carousel',
-        'category_grid', 'brand_carousel', 'html_block',
+        'product_carousel_banner', 'category_grid', 'brand_carousel', 'html_block', 'faq',
+    ];
+
+    // La página de producto admite todos los tipos menos el slider principal.
+    protected array $productPageTypes = [
+        'banner', 'dual_banner', 'product_carousel', 'product_carousel_banner',
+        'category_grid', 'brand_carousel', 'html_block', 'faq',
+    ];
+
+    protected array $sources = [
+        'featured', 'new', 'recommended', 'category', 'brand', 'collection', 'manual',
+    ];
+
+    // Fuentes relativas al producto que se está viendo: solo tienen sentido
+    // en la página de producto.
+    protected array $productPageSources = [
+        'featured', 'new', 'recommended', 'category', 'brand', 'collection', 'manual',
+        'related_category', 'related_brand',
     ];
 
     public function index()
     {
-        $sections = HomeSection::orderBy('sort_order')->orderBy('id')->get();
-        $categories = Category::orderBy('name')->get();
+        $page = request('pagina') === 'producto' ? 'product' : 'home';
+
+        $sections = HomeSection::where('page', $page)->orderBy('sort_order')->orderBy('id')->get();
+        $categories = Category::where('is_active', true)
+            ->whereNull('parent_id')
+            ->orderBy('sort_order')
+            ->orderBy('name')
+            ->get();
         $brands = Brand::orderBy('name')->get();
         $collections = Collection::where('is_active', true)->orderBy('name')->get();
 
-        return view('admin.home-sections.index', compact('sections', 'categories', 'brands', 'collections'));
+        return view('admin.home-sections.index', compact('sections', 'categories', 'brands', 'collections', 'page'));
+    }
+
+    /**
+     * Backs the "Selección Manual" product picker: searches by name/SKU
+     * (q=) for the live dropdown, or looks products up by id (ids=1,2,3)
+     * to render existing chips with real names when editing a section.
+     */
+    public function searchProducts(Request $request)
+    {
+        $query = Products::query();
+
+        if ($request->filled('ids')) {
+            $ids = array_filter(array_map('intval', explode(',', $request->input('ids'))));
+            $query->whereIn('id', $ids);
+        } else {
+            $term = $request->input('q', '');
+            $query->where(function ($q) use ($term) {
+                $q->where('name', 'like', "%{$term}%")->orWhere('sku', 'like', "%{$term}%");
+            });
+        }
+
+        $products = $query->limit(20)->get(['id', 'name', 'sku', 'cover_image_url', 'price']);
+
+        return response()->json($products);
     }
 
     protected function buildConfig(Request $request, string $type): ?array
@@ -45,6 +93,19 @@ class HomeSectionController extends Controller
                     'image_url' => $request->input('banner_image_url'),
                     'link_url'  => $request->input('banner_link_url'),
                     'alt'       => $request->input('banner_alt'),
+                ];
+
+            case 'product_carousel_banner':
+                return [
+                    'banner_image_url' => $request->input('pcb_banner_image_url'),
+                    'banner_link_url'  => $request->input('pcb_banner_link_url'),
+                    'banner_alt'       => $request->input('pcb_banner_alt'),
+                    'source'           => $request->input('pcb_source', 'featured'),
+                    'category_id'      => $request->input('pcb_category_id') ?: null,
+                    'brand_id'         => $request->input('pcb_brand_id') ?: null,
+                    'collection_id'    => $request->input('pcb_collection_id') ?: null,
+                    'product_ids'      => array_values(array_filter((array) $request->input('pcb_product_ids', []))),
+                    'limit'            => $request->input('pcb_limit') !== null ? (int) $request->input('pcb_limit') : null,
                 ];
 
             case 'dual_banner':
@@ -74,23 +135,57 @@ class HomeSectionController extends Controller
                     'html' => $request->input('html'),
                 ];
 
+            case 'faq':
+                $items = collect((array) $request->input('faq_items', []))
+                    ->map(fn ($item) => [
+                        'question' => trim($item['question'] ?? ''),
+                        'answer'   => trim($item['answer'] ?? ''),
+                    ])
+                    ->filter(fn ($item) => $item['question'] !== '' && $item['answer'] !== '')
+                    ->values()
+                    ->all();
+
+                return [
+                    'description' => $request->input('faq_description') ?: null,
+                    'items'       => $items,
+                ];
+
             case 'hero_slider':
             default:
                 return null;
         }
     }
 
-    public function store(Request $request)
+    /**
+     * Reglas comunes de store/update. Los tipos y fuentes permitidos
+     * dependen de la página: hero_slider solo existe en el home y las
+     * fuentes related_* solo en la página de producto.
+     */
+    protected function validateSection(Request $request): void
     {
+        $isProduct = $request->input('page') === 'product';
+
+        $allowedTypes   = $isProduct ? $this->productPageTypes : $this->types;
+        $allowedSources = $isProduct ? $this->productPageSources : $this->sources;
+
         $request->validate([
-            'type'       => 'required|string|in:' . implode(',', $this->types),
+            'page'       => 'required|string|in:home,product',
+            'type'       => 'required|string|in:' . implode(',', $allowedTypes),
+            'source'     => 'nullable|string|in:' . implode(',', $allowedSources),
+            'pcb_source' => 'nullable|string|in:' . implode(',', $allowedSources),
             'title'      => 'nullable|string|max:255',
             'sort_order' => 'nullable|integer|min:0',
             'is_active'  => 'nullable|boolean',
         ]);
+    }
+
+    public function store(Request $request)
+    {
+        $this->validateSection($request);
 
         $section = new HomeSection();
         $section->type       = $request->type;
+        $section->page       = $request->page;
         $section->title      = $request->title ?? null;
         $section->config     = $this->buildConfig($request, $request->type);
         $section->sort_order = $request->sort_order ?? 0;
@@ -113,14 +208,10 @@ class HomeSectionController extends Controller
     {
         $section = HomeSection::findOrFail($id);
 
-        $request->validate([
-            'type'       => 'required|string|in:' . implode(',', $this->types),
-            'title'      => 'nullable|string|max:255',
-            'sort_order' => 'nullable|integer|min:0',
-            'is_active'  => 'nullable|boolean',
-        ]);
+        $this->validateSection($request);
 
         $section->type       = $request->type;
+        $section->page       = $request->page;
         $section->title      = $request->title ?? null;
         $section->config     = $this->buildConfig($request, $request->type);
         $section->sort_order = $request->sort_order ?? 0;
@@ -156,6 +247,15 @@ class HomeSectionController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'El orden recibido no coincide con las secciones existentes.',
+            ], 422);
+        }
+
+        // Cada pestaña (home/product) reordena solo sus propias secciones;
+        // un payload que mezcle páginas pisaría el orden de la otra pestaña.
+        if ($sections->pluck('page')->unique()->count() > 1) {
+            return response()->json([
+                'success' => false,
+                'message' => 'El orden recibido mezcla secciones de páginas distintas.',
             ], 422);
         }
 

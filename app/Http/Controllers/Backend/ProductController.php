@@ -580,6 +580,29 @@ class ProductController extends Controller
         return response()->json(['success' => true]);
     }
 
+    /**
+     * Etiquetas ya usadas en algún producto (no hay tabla de tags — se
+     * extraen de la columna JSON `products.tags`), para el autocompletado
+     * del campo de etiquetas en crear/editar producto.
+     */
+    public function tagSuggestions(Request $request)
+    {
+        $term = trim((string) $request->input('q', ''));
+
+        $tags = Products::whereNotNull('tags')
+            ->pluck('tags')
+            ->flatten(1)
+            ->filter()
+            ->unique(fn ($tag) => mb_strtolower($tag))
+            ->values();
+
+        if ($term !== '') {
+            $tags = $tags->filter(fn ($tag) => mb_stripos($tag, $term) !== false)->values();
+        }
+
+        return response()->json($tags->take(10)->values());
+    }
+
     public function destroy(string $id)
     {
         // FIX (Documentación tab): eager-load documents too so their

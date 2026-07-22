@@ -1,7 +1,8 @@
 import Alpine from './alpine-init.js';
 
-Alpine.data('productGallery', (images) => ({
+Alpine.data('productGallery', (images, labels = []) => ({
     images,
+    labels,
     active: 0,
     isZooming: false,
     lensStyle: '',

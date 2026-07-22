@@ -82,14 +82,17 @@
 
                 if (response.ok) {
                     closeSlideModalWithAnim();
+                    queueCenterToast(isSlideEditMode ? 'Slide actualizado correctamente.' : 'Slide creado correctamente.');
                     setTimeout(() => window.location.reload(), 200);
                 } else if (response.status === 422) {
                     const errorList = Object.values(data.errors).flat();
                     slideErrorsContainer.innerHTML = errorList.map(m => `<p>${m}</p>`).join('');
                     slideErrorsContainer.style.display = 'block';
+                    showCenterToast('Revisa los campos marcados.', 'error');
                 }
             } catch (err) {
                 console.error('Error:', err);
+                showCenterToast('Error de conexión al guardar el slide.', 'error');
             }
         });
 
@@ -150,13 +153,15 @@
 
                 if (response.ok) {
                     deleteSlideModal.classList.remove('active');
+                    queueCenterToast('Slide eliminado correctamente.');
                     setTimeout(() => window.location.reload(), 200);
                 } else {
-                    alert(data.message ?? 'No se pudo eliminar el slide.');
+                    showCenterToast(data.message ?? 'No se pudo eliminar el slide.', 'error');
                     deleteSlideModal.classList.remove('active');
                 }
             } catch (err) {
                 console.error('Error deleting slide:', err);
+                showCenterToast('Error de conexión al eliminar el slide.', 'error');
             }
         });
 
@@ -182,10 +187,13 @@
                     });
                     const data = await response.json();
                     if (!response.ok || !data.success) {
-                        alert(data.message ?? 'No se pudo guardar el nuevo orden.');
+                        showCenterToast(data.message ?? 'No se pudo guardar el nuevo orden.', 'error');
+                    } else {
+                        showCenterToast('Orden de slides actualizado.');
                     }
                 } catch (err) {
                     console.error('Error saving order:', err);
+                    showCenterToast('Error de conexión al guardar el orden.', 'error');
                 }
             }
 

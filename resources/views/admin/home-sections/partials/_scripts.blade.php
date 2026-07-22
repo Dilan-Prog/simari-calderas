@@ -26,6 +26,188 @@
             }, 200);
         };
 
+        /* ── "Selección Manual": buscador de productos por nombre/SKU + chips ──
+           Keeps a hidden input's value as a comma-joined id list, so the
+           existing submit handler (which reads that input verbatim) needs
+           no changes at all. */
+        const homeSectionProductSearchUrl = '{{ route('admin.home-sections.products.search') }}';
+
+        function escHtml(s) {
+            return String(s ?? '').replace(/&/g, '&amp;').replace(/"/g, '&quot;')
+                .replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
+
+        function initManualProductPicker(opts) {
+            const wrap = document.getElementById(opts.wrapId);
+            const searchInput = document.getElementById(opts.inputId);
+            const dropdown = document.getElementById(opts.dropdownId);
+            const list = document.getElementById(opts.listId);
+            const emptyMsg = document.getElementById(opts.emptyId);
+            const chipsContainer = document.getElementById(opts.chipsId);
+            const hiddenInput = document.getElementById(opts.hiddenId);
+
+            let selected = [];
+            let debounceTimer = null;
+
+            function syncHidden() {
+                hiddenInput.value = selected.map(p => p.id).join(',');
+            }
+
+            function renderChips() {
+                chipsContainer.innerHTML = '';
+                selected.forEach(p => {
+                    const chip = document.createElement('span');
+                    chip.className = 'hs-product-chip';
+                    chip.innerHTML = `<span>${escHtml(p.name)}</span><small>${escHtml(p.sku)}</small><button type="button" aria-label="Quitar">&times;</button>`;
+                    chip.querySelector('button').addEventListener('click', () => {
+                        selected = selected.filter(sp => sp.id !== p.id);
+                        renderChips();
+                        syncHidden();
+                    });
+                    chipsContainer.appendChild(chip);
+                });
+            }
+
+            function hideDropdown() {
+                dropdown.style.display = 'none';
+                list.innerHTML = '';
+            }
+
+            function renderResults(products) {
+                list.innerHTML = '';
+                const filtered = products.filter(p => !selected.some(sp => sp.id === p.id));
+                if (!filtered.length) {
+                    emptyMsg.style.display = 'block';
+                    list.style.display = 'none';
+                    return;
+                }
+                emptyMsg.style.display = 'none';
+                list.style.display = 'block';
+                filtered.forEach(p => {
+                    const li = document.createElement('li');
+                    li.className = 'hs-product-search__item';
+                    li.innerHTML = `<span>${escHtml(p.name)}</span><small>SKU: ${escHtml(p.sku)}</small>`;
+                    li.addEventListener('click', () => {
+                        selected.push({ id: p.id, name: p.name, sku: p.sku });
+                        renderChips();
+                        syncHidden();
+                        searchInput.value = '';
+                        hideDropdown();
+                    });
+                    list.appendChild(li);
+                });
+            }
+
+            async function fetchProducts(params) {
+                try {
+                    const url = new URL(homeSectionProductSearchUrl, window.location.origin);
+                    Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
+                    const res = await fetch(url.toString(), { headers: { Accept: 'application/json' } });
+                    if (!res.ok) return [];
+                    return await res.json();
+                } catch (err) {
+                    return [];
+                }
+            }
+
+            searchInput.addEventListener('input', function () {
+                const q = this.value.trim();
+                clearTimeout(debounceTimer);
+                if (q.length < 2) { hideDropdown(); return; }
+                debounceTimer = setTimeout(async () => {
+                    const products = await fetchProducts({ q });
+                    dropdown.style.display = 'block';
+                    renderResults(products);
+                }, 300);
+            });
+
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('#' + opts.wrapId)) hideDropdown();
+            });
+
+            return {
+                reset() {
+                    selected = [];
+                    renderChips();
+                    syncHidden();
+                    searchInput.value = '';
+                    hideDropdown();
+                },
+                async setSelectedIds(ids) {
+                    selected = [];
+                    renderChips();
+                    syncHidden();
+                    if (!ids || !ids.length) return;
+                    const products = await fetchProducts({ ids: ids.join(',') });
+                    selected = products.map(p => ({ id: p.id, name: p.name, sku: p.sku }));
+                    renderChips();
+                    syncHidden();
+                },
+            };
+        }
+
+        const hsMainProductPicker = initManualProductPicker({
+            wrapId: 'hsProductSearch', inputId: 'hsProductSearchInput', dropdownId: 'hsProductSearchDropdown',
+            listId: 'hsProductSearchList', emptyId: 'hsProductSearchEmpty', chipsId: 'hsProductChips', hiddenId: 'hsProductIds',
+        });
+        const hsPcbProductPicker = initManualProductPicker({
+            wrapId: 'hsPcbProductSearch', inputId: 'hsPcbProductSearchInput', dropdownId: 'hsPcbProductSearchDropdown',
+            listId: 'hsPcbProductSearchList', emptyId: 'hsPcbProductSearchEmpty', chipsId: 'hsPcbProductChips', hiddenId: 'hsPcbProductIds',
+        });
+
+        /* ── FAQ: repeater de pares pregunta/respuesta ──
+           Los inputs usan names faq_items[N][question|answer], así que viajan
+           solos en el FormData del submit sin tocar ese handler. El orden del
+           DOM define el orden guardado. */
+        const hsFaqItems = document.getElementById('hsFaqItems');
+
+        function reindexFaqRows() {
+            Array.from(hsFaqItems.querySelectorAll('.hs-faq-row')).forEach((row, i) => {
+                row.querySelector('.hs-faq-question').name = `faq_items[${i}][question]`;
+                row.querySelector('.hs-faq-answer').name = `faq_items[${i}][answer]`;
+                row.querySelector('.hs-faq-row-num').textContent = i + 1;
+            });
+        }
+
+        function addFaqRow(question = '', answer = '') {
+            const row = document.createElement('div');
+            row.className = 'hs-faq-row';
+            row.innerHTML = `
+                <div class="hs-faq-row-head">
+                    <span class="hs-faq-row-num"></span>
+                    <div class="hs-faq-row-actions">
+                        <button type="button" class="hs-faq-btn hs-faq-up" title="Subir">↑</button>
+                        <button type="button" class="hs-faq-btn hs-faq-down" title="Bajar">↓</button>
+                        <button type="button" class="hs-faq-btn hs-faq-remove" title="Eliminar">&times;</button>
+                    </div>
+                </div>
+                <input type="text" class="users-manager-input hs-faq-question" placeholder="Pregunta">
+                <textarea class="users-manager-input client-modal-textarea hs-faq-answer" rows="2" placeholder="Respuesta"></textarea>`;
+
+            row.querySelector('.hs-faq-question').value = question;
+            row.querySelector('.hs-faq-answer').value = answer;
+
+            row.querySelector('.hs-faq-up').addEventListener('click', () => {
+                const prev = row.previousElementSibling;
+                if (prev) hsFaqItems.insertBefore(row, prev);
+                reindexFaqRows();
+            });
+            row.querySelector('.hs-faq-down').addEventListener('click', () => {
+                const next = row.nextElementSibling;
+                if (next) hsFaqItems.insertBefore(next, row);
+                reindexFaqRows();
+            });
+            row.querySelector('.hs-faq-remove').addEventListener('click', () => {
+                row.remove();
+                reindexFaqRows();
+            });
+
+            hsFaqItems.appendChild(row);
+            reindexFaqRows();
+        }
+
+        document.getElementById('hsFaqAddBtn').addEventListener('click', () => addFaqRow());
+
         // Toggle config-fields blocks based on selected type
         function syncConfigFields() {
             const type = document.getElementById('hsType').value;
@@ -42,8 +224,17 @@
             });
         }
 
+        // Toggle product_carousel_banner source-specific fields
+        function syncPcbSourceFields() {
+            const source = document.getElementById('hsPcbSource').value;
+            document.querySelectorAll('.hs-pcb-source-field').forEach(block => {
+                block.style.display = block.dataset.source === source ? 'block' : 'none';
+            });
+        }
+
         document.getElementById('hsType').addEventListener('change', syncConfigFields);
         document.getElementById('hsSource').addEventListener('change', syncSourceFields);
+        document.getElementById('hsPcbSource').addEventListener('change', syncPcbSourceFields);
 
         const resetHomeSectionForm = () => {
             homeSectionForm.reset();
@@ -59,10 +250,13 @@
             document.getElementById('homeSectionSubmitBtn').textContent = 'Crear Sección';
             document.getElementById('hsSortOrder').value = '0';
             document.getElementById('hsIsActive').value = '1';
-            document.getElementById('hsProductIds').value = '';
+            hsMainProductPicker.reset();
+            hsPcbProductPicker.reset();
+            hsFaqItems.innerHTML = '';
 
             syncConfigFields();
             syncSourceFields();
+            syncPcbSourceFields();
         };
 
         document.getElementById('btnNewHomeSection').addEventListener('click', () => {
@@ -103,6 +297,13 @@
                 });
             }
 
+            const pcbProductIdsRaw = document.getElementById('hsPcbProductIds').value;
+            if (pcbProductIdsRaw.trim()) {
+                pcbProductIdsRaw.split(',').map(v => v.trim()).filter(Boolean).forEach(id => {
+                    formData.append('pcb_product_ids[]', id);
+                });
+            }
+
             const url = isEditMode ?
                 `${homeSectionUrl}/editar/${currentHomeSectionId}` :
                 `${homeSectionUrl}/crear`;
@@ -123,14 +324,17 @@
 
                 if (response.ok) {
                     closeHomeSectionWithAnim();
+                    queueCenterToast(isEditMode ? 'Sección actualizada correctamente.' : 'Sección creada correctamente.');
                     setTimeout(() => window.location.reload(), 200);
                 } else if (response.status === 422) {
                     const errorList = Object.values(data.errors).flat();
                     errorsContainer.innerHTML = errorList.map(m => `<p>${m}</p>`).join('');
                     errorsContainer.style.display = 'block';
+                    showCenterToast('Revisa los campos marcados.', 'error');
                 }
             } catch (err) {
                 console.error('Error:', err);
+                showCenterToast('Error de conexión al guardar la sección.', 'error');
             }
         });
 
@@ -156,8 +360,19 @@
                 document.getElementById('hsBrandId').value = config.brand_id ?? '';
                 document.getElementById('hsCollectionId').value = config.collection_id ?? '';
                 document.getElementById('hsLimit').value = config.limit ?? 10;
-                document.getElementById('hsProductIds').value = (config.product_ids ?? []).join(', ');
+                hsMainProductPicker.setSelectedIds(config.product_ids ?? []);
                 syncSourceFields();
+            } else if (type === 'product_carousel_banner') {
+                document.getElementById('hsPcbBannerImageUrl').value = config.banner_image_url ?? '';
+                document.getElementById('hsPcbBannerLinkUrl').value = config.banner_link_url ?? '';
+                document.getElementById('hsPcbBannerAlt').value = config.banner_alt ?? '';
+                document.getElementById('hsPcbSource').value = config.source ?? 'featured';
+                document.getElementById('hsPcbCategoryId').value = config.category_id ?? '';
+                document.getElementById('hsPcbBrandId').value = config.brand_id ?? '';
+                document.getElementById('hsPcbCollectionId').value = config.collection_id ?? '';
+                document.getElementById('hsPcbLimit').value = config.limit ?? 10;
+                hsPcbProductPicker.setSelectedIds(config.product_ids ?? []);
+                syncPcbSourceFields();
             } else if (type === 'category_grid') {
                 const ids = (config.category_ids ?? []).map(String);
                 Array.from(document.getElementById('hsCategoryIds').options).forEach(opt => {
@@ -165,6 +380,10 @@
                 });
             } else if (type === 'html_block') {
                 document.getElementById('hsHtml').value = config.html ?? '';
+            } else if (type === 'faq') {
+                document.getElementById('hsFaqDescription').value = config.description ?? '';
+                hsFaqItems.innerHTML = '';
+                (config.items ?? []).forEach(item => addFaqRow(item.question ?? '', item.answer ?? ''));
             }
         }
 
@@ -183,6 +402,12 @@
                     .then(res => res.json())
                     .then(section => {
                         resetHomeSectionForm();
+                        // resetHomeSectionForm() clears currentHomeSectionId/isEditMode
+                        // for the general "blank slate" case — reassert them here so
+                        // the submit handler PUTs to editar/{id} instead of POSTing
+                        // to crear and cloning the section.
+                        currentHomeSectionId = id;
+                        isEditMode = true;
 
                         document.getElementById('homeSectionModalTitle').textContent = 'Editar Sección';
                         document.getElementById('homeSectionSubmitBtn').textContent = 'Guardar Cambios';
@@ -235,13 +460,15 @@
 
                 if (response.ok) {
                     deleteHomeSectionModal.classList.remove('active');
+                    queueCenterToast('Sección eliminada correctamente.');
                     setTimeout(() => window.location.reload(), 200);
                 } else {
-                    alert(data.message ?? 'No se pudo eliminar la sección.');
+                    showCenterToast(data.message ?? 'No se pudo eliminar la sección.', 'error');
                     deleteHomeSectionModal.classList.remove('active');
                 }
             } catch (err) {
                 console.error('Error deleting home section:', err);
+                showCenterToast('Error de conexión al eliminar la sección.', 'error');
             }
         });
 
@@ -277,10 +504,13 @@
                     });
                     const data = await response.json();
                     if (!response.ok || !data.success) {
-                        alert(data.message ?? 'No se pudo guardar el nuevo orden.');
+                        showCenterToast(data.message ?? 'No se pudo guardar el nuevo orden.', 'error');
+                    } else {
+                        showCenterToast('Orden actualizado.');
                     }
                 } catch (err) {
                     console.error('Error saving order:', err);
+                    showCenterToast('Error de conexión al guardar el orden.', 'error');
                 }
             }
 

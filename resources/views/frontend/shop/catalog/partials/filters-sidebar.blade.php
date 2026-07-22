@@ -8,7 +8,7 @@
             <div class="catalog-filters__title">Categorías</div>
             @foreach ($categoryOptions as $cat)
                 <label class="catalog-filters__option">
-                    <input type="checkbox" name="categoria[]" value="{{ $cat->id }}" @checked(in_array($cat->id, (array) request('categoria', [])))>
+                    <input type="checkbox" name="categoria[]" value="{{ $cat->id }}" @checked(in_array($cat->id, (array) request('categoria', [])) || ($category && $cat->id === $category->id))>
                     <span>{{ $cat->name }}</span>
                     <span class="catalog-filters__count">{{ $cat->products_count }}</span>
                 </label>

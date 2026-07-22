@@ -29,6 +29,12 @@
 
         $products = $query->orderByDesc('created_at')->take($limit)->get();
     }
+
+    $banner = [
+        'image_url' => $config['banner_image_url'] ?? null,
+        'link_url'  => $config['banner_link_url'] ?? null,
+        'alt'       => $config['banner_alt'] ?? null,
+    ];
 @endphp
 
-<x-frontend.shop.product-carousel :title="$section->resolveText($section->title, $product ?? null)" :products="$products" />
+<x-frontend.shop.product-carousel :title="$section->resolveText($section->title, $product ?? null)" :products="$products" :banner="$banner" />

@@ -71,6 +71,7 @@
     </div>
 
 </section>
+@include('admin.components.center-toast')
 </div>
 @endsection
 
@@ -210,11 +211,13 @@
             if (res.ok && data.success) {
                 removeEmptyState();
                 grid.appendChild(buildProductCard(data.product));
+                showCenterToast('Producto agregado a la colección.');
             } else {
-                alert(data.message ?? 'No se pudo agregar el producto.');
+                showCenterToast(data.message ?? 'No se pudo agregar el producto.', 'error');
             }
         } catch (err) {
             console.error(err);
+            showCenterToast('Error de conexión al agregar el producto.', 'error');
         }
 
         input.value = '';
@@ -243,11 +246,13 @@
                     p.textContent = 'Esta colección todavía no tiene productos. Usa el buscador de arriba para agregar.';
                     grid.appendChild(p);
                 }
+                showCenterToast('Producto quitado de la colección.');
             } else {
-                alert(data.message ?? 'No se pudo quitar el producto.');
+                showCenterToast(data.message ?? 'No se pudo quitar el producto.', 'error');
             }
         } catch (err) {
             console.error(err);
+            showCenterToast('Error de conexión al quitar el producto.', 'error');
         }
     }
 
@@ -256,7 +261,7 @@
             .map(card => parseInt(card.dataset.productId, 10));
 
         try {
-            await fetch(reorderUrl, {
+            const res = await fetch(reorderUrl, {
                 method: 'POST',
                 headers: {
                     'X-CSRF-TOKEN': csrfToken,
@@ -265,8 +270,15 @@
                 },
                 body: JSON.stringify({ order }),
             });
+            const data = await res.json();
+            if (!res.ok || !data.success) {
+                showCenterToast(data.message ?? 'No se pudo guardar el nuevo orden.', 'error');
+            } else {
+                showCenterToast('Orden actualizado.');
+            }
         } catch (err) {
             console.error(err);
+            showCenterToast('Error de conexión al guardar el orden.', 'error');
         }
     }
 

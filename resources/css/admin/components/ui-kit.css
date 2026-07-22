@@ -138,6 +138,7 @@
     border-radius: 12px;
     font-size: 16px;
     padding: 12px 32px;
+    box-sizing: border-box;
 }
 
 .button-secondary.size-adjustment {
@@ -146,6 +147,8 @@
     height: 52px;
     border-radius: 12px;
     font-size: 16px;
+    padding: 12px 32px;
+    box-sizing: border-box;
 }
 
 .button-secondary.size-adjustment:hover {
@@ -660,6 +663,78 @@
 
 .toast-close:hover {
     color: #374151;
+}
+
+/* Center toast — usado por Secciones del Inicio y Colecciones (ver
+   admin.components.center-toast). A diferencia de .toast-notification,
+   NO se despliega en la esquina: aparece centrado en la pantalla. */
+.center-toast-root {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    z-index: 5000;
+}
+
+.center-toast {
+    pointer-events: auto;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 16px 20px;
+    border-radius: 12px;
+    border: 1px solid;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.18);
+    background: #ffffff;
+    min-width: 280px;
+    max-width: 420px;
+    animation: centerToastIn 0.25s ease;
+}
+
+.center-toast.is-leaving {
+    animation: centerToastOut 0.2s ease forwards;
+}
+
+@keyframes centerToastIn {
+    from { opacity: 0; transform: scale(0.92); }
+    to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes centerToastOut {
+    from { opacity: 1; transform: scale(1); }
+    to   { opacity: 0; transform: scale(0.92); }
+}
+
+.center-toast--success {
+    border-color: #bbf7d0;
+}
+
+.center-toast--error {
+    border-color: #fecaca;
+}
+
+.center-toast__icon {
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+
+.center-toast__body {
+    min-width: 0;
+}
+
+.center-toast__title {
+    font-weight: 600;
+    font-size: 0.875rem;
+    margin: 0 0 2px;
+    color: var(--text-body, #374151);
+}
+
+.center-toast__message {
+    font-size: 0.8rem;
+    margin: 0;
+    color: var(--text-body, #374151);
 }
 
 /* Delete confirmation modal — reused by Categorías, Marcas, Productos,
@@ -1190,4 +1265,42 @@
         width: 44px;
         height: 44px;
     }
+}
+
+/* ── Shared "Seleccionar Imagen" trigger, used next to any plain
+   URL de Imagen field (Home Sections, Colecciones, Categorías, slides). ── */
+.img-picker-field {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.img-picker-field .users-manager-input,
+.img-picker-field .pform-input {
+    flex: 1;
+}
+
+.img-picker-trigger-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+    padding: 0 14px;
+    height: 40px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    background: #fff;
+    color: #374151;
+    font-size: 13px;
+    font-weight: 500;
+    font-family: var(--font-family);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+
+.img-picker-trigger-btn:hover {
+    border-color: var(--secondary-color, #ff6213);
+    background: #fff7f5;
+    color: var(--secondary-color, #ff6213);
 }

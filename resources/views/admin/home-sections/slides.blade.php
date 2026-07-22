@@ -19,7 +19,7 @@
             <h1 style="margin:0 0 4px;">Slides del Slider</h1>
             <p class="breadcrumb-clients-manager main">Arrastra las tarjetas para reordenar los slides del hero</p>
         </div>
-        <div style="display:flex;gap:10px;">
+        <div class="hs-slides-header-actions" style="display:flex;gap:10px;">
             <a href="{{ route('admin.home-sections.index') }}" class="button-secondary size-adjustment">
                 &larr; Volver
             </a>
@@ -70,5 +70,6 @@
 @include('admin.home-sections.partials._slide_modal')
 @include('admin.home-sections.partials._delete_slide_modal')
 @include('admin.home-sections.partials._slides_scripts')
+@include('admin.components.center-toast')
 </div>
 @endsection

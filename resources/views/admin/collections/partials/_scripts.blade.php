@@ -157,14 +157,17 @@
 
                 if (response.ok) {
                     closeCollectionWithAnim();
+                    queueCenterToast(isEditMode ? 'Colección actualizada correctamente.' : 'Colección creada correctamente.');
                     setTimeout(() => window.location.reload(), 200);
                 } else if (response.status === 422) {
                     const errorList = Object.values(data.errors).flat();
                     errorsContainer.innerHTML = errorList.map(m => `<p>${m}</p>`).join('');
                     errorsContainer.style.display = 'block';
+                    showCenterToast('Revisa los campos marcados.', 'error');
                 }
             } catch (err) {
                 console.error('Error:', err);
+                showCenterToast('Error de conexión al guardar la colección.', 'error');
             }
         });
 
@@ -258,13 +261,15 @@
 
                 if (response.ok) {
                     deleteCollectionModal.classList.remove('active');
+                    queueCenterToast('Colección eliminada correctamente.');
                     setTimeout(() => window.location.reload(), 200);
                 } else {
-                    alert(data.message ?? 'No se pudo eliminar la colección.');
+                    showCenterToast(data.message ?? 'No se pudo eliminar la colección.', 'error');
                     deleteCollectionModal.classList.remove('active');
                 }
             } catch (err) {
                 console.error('Error deleting collection:', err);
+                showCenterToast('Error de conexión al eliminar la colección.', 'error');
             }
         });
     </script>

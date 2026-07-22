@@ -37,11 +37,13 @@ class Collection extends Model
         if ($this->type === 'manual') {
             $query = $this->manualProducts()
                 ->where('is_active', true)
-                ->where('publish_on_website', true);
+                ->where('publish_on_website', true)
+                ->with(['images' => fn ($q) => $q->orderBy('sort_order')]);
         } else {
             $query = Products::query()
                 ->where('is_active', true)
-                ->where('publish_on_website', true);
+                ->where('publish_on_website', true)
+                ->with(['images' => fn ($q) => $q->orderBy('sort_order')]);
 
             $rules = $this->rules;
 

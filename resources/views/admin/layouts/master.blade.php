@@ -16,6 +16,7 @@
     {{-- @vite(['resources/css/app.css', 'resources/js/app.js']) --}}
     @vite(['resources/css/admin/app.css'])
     @vite(['resources/js/admin/sidebar.js'])
+    @vite(['resources/js/admin/image-picker.js'])
     @stack('styles')
     <style>
     .val-error-input,.val-error-select{border-color:#e3342f!important;box-shadow:0 0 0 2px rgba(227,52,47,.18)!important;}
@@ -30,6 +31,7 @@
 
     @include('admin.layouts.sidebar')
     @include('admin.layouts.toast')
+    @include('admin.components._image_picker_modal')
     <section class="admin-main">
         @include('admin.layouts.navbar')
         @yield('content')

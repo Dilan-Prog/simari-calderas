@@ -172,36 +172,14 @@
             Mostrando <strong>{{ $collections->firstItem() ?? 0 }}–{{ $collections->lastItem() ?? 0 }}</strong>
             de <strong>{{ $collections->total() }}</strong> colecciones
         </p>
-        <div style="display:flex;gap:4px;align-items:center;">
-            <a href="{{ $collections->url(1) }}"
-                class="table-users-manager-action-btn edit {{ $collections->onFirstPage() ? 'disabled' : '' }}"
-                style="font-size:12px;padding:6px 10px;">«</a>
-            <a href="{{ $collections->previousPageUrl() ?? '#' }}"
-                class="table-users-manager-action-btn edit {{ $collections->onFirstPage() ? 'disabled' : '' }}"
-                style="font-size:12px;padding:6px 10px;">‹</a>
-            @foreach ($collections->getUrlRange(
-                max(1, $collections->currentPage() - 2),
-                min($collections->lastPage(), $collections->currentPage() + 2)
-            ) as $page => $url)
-                <a href="{{ $url }}"
-                    class="{{ $page == $collections->currentPage() ? 'button-primary' : 'table-users-manager-action-btn edit' }}"
-                    style="font-size:12px;padding:6px 10px;min-width:32px;text-align:center;">
-                    {{ $page }}
-                </a>
-            @endforeach
-            <a href="{{ $collections->nextPageUrl() ?? '#' }}"
-                class="table-users-manager-action-btn edit {{ !$collections->hasMorePages() ? 'disabled' : '' }}"
-                style="font-size:12px;padding:6px 10px;">›</a>
-            <a href="{{ $collections->url($collections->lastPage()) }}"
-                class="table-users-manager-action-btn edit {{ !$collections->hasMorePages() ? 'disabled' : '' }}"
-                style="font-size:12px;padding:6px 10px;">»</a>
-        </div>
     </div>
+    {{ $collections->links('admin.components.pagination') }}
 
 </section>
 
 @include('admin.collections.partials._create_edit_modal')
 @include('admin.collections.partials._delete_modal')
 @include('admin.collections.partials._scripts')
+@include('admin.components.center-toast')
 </div>
 @endsection

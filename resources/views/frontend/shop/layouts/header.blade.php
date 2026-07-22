@@ -1,4 +1,4 @@
-<header class="eq-header" x-data="megaMenu()" @mouseleave="close()">
+<header class="eq-header" x-data="megaMenu()">
   <div class="eq-header__topbar">
     <span>Envío gratis a partir de $1,000 MXN toda la República Mexicana</span>
   </div>
@@ -9,12 +9,63 @@
         <img src="{{ asset('images/logo/equiterm-logo-blanco-color-3x.png') }}" alt="Equiterm Industries" width="140" height="40">
       </a>
 
-      <form action="{{ route('catalog.index') }}" method="GET" class="eq-header__search">
-        <input type="text" name="q" placeholder="Buscar calderas, calentadores, refacciones..." value="{{ request('q') }}">
-        <button type="submit" aria-label="Buscar">
-          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3" stroke-linecap="round"/></svg>
-        </button>
-      </form>
+      <div class="eq-search" x-data="searchOverlay()" @keydown.escape.window="close()">
+        <form class="eq-header__search" @submit.prevent="submit()">
+          <input type="text" x-model="query" @input="onInput()" @focus="onFocus()" placeholder="Buscar calderas, calentadores, refacciones..." autocomplete="off">
+          <button type="submit" aria-label="Buscar">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3" stroke-linecap="round"/></svg>
+          </button>
+        </form>
+
+        <template x-teleport="body">
+          <div class="eq-search-overlay" x-show="open" x-cloak @click.self="close()">
+            <div class="eq-search-overlay__panel">
+              <button type="button" class="eq-search-overlay__close" @click="close()" aria-label="Cerrar búsqueda">&times;</button>
+
+              <div class="eq-search-overlay__sidebar">
+                <div class="eq-search-overlay__block">
+                  <div class="eq-search-overlay__label">Ordenar</div>
+                  <select class="eq-search-overlay__select" x-model="orden" @change="fetchResults()">
+                    <option value="relevancia">Relevancia</option>
+                    <option value="descuento">Mayor descuento</option>
+                    <option value="precio_asc">Precio: menor a mayor</option>
+                    <option value="precio_desc">Precio: mayor a menor</option>
+                  </select>
+                </div>
+
+                <div class="eq-search-overlay__block" x-show="categories.length">
+                  <div class="eq-search-overlay__label">Categorías</div>
+                  <template x-for="cat in categories" :key="cat.id">
+                    <button type="button" class="eq-search-overlay__facet" :class="{ 'is-active': selectedCategory === cat.id }" @click="toggleCategory(cat.id)">
+                      <span x-text="cat.name"></span>
+                      <span class="eq-search-overlay__facet-count" x-text="cat.count"></span>
+                    </button>
+                  </template>
+                </div>
+
+                <div class="eq-search-overlay__block" x-show="brands.length">
+                  <div class="eq-search-overlay__label">Marcas</div>
+                  <template x-for="brand in brands" :key="brand.id">
+                    <button type="button" class="eq-search-overlay__facet" :class="{ 'is-active': selectedBrand === brand.id }" @click="toggleBrand(brand.id)">
+                      <span x-text="brand.name"></span>
+                      <span class="eq-search-overlay__facet-count" x-text="brand.count"></span>
+                    </button>
+                  </template>
+                </div>
+              </div>
+
+              <div class="eq-search-overlay__main">
+                <div class="eq-search-overlay__main-header">
+                  <h2>Productos <span x-show="total > 0" x-text="'(' + total + ')'"></span></h2>
+                  <a :href="viewAllUrl" class="eq-search-overlay__view-all">Ver todos los resultados</a>
+                </div>
+                <div class="eq-search-overlay__grid" x-html="productsHtml"></div>
+                <div class="eq-search-overlay__loading" x-show="loading" x-cloak>Buscando...</div>
+              </div>
+            </div>
+          </div>
+        </template>
+      </div>
 
       <div class="eq-header__actions">
         <a href="#" class="eq-header__action">
@@ -36,13 +87,13 @@
 
   <div class="eq-header__nav-row">
     <nav class="eq-header__nav">
-      <div class="eq-header__nav-item" @mouseenter="open('categorias')">
+      <div class="eq-header__nav-item" @click="open('categorias')" @mouseleave="close()">
         <span>Categorías
           <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </span>
       </div>
 
-      <div class="eq-header__nav-item" @mouseenter="open('servicios')">
+      <div class="eq-header__nav-item" @click="open('servicios')" @mouseleave="close()">
         <span>Servicios
           <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </span>
@@ -53,42 +104,44 @@
       @endforeach
 
       {{-- MEGA MENU: CATEGORÍAS --}}
-      <div class="eq-mega" x-show="activeMenu === 'categorias'" x-cloak @mouseenter="cancelClose()">
+      <div class="eq-mega" x-show="activeMenu === 'categorias'" x-cloak @mouseenter="cancelClose()" @mouseleave="close()">
         <div class="eq-mega__col eq-mega__col--categories">
           @foreach ($megaMenuCategories as $category)
-            <div class="eq-mega__item" :class="{ 'is-active': activeCategoryId === {{ $category->id }} }" @mouseenter="setCategory({{ $category->id }})">
+            <a href="{{ route('catalog.category', $category->slug) }}" class="eq-mega__item" :class="{ 'is-active': activeCategoryId === {{ $category->id }} }" @mouseenter="setCategory({{ $category->id }})">
               {{ $category->name }}
-            </div>
+            </a>
           @endforeach
         </div>
 
         <div class="eq-mega__col eq-mega__col--brands">
-          <div class="eq-mega__col-label">Marcas</div>
-          @foreach ($megaMenuCategoryBrands as $categoryId => $brands)
-            <template x-if="activeCategoryId === {{ $categoryId }}">
+          @foreach ($megaMenuCategories as $category)
+            <template x-if="activeCategoryId === {{ $category->id }}">
               <div>
-                @foreach ($brands as $entry)
-                  <div class="eq-mega__item" :class="{ 'is-active': activeBrandId === {{ $entry['brand']->id }} }" @mouseenter="setBrand({{ $entry['brand']->id }})">
-                    <span>{{ $entry['brand']->name }}</span>
-                    <span class="eq-mega__count">{{ $entry['count'] }}</span>
-                  </div>
-                @endforeach
+                @forelse ($category->children as $sub)
+                  <a href="{{ route('catalog.category', $sub->slug) }}" class="eq-mega__item" :class="{ 'is-active': activeSubCategoryId === {{ $sub->id }} }" @mouseenter="setSubCategory({{ $sub->id }})">
+                    <span>{{ $sub->name }}</span>
+                  </a>
+                @empty
+                  <p class="eq-mega__empty">Sin subcategorías</p>
+                @endforelse
               </div>
             </template>
           @endforeach
         </div>
 
         <div class="eq-mega__col eq-mega__col--models">
-          <div class="eq-mega__col-label">Modelos</div>
-          @foreach ($megaMenuBrandProducts as $key => $products)
-            @php [$catId, $brandId] = explode('-', $key); @endphp
-            <template x-if="activeCategoryId === {{ (int) $catId }} && activeBrandId === {{ (int) $brandId }}">
-              <div>
-                @foreach ($products as $product)
-                  <a href="{{ route('product.show', $product->slug) }}" class="eq-mega__model">{{ $product->name }}</a>
-                @endforeach
-              </div>
-            </template>
+          @foreach ($megaMenuCategories as $category)
+            @foreach ($category->children as $sub)
+              <template x-if="activeCategoryId === {{ $category->id }} && activeSubCategoryId === {{ $sub->id }}">
+                <div>
+                  @forelse ($sub->children as $child)
+                    <a href="{{ route('catalog.category', $child->slug) }}" class="eq-mega__model">{{ $child->name }}</a>
+                  @empty
+                    <p class="eq-mega__empty">Sin categorías hijas</p>
+                  @endforelse
+                </div>
+              </template>
+            @endforeach
           @endforeach
         </div>
 
@@ -110,7 +163,7 @@
       </div>
 
       {{-- MEGA MENU: SERVICIOS --}}
-      <div class="eq-mega eq-mega--servicios" x-show="activeMenu === 'servicios'" x-cloak @mouseenter="cancelClose()">
+      <div class="eq-mega eq-mega--servicios" x-show="activeMenu === 'servicios'" x-cloak @mouseenter="cancelClose()" @mouseleave="close()">
         @forelse ($headerServiciosItems as $item)
           <div class="eq-mega__col">
             <h4>{{ $item->title }}</h4>

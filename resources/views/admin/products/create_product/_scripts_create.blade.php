@@ -253,10 +253,7 @@
                 document.getElementById('pformTagsHidden').value = JSON.stringify(values);
             }
 
-            function addTag() {
-                const input = document.getElementById('pformTagInput');
-                const val = input.value.trim();
-                if (!val) return;
+            function addTagChip(val) {
                 const chip = document.createElement('span');
                 chip.className = 'pform-tag-chip';
                 chip.textContent = val;
@@ -266,16 +263,118 @@
                     syncTagsHidden();
                 });
                 document.getElementById('pformTagList').appendChild(chip);
+            }
+
+            function addTag() {
+                const input = document.getElementById('pformTagInput');
+                const val = input.value.trim();
+                if (!val) return;
+                addTagChip(val);
                 input.value = '';
                 input.focus();
                 syncTagsHidden();
+                closeTagSuggestions();
             }
 
             document.getElementById('pformTagAdd').addEventListener('click', addTag);
-            document.getElementById('pformTagInput').addEventListener('keydown', function(e) {
-                if (e.key === 'Enter') {
+
+            /* ── Tag autocomplete: sugiere etiquetas ya usadas en otros
+               productos (no existe tabla de tags, se buscan en vivo). Si
+               no hay ninguna sugerencia y se presiona Enter, se crea la
+               etiqueta tal cual se escribió (comportamiento ya existente
+               de addTag()). ── */
+            const tagInput = document.getElementById('pformTagInput');
+            const tagSuggestionsList = document.getElementById('pformTagSuggestions');
+            let tagSuggestionsTimer = null;
+            let tagSuggestionActiveIndex = -1;
+
+            function closeTagSuggestions() {
+                tagSuggestionsList.classList.remove('is-open');
+                tagSuggestionsList.innerHTML = '';
+                tagSuggestionActiveIndex = -1;
+            }
+
+            function currentTagValuesLower() {
+                return Array.from(document.querySelectorAll('#pformTagList .pform-tag-chip'))
+                    .map(chip => chip.textContent.toLowerCase());
+            }
+
+            function renderTagSuggestions(tags) {
+                const existing = currentTagValuesLower();
+                const filtered = tags.filter(t => !existing.includes(t.toLowerCase()));
+                if (!filtered.length) {
+                    closeTagSuggestions();
+                    return;
+                }
+
+                tagSuggestionsList.innerHTML = filtered
+                    .map(t => `<li class="pform-tag-suggestion-item">${t}</li>`)
+                    .join('');
+                tagSuggestionsList.classList.add('is-open');
+                tagSuggestionActiveIndex = -1;
+
+                tagSuggestionsList.querySelectorAll('.pform-tag-suggestion-item').forEach(item => {
+                    item.addEventListener('mousedown', function(e) {
+                        e.preventDefault();
+                        addTagChip(this.textContent);
+                        tagInput.value = '';
+                        tagInput.focus();
+                        syncTagsHidden();
+                        closeTagSuggestions();
+                    });
+                });
+            }
+
+            async function fetchTagSuggestions(term) {
+                try {
+                    const res = await fetch(`{{ route('admin.products.tags.suggestions') }}?q=${encodeURIComponent(term)}`, {
+                        headers: { 'Accept': 'application/json' },
+                    });
+                    if (!res.ok) return;
+                    renderTagSuggestions(await res.json());
+                } catch (err) {
+                    console.error('Error fetching tag suggestions:', err);
+                }
+            }
+
+            tagInput.addEventListener('input', function() {
+                clearTimeout(tagSuggestionsTimer);
+                const term = this.value.trim();
+                tagSuggestionsTimer = setTimeout(() => fetchTagSuggestions(term), 250);
+            });
+
+            tagInput.addEventListener('focus', function() {
+                fetchTagSuggestions(this.value.trim());
+            });
+
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.pform-tag-input-wrap')) closeTagSuggestions();
+            });
+
+            tagInput.addEventListener('keydown', function(e) {
+                const items = tagSuggestionsList.querySelectorAll('.pform-tag-suggestion-item');
+
+                if (e.key === 'ArrowDown' && items.length) {
                     e.preventDefault();
-                    addTag();
+                    tagSuggestionActiveIndex = Math.min(tagSuggestionActiveIndex + 1, items.length - 1);
+                    items.forEach((it, i) => it.classList.toggle('is-active', i === tagSuggestionActiveIndex));
+                } else if (e.key === 'ArrowUp' && items.length) {
+                    e.preventDefault();
+                    tagSuggestionActiveIndex = Math.max(tagSuggestionActiveIndex - 1, 0);
+                    items.forEach((it, i) => it.classList.toggle('is-active', i === tagSuggestionActiveIndex));
+                } else if (e.key === 'Escape') {
+                    closeTagSuggestions();
+                } else if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (tagSuggestionActiveIndex >= 0 && items[tagSuggestionActiveIndex]) {
+                        addTagChip(items[tagSuggestionActiveIndex].textContent);
+                        tagInput.value = '';
+                        tagInput.focus();
+                        syncTagsHidden();
+                        closeTagSuggestions();
+                    } else {
+                        addTag();
+                    }
                 }
             });
 
@@ -418,6 +517,7 @@
         const categoryMain = document.getElementById('pformCategoryMain');
         const categorySub = document.getElementById('pformCategorySub');
         const categoryChild = document.getElementById('pformCategoryChild');
+        const categoryIdHidden = document.getElementById('pformCategoryIdHidden');
         const breadcrumb = document.getElementById('pformBreadcrumbText');
 
         @php
@@ -441,57 +541,62 @@
 
         const subcategories = @json($subcategoriesForJs);
 
-        categoryMain.addEventListener('change', function() {
-            const id = this.value;
-            const name = this.options[this.selectedIndex].text;
-            const subs = subcategories[id] ?? [];
+        function updateCategoryIdHidden() {
+            categoryIdHidden.value = categoryChild.value || categorySub.value || categoryMain.value || '';
+        }
 
-            breadcrumb.textContent = id ? `Catálogo > ${name}` : 'Catálogo';
-
+        function populateSubOptions(mainId) {
+            const subs = subcategories[mainId] ?? [];
             categorySub.innerHTML = '<option value="">Seleccionar...</option>';
-            categoryChild.innerHTML = '<option value="">Seleccionar subcategoría primero...</option>';
-            categoryChild.disabled = true;
+            subs.forEach(sub => {
+                const opt = document.createElement('option');
+                opt.value = sub.id;
+                opt.textContent = sub.name;
+                categorySub.appendChild(opt);
+            });
+            categorySub.disabled = subs.length === 0;
+        }
 
-            if (subs.length > 0) {
-                subs.forEach(sub => {
-                    const opt = document.createElement('option');
-                    opt.value = sub.id;
-                    opt.textContent = sub.name;
-                    categorySub.appendChild(opt);
-                });
-                categorySub.disabled = false;
-            } else {
-                categorySub.disabled = true;
-            }
-        });
-
-        categorySub.addEventListener('change', function() {
-            const subId = this.value;
-            const subName = this.options[this.selectedIndex].text;
-            const mainName = categoryMain.options[categoryMain.selectedIndex].text;
-
-            // Find children of selected sub
-            const mainId = categoryMain.value;
+        function populateChildOptions(mainId, subId) {
             const mainSubs = subcategories[mainId] ?? [];
             const subObj = mainSubs.find(s => String(s.id) === String(subId));
             const children = subObj?.children ?? [];
-
-            breadcrumb.textContent = subId ?
-                `Catálogo > ${mainName} > ${subName}` :
-                `Catálogo > ${mainName}`;
-
             categoryChild.innerHTML = '<option value="">Seleccionar...</option>';
-            if (children.length > 0) {
-                children.forEach(child => {
-                    const opt = document.createElement('option');
-                    opt.value = child.id;
-                    opt.textContent = child.name;
-                    categoryChild.appendChild(opt);
-                });
-                categoryChild.disabled = false;
-            } else {
-                categoryChild.disabled = true;
-            }
+            children.forEach(child => {
+                const opt = document.createElement('option');
+                opt.value = child.id;
+                opt.textContent = child.name;
+                categoryChild.appendChild(opt);
+            });
+            categoryChild.disabled = children.length === 0;
+        }
+
+        function updateBreadcrumb() {
+            const parts = ['Catálogo'];
+            if (categoryMain.value) parts.push(categoryMain.options[categoryMain.selectedIndex].text);
+            if (categorySub.value) parts.push(categorySub.options[categorySub.selectedIndex].text);
+            if (categoryChild.value) parts.push(categoryChild.options[categoryChild.selectedIndex].text);
+            breadcrumb.textContent = parts.join(' > ');
+        }
+
+        categoryMain.addEventListener('change', function() {
+            categorySub.innerHTML = '<option value="">Seleccionar categoría primero...</option>';
+            categoryChild.innerHTML = '<option value="">Seleccionar subcategoría primero...</option>';
+            categoryChild.disabled = true;
+            populateSubOptions(this.value);
+            updateBreadcrumb();
+            updateCategoryIdHidden();
+        });
+
+        categorySub.addEventListener('change', function() {
+            populateChildOptions(categoryMain.value, this.value);
+            updateBreadcrumb();
+            updateCategoryIdHidden();
+        });
+
+        categoryChild.addEventListener('change', function() {
+            updateBreadcrumb();
+            updateCategoryIdHidden();
         });
 
         /* ── Badge sync ── */

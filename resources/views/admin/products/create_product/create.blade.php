@@ -516,7 +516,7 @@
                                     <div class="pform-field">
                                         <label class="pform-label">Categoría Principal <span
                                                 class="pform-required">*</span></label>
-                                        <select class="pform-select" name="category_id" id="pformCategoryMain" required>
+                                        <select class="pform-select" id="pformCategoryMain" required>
                                             <option value="">Seleccionar...</option>
                                             @foreach ($categories as $category)
                                                 <option value="{{ $category->id }}">{{ $category->name }}</option>
@@ -527,9 +527,7 @@
                                     {{-- Subcategoría — hijos de la categoría seleccionada --}}
                                     <div class="pform-field">
                                         <label class="pform-label">Subcategoría</label>
-                                        <select class="pform-select" id="pformCategorySub"
-                                        {{-- name="subcategory_id" --}}
-                                            disabled>
+                                        <select class="pform-select" id="pformCategorySub" disabled>
                                             <option value="">Seleccionar categoría primero...</option>
                                         </select>
                                     </div>
@@ -537,13 +535,13 @@
                                     {{-- Child category from db --}}
                                     <div class="pform-field">
                                         <label class="pform-label">Categoría Hija</label>
-                                        <select class="pform-select" id="pformCategoryChild"
-                                        {{-- name="child_category_id" --}}
-                                            disabled>
+                                        <select class="pform-select" id="pformCategoryChild" disabled>
                                             <option value="">Seleccionar subcategoría primero...</option>
                                         </select>
                                     </div>
                                 </div>
+
+                                <input type="hidden" name="category_id" id="pformCategoryIdHidden" value="">
 
                                 <div class="pform-breadcrumb" id="pformBreadcrumb">
                                     <span style="color:#6b7280">Ruta de navegación:</span>
@@ -567,8 +565,11 @@
                                 <div class="pform-field" style="margin-bottom:0">
                                     <label class="pform-label">Agregar Etiquetas</label>
                                     <div class="pform-tag-row">
-                                        <input type="text" id="pformTagInput" class="pform-input"
-                                            placeholder="Ejemplo: eficiente, industrial, premium...">
+                                        <div class="pform-tag-input-wrap">
+                                            <input type="text" id="pformTagInput" class="pform-input"
+                                                placeholder="Ejemplo: eficiente, industrial, premium..." autocomplete="off">
+                                            <ul class="pform-tag-suggestions" id="pformTagSuggestions"></ul>
+                                        </div>
                                         <button type="button" id="pformTagAdd"
                                             class="pform-btn primary">Agregar</button>
                                     </div>
@@ -1069,8 +1070,14 @@
 
                         <div class="pform-field" style="margin-bottom:0">
                             <label class="pform-label">Imagen para Redes Sociales</label>
-                            <input type="url" class="pform-input" name="og_image" form="productCreateForm"
-                                placeholder="URL de la imagen (1200x630px recomendado)">
+                            <div class="img-picker-field">
+                                <input type="url" class="pform-input" name="og_image" id="pformOgImage" form="productCreateForm"
+                                    placeholder="URL de la imagen (1200x630px recomendado)">
+                                <button type="button" class="img-picker-trigger-btn" onclick="openImagePicker('pformOgImage')">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+                                    Seleccionar
+                                </button>
+                            </div>
                             <p class="pform-hint">Recomendado: 1200x630px &bull; Máximo: 5MB &bull; Formato: JPG o PNG
                             </p>
                         </div>

@@ -48,6 +48,7 @@ Route::controller(CatalogController::class)->group(function () {
     Route::get('/', 'home')->name('home');
     Route::get('/catalogo', 'index')->name('catalog.index');
     Route::get('/catalogo/{categorySlug}', 'category')->name('catalog.category');
+    Route::get('/buscar-en-vivo', 'liveSearch')->name('catalog.live-search');
 });
 Route::get('/producto/{slug}', [ShopProductController::class, 'show'])->name('product.show');
 

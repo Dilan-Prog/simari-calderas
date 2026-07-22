@@ -9,6 +9,7 @@ export default defineConfig({
                 'resources/js/app.js',
                 'resources/css/admin/app.css',
                 'resources/js/admin/sidebar.js',
+                'resources/js/admin/image-picker.js',
                 'resources/js/admin/google-ads.js',
                 'resources/css/admin-quotes.css',
                 'resources/js/admin-quotes.js',

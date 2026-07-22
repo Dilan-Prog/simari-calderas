@@ -20,6 +20,7 @@ use App\Http\Controllers\Backend\SettingController;
 use App\Http\Controllers\Backend\HomeSectionController;
 use App\Http\Controllers\Backend\MenuController;
 use App\Http\Controllers\Backend\CollectionController;
+use App\Http\Controllers\Backend\MediaController;
 
 // ============================================================
 // Dashboard — sin permiso, todos los usuarios autenticados
@@ -99,6 +100,18 @@ Route::controller(ProductController::class)
         Route::delete('/productos/eliminar/{id}', 'destroy')->name('products.destroy');
         Route::post('/productos/{id}/imagenes/reordenar', 'reorderImages')->name('products.images.reorder');
         Route::get('/productos/imagenes/biblioteca', 'mediaLibrary')->name('products.images.library');
+        Route::get('/productos/etiquetas/buscar', 'tagSuggestions')->name('products.tags.suggestions');
+    });
+
+// ============================================================
+// Media — selector de imágenes compartido (biblioteca / subir / URL)
+// ============================================================
+Route::controller(MediaController::class)
+    ->prefix('media')
+    ->name('media.')
+    ->group(function () {
+        Route::get('/biblioteca', 'library')->name('library');
+        Route::post('/subir', 'upload')->name('upload');
     });
 
 // ============================================================
@@ -275,6 +288,7 @@ Route::controller(HomeSectionController::class)
     ->middleware('permission:home-sections')
     ->group(function () {
         Route::get('/inicio-secciones', 'index')->name('home-sections.index');
+        Route::get('/inicio-secciones/productos/buscar', 'searchProducts')->name('home-sections.products.search');
         Route::post('/inicio-secciones/crear', 'store')->name('home-sections.store');
         Route::get('/inicio-secciones/editar/{id}', 'edit')->name('home-sections.edit');
         Route::put('/inicio-secciones/editar/{id}', 'update')->name('home-sections.update');

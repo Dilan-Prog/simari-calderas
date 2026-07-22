@@ -9,14 +9,19 @@
 
 @section('content')
 <div class="eq-shop-product">
+    @php
+        $categoryChain = [];
+        $chainCat = $product->category;
+        while ($chainCat) {
+            array_unshift($categoryChain, $chainCat);
+            $chainCat = $chainCat->parent;
+        }
+    @endphp
     <div class="product-breadcrumb">
         <a href="{{ route('home') }}">Inicio</a>
-        @if ($product->category?->parent)
-            &nbsp;›&nbsp; <a href="{{ route('catalog.category', $product->category->parent->slug) }}">{{ $product->category->parent->name }}</a>
-        @endif
-        @if ($product->category)
-            &nbsp;›&nbsp; <a href="{{ route('catalog.category', $product->category->slug) }}">{{ $product->category->name }}</a>
-        @endif
+        @foreach ($categoryChain as $chainCat)
+            &nbsp;›&nbsp; <a href="{{ route('catalog.category', $chainCat->slug) }}">{{ $chainCat->name }}</a>
+        @endforeach
         &nbsp;›&nbsp; <span>{{ $product->name }}</span>
     </div>
 
@@ -37,14 +42,9 @@
         </div>
     </section>
 
-    <x-frontend.shop.product-carousel title="También te puede interesar" :products="$related" />
-
-    <section class="product-qna-reviews">
-        @include('frontend.shop.product.partials.qna-section')
-        @include('frontend.shop.product.partials.reviews-section')
-    </section>
-
-    <x-frontend.shop.product-carousel title="Clientes que compraron esto también compraron" :products="$related" />
-    <x-frontend.shop.product-carousel title="Más vendidos en {{ $product->category->name ?? 'esta categoría' }}" :products="$related" />
+    {{-- Secciones administrables desde Admin > Secciones del Sitio > Página de Producto --}}
+    @foreach ($sections as $section)
+        @include('frontend.shop.home.sections.' . str_replace('_', '-', $section->type), ['section' => $section])
+    @endforeach
 </div>
 @endsection

@@ -2,6 +2,141 @@
    SECCIONES DEL INICIO — CMS de personalización del Home público.
    ============================================================ */
 
+/* ── Selección Manual: buscador de productos + chips ── */
+.hs-product-search {
+    position: relative;
+}
+
+.hs-product-search__input-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    background: #f9fafb;
+    color: #9ca3af;
+}
+
+.hs-product-search__input-wrap:focus-within {
+    border-color: var(--secondary-color, #ff6213);
+    background: #fff;
+}
+
+.hs-product-search__input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    padding: 10px 0;
+    font-size: 13px;
+    font-family: var(--font-family);
+    color: #374151;
+    outline: none;
+}
+
+.hs-product-search__dropdown {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    z-index: 20;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    box-shadow: 0 10px 24px rgba(0,0,0,0.12);
+    max-height: 220px;
+    overflow-y: auto;
+}
+
+.hs-product-search__empty {
+    padding: 14px;
+    font-size: 13px;
+    color: #9ca3af;
+    text-align: center;
+}
+
+.hs-product-search__list {
+    list-style: none;
+    margin: 0;
+    padding: 4px;
+}
+
+.hs-product-search__item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 8px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+}
+
+.hs-product-search__item:hover {
+    background: #fff7f5;
+}
+
+.hs-product-search__item span {
+    color: #111827;
+    font-weight: 500;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.hs-product-search__item small {
+    flex-shrink: 0;
+    color: #9ca3af;
+    font-size: 11px;
+}
+
+.hs-product-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 8px;
+}
+
+.hs-product-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 6px 5px 10px;
+    border-radius: 999px;
+    background: #fff3ec;
+    border: 1px solid #ff621340;
+    font-size: 12px;
+    color: #374151;
+    max-width: 100%;
+}
+
+.hs-product-chip span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 220px;
+}
+
+.hs-product-chip small {
+    color: #9ca3af;
+    flex-shrink: 0;
+}
+
+.hs-product-chip button {
+    flex-shrink: 0;
+    border: none;
+    background: none;
+    color: #9ca3af;
+    cursor: pointer;
+    font-size: 14px;
+    line-height: 1;
+    padding: 0;
+}
+
+.hs-product-chip button:hover {
+    color: var(--secondary-color, #ff6213);
+}
+
 /* ── Tabla de secciones: drag to reorder ── */
 .hs-row {
     cursor: default;
@@ -80,8 +215,34 @@
     margin: 12px 0 6px;
 }
 
-.hs-source-field {
+.hs-source-field,
+.hs-pcb-source-field {
     display: none;
+}
+
+/* ── "Volver" / "+ Nuevo Slide" header actions (slides.blade.php) ──
+   .button-primary.size-adjustment shrinks at 768px (ui-kit.css) for pages
+   whose header stacks to a column at that width; this header stays a row,
+   so without a matching rule "Volver" stayed full-size next to a shrunken
+   "+ Nuevo Slide". Stack both and keep their sizing in sync instead. */
+@media (max-width: 768px) {
+    .hs-slides-header-actions {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .hs-slides-header-actions .button-secondary.size-adjustment {
+        height: auto;
+        font-size: 14px;
+        padding: 10px 20px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .hs-slides-header-actions .button-primary.size-adjustment {
+        width: 100%;
+        box-sizing: border-box;
+    }
 }
 
 /* ── Grid de slides (slides.blade.php) ── */
@@ -161,4 +322,92 @@
     text-align: center;
     color: #9ca3af;
     padding: 48px 16px;
+}
+
+/* ── Pestañas de página (Inicio / Página de Producto) ── */
+.hs-page-tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #e5e7eb;
+}
+
+.hs-page-tab {
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #6b7280;
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    transition: color 0.15s, border-color 0.15s;
+}
+
+.hs-page-tab:hover {
+    color: #111827;
+}
+
+.hs-page-tab.is-active {
+    color: #ff6213;
+    border-bottom-color: #ff6213;
+}
+
+/* ── Repeater de preguntas FAQ ── */
+.hs-faq-items {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 10px;
+}
+
+.hs-faq-row {
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    background: #fafafa;
+}
+
+.hs-faq-row-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.hs-faq-row-num {
+    font-size: 12px;
+    font-weight: 700;
+    color: #6b7280;
+}
+
+.hs-faq-row-actions {
+    display: flex;
+    gap: 4px;
+}
+
+.hs-faq-btn {
+    width: 26px;
+    height: 26px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    background: #fff;
+    color: #374151;
+    cursor: pointer;
+    font-size: 13px;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.hs-faq-btn:hover {
+    background: #f3f4f6;
+}
+
+.hs-faq-btn.hs-faq-remove:hover {
+    background: #fee2e2;
+    border-color: #fca5a5;
+    color: #b91c1c;
 }

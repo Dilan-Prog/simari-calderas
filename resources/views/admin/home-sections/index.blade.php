@@ -3,25 +3,41 @@
     @vite('resources/css/admin/pages/home-sections.css')
 @endpush
 @section('title')
-    Secciones del Inicio - Admin
+    Secciones del Sitio - Admin
 @endsection
 @section('content')
 <div class="container user-manager">
 <section class="clients-manager-section">
 
+    @php
+        $isProductPage = ($page ?? 'home') === 'product';
+    @endphp
+
     {{-- Header --}}
     <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px;">
         <div>
             <p class="breadcrumb-clients-manager" style="margin-bottom:4px;">
-                Panel de Control &gt; <strong>Secciones del Inicio</strong>
+                Panel de Control &gt; <strong>Secciones del Sitio</strong>
             </p>
-            <h1 style="margin:0 0 4px;">Gestión de Secciones del Inicio</h1>
-            <p class="breadcrumb-clients-manager main">Personaliza los carruseles, banners y el slider del sitio público</p>
+            <h1 style="margin:0 0 4px;">{{ $isProductPage ? 'Secciones de la Página de Producto' : 'Gestión de Secciones del Inicio' }}</h1>
+            <p class="breadcrumb-clients-manager main">
+                {{ $isProductPage
+                    ? 'Personaliza las secciones que aparecen debajo de la información del producto'
+                    : 'Personaliza los carruseles, banners y el slider del sitio público' }}
+            </p>
         </div>
         <button type="button" class="button-primary size-adjustment" id="btnNewHomeSection"
             style="background:#ff6213;border-color:#ff6213;white-space:nowrap;">
             + Nueva Sección
         </button>
+    </div>
+
+    {{-- Tabs de página --}}
+    <div class="hs-page-tabs">
+        <a href="{{ route('admin.home-sections.index', ['pagina' => 'inicio']) }}"
+            class="hs-page-tab {{ $isProductPage ? '' : 'is-active' }}">Inicio</a>
+        <a href="{{ route('admin.home-sections.index', ['pagina' => 'producto']) }}"
+            class="hs-page-tab {{ $isProductPage ? 'is-active' : '' }}">Página de Producto</a>
     </div>
 
     {{-- Table --}}
@@ -47,9 +63,11 @@
                         'banner'           => 'Banner',
                         'dual_banner'      => 'Banner Doble',
                         'product_carousel' => 'Carrusel de Productos',
+                        'product_carousel_banner' => 'Carrusel con Banner',
                         'category_grid'    => 'Grid de Categorías',
                         'brand_carousel'   => 'Carrusel de Marcas',
                         'html_block'       => 'Bloque HTML',
+                        'faq'              => 'Preguntas Frecuentes',
                     ];
                 @endphp
                 @forelse ($sections as $section)
@@ -87,7 +105,9 @@
                 @empty
                     <tr>
                         <td colspan="6" style="padding:32px 16px;text-align:center;color:#9ca3af;">
-                            No hay secciones configuradas todavía.
+                            {{ $isProductPage
+                                ? 'No hay secciones configuradas para la página de producto todavía.'
+                                : 'No hay secciones configuradas todavía.' }}
                         </td>
                     </tr>
                 @endforelse
@@ -101,5 +121,6 @@
 @include('admin.home-sections.partials._create_edit_modal')
 @include('admin.home-sections.partials._delete_modal')
 @include('admin.home-sections.partials._scripts')
+@include('admin.components.center-toast')
 </div>
 @endsection
