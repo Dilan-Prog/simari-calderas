@@ -258,7 +258,7 @@ Route::controller(GoogleAdsController::class)
         Route::get('/{id}', 'show')->name('show');
     });
 // ============================================================
-// Paqueterías 
+// Paqueterías
 // ============================================================
 Route::controller(DeliveryController::class)
     -> middleware('permission:carriers')
@@ -339,4 +339,5 @@ Route::controller(CollectionController::class)
         Route::delete('/{collection}/productos/{product}', 'removeProduct')->name('products.remove');
         Route::post('/{collection}/productos/reordenar', 'reorderProducts')->name('products.reorder');
     });
-       
+
+    // sig module
