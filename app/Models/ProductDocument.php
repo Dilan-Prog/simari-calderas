@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\UploadPath;
 use Illuminate\Database\Eloquent\Model;
 
 class ProductDocument extends Model
@@ -23,7 +24,7 @@ class ProductDocument extends Model
 
     public function getUrlAttribute(): string
     {
-        return asset($this->path);
+        return UploadPath::url($this->path);
     }
 
     public static function typeLabel(string $type): string

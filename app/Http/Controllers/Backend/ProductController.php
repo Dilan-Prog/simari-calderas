@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Backend;
 
 use App\Http\Controllers\Controller;
+use App\Support\UploadPath;
 use App\Traits\ImageUploadTrait;
 use Illuminate\Http\Request;
 use App\Models\Products;
@@ -94,7 +95,7 @@ class ProductController extends Controller
             $existing->delete();
         }
 
-        $dir = public_path('product-documents');
+        $dir = UploadPath::full('product-documents');
         if (!is_dir($dir)) {
             mkdir($dir, 0755, true);
         }

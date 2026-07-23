@@ -5,6 +5,7 @@ use App\Http\Controllers\Frontend\HomeController;
 use App\Http\Controllers\Frontend\Shop\CatalogController;
 use App\Http\Controllers\Frontend\Shop\ProductController as ShopProductController;
 use App\Http\Controllers\Frontend\SitemapController;
+use App\Http\Controllers\MediaServeController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -19,6 +20,12 @@ use Illuminate\Support\Facades\Route;
 |
 */
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
+
+// Serves uploaded product/service-report/document files from UploadPath::base(),
+// which may live outside public_html in production (see App\Support\UploadPath).
+Route::get('/media/{path}', [MediaServeController::class, 'show'])
+    ->where('path', '.*')
+    ->name('media.show');
 Route::get('/crear-admin', function () {
     \App\Models\User::create([
         'first_name'            => 'Dev Dilan Yovani',
@@ -104,3 +111,4 @@ Route::middleware('auth')->group(function () {
 });
 
 require __DIR__.'/auth.php';
+require __DIR__.'/shop-auth.php';

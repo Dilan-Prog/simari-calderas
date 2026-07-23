@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\UploadPath;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -16,6 +17,6 @@ class ServiceReportImage extends Model
 
     public function getUrlAttribute(): string
     {
-        return asset($this->path);
+        return UploadPath::url($this->path);
     }
 }

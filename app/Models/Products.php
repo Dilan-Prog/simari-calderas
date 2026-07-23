@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\UploadPath;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -85,7 +86,7 @@ class Products extends Model
     {
         if (!$value) return null;
         if (str_starts_with($value, 'http')) return $value;
-        return asset($value);
+        return UploadPath::url($value);
     }
 
     public function images()

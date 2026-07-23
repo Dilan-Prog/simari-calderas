@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\UploadPath;
 use Illuminate\Database\Eloquent\Model;
 
 class HomeSectionSlide extends Model
@@ -26,6 +27,6 @@ class HomeSectionSlide extends Model
             return $value;
         }
 
-        return asset($value);
+        return UploadPath::url($value);
     }
 }

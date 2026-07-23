@@ -2,6 +2,7 @@
 
 namespace App\Traits;
 
+use App\Support\UploadPath;
 use Illuminate\Support\Facades\Http;
 use Intervention\Image\Facades\Image;
 
@@ -10,7 +11,7 @@ trait ImageUploadTrait
     public function uploadImages(array $files, string $folder = 'products', int $width = 1200, int $quality = 85): array
     {
         $paths = [];
-        $dir   = public_path($folder);
+        $dir   = UploadPath::full($folder);
 
         if (!is_dir($dir)) {
             mkdir($dir, 0755, true);
@@ -27,7 +28,7 @@ trait ImageUploadTrait
                         $constraint->aspectRatio();
                         $constraint->upsize();
                     })
-                    ->save(public_path($path), $quality);
+                    ->save(UploadPath::full($path), $quality);
 
                 $paths[] = $path;
             } catch (\Throwable $e) {
@@ -76,7 +77,7 @@ trait ImageUploadTrait
                 return null;
             }
 
-            $dir = public_path($folder);
+            $dir = UploadPath::full($folder);
             if (!is_dir($dir)) {
                 mkdir($dir, 0755, true);
             }
@@ -89,7 +90,7 @@ trait ImageUploadTrait
                     $constraint->aspectRatio();
                     $constraint->upsize();
                 })
-                ->save(public_path($path), $quality);
+                ->save(UploadPath::full($path), $quality);
 
             return $path;
         } catch (\Throwable $e) {
@@ -99,7 +100,7 @@ trait ImageUploadTrait
 
     public function deleteImage(string $path): void
     {
-        $fullPath = public_path($path);
+        $fullPath = UploadPath::full($path);
 
         if (file_exists($fullPath)) {
             unlink($fullPath);

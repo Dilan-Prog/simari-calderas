@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\UploadPath;
 use Illuminate\Database\Eloquent\Model;
 
 class ProductImage extends Model
@@ -23,6 +24,6 @@ class ProductImage extends Model
             return $this->image_url;
         }
 
-        return asset($this->image_url);
+        return UploadPath::url($this->image_url);
     }
 }
