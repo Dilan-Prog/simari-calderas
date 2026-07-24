@@ -78,7 +78,14 @@ return [
          * direct class use like:
          * $dompdf = new DOMPDF();  $dompdf->load_html($htmldata); $dompdf->render(); $pdfdata = $dompdf->output();
          */
-        'chroot' => realpath(base_path()),
+        // Includes UploadPath::base() alongside base_path() so dompdf can read
+        // uploaded images (product/service-report/document files) even when
+        // that folder lives outside the app root in production — see
+        // App\Support\UploadPath and resources/views/admin/service-reports/pdf.blade.php.
+        'chroot' => array_filter([
+            realpath(base_path()),
+            realpath(\App\Support\UploadPath::base()),
+        ]),
 
         /**
          * Protocol whitelist

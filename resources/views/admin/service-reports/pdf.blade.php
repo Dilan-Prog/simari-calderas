@@ -518,7 +518,7 @@ thead { display: table-header-group; }
             <tr>
                 @foreach($row as $img)
                 <td style="width:50%; padding:6px; vertical-align:top;">
-                    <img src="{{ public_path($img->path) }}"
+                    <img src="{{ \App\Support\UploadPath::full($img->path) }}"
                          style="width:100%; max-height:280px; object-fit:cover; border-radius:4px; border:1px solid #e5e5e5; display:block;"
                          alt="Evidencia">
                 </td>
