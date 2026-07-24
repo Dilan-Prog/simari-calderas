@@ -24,8 +24,16 @@ class UploadPath
         return static::base() . '/' . ltrim($relativePath, '/');
     }
 
-    public static function url(string $relativePath): string
+    public static function url(?string $relativePath): ?string
     {
+        if (!$relativePath) {
+            return null;
+        }
+
+        if (str_starts_with($relativePath, 'http')) {
+            return $relativePath;
+        }
+
         return url('media/' . ltrim($relativePath, '/'));
     }
 }

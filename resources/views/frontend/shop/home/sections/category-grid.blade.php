@@ -18,7 +18,7 @@
         @foreach ($categories as $category)
             <a href="{{ route('catalog.category', $category->slug) }}" class="category-grid__item">
                 <div class="category-grid__img-wrap">
-                    <img src="{{ $category->image_url ? asset($category->image_url) : asset('images/logo/equiterm-logo-blanco-color-3x.png') }}" alt="{{ $category->name }}" loading="lazy">
+                    <img src="{{ $category->image_url ?: asset('images/logo/equiterm-logo-blanco-color-3x.png') }}" alt="{{ $category->name }}" loading="lazy">
                 </div>
                 <span>{{ $category->name }}</span>
             </a>

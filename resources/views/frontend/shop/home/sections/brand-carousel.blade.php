@@ -9,7 +9,7 @@
         @foreach ($brands as $brand)
             <div class="brand-carousel__item">
                 @if ($brand->logo_url)
-                    <img src="{{ asset($brand->logo_url) }}" alt="{{ $brand->name }}" loading="lazy">
+                    <img src="{{ $brand->logo_url }}" alt="{{ $brand->name }}" loading="lazy">
                 @else
                     <span class="brand-carousel__name">{{ $brand->name }}</span>
                 @endif
