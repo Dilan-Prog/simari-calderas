@@ -15,7 +15,7 @@ class HomeSectionController extends Controller
 {
     protected array $types = [
         'hero_slider', 'banner', 'dual_banner', 'product_carousel',
-        'product_carousel_banner', 'category_grid', 'brand_carousel', 'html_block', 'faq',
+        'product_carousel_banner', 'category_grid', 'brand_carousel', 'html_block',
     ];
 
     // La página de producto admite todos los tipos menos el slider principal.
@@ -136,18 +136,10 @@ class HomeSectionController extends Controller
                 ];
 
             case 'faq':
-                $items = collect((array) $request->input('faq_items', []))
-                    ->map(fn ($item) => [
-                        'question' => trim($item['question'] ?? ''),
-                        'answer'   => trim($item['answer'] ?? ''),
-                    ])
-                    ->filter(fn ($item) => $item['question'] !== '' && $item['answer'] !== '')
-                    ->values()
-                    ->all();
-
+                // Las preguntas viven en cada producto (products.faqs); la
+                // sección solo aporta título y texto descriptivo.
                 return [
                     'description' => $request->input('faq_description') ?: null,
-                    'items'       => $items,
                 ];
 
             case 'hero_slider':

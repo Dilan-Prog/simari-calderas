@@ -7,6 +7,34 @@
 @section('title', $product->seo_title ?: ($product->name . ' — Equiterm Industries'))
 @section('description', $product->seo_description ?: $product->short_description)
 
+@php
+    // JSON-LD FAQPage: solo si el producto tiene FAQs Y la sección faq está
+    // activa en el CMS (coherencia con lo que realmente se ve en la página).
+    $schemaFaqs = collect($product->faqs ?? [])
+        ->filter(fn ($item) => !empty($item['question']) && !empty($item['answer']))
+        ->values();
+    $faqSectionActive = $sections->contains(fn ($s) => $s->type === 'faq');
+@endphp
+
+@if ($faqSectionActive && $schemaFaqs->isNotEmpty())
+    @section('schema')
+        <script type="application/ld+json">
+            {!! json_encode([
+                '@context' => 'https://schema.org',
+                '@type' => 'FAQPage',
+                'mainEntity' => $schemaFaqs->map(fn ($item) => [
+                    '@type' => 'Question',
+                    'name' => $item['question'],
+                    'acceptedAnswer' => [
+                        '@type' => 'Answer',
+                        'text' => $item['answer'],
+                    ],
+                ])->all(),
+            ], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_PRETTY_PRINT) !!}
+        </script>
+    @endsection
+@endif
+
 @section('content')
 <div class="eq-shop-product">
     @php

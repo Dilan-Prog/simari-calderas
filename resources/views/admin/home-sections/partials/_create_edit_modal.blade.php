@@ -26,7 +26,9 @@
                             <option value="category_grid">Grid de Categorías</option>
                             <option value="brand_carousel">Carrusel de Marcas</option>
                             <option value="html_block">Bloque HTML</option>
-                            <option value="faq">Preguntas Frecuentes</option>
+                            @if (($page ?? 'home') === 'product')
+                                <option value="faq">Preguntas Frecuentes</option>
+                            @endif
                         </select>
                     </div>
                     <div>
@@ -329,16 +331,14 @@
                     <div class="users-manager-email-camp">
                         <label class="supliers-manager-slider-label">Texto descriptivo (opcional, aparece bajo el título)</label>
                         <textarea class="users-manager-input client-modal-textarea" name="faq_description" id="hsFaqDescription" rows="2"
-                            placeholder="Ej: Resolvemos las dudas más comunes sobre nuestros productos y servicios."></textarea>
+                            placeholder="Ej: Resolvemos las dudas más comunes sobre este producto."></textarea>
                     </div>
                     <p class="hs-config-note">
-                        Puedes usar <code>{categoria}</code> y <code>{marca}</code> en las preguntas y respuestas;
-                        se sustituyen por la categoría/marca del producto (en el Inicio se omiten).
+                        Las preguntas y respuestas se capturan <strong>en cada producto</strong>
+                        (Productos → editar → botón SEO → Preguntas Frecuentes). Esta sección solo
+                        define el título y el texto descriptivo; se oculta en productos sin preguntas.
+                        Puedes usar <code>{categoria}</code> y <code>{marca}</code> en el título/descripción.
                     </p>
-                    <div id="hsFaqItems" class="hs-faq-items"></div>
-                    <button type="button" class="button-secondary size-adjustment" id="hsFaqAddBtn" style="margin-top:10px;">
-                        + Agregar pregunta
-                    </button>
                 </div>
 
                 <div class="user-manager-modal-footer">

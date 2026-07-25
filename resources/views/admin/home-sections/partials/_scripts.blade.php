@@ -155,59 +155,6 @@
             listId: 'hsPcbProductSearchList', emptyId: 'hsPcbProductSearchEmpty', chipsId: 'hsPcbProductChips', hiddenId: 'hsPcbProductIds',
         });
 
-        /* ── FAQ: repeater de pares pregunta/respuesta ──
-           Los inputs usan names faq_items[N][question|answer], así que viajan
-           solos en el FormData del submit sin tocar ese handler. El orden del
-           DOM define el orden guardado. */
-        const hsFaqItems = document.getElementById('hsFaqItems');
-
-        function reindexFaqRows() {
-            Array.from(hsFaqItems.querySelectorAll('.hs-faq-row')).forEach((row, i) => {
-                row.querySelector('.hs-faq-question').name = `faq_items[${i}][question]`;
-                row.querySelector('.hs-faq-answer').name = `faq_items[${i}][answer]`;
-                row.querySelector('.hs-faq-row-num').textContent = i + 1;
-            });
-        }
-
-        function addFaqRow(question = '', answer = '') {
-            const row = document.createElement('div');
-            row.className = 'hs-faq-row';
-            row.innerHTML = `
-                <div class="hs-faq-row-head">
-                    <span class="hs-faq-row-num"></span>
-                    <div class="hs-faq-row-actions">
-                        <button type="button" class="hs-faq-btn hs-faq-up" title="Subir">↑</button>
-                        <button type="button" class="hs-faq-btn hs-faq-down" title="Bajar">↓</button>
-                        <button type="button" class="hs-faq-btn hs-faq-remove" title="Eliminar">&times;</button>
-                    </div>
-                </div>
-                <input type="text" class="users-manager-input hs-faq-question" placeholder="Pregunta">
-                <textarea class="users-manager-input client-modal-textarea hs-faq-answer" rows="2" placeholder="Respuesta"></textarea>`;
-
-            row.querySelector('.hs-faq-question').value = question;
-            row.querySelector('.hs-faq-answer').value = answer;
-
-            row.querySelector('.hs-faq-up').addEventListener('click', () => {
-                const prev = row.previousElementSibling;
-                if (prev) hsFaqItems.insertBefore(row, prev);
-                reindexFaqRows();
-            });
-            row.querySelector('.hs-faq-down').addEventListener('click', () => {
-                const next = row.nextElementSibling;
-                if (next) hsFaqItems.insertBefore(next, row);
-                reindexFaqRows();
-            });
-            row.querySelector('.hs-faq-remove').addEventListener('click', () => {
-                row.remove();
-                reindexFaqRows();
-            });
-
-            hsFaqItems.appendChild(row);
-            reindexFaqRows();
-        }
-
-        document.getElementById('hsFaqAddBtn').addEventListener('click', () => addFaqRow());
-
         // Toggle config-fields blocks based on selected type
         function syncConfigFields() {
             const type = document.getElementById('hsType').value;
@@ -252,7 +199,6 @@
             document.getElementById('hsIsActive').value = '1';
             hsMainProductPicker.reset();
             hsPcbProductPicker.reset();
-            hsFaqItems.innerHTML = '';
 
             syncConfigFields();
             syncSourceFields();
@@ -382,8 +328,6 @@
                 document.getElementById('hsHtml').value = config.html ?? '';
             } else if (type === 'faq') {
                 document.getElementById('hsFaqDescription').value = config.description ?? '';
-                hsFaqItems.innerHTML = '';
-                (config.items ?? []).forEach(item => addFaqRow(item.question ?? '', item.answer ?? ''));
             }
         }
 
