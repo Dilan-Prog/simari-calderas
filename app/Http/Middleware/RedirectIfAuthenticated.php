@@ -21,7 +21,11 @@ class RedirectIfAuthenticated
 
         foreach ($guards as $guard) {
             if (Auth::guard($guard)->check()) {
-                return redirect(RouteServiceProvider::HOME);
+                // Un cliente ya autenticado que visita login/registro de la
+                // tienda va a su cuenta; el resto (admin/users) conserva HOME.
+                return $guard === 'customer'
+                    ? redirect()->route('shop.account')
+                    : redirect(RouteServiceProvider::HOME);
             }
         }
 

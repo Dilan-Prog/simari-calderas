@@ -34,6 +34,8 @@ export default defineConfig({
                 'resources/js/frontend/shop/catalog.js',
                 'resources/css/frontend/shop/product-detail.css',
                 'resources/js/frontend/shop/product-detail.js',
+                'resources/css/frontend/shop/account.css',
+                'resources/js/frontend/shop/account.js',
                 'resources/css/admin/pages/collections.css',
             ],
             refresh: true,

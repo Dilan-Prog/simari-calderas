@@ -29,15 +29,19 @@
                 searchDebounce = setTimeout(() => filterForm.submit(), 600);
             });
 
+            const gridSelectAllBar = document.getElementById('prodGridSelectAllBar');
+
             function setView(view) {
                 if (view === 'grid') {
                     listView.style.display = 'none';
                     gridView.classList.add('active');
+                    gridSelectAllBar.classList.add('active');
                     btnGrid.classList.add('active');
                     btnList.classList.remove('active');
                 } else {
                     listView.style.display = '';
                     gridView.classList.remove('active');
+                    gridSelectAllBar.classList.remove('active');
                     btnList.classList.add('active');
                     btnGrid.classList.remove('active');
                 }
@@ -161,9 +165,18 @@
             const btnDoImport = document.getElementById('btnDoImport');
             let importSelectedFile = null;
 
+            const importUrls = {
+                create: '{{ route('admin.products.import') }}',
+                update: '{{ route('admin.products.import.update') }}',
+            };
+            function getImportMode() {
+                return document.querySelector('input[name="importMode"]:checked')?.value ?? 'create';
+            }
+
             function resetImportModal() {
                 importSelectedFile = null;
                 importFileInput.value = '';
+                document.getElementById('importModeCreate').checked = true;
                 importDropzone.classList.remove('has-file');
                 importDropzoneText.innerHTML = '<strong>Haz clic para seleccionar un archivo</strong>';
                 importDropzoneHint.textContent = '.xlsx, .xls o .csv';
@@ -239,11 +252,12 @@
                 importResultDetail.innerHTML = '';
                 importShowStatus('info', 'Procesando archivo, esto puede tardar unos segundos...');
 
+                const mode = getImportMode();
                 const formData = new FormData();
                 formData.append('file', importSelectedFile);
 
                 try {
-                    const response = await fetch('{{ route('admin.products.import') }}', {
+                    const response = await fetch(importUrls[mode], {
                         method: 'POST',
                         headers: {
                             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
@@ -261,19 +275,30 @@
                         return;
                     }
 
-                    const dupCount = data.skipped_duplicates.length;
                     const failCount = data.failures.length;
                     const imgFailCount = (data.image_download_failures ?? []).length;
-                    let summary = `${data.created} producto(s) creados. ${dupCount} omitido(s) por SKU duplicado. ${failCount} fila(s) con error.`;
+                    let summary, skippedList, skippedLabel, processedCount;
+
+                    if (mode === 'update') {
+                        processedCount = data.updated;
+                        skippedList = data.skipped_not_found;
+                        skippedLabel = 'SKU no encontrado';
+                        summary = `${data.updated} producto(s) actualizados. ${skippedList.length} omitido(s) por SKU no encontrado. ${failCount} fila(s) con error.`;
+                    } else {
+                        processedCount = data.created;
+                        skippedList = data.skipped_duplicates;
+                        skippedLabel = 'SKU duplicado';
+                        summary = `${data.created} producto(s) creados. ${skippedList.length} omitido(s) por SKU duplicado. ${failCount} fila(s) con error.`;
+                    }
                     if (imgFailCount) {
                         summary += ` ${imgFailCount} imagen(es) no se pudieron descargar.`;
                     }
                     importShowStatus('success', summary);
 
                     let html = '';
-                    if (dupCount) {
-                        html += '<p><strong>Omitidos por SKU duplicado:</strong></p><ul>' +
-                            data.skipped_duplicates.map(d => `<li>Fila ${d.row}: SKU ${escapeHtml(d.sku)}</li>`).join('') +
+                    if (skippedList.length) {
+                        html += `<p><strong>Omitidos por ${skippedLabel}:</strong></p><ul>` +
+                            skippedList.map(d => `<li>Fila ${d.row}: SKU ${escapeHtml(d.sku)}</li>`).join('') +
                             '</ul>';
                     }
                     if (failCount) {
@@ -283,7 +308,7 @@
                             ).join('') + '</ul>';
                     }
                     if (imgFailCount) {
-                        html += '<p><strong>Productos creados pero sin la imagen (no se pudo descargar):</strong></p><ul>' +
+                        html += '<p><strong>Productos sin la imagen nueva (no se pudo descargar):</strong></p><ul>' +
                             data.image_download_failures.map(f =>
                                 `<li>SKU ${escapeHtml(f.sku)}: ${escapeHtml(f.url)}</li>`
                             ).join('') + '</ul>';
@@ -293,7 +318,7 @@
                         importResultDetail.style.display = 'block';
                     }
 
-                    if (data.created > 0) {
+                    if (processedCount > 0) {
                         setTimeout(() => window.location.reload(), 2500);
                     } else {
                         btnDoImport.disabled = false;
@@ -302,6 +327,191 @@
                     console.error('Error importing products:', err);
                     importShowStatus('error', 'Error de conexión. Intenta de nuevo.');
                     btnDoImport.disabled = false;
+                }
+            });
+
+            // ── Fase A: selección + acciones masivas (estilo Shopify) ──
+            const selectedIds = new Set();
+            const bulkBar = document.getElementById('prodBulkBar');
+            const bulkCount = document.getElementById('prodBulkCount');
+            const selectAllList = document.getElementById('prodSelectAllList');
+            const selectAllGrid = document.getElementById('prodSelectAllGrid');
+            const bulkUrl = '{{ route('admin.products.bulk') }}';
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+
+            function allRowCheckboxIds() {
+                // Ambas vistas (lista y tarjetas) renderizan el mismo conjunto
+                // paginado de productos, así que basta con leer los
+                // data-id de una sola vista para tener el universo completo.
+                return Array.from(document.querySelectorAll('#prodListView .prod-row-checkbox[data-id]'))
+                    .map(cb => cb.dataset.id);
+            }
+
+            function syncCheckboxesUI() {
+                // Selecciona/deselecciona el checkbox correspondiente en AMBAS
+                // vistas (lista y tarjetas) para el mismo producto, así la
+                // selección no se pierde visualmente al cambiar de vista.
+                document.querySelectorAll('.prod-row-checkbox[data-id]').forEach(cb => {
+                    cb.checked = selectedIds.has(cb.dataset.id);
+                });
+
+                const total = allRowCheckboxIds().length;
+                const selectedOnPage = allRowCheckboxIds().filter(id => selectedIds.has(id)).length;
+                [selectAllList, selectAllGrid].forEach(el => {
+                    if (!el) return;
+                    el.checked = total > 0 && selectedOnPage === total;
+                    el.indeterminate = selectedOnPage > 0 && selectedOnPage < total;
+                });
+            }
+
+            function syncBulkBar() {
+                bulkCount.textContent = selectedIds.size;
+                bulkBar.classList.toggle('active', selectedIds.size > 0);
+                syncCheckboxesUI();
+            }
+
+            document.addEventListener('change', (e) => {
+                if (!e.target.matches('.prod-row-checkbox[data-id]')) return;
+                const id = e.target.dataset.id;
+                if (e.target.checked) {
+                    selectedIds.add(id);
+                } else {
+                    selectedIds.delete(id);
+                }
+                syncBulkBar();
+            });
+
+            [selectAllList, selectAllGrid].forEach(el => {
+                if (!el) return;
+                el.addEventListener('change', () => {
+                    if (el.checked) {
+                        allRowCheckboxIds().forEach(id => selectedIds.add(id));
+                    } else {
+                        allRowCheckboxIds().forEach(id => selectedIds.delete(id));
+                    }
+                    syncBulkBar();
+                });
+            });
+
+            document.getElementById('prodBulkCancelBtn').addEventListener('click', () => {
+                selectedIds.clear();
+                syncBulkBar();
+            });
+
+            const bulkActionLabels = {
+                activate: 'activado(s)',
+                deactivate: 'desactivado(s)',
+                publish: 'publicado(s) en la web',
+                unpublish: 'despublicado(s) de la web',
+            };
+
+            async function runBulkAction(action) {
+                if (!selectedIds.size) return;
+
+                try {
+                    const response = await fetch(bulkUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken,
+                            'Accept': 'application/json',
+                        },
+                        body: JSON.stringify({ ids: Array.from(selectedIds), action }),
+                    });
+                    const data = await response.json();
+
+                    if (!response.ok || !data.success) {
+                        showProductToast(data.message ?? 'No se pudo aplicar la acción.', 'error');
+                        return;
+                    }
+
+                    showProductToast(`${data.updated} producto(s) ${bulkActionLabels[action]}.`);
+                    selectedIds.clear();
+                    setTimeout(() => window.location.reload(), 1200);
+                } catch (err) {
+                    console.error('Error running bulk action:', err);
+                    showProductToast('Error de conexión. Intenta de nuevo.', 'error');
+                }
+            }
+
+            document.querySelectorAll('#prodBulkBar .prod-bulk-btn[data-action]').forEach(btn => {
+                btn.addEventListener('click', () => runBulkAction(btn.dataset.action));
+            });
+
+            // Bulk delete
+            const bulkDeleteModal = document.getElementById('bulkDeleteProductModal');
+            const bulkDeleteCount = document.getElementById('bulkDeleteCount');
+            const bulkDeleteCancelBtn = document.getElementById('bulkDeleteCancelBtn');
+            const bulkDeleteConfirmBtn = document.getElementById('bulkDeleteConfirmBtn');
+
+            const bulkDeleteResult = document.getElementById('bulkDeleteResult');
+            const bulkDeleteActions = document.getElementById('bulkDeleteActions');
+
+            function resetBulkDeleteModal() {
+                bulkDeleteResult.style.display = 'none';
+                bulkDeleteResult.innerHTML = '';
+                bulkDeleteActions.style.display = '';
+                bulkDeleteConfirmBtn.disabled = false;
+            }
+
+            document.getElementById('prodBulkDeleteBtn').addEventListener('click', () => {
+                if (!selectedIds.size) return;
+                resetBulkDeleteModal();
+                bulkDeleteCount.textContent = selectedIds.size;
+                bulkDeleteModal.classList.add('active');
+            });
+            bulkDeleteCancelBtn.addEventListener('click', () => bulkDeleteModal.classList.remove('active'));
+            bulkDeleteModal.addEventListener('click', (e) => {
+                if (e.target === bulkDeleteModal) bulkDeleteModal.classList.remove('active');
+            });
+
+            bulkDeleteConfirmBtn.addEventListener('click', async () => {
+                bulkDeleteConfirmBtn.disabled = true;
+
+                try {
+                    const response = await fetch(bulkUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken,
+                            'Accept': 'application/json',
+                        },
+                        body: JSON.stringify({ ids: Array.from(selectedIds), action: 'delete' }),
+                    });
+                    const data = await response.json();
+
+                    if (!response.ok || !data.success) {
+                        bulkDeleteModal.classList.remove('active');
+                        bulkDeleteConfirmBtn.disabled = false;
+                        showProductToast(data.message ?? 'No se pudo eliminar el lote.', 'error');
+                        return;
+                    }
+
+                    showProductToast(`${data.deleted.length} producto(s) eliminados.`);
+                    selectedIds.clear();
+
+                    if (data.blocked.length) {
+                        // Se queda abierto mostrando el detalle de lo que no se
+                        // pudo eliminar y por qué, en vez de recargar de
+                        // inmediato — el usuario necesita leer esto.
+                        bulkDeleteActions.style.display = 'none';
+                        bulkDeleteResult.innerHTML =
+                            `<p><strong>${data.deleted.length} eliminado(s). ${data.blocked.length} no se pudieron eliminar:</strong></p><ul>` +
+                            data.blocked.map(b => `<li>${escapeHtml(b.name)}: ${escapeHtml(b.reasons.join(', '))}</li>`).join('') +
+                            '</ul><button type="button" class="button-primary size-adjustment" id="bulkDeleteCloseBtn">Entendido</button>';
+                        bulkDeleteResult.style.display = 'block';
+                        document.getElementById('bulkDeleteCloseBtn').addEventListener('click', () => {
+                            window.location.reload();
+                        });
+                    } else {
+                        bulkDeleteModal.classList.remove('active');
+                        setTimeout(() => window.location.reload(), 1200);
+                    }
+                } catch (err) {
+                    console.error('Error running bulk delete:', err);
+                    bulkDeleteModal.classList.remove('active');
+                    bulkDeleteConfirmBtn.disabled = false;
+                    showProductToast('Error de conexión. Intenta de nuevo.', 'error');
                 }
             });
         })();

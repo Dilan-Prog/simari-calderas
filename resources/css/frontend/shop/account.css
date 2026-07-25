@@ -1,0 +1,815 @@
+@import 'shared.css';
+
+/* ============================================================
+   Cuenta de clientes: auth (login/registro/reset) + portal Mi Cuenta
+   Diseño según mockups Claude Design. Scope: .eq-shop-account
+   ============================================================ */
+
+.eq-shop-account {
+    font-family: var(--font-family);
+    background: #fff;
+    color: #141516;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* ── AUTH: layout 2 columnas ── */
+.eq-shop-account--auth {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    min-height: 560px;
+}
+.eq-shop-account .auth-form-col {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 24px;
+}
+.eq-shop-account .auth-card { width: 100%; max-width: 400px; }
+
+/* Página utilitaria (forgot/reset): card centrada única */
+.eq-shop-account--single {
+    display: flex;
+    justify-content: center;
+    padding: 60px 24px 80px;
+    min-height: 50vh;
+}
+.eq-shop-account--single .auth-card { max-width: 420px; }
+
+/* Tabs segmentados */
+.eq-shop-account .auth-tabs {
+    display: flex;
+    gap: 4px;
+    background: #f5f5f5;
+    border-radius: 8px;
+    padding: 4px;
+    margin-bottom: 32px;
+}
+.eq-shop-account .auth-tabs button {
+    flex: 1;
+    border: none;
+    border-radius: 6px;
+    padding: 11px;
+    font-size: 13.5px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    background: transparent;
+    color: #9ca3af;
+    transition: background 0.15s, color 0.15s;
+}
+.eq-shop-account .auth-tabs button.is-active {
+    background: #fff;
+    color: #141516;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
+/* Títulos */
+.eq-shop-account .auth-title { font-size: 24px; font-weight: 800; margin: 0 0 6px; }
+.eq-shop-account .auth-subtitle { font-size: 14px; color: #4b5563; margin: 0 0 28px; }
+
+/* Campos */
+.eq-shop-account .auth-field { margin-bottom: 14px; }
+.eq-shop-account .auth-field label {
+    display: block;
+    font-size: 12.5px;
+    font-weight: 700;
+    color: #141516;
+    margin-bottom: 6px;
+}
+.eq-shop-account .auth-field__label-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+}
+.eq-shop-account .auth-field__label-row label { margin-bottom: 0; }
+.eq-shop-account .auth-field input:not([type="checkbox"]) {
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: 6px;
+    padding: 12px 14px;
+    font-size: 14px;
+    font-family: inherit;
+    outline: none;
+}
+.eq-shop-account .auth-field input:focus { border-color: var(--secondary-color); }
+.eq-shop-account .auth-field--half {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+}
+
+.eq-shop-account .auth-check {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: #4b5563;
+    cursor: pointer;
+    margin-bottom: 14px;
+}
+.eq-shop-account .auth-check input[type="checkbox"] {
+    width: 15px;
+    height: 15px;
+    accent-color: var(--secondary-color);
+    cursor: pointer;
+    flex-shrink: 0;
+}
+.eq-shop-account .auth-check--terms { align-items: flex-start; font-size: 12.5px; line-height: 1.5; }
+.eq-shop-account .auth-check--terms input { margin-top: 2px; }
+
+.eq-shop-account .auth-link {
+    color: var(--secondary-color);
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+}
+.eq-shop-account .auth-link:hover { color: #de4a00; }
+.eq-shop-account .auth-link--danger { color: #c81e1e; }
+.eq-shop-account .auth-link--danger:hover { color: #a81616; }
+
+.eq-shop-account .auth-error {
+    background: #fdecec;
+    color: #c81e1e;
+    font-size: 13px;
+    padding: 10px 14px;
+    border-radius: 6px;
+    margin-bottom: 14px;
+}
+.eq-shop-account .auth-error p { margin: 0 0 4px; }
+.eq-shop-account .auth-error p:last-child { margin: 0; }
+
+.eq-shop-account .auth-status {
+    background: #e9f8ee;
+    color: #178a3c;
+    font-size: 13px;
+    padding: 10px 14px;
+    border-radius: 6px;
+    margin-bottom: 14px;
+}
+
+.eq-shop-account .auth-btn {
+    width: 100%;
+    margin-top: 6px;
+    background: var(--secondary-color);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 14px;
+    font-size: 14.5px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.15s;
+}
+.eq-shop-account .auth-btn:hover { background: #de4a00; }
+
+.eq-shop-account .auth-divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 26px 0;
+}
+.eq-shop-account .auth-divider::before,
+.eq-shop-account .auth-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: rgba(0, 0, 0, 0.1);
+}
+.eq-shop-account .auth-divider span { font-size: 12px; color: #9ca3af; }
+
+.eq-shop-account .auth-social { display: flex; gap: 12px; }
+.eq-shop-account .auth-social button {
+    flex: 1;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: 6px;
+    padding: 11px;
+    background: #fff;
+    font-size: 13.5px;
+    font-weight: 600;
+    font-family: inherit;
+    color: #141516;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+.eq-shop-account .auth-social button:disabled { opacity: 0.55; cursor: not-allowed; }
+.eq-shop-account .auth-social__hint {
+    font-size: 11.5px;
+    color: #9ca3af;
+    text-align: center;
+    margin: 10px 0 0;
+}
+
+.eq-shop-account .auth-card__footer {
+    text-align: center;
+    font-size: 13.5px;
+    color: #6b7280;
+    margin: 18px 0 0;
+}
+
+/* Panel de beneficios (oscuro) */
+.eq-shop-account .auth-benefits {
+    background: #141516;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 40px;
+}
+.eq-shop-account .auth-benefits__inner { max-width: 380px; }
+.eq-shop-account .auth-benefits__eyebrow {
+    color: var(--secondary-color);
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+}
+.eq-shop-account .auth-benefits h2 {
+    color: #fff;
+    font-size: 26px;
+    font-weight: 800;
+    line-height: 1.3;
+    margin: 0 0 18px;
+}
+.eq-shop-account .auth-benefits__list { display: flex; flex-direction: column; gap: 16px; }
+.eq-shop-account .auth-benefits__item { display: flex; gap: 12px; align-items: flex-start; }
+.eq-shop-account .auth-benefits__item svg { flex-shrink: 0; margin-top: 2px; }
+.eq-shop-account .auth-benefits__item span { color: #d1d5db; font-size: 14px; line-height: 1.5; }
+
+/* ── PORTAL: layout sidebar + contenido ── */
+.eq-shop-account--portal { padding: 40px 0 72px; }
+.eq-shop-account .portal-layout {
+    width: 90%;
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: 32px;
+    align-items: start;
+}
+
+.eq-shop-account .portal-flash { margin-bottom: 20px; }
+
+/* Sidebar */
+.eq-shop-account .portal-sidebar {
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 10px;
+    overflow: hidden;
+    position: sticky;
+    top: 24px;
+}
+.eq-shop-account .portal-sidebar__header {
+    padding: 20px 18px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.eq-shop-account .portal-sidebar__avatar {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: var(--secondary-color);
+    color: #fff;
+    font-size: 16px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.eq-shop-account .portal-sidebar__identity { min-width: 0; }
+.eq-shop-account .portal-sidebar__name {
+    font-size: 13.5px;
+    font-weight: 800;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.eq-shop-account .portal-sidebar__email {
+    font-size: 11.5px;
+    color: #9ca3af;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.eq-shop-account .portal-sidebar__nav a,
+.eq-shop-account .portal-sidebar__pending {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 13px 18px;
+    font-size: 13.5px;
+    font-weight: 500;
+    color: #4b5563;
+    text-decoration: none;
+    border-left: 3px solid transparent;
+}
+.eq-shop-account .portal-sidebar__nav a svg { flex-shrink: 0; }
+.eq-shop-account .portal-sidebar__nav a:hover { color: #141516; background: #fafafa; }
+.eq-shop-account .portal-sidebar__nav a.is-active {
+    font-weight: 700;
+    color: #141516;
+    background: #fff2e9;
+    border-left-color: var(--secondary-color);
+}
+.eq-shop-account .portal-sidebar__pending { color: #9ca3af; cursor: default; font-size: 12.5px; }
+.eq-shop-account .portal-sidebar__footer { border-top: 1px solid rgba(0, 0, 0, 0.06); }
+.eq-shop-account .portal-sidebar__footer button {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 13px 18px;
+    font-size: 13.5px;
+    color: #c81e1e;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    text-align: left;
+}
+.eq-shop-account .portal-sidebar__footer button:hover { background: #fdecec; }
+
+/* Contenido */
+.eq-shop-account .portal-title { font-size: 22px; font-weight: 800; margin: 0 0 24px; }
+.eq-shop-account .portal-subtitle { font-size: 14px; color: #4b5563; margin: -12px 0 24px; line-height: 1.55; }
+.eq-shop-account .portal-title-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+.eq-shop-account .portal-title-row .portal-title { margin: 0; }
+
+.eq-shop-account .portal-card {
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 10px;
+    padding: 26px;
+    margin-bottom: 20px;
+}
+.eq-shop-account .portal-card--flush { padding: 0; overflow: hidden; }
+.eq-shop-account .portal-card__title { font-size: 14.5px; font-weight: 700; margin-bottom: 18px; }
+.eq-shop-account .portal-card__title--padded { padding: 16px 20px; margin: 0; border-bottom: 1px solid rgba(0, 0, 0, 0.06); }
+.eq-shop-account .portal-card__actions { display: flex; align-items: center; gap: 14px; margin-top: 20px; }
+
+.eq-shop-account .portal-banner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    background: #fff2e9;
+    border: 1px solid rgba(255, 98, 19, 0.25);
+    border-radius: 10px;
+    padding: 18px 22px;
+    margin-bottom: 20px;
+}
+.eq-shop-account .portal-banner strong { font-size: 14px; }
+.eq-shop-account .portal-banner p { font-size: 13px; color: #4b5563; margin: 4px 0 0; }
+.eq-shop-account .portal-banner--pending { background: #f7f7f8; border-color: rgba(0, 0, 0, 0.08); }
+
+.eq-shop-account .portal-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+}
+.eq-shop-account .portal-grid-2--narrow { max-width: 600px; }
+.eq-shop-account .portal-field label {
+    display: block;
+    font-size: 12px;
+    font-weight: 700;
+    color: #4b5563;
+    margin-bottom: 6px;
+}
+.eq-shop-account .portal-field input:not([type="checkbox"]):not([type="radio"]),
+.eq-shop-account .portal-field textarea {
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: 6px;
+    padding: 11px 14px;
+    font-size: 14px;
+    font-family: inherit;
+    outline: none;
+}
+.eq-shop-account .portal-field input:focus,
+.eq-shop-account .portal-field textarea:focus { border-color: var(--secondary-color); }
+.eq-shop-account .portal-field--full { grid-column: span 2; }
+.eq-shop-account .portal-field { margin-bottom: 2px; }
+
+.eq-shop-account .portal-btn {
+    background: var(--secondary-color);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 12px 24px;
+    font-size: 13.5px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.15s;
+}
+.eq-shop-account .portal-btn:hover { background: #de4a00; }
+.eq-shop-account .portal-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.eq-shop-account .portal-btn--outline {
+    background: none;
+    color: #141516;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+}
+.eq-shop-account .portal-btn--outline:hover { background: #f5f5f5; }
+.eq-shop-account .portal-btn--full { width: 100%; box-sizing: border-box; display: block; margin-top: 10px; }
+
+.eq-shop-account .portal-saved { font-size: 13px; color: #178a3c; font-weight: 700; }
+
+.eq-shop-account .portal-empty {
+    grid-column: 1 / -1;
+    text-align: center;
+    color: #9ca3af;
+    font-size: 14px;
+    padding: 40px 16px;
+    border: 1px dashed rgba(0, 0, 0, 0.12);
+    border-radius: 10px;
+}
+
+/* Pedidos */
+.eq-shop-account .order-row {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 20px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    flex-wrap: wrap;
+}
+.eq-shop-account .order-row:last-child { border-bottom: none; }
+.eq-shop-account .order-row__id { flex: 1 1 140px; }
+.eq-shop-account .order-row__number { font-size: 13.5px; font-weight: 800; }
+.eq-shop-account .order-row__date { font-size: 12px; color: #9ca3af; }
+.eq-shop-account .order-row__items { flex: 1 1 160px; font-size: 13px; color: #4b5563; }
+.eq-shop-account .order-row__total { font-size: 15px; font-weight: 800; width: 120px; text-align: right; }
+
+.eq-shop-account .order-pill {
+    font-size: 12px;
+    font-weight: 700;
+    padding: 5px 12px;
+    border-radius: 999px;
+    white-space: nowrap;
+}
+.eq-shop-account .order-pill.is-delivered { background: #e9f8ee; color: #178a3c; }
+.eq-shop-account .order-pill.is-transit { background: #fff2e9; color: var(--secondary-color); }
+.eq-shop-account .order-pill.is-cancelled { background: #fdecec; color: #c81e1e; }
+
+.eq-shop-account .order-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #4b5563;
+    text-decoration: none;
+    margin-bottom: 18px;
+}
+.eq-shop-account .order-back:hover { color: #141516; }
+.eq-shop-account .order-detail__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+/* Tracking */
+.eq-shop-account .order-tracking { display: flex; align-items: flex-start; }
+.eq-shop-account .order-tracking__step {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    position: relative;
+}
+.eq-shop-account .order-tracking__line {
+    position: absolute;
+    top: 15px;
+    right: 50%;
+    width: 100%;
+    height: 2px;
+    background: #e5e5e5;
+}
+.eq-shop-account .order-tracking__line.is-done { background: var(--secondary-color); }
+.eq-shop-account .order-tracking__dot {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #f0f0f0;
+    color: #9ca3af;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 800;
+    z-index: 1;
+    position: relative;
+}
+.eq-shop-account .order-tracking__dot.is-done { background: var(--secondary-color); color: #fff; }
+.eq-shop-account .order-tracking__label { font-size: 12.5px; font-weight: 700; color: #9ca3af; margin-top: 10px; }
+.eq-shop-account .order-tracking__label.is-done { color: #141516; }
+.eq-shop-account .order-tracking__date { font-size: 11.5px; color: #9ca3af; margin-top: 2px; }
+
+/* Detalle de pedido */
+.eq-shop-account .order-detail__grid {
+    display: grid;
+    grid-template-columns: 1.6fr 1fr;
+    gap: 20px;
+    align-items: start;
+}
+.eq-shop-account .order-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 18px 20px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+.eq-shop-account .order-item:last-child { border-bottom: none; }
+.eq-shop-account .order-item__img {
+    width: 64px;
+    height: 64px;
+    flex-shrink: 0;
+    border-radius: 6px;
+    background: #f5f6f7;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.eq-shop-account .order-item__info { flex: 1; min-width: 0; }
+.eq-shop-account .order-item__name { font-size: 13.5px; font-weight: 700; line-height: 1.35; }
+.eq-shop-account .order-item__meta { font-size: 12px; color: #9ca3af; margin-top: 4px; }
+.eq-shop-account .order-item__price { font-size: 14px; font-weight: 800; white-space: nowrap; }
+.eq-shop-account .order-detail__info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+.eq-shop-account .order-info-text { font-size: 13px; color: #4b5563; line-height: 1.7; }
+.eq-shop-account .order-summary { position: sticky; top: 24px; }
+.eq-shop-account .order-summary__row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    color: #4b5563;
+    padding: 6px 0;
+}
+.eq-shop-account .order-summary__total {
+    display: flex;
+    justify-content: space-between;
+    font-size: 16px;
+    font-weight: 800;
+    padding: 14px 0 0;
+    margin-top: 8px;
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+/* Direcciones */
+.eq-shop-account .address-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 16px;
+}
+.eq-shop-account .address-card {
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 10px;
+    padding: 20px;
+    position: relative;
+}
+.eq-shop-account .address-card__badge {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: #fff2e9;
+    color: var(--secondary-color);
+    font-size: 11px;
+    font-weight: 800;
+    padding: 3px 8px;
+    border-radius: 4px;
+}
+.eq-shop-account .address-card__label { font-size: 13.5px; font-weight: 800; margin-bottom: 8px; }
+.eq-shop-account .address-card__lines { font-size: 13px; color: #4b5563; line-height: 1.6; }
+.eq-shop-account .address-card__actions { display: flex; gap: 14px; margin-top: 14px; }
+.eq-shop-account .address-card__actions .auth-link { font-size: 12.5px; font-weight: 700; }
+
+/* Tarjetas bancarias */
+.eq-shop-account .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 16px;
+}
+.eq-shop-account .bank-card {
+    border-radius: 12px;
+    padding: 20px;
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+    min-height: 150px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-sizing: border-box;
+}
+.eq-shop-account .bank-card--preview { min-height: 130px; margin-bottom: 20px; }
+.eq-shop-account .bank-card__top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+}
+.eq-shop-account .bank-card__chip {
+    width: 38px;
+    height: 28px;
+    border-radius: 5px;
+    background: rgba(255, 255, 255, 0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.eq-shop-account .bank-card__brand { font-size: 15px; font-weight: 900; font-style: italic; letter-spacing: .02em; }
+.eq-shop-account .bank-card__number { font-size: 16.5px; font-weight: 700; letter-spacing: .12em; margin: 14px 0 6px; }
+.eq-shop-account .bank-card__bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+}
+.eq-shop-account .bank-card__expiry { font-size: 11px; color: rgba(255, 255, 255, 0.8); }
+.eq-shop-account .bank-card__actions { display: flex; gap: 12px; }
+.eq-shop-account .bank-card__actions a { font-size: 12px; font-weight: 700; color: #fff; text-decoration: none; }
+.eq-shop-account .bank-card__actions a:hover { text-decoration: underline; color: #fff; }
+
+/* Favoritos */
+.eq-shop-account .fav-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+}
+.eq-shop-account .fav-card {
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 8px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    transition: box-shadow 0.2s, transform 0.2s;
+}
+.eq-shop-account .fav-card:hover { box-shadow: 0 10px 24px rgba(0, 0, 0, 0.1); transform: translateY(-3px); }
+.eq-shop-account .fav-card__badge {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    background: #141516;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 800;
+    padding: 4px 10px;
+    border-radius: 4px;
+    z-index: 1;
+}
+.eq-shop-account .fav-card__img {
+    width: 100%;
+    height: 170px;
+    border-radius: 6px;
+    background: #f5f6f7;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 14px;
+}
+.eq-shop-account .fav-card__name { font-size: 14px; line-height: 1.35; min-height: 38px; margin-bottom: 10px; }
+.eq-shop-account .fav-card__sku { font-size: 12px; color: #9ca3af; margin-bottom: 6px; }
+.eq-shop-account .fav-card__original { font-size: 13.5px; color: #9ca3af; text-decoration: line-through; margin-bottom: 2px; }
+.eq-shop-account .fav-card__price { font-size: 22px; font-weight: 800; margin-bottom: 8px; }
+.eq-shop-account .fav-card__discount {
+    display: inline-block;
+    background: var(--secondary-color);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 800;
+    padding: 4px 10px;
+    border-radius: 4px;
+    width: fit-content;
+    margin-bottom: 10px;
+}
+.eq-shop-account .fav-card__financing { font-size: 12.5px; color: #4b5563; margin-bottom: 6px; }
+.eq-shop-account .fav-card__shipping {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12.5px;
+    color: #178a3c;
+    font-weight: 700;
+    margin-bottom: 14px;
+}
+.eq-shop-account .fav-card .portal-btn--full { margin-top: auto; }
+
+/* Wizard de solicitud de portal */
+.eq-shop-account .wizard__progress {
+    height: 6px;
+    background: #f0f0f0;
+    border-radius: 999px;
+    overflow: hidden;
+    margin-bottom: 26px;
+}
+.eq-shop-account .wizard__progress-bar {
+    height: 100%;
+    background: var(--secondary-color);
+    border-radius: 999px;
+    transition: width 0.3s ease;
+}
+.eq-shop-account .wizard__question { font-size: 16px; font-weight: 800; margin-bottom: 16px; }
+.eq-shop-account .wizard__options { display: flex; flex-direction: column; gap: 10px; max-width: 460px; }
+.eq-shop-account .wizard__option {
+    text-align: left;
+    border: 1.5px solid rgba(0, 0, 0, 0.12);
+    border-radius: 8px;
+    background: #fff;
+    padding: 13px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #141516;
+    cursor: pointer;
+    font-family: inherit;
+    transition: border-color 0.15s, background 0.15s;
+}
+.eq-shop-account .wizard__option:hover { border-color: var(--secondary-color); }
+.eq-shop-account .wizard__option.is-selected {
+    border-color: var(--secondary-color);
+    background: #fff2e9;
+}
+.eq-shop-account .wizard__textarea {
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: 6px;
+    padding: 12px 14px;
+    font-size: 14px;
+    font-family: inherit;
+    outline: none;
+    margin-bottom: 14px;
+    max-width: 460px;
+    display: block;
+}
+.eq-shop-account .wizard__textarea:focus { border-color: var(--secondary-color); }
+.eq-shop-account .wizard__thanks {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    background: #e9f8ee;
+    border-radius: 8px;
+    padding: 16px 18px;
+    margin-bottom: 22px;
+}
+.eq-shop-account .wizard__thanks-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.eq-shop-account .wizard__thanks strong { font-size: 14px; }
+.eq-shop-account .wizard__thanks p { font-size: 13px; color: #4b5563; margin: 4px 0 0; }
+.eq-shop-account .wizard__radio-row { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
+.eq-shop-account .wizard__radio {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13.5px;
+    color: #141516;
+    cursor: pointer;
+    font-weight: 500;
+}
+.eq-shop-account .wizard__radio input { accent-color: var(--secondary-color); }
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+    .eq-shop-account .portal-layout { grid-template-columns: 1fr; }
+    .eq-shop-account .portal-sidebar { position: static; }
+    .eq-shop-account .order-detail__grid { grid-template-columns: 1fr; }
+    .eq-shop-account .order-summary { position: static; }
+    .eq-shop-account .fav-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 720px) {
+    .eq-shop-account--auth { grid-template-columns: 1fr; }
+    .eq-shop-account .auth-benefits { display: none; }
+    .eq-shop-account .portal-grid-2 { grid-template-columns: 1fr; }
+    .eq-shop-account .portal-field--full { grid-column: span 1; }
+    .eq-shop-account .order-detail__info-grid { grid-template-columns: 1fr; }
+    .eq-shop-account .fav-grid { grid-template-columns: 1fr; }
+    .eq-shop-account .auth-field--half { grid-template-columns: 1fr; }
+}

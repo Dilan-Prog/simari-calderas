@@ -29,6 +29,14 @@
                         </svg>
                         Importar Productos
                     </button>
+                    <a href="{{ route('admin.products.bulk-edit') }}" class="prod-btn-outline">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 20h9" />
+                            <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
+                        </svg>
+                        Editar en lote
+                    </a>
                     <button class="prod-btn-new" type="button"
                         onclick="window.location.href='{{ route('admin.products.create') }}'">
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
@@ -108,7 +116,8 @@
                 <div class="products-table-wrapper">
                 <table class="prod-table">
                     <colgroup>
-                        <col style="width:26%">
+                        <col style="width:4%">
+                        <col style="width:22%">
                         <col style="width:9%">
                         <col style="width:12%">
                         <col style="width:9%">
@@ -119,6 +128,7 @@
                     </colgroup>
                     <thead>
                         <tr>
+                            <th><input type="checkbox" id="prodSelectAllList" class="prod-row-checkbox"></th>
                             <th>Producto</th>
                             <th>SKU</th>
                             <th>Categoría</th>
@@ -140,6 +150,9 @@
                             @endphp
                             <tr data-name="{{ strtolower($product->name) }}" data-sku="{{ strtolower($product->sku) }}"
                                 data-status="{{ $statusVal }}">
+                                <td data-label="">
+                                    <input type="checkbox" class="prod-row-checkbox" data-id="{{ $product->id }}">
+                                </td>
                                 <td data-label="Producto">
                                     <div class="prod-cell-product">
                                         <div class="prod-thumb">
@@ -204,7 +217,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="8">
+                                <td colspan="9">
                                     <p class="prod-empty">No se encontraron productos con los filtros actuales.</p>
                                 </td>
                             </tr>
@@ -215,6 +228,10 @@
             </div>
 
             {{-- Grid view --}}
+            <label class="prod-grid-select-all" id="prodGridSelectAllBar">
+                <input type="checkbox" id="prodSelectAllGrid" class="prod-row-checkbox">
+                Seleccionar todos
+            </label>
             <div class="prod-grid-container" id="prodGridView">
                 @foreach ($products as $product)
                     @php
@@ -224,6 +241,7 @@
                     @endphp
                     <div class="prod-grid-card" data-name="{{ strtolower($product->name) }}"
                         data-sku="{{ strtolower($product->sku) }}" data-status="{{ $statusVal }}">
+                        <input type="checkbox" class="prod-row-checkbox prod-grid-card-checkbox" data-id="{{ $product->id }}">
                         <div class="prod-grid-thumb">
                             @php $thumbUrl = $product->cover_image_url ?? $product->images->first()?->url; @endphp
                             @if ($thumbUrl)
@@ -311,4 +329,6 @@
 @endsection
 @include('admin.products.partials._delete_modal')
 @include('admin.products.partials._import_modal')
+@include('admin.products.partials._bulk_action_bar')
+@include('admin.products.partials._bulk_delete_modal')
 @include('admin.products._scripts')

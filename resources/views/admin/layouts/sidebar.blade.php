@@ -47,13 +47,14 @@
             request()->routeIs('admin.collections.*') => 'colecciones',
             request()->routeIs('admin.menus.*') => 'menus',
             request()->routeIs('admin.settings.*') => 'configuracion-sitio',
+            request()->routeIs('admin.integrations.*') => 'integraciones',
             default => '',
         };
 
         // Agrupación puramente visual del sidebar — no afecta rutas, permisos
         // ni estructura de carpetas, solo cómo se muestran los módulos.
         $groupSections = [
-            'ecommerce' => ['productos', 'categorias', 'marcas', 'colecciones', 'inicio-secciones', 'menus', 'configuracion-sitio'],
+            'ecommerce' => ['productos', 'categorias', 'marcas', 'colecciones', 'inicio-secciones', 'menus', 'configuracion-sitio', 'integraciones'],
             'servicios' => ['reportes-servicio', 'servicios-tecnicos'],
             'erp' => ['cotizaciones', 'proveedores', 'ordenes-compra', 'clientes'],
             'administracion' => ['roles', 'usuarios', 'google-ads'],
@@ -327,6 +328,23 @@
                                 <circle cx="12" cy="12" r="3" />
                             </svg>
                             <span class="sidebar-nav-item-label">Configuración</span>
+                        </div>
+                    </a>
+                @endif
+
+                {{-- Integraciones --}}
+                @if ($authUser->hasPermission('settings'))
+                    <a class="sidebar-nav-item {{ $activeSection === 'integraciones' ? 'active' : '' }}" data-section="integraciones" data-label="Integraciones"
+                        href="{{ route('admin.integrations.index') }}">
+                        <div class="sidebar-nav-item-left">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path d="M9 2v6" /><path d="M15 2v6" />
+                                <path d="M12 17v5" />
+                                <path d="M5 8h14a1 1 0 0 1 1 1v3a5 5 0 0 1-5 5h-6a5 5 0 0 1-5-5V9a1 1 0 0 1 1-1z" />
+                            </svg>
+                            <span class="sidebar-nav-item-label">Integraciones</span>
                         </div>
                     </a>
                 @endif

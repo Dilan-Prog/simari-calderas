@@ -17,8 +17,8 @@ class ClientManageController extends Controller
      */
     public function index()
     {
-        $customers = Customer::with('customer_addresses:city,state,customer_id,id')
-            ->get(['id', 'first_name', 'last_name', 'company', 'email', 'phone', 'rfc', 'status', 'source', 'password_hash']);
+        $customers = Customer::with(['customer_addresses:city,state,customer_id,id', 'portalRequest:id,customer_id,completed_at'])
+            ->get(['id', 'first_name', 'last_name', 'company', 'email', 'phone', 'rfc', 'status', 'source', 'password_hash', 'portal_access']);
 
         return view('admin.client.index', compact('customers'));
     }
@@ -93,7 +93,10 @@ class ClientManageController extends Controller
         $customer->document_type = $request->document_type;
         $customer->source = $request->source;
         $customer->status = $request->status;
-        $customer->password_hash = 'TemporalPassword';
+        // Sin acceso al portal hasta que se otorgue vía grantAccess() (o el
+        // cliente lo establezca con "olvidé mi contraseña" en la tienda).
+        // Antes se guardaba el literal 'TemporalPassword' en texto plano.
+        $customer->password_hash = null;
         $customer->save();
 
         if ($request->filled('address_line1')) {
@@ -439,6 +442,77 @@ class ClientManageController extends Controller
             'status'  => $customer->status,
             'message' => 'Panel del cliente ' . $labels[$customer->status] . ' correctamente.',
         ]);
+    }
+
+    /**
+     * Activa/desactiva el acceso al portal de servicios (/customer). Con el
+     * portal activo, el cliente es redirigido ahí al iniciar sesión.
+     */
+    public function updatePortalAccess(Request $request, string $id): JsonResponse
+    {
+        $customer = Customer::findOrFail($id);
+
+        $request->validate(['enabled' => 'required|boolean']);
+
+        $customer->portal_access = $request->boolean('enabled');
+        $customer->save();
+
+        return response()->json([
+            'success'       => true,
+            'portal_access' => $customer->portal_access,
+            'message'       => $customer->portal_access
+                ? 'Portal de servicios activado para este cliente.'
+                : 'Portal de servicios desactivado para este cliente.',
+        ]);
+    }
+
+    /**
+     * Devuelve la solicitud de acceso al portal (encuesta + datos fiscales)
+     * para mostrarla en el modal del candado.
+     */
+    public function portalRequestInfo(string $id): JsonResponse
+    {
+        $customer = Customer::with('portalRequest')->findOrFail($id);
+        $portalRequest = $customer->portalRequest;
+
+        if (! $portalRequest) {
+            return response()->json(['success' => false, 'message' => 'Este cliente no ha solicitado acceso al portal.'], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'request' => [
+                'purchase_frequency' => $portalRequest->purchase_frequency,
+                'purchase_amount'    => $portalRequest->purchase_amount,
+                'reason'             => $portalRequest->reason,
+                'responsible_name'   => $portalRequest->responsible_name,
+                'rfc'                => $portalRequest->rfc,
+                'tax_regime'         => $portalRequest->tax_regime,
+                'contact_email'      => $portalRequest->contact_email,
+                'phone'              => $portalRequest->phone,
+                'completed_at'       => $portalRequest->completed_at?->format('d/m/Y H:i'),
+                'certificate_url'    => $portalRequest->fiscal_certificate_path
+                    ? route('admin.clients.portal-certificate', $customer->id)
+                    : null,
+            ],
+        ]);
+    }
+
+    /**
+     * Descarga de la Constancia de Situación Fiscal de la solicitud. Ruta
+     * admin protegida — el archivo NO se sirve por /media (es sensible).
+     */
+    public function downloadPortalCertificate(string $id)
+    {
+        $customer = Customer::with('portalRequest')->findOrFail($id);
+        $path = $customer->portalRequest?->fiscal_certificate_path;
+
+        abort_unless($path, 404);
+
+        $full = \App\Support\UploadPath::full($path);
+        abort_unless(is_file($full), 404);
+
+        return response()->download($full, 'constancia-fiscal-' . $customer->id . '.' . pathinfo($full, PATHINFO_EXTENSION));
     }
 
     /**

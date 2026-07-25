@@ -167,7 +167,9 @@
                                                     title="{{ $hasAccess ? 'Restablecer contraseña del portal' : 'Otorgar acceso al portal' }}"
                                                     data-customer-id="{{ $customer->id }}"
                                                     data-has-access="{{ $hasAccess ? 'true' : 'false' }}"
-                                                    onclick="openAccessModal({{ $customer->id }}, '{{ addslashes($customer->first_name . ' ' . $customer->last_name) }}', '{{ addslashes($customer->email) }}', {{ $hasAccess ? 'true' : 'false' }}, '{{ $customer->status }}')">
+                                                    data-portal-access="{{ $customer->portal_access ? 'true' : 'false' }}"
+                                                    data-portal-requested="{{ $customer->portalRequest?->completed_at ? 'true' : 'false' }}"
+                                                    onclick="openAccessModal({{ $customer->id }}, '{{ addslashes($customer->first_name . ' ' . $customer->last_name) }}', '{{ addslashes($customer->email) }}', {{ $hasAccess ? 'true' : 'false' }}, '{{ $customer->status }}', this.dataset.portalAccess === 'true', this.dataset.portalRequested === 'true')">
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
                                                         viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round"

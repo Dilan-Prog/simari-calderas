@@ -16,6 +16,7 @@ use App\Http\Controllers\Backend\DeliveryController;
 use App\Http\Controllers\Backend\RoleController;
 use App\Http\Controllers\Backend\SupplierManageController;
 use App\Http\Controllers\Backend\PurchaseOrderController;
+use App\Http\Controllers\Backend\IntegrationController;
 use App\Http\Controllers\Backend\SettingController;
 use App\Http\Controllers\Backend\HomeSectionController;
 use App\Http\Controllers\Backend\MenuController;
@@ -69,6 +70,9 @@ Route::controller(ClientManageController::class)
         Route::get('/clientes/informacion/{id}', 'information')->name('clients.information');
         Route::post('/clientes/{id}/acceso', 'grantAccess')->name('clients.grant-access');
         Route::patch('/clientes/{id}/estado', 'updateStatus')->name('clients.update-status');
+        Route::patch('/clientes/{id}/portal', 'updatePortalAccess')->name('clients.update-portal-access');
+        Route::get('/clientes/{id}/solicitud-portal', 'portalRequestInfo')->name('clients.portal-request');
+        Route::get('/clientes/{id}/constancia-portal', 'downloadPortalCertificate')->name('clients.portal-certificate');
     });
 
 // ============================================================
@@ -101,6 +105,9 @@ Route::controller(ProductController::class)
         Route::post('/productos/{id}/imagenes/reordenar', 'reorderImages')->name('products.images.reorder');
         Route::get('/productos/imagenes/biblioteca', 'mediaLibrary')->name('products.images.library');
         Route::get('/productos/etiquetas/buscar', 'tagSuggestions')->name('products.tags.suggestions');
+        Route::post('/productos/bulk', 'bulkUpdate')->name('products.bulk');
+        Route::get('/productos/edicion-masiva', 'bulkEditIndex')->name('products.bulk-edit');
+        Route::post('/productos/edicion-masiva/guardar', 'bulkEditSave')->name('products.bulk.save');
     });
 
 // ============================================================
@@ -122,6 +129,8 @@ Route::controller(ProductImportExportController::class)
     ->group(function () {
         Route::get('/productos/importar/plantilla', 'downloadTemplate')->name('products.import.template');
         Route::post('/productos/importar', 'import')->name('products.import');
+        Route::get('/productos/importar/plantilla-actualizacion', 'downloadUpdateTemplate')->name('products.import.template.update');
+        Route::post('/productos/importar/actualizar', 'importUpdate')->name('products.import.update');
         Route::get('/productos/exportar', 'export')->name('products.export');
     });
 
@@ -279,6 +288,17 @@ Route::controller(SettingController::class)
     ->group(function () {
         Route::get('/configuracion-sitio', 'index')->name('settings.index');
         Route::put('/configuracion-sitio', 'update')->name('settings.update');
+    });
+
+// ============================================================
+// Integraciones (SMTP y credenciales de servicios externos)
+// ============================================================
+Route::controller(IntegrationController::class)
+    ->middleware('permission:settings')
+    ->group(function () {
+        Route::get('/integraciones', 'index')->name('integrations.index');
+        Route::put('/integraciones', 'update')->name('integrations.update');
+        Route::post('/integraciones/probar-correo', 'sendTestMail')->name('integrations.test-mail');
     });
 
 // ============================================================

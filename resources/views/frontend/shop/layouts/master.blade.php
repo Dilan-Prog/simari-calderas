@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="es-MX">
   <head>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     @include('frontend.layouts.partials.head-meta')
     @vite($shopVite ?? [])
   </head>

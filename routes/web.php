@@ -26,31 +26,6 @@ Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap')
 Route::get('/media/{path}', [MediaServeController::class, 'show'])
     ->where('path', '.*')
     ->name('media.show');
-Route::get('/crear-admin', function () {
-    \App\Models\User::create([
-        'first_name'            => 'Dev Dilan Yovani',
-        'last_name'             => 'Garcia Gonzalez',
-        'company'               => 'Equiterm',
-        'position'              => 'Administrador',
-        'email'                 => 'dilangarcia145@gmail.com',
-        'phone'                 => '1234567890',
-        'email_verified_at'     => null,
-        'password'              => bcrypt('admin123'),
-        'avatar_url'            => null,
-        'status'                => 'active',
-        'rfc'                   => 'GAGD0501272L4',
-        'curp'                  => 'GAGD050127HMSRNLA3',
-        'social_segurity_number'=> '23546',
-        'birthdate'             => '2005-01-27',
-        'id_contact_emergency'  => null,
-        'role_id'               => 1,
-        'remember_token'        => null,
-        'created_at'            => now(),
-        'updated_at'            => now(),
-    ]);
-
-    return '✅ Usuario creado!';
-});
 Route::controller(CatalogController::class)->group(function () {
     Route::get('/', 'home')->name('home');
     Route::get('/catalogo', 'index')->name('catalog.index');
@@ -111,3 +86,4 @@ Route::middleware('auth')->group(function () {
 });
 
 require __DIR__.'/auth.php';
+require __DIR__.'/shop-auth.php';

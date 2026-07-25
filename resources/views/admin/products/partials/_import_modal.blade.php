@@ -3,9 +3,28 @@
     <div class="del-confirm-box prod-import-box">
         <h2 class="del-confirm-title">Importar Productos</h2>
         <p class="del-confirm-desc">
-            Sube un archivo Excel (.xlsx, .xls) o CSV con tu catálogo. Si no sabes cómo llenarlo,
-            <a href="{{ route('admin.products.import.template') }}">descarga la plantilla con ejemplos</a>.
+            Sube un archivo Excel (.xlsx, .xls) o CSV con tu catálogo.
         </p>
+
+        <div class="prod-import-templates">
+            <a href="{{ route('admin.products.import.template') }}" class="prod-import-template-link">
+                ① Plantilla para crear productos nuevos
+            </a>
+            <a href="{{ route('admin.products.import.template.update') }}" class="prod-import-template-link">
+                ② Plantilla para actualizar productos existentes
+            </a>
+        </div>
+
+        <div class="prod-import-mode-toggle" role="radiogroup" aria-label="Tipo de importación">
+            <label class="prod-import-mode-option">
+                <input type="radio" name="importMode" value="create" id="importModeCreate" checked>
+                Crear productos nuevos
+            </label>
+            <label class="prod-import-mode-option">
+                <input type="radio" name="importMode" value="update" id="importModeUpdate">
+                Actualizar productos existentes
+            </label>
+        </div>
 
         <div class="prod-import-dropzone" id="importDropzone" role="button" tabindex="0">
             <input type="file" id="importFileInput" accept=".xlsx,.xls,.csv" style="display:none">

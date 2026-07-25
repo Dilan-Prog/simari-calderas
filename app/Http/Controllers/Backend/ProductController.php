@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Backend;
 use App\Http\Controllers\Controller;
 use App\Support\UploadPath;
 use App\Traits\ImageUploadTrait;
+use App\Traits\NormalizesProductFields;
 use Illuminate\Http\Request;
 use App\Models\Products;
 use App\Models\ProductImage;
@@ -17,6 +18,7 @@ use Illuminate\Support\Facades\DB;
 class ProductController extends Controller
 {
     use ImageUploadTrait;
+    use NormalizesProductFields;
 
     // FIX (Documentación tab): maps each of the 6 upload slots in the view
     // to its product_documents.type enum value.
@@ -114,27 +116,14 @@ class ProductController extends Controller
     // Options exposed to the "Mostrar" per-page selector in index.blade.php.
     private const PER_PAGE_OPTIONS = [10, 25, 50, 100, 200, 300, 400, 500];
 
-    public function index(Request $request)
+    /**
+     * Filtros compartidos por index() (catálogo) y bulkEditIndex() (editor
+     * en lote) — mismo criterio de búsqueda/categoría/stock/estado en ambas
+     * pantallas. $columns permite a cada pantalla pedir solo lo que necesita.
+     */
+    private function filteredProductsQuery(Request $request, array $columns): \Illuminate\Database\Eloquent\Builder
     {
-        $query = Products::query()
-            ->with(['category', 'brand', 'images'])
-            ->select([
-                'id',
-                'name',
-                'sku',
-                'price',
-                'cost',
-                'stock',
-                // FIX BUG 11/9: stock_unit is now a real column (see BUG 9) —
-                // added here so index.blade.php's inventory summary shows the
-                // real unit instead of always falling back to 'unidades'.
-                'stock_unit',
-                'is_active',
-                'is_featured',
-                'cover_image_url',
-                'category_id',
-                'brand_id',
-            ]);
+        $query = Products::query()->select($columns);
 
         if ($search = $request->input('search')) {
             $query->where(function ($q) use ($search) {
@@ -156,6 +145,29 @@ class ProductController extends Controller
         if ($categoryId = $request->input('category_id')) {
             $query->where('category_id', $categoryId);
         }
+
+        return $query;
+    }
+
+    public function index(Request $request)
+    {
+        $query = $this->filteredProductsQuery($request, [
+            'id',
+            'name',
+            'sku',
+            'price',
+            'cost',
+            'stock',
+            // FIX BUG 11/9: stock_unit is now a real column (see BUG 9) —
+            // added here so index.blade.php's inventory summary shows the
+            // real unit instead of always falling back to 'unidades'.
+            'stock_unit',
+            'is_active',
+            'is_featured',
+            'cover_image_url',
+            'category_id',
+            'brand_id',
+        ])->with(['category', 'brand', 'images']);
 
         // Totals over the filtered set, computed before pagination/get()
         // consumes the query builder below.
@@ -180,6 +192,142 @@ class ProductController extends Controller
             'stockSum',
             'firstStockUnit'
         ))->with('perPageOptions', self::PER_PAGE_OPTIONS);
+    }
+
+    private const BULK_EDIT_FIELDS = [
+        'price', 'compare_price', 'cost', 'stock', 'supplier_sku',
+        'category_id', 'brand_id', 'is_active', 'publish_on_website',
+    ];
+
+    /**
+     * Fase B — editor tipo hoja de cálculo. Mismos filtros que index(), pero
+     * en una página aparte dimensionada para los 8 campos editables (el set
+     * básico elegido: precio, precio comparativo, costo, stock, SKU
+     * proveedor, categoría, marca, activo, publicar en web).
+     */
+    public function bulkEditIndex(Request $request)
+    {
+        $query = $this->filteredProductsQuery($request, [
+            'id', 'name', 'sku', 'price', 'compare_price', 'cost', 'stock',
+            'supplier_sku', 'category_id', 'brand_id', 'is_active', 'publish_on_website',
+        ]);
+
+        $totalFiltered = (clone $query)->count();
+        $perPageInput  = $request->input('per_page', 25);
+        $showAll       = $perPageInput === 'all';
+        $perPage       = $showAll ? $totalFiltered : (int) $perPageInput;
+
+        $products = $showAll
+            ? $query->get()
+            : $query->paginate(max($perPage, 1))->withQueryString();
+
+        $categories = Category::orderBy('name')->get(['id', 'name']);
+        $brands     = Brand::orderBy('name')->get(['id', 'name']);
+
+        return view('admin.products.bulk_edit', compact('products', 'categories', 'brands', 'totalFiltered'))
+            ->with('perPageOptions', self::PER_PAGE_OPTIONS);
+    }
+
+    /**
+     * Valida y sanea un cambio individual del editor en lote. Devuelve
+     * [ok, valorLimpio, mensajeDeError] — nunca lanza, para que un cambio
+     * inválido no tumbe los demás cambios del mismo guardado.
+     */
+    private function validateBulkEditChange(string $field, $value): array
+    {
+        switch ($field) {
+            case 'price':
+            case 'compare_price':
+            case 'cost':
+                $clean = $this->sanitizePrice($value);
+                if ($clean === null || $clean < 0) {
+                    return [false, null, 'No es un número válido.'];
+                }
+
+                return [true, $clean, null];
+
+            case 'stock':
+                if ($value === null || $value === '' || !is_numeric($value) || (int) $value < 0) {
+                    return [false, null, 'El stock debe ser un número entero ≥ 0.'];
+                }
+
+                return [true, (int) $value, null];
+
+            case 'supplier_sku':
+                $v = trim((string) $value);
+                if (mb_strlen($v) > 100) {
+                    return [false, null, 'Máximo 100 caracteres.'];
+                }
+
+                return [true, $v === '' ? null : $v, null];
+
+            case 'category_id':
+                if (!Category::where('id', $value)->exists()) {
+                    return [false, null, 'Categoría no válida.'];
+                }
+
+                return [true, (int) $value, null];
+
+            case 'brand_id':
+                if (!Brand::where('id', $value)->exists()) {
+                    return [false, null, 'Marca no válida.'];
+                }
+
+                return [true, (int) $value, null];
+
+            case 'is_active':
+            case 'publish_on_website':
+                return [true, (bool) $value, null];
+        }
+
+        return [false, null, 'Campo no soportado.'];
+    }
+
+    public function bulkEditSave(Request $request)
+    {
+        $request->validate([
+            'changes' => 'required|array|min:1',
+            'changes.*.id' => 'required|integer|exists:products,id',
+            'changes.*.field' => ['required', 'string', function ($attribute, $value, $fail) {
+                if (!in_array($value, self::BULK_EDIT_FIELDS, true)) {
+                    $fail('Campo no soportado.');
+                }
+            }],
+        ]);
+
+        $results = [];
+        // [productId => [field => valorLimpio, ...], ...] — solo los cambios
+        // que pasaron la validación individual llegan aquí.
+        $validByProductId = [];
+
+        foreach ($request->input('changes') as $change) {
+            $id = (int) $change['id'];
+            $field = $change['field'];
+            [$ok, $clean, $error] = $this->validateBulkEditChange($field, $change['value'] ?? null);
+
+            if ($ok) {
+                $validByProductId[$id][$field] = $clean;
+            }
+
+            $results[] = ['id' => $id, 'field' => $field, 'ok' => $ok, 'error' => $error];
+        }
+
+        if (!empty($validByProductId)) {
+            DB::transaction(function () use ($validByProductId) {
+                foreach ($validByProductId as $id => $fields) {
+                    $product = Products::find($id);
+                    if (!$product) {
+                        continue;
+                    }
+                    foreach ($fields as $field => $value) {
+                        $product->{$field} = $value;
+                    }
+                    $product->save();
+                }
+            });
+        }
+
+        return response()->json(['success' => true, 'results' => $results]);
     }
 
     public function create()
@@ -604,21 +752,22 @@ class ProductController extends Controller
         return response()->json($tags->take(10)->values());
     }
 
-    public function destroy(string $id)
+    /**
+     * FIX BUG 2: Guard against FK constraint violations before deleting.
+     * 6 tables reference products.id with onDelete('restrict'); deleting a
+     * product still referenced by any of them crashed with an uncaught
+     * QueryException (500) instead of a clear 422. Two checks use real
+     * Eloquent relations (models exist); the other four use DB::table()
+     * directly since no Eloquent model exists yet for those tables
+     * (order_items, inventory_movements, service_materials_used/returned) —
+     * creating one is outside this module's isolated scope. Extracted so
+     * both the single-delete and bulk-delete flows apply the exact same
+     * protection.
+     *
+     * @return string[] motivos de bloqueo, vacío si se puede eliminar
+     */
+    private function productDeleteBlockers(Products $product): array
     {
-        // FIX (Documentación tab): eager-load documents too so their
-        // physical files can be cleaned up below.
-        $product = Products::with(['images', 'documents'])->findOrFail($id);
-
-        // FIX BUG 2: Guard against FK constraint violations before deleting.
-        // 6 tables reference products.id with onDelete('restrict'); deleting
-        // a product still referenced by any of them crashed with an
-        // uncaught QueryException (500) instead of a clear 422. Two checks
-        // use real Eloquent relations (models exist); the other four use
-        // DB::table() directly since no Eloquent model exists yet for those
-        // tables (order_items, inventory_movements,
-        // service_materials_used/returned) — creating one is outside this
-        // module's isolated scope.
         $blockers = [];
         if ($product->purchaseOrderItems()->count() > 0) {
             $blockers[] = 'órdenes de compra';
@@ -639,13 +788,11 @@ class ProductController extends Controller
             $blockers[] = 'movimientos de inventario';
         }
 
-        if (!empty($blockers)) {
-            return response()->json([
-                'success' => false,
-                'message' => "No se puede eliminar \"{$product->name}\" porque tiene " . implode(', ', $blockers) . ' asociados.',
-            ], 422);
-        }
+        return $blockers;
+    }
 
+    private function deleteProductAndFiles(Products $product): void
+    {
         foreach ($product->images as $img) {
             $this->deleteImage($img->image_url);
         }
@@ -659,10 +806,88 @@ class ProductController extends Controller
 
         $product->suppliers()->detach();
         $product->delete();
+    }
+
+    public function destroy(string $id)
+    {
+        // FIX (Documentación tab): eager-load documents too so their
+        // physical files can be cleaned up below.
+        $product = Products::with(['images', 'documents'])->findOrFail($id);
+
+        $blockers = $this->productDeleteBlockers($product);
+        if (!empty($blockers)) {
+            return response()->json([
+                'success' => false,
+                'message' => "No se puede eliminar \"{$product->name}\" porque tiene " . implode(', ', $blockers) . ' asociados.',
+            ], 422);
+        }
+
+        $this->deleteProductAndFiles($product);
 
         return response()->json([
             'success' => true,
             'message' => 'Producto eliminado correctamente.',
+        ]);
+    }
+
+    /**
+     * Acciones masivas estilo Shopify: activar/desactivar, publicar/
+     * despublicar en el sitio web, o eliminar varios productos a la vez.
+     * "Seleccionar todos" en la UI solo opera sobre la página actualmente
+     * visible, así que $ids siempre es una lista acotada, no todo el catálogo.
+     */
+    public function bulkUpdate(Request $request)
+    {
+        $request->validate([
+            'ids' => 'required|array|min:1',
+            'ids.*' => 'integer|exists:products,id',
+            'action' => 'required|in:activate,deactivate,publish,unpublish,delete',
+        ]);
+
+        $ids = $request->input('ids');
+        $action = $request->input('action');
+
+        if ($action === 'activate' || $action === 'deactivate') {
+            $updated = Products::whereIn('id', $ids)->update(['is_active' => $action === 'activate']);
+
+            return response()->json(['success' => true, 'action' => $action, 'updated' => $updated]);
+        }
+
+        if ($action === 'publish' || $action === 'unpublish') {
+            $updated = Products::whereIn('id', $ids)->update(['publish_on_website' => $action === 'publish']);
+
+            return response()->json(['success' => true, 'action' => $action, 'updated' => $updated]);
+        }
+
+        // delete: cada producto se procesa por separado (no una sola
+        // transacción global) para que el bloqueo de uno solo no impida
+        // borrar el resto del lote que sí es seguro eliminar.
+        $products = Products::with(['images', 'documents'])->whereIn('id', $ids)->get();
+        $deleted = [];
+        $blocked = [];
+
+        foreach ($products as $product) {
+            $blockers = $this->productDeleteBlockers($product);
+            if (!empty($blockers)) {
+                $blocked[] = ['id' => $product->id, 'name' => $product->name, 'reasons' => $blockers];
+                continue;
+            }
+
+            try {
+                DB::transaction(function () use ($product) {
+                    $this->deleteProductAndFiles($product);
+                });
+                $deleted[] = $product->id;
+            } catch (\Throwable $e) {
+                $blocked[] = ['id' => $product->id, 'name' => $product->name, 'reasons' => ['error inesperado al eliminar']];
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'action' => 'delete',
+            'deleted' => $deleted,
+            'blocked' => $blocked,
         ]);
     }
 }

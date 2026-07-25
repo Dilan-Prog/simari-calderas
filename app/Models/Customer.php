@@ -4,11 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
 
 
 class Customer extends Authenticatable
 {
-    use HasFactory;
+    use HasFactory, Notifiable;
 
     protected $fillable = [
         'first_name',
@@ -20,16 +21,34 @@ class Customer extends Authenticatable
         'status',
         'source',
         'company',
-        'notes'
+        'rfc',
+        'notes',
+        'portal_access',
+    ];
+
+    protected $casts = [
+        'portal_access' => 'boolean',
     ];
 
     protected $hidden = [
         'password_hash',
     ];
 
-    public function getAuthPassword(): ?string
+    public function getAuthPassword(): string
     {
-        return $this->password_hash;
+        // Nullable: los clientes creados desde el admin pueden no tener
+        // contraseña hasta que se les otorga acceso (o la establecen vía
+        // "olvidé mi contraseña"). Cadena vacía => attempt() siempre falla.
+        return $this->password_hash ?? '';
+    }
+
+    /**
+     * La notificación default de Laravel enlaza a route('password.reset')
+     * (flujo del admin); los clientes deben recibir el enlace de la tienda.
+     */
+    public function sendPasswordResetNotification($token): void
+    {
+        $this->notify(new \App\Notifications\CustomerResetPassword($token));
     }
 
     public function customer_addresses()
@@ -57,5 +76,10 @@ class Customer extends Authenticatable
     public function serviceReports()
     {
         return $this->hasMany(ServiceReport::class);
+    }
+
+    public function portalRequest()
+    {
+        return $this->hasOne(CustomerPortalRequest::class);
     }
 }

@@ -12,6 +12,13 @@ class Authenticate extends Middleware
      */
     protected function redirectTo(Request $request): ?string
     {
-        return $request->expectsJson() ? null : route('login');
+        if ($request->expectsJson()) {
+            return null;
+        }
+
+        // Las rutas de la tienda (/cuenta, name shop.*) redirigen al login de
+        // clientes; el resto (admin y portal /customer) conserva el login
+        // unificado existente.
+        return $request->routeIs('shop.*') ? route('shop.login') : route('login');
     }
 }

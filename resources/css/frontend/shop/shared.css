@@ -466,3 +466,127 @@ img { max-width: 100%; height: auto; display: block; }
     .product-carousel--with-banner .product-carousel__wrap { flex-direction: column; }
     .product-carousel__banner-link { flex: 0 0 auto; height: 160px; }
 }
+
+/* ── Dropdown de usuario (cliente autenticado) en el header ── */
+.eq-header__user { position: relative; }
+.eq-header__user-btn { background: none; border: none; cursor: pointer; font-family: inherit; }
+.eq-header__user-menu {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    width: 230px;
+    background: #fff;
+    border-radius: 8px;
+    border-top: 2px solid var(--secondary-color);
+    box-shadow: 0 20px 48px rgba(0, 0, 0, 0.25);
+    overflow: hidden;
+    z-index: 1200;
+}
+.eq-header__user-menu-head {
+    padding: 14px 18px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+.eq-header__user-menu-name { font-size: 13.5px; font-weight: 800; color: #141516; }
+.eq-header__user-menu-email {
+    font-size: 12px; color: #9ca3af;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.eq-header__user-menu a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 11px 18px;
+    font-size: 13.5px;
+    color: #141516;
+    text-decoration: none;
+}
+.eq-header__user-menu a svg { color: #4b5563; flex-shrink: 0; }
+.eq-header__user-menu a:hover { background: #f5f5f5; color: #141516; }
+.eq-header__user-menu-footer { border-top: 1px solid rgba(0, 0, 0, 0.06); }
+.eq-header__user-menu-footer button {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 11px 18px;
+    font-size: 13.5px;
+    color: #c81e1e;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    text-align: left;
+}
+.eq-header__user-menu-footer button:hover { background: #fdecec; }
+
+/* ── Modal genérico (logout del header, confirmaciones del portal) ── */
+.eq-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(20, 21, 22, 0.55);
+    z-index: 3000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    font-family: var(--font-family);
+}
+.eq-modal__card {
+    background: #fff;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    padding: 28px 24px 24px;
+    text-align: center;
+}
+.eq-modal__card--form {
+    max-width: 480px;
+    text-align: left;
+    padding: 0;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+.eq-modal__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 24px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+.eq-modal__header-title { font-size: 16px; font-weight: 800; color: #141516; }
+.eq-modal__close { background: none; border: none; cursor: pointer; padding: 4px; color: #4b5563; }
+.eq-modal__close:hover { color: #141516; }
+.eq-modal__body { padding: 24px; }
+.eq-modal__icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 16px;
+}
+.eq-modal__icon--danger { background: #fdecec; color: #c81e1e; }
+.eq-modal__icon--accent { background: #fff2e9; color: var(--secondary-color); }
+.eq-modal__title { font-size: 15.5px; font-weight: 800; color: #141516; margin-bottom: 8px; }
+.eq-modal__text { font-size: 13.5px; color: #4b5563; line-height: 1.5; margin-bottom: 22px; }
+.eq-modal__actions { display: flex; gap: 10px; }
+.eq-modal__actions--footer { padding: 20px 24px; border-top: 1px solid rgba(0, 0, 0, 0.06); }
+.eq-modal__btn {
+    flex: 1;
+    background: none;
+    color: #141516;
+    border: 1.5px solid rgba(0, 0, 0, 0.15);
+    border-radius: 6px;
+    padding: 12px;
+    font-size: 13.5px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+}
+.eq-modal__btn:hover { background: #f5f5f5; }
+.eq-modal__btn--primary { background: var(--secondary-color); color: #fff; border: none; }
+.eq-modal__btn--primary:hover { background: #de4a00; }
+.eq-modal__btn--danger { background: #c81e1e; color: #fff; border: none; }
+.eq-modal__btn--danger:hover { background: #a81616; }

@@ -11,7 +11,12 @@ class SettingController extends Controller
 {
     public function index()
     {
-        $groups = Setting::orderBy('group_name')->orderBy('key')->get()->groupBy('group_name');
+        // El grupo 'integraciones' (SMTP, credenciales) tiene su propio
+        // módulo con manejo de encriptación — editarlo aquí lo corrompería.
+        $groups = Setting::where(function ($q) {
+                $q->where('group_name', '!=', 'integraciones')->orWhereNull('group_name');
+            })
+            ->orderBy('group_name')->orderBy('key')->get()->groupBy('group_name');
 
         return view('admin.settings.index', compact('groups'));
     }

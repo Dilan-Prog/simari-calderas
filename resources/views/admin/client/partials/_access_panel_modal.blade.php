@@ -37,6 +37,33 @@
             </button>
         </div>
 
+        {{-- Status: portal de servicios --}}
+        <div class="access-status-row">
+            <div class="access-status-info">
+                <span class="access-status-label">Portal de servicios</span>
+                <span id="portalAccessBadge" class="users-manager-badge status-inactive">Sin acceso</span>
+            </div>
+            <button type="button" id="portalToggleBtn" class="button-secondary size-adjustment"
+                onclick="togglePortalAccess()">
+                Activar portal
+            </button>
+        </div>
+
+        {{-- Banner: solicitud de portal pendiente --}}
+        <div id="portalRequestBanner" class="access-modal-banner hidden">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                 style="flex-shrink:0;margin-top:1px">
+                <circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/>
+            </svg>
+            <span>Este cliente <strong>solicitó acceso al portal</strong>.
+                <a href="#" id="portalRequestViewLink" onclick="loadPortalRequest(event)" style="color:#ff6213;font-weight:700;">Ver solicitud</a>
+            </span>
+        </div>
+
+        {{-- Detalle de la solicitud (se llena por fetch) --}}
+        <div id="portalRequestDetails" class="hidden" style="border:1px solid rgba(0,0,0,0.08);border-radius:8px;padding:14px 16px;margin-bottom:16px;font-size:13px;color:#374151;line-height:1.7;"></div>
+
         {{-- Section title: password reset --}}
         <h4 id="accessPasswordSectionTitle" class="access-section-title">Restablecer contraseña</h4>
 
@@ -129,11 +156,17 @@
 @push('scripts')
 <script>
 (function () {
-    function openAccessModal(customerId, customerName, customerEmail, hasAccess, status) {
+    function openAccessModal(customerId, customerName, customerEmail, hasAccess, status, portalAccess, portalRequested) {
         document.getElementById('accessCustomerId').value = customerId;
         document.getElementById('accessModalName').textContent = customerName;
         document.getElementById('accessModalEmail').textContent = customerEmail;
         document.getElementById('accessModalAvatar').textContent = customerName.charAt(0).toUpperCase();
+
+        renderPortalAccess(!!portalAccess);
+        document.getElementById('portalRequestBanner').classList.toggle('hidden', !portalRequested);
+        const details = document.getElementById('portalRequestDetails');
+        details.classList.add('hidden');
+        details.innerHTML = '';
 
         const sectionTitle = document.getElementById('accessPasswordSectionTitle');
         const submitText   = document.getElementById('accessSubmitText');
@@ -218,6 +251,89 @@
             showClientToast('Error de conexión. Intenta de nuevo.', 'error');
         } finally {
             toggleBtn.disabled = false;
+        }
+    }
+
+    function renderPortalAccess(enabled) {
+        const badge = document.getElementById('portalAccessBadge');
+        const btn = document.getElementById('portalToggleBtn');
+
+        badge.dataset.enabled = enabled ? '1' : '0';
+        badge.textContent = enabled ? 'Con acceso' : 'Sin acceso';
+        badge.className = 'users-manager-badge ' + (enabled ? 'status' : 'status-inactive');
+        btn.textContent = enabled ? 'Desactivar portal' : 'Activar portal';
+    }
+
+    async function togglePortalAccess() {
+        const customerId = document.getElementById('accessCustomerId').value;
+        const badge = document.getElementById('portalAccessBadge');
+        const btn = document.getElementById('portalToggleBtn');
+        const enable = badge.dataset.enabled !== '1';
+
+        btn.disabled = true;
+
+        try {
+            const response = await fetch(`/admin/clientes/${customerId}/portal`, {
+                method: 'PATCH',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                },
+                body: JSON.stringify({ enabled: enable }),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                showClientToast(data.message || 'Ocurrió un error', 'error');
+                return;
+            }
+
+            renderPortalAccess(data.portal_access);
+            showClientToast(data.message);
+
+            // Sincroniza el data-attribute del botón de la tabla para que
+            // reabrir el modal muestre el estado correcto sin recargar.
+            const rowBtn = document.querySelector(`.access_panel[data-customer-id="${customerId}"]`);
+            if (rowBtn) rowBtn.dataset.portalAccess = data.portal_access ? 'true' : 'false';
+        } catch (err) {
+            showClientToast('Error de conexión. Intenta de nuevo.', 'error');
+        } finally {
+            btn.disabled = false;
+        }
+    }
+
+    async function loadPortalRequest(e) {
+        e.preventDefault();
+        const customerId = document.getElementById('accessCustomerId').value;
+        const details = document.getElementById('portalRequestDetails');
+
+        try {
+            const response = await fetch(`/admin/clientes/${customerId}/solicitud-portal`, {
+                headers: { 'Accept': 'application/json' },
+            });
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                showClientToast(data.message || 'No se pudo cargar la solicitud.', 'error');
+                return;
+            }
+
+            const r = data.request;
+            const esc = (s) => String(s ?? '—').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            details.innerHTML = `
+                <strong>Solicitud de acceso al portal</strong> <span style="color:#9ca3af;">· ${esc(r.completed_at ?? 'incompleta')}</span><br>
+                <strong>Frecuencia de compra:</strong> ${esc(r.purchase_frequency)}<br>
+                <strong>Monto por periodo:</strong> ${esc(r.purchase_amount)}<br>
+                <strong>Motivo:</strong> ${esc(r.reason)}<br>
+                <strong>Responsable:</strong> ${esc(r.responsible_name)}<br>
+                <strong>RFC:</strong> ${esc(r.rfc)} · <strong>Régimen:</strong> ${esc(r.tax_regime)}<br>
+                <strong>Contacto:</strong> ${esc(r.contact_email)} · ${esc(r.phone)}<br>
+                ${r.certificate_url ? `<a href="${r.certificate_url}" style="color:#ff6213;font-weight:700;">Descargar Constancia de Situación Fiscal</a>` : '<span style="color:#9ca3af;">Sin constancia adjunta</span>'}`;
+            details.classList.remove('hidden');
+        } catch (err) {
+            showClientToast('Error de conexión al cargar la solicitud.', 'error');
         }
     }
 
@@ -341,6 +457,8 @@
     window.closeAccessModal = closeAccessModal;
     window.toggleAccessPassword = toggleAccessPassword;
     window.toggleClientStatus = toggleClientStatus;
+    window.togglePortalAccess = togglePortalAccess;
+    window.loadPortalRequest = loadPortalRequest;
 })();
 </script>
 @endpush

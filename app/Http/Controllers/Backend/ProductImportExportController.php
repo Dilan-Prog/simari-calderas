@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Backend;
 
 use App\Exports\ProductsExport;
 use App\Exports\ProductsTemplateExport;
+use App\Exports\ProductsUpdateTemplateExport;
 use App\Http\Controllers\Controller;
 use App\Imports\ProductsImport;
+use App\Imports\ProductsUpdateImport;
 use App\Models\Brand;
 use App\Models\Category;
 use Illuminate\Http\Request;
@@ -22,6 +24,16 @@ class ProductImportExportController extends Controller
         }
 
         return Excel::download(new ProductsTemplateExport(), 'plantilla-productos.xlsx');
+    }
+
+    public function downloadUpdateTemplate()
+    {
+        if (!Category::where('is_active', true)->exists() || !Brand::where('is_active', true)->exists()) {
+            return redirect()->route('admin.products.index')
+                ->with('error', 'Registra al menos una categoría y una marca activas antes de descargar la plantilla.');
+        }
+
+        return Excel::download(new ProductsUpdateTemplateExport(), 'plantilla-actualizacion-productos.xlsx');
     }
 
     public function export()
@@ -85,6 +97,51 @@ class ProductImportExportController extends Controller
             'success' => true,
             'created' => $import->createdCount,
             'skipped_duplicates' => $import->skippedDuplicates,
+            'failures' => $failures,
+            'image_download_failures' => $import->imageDownloadFailures,
+        ]);
+    }
+
+    public function importUpdate(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:xlsx,xls,csv|max:5120',
+        ], [
+            'file.required' => 'Selecciona un archivo antes de subirlo.',
+            'file.file'     => 'El archivo recibido no es válido.',
+            'file.mimes'    => 'El archivo debe ser de tipo .xlsx, .xls o .csv.',
+            'file.max'      => 'El archivo no debe pesar más de 5 MB.',
+        ]);
+
+        set_time_limit(300);
+
+        try {
+            $import = new ProductsUpdateImport();
+            Excel::import($import, $request->file('file'));
+        } catch (\Throwable $e) {
+            Log::error('Product update import failed', [
+                'exception' => get_class($e),
+                'message'   => $e->getMessage(),
+                'file'      => $e->getFile() . ':' . $e->getLine(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'No se pudo procesar el archivo. Verifica que uses la plantilla y que las columnas no hayan sido modificadas.',
+                'debug'   => $e->getMessage(),
+            ], 422);
+        }
+
+        $failures = collect($import->failures())->map(fn ($f) => [
+            'row' => $f->row(),
+            'campo' => $f->attribute(),
+            'errores' => $f->errors(),
+        ])->values();
+
+        return response()->json([
+            'success' => true,
+            'updated' => $import->updatedCount,
+            'skipped_not_found' => $import->skippedNotFound,
             'failures' => $failures,
             'image_download_failures' => $import->imageDownloadFailures,
         ]);

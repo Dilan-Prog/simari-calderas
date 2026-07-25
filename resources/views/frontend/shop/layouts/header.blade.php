@@ -68,10 +68,77 @@
       </div>
 
       <div class="eq-header__actions">
-        <a href="#" class="eq-header__action">
-          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.5-6 8-6s8 2 8 6" stroke-linecap="round"/></svg>
-          <span>Iniciar sesión</span>
-        </a>
+        @if (Auth::guard('customer')->check())
+          @php $headerCustomer = Auth::guard('customer')->user(); @endphp
+          <div class="eq-header__user" x-data="{ userOpen: false, logoutOpen: false }" @click.outside="userOpen = false">
+            <button type="button" class="eq-header__action eq-header__user-btn" @click="userOpen = !userOpen">
+              <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.5-6 8-6s8 2 8 6" stroke-linecap="round"/></svg>
+              <span>Mi Cuenta</span>
+            </button>
+            <div class="eq-header__user-menu" x-show="userOpen" x-cloak>
+              <div class="eq-header__user-menu-head">
+                <div class="eq-header__user-menu-name">Hola, {{ $headerCustomer->first_name }}</div>
+                <div class="eq-header__user-menu-email">{{ $headerCustomer->email }}</div>
+              </div>
+              <a href="{{ route('shop.account') }}">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.5-6 8-6s8 2 8 6" stroke-linecap="round"/></svg>
+                Mi perfil
+              </a>
+              <a href="{{ route('shop.account') }}#pedidos">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="17" rx="1.5"/><path d="M8 9h8M8 13h8M8 17h5" stroke-linecap="round"/></svg>
+                Mis pedidos
+              </a>
+              <a href="{{ route('shop.account') }}#direcciones">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s7-7.2 7-12a7 7 0 1 0-14 0c0 4.8 7 12 7 12z"/><circle cx="12" cy="9" r="2.5"/></svg>
+                Direcciones
+              </a>
+              <a href="{{ route('shop.account') }}#pagos">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18" stroke-linecap="round"/></svg>
+                Métodos de pago
+              </a>
+              <a href="{{ route('shop.account') }}#favoritos">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20s-8-4.5-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 9c0 6.5-8 11-8 11z" stroke-linejoin="round"/></svg>
+                Favoritos
+              </a>
+              @if ($headerCustomer->portal_access)
+                <a href="{{ route('customer.dashboard') }}">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a4.5 4.5 0 0 0-6.4 6.4l-5 5V21h3.3l5-5a4.5 4.5 0 0 0 6.4-6.4l-2.8 2.8-2.3-2.3 2.8-2.8z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  Portal de servicios
+                </a>
+              @endif
+              <div class="eq-header__user-menu-footer">
+                <button type="button" @click="logoutOpen = true; userOpen = false">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  Cerrar sesión
+                </button>
+              </div>
+            </div>
+
+            <template x-teleport="body">
+              <div class="eq-modal" x-show="logoutOpen" x-cloak @click.self="logoutOpen = false" @keydown.escape.window="logoutOpen = false">
+                <div class="eq-modal__card">
+                  <div class="eq-modal__icon eq-modal__icon--danger">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </div>
+                  <div class="eq-modal__title">¿Cerrar sesión?</div>
+                  <div class="eq-modal__text">Tendrás que iniciar sesión de nuevo para acceder a tu cuenta.</div>
+                  <div class="eq-modal__actions">
+                    <button type="button" class="eq-modal__btn" @click="logoutOpen = false">Cancelar</button>
+                    <form method="POST" action="{{ route('shop.logout') }}" style="flex:1;display:flex;">
+                      @csrf
+                      <button type="submit" class="eq-modal__btn eq-modal__btn--danger">Cerrar sesión</button>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            </template>
+          </div>
+        @else
+          <a href="{{ route('shop.login') }}" class="eq-header__action">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.5-6 8-6s8 2 8 6" stroke-linecap="round"/></svg>
+            <span>Iniciar sesión</span>
+          </a>
+        @endif
         <a href="#" class="eq-header__action">
           <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20s-8-4.5-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 9c0 6.5-8 11-8 11z" stroke-linejoin="round"/></svg>
           <span>Favoritos</span>

@@ -7,6 +7,7 @@ use App\Models\Category;
 use App\Models\ProductImage;
 use App\Models\Products;
 use App\Traits\ImageUploadTrait;
+use App\Traits\NormalizesProductFields;
 use Illuminate\Support\Str;
 use Maatwebsite\Excel\Concerns\RegistersEventListeners;
 use Maatwebsite\Excel\Concerns\RemembersRowNumber;
@@ -27,6 +28,7 @@ class ProductsImport implements ToModel, WithHeadingRow, WithValidation, WithBat
     use RemembersRowNumber;
     use RegistersEventListeners;
     use ImageUploadTrait;
+    use NormalizesProductFields;
 
     /** @var array<string,string> sku => URL de imagen pendiente de descargar (se resuelve en afterImport, una vez que los productos ya tienen id) */
     private array $pendingImageUrls = [];
@@ -91,8 +93,8 @@ class ProductsImport implements ToModel, WithHeadingRow, WithValidation, WithBat
         }
         $this->seenInFile[$skuKey] = true;
 
-        $categoryId = $this->categoriesByName[strtolower(trim($row['categoria'] ?? ''))] ?? null;
-        $brandId = $this->brandsByName[strtolower(trim($row['marca'] ?? ''))] ?? null;
+        $categoryId = $this->resolveIdByName($row['categoria'] ?? null, $this->categoriesByName);
+        $brandId = $this->resolveIdByName($row['marca'] ?? null, $this->brandsByName);
 
         // rules() ya garantiza que categoria/marca existan antes de llegar
         // aquí; esto es solo una guarda defensiva.
@@ -111,22 +113,22 @@ class ProductsImport implements ToModel, WithHeadingRow, WithValidation, WithBat
             'brand_id' => $brandId,
             'short_description' => $row['descripcion_corta'] ?? null,
             'description' => $row['descripcion'] ?? null,
-            'price' => $row['precio'],
-            'compare_price' => $row['precio_comparativo'] ?? null,
-            'cost' => $row['costo'] ?? 0,
+            'price' => $this->sanitizePrice($row['precio']),
+            'compare_price' => $this->sanitizePrice($row['precio_comparativo'] ?? null),
+            'cost' => $this->sanitizePrice($row['costo'] ?? null) ?? 0,
             'stock' => $row['stock'] ?? 0,
-            'stock_unit' => $this->normalizeEnum($row['unidad_stock'] ?? null, ['pieza', 'juego', 'kit', 'metro', 'kg', 'litro'], 'pieza'),
-            'currency' => $this->normalizeEnum($row['moneda'] ?? null, ['MXN', 'USD', 'EUR'], 'MXN', true),
-            'is_active' => $this->toBool($row['activo'] ?? true, true),
-            'is_featured' => $this->toBool($row['destacado'] ?? false, false),
-            'is_new' => $this->toBool($row['nuevo'] ?? false, false),
-            'is_recommended' => $this->toBool($row['recomendado'] ?? false, false),
-            'publish_on_website' => $this->toBool($row['publicar_web'] ?? false, false),
+            'stock_unit' => $this->normalizeProductEnum($row['unidad_stock'] ?? null, ['pieza', 'juego', 'kit', 'metro', 'kg', 'litro'], 'pieza'),
+            'currency' => $this->normalizeProductEnum($row['moneda'] ?? null, ['MXN', 'USD', 'EUR'], 'MXN', true),
+            'is_active' => $this->normalizeProductBool($row['activo'] ?? true, true),
+            'is_featured' => $this->normalizeProductBool($row['destacado'] ?? false, false),
+            'is_new' => $this->normalizeProductBool($row['nuevo'] ?? false, false),
+            'is_recommended' => $this->normalizeProductBool($row['recomendado'] ?? false, false),
+            'publish_on_website' => $this->normalizeProductBool($row['publicar_web'] ?? false, false),
         ]);
         $product->slug = Str::slug($row['nombre']) . '-' . Str::random(6);
         // availability no está en $fillable del modelo (igual que en
         // ProductController), se asigna por propiedad directa.
-        $product->availability = $this->normalizeAvailability($row['disponibilidad'] ?? null);
+        $product->availability = $this->normalizeProductAvailability($row['disponibilidad'] ?? null);
 
         if (!empty($row['imagen_url'])) {
             // El producto todavía no tiene id en este punto (WithBatchInserts
@@ -183,9 +185,24 @@ class ProductsImport implements ToModel, WithHeadingRow, WithValidation, WithBat
                     $fail("La marca \"{$value}\" no existe en el sistema.");
                 }
             }],
-            'precio' => 'required|numeric|min:0',
-            'costo' => 'nullable|numeric|min:0',
-            'precio_comparativo' => 'nullable|numeric|min:0',
+            'precio' => ['required', function ($attribute, $value, $fail) {
+                $clean = $this->sanitizePrice($value);
+                if ($clean === null || $clean < 0) {
+                    $fail('El precio no es un número válido.');
+                }
+            }],
+            'costo' => ['nullable', function ($attribute, $value, $fail) {
+                $clean = $this->sanitizePrice($value);
+                if ($value !== null && trim((string) $value) !== '' && ($clean === null || $clean < 0)) {
+                    $fail('El costo no es un número válido.');
+                }
+            }],
+            'precio_comparativo' => ['nullable', function ($attribute, $value, $fail) {
+                $clean = $this->sanitizePrice($value);
+                if ($value !== null && trim((string) $value) !== '' && ($clean === null || $clean < 0)) {
+                    $fail('El precio comparativo no es un número válido.');
+                }
+            }],
             'stock' => 'nullable|integer|min:0',
             'imagen_url' => 'nullable|url|max:2048',
         ];
@@ -211,45 +228,4 @@ class ProductsImport implements ToModel, WithHeadingRow, WithValidation, WithBat
         return 200;
     }
 
-    private function toBool($value, bool $default): bool
-    {
-        if ($value === null || $value === '') {
-            return $default;
-        }
-        $v = strtolower(trim((string) $value));
-
-        return in_array($v, ['1', 'si', 'sí', 'true', 'x', 'yes'], true);
-    }
-
-    private function normalizeEnum($value, array $allowed, string $default, bool $caseSensitiveAllowed = false): string
-    {
-        if ($value === null || trim((string) $value) === '') {
-            return $default;
-        }
-        $v = trim((string) $value);
-
-        foreach ($allowed as $option) {
-            if ($caseSensitiveAllowed ? $v === $option : strtolower($v) === strtolower($option)) {
-                return $option;
-            }
-        }
-
-        return $default;
-    }
-
-    private function normalizeAvailability($value): string
-    {
-        $map = [
-            'disponible' => 'available',
-            'agotado' => 'out_of_stock',
-            'sobre_pedido' => 'on_order',
-            'sobre pedido' => 'on_order',
-            'available' => 'available',
-            'out_of_stock' => 'out_of_stock',
-            'on_order' => 'on_order',
-        ];
-        $v = strtolower(trim((string) $value));
-
-        return $map[$v] ?? 'available';
-    }
 }
