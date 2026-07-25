@@ -53,13 +53,29 @@ class ProductController extends Controller
             }
         }
 
-        if (empty($uploadedPaths) && empty($urlPaths)) {
+        // FIX (image duplication): images picked from the "Biblioteca"
+        // reuse an existing ProductImage's own path directly — no HTTP
+        // fetch, no re-encode, no new physical file. IDs are validated
+        // against product_images above, so this can only ever copy a path
+        // that's already legitimately on disk.
+        $existingPaths = [];
+        if ($request->filled('existing_image_ids')) {
+            $byId = ProductImage::whereIn('id', $request->existing_image_ids)->pluck('image_url', 'id');
+            foreach ($request->existing_image_ids as $id) {
+                if (isset($byId[$id])) {
+                    $existingPaths[] = $byId[$id];
+                }
+            }
+        }
+
+        if (empty($uploadedPaths) && empty($urlPaths) && empty($existingPaths)) {
             return;
         }
 
-        $sortOrder = $startingSortOrder;
-        $fileIdx   = 0;
-        $urlIdx    = 0;
+        $sortOrder   = $startingSortOrder;
+        $fileIdx     = 0;
+        $urlIdx      = 0;
+        $existingIdx = 0;
 
         foreach ($request->input('image_source_order', []) as $type) {
             $path = null;
@@ -67,6 +83,8 @@ class ProductController extends Controller
                 $path = $uploadedPaths[$fileIdx++];
             } elseif ($type === 'url' && array_key_exists($urlIdx, $urlPaths)) {
                 $path = $urlPaths[$urlIdx++];
+            } elseif ($type === 'existing' && array_key_exists($existingIdx, $existingPaths)) {
+                $path = $existingPaths[$existingIdx++];
             }
             if ($path !== null) {
                 ProductImage::create(['product_id' => $product->id, 'image_url' => $path, 'sort_order' => $sortOrder++]);
@@ -81,6 +99,25 @@ class ProductController extends Controller
         }
         foreach (array_slice($urlPaths, $urlIdx) as $path) {
             ProductImage::create(['product_id' => $product->id, 'image_url' => $path, 'sort_order' => $sortOrder++]);
+        }
+        foreach (array_slice($existingPaths, $existingIdx) as $path) {
+            ProductImage::create(['product_id' => $product->id, 'image_url' => $path, 'sort_order' => $sortOrder++]);
+        }
+    }
+
+    /**
+     * FIX (image duplication): now that "Biblioteca" reuses can share a
+     * physical file across multiple ProductImage rows, deleting one row must
+     * not unlink the file if another row still points at the same path.
+     */
+    private function deleteImageIfUnreferenced(ProductImage $img): void
+    {
+        $stillReferenced = ProductImage::where('image_url', $img->image_url)
+            ->where('id', '!=', $img->id)
+            ->exists();
+
+        if (!$stillReferenced) {
+            $this->deleteImage($img->image_url);
         }
     }
 
@@ -195,21 +232,50 @@ class ProductController extends Controller
     }
 
     private const BULK_EDIT_FIELDS = [
-        'price', 'compare_price', 'cost', 'stock', 'supplier_sku',
-        'category_id', 'brand_id', 'is_active', 'publish_on_website',
+        'name', 'model', 'supplier_sku', 'short_description', 'description',
+        'price', 'compare_price', 'cost', 'stock', 'stock_unit', 'currency', 'availability',
+        'category_id', 'brand_id', 'is_active', 'publish_on_website', 'is_featured', 'is_new', 'is_recommended',
+        'tags', 'specifications',
+        'seo_title', 'seo_description', 'seo_keywords', 'og_title', 'og_description', 'og_image',
     ];
+
+    private const BULK_EDIT_STOCK_UNITS = ['pieza', 'juego', 'kit', 'metro', 'kg', 'litro'];
+    private const BULK_EDIT_CURRENCIES = ['MXN', 'USD', 'EUR'];
+    private const BULK_EDIT_AVAILABILITY = ['available', 'out_of_stock', 'on_order'];
+
+    /**
+     * Etiqueta tipo "Padre > Hijo" para que el <select> de categoría del
+     * editor en lote no sea ambiguo entre categorías con nombres parecidos
+     * en distintas ramas. Requiere $category cargada con parent.parent
+     * (ver bulkEditIndex()) para no disparar una consulta por categoría.
+     */
+    private function categoryBreadcrumb(Category $category): string
+    {
+        $parts = [$category->name];
+        $node = $category;
+        while ($node->parent) {
+            $node = $node->parent;
+            array_unshift($parts, $node->name);
+        }
+
+        return implode(' > ', $parts);
+    }
 
     /**
      * Fase B — editor tipo hoja de cálculo. Mismos filtros que index(), pero
-     * en una página aparte dimensionada para los 8 campos editables (el set
-     * básico elegido: precio, precio comparativo, costo, stock, SKU
-     * proveedor, categoría, marca, activo, publicar en web).
+     * en una página aparte con (casi) todos los campos de un producto como
+     * columnas editables — todo salvo la galería de imágenes, los
+     * documentos PDF, el slug y las dimensiones físicas (sin UI en ningún
+     * otro lugar del sistema todavía).
      */
     public function bulkEditIndex(Request $request)
     {
         $query = $this->filteredProductsQuery($request, [
-            'id', 'name', 'sku', 'price', 'compare_price', 'cost', 'stock',
-            'supplier_sku', 'category_id', 'brand_id', 'is_active', 'publish_on_website',
+            'id', 'name', 'sku', 'model', 'supplier_sku', 'short_description', 'description',
+            'price', 'compare_price', 'cost', 'stock', 'stock_unit', 'currency', 'availability',
+            'category_id', 'brand_id', 'is_active', 'publish_on_website', 'is_featured', 'is_new', 'is_recommended',
+            'tags', 'specifications',
+            'seo_title', 'seo_description', 'seo_keywords', 'og_title', 'og_description', 'og_image',
         ]);
 
         $totalFiltered = (clone $query)->count();
@@ -221,20 +287,60 @@ class ProductController extends Controller
             ? $query->get()
             : $query->paginate(max($perPage, 1))->withQueryString();
 
+        // $categories: lista plana para el filtro de la barra de herramientas
+        // (igual que index.blade.php). $categoryOptions: con etiqueta
+        // jerárquica, para el <select> editable de cada fila.
         $categories = Category::orderBy('name')->get(['id', 'name']);
-        $brands     = Brand::orderBy('name')->get(['id', 'name']);
+        $categoryOptions = Category::with('parent.parent')->get()
+            ->map(fn ($c) => ['id' => $c->id, 'label' => $this->categoryBreadcrumb($c)])
+            ->sortBy('label')
+            ->values();
+        $brands = Brand::orderBy('name')->get(['id', 'name']);
 
-        return view('admin.products.bulk_edit', compact('products', 'categories', 'brands', 'totalFiltered'))
+        return view('admin.products.bulk_edit', compact('products', 'categories', 'categoryOptions', 'brands', 'totalFiltered'))
             ->with('perPageOptions', self::PER_PAGE_OPTIONS);
     }
 
     /**
+     * Campo => longitud máxima, para los campos de texto simple que solo
+     * necesitan trim + límite (misma longitud que ya exige store()/update()
+     * para el formulario completo).
+     */
+    private const BULK_EDIT_TEXT_MAX = [
+        'name' => 255,
+        'model' => 100,
+        'short_description' => 500,
+        'seo_title' => 60,
+        'seo_description' => 160,
+        'seo_keywords' => 255,
+        'og_title' => 255,
+        'og_image' => 255,
+    ];
+
+    /**
      * Valida y sanea un cambio individual del editor en lote. Devuelve
      * [ok, valorLimpio, mensajeDeError] — nunca lanza, para que un cambio
-     * inválido no tumbe los demás cambios del mismo guardado.
+     * inválido no tumbe los demás cambios del mismo guardado. $productId se
+     * usa para validaciones que necesitan excluir la propia fila (ninguna
+     * hoy, pero se deja listo para no tener que volver a cambiar la firma).
      */
-    private function validateBulkEditChange(string $field, $value): array
+    private function validateBulkEditChange(string $field, $value, int $productId): array
     {
+        if (array_key_exists($field, self::BULK_EDIT_TEXT_MAX)) {
+            $v = trim((string) $value);
+            if ($field === 'name' && $v === '') {
+                return [false, null, 'El nombre no puede quedar vacío.'];
+            }
+            if (mb_strlen($v) > self::BULK_EDIT_TEXT_MAX[$field]) {
+                return [false, null, 'Máximo ' . self::BULK_EDIT_TEXT_MAX[$field] . ' caracteres.'];
+            }
+            if ($field === 'og_image' && $v !== '' && !filter_var($v, FILTER_VALIDATE_URL)) {
+                return [false, null, 'No es una URL válida.'];
+            }
+
+            return [true, $v === '' ? null : $v, null];
+        }
+
         switch ($field) {
             case 'price':
             case 'compare_price':
@@ -261,6 +367,40 @@ class ProductController extends Controller
 
                 return [true, $v === '' ? null : $v, null];
 
+            case 'description':
+                // Se guarda tal cual, sin límite de longitud (igual que la
+                // regla actual 'nullable|string' del formulario completo).
+                // En realidad el formulario completo solo guarda texto plano
+                // (el editor Quill descarta el formato al enviarse), así que
+                // esta celda se trata igual que cualquier textarea largo.
+                $v = trim((string) $value);
+
+                return [true, $v === '' ? null : $v, null];
+
+            case 'stock_unit':
+                $v = trim((string) $value);
+                if (!in_array($v, self::BULK_EDIT_STOCK_UNITS, true)) {
+                    return [false, null, 'Unidad de stock no válida.'];
+                }
+
+                return [true, $v, null];
+
+            case 'currency':
+                $v = strtoupper(trim((string) $value));
+                if (!in_array($v, self::BULK_EDIT_CURRENCIES, true)) {
+                    return [false, null, 'Moneda no válida.'];
+                }
+
+                return [true, $v, null];
+
+            case 'availability':
+                $v = trim((string) $value);
+                if (!in_array($v, self::BULK_EDIT_AVAILABILITY, true)) {
+                    return [false, null, 'Disponibilidad no válida.'];
+                }
+
+                return [true, $v, null];
+
             case 'category_id':
                 if (!Category::where('id', $value)->exists()) {
                     return [false, null, 'Categoría no válida.'];
@@ -277,7 +417,45 @@ class ProductController extends Controller
 
             case 'is_active':
             case 'publish_on_website':
+            case 'is_featured':
+            case 'is_new':
+            case 'is_recommended':
                 return [true, (bool) $value, null];
+
+            case 'tags':
+                // Llega como texto separado por comas; el valor limpio es un
+                // array de PHP (no un JSON string), porque el modelo ya
+                // tiene 'tags' => 'array' en $casts — asignarle un string
+                // JSON aquí lo doble-codificaría.
+                $tags = array_values(array_filter(array_map('trim', explode(',', (string) $value)), fn ($t) => $t !== ''));
+
+                return [true, $tags, null];
+
+            case 'specifications':
+                // Llega como JSON string armado por el popover de
+                // especificaciones. Esta columna no tiene cast — se asigna
+                // el string JSON tal cual, igual que ya hace store()/update().
+                $decoded = json_decode((string) $value, true);
+                if (!is_array($decoded)) {
+                    return [false, null, 'Formato de especificaciones inválido.'];
+                }
+                $clean = [];
+                foreach ($decoded as $row) {
+                    $key = trim((string) ($row['key'] ?? ''));
+                    if ($key === '') {
+                        continue;
+                    }
+                    $clean[] = ['key' => $key, 'value' => trim((string) ($row['value'] ?? ''))];
+                }
+
+                return [true, json_encode($clean), null];
+
+            case 'og_description':
+                // Sin límite de longitud, igual que la regla actual
+                // 'nullable|string' del formulario completo.
+                $v = trim((string) $value);
+
+                return [true, $v === '' ? null : $v, null];
         }
 
         return [false, null, 'Campo no soportado.'];
@@ -303,7 +481,7 @@ class ProductController extends Controller
         foreach ($request->input('changes') as $change) {
             $id = (int) $change['id'];
             $field = $change['field'];
-            [$ok, $clean, $error] = $this->validateBulkEditChange($field, $change['value'] ?? null);
+            [$ok, $clean, $error] = $this->validateBulkEditChange($field, $change['value'] ?? null, $id);
 
             if ($ok) {
                 $validByProductId[$id][$field] = $clean;
@@ -397,8 +575,14 @@ class ProductController extends Controller
             'images.*'          => 'image|mimes:jpeg,jpg,png|max:2048',
             'image_urls'        => 'nullable|array',
             'image_urls.*'      => 'url|max:2048',
+            // FIX: images reused from the "Biblioteca" picker are sent as
+            // existing_image_ids instead of image_urls, so saveProductImages()
+            // can copy the row's own path directly instead of re-downloading
+            // it as a new physical file (see saveProductImages()).
+            'existing_image_ids'   => 'nullable|array',
+            'existing_image_ids.*' => 'integer|exists:product_images,id',
             'image_source_order'   => 'nullable|array',
-            'image_source_order.*' => 'in:file,url',
+            'image_source_order.*' => 'in:file,url,existing',
             // FIX (Documentación tab): added validation for the 6 document
             // uploads — previously had no name= at all, so nothing reached
             // the server to validate.
@@ -466,6 +650,17 @@ class ProductController extends Controller
             }
             $product->specifications = json_encode($specs);
         }
+
+        // Preguntas frecuentes personalizadas (capturadas en el modal SEO).
+        $faqs = collect((array) $request->input('faq_items', []))
+            ->map(fn ($item) => [
+                'question' => trim($item['question'] ?? ''),
+                'answer'   => trim($item['answer'] ?? ''),
+            ])
+            ->filter(fn ($item) => $item['question'] !== '' && $item['answer'] !== '')
+            ->values()
+            ->all();
+        $product->faqs = $faqs ?: null;
 
         $product->save();
 
@@ -552,8 +747,10 @@ class ProductController extends Controller
             'images.*'          => 'image|mimes:jpeg,jpg,png|max:2048',
             'image_urls'        => 'nullable|array',
             'image_urls.*'      => 'url|max:2048',
+            'existing_image_ids'   => 'nullable|array',
+            'existing_image_ids.*' => 'integer|exists:product_images,id',
             'image_source_order'   => 'nullable|array',
-            'image_source_order.*' => 'in:file,url',
+            'image_source_order.*' => 'in:file,url,existing',
             'delete_images'     => 'nullable|array',
             'delete_images.*'   => 'integer|exists:product_images,id',
             // FIX (Documentación tab): mirrors store() — validation for the
@@ -625,6 +822,18 @@ class ProductController extends Controller
             $product->specifications = null;
         }
 
+        // Preguntas frecuentes personalizadas (capturadas en el modal SEO).
+        // Sin filas => null (todas fueron eliminadas).
+        $faqs = collect((array) $request->input('faq_items', []))
+            ->map(fn ($item) => [
+                'question' => trim($item['question'] ?? ''),
+                'answer'   => trim($item['answer'] ?? ''),
+            ])
+            ->filter(fn ($item) => $item['question'] !== '' && $item['answer'] !== '')
+            ->values()
+            ->all();
+        $product->faqs = $faqs ?: null;
+
         $product->save();
 
         if ($request->filled('delete_images')) {
@@ -632,7 +841,7 @@ class ProductController extends Controller
                 ->where('product_id', $product->id)
                 ->get();
             foreach ($toDelete as $img) {
-                $this->deleteImage($img->image_url);
+                $this->deleteImageIfUnreferenced($img);
                 $img->delete();
             }
 
@@ -794,7 +1003,7 @@ class ProductController extends Controller
     private function deleteProductAndFiles(Products $product): void
     {
         foreach ($product->images as $img) {
-            $this->deleteImage($img->image_url);
+            $this->deleteImageIfUnreferenced($img);
         }
 
         // FIX (Documentación tab): clean up physical document files too —

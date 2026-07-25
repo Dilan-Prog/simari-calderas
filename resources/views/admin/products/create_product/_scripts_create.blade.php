@@ -409,6 +409,56 @@
                 specsList.appendChild(row);
             });
 
+            /* ── FAQ del producto (panel dentro del modal SEO) ──
+               El modal SEO vive FUERA del <form>, por eso cada input lleva
+               form="productCreateForm" — sin ese atributo no viajan en el
+               POST. Names indexados faq_items[N][question|answer]. */
+            const addFaqBtn = document.getElementById('pformAddFaq');
+            const faqList = document.getElementById('pformFaqList');
+            const faqEmpty = document.getElementById('pformFaqEmpty');
+
+            function reindexFaqRows() {
+                Array.from(faqList.querySelectorAll('.pform-faq-row')).forEach(function(row, i) {
+                    row.querySelector('.pform-faq-question').name = 'faq_items[' + i + '][question]';
+                    row.querySelector('.pform-faq-answer').name = 'faq_items[' + i + '][answer]';
+                });
+            }
+
+            function addFaqRow(question, answer) {
+                faqEmpty.style.display = 'none';
+                faqList.style.display = 'flex';
+
+                const row = document.createElement('div');
+                row.className = 'pform-faq-row';
+                row.innerHTML =
+                    '<div class="pform-faq-fields">' +
+                    '<input type="text" class="pform-input pform-faq-question" form="productCreateForm" placeholder="Pregunta (ej: ¿Incluye instalación?)">' +
+                    '<textarea class="pform-input pform-faq-answer" form="productCreateForm" rows="2" placeholder="Respuesta"></textarea>' +
+                    '</div>' +
+                    '<button type="button" class="pform-spec-del" title="Eliminar">' +
+                    '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+                    '<path d="M18 6 6 18"/><path d="m6 6 12 12"/>' +
+                    '</svg>' +
+                    '</button>';
+
+                row.querySelector('.pform-faq-question').value = question || '';
+                row.querySelector('.pform-faq-answer').value = answer || '';
+
+                row.querySelector('.pform-spec-del').addEventListener('click', function() {
+                    row.remove();
+                    reindexFaqRows();
+                    if (faqList.children.length === 0) {
+                        faqList.style.display = 'none';
+                        faqEmpty.style.display = 'flex';
+                    }
+                });
+
+                faqList.appendChild(row);
+                reindexFaqRows();
+            }
+
+            addFaqBtn.addEventListener('click', function() { addFaqRow(); });
+
             /* ── SEO modal ── */
             const seoModal = document.getElementById('pformSeoModal');
 
@@ -641,7 +691,7 @@
             const urlInputsWrap = document.getElementById('pformImageUrlInputs');
             const orderInputsWrap = document.getElementById('pformImageOrderInputs');
 
-            // Combined, orderable list: {type:'file', file:File} | {type:'url', url:string}
+            // Combined, orderable list: {type:'file', file:File} | {type:'url', url:string} | {type:'existing', id:number, url:string}
             let items = [];
             let dragSrcIndex = null;
 
@@ -660,6 +710,15 @@
                         h.type = 'hidden';
                         h.name = 'image_urls[]';
                         h.value = item.url;
+                        urlInputsWrap.appendChild(h);
+                    } else if (item.type === 'existing') {
+                        // FIX (image duplication): sent as existing_image_ids[]
+                        // instead of image_urls[] so the server copies the
+                        // existing row's path instead of re-downloading it.
+                        const h = document.createElement('input');
+                        h.type = 'hidden';
+                        h.name = 'existing_image_ids[]';
+                        h.value = item.id;
                         urlInputsWrap.appendChild(h);
                     }
                     const o = document.createElement('input');
@@ -702,6 +761,9 @@
                     if (item.type === 'file') {
                         info.title = item.file.name;
                         info.textContent = item.file.name + ' · ' + (item.file.size / 1024).toFixed(0) + ' KB';
+                    } else if (item.type === 'existing') {
+                        info.title = item.url;
+                        info.textContent = 'Imagen de la biblioteca';
                     } else {
                         info.title = item.url;
                         info.textContent = 'Imagen por URL';
@@ -907,7 +969,7 @@
 
             function isUrlAlreadyPending(url) {
                 return items.some(function(it) {
-                    return it.type === 'url' && it.url === url;
+                    return (it.type === 'url' || it.type === 'existing') && it.url === url;
                 });
             }
 
@@ -938,8 +1000,13 @@
 
                     cell.addEventListener('click', function() {
                         if (isUrlAlreadyPending(libItem.url)) return;
+                        // FIX (image duplication): tagged 'existing' (not 'url')
+                        // so the server reuses the same physical file via
+                        // existing_image_ids[] instead of re-downloading it as
+                        // a new copy through the "usar URL" pipeline.
                         items.push({
-                            type: 'url',
+                            type: 'existing',
+                            id: libItem.id,
                             url: libItem.url
                         });
                         renderPreviews();

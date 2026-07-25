@@ -926,3 +926,139 @@ select.prod-bulk-input {
     opacity: 0.6;
     cursor: not-allowed;
 }
+
+/* ── Editor en lote ampliado: scroll horizontal + columnas fijas ── */
+.prod-bulk-edit-table-wrapper {
+    overflow-x: auto;
+}
+
+.prod-bulk-edit-table th.prod-bulk-pinned-col:nth-child(1),
+.prod-bulk-edit-table td.prod-bulk-pinned-col:nth-child(1) {
+    position: sticky;
+    left: 0;
+    min-width: 180px;
+    background: #ffffff;
+}
+
+.prod-bulk-edit-table th.prod-bulk-pinned-col:nth-child(2),
+.prod-bulk-edit-table td.prod-bulk-pinned-col:nth-child(2) {
+    position: sticky;
+    left: 180px;
+    min-width: 130px;
+    background: #ffffff;
+    border-right: 1px solid #e5e7eb;
+}
+
+.prod-bulk-edit-table th.prod-bulk-pinned-col {
+    z-index: 3;
+    background: #f8fafc;
+}
+
+.prod-bulk-edit-table td.prod-bulk-pinned-col {
+    z-index: 2;
+}
+
+.prod-bulk-col-hidden {
+    display: none;
+}
+
+.prod-bulk-textarea-cell {
+    min-width: 180px;
+    min-height: 38px;
+    resize: vertical;
+    font-family: inherit;
+}
+
+/* ── Menú "Columnas" ── */
+.prod-bulk-columns-wrap {
+    position: relative;
+}
+
+.prod-bulk-columns-btn {
+    cursor: pointer;
+}
+
+.prod-bulk-columns-menu {
+    display: none;
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    z-index: 50;
+    width: 640px;
+    max-width: 90vw;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.14);
+    padding: 16px;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+}
+
+.prod-bulk-columns-menu.active {
+    display: grid;
+}
+
+.prod-bulk-columns-group-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: #9ca3af;
+    margin: 0 0 8px;
+}
+
+.prod-bulk-columns-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: #374151;
+    padding: 3px 0;
+    cursor: pointer;
+}
+
+@media (max-width: 900px) {
+    .prod-bulk-columns-menu {
+        grid-template-columns: repeat(2, 1fr);
+        right: auto;
+        left: 0;
+    }
+}
+
+/* ── Botón-popover (Especificaciones) ── */
+.prod-bulk-popover-trigger {
+    font-size: 12px;
+    padding: 6px 10px;
+    border: 1px solid #e5e7eb;
+    border-radius: 20px;
+    background: #f8fafc;
+    color: #374151;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.prod-bulk-popover-trigger:hover {
+    background: #f1f5f9;
+}
+
+.prod-bulk-popover-trigger.dirty {
+    background: #fffbeb;
+    border-color: #fbbf24;
+}
+
+.prod-bulk-popover-trigger.saved-ok {
+    background: #f0fdf4;
+    border-color: #86efac;
+}
+
+.prod-bulk-popover-trigger.has-error {
+    background: #fef2f2;
+    border-color: #ef4444;
+}
+
+.prod-bulk-specs-modal-box {
+    max-width: 560px;
+    text-align: left;
+}

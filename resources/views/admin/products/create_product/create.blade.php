@@ -1083,6 +1083,21 @@
                         </div>
                     </div>
 
+                    {{-- Preguntas Frecuentes del producto --}}
+                    <div class="pform-panel">
+                        <div class="pform-specs-header">
+                            <div>
+                                <h2 class="pform-panel-title" style="margin-bottom:4px">Preguntas Frecuentes (FAQ)</h2>
+                                <p class="pform-hint" style="margin:0">Aparecen en la ficha pública del producto y como datos estructurados para Google.</p>
+                            </div>
+                            <button type="button" class="pform-btn primary" id="pformAddFaq">+ Agregar pregunta</button>
+                        </div>
+                        <div class="pform-placeholder" id="pformFaqEmpty">
+                            <p>Este producto aún no tiene preguntas frecuentes.</p>
+                        </div>
+                        <div id="pformFaqList" class="pform-spec-list" style="display:none"></div>
+                    </div>
+
                     {{-- Google Preview + Analysis --}}
                     <div class="pform-panel" style="margin-bottom:0">
                         <h2 class="pform-panel-title" style="display:flex;align-items:center;gap:8px">

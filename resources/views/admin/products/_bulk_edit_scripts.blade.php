@@ -82,14 +82,21 @@
                 }
             });
 
-            function onCellChange(input) {
-                const id = input.dataset.id;
-                const field = input.dataset.field;
-                input.classList.add('dirty');
-                input.classList.remove('has-error', 'saved-ok');
-                input.title = '';
-                changes.set(cellKey(id, field), { id: Number(id), field, value: readValue(input) });
+            // Punto único de entrada al Map de cambios pendientes — lo usan
+            // tanto las celdas normales (via onCellChange) como los popovers
+            // (Especificaciones), que no tienen un <input> visible propio.
+            function setPendingChange(id, field, value, el) {
+                if (el) {
+                    el.classList.add('dirty');
+                    el.classList.remove('has-error', 'saved-ok');
+                    el.title = '';
+                }
+                changes.set(cellKey(id, field), { id: Number(id), field, value });
                 syncUnsavedBar();
+            }
+
+            function onCellChange(input) {
+                setPendingChange(input.dataset.id, input.dataset.field, readValue(input), input);
             }
 
             saveBtn.addEventListener('click', async () => {
@@ -118,21 +125,24 @@
 
                     let okCount = 0, errCount = 0;
                     data.results.forEach(r => {
-                        const input = document.querySelector(
-                            `.prod-bulk-input[data-id="${r.id}"][data-field="${r.field}"]`
+                        // Selector genérico (no solo .prod-bulk-input) para que
+                        // también encuentre el botón del popover de
+                        // Especificaciones, que no es una celda normal.
+                        const el = document.querySelector(
+                            `[data-id="${r.id}"][data-field="${r.field}"]`
                         );
-                        if (!input) return;
+                        if (!el) return;
 
                         if (r.ok) {
                             okCount++;
-                            input.classList.remove('dirty', 'has-error');
-                            input.classList.add('saved-ok');
-                            setTimeout(() => input.classList.remove('saved-ok'), 2000);
+                            el.classList.remove('dirty', 'has-error');
+                            el.classList.add('saved-ok');
+                            setTimeout(() => el.classList.remove('saved-ok'), 2000);
                             changes.delete(cellKey(r.id, r.field));
                         } else {
                             errCount++;
-                            input.classList.add('has-error');
-                            input.title = r.error ?? 'No se pudo guardar.';
+                            el.classList.add('has-error');
+                            el.title = r.error ?? 'No se pudo guardar.';
                         }
                     });
 
@@ -156,6 +166,150 @@
                 if (confirm('¿Descartar todos los cambios sin guardar?')) {
                     window.location.reload();
                 }
+            });
+
+            // ── Menú de columnas visibles (persistido en localStorage) ──
+            const COLUMNS_STORAGE_KEY = 'admin_products_bulk_edit_visible_columns';
+            const columnsBtn = document.getElementById('bulkEditColumnsBtn');
+            const columnsMenu = document.getElementById('bulkEditColumnsMenu');
+            const colToggles = document.querySelectorAll('.prod-bulk-col-toggle');
+
+            function applyColumnVisibility() {
+                colToggles.forEach(cb => {
+                    document.querySelectorAll(`[data-col="${cb.value}"]`).forEach(el => {
+                        el.classList.toggle('prod-bulk-col-hidden', !cb.checked);
+                    });
+                });
+            }
+
+            function loadStoredColumns() {
+                let raw;
+                try {
+                    raw = localStorage.getItem(COLUMNS_STORAGE_KEY);
+                } catch (e) {
+                    return;
+                }
+                if (!raw) return; // nada guardado todavía: se respeta el default del servidor
+                try {
+                    const visible = JSON.parse(raw);
+                    colToggles.forEach(cb => { cb.checked = visible.includes(cb.value); });
+                } catch (e) {
+                    // localStorage corrupto/no es JSON válido: se ignora y se
+                    // mantienen los defaults renderizados por el servidor.
+                }
+            }
+
+            function saveColumnsPreference() {
+                const visible = Array.from(colToggles).filter(cb => cb.checked).map(cb => cb.value);
+                try {
+                    localStorage.setItem(COLUMNS_STORAGE_KEY, JSON.stringify(visible));
+                } catch (e) {
+                    // Almacenamiento lleno/bloqueado: la preferencia
+                    // simplemente no persiste, no es un error fatal.
+                }
+            }
+
+            colToggles.forEach(cb => cb.addEventListener('change', () => {
+                applyColumnVisibility();
+                saveColumnsPreference();
+            }));
+
+            columnsBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                columnsMenu.classList.toggle('active');
+            });
+            document.addEventListener('click', (e) => {
+                if (columnsMenu.classList.contains('active') && !columnsMenu.contains(e.target) && e.target !== columnsBtn) {
+                    columnsMenu.classList.remove('active');
+                }
+            });
+
+            loadStoredColumns();
+            applyColumnVisibility();
+
+            // ── Popover de Especificaciones (clave/valor) ──
+            const specsModal = document.getElementById('bulkSpecsModal');
+            const specsList = document.getElementById('bulkSpecsList');
+            const specsEmpty = document.getElementById('bulkSpecsEmpty');
+            const specsAddBtn = document.getElementById('bulkSpecsAddBtn');
+            const specsCancelBtn = document.getElementById('bulkSpecsCancelBtn');
+            const specsSaveBtn = document.getElementById('bulkSpecsSaveBtn');
+            let specsEditingTrigger = null;
+
+            function specsAddRow(key = '', value = '') {
+                specsEmpty.style.display = 'none';
+                specsList.style.display = 'flex';
+
+                const row = document.createElement('div');
+                row.className = 'pform-spec-row';
+                row.innerHTML =
+                    '<input type="text" class="pform-input bulk-spec-key" placeholder="Nombre del campo (ej: Potencia)">' +
+                    '<input type="text" class="pform-input bulk-spec-value" placeholder="Valor (ej: 20 HP)">' +
+                    '<button type="button" class="pform-spec-del" title="Eliminar">' +
+                    '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+                    '<path d="M18 6 6 18"/><path d="m6 6 12 12"/>' +
+                    '</svg>' +
+                    '</button>';
+                row.querySelector('.bulk-spec-key').value = key;
+                row.querySelector('.bulk-spec-value').value = value;
+
+                row.querySelector('.pform-spec-del').addEventListener('click', () => {
+                    row.remove();
+                    if (!specsList.children.length) {
+                        specsList.style.display = 'none';
+                        specsEmpty.style.display = 'block';
+                    }
+                });
+
+                specsList.appendChild(row);
+            }
+
+            specsAddBtn.addEventListener('click', () => specsAddRow());
+
+            document.addEventListener('click', (e) => {
+                const trigger = e.target.closest('.prod-bulk-popover-trigger');
+                if (!trigger) return;
+
+                specsEditingTrigger = trigger;
+                specsList.innerHTML = '';
+
+                let rows = [];
+                try {
+                    rows = JSON.parse(trigger.dataset.specs || '[]');
+                } catch (err) {
+                    rows = [];
+                }
+
+                if (rows.length) {
+                    specsEmpty.style.display = 'none';
+                    specsList.style.display = 'flex';
+                    rows.forEach(r => specsAddRow(r.key, r.value));
+                } else {
+                    specsList.style.display = 'none';
+                    specsEmpty.style.display = 'block';
+                }
+
+                specsModal.classList.add('active');
+            });
+
+            specsCancelBtn.addEventListener('click', () => specsModal.classList.remove('active'));
+            specsModal.addEventListener('click', (e) => {
+                if (e.target === specsModal) specsModal.classList.remove('active');
+            });
+
+            specsSaveBtn.addEventListener('click', () => {
+                if (!specsEditingTrigger) return;
+
+                const rows = Array.from(specsList.querySelectorAll('.pform-spec-row')).map(row => ({
+                    key: row.querySelector('.bulk-spec-key').value.trim(),
+                    value: row.querySelector('.bulk-spec-value').value.trim(),
+                })).filter(r => r.key !== '');
+
+                const json = JSON.stringify(rows);
+                specsEditingTrigger.dataset.specs = json;
+                specsEditingTrigger.textContent = `Especificaciones (${rows.length})`;
+                setPendingChange(specsEditingTrigger.dataset.id, 'specifications', json, specsEditingTrigger);
+                specsModal.classList.remove('active');
             });
 
             syncUnsavedBar();

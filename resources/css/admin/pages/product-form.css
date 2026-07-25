@@ -1311,3 +1311,27 @@
     .pform-seo-header { padding: 16px; }
     .pform-spec-row { grid-template-columns: 1fr; }
 }
+
+/* ── FAQ del producto (panel en el modal SEO) ── */
+.pform-faq-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 10px;
+    align-items: start;
+}
+
+.pform-faq-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.pform-faq-fields textarea {
+    resize: vertical;
+    min-height: 56px;
+    font-family: inherit;
+}
+
+.pform-faq-row .pform-spec-del {
+    margin-top: 6px;
+}

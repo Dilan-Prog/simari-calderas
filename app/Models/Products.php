@@ -54,6 +54,8 @@ class Products extends Model
         // 2026_07_13_201018_add_currency_and_stock_unit_to_products_table.
         'currency',
         'stock_unit',
+        // Preguntas frecuentes personalizadas por producto (modal SEO).
+        'faqs',
     ];
 
     protected $casts = [
@@ -68,6 +70,7 @@ class Products extends Model
         // FIX BUG 3: cast tags to a PHP array automatically so the edit
         // view can read $product->tags directly without manual json_decode.
         'tags'        => 'array',
+        'faqs'        => 'array',
     ];
 
     // Belongs to a category
