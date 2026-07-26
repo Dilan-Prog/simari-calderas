@@ -100,6 +100,17 @@
                     @endforeach
                 </select>
 
+                <div class="prod-bulk-views-wrap">
+                    <select id="bulkEditViewSelect" class="prod-filter-select prod-bulk-view-select">
+                        <option value="">Vista personalizada</option>
+                        @foreach ($savedViews as $view)
+                            <option value="{{ $view->id }}" data-columns="{{ json_encode($view->columns) }}">
+                                {{ $view->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
                 <div class="prod-bulk-columns-wrap">
                     <button type="button" class="prod-filter-select prod-bulk-columns-btn" id="bulkEditColumnsBtn">
                         Columnas
@@ -117,6 +128,25 @@
                                 @endforeach
                             </div>
                         @endforeach
+
+                        <div class="prod-bulk-view-actions">
+                            <div class="prod-bulk-view-save-row">
+                                <input type="text" id="bulkEditViewNameInput" class="pform-input prod-bulk-view-name-input"
+                                    placeholder="Nombre de la nueva vista (máx. {{ $savedViews->count() >= 10 ? '10 alcanzado' : '10' }})"
+                                    maxlength="60">
+                                <button type="button" class="pform-btn primary" id="bulkEditViewSaveBtn">
+                                    Guardar como vista nueva
+                                </button>
+                            </div>
+                            <div class="prod-bulk-view-manage-row" id="bulkEditViewManageRow" style="display:none">
+                                <button type="button" class="button-secondary size-adjustment" id="bulkEditViewUpdateBtn">
+                                    Actualizar vista actual
+                                </button>
+                                <button type="button" class="button-secondary size-adjustment" id="bulkEditViewDeleteBtn">
+                                    Eliminar vista actual
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </form>

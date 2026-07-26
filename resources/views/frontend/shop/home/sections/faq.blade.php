@@ -1,10 +1,10 @@
 @php
     $config = $section->config ?? [];
-    $faqProduct = $product ?? null;
-    // Las preguntas viven en el producto (products.faqs, capturadas en el
-    // modal SEO); la sección solo aporta título/descripción. Sin producto o
-    // sin FAQs, la sección no se muestra.
-    $items = collect($faqProduct?->faqs ?? [])
+    // Dueño de las FAQs según la página: producto o colección (misma
+    // estructura [{question, answer}]); la sección solo aporta
+    // título/descripción. Sin dueño o sin FAQs, no se muestra.
+    $faqOwner = $product ?? $collection ?? null;
+    $items = collect($faqOwner?->faqs ?? [])
         ->filter(fn ($item) => !empty($item['question']) && !empty($item['answer']))
         ->values();
 @endphp
@@ -12,10 +12,10 @@
 @if ($items->isNotEmpty())
 <section class="home-faq">
     @if ($section->title)
-        <h2 class="home-faq__title">{{ $section->resolveText($section->title, $faqProduct) }}</h2>
+        <h2 class="home-faq__title">{{ $section->resolveText($section->title, $faqOwner) }}</h2>
     @endif
     @if (!empty($config['description']))
-        <p class="home-faq__description">{{ $section->resolveText($config['description'], $faqProduct) }}</p>
+        <p class="home-faq__description">{{ $section->resolveText($config['description'], $faqOwner) }}</p>
     @endif
 
     <div class="home-faq__list" x-data="{ open: null }">

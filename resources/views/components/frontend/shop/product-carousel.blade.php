@@ -1,8 +1,15 @@
-@props(['title' => null, 'products' => [], 'banner' => null])
+@props(['title' => null, 'products' => [], 'banner' => null, 'viewAllUrl' => null])
 
 <section class="product-carousel {{ $banner ? 'product-carousel--with-banner' : '' }}" x-data="carouselTrack()">
-    @if ($title)
-        <h2 class="product-carousel__title">{{ $title }}</h2>
+    @if ($title || $viewAllUrl)
+        <div class="product-carousel__header">
+            @if ($title)
+                <h2 class="product-carousel__title">{{ $title }}</h2>
+            @endif
+            @if ($viewAllUrl)
+                <a href="{{ $viewAllUrl }}" class="product-carousel__view-all">Ver todo ›</a>
+            @endif
+        </div>
     @endif
     <div class="product-carousel__wrap">
         @if ($banner && !empty($banner['image_url']))

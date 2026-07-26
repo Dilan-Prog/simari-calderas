@@ -1,11 +1,17 @@
 @php
+    // Contexto de la página ANTES de cualquier reasignación: en páginas de
+    // colección $collection es la colección de la PÁGINA; la colección
+    // fuente del carrusel se maneja aparte como $sourceCollection.
+    $ctx = $product ?? $collection ?? null;
+
     $config = $section->config ?? [];
     $source = $config['source'] ?? 'featured';
     $limit = $config['limit'] ?? 12;
+    $sourceCollection = null;
 
     if ($source === 'collection' && !empty($config['collection_id'])) {
-        $collection = \App\Models\Collection::with('rules')->find($config['collection_id']);
-        $products = $collection ? $collection->resolveProducts($limit) : collect();
+        $sourceCollection = \App\Models\Collection::with('rules')->find($config['collection_id']);
+        $products = $sourceCollection ? $sourceCollection->resolveProducts($limit) : collect();
     } else {
         $query = \App\Models\Products::query()
             ->where('is_active', true)
@@ -29,6 +35,10 @@
 
         $products = $query->orderByDesc('created_at')->take($limit)->get();
     }
+
+    $viewAllUrl = ($sourceCollection && $sourceCollection->is_active)
+        ? route('collection.show', $sourceCollection->slug)
+        : null;
 @endphp
 
-<x-frontend.shop.product-carousel :title="$section->resolveText($section->title, $product ?? null)" :products="$products" />
+<x-frontend.shop.product-carousel :title="$section->resolveText($section->title, $ctx)" :products="$products" :view-all-url="$viewAllUrl" />

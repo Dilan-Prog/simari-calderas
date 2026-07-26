@@ -10,7 +10,23 @@
 <section class="clients-manager-section">
 
     @php
-        $isProductPage = ($page ?? 'home') === 'product';
+        $page = $page ?? 'home';
+        $isProductPage = $page === 'product';
+
+        $pageMeta = [
+            'home' => [
+                'title'    => 'Gestión de Secciones del Inicio',
+                'subtitle' => 'Personaliza los carruseles, banners y el slider del sitio público',
+            ],
+            'product' => [
+                'title'    => 'Secciones de la Página de Producto',
+                'subtitle' => 'Personaliza las secciones que aparecen debajo de la información del producto',
+            ],
+            'collection' => [
+                'title'    => 'Secciones de las Páginas de Colección',
+                'subtitle' => 'Personaliza las secciones que aparecen debajo del listado en TODAS las páginas de colección',
+            ],
+        ];
     @endphp
 
     {{-- Header --}}
@@ -19,12 +35,8 @@
             <p class="breadcrumb-clients-manager" style="margin-bottom:4px;">
                 Panel de Control &gt; <strong>Secciones del Sitio</strong>
             </p>
-            <h1 style="margin:0 0 4px;">{{ $isProductPage ? 'Secciones de la Página de Producto' : 'Gestión de Secciones del Inicio' }}</h1>
-            <p class="breadcrumb-clients-manager main">
-                {{ $isProductPage
-                    ? 'Personaliza las secciones que aparecen debajo de la información del producto'
-                    : 'Personaliza los carruseles, banners y el slider del sitio público' }}
-            </p>
+            <h1 style="margin:0 0 4px;">{{ $pageMeta[$page]['title'] }}</h1>
+            <p class="breadcrumb-clients-manager main">{{ $pageMeta[$page]['subtitle'] }}</p>
         </div>
         <button type="button" class="button-primary size-adjustment" id="btnNewHomeSection"
             style="background:#ff6213;border-color:#ff6213;white-space:nowrap;">
@@ -35,9 +47,11 @@
     {{-- Tabs de página --}}
     <div class="hs-page-tabs">
         <a href="{{ route('admin.home-sections.index', ['pagina' => 'inicio']) }}"
-            class="hs-page-tab {{ $isProductPage ? '' : 'is-active' }}">Inicio</a>
+            class="hs-page-tab {{ $page === 'home' ? 'is-active' : '' }}">Inicio</a>
         <a href="{{ route('admin.home-sections.index', ['pagina' => 'producto']) }}"
-            class="hs-page-tab {{ $isProductPage ? 'is-active' : '' }}">Página de Producto</a>
+            class="hs-page-tab {{ $page === 'product' ? 'is-active' : '' }}">Página de Producto</a>
+        <a href="{{ route('admin.home-sections.index', ['pagina' => 'colecciones']) }}"
+            class="hs-page-tab {{ $page === 'collection' ? 'is-active' : '' }}">Colecciones</a>
     </div>
 
     {{-- Table --}}
@@ -105,9 +119,13 @@
                 @empty
                     <tr>
                         <td colspan="6" style="padding:32px 16px;text-align:center;color:#9ca3af;">
-                            {{ $isProductPage
-                                ? 'No hay secciones configuradas para la página de producto todavía.'
-                                : 'No hay secciones configuradas todavía.' }}
+                            @if ($page === 'product')
+                                No hay secciones configuradas para la página de producto todavía.
+                            @elseif ($page === 'collection')
+                                No hay secciones configuradas para las páginas de colección todavía.
+                            @else
+                                No hay secciones configuradas todavía.
+                            @endif
                         </td>
                     </tr>
                 @endforelse

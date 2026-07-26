@@ -89,11 +89,49 @@
 
         collectionTypeSelect.addEventListener('change', toggleTypeFields);
 
+        /* ── FAQ de la colección (repeater indexado faq_items[N][...]) ── */
+        const collectionFaqRows = document.getElementById('collectionFaqRows');
+
+        function reindexCollectionFaqs() {
+            Array.from(collectionFaqRows.querySelectorAll('.hs-faq-row')).forEach((row, i) => {
+                row.querySelector('.hs-faq-question').name = `faq_items[${i}][question]`;
+                row.querySelector('.hs-faq-answer').name = `faq_items[${i}][answer]`;
+                row.querySelector('.hs-faq-row-num').textContent = i + 1;
+            });
+        }
+
+        function addCollectionFaqRow(question = '', answer = '') {
+            const row = document.createElement('div');
+            row.className = 'hs-faq-row';
+            row.innerHTML = `
+                <div class="hs-faq-row-head">
+                    <span class="hs-faq-row-num"></span>
+                    <div class="hs-faq-row-actions">
+                        <button type="button" class="hs-faq-btn hs-faq-remove" title="Eliminar">&times;</button>
+                    </div>
+                </div>
+                <input type="text" class="users-manager-input hs-faq-question" placeholder="Pregunta">
+                <textarea class="users-manager-input client-modal-textarea hs-faq-answer" rows="2" placeholder="Respuesta"></textarea>`;
+
+            row.querySelector('.hs-faq-question').value = question;
+            row.querySelector('.hs-faq-answer').value = answer;
+            row.querySelector('.hs-faq-remove').addEventListener('click', () => {
+                row.remove();
+                reindexCollectionFaqs();
+            });
+
+            collectionFaqRows.appendChild(row);
+            reindexCollectionFaqs();
+        }
+
+        document.getElementById('btnAddCollectionFaq').addEventListener('click', () => addCollectionFaqRow());
+
         // Reset form
         const resetCollectionForm = () => {
             collectionForm.reset();
             document.getElementById('collectionSortOrder').value = '0';
             document.getElementById('collectionIsActive').value = '1';
+            collectionFaqRows.innerHTML = '';
             ruleRowsContainer.innerHTML = '';
             toggleTypeFields();
             errorsContainer.style.display = 'none';
@@ -196,6 +234,11 @@
                         document.getElementById('collectionIsActive').value = col.is_active ? '1' : '0';
                         document.getElementById('collectionType').value = col.type ?? 'manual';
                         document.getElementById('collectionMatchType').value = col.match_type ?? 'all';
+                        document.getElementById('collectionSeoTitle').value = col.seo_title ?? '';
+                        document.getElementById('collectionSeoDescription').value = col.seo_description ?? '';
+                        document.getElementById('collectionOgImageUrl').value = col.og_image_url ?? '';
+                        collectionFaqRows.innerHTML = '';
+                        (col.faqs ?? []).forEach(f => addCollectionFaqRow(f.question ?? '', f.answer ?? ''));
 
                         toggleTypeFields();
 

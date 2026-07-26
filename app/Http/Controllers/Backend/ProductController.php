@@ -10,10 +10,12 @@ use Illuminate\Http\Request;
 use App\Models\Products;
 use App\Models\ProductImage;
 use App\Models\ProductDocument;
+use App\Models\ProductBulkEditView;
 use Illuminate\Support\Str;
 use App\Models\Category;
 use App\Models\Brand;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 
 class ProductController extends Controller
 {
@@ -243,6 +245,21 @@ class ProductController extends Controller
     private const BULK_EDIT_CURRENCIES = ['MXN', 'USD', 'EUR'];
     private const BULK_EDIT_AVAILABILITY = ['available', 'out_of_stock', 'on_order'];
 
+    // Copiada a mano (no derivada de BULK_EDIT_FIELDS con array_diff) para
+    // que un cambio futuro a una lista no afecte silenciosamente a la otra:
+    // son las columnas que el usuario puede mostrar/ocultar en el editor en
+    // lote (ver $bulkEditColumns en bulk_edit.blade.php) — 'name' no está
+    // porque Nombre va fijo/siempre visible, no es una columna que se pueda
+    // ocultar dentro de una vista guardada.
+    private const BULK_EDIT_VIEW_COLUMNS = [
+        'model', 'supplier_sku', 'short_description', 'description',
+        'price', 'compare_price', 'cost', 'stock', 'stock_unit', 'currency', 'availability',
+        'category_id', 'brand_id', 'is_active', 'publish_on_website', 'is_featured', 'is_new', 'is_recommended',
+        'tags', 'specifications',
+        'seo_title', 'seo_description', 'seo_keywords', 'og_title', 'og_description', 'og_image',
+    ];
+    private const BULK_EDIT_VIEWS_MAX_PER_USER = 10;
+
     /**
      * Etiqueta tipo "Padre > Hijo" para que el <select> de categoría del
      * editor en lote no sea ambiguo entre categorías con nombres parecidos
@@ -297,7 +314,13 @@ class ProductController extends Controller
             ->values();
         $brands = Brand::orderBy('name')->get(['id', 'name']);
 
-        return view('admin.products.bulk_edit', compact('products', 'categories', 'categoryOptions', 'brands', 'totalFiltered'))
+        // Vistas de columnas guardadas por el usuario actual (hasta 10) —
+        // ver storeBulkEditView()/updateBulkEditView()/destroyBulkEditView().
+        $savedViews = ProductBulkEditView::where('user_id', auth()->id())
+            ->orderBy('id')
+            ->get(['id', 'name', 'columns']);
+
+        return view('admin.products.bulk_edit', compact('products', 'categories', 'categoryOptions', 'brands', 'totalFiltered', 'savedViews'))
             ->with('perPageOptions', self::PER_PAGE_OPTIONS);
     }
 
@@ -508,6 +531,94 @@ class ProductController extends Controller
         return response()->json(['success' => true, 'results' => $results]);
     }
 
+    private function bulkEditViewValidationRules(): array
+    {
+        return [
+            'name' => ['required', 'string', 'max:60'],
+            'columns' => ['required', 'array', 'min:1'],
+            'columns.*' => ['string', Rule::in(self::BULK_EDIT_VIEW_COLUMNS)],
+        ];
+    }
+
+    /**
+     * true si el usuario actual ya tiene otra vista con este nombre
+     * (case-insensitive, sin espacios en los extremos). $excludeId permite
+     * ignorar la propia fila al renombrar en updateBulkEditView().
+     */
+    private function bulkEditViewNameTaken(string $name, ?int $excludeId = null): bool
+    {
+        return ProductBulkEditView::where('user_id', auth()->id())
+            ->when($excludeId, fn ($q) => $q->where('id', '!=', $excludeId))
+            ->whereRaw('LOWER(name) = ?', [strtolower(trim($name))])
+            ->exists();
+    }
+
+    public function storeBulkEditView(Request $request)
+    {
+        $request->validate($this->bulkEditViewValidationRules());
+
+        $existingCount = ProductBulkEditView::where('user_id', auth()->id())->count();
+        if ($existingCount >= self::BULK_EDIT_VIEWS_MAX_PER_USER) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Ya tienes el máximo de ' . self::BULK_EDIT_VIEWS_MAX_PER_USER . ' vistas guardadas. Elimina una para poder guardar otra.',
+            ], 422);
+        }
+
+        if ($this->bulkEditViewNameTaken($request->name)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Ya tienes una vista guardada con ese nombre.',
+            ], 422);
+        }
+
+        $view = ProductBulkEditView::create([
+            'user_id' => auth()->id(),
+            'name' => trim($request->name),
+            'columns' => $request->columns,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'view' => $view->only(['id', 'name', 'columns']),
+        ]);
+    }
+
+    public function updateBulkEditView(Request $request, string $id)
+    {
+        $view = ProductBulkEditView::findOrFail($id);
+        abort_if($view->user_id !== auth()->id(), 403);
+
+        $request->validate($this->bulkEditViewValidationRules());
+
+        if ($this->bulkEditViewNameTaken($request->name, $view->id)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Ya tienes una vista guardada con ese nombre.',
+            ], 422);
+        }
+
+        $view->update([
+            'name' => trim($request->name),
+            'columns' => $request->columns,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'view' => $view->only(['id', 'name', 'columns']),
+        ]);
+    }
+
+    public function destroyBulkEditView(string $id)
+    {
+        $view = ProductBulkEditView::findOrFail($id);
+        abort_if($view->user_id !== auth()->id(), 403);
+
+        $view->delete();
+
+        return response()->json(['success' => true]);
+    }
+
     public function create()
     {
         $categories = Category::where('is_active', true)
@@ -530,6 +641,13 @@ class ProductController extends Controller
 
     public function store(Request $request)
     {
+        // Normalizar el slug ANTES de validar: unique debe evaluar lo que
+        // realmente se guarda (Str::slug() más abajo), si no "Mi Producto"
+        // pasa la validación y luego colisiona en BD con "mi-producto".
+        if ($request->filled('slug')) {
+            $request->merge(['slug' => Str::slug($request->slug)]);
+        }
+
         $request->validate([
             'name'              => 'required|string|max:255',
             'sku'               => 'required|string|max:100|unique:products,sku',
@@ -706,6 +824,11 @@ class ProductController extends Controller
     {
         $product = Products::findOrFail($id);
 
+        // Normalizar el slug ANTES de validar (ver nota en store()).
+        if ($request->filled('slug')) {
+            $request->merge(['slug' => Str::slug($request->slug)]);
+        }
+
         $request->validate([
             'name'              => 'required|string|max:255',
             'sku'               => 'required|string|max:100|unique:products,sku,' . $id,
@@ -876,6 +999,14 @@ class ProductController extends Controller
      * local file — this keeps each product's images independent, so
      * deleting one never affects another product that reused the same
      * source image.
+     *
+     * NO unificar con MediaController::library(): aunque nacieron como
+     * código gemelo, esa biblioteca ahora sirve el feed COMBINADO
+     * (gallery_images + product_images) para el picker genérico, mientras
+     * que aquí los ids devueltos viajan como ProductImage ids en
+     * existing_image_ids[] para reutilizar el archivo físico — un feed
+     * combinado colisionaría ids de tablas distintas y adjuntaría imágenes
+     * equivocadas al producto.
      */
     public function mediaLibrary(Request $request)
     {

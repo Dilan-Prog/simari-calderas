@@ -9,7 +9,7 @@
     "isEntry": true
   },
   "resources/css/admin/app.css": {
-    "file": "assets/app-BZXUm2bu.css",
+    "file": "assets/app-Ds7BMs1Q.css",
     "src": "resources/css/admin/app.css",
     "isEntry": true
   },
@@ -29,13 +29,18 @@
     "isEntry": true
   },
   "resources/css/admin/pages/collections.css": {
-    "file": "assets/collections-BaTixkOb.css",
+    "file": "assets/collections-DjcPTaGW.css",
     "src": "resources/css/admin/pages/collections.css",
     "isEntry": true
   },
   "resources/css/admin/pages/delivery.css": {
     "file": "assets/delivery-fveut9fJ.css",
     "src": "resources/css/admin/pages/delivery.css",
+    "isEntry": true
+  },
+  "resources/css/admin/pages/gallery.css": {
+    "file": "assets/gallery-D_I5n5n3.css",
+    "src": "resources/css/admin/pages/gallery.css",
     "isEntry": true
   },
   "resources/css/admin/pages/home-sections.css": {
@@ -79,22 +84,27 @@
     "isEntry": true
   },
   "resources/css/frontend/shop/account.css": {
-    "file": "assets/account-CBzVgPnH.css",
+    "file": "assets/account-MRmMZF07.css",
     "src": "resources/css/frontend/shop/account.css",
     "isEntry": true
   },
   "resources/css/frontend/shop/catalog.css": {
-    "file": "assets/catalog-BhfYwU4R.css",
+    "file": "assets/catalog-BLvlSCrx.css",
     "src": "resources/css/frontend/shop/catalog.css",
     "isEntry": true
   },
+  "resources/css/frontend/shop/collection.css": {
+    "file": "assets/collection-Cv4XhSA3.css",
+    "src": "resources/css/frontend/shop/collection.css",
+    "isEntry": true
+  },
   "resources/css/frontend/shop/home.css": {
-    "file": "assets/home-DUc4IYF5.css",
+    "file": "assets/home-BCIe_4yN.css",
     "src": "resources/css/frontend/shop/home.css",
     "isEntry": true
   },
   "resources/css/frontend/shop/product-detail.css": {
-    "file": "assets/product-detail-BKWDA1CH.css",
+    "file": "assets/product-detail-HKBMJfol.css",
     "src": "resources/css/frontend/shop/product-detail.css",
     "isEntry": true
   },
@@ -158,6 +168,15 @@
     "file": "assets/catalog-CJcUhnQH.js",
     "name": "catalog",
     "src": "resources/js/frontend/shop/catalog.js",
+    "isEntry": true,
+    "imports": [
+      "_alpine-init-vi7zIMuZ.js"
+    ]
+  },
+  "resources/js/frontend/shop/collection.js": {
+    "file": "assets/collection-DGchU0nE.js",
+    "name": "collection",
+    "src": "resources/js/frontend/shop/collection.js",
     "isEntry": true,
     "imports": [
       "_alpine-init-vi7zIMuZ.js"

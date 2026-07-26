@@ -969,6 +969,48 @@ select.prod-bulk-input {
     font-family: inherit;
 }
 
+/* ── Vistas de columnas guardadas ── */
+.prod-bulk-views-wrap {
+    display: flex;
+    align-items: center;
+}
+
+.prod-bulk-view-select {
+    min-width: 170px;
+}
+
+.prod-bulk-view-actions {
+    grid-column: 1 / -1;
+    margin-top: 4px;
+    padding-top: 14px;
+    border-top: 1px solid #e5e7eb;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.prod-bulk-view-save-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.prod-bulk-view-name-input {
+    flex: 1;
+}
+
+.prod-bulk-view-manage-row {
+    display: flex;
+    gap: 8px;
+}
+
+@media (max-width: 900px) {
+    .prod-bulk-view-save-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}
+
 /* ── Menú "Columnas" ── */
 .prod-bulk-columns-wrap {
     position: relative;

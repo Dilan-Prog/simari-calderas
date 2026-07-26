@@ -21,6 +21,7 @@ use App\Http\Controllers\Backend\SettingController;
 use App\Http\Controllers\Backend\HomeSectionController;
 use App\Http\Controllers\Backend\MenuController;
 use App\Http\Controllers\Backend\CollectionController;
+use App\Http\Controllers\Backend\GalleryController;
 use App\Http\Controllers\Backend\MediaController;
 
 // ============================================================
@@ -108,6 +109,9 @@ Route::controller(ProductController::class)
         Route::post('/productos/bulk', 'bulkUpdate')->name('products.bulk');
         Route::get('/productos/edicion-masiva', 'bulkEditIndex')->name('products.bulk-edit');
         Route::post('/productos/edicion-masiva/guardar', 'bulkEditSave')->name('products.bulk.save');
+        Route::post('/productos/edicion-masiva/vistas', 'storeBulkEditView')->name('products.bulk-edit.views.store');
+        Route::put('/productos/edicion-masiva/vistas/{id}', 'updateBulkEditView')->name('products.bulk-edit.views.update');
+        Route::delete('/productos/edicion-masiva/vistas/{id}', 'destroyBulkEditView')->name('products.bulk-edit.views.destroy');
     });
 
 // ============================================================
@@ -358,6 +362,19 @@ Route::controller(CollectionController::class)
         Route::post('/{collection}/productos', 'addProduct')->name('products.add');
         Route::delete('/{collection}/productos/{product}', 'removeProduct')->name('products.remove');
         Route::post('/{collection}/productos/reordenar', 'reorderProducts')->name('products.reorder');
+    });
+
+// ============================================================
+// Galería de imágenes
+// ============================================================
+Route::controller(GalleryController::class)
+    ->middleware('permission:gallery')
+    ->prefix('galeria')
+    ->name('gallery.')
+    ->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::post('/subir', 'store')->name('store');
+        Route::delete('/eliminar/{id}', 'destroy')->name('destroy');
     });
 
     // sig module

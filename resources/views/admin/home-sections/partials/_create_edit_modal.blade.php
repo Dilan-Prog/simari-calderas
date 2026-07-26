@@ -26,7 +26,7 @@
                             <option value="category_grid">Grid de Categorías</option>
                             <option value="brand_carousel">Carrusel de Marcas</option>
                             <option value="html_block">Bloque HTML</option>
-                            @if (($page ?? 'home') === 'product')
+                            @if (in_array($page ?? 'home', ['product', 'collection'], true))
                                 <option value="faq">Preguntas Frecuentes</option>
                             @endif
                         </select>
@@ -38,6 +38,10 @@
                         @if (($page ?? 'home') === 'product')
                             <p class="hs-config-note" style="margin-top:4px;">
                                 Puedes usar <code>{categoria}</code> y <code>{marca}</code>; se sustituyen por la categoría/marca del producto.
+                            </p>
+                        @elseif (($page ?? 'home') === 'collection')
+                            <p class="hs-config-note" style="margin-top:4px;">
+                                Puedes usar <code>{coleccion}</code>; se sustituye por el nombre de la colección que se está viendo.
                             </p>
                         @endif
                     </div>
@@ -334,10 +338,17 @@
                             placeholder="Ej: Resolvemos las dudas más comunes sobre este producto."></textarea>
                     </div>
                     <p class="hs-config-note">
-                        Las preguntas y respuestas se capturan <strong>en cada producto</strong>
-                        (Productos → editar → botón SEO → Preguntas Frecuentes). Esta sección solo
-                        define el título y el texto descriptivo; se oculta en productos sin preguntas.
-                        Puedes usar <code>{categoria}</code> y <code>{marca}</code> en el título/descripción.
+                        @if (($page ?? 'home') === 'collection')
+                            Las preguntas y respuestas se capturan <strong>en cada colección</strong>
+                            (Colecciones → editar → SEO y Preguntas Frecuentes). Esta sección solo
+                            define el título y el texto descriptivo; se oculta en colecciones sin preguntas.
+                            Puedes usar <code>{coleccion}</code> en el título/descripción.
+                        @else
+                            Las preguntas y respuestas se capturan <strong>en cada producto</strong>
+                            (Productos → editar → botón SEO → Preguntas Frecuentes). Esta sección solo
+                            define el título y el texto descriptivo; se oculta en productos sin preguntas.
+                            Puedes usar <code>{categoria}</code> y <code>{marca}</code> en el título/descripción.
+                        @endif
                     </p>
                 </div>
 

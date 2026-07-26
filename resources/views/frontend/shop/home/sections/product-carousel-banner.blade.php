@@ -1,11 +1,16 @@
 @php
+    // Contexto de la página ANTES de cualquier reasignación (ver
+    // product-carousel.blade.php).
+    $ctx = $product ?? $collection ?? null;
+
     $config = $section->config ?? [];
     $source = $config['source'] ?? 'featured';
     $limit = $config['limit'] ?? 12;
+    $sourceCollection = null;
 
     if ($source === 'collection' && !empty($config['collection_id'])) {
-        $collection = \App\Models\Collection::with('rules')->find($config['collection_id']);
-        $products = $collection ? $collection->resolveProducts($limit) : collect();
+        $sourceCollection = \App\Models\Collection::with('rules')->find($config['collection_id']);
+        $products = $sourceCollection ? $sourceCollection->resolveProducts($limit) : collect();
     } else {
         $query = \App\Models\Products::query()
             ->where('is_active', true)
@@ -35,6 +40,10 @@
         'link_url'  => $config['banner_link_url'] ?? null,
         'alt'       => $config['banner_alt'] ?? null,
     ];
+
+    $viewAllUrl = ($sourceCollection && $sourceCollection->is_active)
+        ? route('collection.show', $sourceCollection->slug)
+        : null;
 @endphp
 
-<x-frontend.shop.product-carousel :title="$section->resolveText($section->title, $product ?? null)" :products="$products" :banner="$banner" />
+<x-frontend.shop.product-carousel :title="$section->resolveText($section->title, $ctx)" :products="$products" :banner="$banner" :view-all-url="$viewAllUrl" />

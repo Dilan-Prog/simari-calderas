@@ -3,6 +3,7 @@
 use App\Http\Controllers\Backend\AdminController;
 use App\Http\Controllers\Frontend\HomeController;
 use App\Http\Controllers\Frontend\Shop\CatalogController;
+use App\Http\Controllers\Frontend\Shop\CollectionController as ShopCollectionController;
 use App\Http\Controllers\Frontend\Shop\ProductController as ShopProductController;
 use App\Http\Controllers\Frontend\SitemapController;
 use App\Http\Controllers\MediaServeController;
@@ -33,6 +34,7 @@ Route::controller(CatalogController::class)->group(function () {
     Route::get('/buscar-en-vivo', 'liveSearch')->name('catalog.live-search');
 });
 Route::get('/producto/{slug}', [ShopProductController::class, 'show'])->name('product.show');
+Route::get('/coleccion/{slug}', [ShopCollectionController::class, 'show'])->name('collection.show');
 
 Route::controller(HomeController::class)->group(function () {
     Route::get('/nuestra-empresa', 'company')->name('company');

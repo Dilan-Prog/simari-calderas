@@ -27,26 +27,35 @@ class CollectionController extends Controller
 
     public function store(Request $request)
     {
+        // Normalizar ANTES de validar: unique debe evaluar el slug que
+        // realmente se guarda ("Mi Coleccion" colisionaría con "mi-coleccion").
+        $request->merge(['slug' => Str::slug((string) $request->slug)]);
+
         $request->validate([
-            'name'        => 'required|string|max:150',
-            'slug'        => 'required|string|max:180|unique:collections,slug',
-            'description' => 'nullable|string',
-            'type'        => 'required|in:manual,automatic',
-            'match_type'  => 'required_if:type,automatic|nullable|in:all,any',
-            'image_url'   => 'nullable|string|max:255',
-            'is_active'   => 'nullable|boolean',
-            'sort_order'  => 'nullable|integer|min:0',
+            'name'            => 'required|string|max:150',
+            'slug'            => 'required|string|max:180|unique:collections,slug',
+            'description'     => 'nullable|string',
+            'type'            => 'required|in:manual,automatic',
+            'match_type'      => 'required_if:type,automatic|nullable|in:all,any',
+            'image_url'       => 'nullable|string|max:255',
+            'is_active'       => 'nullable|boolean',
+            'sort_order'      => 'nullable|integer|min:0',
+            'seo_title'       => 'nullable|string|max:160',
+            'seo_description' => 'nullable|string|max:500',
+            'og_image_url'    => 'nullable|string|max:255',
+            'faq_items'       => 'nullable|array',
         ]);
 
         $collection = new Collection();
         $collection->name        = $request->name;
-        $collection->slug        = Str::slug($request->slug);
+        $collection->slug        = $request->slug;
         $collection->description = $request->description ?? null;
         $collection->type        = $request->type;
         $collection->match_type  = $request->type === 'automatic' ? $request->match_type : null;
         $collection->image_url   = $request->image_url ?? null;
         $collection->sort_order  = $request->sort_order ?? 0;
         $collection->is_active   = $request->boolean('is_active', true);
+        $this->fillSeoAndFaqs($collection, $request);
         $collection->save();
 
         $this->syncRules($collection, $request);
@@ -63,29 +72,59 @@ class CollectionController extends Controller
         return response()->json($collection);
     }
 
+    /**
+     * SEO + FAQs de la página pública /coleccion/{slug}. Mismo patrón de
+     * FAQs que products.faqs (trim, descartar pares incompletos, null si
+     * queda vacío).
+     */
+    protected function fillSeoAndFaqs(Collection $collection, Request $request): void
+    {
+        $collection->seo_title       = $request->input('seo_title') ?: null;
+        $collection->seo_description = $request->input('seo_description') ?: null;
+        $collection->og_image_url    = $request->input('og_image_url') ?: null;
+
+        $faqs = collect((array) $request->input('faq_items', []))
+            ->map(fn ($item) => [
+                'question' => trim($item['question'] ?? ''),
+                'answer'   => trim($item['answer'] ?? ''),
+            ])
+            ->filter(fn ($item) => $item['question'] !== '' && $item['answer'] !== '')
+            ->values()
+            ->all();
+
+        $collection->faqs = $faqs ?: null;
+    }
+
     public function update(Request $request, string $id)
     {
         $collection = Collection::findOrFail($id);
 
+        $request->merge(['slug' => Str::slug((string) $request->slug)]);
+
         $request->validate([
-            'name'        => 'required|string|max:150',
-            'slug'        => 'required|string|max:180|unique:collections,slug,' . $id,
-            'description' => 'nullable|string',
-            'type'        => 'required|in:manual,automatic',
-            'match_type'  => 'required_if:type,automatic|nullable|in:all,any',
-            'image_url'   => 'nullable|string|max:255',
-            'is_active'   => 'nullable|boolean',
-            'sort_order'  => 'nullable|integer|min:0',
+            'name'            => 'required|string|max:150',
+            'slug'            => 'required|string|max:180|unique:collections,slug,' . $id,
+            'description'     => 'nullable|string',
+            'type'            => 'required|in:manual,automatic',
+            'match_type'      => 'required_if:type,automatic|nullable|in:all,any',
+            'image_url'       => 'nullable|string|max:255',
+            'is_active'       => 'nullable|boolean',
+            'sort_order'      => 'nullable|integer|min:0',
+            'seo_title'       => 'nullable|string|max:160',
+            'seo_description' => 'nullable|string|max:500',
+            'og_image_url'    => 'nullable|string|max:255',
+            'faq_items'       => 'nullable|array',
         ]);
 
         $collection->name        = $request->name;
-        $collection->slug        = Str::slug($request->slug);
+        $collection->slug        = $request->slug;
         $collection->description = $request->description ?? null;
         $collection->type        = $request->type;
         $collection->match_type  = $request->type === 'automatic' ? $request->match_type : null;
         $collection->image_url   = $request->image_url ?? null;
         $collection->sort_order  = $request->sort_order ?? 0;
         $collection->is_active   = $request->boolean('is_active', true);
+        $this->fillSeoAndFaqs($collection, $request);
         $collection->save();
 
         $this->syncRules($collection, $request);

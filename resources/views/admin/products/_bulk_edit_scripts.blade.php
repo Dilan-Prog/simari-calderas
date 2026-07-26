@@ -227,6 +227,173 @@
             loadStoredColumns();
             applyColumnVisibility();
 
+            // ── Vistas guardadas de columnas (hasta 10, por usuario) ──
+            const VIEWS_MAX = 10;
+            const viewSelect = document.getElementById('bulkEditViewSelect');
+            const viewNameInput = document.getElementById('bulkEditViewNameInput');
+            const viewSaveBtn = document.getElementById('bulkEditViewSaveBtn');
+            const viewManageRow = document.getElementById('bulkEditViewManageRow');
+            const viewUpdateBtn = document.getElementById('bulkEditViewUpdateBtn');
+            const viewDeleteBtn = document.getElementById('bulkEditViewDeleteBtn');
+            const bulkEditViewsUrl = '{{ url('/admin/productos/edicion-masiva/vistas') }}';
+
+            function updateViewManageVisibility() {
+                viewManageRow.style.display = viewSelect.value ? 'flex' : 'none';
+            }
+
+            // Reutiliza applyColumnVisibility()/saveColumnsPreference() ya
+            // existentes en vez de reimplementarlas — así localStorage sigue
+            // funcionando como respaldo para la próxima carga de página,
+            // ahora también alimentado por la última vista elegida. Claves
+            // guardadas que ya no existan como columna simplemente no
+            // coinciden con ningún checkbox — se ignoran solas.
+            function applyColumnsList(keys) {
+                colToggles.forEach(cb => { cb.checked = keys.includes(cb.value); });
+                applyColumnVisibility();
+                saveColumnsPreference();
+            }
+
+            viewSelect.addEventListener('change', () => {
+                const opt = viewSelect.options[viewSelect.selectedIndex];
+                if (!opt.value) {
+                    updateViewManageVisibility();
+                    return;
+                }
+                let keys = [];
+                try {
+                    keys = JSON.parse(opt.dataset.columns || '[]');
+                } catch (e) {
+                    keys = [];
+                }
+                applyColumnsList(keys);
+                updateViewManageVisibility();
+            });
+
+            // FIX: no se resetea el select a "Vista personalizada" al tocar
+            // una casilla — si lo hiciera, "Actualizar vista actual"
+            // desaparecería justo cuando hace falta (querer ajustar columnas
+            // de una vista ya cargada y guardarlas). El select solo cambia
+            // cuando el usuario lo elige explícitamente en el dropdown; para
+            // volver a "personalizada" sin guardar, lo selecciona a mano.
+
+            function currentCheckedColumns() {
+                return Array.from(colToggles).filter(cb => cb.checked).map(cb => cb.value);
+            }
+
+            viewSaveBtn.addEventListener('click', async () => {
+                const name = viewNameInput.value.trim();
+                if (!name) {
+                    showToast('Ponle un nombre a la vista antes de guardarla.', 'error');
+                    return;
+                }
+                // Solo UX — el límite real lo aplica el servidor.
+                if (viewSelect.options.length - 1 >= VIEWS_MAX) {
+                    showToast(`Ya tienes el máximo de ${VIEWS_MAX} vistas guardadas. Elimina una para poder guardar otra.`, 'error');
+                    return;
+                }
+
+                viewSaveBtn.disabled = true;
+                try {
+                    const response = await fetch(bulkEditViewsUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken,
+                            'Accept': 'application/json',
+                        },
+                        body: JSON.stringify({ name, columns: currentCheckedColumns() }),
+                    });
+                    const data = await response.json();
+
+                    if (!response.ok || !data.success) {
+                        showToast(data.message ?? 'No se pudo guardar la vista.', 'error');
+                        return;
+                    }
+
+                    const opt = document.createElement('option');
+                    opt.value = data.view.id;
+                    opt.dataset.columns = JSON.stringify(data.view.columns);
+                    opt.textContent = data.view.name;
+                    viewSelect.appendChild(opt);
+                    viewSelect.value = data.view.id;
+                    viewNameInput.value = '';
+                    updateViewManageVisibility();
+                    showToast(`Vista "${data.view.name}" guardada.`);
+                } catch (err) {
+                    console.error('Error saving bulk edit view:', err);
+                    showToast('Error de conexión. Intenta de nuevo.', 'error');
+                } finally {
+                    viewSaveBtn.disabled = false;
+                }
+            });
+
+            viewUpdateBtn.addEventListener('click', async () => {
+                const id = viewSelect.value;
+                if (!id) return;
+                const name = viewSelect.options[viewSelect.selectedIndex].textContent.trim();
+
+                viewUpdateBtn.disabled = true;
+                try {
+                    const response = await fetch(bulkEditViewsUrl + '/' + id, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken,
+                            'Accept': 'application/json',
+                        },
+                        body: JSON.stringify({ name, columns: currentCheckedColumns() }),
+                    });
+                    const data = await response.json();
+
+                    if (!response.ok || !data.success) {
+                        showToast(data.message ?? 'No se pudo actualizar la vista.', 'error');
+                        return;
+                    }
+
+                    viewSelect.options[viewSelect.selectedIndex].dataset.columns = JSON.stringify(data.view.columns);
+                    showToast(`Vista "${data.view.name}" actualizada.`);
+                } catch (err) {
+                    console.error('Error updating bulk edit view:', err);
+                    showToast('Error de conexión. Intenta de nuevo.', 'error');
+                } finally {
+                    viewUpdateBtn.disabled = false;
+                }
+            });
+
+            viewDeleteBtn.addEventListener('click', async () => {
+                const id = viewSelect.value;
+                if (!id) return;
+                const name = viewSelect.options[viewSelect.selectedIndex].textContent.trim();
+                if (!confirm(`¿Eliminar la vista "${name}"?`)) return;
+
+                viewDeleteBtn.disabled = true;
+                try {
+                    const response = await fetch(bulkEditViewsUrl + '/' + id, {
+                        method: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': csrfToken,
+                            'Accept': 'application/json',
+                        },
+                    });
+                    const data = await response.json();
+
+                    if (!response.ok || !data.success) {
+                        showToast(data.message ?? 'No se pudo eliminar la vista.', 'error');
+                        return;
+                    }
+
+                    viewSelect.options[viewSelect.selectedIndex].remove();
+                    viewSelect.value = '';
+                    updateViewManageVisibility();
+                    showToast(`Vista "${name}" eliminada.`);
+                } catch (err) {
+                    console.error('Error deleting bulk edit view:', err);
+                    showToast('Error de conexión. Intenta de nuevo.', 'error');
+                } finally {
+                    viewDeleteBtn.disabled = false;
+                }
+            });
+
             // ── Popover de Especificaciones (clave/valor) ──
             const specsModal = document.getElementById('bulkSpecsModal');
             const specsList = document.getElementById('bulkSpecsList');

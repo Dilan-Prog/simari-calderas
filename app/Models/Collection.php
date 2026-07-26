@@ -9,10 +9,12 @@ class Collection extends Model
     protected $fillable = [
         'name', 'slug', 'description', 'type', 'match_type',
         'image_url', 'sort_order', 'is_active',
+        'seo_title', 'seo_description', 'og_image_url', 'faqs',
     ];
 
     protected $casts = [
         'is_active' => 'boolean',
+        'faqs'      => 'array',
     ];
 
     public function rules()
@@ -28,39 +30,51 @@ class Collection extends Model
     }
 
     /**
-     * Devuelve los productos que pertenecen a esta colección, ya sea por
-     * selección manual o evaluando las reglas de una colección automática.
+     * Builder (sin ejecutar) de los productos de la colección — selección
+     * manual (orden del pivote) o reglas de una colección automática.
      * Siempre respeta is_active + publish_on_website (visibilidad pública).
+     * Devolver el builder permite paginar en la página pública.
      */
-    public function resolveProducts(?int $limit = null)
+    public function productsQuery()
     {
         if ($this->type === 'manual') {
-            $query = $this->manualProducts()
+            return $this->manualProducts()
                 ->where('is_active', true)
                 ->where('publish_on_website', true)
                 ->with(['images' => fn ($q) => $q->orderBy('sort_order')]);
-        } else {
-            $query = Products::query()
-                ->where('is_active', true)
-                ->where('publish_on_website', true)
-                ->with(['images' => fn ($q) => $q->orderBy('sort_order')]);
+        }
 
-            $rules = $this->rules;
+        $query = Products::query()
+            ->where('is_active', true)
+            ->where('publish_on_website', true)
+            ->with(['images' => fn ($q) => $q->orderBy('sort_order')]);
 
-            if ($rules->isNotEmpty()) {
-                if ($this->match_type === 'any') {
-                    $query->where(function ($q) use ($rules) {
-                        foreach ($rules as $rule) {
-                            $q->orWhere(fn ($q2) => static::applyRule($q2, $rule));
-                        }
-                    });
-                } else {
+        $rules = $this->rules;
+
+        if ($rules->isNotEmpty()) {
+            if ($this->match_type === 'any') {
+                $query->where(function ($q) use ($rules) {
                     foreach ($rules as $rule) {
-                        $query->where(fn ($q) => static::applyRule($q, $rule));
+                        $q->orWhere(fn ($q2) => static::applyRule($q2, $rule));
                     }
+                });
+            } else {
+                foreach ($rules as $rule) {
+                    $query->where(fn ($q) => static::applyRule($q, $rule));
                 }
             }
         }
+
+        return $query;
+    }
+
+    /**
+     * Colección ejecutada (con límite opcional) — la usan los carruseles
+     * de secciones. La página pública usa productsQuery()->paginate().
+     */
+    public function resolveProducts(?int $limit = null)
+    {
+        $query = $this->productsQuery();
 
         return $limit ? $query->limit($limit)->get() : $query->get();
     }

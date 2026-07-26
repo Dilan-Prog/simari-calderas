@@ -3,6 +3,9 @@
 namespace App\Http\Controllers\Frontend;
 
 use App\Http\Controllers\Controller;
+use App\Models\Category;
+use App\Models\Collection;
+use App\Models\Products;
 use Carbon\Carbon;
 use Spatie\Sitemap\Sitemap;
 use Spatie\Sitemap\Tags\Url;
@@ -50,10 +53,37 @@ class SitemapController extends Controller
         $sitemap->add(Url::create('/masstercal-rinnai/suavizadores-filtros-rinnai')->setPriority(0.8)->setChangeFrequency('monthly')->setLastModificationDate($hoy));
         $sitemap->add(Url::create('/masstercal-rinnai/tanques-almacenamiento-rinnai')->setPriority(0.8)->setChangeFrequency('monthly')->setLastModificationDate($hoy));
 
-        // Rutas dinámicas futuras — agregar aquí:
-        // foreach (Producto::all() as $producto) {
-        //     $sitemap->add(Url::create("/productos/{$producto->slug}")->setPriority(0.8)->setLastModificationDate($producto->updated_at));
-        // }
+        // ── Rutas dinámicas del e-commerce ──
+
+        // Colecciones (páginas SEO /coleccion/{slug})
+        foreach (Collection::where('is_active', true)->get(['slug', 'updated_at']) as $collection) {
+            $sitemap->add(
+                Url::create(route('collection.show', $collection->slug))
+                    ->setPriority(0.8)
+                    ->setChangeFrequency('weekly')
+                    ->setLastModificationDate($collection->updated_at ?? now())
+            );
+        }
+
+        // Categorías del catálogo
+        foreach (Category::where('is_active', true)->get(['slug', 'updated_at']) as $category) {
+            $sitemap->add(
+                Url::create(route('catalog.category', $category->slug))
+                    ->setPriority(0.8)
+                    ->setChangeFrequency('weekly')
+                    ->setLastModificationDate($category->updated_at ?? now())
+            );
+        }
+
+        // Productos publicados
+        foreach (Products::where('is_active', true)->where('publish_on_website', true)->get(['slug', 'updated_at']) as $product) {
+            $sitemap->add(
+                Url::create(route('product.show', $product->slug))
+                    ->setPriority(0.7)
+                    ->setChangeFrequency('weekly')
+                    ->setLastModificationDate($product->updated_at ?? now())
+            );
+        }
 
         return $sitemap->toResponse(request());
     }

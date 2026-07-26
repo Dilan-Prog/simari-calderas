@@ -45,6 +45,7 @@
             request()->routeIs('admin.purchase-orders.*') => 'ordenes-compra',
             request()->routeIs('admin.home-sections.*') => 'inicio-secciones',
             request()->routeIs('admin.collections.*') => 'colecciones',
+            request()->routeIs('admin.gallery.*') => 'galeria',
             request()->routeIs('admin.menus.*') => 'menus',
             request()->routeIs('admin.settings.*') => 'configuracion-sitio',
             request()->routeIs('admin.integrations.*') => 'integraciones',
@@ -54,7 +55,7 @@
         // Agrupación puramente visual del sidebar — no afecta rutas, permisos
         // ni estructura de carpetas, solo cómo se muestran los módulos.
         $groupSections = [
-            'ecommerce' => ['productos', 'categorias', 'marcas', 'colecciones', 'inicio-secciones', 'menus', 'configuracion-sitio', 'integraciones'],
+            'ecommerce' => ['productos', 'categorias', 'marcas', 'colecciones', 'galeria', 'inicio-secciones', 'menus', 'configuracion-sitio', 'integraciones'],
             'servicios' => ['reportes-servicio', 'servicios-tecnicos'],
             'erp' => ['cotizaciones', 'proveedores', 'ordenes-compra', 'clientes'],
             'administracion' => ['roles', 'usuarios', 'google-ads'],
@@ -65,6 +66,7 @@
             || $authUser->hasPermission('categories')
             || $authUser->hasPermission('brands')
             || $authUser->hasPermission('collections')
+            || $authUser->hasPermission('gallery')
             || $authUser->hasPermission('home-sections')
             || $authUser->hasPermission('orders')
             || $authUser->hasPermission('inventory')
@@ -194,6 +196,24 @@
                             <path d="M12 22V12" />
                         </svg>
                         <span class="sidebar-nav-item-label">Colecciones</span>
+                    </div>
+                </a>
+                @endif
+
+                {{-- Galería de Imágenes --}}
+                @if($authUser->hasPermission('gallery'))
+                <a class="sidebar-nav-item {{ $activeSection === 'galeria' ? 'active' : '' }}" data-section="galeria" data-label="Galería"
+                    href="{{ route('admin.gallery.index') }}">
+                    <div class="sidebar-nav-item-left">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round">
+                            <path d="M18 22H4a2 2 0 0 1-2-2V6" />
+                            <path d="m22 13-1.296-1.296a2.41 2.41 0 0 0-3.408 0L11 18" />
+                            <circle cx="12" cy="8" r="2" />
+                            <rect width="16" height="16" x="6" y="2" rx="2" />
+                        </svg>
+                        <span class="sidebar-nav-item-label">Galería</span>
                     </div>
                 </a>
                 @endif

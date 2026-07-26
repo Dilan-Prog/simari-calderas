@@ -24,6 +24,12 @@ class HomeSectionController extends Controller
         'category_grid', 'brand_carousel', 'html_block', 'faq',
     ];
 
+    // Las páginas de colección: igual que producto (sin hero_slider, con faq).
+    protected array $collectionPageTypes = [
+        'banner', 'dual_banner', 'product_carousel', 'product_carousel_banner',
+        'category_grid', 'brand_carousel', 'html_block', 'faq',
+    ];
+
     protected array $sources = [
         'featured', 'new', 'recommended', 'category', 'brand', 'collection', 'manual',
     ];
@@ -37,7 +43,11 @@ class HomeSectionController extends Controller
 
     public function index()
     {
-        $page = request('pagina') === 'producto' ? 'product' : 'home';
+        $page = match (request('pagina')) {
+            'producto'    => 'product',
+            'colecciones' => 'collection',
+            default       => 'home',
+        };
 
         $sections = HomeSection::where('page', $page)->orderBy('sort_order')->orderBy('id')->get();
         $categories = Category::where('is_active', true)
@@ -155,13 +165,20 @@ class HomeSectionController extends Controller
      */
     protected function validateSection(Request $request): void
     {
-        $isProduct = $request->input('page') === 'product';
+        $page = $request->input('page');
 
-        $allowedTypes   = $isProduct ? $this->productPageTypes : $this->types;
-        $allowedSources = $isProduct ? $this->productPageSources : $this->sources;
+        $allowedTypes = match ($page) {
+            'product'    => $this->productPageTypes,
+            'collection' => $this->collectionPageTypes,
+            default      => $this->types,
+        };
+
+        // Las fuentes relativas (related_*) solo tienen sentido con un
+        // producto en contexto; colecciones usa las fuentes fijas.
+        $allowedSources = $page === 'product' ? $this->productPageSources : $this->sources;
 
         $request->validate([
-            'page'       => 'required|string|in:home,product',
+            'page'       => 'required|string|in:home,product,collection',
             'type'       => 'required|string|in:' . implode(',', $allowedTypes),
             'source'     => 'nullable|string|in:' . implode(',', $allowedSources),
             'pcb_source' => 'nullable|string|in:' . implode(',', $allowedSources),
