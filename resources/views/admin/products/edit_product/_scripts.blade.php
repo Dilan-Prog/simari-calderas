@@ -477,6 +477,10 @@
                 row.innerHTML =
                     '<div class="pform-faq-fields">' +
                     '<input type="text" class="pform-input pform-faq-question" form="productEditForm" placeholder="Pregunta (ej: ¿Incluye instalación?)">' +
+                    '<div class="pform-faq-toolbar">' +
+                    '<button type="button" class="pform-insert-variable-btn" data-variable-target="faq-answer">{ } Insertar variable</button>' +
+                    '<button type="button" class="pform-insert-link-btn">🔗 Insertar enlace</button>' +
+                    '</div>' +
                     '<textarea class="pform-input pform-faq-answer" form="productEditForm" rows="2" placeholder="Respuesta"></textarea>' +
                     '</div>' +
                     '<button type="button" class="pform-spec-del" title="Eliminar">' +

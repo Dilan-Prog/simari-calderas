@@ -5,7 +5,7 @@
 @endphp
 <div class="product-price-box">
     <div class="product-price-box__eyebrow">{{ $product->availability === 'available' ? 'Disponible' : 'Sobre pedido' }} &nbsp;|&nbsp; SKU {{ $product->sku }}</div>
-    <h1 class="product-price-box__title">{{ $product->name }}</h1>
+    <h1 class="product-price-box__title">{{ $product->resolveVariables($product->name) }}</h1>
 
     @if ($hasDiscount)
         <div class="product-price-box__discount-row">

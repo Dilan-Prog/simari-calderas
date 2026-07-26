@@ -43,6 +43,7 @@
             ['key' => 'og_title', 'label' => 'Título Social', 'group' => 'SEO / Social', 'type' => 'text', 'maxlength' => 255],
             ['key' => 'og_description', 'label' => 'Descripción Social', 'group' => 'SEO / Social', 'type' => 'textarea'],
             ['key' => 'og_image', 'label' => 'Imagen Social (URL)', 'group' => 'SEO / Social', 'type' => 'text', 'maxlength' => 255],
+            ['key' => 'faqs', 'label' => 'FAQ', 'group' => 'SEO / Social', 'type' => 'faq'],
         ];
         // Columnas visibles por defecto la primera vez (antes de que exista
         // algo guardado en localStorage) — el set original + Nombre, para no
@@ -254,6 +255,17 @@
                                                     Especificaciones ({{ $specCount }})
                                                 </button>
                                             @break
+
+                                            @case('faq')
+                                                @php
+                                                    $faqCount = count($product->faqs ?? []);
+                                                @endphp
+                                                <button type="button" class="prod-bulk-popover-trigger"
+                                                    data-id="{{ $product->id }}" data-field="faqs"
+                                                    data-faqs="{{ json_encode($product->faqs ?? []) }}">
+                                                    FAQ ({{ $faqCount }})
+                                                </button>
+                                            @break
                                         @endswitch
                                     </td>
                                 @endforeach
@@ -298,6 +310,29 @@
             <div class="del-confirm-actions">
                 <button type="button" class="button-secondary size-adjustment" id="bulkSpecsCancelBtn">Cancelar</button>
                 <button type="button" class="button-primary size-adjustment" id="bulkSpecsSaveBtn">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    {{-- Popover de FAQ — misma idea que el de Especificaciones: una sola
+         instancia reutilizada por cualquier fila. --}}
+    <div id="bulkFaqModal" class="del-confirm-overlay">
+        <div class="del-confirm-box prod-bulk-specs-modal-box">
+            <h2 class="del-confirm-title">Preguntas Frecuentes</h2>
+            <p class="del-confirm-desc">Agrega o quita preguntas y respuestas para este producto. Puedes usar variables y enlaces hacia otras páginas del sitio.</p>
+
+            <div class="pform-placeholder" id="bulkFaqEmpty">
+                <p class="pform-placeholder-title">Sin preguntas todavía</p>
+            </div>
+            <div id="bulkFaqList" class="pform-spec-list" style="display:none"></div>
+
+            <button type="button" class="pform-btn primary" id="bulkFaqAddBtn" style="margin-top:14px">
+                + Agregar pregunta
+            </button>
+
+            <div class="del-confirm-actions">
+                <button type="button" class="button-secondary size-adjustment" id="bulkFaqCancelBtn">Cancelar</button>
+                <button type="button" class="button-primary size-adjustment" id="bulkFaqSaveBtn">Guardar</button>
             </div>
         </div>
     </div>

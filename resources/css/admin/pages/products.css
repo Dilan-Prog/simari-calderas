@@ -1101,6 +1101,21 @@ select.prod-bulk-input {
 }
 
 .prod-bulk-specs-modal-box {
-    max-width: 560px;
+    max-width: 760px;
+    width: 92%;
     text-align: left;
+    display: flex;
+    flex-direction: column;
+    max-height: 85vh;
+}
+
+/* Productos con muchas especificaciones (20+) desbordaban el modal por
+   fuera de la pantalla, tapando los botones Cancelar/Guardar. La lista
+   crece hasta llenar el espacio disponible y luego hace scroll interno;
+   título, botón "Agregar campo" y acciones se quedan siempre visibles. */
+.prod-bulk-specs-modal-box #bulkSpecsList {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    padding-right: 6px;
 }

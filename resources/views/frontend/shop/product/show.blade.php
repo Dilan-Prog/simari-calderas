@@ -2,10 +2,25 @@
 
 @php
     $shopVite = ['resources/css/frontend/shop/product-detail.css', 'resources/js/frontend/shop/product-detail.js'];
+
+    $resolvedName = $product->resolveVariables($product->name);
+    $metaTitle = $product->resolveVariables($product->seo_title) ?: ($resolvedName . ' — Equiterm Industries');
+    $metaDescription = $product->resolveVariables($product->seo_description ?: $product->short_description);
+    $canonicalUrl = route('product.show', $product->slug);
+    $ogTitle = $product->resolveVariables($product->og_title) ?: $metaTitle;
+    $ogDescription = $product->resolveVariables($product->og_description) ?: $metaDescription;
+    $ogImage = $product->og_image ?: $product->cover_image_url;
 @endphp
 
-@section('title', $product->seo_title ?: ($product->name . ' — Equiterm Industries'))
-@section('description', $product->resolveVariables($product->seo_description ?: $product->short_description))
+@section('title', $metaTitle)
+@section('description', $metaDescription)
+@section('canonical', $canonicalUrl)
+@section('og_title', $ogTitle)
+@section('og_description', $ogDescription)
+@section('og_url', $canonicalUrl)
+@if ($ogImage)
+    @section('og_image', $ogImage)
+@endif
 
 @php
     // JSON-LD FAQPage: solo si el producto tiene FAQs Y la sección faq está
@@ -24,10 +39,10 @@
                 '@type' => 'FAQPage',
                 'mainEntity' => $schemaFaqs->map(fn ($item) => [
                     '@type' => 'Question',
-                    'name' => $item['question'],
+                    'name' => $product->resolveVariables($item['question']),
                     'acceptedAnswer' => [
                         '@type' => 'Answer',
-                        'text' => $item['answer'],
+                        'text' => $product->resolveVariables($item['answer']),
                     ],
                 ])->all(),
             ], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_PRETTY_PRINT) !!}
@@ -50,7 +65,7 @@
         @foreach ($categoryChain as $chainCat)
             &nbsp;›&nbsp; <a href="{{ route('catalog.category', $chainCat->slug) }}">{{ $chainCat->name }}</a>
         @endforeach
-        &nbsp;›&nbsp; <span>{{ $product->name }}</span>
+        &nbsp;›&nbsp; <span>{{ $resolvedName }}</span>
     </div>
 
     <section class="product-main">

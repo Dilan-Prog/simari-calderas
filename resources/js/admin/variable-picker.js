@@ -22,7 +22,29 @@
     const CATALOG = window.PRODUCT_VARIABLES || [];
     if (!CATALOG.length) return;
 
-    const TEXTAREA_SELECTOR = '#pformShortDesc, .prod-bulk-textarea-cell[data-field="short_description"], .prod-bulk-textarea-cell[data-field="description"]';
+    // Campos de texto/textarea elegibles para variables: descripciones,
+    // nombre del producto y los campos del modal SEO — tanto en el
+    // formulario individual (por id) como en las celdas del editor en
+    // lote (por data-field, ya que se repiten una vez por producto).
+    const TEXTAREA_SELECTOR = [
+        '#pformShortDesc',
+        '#pformName',
+        '#pformSeoTitle',
+        '#pformSeoMeta',
+        '#pformOgTitle',
+        '#pformOgDescription',
+        '.prod-bulk-textarea-cell[data-field="short_description"]',
+        '.prod-bulk-textarea-cell[data-field="description"]',
+        '.prod-bulk-input[data-field="name"]',
+        '.prod-bulk-input[data-field="seo_title"]',
+        '.prod-bulk-textarea-cell[data-field="seo_description"]',
+        '.prod-bulk-input[data-field="og_title"]',
+        '.prod-bulk-textarea-cell[data-field="og_description"]',
+        '.pform-faq-question',
+        '.pform-faq-answer',
+        '.bulk-faq-question',
+        '.bulk-faq-answer',
+    ].join(', ');
 
     const quillRegistry = {};
     let lastFocusedTextarea = null;
@@ -276,12 +298,163 @@
             return;
         }
 
+        if (target === 'faq-answer') {
+            const row = btn.closest('.pform-faq-fields, .bulk-faq-fields');
+            const el = row ? row.querySelector('.pform-faq-answer, .bulk-faq-answer') : null;
+            if (!el) return;
+            el.focus();
+            const cursor = el.selectionStart;
+            activeField = { type: 'textarea', el, bracketIndex: cursor, replaceLength: 0 };
+            openMenu(CATALOG, getCaretCoordinates(el, cursor));
+            return;
+        }
+
         const el = document.getElementById(target);
         if (!el) return;
         el.focus();
         const cursor = el.selectionStart;
         activeField = { type: 'textarea', el, bracketIndex: cursor, replaceLength: 0 };
         openMenu(CATALOG, getCaretCoordinates(el, cursor));
+    });
+
+    /* ── Botón "Insertar enlace" (solo preguntas frecuentes) ──
+       Inserta la sintaxis [texto](url), que TextLinks::render() convierte
+       en un <a> real al mostrarse en público (ver app/Support/TextLinks.php).
+       A diferencia del menú de variables, aquí primero se elige un TIPO de
+       destino y luego se busca/selecciona un elemento concreto. */
+    const LINK_TYPES = [
+        { type: 'product', label: 'Producto' },
+        { type: 'collection', label: 'Colección' },
+        { type: 'category', label: 'Categoría / Catálogo' },
+        { type: 'contact', label: 'Contacto' },
+    ];
+
+    let linkPanel = null;
+    let linkTarget = null;
+    let linkBracketIndex = 0;
+    let linkSearchTimer = null;
+    let linkRequestId = 0;
+
+    function ensureLinkPanel() {
+        if (!linkPanel) {
+            linkPanel = document.createElement('div');
+            linkPanel.className = 'pform-link-picker';
+            document.body.appendChild(linkPanel);
+        }
+        return linkPanel;
+    }
+
+    function closeLinkPanel() {
+        if (linkPanel) {
+            linkPanel.classList.remove('is-open');
+            linkPanel.innerHTML = '';
+        }
+        linkTarget = null;
+    }
+
+    function positionLinkPanel(el) {
+        const rect = el.getBoundingClientRect();
+        linkPanel.style.left = Math.round(rect.left) + 'px';
+        linkPanel.style.top = Math.round(rect.bottom + 4) + 'px';
+    }
+
+    function insertLink(label, url) {
+        if (!linkTarget) return;
+        const token = `[${label}](${url})`;
+        const before = linkTarget.value.slice(0, linkBracketIndex);
+        const after = linkTarget.value.slice(linkBracketIndex);
+        linkTarget.value = before + token + after;
+        const newCursor = linkBracketIndex + token.length;
+        linkTarget.focus();
+        linkTarget.setSelectionRange(newCursor, newCursor);
+        linkTarget.dispatchEvent(new Event('input', { bubbles: true }));
+        closeLinkPanel();
+    }
+
+    function renderLinkTypeStep() {
+        const panel = ensureLinkPanel();
+        panel.innerHTML =
+            '<div class="pform-link-picker-title">Insertar enlace hacia…</div>' +
+            LINK_TYPES.map((t) => `<button type="button" class="pform-link-picker-type" data-type="${t.type}">${t.label}</button>`).join('');
+
+        panel.querySelectorAll('.pform-link-picker-type').forEach((btn) => {
+            btn.addEventListener('click', function () {
+                if (this.dataset.type === 'contact') {
+                    insertLink('Contáctanos', '/contacto');
+                } else {
+                    renderLinkSearchStep(this.dataset.type);
+                }
+            });
+        });
+    }
+
+    function renderLinkSearchStep(type) {
+        const panel = ensureLinkPanel();
+        const typeLabel = LINK_TYPES.find((t) => t.type === type)?.label ?? '';
+        panel.innerHTML =
+            '<div class="pform-link-picker-title">' +
+            `<button type="button" class="pform-link-picker-back">←</button> ${typeLabel}` +
+            '</div>' +
+            '<input type="text" class="pform-input pform-link-picker-search" placeholder="Buscar...">' +
+            '<ul class="pform-link-picker-results"></ul>';
+
+        panel.querySelector('.pform-link-picker-back').addEventListener('click', renderLinkTypeStep);
+
+        const input = panel.querySelector('.pform-link-picker-search');
+        const results = panel.querySelector('.pform-link-picker-results');
+
+        async function search(term) {
+            const myRequestId = ++linkRequestId;
+            try {
+                const res = await fetch(`/admin/productos/faq-enlaces/buscar?type=${type}&q=${encodeURIComponent(term)}`, {
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                });
+                if (!res.ok || myRequestId !== linkRequestId) return;
+                const items = await res.json();
+                results.innerHTML = items
+                    .map((it) => `<li class="pform-link-picker-item" data-label="${escapeHtml(it.label)}" data-url="${escapeHtml(it.url)}">${escapeHtml(it.label)}</li>`)
+                    .join('') || '<li class="pform-link-picker-empty">Sin resultados</li>';
+
+                results.querySelectorAll('.pform-link-picker-item').forEach((li) => {
+                    li.addEventListener('mousedown', function (e) {
+                        e.preventDefault();
+                        insertLink(this.dataset.label, this.dataset.url);
+                    });
+                });
+            } catch (err) {
+                console.error('Error buscando destino de enlace:', err);
+            }
+        }
+
+        input.addEventListener('input', function () {
+            clearTimeout(linkSearchTimer);
+            linkSearchTimer = setTimeout(() => search(this.value.trim()), 250);
+        });
+        input.focus();
+        search('');
+    }
+
+    document.addEventListener('click', function (e) {
+        const btn = e.target.closest('.pform-insert-link-btn');
+        if (!btn) return;
+        e.preventDefault();
+
+        const row = btn.closest('.pform-faq-fields, .bulk-faq-fields');
+        const target = row ? row.querySelector('.pform-faq-answer, .bulk-faq-answer') : null;
+        if (!target) return;
+
+        target.focus();
+        linkTarget = target;
+        linkBracketIndex = target.selectionStart;
+        ensureLinkPanel().classList.add('is-open');
+        positionLinkPanel(target);
+        renderLinkTypeStep();
+    });
+
+    document.addEventListener('mousedown', function (e) {
+        if (linkPanel && linkPanel.classList.contains('is-open') && !e.target.closest('.pform-link-picker') && !e.target.closest('.pform-insert-link-btn')) {
+            closeLinkPanel();
+        }
     });
 
     /* ── API pública para el adaptador de Quill ── */

@@ -1,5 +1,6 @@
 @php
     $galleryImages = $product->images;
+    $resolvedName = $product->resolveVariables($product->name);
     $coverFallback = $product->cover_image_url ?? asset('images/logo/equiterm-logo-blanco-color-3x.png');
     $imageUrls = $galleryImages->count() > 0 ? $galleryImages->pluck('url')->values() : collect([$coverFallback]);
     $imageLabels = $galleryImages->count() > 0
@@ -11,17 +12,17 @@
         <div class="product-gallery__thumbs">
             @forelse ($galleryImages as $i => $image)
                 <button type="button" :class="{ 'is-active': active === {{ $i }} }" @click="select({{ $i }})">
-                    <img src="{{ $image->url }}" alt="{{ $image->alt_text ?? $product->name }}">
+                    <img src="{{ $image->url }}" alt="{{ $image->alt_text ?? $resolvedName }}">
                 </button>
             @empty
                 <button type="button" class="is-active">
-                    <img src="{{ $coverFallback }}" alt="{{ $product->name }}">
+                    <img src="{{ $coverFallback }}" alt="{{ $resolvedName }}">
                 </button>
             @endforelse
         </div>
         <div class="product-gallery__main" @mousemove="onZoomMove($event)" @mouseenter="isZooming = true" @mouseleave="isZooming = false" @click="openLightbox()">
             <template x-if="images.length">
-                <img :src="images[active]" :alt="'{{ addslashes($product->name) }}'" class="product-gallery__main-img">
+                <img :src="images[active]" :alt="'{{ addslashes($resolvedName) }}'" class="product-gallery__main-img">
             </template>
             <div class="product-gallery__zoom-lens" x-show="isZooming" x-cloak :style="lensStyle"></div>
         </div>
@@ -30,7 +31,7 @@
     <div class="product-gallery__lightbox" x-show="lightboxOpen" x-cloak @click.self="closeLightbox()" @keydown.escape.window="closeLightbox()" @keydown.arrow-left.window="prev()" @keydown.arrow-right.window="next()">
         <div class="product-gallery__lightbox-panel">
             <div class="product-gallery__lightbox-header">
-                <h3>{{ $product->name }}</h3>
+                <h3>{{ $resolvedName }}</h3>
                 <button type="button" class="product-gallery__lightbox-close" @click="closeLightbox()" aria-label="Cerrar">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 6l12 12M18 6L6 18" stroke-linecap="round"/></svg>
                 </button>
@@ -46,7 +47,7 @@
                 </div>
                 <div class="product-gallery__lightbox-stage">
                     <button type="button" class="product-gallery__lightbox-nav product-gallery__lightbox-nav--prev" @click="prev()" x-show="images.length > 1" aria-label="Anterior">‹</button>
-                    <img :src="images[active]" :alt="labels[active] || '{{ addslashes($product->name) }}'">
+                    <img :src="images[active]" :alt="labels[active] || '{{ addslashes($resolvedName) }}'">
                     <button type="button" class="product-gallery__lightbox-nav product-gallery__lightbox-nav--next" @click="next()" x-show="images.length > 1" aria-label="Siguiente">›</button>
                 </div>
             </div>

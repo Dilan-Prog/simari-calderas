@@ -92,14 +92,28 @@ class Products extends Model
         ['key' => 'anio_actual', 'label' => 'Año actual', 'description' => 'El año en curso (ej. "Modelo {anio_actual}").'],
     ];
 
+    // Guarda contra recursión infinita: el nombre del producto puede a su
+    // vez contener variables (ej. "{marca} Bomba de Calor"), así que
+    // {nombre_producto} debe ofrecer el nombre YA resuelto — pero
+    // resolverlo llama de nuevo a variableValues(), por eso esta bandera
+    // evita que esa llamada anidada intente resolver el nombre otra vez.
+    private bool $resolvingName = false;
+
     protected function variableValues(): array
     {
         $hasDiscount = $this->compare_price && $this->compare_price > $this->price;
         $discountPct = $hasDiscount ? round((1 - ((float) $this->price / (float) $this->compare_price)) * 100) : null;
         $currency = $this->currency ?? 'MXN';
 
+        $resolvedName = $this->name ?? '';
+        if (!$this->resolvingName) {
+            $this->resolvingName = true;
+            $resolvedName = $this->resolveVariables($this->name) ?? '';
+            $this->resolvingName = false;
+        }
+
         return [
-            '{nombre_producto}'      => $this->name ?? '',
+            '{nombre_producto}'      => $resolvedName,
             '{marca}'                => $this->brand?->name ?? '',
             '{modelo}'               => $this->model ?? '',
             '{sku}'                  => $this->sku ?? '',

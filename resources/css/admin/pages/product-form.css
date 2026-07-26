@@ -1332,6 +1332,11 @@
     font-family: inherit;
 }
 
+.pform-faq-toolbar {
+    display: flex;
+    gap: 8px;
+}
+
 .pform-faq-row .pform-spec-del {
     margin-top: 6px;
 }
@@ -1449,4 +1454,112 @@
 .pform-float-menu-item.is-active {
     background: #eef2ff;
     color: #3730a3;
+}
+
+/* ── Insertar enlace (FAQ) ── */
+.pform-insert-link-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    background: #ecfdf5;
+    color: #047857;
+    border: 1px solid #a7f3d0;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    font-family: var(--font-family);
+    cursor: pointer;
+    transition: background 0.15s;
+    white-space: nowrap;
+}
+
+.pform-insert-link-btn:hover {
+    background: #d1fae5;
+}
+
+.pform-link-picker {
+    display: none;
+    position: fixed;
+    z-index: 500;
+    padding: 8px;
+    background: #ffffff;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    width: 260px;
+}
+
+.pform-link-picker.is-open {
+    display: block;
+}
+
+.pform-link-picker-title {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.pform-link-picker-back {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    color: #6b7280;
+    padding: 0;
+}
+
+.pform-link-picker-type {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 8px 10px;
+    margin-bottom: 4px;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    font-size: 13px;
+    color: #374151;
+    cursor: pointer;
+}
+
+.pform-link-picker-type:hover {
+    background: #eef2ff;
+    border-color: #c7d2fe;
+}
+
+.pform-link-picker-search {
+    width: 100%;
+    margin-bottom: 6px;
+}
+
+.pform-link-picker-results {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.pform-link-picker-item {
+    padding: 8px 10px;
+    font-size: 13px;
+    color: #374151;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.pform-link-picker-item:hover {
+    background: #eef2ff;
+    color: #3730a3;
+}
+
+.pform-link-picker-empty {
+    padding: 8px 10px;
+    font-size: 12.5px;
+    color: #9ca3af;
 }

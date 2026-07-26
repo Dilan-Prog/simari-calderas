@@ -433,9 +433,79 @@
 
             specsAddBtn.addEventListener('click', () => specsAddRow());
 
+            // ── Popover de FAQ (pregunta/respuesta, con variables y enlaces) ──
+            const faqModal = document.getElementById('bulkFaqModal');
+            const faqList = document.getElementById('bulkFaqList');
+            const faqEmpty = document.getElementById('bulkFaqEmpty');
+            const faqAddBtn = document.getElementById('bulkFaqAddBtn');
+            const faqCancelBtn = document.getElementById('bulkFaqCancelBtn');
+            const faqSaveBtn = document.getElementById('bulkFaqSaveBtn');
+            let faqEditingTrigger = null;
+
+            function faqAddRow(question = '', answer = '') {
+                faqEmpty.style.display = 'none';
+                faqList.style.display = 'flex';
+
+                const row = document.createElement('div');
+                row.className = 'pform-faq-row';
+                row.innerHTML =
+                    '<div class="bulk-faq-fields">' +
+                    '<input type="text" class="pform-input bulk-faq-question" placeholder="Pregunta (ej: ¿Incluye instalación?)">' +
+                    '<div class="pform-faq-toolbar">' +
+                    '<button type="button" class="pform-insert-variable-btn" data-variable-target="faq-answer">{ } Insertar variable</button>' +
+                    '<button type="button" class="pform-insert-link-btn">🔗 Insertar enlace</button>' +
+                    '</div>' +
+                    '<textarea class="pform-input bulk-faq-answer" rows="2" placeholder="Respuesta"></textarea>' +
+                    '</div>' +
+                    '<button type="button" class="pform-spec-del" title="Eliminar">' +
+                    '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+                    '<path d="M18 6 6 18"/><path d="m6 6 12 12"/>' +
+                    '</svg>' +
+                    '</button>';
+
+                row.querySelector('.bulk-faq-question').value = question || '';
+                row.querySelector('.bulk-faq-answer').value = answer || '';
+
+                row.querySelector('.pform-spec-del').addEventListener('click', () => {
+                    row.remove();
+                    if (!faqList.children.length) {
+                        faqList.style.display = 'none';
+                        faqEmpty.style.display = 'block';
+                    }
+                });
+
+                faqList.appendChild(row);
+            }
+
+            faqAddBtn.addEventListener('click', () => faqAddRow());
+
             document.addEventListener('click', (e) => {
                 const trigger = e.target.closest('.prod-bulk-popover-trigger');
                 if (!trigger) return;
+
+                if (trigger.dataset.field === 'faqs') {
+                    faqEditingTrigger = trigger;
+                    faqList.innerHTML = '';
+
+                    let items = [];
+                    try {
+                        items = JSON.parse(trigger.dataset.faqs || '[]');
+                    } catch (err) {
+                        items = [];
+                    }
+
+                    if (items.length) {
+                        faqEmpty.style.display = 'none';
+                        faqList.style.display = 'flex';
+                        items.forEach(it => faqAddRow(it.question, it.answer));
+                    } else {
+                        faqList.style.display = 'none';
+                        faqEmpty.style.display = 'block';
+                    }
+
+                    faqModal.classList.add('active');
+                    return;
+                }
 
                 specsEditingTrigger = trigger;
                 specsList.innerHTML = '';
@@ -477,6 +547,26 @@
                 specsEditingTrigger.textContent = `Especificaciones (${rows.length})`;
                 setPendingChange(specsEditingTrigger.dataset.id, 'specifications', json, specsEditingTrigger);
                 specsModal.classList.remove('active');
+            });
+
+            faqCancelBtn.addEventListener('click', () => faqModal.classList.remove('active'));
+            faqModal.addEventListener('click', (e) => {
+                if (e.target === faqModal) faqModal.classList.remove('active');
+            });
+
+            faqSaveBtn.addEventListener('click', () => {
+                if (!faqEditingTrigger) return;
+
+                const items = Array.from(faqList.querySelectorAll('.pform-faq-row')).map(row => ({
+                    question: row.querySelector('.bulk-faq-question').value.trim(),
+                    answer: row.querySelector('.bulk-faq-answer').value.trim(),
+                })).filter(it => it.question !== '' && it.answer !== '');
+
+                const json = JSON.stringify(items);
+                faqEditingTrigger.dataset.faqs = json;
+                faqEditingTrigger.textContent = `FAQ (${items.length})`;
+                setPendingChange(faqEditingTrigger.dataset.id, 'faqs', json, faqEditingTrigger);
+                faqModal.classList.remove('active');
             });
 
             syncUnsavedBar();

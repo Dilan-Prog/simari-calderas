@@ -4,8 +4,13 @@
     // estructura [{question, answer}]); la sección solo aporta
     // título/descripción. Sin dueño o sin FAQs, no se muestra.
     $faqOwner = $product ?? $collection ?? null;
+    $isProductOwner = $faqOwner instanceof \App\Models\Products;
     $items = collect($faqOwner?->faqs ?? [])
         ->filter(fn ($item) => !empty($item['question']) && !empty($item['answer']))
+        ->map(fn ($item) => [
+            'question' => $isProductOwner ? $faqOwner->resolveVariables($item['question']) : $item['question'],
+            'answer'   => $isProductOwner ? $faqOwner->resolveVariables($item['answer']) : $item['answer'],
+        ])
         ->values();
 @endphp
 
@@ -27,7 +32,7 @@
                     <span x-text="open === {{ $i }} ? '−' : '+'">+</span>
                 </button>
                 <div class="home-faq__answer" x-show="open === {{ $i }}" x-cloak>
-                    <p>{{ $item['answer'] }}</p>
+                    <p>{!! \App\Support\TextLinks::render($item['answer']) !!}</p>
                 </div>
             </div>
         @endforeach

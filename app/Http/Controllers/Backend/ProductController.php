@@ -15,6 +15,7 @@ use App\Models\ProductSpecName;
 use Illuminate\Support\Str;
 use App\Models\Category;
 use App\Models\Brand;
+use App\Models\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
@@ -238,7 +239,7 @@ class ProductController extends Controller
         'name', 'model', 'supplier_sku', 'short_description', 'description',
         'price', 'compare_price', 'cost', 'stock', 'stock_unit', 'currency', 'availability',
         'category_id', 'brand_id', 'is_active', 'publish_on_website', 'is_featured', 'is_new', 'is_recommended',
-        'tags', 'specifications',
+        'tags', 'specifications', 'faqs',
         'seo_title', 'seo_description', 'seo_keywords', 'og_title', 'og_description', 'og_image',
     ];
 
@@ -256,7 +257,7 @@ class ProductController extends Controller
         'model', 'supplier_sku', 'short_description', 'description',
         'price', 'compare_price', 'cost', 'stock', 'stock_unit', 'currency', 'availability',
         'category_id', 'brand_id', 'is_active', 'publish_on_website', 'is_featured', 'is_new', 'is_recommended',
-        'tags', 'specifications',
+        'tags', 'specifications', 'faqs',
         'seo_title', 'seo_description', 'seo_keywords', 'og_title', 'og_description', 'og_image',
     ];
     private const BULK_EDIT_VIEWS_MAX_PER_USER = 10;
@@ -292,7 +293,7 @@ class ProductController extends Controller
             'id', 'name', 'sku', 'model', 'supplier_sku', 'short_description', 'description',
             'price', 'compare_price', 'cost', 'stock', 'stock_unit', 'currency', 'availability',
             'category_id', 'brand_id', 'is_active', 'publish_on_website', 'is_featured', 'is_new', 'is_recommended',
-            'tags', 'specifications',
+            'tags', 'specifications', 'faqs',
             'seo_title', 'seo_description', 'seo_keywords', 'og_title', 'og_description', 'og_image',
         ]);
 
@@ -482,6 +483,27 @@ class ProductController extends Controller
                 $v = trim((string) $value);
 
                 return [true, $v === '' ? null : $v, null];
+
+            case 'faqs':
+                // Llega como JSON string armado por el popover de FAQ. A
+                // diferencia de specifications, products.faqs SÍ tiene cast
+                // 'array' — hay que devolver el array de PHP tal cual (igual
+                // que el case 'tags'), no una segunda vuelta de json_encode.
+                $decodedFaqs = json_decode((string) $value, true);
+                if (!is_array($decodedFaqs)) {
+                    return [false, null, 'Formato de FAQ inválido.'];
+                }
+                $cleanFaqs = [];
+                foreach ($decodedFaqs as $item) {
+                    $question = trim((string) ($item['question'] ?? ''));
+                    $answer = trim((string) ($item['answer'] ?? ''));
+                    if ($question === '' || $answer === '') {
+                        continue;
+                    }
+                    $cleanFaqs[] = ['question' => $question, 'answer' => $answer];
+                }
+
+                return [true, $cleanFaqs ?: null, null];
         }
 
         return [false, null, 'Campo no soportado.'];
@@ -1113,6 +1135,49 @@ class ProductController extends Controller
             ->pluck('name');
 
         return response()->json($names);
+    }
+
+    /**
+     * Resultados para el picker de enlaces del widget de FAQ (producto,
+     * colección, categoría) — el frontend ya arma [texto](url) con lo que
+     * regresa aquí, sin tener que conocer las rutas de cada tipo.
+     */
+    public function faqLinkSearch(Request $request)
+    {
+        $type = $request->input('type');
+        $term = trim((string) $request->input('q', ''));
+
+        $results = match ($type) {
+            'product' => Products::query()
+                ->where('publish_on_website', true)
+                ->when($term !== '', fn ($q) => $q->where(function ($q2) use ($term) {
+                    $q2->where('name', 'like', "%{$term}%")->orWhere('sku', 'like', "%{$term}%");
+                }))
+                ->orderBy('name')
+                ->limit(10)
+                ->get(['name', 'slug'])
+                ->map(fn ($p) => ['label' => $p->name, 'url' => route('product.show', $p->slug)]),
+
+            'collection' => Collection::query()
+                ->where('is_active', true)
+                ->when($term !== '', fn ($q) => $q->where('name', 'like', "%{$term}%"))
+                ->orderBy('name')
+                ->limit(10)
+                ->get(['name', 'slug'])
+                ->map(fn ($c) => ['label' => $c->name, 'url' => route('collection.show', $c->slug)]),
+
+            'category' => Category::query()
+                ->where('is_active', true)
+                ->when($term !== '', fn ($q) => $q->where('name', 'like', "%{$term}%"))
+                ->orderBy('name')
+                ->limit(10)
+                ->get(['name', 'slug'])
+                ->map(fn ($c) => ['label' => $c->name, 'url' => route('catalog.category', $c->slug)]),
+
+            default => collect(),
+        };
+
+        return response()->json($results->values());
     }
 
     /**

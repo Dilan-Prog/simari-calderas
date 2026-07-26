@@ -37,7 +37,7 @@
         '@type'    => 'ListItem',
         'position' => $i + 1 + (($products->currentPage() - 1) * $products->perPage()),
         'url'      => route('product.show', $p->slug),
-        'name'     => $p->name,
+        'name'     => $p->resolveVariables($p->name),
     ])->all();
 @endphp
 

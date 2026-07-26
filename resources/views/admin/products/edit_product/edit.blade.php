@@ -149,13 +149,17 @@
                             <h2 class="pform-panel-title">Información Básica del Producto</h2>
 
                             <div class="pform-field">
-                                <label class="pform-label" for="pformName">
-                                    Nombre del Producto <span class="pform-required">*</span>
-                                </label>
+                                <div class="pform-label-row">
+                                    <label class="pform-label" for="pformName">
+                                        Nombre del Producto <span class="pform-required">*</span>
+                                    </label>
+                                    <button type="button" class="pform-insert-variable-btn" data-variable-target="pformName">{ } Insertar variable</button>
+                                </div>
                                 <input type="text" id="pformName" name="name" class="pform-input"
                                     placeholder="Ej: Caldera Industrial Hyperion 500" value="{{ $product->name }}"
                                     required />
-                                <p class="pform-hint">Este nombre aparecerá en el catálogo y en los resultados de búsqueda
+                                <p class="pform-hint">Este nombre aparecerá en el catálogo y en los resultados de búsqueda.
+                                    Puedes usar variables como {marca} o {modelo}.
                                 </p>
                             </div>
 
@@ -842,8 +846,11 @@
                         <h2 class="pform-panel-title">SEO Básico</h2>
 
                         <div class="pform-field">
-                            <label class="pform-label" for="pformSeoTitle">Título SEO <span
-                                    class="pform-required">*</span></label>
+                            <div class="pform-label-row">
+                                <label class="pform-label" for="pformSeoTitle">Título SEO <span
+                                        class="pform-required">*</span></label>
+                                <button type="button" class="pform-insert-variable-btn" data-variable-target="pformSeoTitle">{ } Insertar variable</button>
+                            </div>
                             <input type="text" id="pformSeoTitle" name="seo_title" class="pform-input"
                                 placeholder="Bomba de Calor Rinnai 20HP" maxlength="60"
                                 value="{{ $product->seo_title ?? '' }}" form="productEditForm">
@@ -869,8 +876,11 @@
                         </div>
 
                         <div class="pform-field">
-                            <label class="pform-label" for="pformSeoMeta">Meta Description <span
-                                    class="pform-required">*</span></label>
+                            <div class="pform-label-row">
+                                <label class="pform-label" for="pformSeoMeta">Meta Description <span
+                                        class="pform-required">*</span></label>
+                                <button type="button" class="pform-insert-variable-btn" data-variable-target="pformSeoMeta">{ } Insertar variable</button>
+                            </div>
                             <textarea id="pformSeoMeta" name="seo_description" class="pform-textarea" rows="3" maxlength="160"
                                 placeholder="Descripción breve que aparecerá en los resultados de búsqueda de Google" form="productEditForm">{{ $product->seo_description ?? '' }}</textarea>
                             <div class="pform-char-row">
@@ -909,14 +919,20 @@
                         </h2>
 
                         <div class="pform-field">
-                            <label class="pform-label">Título para Redes Sociales</label>
-                            <input type="text" class="pform-input" name="og_title" form="productEditForm"
+                            <div class="pform-label-row">
+                                <label class="pform-label" for="pformOgTitle">Título para Redes Sociales</label>
+                                <button type="button" class="pform-insert-variable-btn" data-variable-target="pformOgTitle">{ } Insertar variable</button>
+                            </div>
+                            <input type="text" id="pformOgTitle" class="pform-input" name="og_title" form="productEditForm"
                                 value="{{ $product->og_title ?? '' }}" placeholder="Bomba de Calor Rinnai 20HP">
                         </div>
 
                         <div class="pform-field">
-                            <label class="pform-label">Descripción para Redes Sociales</label>
-                            <textarea class="pform-textarea" rows="3" name="og_description" form="productEditForm"
+                            <div class="pform-label-row">
+                                <label class="pform-label" for="pformOgDescription">Descripción para Redes Sociales</label>
+                                <button type="button" class="pform-insert-variable-btn" data-variable-target="pformOgDescription">{ } Insertar variable</button>
+                            </div>
+                            <textarea id="pformOgDescription" class="pform-textarea" rows="3" name="og_description" form="productEditForm"
                                 placeholder="Descripción que aparecerá cuando se comparta en Facebook, LinkedIn, etc.">{{ $product->og_description ?? '' }}</textarea>
                         </div>
 
