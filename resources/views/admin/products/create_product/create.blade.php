@@ -228,7 +228,10 @@
                             </div>
 
                             <div class="pform-field">
-                                <label class="pform-label" for="pformShortDesc">Descripción Corta</label>
+                                <div class="pform-label-row">
+                                    <label class="pform-label" for="pformShortDesc">Descripción Corta</label>
+                                    <button type="button" class="pform-insert-variable-btn" data-variable-target="pformShortDesc">{ } Insertar variable</button>
+                                </div>
                                 <textarea id="pformShortDesc" class="pform-textarea" rows="3" maxlength="200" name="short_description"
                                     placeholder="Resumen breve del producto (aparecerá en las tarjetas del catálogo)"></textarea>
                                 <div class="pform-char-row">
@@ -238,13 +241,16 @@
                             </div>
 
                             <div class="pform-field">
-                                <label class="pform-label">Descripción Completa</label>
+                                <div class="pform-label-row">
+                                    <label class="pform-label">Descripción Completa</label>
+                                    <button type="button" class="pform-insert-variable-btn" data-variable-target="quill:pformQuillEditor">{ } Insertar variable</button>
+                                </div>
                                 <div class="pform-quill-wrap">
                                     <div id="pformQuillEditor"></div>
                                 </div>
                                 <input type="hidden" name="description" id="pformDescHidden">
                                 <p class="pform-hint">Usa el editor para crear una descripción rica con formato, tablas
-                                    técnicas, listas de características, etc.</p>
+                                    técnicas, listas de características, etc. Puedes usar variables como {marca} o {modelo}.</p>
                             </div>
                         </div>
 

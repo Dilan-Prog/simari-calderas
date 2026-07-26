@@ -28,7 +28,7 @@
     @if ($product->short_description)
         <div class="product-price-box__highlights">
             <div class="product-price-box__highlights-title">Lo que debes saber de este producto</div>
-            <p>{{ $product->short_description }}</p>
+            <p>{{ $product->resolveVariables($product->short_description) }}</p>
         </div>
     @endif
 </div>

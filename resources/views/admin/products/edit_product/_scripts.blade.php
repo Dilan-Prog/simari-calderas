@@ -1,4 +1,5 @@
 @push('scripts')
+    <script>window.PRODUCT_VARIABLES = @json(\App\Models\Products::VARIABLE_CATALOG);</script>
     <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
     <script>
         (function() {
@@ -58,6 +59,14 @@
             // Pre-load existing description
             const existingDesc = document.getElementById('pformDescHidden').value;
             if (existingDesc) quillInstance.setText(existingDesc);
+
+            // variable-picker.js es un script tipo módulo (diferido): se
+            // ejecuta después de este script inline clásico, por eso el
+            // registro espera a DOMContentLoaded en vez de comprobar
+            // window.VariablePicker aquí directamente (llegaría undefined).
+            document.addEventListener('DOMContentLoaded', function() {
+                window.VariablePicker.attachQuill(quillInstance, 'pformQuillEditor');
+            });
 
             /* ── Back button ── */
             document.getElementById('pformBackBtn').addEventListener('click', function() {

@@ -5,7 +5,7 @@
 @endphp
 
 @section('title', $product->seo_title ?: ($product->name . ' — Equiterm Industries'))
-@section('description', $product->seo_description ?: $product->short_description)
+@section('description', $product->resolveVariables($product->seo_description ?: $product->short_description))
 
 @php
     // JSON-LD FAQPage: solo si el producto tiene FAQs Y la sección faq está
@@ -59,7 +59,7 @@
             <div class="product-description">
                 @if ($product->description)
                     <div class="product-description__title">Descripción</div>
-                    <p>{{ $product->description }}</p>
+                    <p>{{ $product->resolveVariables($product->description) }}</p>
                 @endif
             </div>
             @include('frontend.shop.product.partials.specs-table')

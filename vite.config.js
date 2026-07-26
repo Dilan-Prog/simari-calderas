@@ -10,6 +10,8 @@ export default defineConfig({
                 'resources/css/admin/app.css',
                 'resources/js/admin/sidebar.js',
                 'resources/js/admin/image-picker.js',
+                'resources/js/admin/spec-name-autocomplete.js',
+                'resources/js/admin/variable-picker.js',
                 'resources/js/admin/google-ads.js',
                 'resources/css/admin-quotes.css',
                 'resources/js/admin-quotes.js',

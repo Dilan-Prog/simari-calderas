@@ -9,7 +9,7 @@
     "isEntry": true
   },
   "resources/css/admin/app.css": {
-    "file": "assets/app-Ds7BMs1Q.css",
+    "file": "assets/app-Vj2b4S6Z.css",
     "src": "resources/css/admin/app.css",
     "isEntry": true
   },
@@ -143,10 +143,22 @@
     "src": "resources/js/admin/sidebar.js",
     "isEntry": true
   },
+  "resources/js/admin/spec-name-autocomplete.js": {
+    "file": "assets/spec-name-autocomplete-sWDsBDJG.js",
+    "name": "spec-name-autocomplete",
+    "src": "resources/js/admin/spec-name-autocomplete.js",
+    "isEntry": true
+  },
   "resources/js/admin/technical-services.js": {
     "file": "assets/technical-services-Dk88iA6I.js",
     "name": "technical-services",
     "src": "resources/js/admin/technical-services.js",
+    "isEntry": true
+  },
+  "resources/js/admin/variable-picker.js": {
+    "file": "assets/variable-picker-BPyiwavu.js",
+    "name": "variable-picker",
+    "src": "resources/js/admin/variable-picker.js",
     "isEntry": true
   },
   "resources/js/app.js": {

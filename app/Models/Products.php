@@ -73,6 +73,65 @@ class Products extends Model
         'faqs'        => 'array',
     ];
 
+    // Catálogo de variables disponibles en Descripción corta y larga —
+    // fuente única de verdad compartida entre el menú de autocompletado del
+    // admin (@json()) y resolveVariables() para que nunca se desincronicen.
+    const VARIABLE_CATALOG = [
+        ['key' => 'nombre_producto', 'label' => 'Nombre del producto', 'description' => 'El nombre del producto tal como está registrado.'],
+        ['key' => 'marca', 'label' => 'Marca', 'description' => 'El nombre de la marca del producto.'],
+        ['key' => 'modelo', 'label' => 'Modelo', 'description' => 'El modelo del producto.'],
+        ['key' => 'sku', 'label' => 'SKU', 'description' => 'El SKU (código) del producto.'],
+        ['key' => 'categoria', 'label' => 'Categoría', 'description' => 'El nombre de la categoría del producto.'],
+        ['key' => 'categoria_padre', 'label' => 'Categoría padre', 'description' => 'El nombre de la categoría padre, si la categoría del producto tiene una.'],
+        ['key' => 'precio', 'label' => 'Precio', 'description' => 'El precio actual del producto, formateado con moneda (ej. "2,099.00 MXN").'],
+        ['key' => 'precio_comparacion', 'label' => 'Precio de comparación', 'description' => 'El precio de comparación (antes del descuento), si existe.'],
+        ['key' => 'descuento_porcentaje', 'label' => 'Descuento (%)', 'description' => 'El porcentaje de descuento calculado, si el precio de comparación es mayor al precio actual.'],
+        ['key' => 'moneda', 'label' => 'Moneda', 'description' => 'La moneda del producto (MXN, USD, EUR).'],
+        ['key' => 'proveedor_sku', 'label' => 'SKU del proveedor', 'description' => 'El SKU/código que usa el proveedor para este producto.'],
+        ['key' => 'existencias', 'label' => 'Existencias', 'description' => 'La cantidad en existencia del producto (útil para copy de urgencia).'],
+        ['key' => 'anio_actual', 'label' => 'Año actual', 'description' => 'El año en curso (ej. "Modelo {anio_actual}").'],
+    ];
+
+    protected function variableValues(): array
+    {
+        $hasDiscount = $this->compare_price && $this->compare_price > $this->price;
+        $discountPct = $hasDiscount ? round((1 - ((float) $this->price / (float) $this->compare_price)) * 100) : null;
+        $currency = $this->currency ?? 'MXN';
+
+        return [
+            '{nombre_producto}'      => $this->name ?? '',
+            '{marca}'                => $this->brand?->name ?? '',
+            '{modelo}'               => $this->model ?? '',
+            '{sku}'                  => $this->sku ?? '',
+            '{categoria}'            => $this->category?->name ?? '',
+            '{categoria_padre}'      => $this->category?->parent?->name ?? '',
+            '{precio}'               => $this->price !== null ? number_format((float) $this->price, 2) . ' ' . $currency : '',
+            '{precio_comparacion}'   => $this->compare_price ? number_format((float) $this->compare_price, 2) . ' ' . $currency : '',
+            '{descuento_porcentaje}' => $discountPct !== null ? (string) $discountPct : '',
+            '{moneda}'               => $currency,
+            '{proveedor_sku}'        => $this->supplier_sku ?? '',
+            '{existencias}'          => $this->stock !== null ? (string) $this->stock : '',
+            '{anio_actual}'          => (string) now()->year,
+        ];
+    }
+
+    /**
+     * Sustituye las variables {llave} de VARIABLE_CATALOG con los datos
+     * reales de este producto. Dinámico: se resuelve solo al mostrarse en
+     * público, el texto guardado conserva las llaves literales.
+     */
+    public function resolveVariables(?string $text): ?string
+    {
+        if ($text === null || $text === '') {
+            return $text;
+        }
+
+        $resolved = strtr($text, $this->variableValues());
+        $resolved = preg_replace('/\s{2,}/', ' ', $resolved);
+
+        return trim($resolved);
+    }
+
     // Belongs to a category
     public function category()
     {

@@ -11,6 +11,7 @@ use App\Models\Products;
 use App\Models\ProductImage;
 use App\Models\ProductDocument;
 use App\Models\ProductBulkEditView;
+use App\Models\ProductSpecName;
 use Illuminate\Support\Str;
 use App\Models\Category;
 use App\Models\Brand;
@@ -471,6 +472,8 @@ class ProductController extends Controller
                     $clean[] = ['key' => $key, 'value' => trim((string) ($row['value'] ?? ''))];
                 }
 
+                ProductSpecName::registerMany(array_column($clean, 'key'));
+
                 return [true, json_encode($clean), null];
 
             case 'og_description':
@@ -767,6 +770,7 @@ class ProductController extends Controller
                 }
             }
             $product->specifications = json_encode($specs);
+            ProductSpecName::registerMany(array_column($specs, 'key'));
         }
 
         // Preguntas frecuentes personalizadas (capturadas en el modal SEO).
@@ -940,6 +944,7 @@ class ProductController extends Controller
                 }
             }
             $product->specifications = json_encode($specs);
+            ProductSpecName::registerMany(array_column($specs, 'key'));
         } else {
             // Clear specs if all were deleted
             $product->specifications = null;
@@ -1090,6 +1095,24 @@ class ProductController extends Controller
         }
 
         return response()->json($tags->take(10)->values());
+    }
+
+    /**
+     * Nombres de especificación ya registrados en el catálogo permanente
+     * (tabla product_spec_names), para el autocompletado del campo "Nombre
+     * del campo" del repeater de especificaciones (crear/editar/lote).
+     */
+    public function specNameSuggestions(Request $request)
+    {
+        $term = trim((string) $request->input('q', ''));
+
+        $names = ProductSpecName::query()
+            ->when($term !== '', fn ($q) => $q->where('name', 'like', "%{$term}%"))
+            ->orderBy('name')
+            ->limit(10)
+            ->pluck('name');
+
+        return response()->json($names);
     }
 
     /**

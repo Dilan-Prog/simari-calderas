@@ -2,6 +2,9 @@
 @section('title')
     Editar en lote - Productos - Admin
 @endsection
+@push('scripts')
+    <script>window.PRODUCT_VARIABLES = @json(\App\Models\Products::VARIABLE_CATALOG);</script>
+@endpush
 @section('content')
     @php
         // Columnas configurables (todo lo editable de un producto salvo
@@ -150,6 +153,8 @@
                     </div>
                 </div>
             </form>
+
+            <button type="button" class="pform-insert-variable-btn" data-variable-target="last-focused">{ } Insertar variable</button>
         </div>
 
         <div class="prod-content-area">

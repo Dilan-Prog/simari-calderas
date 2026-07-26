@@ -17,6 +17,8 @@
     @vite(['resources/css/admin/app.css'])
     @vite(['resources/js/admin/sidebar.js'])
     @vite(['resources/js/admin/image-picker.js'])
+    @vite(['resources/js/admin/spec-name-autocomplete.js'])
+    @vite(['resources/js/admin/variable-picker.js'])
     @stack('styles')
     <style>
     .val-error-input,.val-error-select{border-color:#e3342f!important;box-shadow:0 0 0 2px rgba(227,52,47,.18)!important;}

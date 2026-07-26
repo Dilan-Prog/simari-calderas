@@ -106,6 +106,7 @@ Route::controller(ProductController::class)
         Route::post('/productos/{id}/imagenes/reordenar', 'reorderImages')->name('products.images.reorder');
         Route::get('/productos/imagenes/biblioteca', 'mediaLibrary')->name('products.images.library');
         Route::get('/productos/etiquetas/buscar', 'tagSuggestions')->name('products.tags.suggestions');
+        Route::get('/productos/especificaciones/buscar', 'specNameSuggestions')->name('products.specs.suggestions');
         Route::post('/productos/bulk', 'bulkUpdate')->name('products.bulk');
         Route::get('/productos/edicion-masiva', 'bulkEditIndex')->name('products.bulk-edit');
         Route::post('/productos/edicion-masiva/guardar', 'bulkEditSave')->name('products.bulk.save');
