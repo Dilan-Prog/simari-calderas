@@ -9,6 +9,21 @@ use Illuminate\Support\Str;
 
 class CategoryController extends Controller
 {
+    /**
+     * FIX (SEO slugs): Str::slug() strips "/" entirely instead of treating
+     * it as a path separator (Str::slug('a/b') === 'ab'), which silently
+     * defeated the admin JS's attempt to build a hierarchical "parent/child"
+     * slug. Sanitizes each "/"-separated segment on its own so the
+     * separator survives.
+     */
+    private function slugifyPath(string $raw): string
+    {
+        return collect(explode('/', $raw))
+            ->filter(fn ($seg) => $seg !== '')
+            ->map(fn ($seg) => Str::slug($seg))
+            ->implode('/');
+    }
+
     public function index()
     {
         $categories = Category::with('parent')
@@ -42,7 +57,7 @@ class CategoryController extends Controller
 
         $category = new Category();
         $category->name        = $request->name;
-        $category->slug        = Str::slug($request->slug);
+        $category->slug        = $this->slugifyPath($request->slug);
         $category->parent_id   = $request->parent_id   ?? null;
         $category->description = $request->description ?? null;
         $category->image_url   = $request->image_url   ?? null;
@@ -79,7 +94,7 @@ class CategoryController extends Controller
         ]);
 
         $category->name        = $request->name;
-        $category->slug        = Str::slug($request->slug);
+        $category->slug        = $this->slugifyPath($request->slug);
         $category->parent_id   = $request->parent_id   ?? null;
         $category->description = $request->description ?? null;
         $category->image_url   = $request->image_url   ?? null;

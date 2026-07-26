@@ -27,7 +27,9 @@
             ['key' => 'availability', 'label' => 'Disponibilidad', 'group' => 'Precios / Inventario', 'type' => 'select',
                 'options' => ['available' => 'Disponible', 'out_of_stock' => 'Agotado', 'on_order' => 'Sobre pedido']],
 
-            ['key' => 'category_id', 'label' => 'Categoría', 'group' => 'Organización', 'type' => 'select-category'],
+            ['key' => 'category_id', 'label' => 'Categoría Principal', 'group' => 'Organización', 'type' => 'select-category-main'],
+            ['key' => 'category_sub', 'label' => 'Subcategoría', 'group' => 'Organización', 'type' => 'select-category-sub'],
+            ['key' => 'category_child', 'label' => 'Categoría Hija', 'group' => 'Organización', 'type' => 'select-category-child'],
             ['key' => 'brand_id', 'label' => 'Marca', 'group' => 'Organización', 'type' => 'select-brand'],
             ['key' => 'is_active', 'label' => 'Activo', 'group' => 'Organización', 'type' => 'checkbox'],
             ['key' => 'publish_on_website', 'label' => 'Publicar Web', 'group' => 'Organización', 'type' => 'checkbox'],
@@ -172,6 +174,29 @@
                     </thead>
                     <tbody>
                         @forelse ($products as $product)
+                            @php
+                                // Misma lógica de create()/edit(): a partir de la
+                                // categoría guardada (que puede ser de nivel 1, 2 o
+                                // 3) se reconstruye cuál id va en cada uno de los 3
+                                // selectores en cascada de esta fila.
+                                $catInitialMainId = null;
+                                $catInitialSubId = null;
+                                $catInitialChildId = null;
+                                if ($product->category) {
+                                    $cat = $product->category;
+                                    $level = $cat->level;
+                                    if ($level === 1) {
+                                        $catInitialMainId = $cat->id;
+                                    } elseif ($level === 2) {
+                                        $catInitialMainId = $cat->parent_id;
+                                        $catInitialSubId = $cat->id;
+                                    } else {
+                                        $catInitialSubId = $cat->parent_id;
+                                        $catInitialChildId = $cat->id;
+                                        $catInitialMainId = $cat->parent?->parent_id;
+                                    }
+                                }
+                            @endphp
                             <tr data-row-id="{{ $product->id }}">
                                 <td class="prod-bulk-pinned-col">
                                     <input type="text" class="prod-bulk-input" data-id="{{ $product->id }}"
@@ -218,14 +243,43 @@
                                                 </select>
                                             @break
 
-                                            @case('select-category')
-                                                <select class="prod-bulk-input" data-id="{{ $product->id }}"
+                                            @case('select-category-main')
+                                                <select class="prod-bulk-input prod-bulk-cat-main" data-id="{{ $product->id }}"
                                                     data-field="category_id">
-                                                    @foreach ($categoryOptions as $opt)
-                                                        <option value="{{ $opt['id'] }}" @selected($product->category_id == $opt['id'])>
-                                                            {{ $opt['label'] }}
+                                                    <option value="">Seleccionar...</option>
+                                                    @foreach ($categoryTree as $rootCat)
+                                                        <option value="{{ $rootCat->id }}" @selected($catInitialMainId == $rootCat->id)>
+                                                            {{ $rootCat->name }}
                                                         </option>
                                                     @endforeach
+                                                </select>
+                                            @break
+
+                                            @case('select-category-sub')
+                                                <select class="prod-bulk-input prod-bulk-cat-sub" data-id="{{ $product->id }}"
+                                                    @if (!$catInitialMainId) disabled @endif>
+                                                    <option value="">Seleccionar...</option>
+                                                    @if ($catInitialMainId)
+                                                        @foreach (($categoryTree->firstWhere('id', $catInitialMainId)?->children ?? []) as $subCat)
+                                                            <option value="{{ $subCat->id }}" @selected($catInitialSubId == $subCat->id)>
+                                                                {{ $subCat->name }}
+                                                            </option>
+                                                        @endforeach
+                                                    @endif
+                                                </select>
+                                            @break
+
+                                            @case('select-category-child')
+                                                <select class="prod-bulk-input prod-bulk-cat-child" data-id="{{ $product->id }}"
+                                                    @if (!$catInitialSubId) disabled @endif>
+                                                    <option value="">Seleccionar...</option>
+                                                    @if ($catInitialMainId && $catInitialSubId)
+                                                        @foreach (($categoryTree->firstWhere('id', $catInitialMainId)?->children?->firstWhere('id', $catInitialSubId)?->children ?? []) as $childCat)
+                                                            <option value="{{ $childCat->id }}" @selected($catInitialChildId == $childCat->id)>
+                                                                {{ $childCat->name }}
+                                                            </option>
+                                                        @endforeach
+                                                    @endif
                                                 </select>
                                             @break
 

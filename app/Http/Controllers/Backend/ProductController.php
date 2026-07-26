@@ -256,7 +256,7 @@ class ProductController extends Controller
     private const BULK_EDIT_VIEW_COLUMNS = [
         'model', 'supplier_sku', 'short_description', 'description',
         'price', 'compare_price', 'cost', 'stock', 'stock_unit', 'currency', 'availability',
-        'category_id', 'brand_id', 'is_active', 'publish_on_website', 'is_featured', 'is_new', 'is_recommended',
+        'category_id', 'category_sub', 'category_child', 'brand_id', 'is_active', 'publish_on_website', 'is_featured', 'is_new', 'is_recommended',
         'tags', 'specifications', 'faqs',
         'seo_title', 'seo_description', 'seo_keywords', 'og_title', 'og_description', 'og_image',
     ];
@@ -295,7 +295,7 @@ class ProductController extends Controller
             'category_id', 'brand_id', 'is_active', 'publish_on_website', 'is_featured', 'is_new', 'is_recommended',
             'tags', 'specifications', 'faqs',
             'seo_title', 'seo_description', 'seo_keywords', 'og_title', 'og_description', 'og_image',
-        ]);
+        ])->with('category.parent.parent');
 
         $totalFiltered = (clone $query)->count();
         $perPageInput  = $request->input('per_page', 25);
@@ -308,12 +308,27 @@ class ProductController extends Controller
 
         // $categories: lista plana para el filtro de la barra de herramientas
         // (igual que index.blade.php). $categoryOptions: con etiqueta
-        // jerárquica, para el <select> editable de cada fila.
+        // jerárquica, usada como fallback si algún producto tuviera una
+        // categoría fuera del árbol de 3 niveles. $categoryTree: mismo
+        // formato que create()/edit() (raíz + 2 niveles de children
+        // anidados) para alimentar el selector en cascada Principal >
+        // Subcategoría > Categoría Hija de cada fila.
         $categories = Category::orderBy('name')->get(['id', 'name']);
         $categoryOptions = Category::with('parent.parent')->get()
             ->map(fn ($c) => ['id' => $c->id, 'label' => $this->categoryBreadcrumb($c)])
             ->sortBy('label')
             ->values();
+        $categoryTree = Category::where('is_active', true)
+            ->whereNull('parent_id')
+            ->with(['children' => function ($q) {
+                $q->where('is_active', true)
+                    ->with(['children' => function ($q2) {
+                        $q2->where('is_active', true)->select('id', 'name', 'parent_id');
+                    }])
+                    ->select('id', 'name', 'parent_id');
+            }])
+            ->orderBy('name')
+            ->get(['id', 'name']);
         $brands = Brand::orderBy('name')->get(['id', 'name']);
 
         // Vistas de columnas guardadas por el usuario actual (hasta 10) —
@@ -322,7 +337,7 @@ class ProductController extends Controller
             ->orderBy('id')
             ->get(['id', 'name', 'columns']);
 
-        return view('admin.products.bulk_edit', compact('products', 'categories', 'categoryOptions', 'brands', 'totalFiltered', 'savedViews'))
+        return view('admin.products.bulk_edit', compact('products', 'categories', 'categoryOptions', 'categoryTree', 'brands', 'totalFiltered', 'savedViews'))
             ->with('perPageOptions', self::PER_PAGE_OPTIONS);
     }
 

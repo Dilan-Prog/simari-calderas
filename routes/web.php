@@ -30,7 +30,11 @@ Route::get('/media/{path}', [MediaServeController::class, 'show'])
 Route::controller(CatalogController::class)->group(function () {
     Route::get('/', 'home')->name('home');
     Route::get('/catalogo', 'index')->name('catalog.index');
-    Route::get('/catalogo/{categorySlug}', 'category')->name('catalog.category');
+    // FIX (SEO slugs): widened to match multi-segment hierarchical slugs
+    // (e.g. "bombas-de-calor/masstercal") — see Redirect model + Category::slug.
+    Route::get('/catalogo/{categorySlug}', 'category')
+        ->where('categorySlug', '.*')
+        ->name('catalog.category');
     Route::get('/buscar-en-vivo', 'liveSearch')->name('catalog.live-search');
 });
 Route::get('/producto/{slug}', [ShopProductController::class, 'show'])->name('product.show');
@@ -89,3 +93,16 @@ Route::middleware('auth')->group(function () {
 
 require __DIR__.'/auth.php';
 require __DIR__.'/shop-auth.php';
+
+// FIX (SEO redirects): catches any URL that doesn't match any route pattern
+// at all (e.g. a deprecated URL structure). Registered last so every real
+// route gets first chance to match. Old category/collection URLs whose
+// pattern still matches today but whose slug no longer exists are instead
+// handled inside CatalogController::category() / CollectionController::show()
+// — this fallback alone can't see those, since the route itself matches.
+Route::fallback(function (\Illuminate\Http\Request $request) {
+    if ($redirect = \App\Models\Redirect::resolve($request->path())) {
+        return redirect($redirect->new_path, $redirect->status_code);
+    }
+    abort(404);
+});

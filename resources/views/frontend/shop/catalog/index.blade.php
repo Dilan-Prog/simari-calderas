@@ -10,6 +10,23 @@
 <div class="eq-shop-catalog">
     <section class="catalog-hero"></section>
 
+    @if ($category)
+        @php
+            $categoryChain = [];
+            $chainCat = $category;
+            while ($chainCat) {
+                array_unshift($categoryChain, $chainCat);
+                $chainCat = $chainCat->parent;
+            }
+        @endphp
+        <div class="product-breadcrumb">
+            <a href="{{ route('home') }}">Inicio</a>
+            @foreach ($categoryChain as $chainCat)
+                &nbsp;›&nbsp; <a href="{{ route('catalog.category', $chainCat->slug) }}">{{ $chainCat->name }}</a>
+            @endforeach
+        </div>
+    @endif
+
     <div class="catalog-layout">
         @include('frontend.shop.catalog.partials.filters-sidebar')
 

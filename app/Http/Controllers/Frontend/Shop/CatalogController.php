@@ -7,6 +7,7 @@ use App\Models\Brand;
 use App\Models\Category;
 use App\Models\HomeSection;
 use App\Models\Products;
+use App\Models\Redirect;
 use Illuminate\Http\Request;
 
 class CatalogController extends Controller
@@ -29,7 +30,18 @@ class CatalogController extends Controller
 
     public function category(Request $request, string $categorySlug)
     {
-        $category = Category::where('slug', $categorySlug)->where('is_active', true)->firstOrFail();
+        $category = Category::where('slug', $categorySlug)->where('is_active', true)->first();
+
+        if (!$category) {
+            // FIX (SEO redirects): the route pattern still matches an old
+            // bare slug syntactically (now that categorySlug accepts "/"),
+            // so a rename shows up here as a DB miss, not a route miss —
+            // Route::fallback() never sees this case.
+            if ($redirect = Redirect::resolve($request->path())) {
+                return redirect($redirect->new_path, $redirect->status_code);
+            }
+            abort(404);
+        }
 
         return $this->renderCatalog($request, $category);
     }

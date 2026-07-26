@@ -1,6 +1,29 @@
 @push('scripts')
+    @php
+        // Mismo formato que edit_product/_scripts.blade.php: por id de
+        // categoría principal, su lista de subcategorías, cada una con su
+        // propia lista de categorías hijas — para poblar en cascada sin
+        // pedirle nada al servidor mientras se edita.
+        $subcategoriesForJs = $categoryTree
+            ->mapWithKeys(fn ($c) => [
+                $c->id => $c->children
+                    ->map(fn ($s) => [
+                        'id' => $s->id,
+                        'name' => $s->name,
+                        'children' => $s->children
+                            ->map(fn ($ch) => ['id' => $ch->id, 'name' => $ch->name])
+                            ->values()
+                            ->toArray(),
+                    ])
+                    ->values()
+                    ->toArray(),
+            ])
+            ->toArray();
+    @endphp
     <script>
         (function() {
+            const subcategories = @json($subcategoriesForJs);
+
             const filterForm     = document.getElementById('bulkEditFilterForm');
             const searchInput    = document.getElementById('bulkEditSearch');
             const categoryFilter = document.getElementById('bulkEditCategoryFilter');
@@ -77,6 +100,10 @@
             });
             document.addEventListener('change', (e) => {
                 if (!e.target.matches('.prod-bulk-input')) return;
+                // Los 3 selectores en cascada de categoría se manejan aparte
+                // (más abajo): no tienen data-field propio, todos resuelven
+                // al mismo category_id según cuál quedó más profundo.
+                if (e.target.matches('.prod-bulk-cat-main, .prod-bulk-cat-sub, .prod-bulk-cat-child')) return;
                 if (e.target.tagName === 'SELECT' || e.target.type === 'checkbox') {
                     onCellChange(e.target);
                 }
@@ -567,6 +594,49 @@
                 faqEditingTrigger.textContent = `FAQ (${items.length})`;
                 setPendingChange(faqEditingTrigger.dataset.id, 'faqs', json, faqEditingTrigger);
                 faqModal.classList.remove('active');
+            });
+
+            // ── Categoría en cascada (Principal > Subcategoría > Hija) ──
+            // Los 3 selects de una fila no tienen data-field propio: cada
+            // cambio recalcula cuál id queda "más profundo" (igual que
+            // create/edit) y ESE es el que se manda como category_id.
+            function populateCatSelect(select, options, selectedId) {
+                select.innerHTML = '<option value="">Seleccionar...</option>';
+                options.forEach(opt => {
+                    const el = document.createElement('option');
+                    el.value = opt.id;
+                    el.textContent = opt.name;
+                    if (String(opt.id) === String(selectedId)) el.selected = true;
+                    select.appendChild(el);
+                });
+                select.disabled = options.length === 0;
+            }
+
+            function catEffectiveValue(row) {
+                const main = row.querySelector('.prod-bulk-cat-main');
+                const sub = row.querySelector('.prod-bulk-cat-sub');
+                const child = row.querySelector('.prod-bulk-cat-child');
+                return child.value || sub.value || main.value || '';
+            }
+
+            document.addEventListener('change', (e) => {
+                if (!e.target.matches('.prod-bulk-cat-main, .prod-bulk-cat-sub, .prod-bulk-cat-child')) return;
+
+                const row = e.target.closest('tr');
+                const main = row.querySelector('.prod-bulk-cat-main');
+                const sub = row.querySelector('.prod-bulk-cat-sub');
+                const child = row.querySelector('.prod-bulk-cat-child');
+
+                if (e.target === main) {
+                    populateCatSelect(sub, subcategories[main.value] || [], '');
+                    populateCatSelect(child, [], '');
+                } else if (e.target === sub) {
+                    const subs = subcategories[main.value] || [];
+                    const subObj = subs.find(s => String(s.id) === String(sub.value));
+                    populateCatSelect(child, subObj?.children || [], '');
+                }
+
+                setPendingChange(main.dataset.id, 'category_id', catEffectiveValue(row), main);
             });
 
             syncUnsavedBar();
