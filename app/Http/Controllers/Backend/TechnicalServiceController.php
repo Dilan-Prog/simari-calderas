@@ -5,11 +5,13 @@ namespace App\Http\Controllers\Backend;
 use App\Http\Controllers\Controller;
 use App\Models\Customer;
 use App\Models\Products;
+use App\Models\Quote;
 use App\Models\TechnicalService;
 use App\Services\TechnicalServiceService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class TechnicalServiceController extends Controller
@@ -74,17 +76,28 @@ class TechnicalServiceController extends Controller
             ->orderBy('first_name')
             ->get();
 
+        $acceptedQuotes = $this->getAcceptableQuotes();
+
         $fromQuote = null;
         $service   = null;
 
         if ($request->filled('from_quote')) {
-            $fromQuote = \App\Models\Quote::find($request->from_quote);
+            $fromQuote = Quote::find($request->from_quote);
         }
 
         // $service is null on initial create; step1 blade handles this via null-safe operators
         return view('admin.technical-services.create', compact(
-            'service', 'serviceTypes', 'customers', 'technicians', 'fromQuote'
+            'service', 'serviceTypes', 'customers', 'technicians', 'fromQuote', 'acceptedQuotes'
         ));
+    }
+
+    private function getAcceptableQuotes()
+    {
+        return Quote::where('status', 'accepted')
+            ->whereNotNull('customer_id')
+            ->with('customer:id,first_name,last_name,company')
+            ->latest()
+            ->get(['id', 'quote_number', 'customer_id', 'total']);
     }
 
     // ── Store (Paso 1 — AJAX) ──────────────────────────────────────────────────
@@ -93,7 +106,12 @@ class TechnicalServiceController extends Controller
     {
         $validated = $request->validate([
             'draft_token'        => 'nullable|string|max:255',
-            'customer_id'        => 'required|exists:customers,id',
+            'from_quote_id'      => [
+                'required',
+                Rule::exists('quotes', 'id')->where(
+                    fn ($q) => $q->where('status', 'accepted')->whereNotNull('customer_id')
+                ),
+            ],
             'service_type_id'    => 'required|exists:service_types,id',
             'service_date'       => 'required|date',
             'service_time'       => 'nullable|date_format:H:i',
@@ -104,8 +122,12 @@ class TechnicalServiceController extends Controller
             'reference'          => 'nullable|string|max:255',
             'location'           => 'nullable|string|max:200',
             'week_number'        => 'nullable|integer|min:1|max:53',
-            'from_quote_id'      => 'nullable|exists:quotes,id',
         ]);
+
+        // El cliente se deriva de la cotización elegida — nunca se acepta directo
+        // del request, así customer_id y from_quote_id nunca quedan desalineados.
+        $quote = Quote::findOrFail($validated['from_quote_id']);
+        $validated['customer_id'] = $quote->customer_id;
 
         $service = $this->tsService->store($validated, auth()->id());
 
@@ -140,6 +162,8 @@ class TechnicalServiceController extends Controller
             ->orderBy('first_name')
             ->get();
 
+        $acceptedQuotes = $this->getAcceptableQuotes();
+
         $fromQuote           = $service->fromQuote;
         $assignedTechnicians = collect();
         $plannedMaterials    = collect();
@@ -171,6 +195,7 @@ class TechnicalServiceController extends Controller
             'customers',
             'technicians',
             'fromQuote',
+            'acceptedQuotes',
             'assignedTechnicians',
             'plannedMaterials'
         ));
@@ -231,7 +256,9 @@ class TechnicalServiceController extends Controller
             'fromQuote',
         ]);
 
-        return view('admin.technical-services.show', compact('service'));
+        $acceptedQuotes = $service->from_quote_id ? collect() : $this->getAcceptableQuotes();
+
+        return view('admin.technical-services.show', compact('service', 'acceptedQuotes'));
     }
 
     public function draftContext(TechnicalService $service): JsonResponse
@@ -343,6 +370,34 @@ class TechnicalServiceController extends Controller
         ]);
     }
 
+    // ── Vincular cotización (solo admin) ───────────────────────────────────────
+    // Para servicios que quedaron sin cotización de origen y ya no pueden
+    // editarse por su estado (p. ej. completados) — asigna únicamente el
+    // vínculo (y el cliente derivado), sin tocar el resto del servicio.
+    public function attachQuote(Request $request, TechnicalService $service): RedirectResponse
+    {
+        abort_unless(auth()->user()->isAdmin(), 403);
+
+        $validated = $request->validate([
+            'from_quote_id' => [
+                'required',
+                Rule::exists('quotes', 'id')->where(
+                    fn ($q) => $q->where('status', 'accepted')->whereNotNull('customer_id')
+                ),
+            ],
+        ]);
+
+        $quote = Quote::findOrFail($validated['from_quote_id']);
+
+        $service->update([
+            'from_quote_id' => $quote->id,
+            'customer_id'   => $quote->customer_id,
+        ]);
+
+        return redirect()->route('admin.technical-services.show', $service)
+            ->with('success', 'Cotización vinculada correctamente.');
+    }
+
     // ── Search technicians (AJAX) ──────────────────────────────────────────────
 
     public function searchTechnicians(Request $request): JsonResponse
@@ -393,7 +448,14 @@ class TechnicalServiceController extends Controller
     {
         $rules = match ($step) {
             1 => [
+                // Respaldo para servicios borrador legacy sin cotización de origen.
                 'customer_id'        => 'required|exists:customers,id',
+                'from_quote_id'      => [
+                    'nullable',
+                    Rule::exists('quotes', 'id')->where(
+                        fn ($q) => $q->where('status', 'accepted')->whereNotNull('customer_id')
+                    ),
+                ],
                 'service_type_id'    => 'required|exists:service_types,id',
                 'service_date'       => 'required|date',
                 'service_time'       => 'nullable|date_format:H:i',

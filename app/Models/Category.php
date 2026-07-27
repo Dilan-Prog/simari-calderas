@@ -15,11 +15,12 @@ class Category extends Model
     protected $fillable = [
         'parent_id', 'name', 'slug', 'description',
         'image_url', 'is_active', 'sort_order',
-        'seo_title', 'seo_description',
+        'seo_title', 'seo_description', 'faqs',
     ];
 
     protected $casts = [
         'is_active' => 'boolean',
+        'faqs' => 'array',
     ];
 
     // Self-referencing relationships

@@ -24,6 +24,25 @@ class CategoryController extends Controller
             ->implode('/');
     }
 
+    /**
+     * Preguntas frecuentes personalizadas por categoría. Mismo patrón de
+     * FAQs que products.faqs/collections.faqs (trim, descartar pares
+     * incompletos, null si queda vacío).
+     */
+    private function fillFaqs(Category $category, Request $request): void
+    {
+        $faqs = collect((array) $request->input('faq_items', []))
+            ->map(fn ($item) => [
+                'question' => trim($item['question'] ?? ''),
+                'answer'   => trim($item['answer'] ?? ''),
+            ])
+            ->filter(fn ($item) => $item['question'] !== '' && $item['answer'] !== '')
+            ->values()
+            ->all();
+
+        $category->faqs = $faqs ?: null;
+    }
+
     public function index()
     {
         $categories = Category::with('parent')
@@ -65,6 +84,7 @@ class CategoryController extends Controller
         $category->sort_order  = $request->sort_order  ?? 0;
         $category->seo_title     = $request->seo_title     ?? null;
         $category->seo_description = $request->seo_description ?? null;
+        $this->fillFaqs($category, $request);
         $category->save();
 
         return response()->json([
@@ -102,6 +122,7 @@ class CategoryController extends Controller
         $category->sort_order  = $request->sort_order  ?? 0;
         $category->seo_title     = $request->seo_title     ?? null;
         $category->seo_description = $request->seo_description ?? null;
+        $this->fillFaqs($category, $request);
         $category->save();
 
         return response()->json([

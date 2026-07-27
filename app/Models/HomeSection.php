@@ -20,8 +20,11 @@ class HomeSection extends Model
 
     /**
      * Sustituye variables según el contexto donde se renderiza la sección:
-     * {categoria}/{marca} con un producto, {coleccion} con una colección.
-     * Sin contexto (Home), las variables se eliminan y se limpian espacios.
+     * con un producto, el catálogo COMPLETO de Products::VARIABLE_CATALOG
+     * ({nombre_producto}, {marca}, {modelo}, {precio}, etc. — delega en
+     * Products::resolveVariables() para no duplicar el catálogo); con una
+     * colección, solo {coleccion}. Sin contexto (Home), las variables se
+     * eliminan y se limpian espacios.
      */
     public function resolveText(?string $text, $context = null): ?string
     {
@@ -29,12 +32,13 @@ class HomeSection extends Model
             return $text;
         }
 
-        $product    = $context instanceof Products ? $context : null;
+        if ($context instanceof Products) {
+            return $context->resolveVariables($text);
+        }
+
         $collection = $context instanceof Collection ? $context : null;
 
         $replacements = [
-            '{categoria}' => $product?->category?->name ?? '',
-            '{marca}'     => $product?->brand?->name ?? '',
             '{coleccion}' => $collection?->name ?? '',
         ];
 

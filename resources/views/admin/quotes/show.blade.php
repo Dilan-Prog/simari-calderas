@@ -39,6 +39,14 @@
                 Vista previa PDF
             </button>
 
+            @if($quote->status === 'accepted' && $quote->customer_id)
+            <a href="{{ route('admin.technical-services.create', ['from_quote' => $quote->id]) }}"
+               class="btn-action btn-action--primary">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+                Generar Servicio
+            </a>
+            @endif
+
             @if($quote->guest_email)
             <form method="POST" id="quotes-send-email" action="{{ route('admin.quotes.send-email', $quote) }}"
                   onsubmit="return confirm('¿Enviar cotización por correo a {{ $quote->guest_email }}?')">
@@ -263,6 +271,29 @@
                 </div>
 
             </div>
+
+            {{-- Vincular cliente (solo admin, solo si falta el vínculo) --}}
+            @if(!$quote->customer_id && auth()->user()->isAdmin())
+            <div class="quotes-card">
+                <h2 class="quotes-card__header">Vincular Cliente</h2>
+                <p style="font-size:12px;color:#6B7280;margin:0 0 10px;">
+                    Esta cotización no tiene un cliente registrado vinculado. Asígnalo sin reabrir el resto de la cotización.
+                </p>
+                <form method="POST" action="{{ route('admin.quotes.attach-customer', $quote) }}">
+                    @csrf
+                    @method('PATCH')
+                    <select name="customer_id" class="status-select" required style="width:100%;margin-bottom:8px;">
+                        <option value="">Seleccionar cliente...</option>
+                        @foreach($customers as $customer)
+                            <option value="{{ $customer->id }}">
+                                {{ $customer->company ?: trim("{$customer->first_name} {$customer->last_name}") }}
+                            </option>
+                        @endforeach
+                    </select>
+                    <button type="submit" class="status-submit-btn" style="width:100%;">Vincular</button>
+                </form>
+            </div>
+            @endif
 
             {{-- Cambiar estado --}}
             @if(!in_array($quote->status, ['accepted', 'rejected', 'expired']))

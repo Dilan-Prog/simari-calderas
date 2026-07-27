@@ -12,6 +12,12 @@ use Smalot\PdfParser\Parser;
 
 class ClientManageController extends Controller
 {
+    // RFC genérico del SAT para público en general — usado cuando el admin
+    // marca "RFC Genérico" en vez de capturar uno real. Público para que
+    // las vistas (checkbox de edición) puedan comparar sin repetir el
+    // literal en dos lugares.
+    public const RFC_GENERICO = 'XAXX010101000';
+
     /**
      * Display a listing of the resource.
      */
@@ -53,9 +59,14 @@ class ClientManageController extends Controller
             // FIX QA-3: Added regex — alphanumeric + spaces only (matches the
             // real-time dynamicAlphanumeric() filter already applied in JS).
             'company' => ['nullable', 'string', 'max:150', 'regex:/^[a-zA-ZÀ-ÿ0-9\s]+$/'],
-            'email' => 'required|email|max:150|unique:customers,email',
+            // Opcional desde ahora — un cliente puede darse de alta "Sin
+            // Correo" (checkbox en el formulario, ver abajo). unique sigue
+            // aplicando: MySQL permite varios NULL en un índice único.
+            'email' => 'nullable|email|max:150|unique:customers,email',
             'phone' => 'nullable|string|max:30',
             'rfc' => 'nullable|string|max:20',
+            'sin_correo' => 'nullable|boolean',
+            'rfc_generic' => 'nullable|boolean',
             // FIX QA-5: Changed to 'required|in:...' — document_type is NOT NULL
             // in the DB but had no required rule, so a request bypassing the JS
             // guard (direct POST, missing field) passed validation and crashed
@@ -86,9 +97,12 @@ class ClientManageController extends Controller
         // even if the request bypasses the JS real-time lowercasing (direct API
         // call). Applied after validation, so the unique:customers,email check
         // above still runs against the raw submitted value.
-        $customer->email = strtolower($request->email);
+        // Server-autoritativo: no confiar en que el checkbox deshabilitó el
+        // input en el navegador — si "Sin Correo"/"RFC Genérico" vienen
+        // marcados, se ignora lo que traiga el campo de texto.
+        $customer->email = $request->boolean('sin_correo') ? null : ($request->filled('email') ? strtolower($request->email) : null);
         $customer->phone = $request->phone;
-        $customer->rfc = $request->rfc;
+        $customer->rfc = $request->boolean('rfc_generic') ? self::RFC_GENERICO : $request->rfc;
         $customer->notes = $request->notes;
         $customer->document_type = $request->document_type;
         $customer->source = $request->source;
@@ -313,9 +327,11 @@ class ClientManageController extends Controller
             // FIX QA-3: Added regex — alphanumeric + spaces only (matches the
             // real-time dynamicAlphanumeric() filter already applied in JS).
             'company' => ['nullable', 'string', 'max:150', 'regex:/^[a-zA-ZÀ-ÿ0-9\s]+$/'],
-            'email' => 'required|email|max:150|unique:customers,email,' . $id,
+            'email' => 'nullable|email|max:150|unique:customers,email,' . $id,
             'phone' => 'nullable|string|max:30',
             'rfc' => 'nullable|string|max:20',
+            'sin_correo' => 'nullable|boolean',
+            'rfc_generic' => 'nullable|boolean',
             // FIX QA-5: document_type is NOT NULL in the DB; require it here too
             // so update() matches store() and a bypassed/missing value returns
             // a 422 instead of crashing the UPDATE with a QueryException.
@@ -342,9 +358,9 @@ class ClientManageController extends Controller
         // FIX QA-4: Added strtolower() so the stored value is always lowercase
         // even if the request bypasses the JS real-time lowercasing (direct API
         // call). Applied after validation — the unique rule is untouched.
-        $customer->email = strtolower($request->email);
+        $customer->email = $request->boolean('sin_correo') ? null : ($request->filled('email') ? strtolower($request->email) : null);
         $customer->phone = $request->phone;
-        $customer->rfc = $request->rfc;
+        $customer->rfc = $request->boolean('rfc_generic') ? self::RFC_GENERICO : $request->rfc;
         $customer->document_type = $request->document_type;
         $customer->source = $request->source;
         $customer->notes = $request->notes;

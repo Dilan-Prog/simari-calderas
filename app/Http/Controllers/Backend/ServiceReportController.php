@@ -6,9 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Models\Customer;
 use App\Models\ServiceReport;
 use App\Models\ServiceReportImage;
+use App\Models\TechnicalService;
 use App\Models\User;
 use App\Services\ServiceReportService;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
@@ -61,34 +63,45 @@ class ServiceReportController extends Controller
 
     // ── Create ─────────────────────────────────────────────────────────────────
 
-    public function create()
+    public function create(Request $request)
     {
-        $customers    = Customer::select('id', 'first_name', 'last_name', 'company', 'rfc', 'phone', 'email')
-            ->where('status', 'active')
-            ->orderBy('first_name')
-            ->get();
-
         $users        = User::select('id', 'first_name', 'last_name', 'position')
             ->where('status', 'active')
             ->orderBy('first_name')
             ->get();
 
         $serviceTypes = $this->service->getServiceTypes();
+        $availableServices = $this->getAvailableServices();
 
-        return view('admin.service-reports.create', compact('customers', 'users', 'serviceTypes'));
+        $fromService = $request->filled('from_service')
+            ? TechnicalService::find($request->from_service)
+            : null;
+
+        return view('admin.service-reports.create', compact('users', 'serviceTypes', 'availableServices', 'fromService'));
+    }
+
+    private function getAvailableServices()
+    {
+        return TechnicalService::whereIn('status', ['scheduled', 'in_progress', 'completed'])
+            ->with('customer:id,first_name,last_name,company,rfc,phone')
+            ->latest('service_date')
+            ->get(['id', 'service_number', 'customer_id', 'service_date']);
     }
 
     // ── Store (step 1) ─────────────────────────────────────────────────────────
 
     public function store(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
+            'service_id'          => [
+                'required',
+                Rule::exists('services', 'id')->whereIn('status', ['scheduled', 'in_progress', 'completed']),
+            ],
             'service_date'        => 'required|date',
             'customer_name'       => 'required|string|max:200',
             'customer_company'    => 'nullable|string|max:200',
             'customer_rfc'        => 'nullable|string|max:20',
             'customer_phone'      => 'nullable|string|max:30',
-            'customer_id'         => 'nullable|exists:customers,id',
             'assigned_user_id'    => 'required|exists:users,id',
             'service_type'        => 'required|in:chemical_analysis,maintenance_preventive,maintenance_corrective,inspection,cleaning,calibration,activity_report,custom',
             'custom_service_type' => 'required_if:service_type,custom|nullable|string|max:100',
@@ -96,7 +109,12 @@ class ServiceReportController extends Controller
             'location'            => 'nullable|string|max:200',
         ]);
 
-        $report = $this->service->store($request->all(), auth()->id());
+        // El cliente se deriva del servicio elegido — nunca se acepta directo
+        // del request, así customer_id y service_id nunca quedan desalineados.
+        $technicalService = TechnicalService::findOrFail($validated['service_id']);
+        $validated['customer_id'] = $technicalService->customer_id;
+
+        $report = $this->service->store($validated, auth()->id());
 
         return redirect()->route('admin.service-reports.step', [$report, 2])
             ->with('success', "Reporte {$report->report_number} creado. Continúa con el paso 2.");
@@ -127,8 +145,7 @@ class ServiceReportController extends Controller
         ];
 
         if ($step === 1) {
-            $data['customers'] = Customer::select('id', 'first_name', 'last_name', 'company', 'rfc', 'phone', 'email')
-                ->where('status', 'active')->orderBy('first_name')->get();
+            $data['availableServices'] = $this->getAvailableServices();
             $data['users'] = User::select('id', 'first_name', 'last_name', 'position')
                 ->where('status', 'active')->orderBy('first_name')->get();
         }
@@ -190,7 +207,16 @@ class ServiceReportController extends Controller
             $imagesFailed = $this->service->saveImages($report, $request->file('images'));
         }
 
-        $this->service->updateStep($report, $request->all(), $step);
+        $data = $request->all();
+
+        if ($step === 1) {
+            // El cliente se deriva del servicio elegido — nunca se acepta
+            // directo del request, así customer_id y service_id no quedan
+            // desalineados.
+            $data['customer_id'] = TechnicalService::findOrFail($data['service_id'])->customer_id;
+        }
+
+        $this->service->updateStep($report, $data, $step);
 
         // Step 6 = signature — handled by sign()
         $nextStep = $step + 1;
@@ -219,8 +245,11 @@ class ServiceReportController extends Controller
 
     public function show(ServiceReport $report)
     {
-        $report->load(['measurements', 'activity', 'customFields', 'assignedUser', 'createdBy', 'customer', 'images']);
-        return view('admin.service-reports.show', compact('report'));
+        $report->load(['measurements', 'activity', 'customFields', 'assignedUser', 'createdBy', 'customer', 'images', 'service']);
+
+        $availableServices = $report->service_id ? collect() : $this->getAvailableServices();
+
+        return view('admin.service-reports.show', compact('report', 'availableServices'));
     }
 
     // ── Edit ───────────────────────────────────────────────────────────────────
@@ -321,6 +350,33 @@ class ServiceReportController extends Controller
         return back()->with('success', 'Imagen eliminada correctamente.');
     }
 
+    // ── Vincular servicio (solo admin) ─────────────────────────────────────────
+    // Para reportes que quedaron sin servicio de origen y ya no pueden
+    // editarse por su estado (todos los firmados) — asigna únicamente el
+    // vínculo (y el cliente derivado), sin tocar la firma ni el resto del
+    // reporte.
+    public function attachService(Request $request, ServiceReport $report): RedirectResponse
+    {
+        abort_unless(auth()->user()->isAdmin(), 403);
+
+        $validated = $request->validate([
+            'service_id' => [
+                'required',
+                Rule::exists('services', 'id')->whereIn('status', ['scheduled', 'in_progress', 'completed']),
+            ],
+        ]);
+
+        $technicalService = TechnicalService::findOrFail($validated['service_id']);
+
+        $report->update([
+            'service_id'  => $technicalService->id,
+            'customer_id' => $technicalService->customer_id,
+        ]);
+
+        return redirect()->route('admin.service-reports.show', $report)
+            ->with('success', 'Servicio vinculado correctamente.');
+    }
+
     // ── Customer search (AJAX) ─────────────────────────────────────────────────
 
     public function searchCustomers(Request $request)
@@ -355,12 +411,15 @@ class ServiceReportController extends Controller
     {
         $rules = match($step) {
             1 => [
+                'service_id'          => [
+                    'required',
+                    Rule::exists('services', 'id')->whereIn('status', ['scheduled', 'in_progress', 'completed']),
+                ],
                 'service_date'        => 'required|date',
                 'customer_name'       => 'required|string|max:200',
                 'customer_company'    => 'nullable|string|max:200',
                 'customer_rfc'        => 'nullable|string|max:20',
                 'customer_phone'      => 'nullable|string|max:30',
-                'customer_id'         => 'nullable|exists:customers,id',
                 'assigned_user_id'    => 'required|exists:users,id',
                 'service_type'        => 'required|in:chemical_analysis,maintenance_preventive,maintenance_corrective,inspection,cleaning,calibration,activity_report,custom',
                 'custom_service_type' => 'required_if:service_type,custom|nullable|string|max:100',

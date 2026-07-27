@@ -8,6 +8,7 @@ use App\Models\Quote;
 use App\Models\Products;
 use App\Services\QuoteService;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 
@@ -58,6 +59,7 @@ class QuoteController extends Controller
     public function store(Request $request)
     {
         $request->validate([
+            'customer_id'      => 'required|exists:customers,id',
             'guest_name'       => 'required|string|max:180',
             'guest_email'      => 'nullable|email|max:255',
             'guest_phone'      => 'nullable|string|max:30',
@@ -78,7 +80,7 @@ class QuoteController extends Controller
         }
 
         $data = $request->only([
-            'guest_name', 'guest_email', 'guest_phone', 'guest_company',
+            'customer_id', 'guest_name', 'guest_email', 'guest_phone', 'guest_company',
             'guest_rfc', 'valid_until', 'tax_rate', 'discount_total',
             'notes', 'terms_conditions',
         ]);
@@ -92,8 +94,14 @@ class QuoteController extends Controller
 
     public function show(Quote $quote)
     {
-        $quote->load('items', 'createdBy');
-        return view('admin.quotes.show', compact('quote'));
+        $quote->load('items', 'createdBy', 'customer');
+
+        $customers = $quote->customer_id ? collect() : \App\Models\Customer::select('id', 'first_name', 'last_name', 'company')
+            ->where('status', 'active')
+            ->orderBy('first_name')
+            ->get();
+
+        return view('admin.quotes.show', compact('quote', 'customers'));
     }
 
     public function edit(Quote $quote)
@@ -103,8 +111,13 @@ class QuoteController extends Controller
                 ->with('error', 'Solo se pueden editar cotizaciones en estado Borrador o Enviada.');
         }
 
+        $customers = \App\Models\Customer::select('id', 'first_name', 'last_name', 'email', 'phone', 'rfc', 'company')
+            ->where('status', 'active')
+            ->orderBy('first_name')
+            ->get();
+
         $quote->load('items');
-        return view('admin.quotes.edit', compact('quote'));
+        return view('admin.quotes.edit', compact('quote', 'customers'));
     }
 
     public function update(Request $request, Quote $quote)
@@ -115,6 +128,7 @@ class QuoteController extends Controller
         }
 
         $request->validate([
+            'customer_id'      => 'nullable|exists:customers,id',
             'guest_name'       => 'required|string|max:180',
             'guest_email'      => 'nullable|email|max:255',
             'guest_phone'      => 'nullable|string|max:30',
@@ -135,7 +149,7 @@ class QuoteController extends Controller
         }
 
         $data = $request->only([
-            'guest_name', 'guest_email', 'guest_phone', 'guest_company',
+            'customer_id', 'guest_name', 'guest_email', 'guest_phone', 'guest_company',
             'guest_rfc', 'valid_until', 'tax_rate', 'discount_total',
             'notes', 'terms_conditions',
         ]);
@@ -225,5 +239,23 @@ class QuoteController extends Controller
 
         return redirect()->route('admin.quotes.show', $quote)
             ->with('success', 'Estado de la cotización actualizado.');
+    }
+
+    // ── Vincular cliente (solo admin) ───────────────────────────────────────────
+    // Para cotizaciones que quedaron sin cliente y ya no pueden editarse por su
+    // estado (p. ej. aceptadas) — asigna únicamente el vínculo, sin tocar el
+    // resto de la cotización.
+    public function attachCustomer(Request $request, Quote $quote): RedirectResponse
+    {
+        abort_unless(auth()->user()->isAdmin(), 403);
+
+        $validated = $request->validate([
+            'customer_id' => 'required|exists:customers,id',
+        ]);
+
+        $quote->update(['customer_id' => $validated['customer_id']]);
+
+        return redirect()->route('admin.quotes.show', $quote)
+            ->with('success', 'Cliente vinculado correctamente.');
     }
 }

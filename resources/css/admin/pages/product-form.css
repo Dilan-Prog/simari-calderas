@@ -1378,7 +1378,10 @@
 .pform-variable-menu {
     display: none;
     position: fixed;
-    z-index: 500;
+    /* FIX: sat below .del-confirm-overlay (z-index: 99999) — the modals
+       that use this menu (e.g. the FAQ popover in the bulk editor), so it
+       rendered hidden behind the modal instead of on top of it. */
+    z-index: 100000;
     margin: 0;
     padding: 6px;
     list-style: none;

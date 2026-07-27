@@ -398,6 +398,28 @@
                 </div>
             </div>
 
+            {{-- Vincular servicio (solo admin, solo si falta el vínculo) --}}
+            @if(!$report->service_id && auth()->user()->isAdmin())
+            <div class="sr-panel-card">
+                <h3 class="sr-panel-title">Vincular Servicio</h3>
+                <p style="font-size:12px;color:#6B7280;margin:0 0 10px;">
+                    Este reporte no tiene un servicio programado vinculado. Asígnalo sin reabrir la firma ni el resto del reporte.
+                </p>
+                <form method="POST" action="{{ route('admin.service-reports.attach-service', $report) }}">
+                    @csrf
+                    <select name="service_id" class="sr-select" required style="width:100%;margin-bottom:8px;">
+                        <option value="">Seleccionar servicio...</option>
+                        @foreach($availableServices as $svc)
+                            <option value="{{ $svc->id }}">
+                                {{ $svc->service_number }} — {{ $svc->customer->company ?: trim("{$svc->customer->first_name} {$svc->customer->last_name}") }}
+                            </option>
+                        @endforeach
+                    </select>
+                    <button type="submit" class="sr-btn sr-btn-outline" style="width:100%;">Vincular</button>
+                </form>
+            </div>
+            @endif
+
             {{-- Card 2: Timeline --}}
             <div class="sr-panel-card">
                 <h3 class="sr-panel-title">Historial</h3>

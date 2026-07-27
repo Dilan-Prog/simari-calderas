@@ -50,13 +50,44 @@
 
         <form method="POST" action="{{ route('admin.service-reports.store') }}" id="srCreateForm">
             @csrf
-            <input type="hidden" name="customer_id" id="customerId">
 
             <div class="sr-form-body">
 
                 {{-- ── Sección: Servicio ── --}}
                 <div class="sr-grid-2">
                     <div class="sr-section-title">Datos del Servicio</div>
+
+                    <div class="sr-field sr-full">
+                        <label class="sr-label" for="serviceSearchInput">Servicio programado de origen <span class="sr-req">*</span></label>
+                        <div class="sr-client-select-wrap" id="srServicePicker">
+                            <input type="text" id="serviceSearchInput" class="sr-input"
+                                   placeholder="Buscar por folio o cliente…" autocomplete="off"
+                                   value="{{ $fromService ? $fromService->service_number . ' — ' . ($fromService->customer->company ?: trim($fromService->customer->first_name . ' ' . $fromService->customer->last_name)) : '' }}">
+                            <div id="serviceDropdown" class="sr-client-dropdown" style="display:none;">
+                                @foreach($availableServices as $svc)
+                                    @php
+                                        $svcCustomerLabel = $svc->customer->company
+                                            ?: trim("{$svc->customer->first_name} {$svc->customer->last_name}");
+                                    @endphp
+                                    <div class="sr-client-dropdown__item"
+                                         data-id="{{ $svc->id }}"
+                                         data-service-number="{{ $svc->service_number }}"
+                                         data-customer-name="{{ $svcCustomerLabel }}"
+                                         data-customer-company="{{ $svc->customer->company ?? '' }}"
+                                         data-customer-rfc="{{ $svc->customer->rfc ?? '' }}"
+                                         data-customer-phone="{{ $svc->customer->phone ?? '' }}">
+                                        <span class="sr-client-dropdown__name">{{ $svc->service_number }}</span>
+                                        <span class="sr-client-dropdown__company">{{ $svcCustomerLabel }}</span>
+                                    </div>
+                                @endforeach
+                                <div class="sr-client-dropdown__empty" style="display:none;">Sin servicios programados disponibles</div>
+                            </div>
+                        </div>
+                        <input type="hidden" name="service_id" id="serviceIdInput" value="{{ old('service_id', $fromService?->id) }}">
+                        <span class="sr-hint">Solo se listan servicios en estado Programado, En Proceso o Completado.</span>
+                        <span id="serviceIdError" class="sr-error" style="display:none">Debes seleccionar un servicio programado.</span>
+                        @error('service_id')<span class="sr-error">{{ $message }}</span>@enderror
+                    </div>
 
                     <div class="sr-field">
                         <label class="sr-label" for="service_date">Fecha de Servicio <span class="sr-req">*</span></label>
@@ -110,55 +141,29 @@
                     </div>
                 </div>
 
-                {{-- ── Sección: Cliente ── --}}
+                {{-- ── Sección: Cliente (derivado del servicio elegido — copia editable) ── --}}
                 <div class="sr-grid-2" style="margin-top:24px;">
                     <div class="sr-section-title">Datos del Cliente</div>
 
-                    <div class="sr-field sr-full">
-                        <label class="sr-label" for="clientSearchInput">Buscar Cliente registrado</label>
-                        <div class="sr-client-select-wrap">
-                            <input type="text" id="clientSearchInput" class="sr-input"
-                                   placeholder="Escribe el nombre o empresa…" autocomplete="off">
-                            <div id="clientDropdown" class="sr-client-dropdown" style="display:none;">
-                                @foreach($customers as $customer)
-                                    <div class="sr-client-dropdown__item"
-                                         data-id="{{ $customer->id }}"
-                                         data-name="{{ trim($customer->first_name . ' ' . $customer->last_name) }}"
-                                         data-company="{{ $customer->company ?? '' }}"
-                                         data-email="{{ $customer->email ?? '' }}"
-                                         data-phone="{{ $customer->phone ?? '' }}"
-                                         data-rfc="{{ $customer->rfc ?? '' }}">
-                                        <span class="sr-client-dropdown__name">{{ $customer->company ?: trim($customer->first_name . ' ' . $customer->last_name) }}</span>
-                                        @if($customer->company)
-                                            <span class="sr-client-dropdown__company">{{ trim($customer->first_name . ' ' . $customer->last_name) }}</span>
-                                        @endif
-                                    </div>
-                                @endforeach
-                                <div class="sr-client-dropdown__empty" style="display:none;">Sin resultados</div>
-                            </div>
-                        </div>
-                        <span class="sr-hint">Selecciona un cliente para rellenar los campos automáticamente, o escríbelos manualmente.</span>
-                    </div>
-
                     <div class="sr-field">
                         <label class="sr-label" for="customer_name">Nombre del Cliente <span class="sr-req">*</span></label>
-                        <input type="text" id="customer_name" name="customer_name" class="sr-input {{ $errors->has('customer_name') ? 'is-invalid' : '' }}" value="{{ old('customer_name') }}" required maxlength="200">
+                        <input type="text" id="customer_name" name="customer_name" class="sr-input {{ $errors->has('customer_name') ? 'is-invalid' : '' }}" value="{{ old('customer_name', $fromService?->customer_name) }}" required maxlength="200">
                         @error('customer_name') <span class="sr-error">{{ $message }}</span> @enderror
                     </div>
 
                     <div class="sr-field">
                         <label class="sr-label" for="customer_company">Empresa</label>
-                        <input type="text" id="customer_company" name="customer_company" class="sr-input" value="{{ old('customer_company') }}" maxlength="200">
+                        <input type="text" id="customer_company" name="customer_company" class="sr-input" value="{{ old('customer_company', $fromService?->customer?->company) }}" maxlength="200">
                     </div>
 
                     <div class="sr-field">
                         <label class="sr-label" for="customer_rfc">RFC</label>
-                        <input type="text" id="customer_rfc" name="customer_rfc" class="sr-input" value="{{ old('customer_rfc') }}" maxlength="20">
+                        <input type="text" id="customer_rfc" name="customer_rfc" class="sr-input" value="{{ old('customer_rfc', $fromService?->customer?->rfc) }}" maxlength="20">
                     </div>
 
                     <div class="sr-field">
                         <label class="sr-label" for="customer_phone">Teléfono</label>
-                        <input type="text" id="customer_phone" name="customer_phone" class="sr-input" value="{{ old('customer_phone') }}" maxlength="30">
+                        <input type="text" id="customer_phone" name="customer_phone" class="sr-input" value="{{ old('customer_phone', $fromService?->customer?->phone) }}" maxlength="30">
                     </div>
                 </div>
 
@@ -190,50 +195,61 @@
     typeSelect.addEventListener('change', toggleCustom);
     toggleCustom();
 
-    // Customer client-side dropdown
-    const searchInput = document.getElementById('clientSearchInput');
-    const dropdown    = document.getElementById('clientDropdown');
-    const idInput     = document.getElementById('customerId');
-    const allItems    = Array.from(dropdown.querySelectorAll('.sr-client-dropdown__item'));
-    const emptyMsg    = dropdown.querySelector('.sr-client-dropdown__empty');
+    // Servicio de origen — buscador estilo tarjetas
+    const searchInput  = document.getElementById('serviceSearchInput');
+    const dropdown     = document.getElementById('serviceDropdown');
+    const serviceIdInput = document.getElementById('serviceIdInput');
+    const serviceIdError = document.getElementById('serviceIdError');
+    const allItems      = Array.from(dropdown.querySelectorAll('.sr-client-dropdown__item'));
+    const emptyMsg      = dropdown.querySelector('.sr-client-dropdown__empty');
+
+    searchInput.addEventListener('focus', function () {
+        filterServices(this.value);
+        dropdown.style.display = 'block';
+    });
 
     searchInput.addEventListener('input', function () {
-        const q = this.value.trim().toLowerCase();
+        filterServices(this.value);
+        dropdown.style.display = 'block';
+    });
 
-        if (!q) {
-            dropdown.style.display = 'none';
-            return;
-        }
-
+    function filterServices(q) {
+        q = q.trim().toLowerCase();
         let visibleCount = 0;
         allItems.forEach(function (item) {
-            const name    = (item.dataset.name    || '').toLowerCase();
-            const company = (item.dataset.company || '').toLowerCase();
-            const rfc     = (item.dataset.rfc     || '').toLowerCase();
-            const matches = name.includes(q) || company.includes(q) || rfc.includes(q);
-            item.classList.toggle('hidden', !matches);
+            const number   = (item.dataset.serviceNumber || '').toLowerCase();
+            const customer = (item.dataset.customerName  || '').toLowerCase();
+            const matches  = !q || number.includes(q) || customer.includes(q);
+            item.style.display = matches ? '' : 'none';
             if (matches) visibleCount++;
         });
-
-        emptyMsg.style.display  = visibleCount === 0 ? '' : 'none';
-        dropdown.style.display  = '';
-    });
+        emptyMsg.style.display = visibleCount === 0 ? '' : 'none';
+    }
 
     allItems.forEach(function (item) {
         item.addEventListener('click', function () {
-            idInput.value = item.dataset.id;
-            document.getElementById('customer_name').value    = item.dataset.name;
-            document.getElementById('customer_company').value = item.dataset.company;
-            document.getElementById('customer_rfc').value     = item.dataset.rfc;
-            document.getElementById('customer_phone').value   = item.dataset.phone;
-            searchInput.value      = item.dataset.company || item.dataset.name;
+            serviceIdInput.value = item.dataset.id;
+            serviceIdError.style.display = 'none';
+            document.getElementById('customer_name').value    = item.dataset.customerName;
+            document.getElementById('customer_company').value = item.dataset.customerCompany;
+            document.getElementById('customer_rfc').value     = item.dataset.customerRfc;
+            document.getElementById('customer_phone').value   = item.dataset.customerPhone;
+            searchInput.value      = item.dataset.serviceNumber + ' — ' + item.dataset.customerName;
             dropdown.style.display = 'none';
         });
     });
 
     document.addEventListener('click', function (e) {
-        if (!e.target.closest('.sr-client-select-wrap')) {
+        if (!e.target.closest('#srServicePicker')) {
             dropdown.style.display = 'none';
+        }
+    });
+
+    document.getElementById('srCreateForm').addEventListener('submit', function (e) {
+        if (!serviceIdInput.value) {
+            e.preventDefault();
+            serviceIdError.style.display = 'block';
+            searchInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
     });
 })();

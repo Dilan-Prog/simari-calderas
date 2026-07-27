@@ -32,12 +32,17 @@
                         </select>
                     </div>
                     <div>
-                        <label class="supliers-manager-slider-label">Título (opcional)</label>
+                        <div class="pform-label-row">
+                            <label class="supliers-manager-slider-label">Título (opcional)</label>
+                            @if (($page ?? 'home') === 'product')
+                                <button type="button" class="pform-insert-variable-btn" data-variable-target="hsTitle">{ } Insertar variable</button>
+                            @endif
+                        </div>
                         <input type="text" class="users-manager-input" name="title" id="hsTitle"
                             placeholder="Ej: Productos Destacados">
                         @if (($page ?? 'home') === 'product')
                             <p class="hs-config-note" style="margin-top:4px;">
-                                Puedes usar <code>{categoria}</code> y <code>{marca}</code>; se sustituyen por la categoría/marca del producto.
+                                Puedes usar las variables del producto: <code>{nombre_producto}</code>, <code>{marca}</code>, <code>{modelo}</code>, <code>{categoria}</code>, <code>{precio}</code>, etc. — se sustituyen por los datos del producto que se esté viendo.
                             </p>
                         @elseif (($page ?? 'home') === 'collection')
                             <p class="hs-config-note" style="margin-top:4px;">
@@ -333,7 +338,12 @@
                 {{-- faq --}}
                 <div class="config-fields" data-type="faq">
                     <div class="users-manager-email-camp">
-                        <label class="supliers-manager-slider-label">Texto descriptivo (opcional, aparece bajo el título)</label>
+                        <div class="pform-label-row">
+                            <label class="supliers-manager-slider-label">Texto descriptivo (opcional, aparece bajo el título)</label>
+                            @if (($page ?? 'home') === 'product')
+                                <button type="button" class="pform-insert-variable-btn" data-variable-target="hsFaqDescription">{ } Insertar variable</button>
+                            @endif
+                        </div>
                         <textarea class="users-manager-input client-modal-textarea" name="faq_description" id="hsFaqDescription" rows="2"
                             placeholder="Ej: Resolvemos las dudas más comunes sobre este producto."></textarea>
                     </div>
@@ -347,7 +357,8 @@
                             Las preguntas y respuestas se capturan <strong>en cada producto</strong>
                             (Productos → editar → botón SEO → Preguntas Frecuentes). Esta sección solo
                             define el título y el texto descriptivo; se oculta en productos sin preguntas.
-                            Puedes usar <code>{categoria}</code> y <code>{marca}</code> en el título/descripción.
+                            Puedes usar las variables del producto: <code>{nombre_producto}</code>, <code>{marca}</code>,
+                            <code>{modelo}</code>, <code>{categoria}</code>, <code>{precio}</code>, etc. en el título/descripción.
                         @endif
                     </p>
                 </div>

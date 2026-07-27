@@ -102,6 +102,19 @@
                         placeholder="Descripción para buscadores...">{{ old('seo_description') }}</textarea>
                 </div>
 
+                <h3 style="margin-top:16px;margin-bottom:4px;">Preguntas Frecuentes (FAQ)</h3>
+                <div class="show-user-divider"></div>
+                <p class="breadcrumb-clients-manager" style="margin:4px 0 8px;">
+                    Aparecen en la página de esta categoría en el catálogo y como datos estructurados para Google.
+                </p>
+                <div id="categoryFaqEmpty" style="padding:12px;background:#f8fafc;border-radius:8px;color:#6b7280;font-size:13px;">
+                    Esta categoría aún no tiene preguntas frecuentes.
+                </div>
+                <div id="categoryFaqList" style="display:none;flex-direction:column;gap:10px;"></div>
+                <button type="button" class="button-secondary size-adjustment" id="categoryAddFaq" style="margin-top:8px;">
+                    + Agregar pregunta
+                </button>
+
                 <div class="user-manager-modal-footer">
                     <button type="button" id="cancelCategoryModal"
                         class="button-secondary size-adjustment">Cancelar</button>

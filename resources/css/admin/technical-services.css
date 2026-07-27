@@ -1868,3 +1868,61 @@ input[type="time"].ts-input {
     .ts-show-mobile-actions   { display: none !important; }
     .ts-fab-new               { display: none !important; }
 }
+
+/* ============================================================
+   SELECTOR DE COTIZACIÓN DE ORIGEN (Paso 1 — mismo patrón de
+   tarjetas que el buscador de cliente de Cotizaciones)
+   ============================================================ */
+.client-select-wrap {
+    position: relative;
+}
+
+.client-dropdown {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    background: #fff;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0,0,0,.10);
+    max-height: 240px;
+    overflow-y: auto;
+    z-index: 200;
+}
+
+.client-dropdown__item {
+    display: flex;
+    flex-direction: column;
+    padding: 10px 14px;
+    cursor: pointer;
+    border-bottom: 1px solid #f3f4f6;
+    transition: background 0.12s;
+}
+
+.client-dropdown__item:last-of-type {
+    border-bottom: none;
+}
+
+.client-dropdown__item:hover {
+    background: #f0f4ff;
+}
+
+.client-dropdown__name {
+    font-size: 14px;
+    font-weight: 500;
+    color: #111827;
+}
+
+.client-dropdown__company {
+    font-size: 12px;
+    color: #6b7280;
+    margin-top: 2px;
+}
+
+.client-dropdown__empty {
+    padding: 12px 14px;
+    font-size: 13px;
+    color: #9ca3af;
+    text-align: center;
+}

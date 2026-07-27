@@ -44,13 +44,30 @@
     "@context": "https://schema.org",
     "@type": "LocalBusiness",
     "name": "Equiterm Industries",
-    "url": "equitermindustries.com.mx",
+    "legalName": "Equiterm Industries S.A. de C.V.",
+    "url": "https://equitermindustries.com.mx",
+    "logo": "{{ asset('images/logo/equiterm-logo-blanco-color-3x.png') }}",
     "telephone": "+52-449-434-8018",
+    "email": "administracion@equitermindustries.com.mx",
     "description": "Diseñamos, instalamos y mantenemos sistemas de calderas, calentadores y tratamiento de agua para los sectores industrial, alimentario, hotelero y metalmecánico. Soporte técnico especializado disponible 24/7",
     "areaServed": "MX",
     "sameAs": [
-      "https://www.facebook.com/industriasimari"
+      "https://www.facebook.com/simaricalderas"
     ]
+  }
+</script>
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "Equiterm Industries",
+    "url": "https://equitermindustries.com.mx",
+    "inLanguage": "es-MX",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "https://equitermindustries.com.mx/catalogo?q={search_term_string}",
+      "query-input": "required name=search_term_string"
+    }
   }
 </script>
 @yield('schema')

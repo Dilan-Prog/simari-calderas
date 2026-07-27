@@ -45,6 +45,37 @@
                 <div class="quotes-card">
                     <h2 class="quotes-card__header">Datos del Receptor</h2>
 
+                    {{-- Selector de cliente registrado --}}
+                    <div class="form-group">
+                        <label class="form-label">Cliente registrado <span class="form-req">*</span></label>
+                        <div class="client-select-wrap">
+                            <input type="text" id="clientSearchInput" class="form-input"
+                                   placeholder="Escribe el nombre o empresa..."
+                                   autocomplete="off"
+                                   value="{{ $quote->customer ? trim($quote->customer->first_name . ' ' . $quote->customer->last_name) . ($quote->customer->company ? ' — ' . $quote->customer->company : '') : '' }}">
+                            <div id="clientDropdown" class="client-dropdown" style="display:none">
+                                @foreach($customers as $customer)
+                                    <div class="client-dropdown__item"
+                                         data-id="{{ $customer->id }}"
+                                         data-name="{{ trim($customer->first_name . ' ' . $customer->last_name) }}"
+                                         data-company="{{ $customer->company ?? '' }}"
+                                         data-email="{{ $customer->email ?? '' }}"
+                                         data-phone="{{ $customer->phone ?? '' }}"
+                                         data-rfc="{{ $customer->rfc ?? '' }}">
+                                        <span class="client-dropdown__name">{{ $customer->company }}</span>
+                                        @if($customer->company)
+                                            <span class="client-dropdown__company">{{ trim($customer->first_name . ' ' . $customer->last_name) }}</span>
+                                        @endif
+                                    </div>
+                                @endforeach
+                                <div class="client-dropdown__empty" style="display:none">Sin resultados</div>
+                            </div>
+                        </div>
+                        <input type="hidden" name="customer_id" id="customerIdInput" value="{{ old('customer_id', $quote->customer_id) }}">
+                        <span id="customerIdError" class="form-error" style="display:none">Debes seleccionar un cliente registrado.</span>
+                        @error('customer_id')<span class="form-error">{{ $message }}</span>@enderror
+                    </div>
+
                     <div class="form-group">
                         <label class="form-label">Nombre completo <span class="form-req">*</span></label>
                         <input type="text" name="guest_name" id="guestName" class="form-input"
@@ -308,11 +339,68 @@ window.ADMIN_QUOTES_CONFIG = {
     document.getElementById('discountTotal').addEventListener('input', QuoteForm.calculateGlobalTotals);
 })();
 
+// ── Buscador de cliente registrado ──────────────────────
+(function () {
+    const searchInput = document.getElementById('clientSearchInput');
+    const dropdown    = document.getElementById('clientDropdown');
+    const items       = Array.from(dropdown.querySelectorAll('.client-dropdown__item'));
+    const emptyMsg    = dropdown.querySelector('.client-dropdown__empty');
+    const customerIdInput = document.getElementById('customerIdInput');
+    const customerIdError = document.getElementById('customerIdError');
+
+    function filterItems(q) {
+        q = q.toLowerCase().trim();
+        let visible = 0;
+        items.forEach(item => {
+            const name    = item.dataset.name.toLowerCase();
+            const company = item.dataset.company.toLowerCase();
+            const match   = !q || name.includes(q) || company.includes(q);
+            item.style.display = match ? '' : 'none';
+            if (match) visible++;
+        });
+        emptyMsg.style.display = visible === 0 ? '' : 'none';
+    }
+
+    searchInput.addEventListener('focus', () => {
+        filterItems(searchInput.value);
+        dropdown.style.display = 'block';
+    });
+
+    searchInput.addEventListener('input', () => {
+        filterItems(searchInput.value);
+        dropdown.style.display = 'block';
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.client-select-wrap')) {
+            dropdown.style.display = 'none';
+        }
+    });
+
+    items.forEach(item => {
+        item.addEventListener('click', () => {
+            document.getElementById('guestName').value                           = item.dataset.name;
+            document.querySelector('[name="guest_company"]').value               = item.dataset.company;
+            document.querySelector('[name="guest_email"]').value                 = item.dataset.email;
+            document.querySelector('[name="guest_phone"]').value                 = item.dataset.phone;
+            document.querySelector('[name="guest_rfc"]').value                   = item.dataset.rfc;
+
+            customerIdInput.value = item.dataset.id;
+            customerIdError.style.display = 'none';
+
+            searchInput.value = item.dataset.name + (item.dataset.company ? ' — ' + item.dataset.company : '');
+            dropdown.style.display = 'none';
+        });
+    });
+})();
+
 // ── Validación + submit ──────────────────────────────────
 (function () {
     const form      = document.getElementById('quoteEditForm');
     const nameField = form.querySelector('[name="guest_name"]');
     const itemsErr  = document.getElementById('itemsError');
+    const customerIdInput = document.getElementById('customerIdInput');
+    const customerIdError = document.getElementById('customerIdError');
 
     function clearNameError() {
         nameField.classList.remove('val-error-input');
@@ -323,6 +411,14 @@ window.ADMIN_QUOTES_CONFIG = {
 
     form.addEventListener('submit', function (e) {
         let blocked = false;
+
+        // Validar cliente registrado
+        if (!customerIdInput.value) {
+            customerIdError.style.display = 'block';
+            blocked = true;
+        } else {
+            customerIdError.style.display = 'none';
+        }
 
         // Validar nombre
         if (!nameField.value.trim()) {
@@ -347,7 +443,9 @@ window.ADMIN_QUOTES_CONFIG = {
 
         if (blocked) {
             e.preventDefault();
-            const firstErr = form.querySelector('.val-error-input') || itemsErr;
+            const firstErr = (customerIdError.style.display !== 'none' && customerIdError)
+                || form.querySelector('.val-error-input')
+                || itemsErr;
             firstErr.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
     });

@@ -46,7 +46,7 @@
 
                     {{-- Selector de cliente registrado --}}
                     <div class="form-group">
-                        <label class="form-label">Buscar Cliente registrado</label>
+                        <label class="form-label">Cliente registrado <span class="form-req">*</span></label>
                         <div class="client-select-wrap">
                             <input type="text" id="clientSearchInput" class="form-input"
                                    placeholder="Escribe el nombre o empresa..."
@@ -54,6 +54,7 @@
                             <div id="clientDropdown" class="client-dropdown" style="display:none">
                                 @foreach($customers as $customer)
                                     <div class="client-dropdown__item"
+                                         data-id="{{ $customer->id }}"
                                          data-name="{{ trim($customer->first_name . ' ' . $customer->last_name) }}"
                                          data-company="{{ $customer->company ?? '' }}"
                                          data-email="{{ $customer->email ?? '' }}"
@@ -68,6 +69,9 @@
                                 <div class="client-dropdown__empty" style="display:none">Sin resultados</div>
                             </div>
                         </div>
+                        <input type="hidden" name="customer_id" id="customerIdInput" value="{{ old('customer_id') }}">
+                        <span id="customerIdError" class="form-error" style="display:none">Debes seleccionar un cliente registrado.</span>
+                        @error('customer_id')<span class="form-error">{{ $message }}</span>@enderror
                     </div>
 
                     <div class="form-group">
@@ -480,17 +484,36 @@ window.ADMIN_QUOTES_CONFIG = {
 
     items.forEach(item => {
         item.addEventListener('click', () => {
-            // Rellenar campos del receptor
+            // Rellenar campos del receptor (copia editable, no referencia en vivo)
             document.getElementById('guestName').value                           = item.dataset.name;
             document.querySelector('[name="guest_company"]').value               = item.dataset.company;
             document.querySelector('[name="guest_email"]').value                 = item.dataset.email;
             document.querySelector('[name="guest_phone"]').value                 = item.dataset.phone;
             document.querySelector('[name="guest_rfc"]').value                   = item.dataset.rfc;
 
+            // Guardar el vínculo al cliente registrado
+            document.getElementById('customerIdInput').value = item.dataset.id;
+            document.getElementById('customerIdError').style.display = 'none';
+
             // Actualizar el buscador con el nombre seleccionado
             searchInput.value = item.dataset.name + (item.dataset.company ? ' — ' + item.dataset.company : '');
             dropdown.style.display = 'none';
         });
+    });
+})();
+
+// ── Validación: cotización requiere cliente registrado ──
+(function () {
+    const form = document.getElementById('quoteForm');
+    const customerIdInput = document.getElementById('customerIdInput');
+    const customerIdError = document.getElementById('customerIdError');
+
+    form.addEventListener('submit', function (e) {
+        if (!customerIdInput.value) {
+            e.preventDefault();
+            customerIdError.style.display = 'block';
+            document.getElementById('clientSearchInput').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
     });
 })();
 </script>

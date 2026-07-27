@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Customer;
+use App\Models\Quote;
 use App\Models\ServiceLog;
 use App\Models\ServiceMaterialPlanned;
 use App\Models\ServiceType;
@@ -149,8 +150,21 @@ class TechnicalServiceService
 
     private function applyStep1(TechnicalService $service, array $data): void
     {
+        $fromQuoteId = $data['from_quote_id'] ?? null;
+        $customerId  = $data['customer_id'];
+
+        // Si viene una cotización, esta gana y sobrescribe el cliente elegido
+        // manualmente, para que nunca queden desalineados.
+        if ($fromQuoteId) {
+            $quote = Quote::find($fromQuoteId);
+            if ($quote) {
+                $customerId = $quote->customer_id;
+            }
+        }
+
         $service->fill([
-            'customer_id'        => $data['customer_id'],
+            'customer_id'        => $customerId,
+            'from_quote_id'      => $fromQuoteId,
             'service_type_id'    => $data['service_type_id'],
             'service_date'       => $data['service_date'],
             'service_time'       => $data['service_time'] ?? null,

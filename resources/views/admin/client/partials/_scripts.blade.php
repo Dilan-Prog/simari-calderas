@@ -75,6 +75,31 @@
             dynamicAlphanumeric('#clientEditForm [name="company"]');
             dynamicEmailLowercase('#clientEditForm [name="email"]');
 
+            // "Sin Correo" / "RFC Genérico" — deshabilitan (y limpian o
+            // fijan) el campo de texto correspondiente. El valor final
+            // real lo decide el servidor de todos modos; esto es solo para
+            // que la UI no deje escribir algo que se va a ignorar.
+            const RFC_GENERICO_VALUE = '{{ \App\Http\Controllers\Backend\ClientManageController::RFC_GENERICO }}';
+
+            function wireOptionalToggle(checkboxSelector, inputSelector, genericValue) {
+                const checkbox = document.querySelector(checkboxSelector);
+                const input = document.querySelector(inputSelector);
+                if (!checkbox || !input) return;
+
+                checkbox.addEventListener('change', () => {
+                    input.disabled = checkbox.checked;
+                    if (checkbox.checked) {
+                        input.value = genericValue ?? '';
+                        valClear(input.closest('form'), input.name);
+                    }
+                });
+            }
+
+            wireOptionalToggle('#clientSinCorreo', '#clientEmailInput', '');
+            wireOptionalToggle('#clientRfcGenerico', '#clientRfcInput', RFC_GENERICO_VALUE);
+            wireOptionalToggle('#clientEditSinCorreo', '#clientEditEmailInput', '');
+            wireOptionalToggle('#clientEditRfcGenerico', '#clientEditRfcInput', RFC_GENERICO_VALUE);
+
             const createDocType = document.querySelector('#clientCreateModal [name="document_type"]');
             if (createDocType) {
                 createDocType.addEventListener('change', () => {
@@ -280,6 +305,24 @@
                         editClientForm.querySelector('[name="email"]').value = customer.email ?? '';
                         editClientForm.querySelector('[name="phone"]').value = customer.phone ?? '';
                         editClientForm.querySelector('[name="rfc"]').value = customer.rfc ?? '';
+
+                        // Reflejar "Sin Correo"/"RFC Genérico" según lo que
+                        // realmente esté guardado, y deshabilitar el campo
+                        // de texto correspondiente para que coincida con el
+                        // comportamiento del formulario de creación.
+                        const editSinCorreo = document.getElementById('clientEditSinCorreo');
+                        const editEmailInput = document.getElementById('clientEditEmailInput');
+                        if (editSinCorreo && editEmailInput) {
+                            editSinCorreo.checked = !customer.email;
+                            editEmailInput.disabled = editSinCorreo.checked;
+                        }
+
+                        const editRfcGenerico = document.getElementById('clientEditRfcGenerico');
+                        const editRfcInput = document.getElementById('clientEditRfcInput');
+                        if (editRfcGenerico && editRfcInput) {
+                            editRfcGenerico.checked = customer.rfc === '{{ \App\Http\Controllers\Backend\ClientManageController::RFC_GENERICO }}';
+                            editRfcInput.disabled = editRfcGenerico.checked;
+                        }
                         editClientForm.querySelector('[name="source"]').value = customer.source ?? '';
                         editClientForm.querySelector('[name="status"]').value = customer.status ??
                             'active';
@@ -756,14 +799,13 @@
                 errors.push('El campo "Origen" es requerido.');
             }
 
-            // FIX QA-7: 'email' and 'phone' had a required asterisk (*) in the
-            // view but were only checked for format when non-empty — an empty
-            // value silently skipped both checks. Extended with the same
-            // required/else-format pattern already used for 'rfc' below.
-            if (!email) {
-                valMark(form, 'email', 'Correo Electrónico');
-                errors.push('El campo "Correo Electrónico" es requerido.');
-            } else if (!REGEX.email.test(email)) {
+            // Email/RFC ahora son opcionales — si el checkbox "Sin
+            // Correo"/"RFC Genérico" está marcado, el campo de texto ni
+            // siquiera se valida (el servidor decide el valor final).
+            const sinCorreo = form.querySelector('[name="sin_correo"]')?.checked;
+            const rfcGenerico = form.querySelector('[name="rfc_generic"]')?.checked;
+
+            if (!sinCorreo && email && !REGEX.email.test(email)) {
                 valMark(form, 'email', 'Correo Electrónico');
                 errors.push('El formato del correo electrónico no es válido.');
             }
@@ -777,10 +819,7 @@
             if (whatsapp && !REGEX.phone.test(whatsapp)) {
                 errors.push('El WhatsApp debe contener exactamente 10 dígitos numéricos.');
             }
-            if (!rfc) {
-                valMark(form, 'rfc', 'RFC');
-                errors.push('El campo "RFC" es requerido.');
-            } else if (!REGEX.rfc.test(rfc)) {
+            if (!rfcGenerico && rfc && !REGEX.rfc.test(rfc)) {
                 valMarkFormat(form, 'rfc', 'El formato del RFC no es válido (ej. VECJ880326XXX).');
                 errors.push('El formato del RFC no es válido.');
             }

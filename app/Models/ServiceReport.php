@@ -13,6 +13,7 @@ class ServiceReport extends Model
         'report_number',
         'created_by_user_id',
         'assigned_user_id',
+        'service_id',
         'customer_id',
         'customer_name',
         'customer_company',
@@ -61,6 +62,11 @@ class ServiceReport extends Model
     public function customer(): BelongsTo
     {
         return $this->belongsTo(Customer::class);
+    }
+
+    public function service(): BelongsTo
+    {
+        return $this->belongsTo(TechnicalService::class, 'service_id');
     }
 
     public function measurements(): HasMany

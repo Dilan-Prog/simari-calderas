@@ -35,12 +35,16 @@
                         placeholder="Ej: Acme S.A. de C.V.">
                 </div>
                 <div>
-                    <label class="supliers-manager-slider-label">Email *</label>
+                    <label class="supliers-manager-slider-label">Email</label>
                     {{-- FIX QA-4: Added text-transform: lowercase for immediate visual
                          feedback while typing. The actual value is already forced to
                          lowercase in JS (dynamicEmailLowercase), this is just cosmetic. --}}
-                    <input class="users-manager-input" type="email" name="email"
+                    <input class="users-manager-input" type="email" name="email" id="clientEditEmailInput"
                         style="text-transform: lowercase" placeholder="correo@empresa.mx">
+                    <label class="client-modal-checkbox-inline">
+                        <input type="checkbox" name="sin_correo" id="clientEditSinCorreo" value="1">
+                        Sin Correo
+                    </label>
                 </div>
                 <div>
                     {{-- FIX QA-12: same missing-asterisk issue as Empresa above. --}}
@@ -55,9 +59,13 @@
                 </div>
                 <div>
                     {{-- FIX QA-12: same missing-asterisk issue as Empresa above. --}}
-                    <label class="supliers-manager-slider-label">RFC *</label>
-                    <input class="users-manager-input" type="text" name="rfc"
+                    <label class="supliers-manager-slider-label">RFC</label>
+                    <input class="users-manager-input" type="text" name="rfc" id="clientEditRfcInput"
                         placeholder="XAXX010101000">
+                    <label class="client-modal-checkbox-inline">
+                        <input type="checkbox" name="rfc_generic" id="clientEditRfcGenerico" value="1">
+                        RFC Genérico
+                    </label>
                 </div>
                 <div>
                     {{-- FIX QA-12: this field is required by validateFormFields()

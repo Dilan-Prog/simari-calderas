@@ -36,6 +36,7 @@ class QuoteService
             $quote = Quote::create([
                 'quote_number'      => $this->generateQuoteNumber(),
                 'created_by_user_id'=> $userId,
+                'customer_id'       => $data['customer_id'],
                 'status'            => 'draft',
                 'guest_name'        => $data['guest_name'],
                 'guest_email'       => $data['guest_email'] ?? null,
@@ -84,6 +85,7 @@ class QuoteService
             );
 
             $quote->update([
+                'customer_id'      => $data['customer_id'] ?? $quote->customer_id,
                 'guest_name'       => $data['guest_name'],
                 'guest_email'      => $data['guest_email'] ?? null,
                 'guest_phone'      => $data['guest_phone'] ?? null,

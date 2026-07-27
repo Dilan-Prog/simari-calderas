@@ -18,9 +18,19 @@
                     <h1>Gestión de Marcas</h1>
                     <p class="breadcrumb-clients-manager main">Administra las marcas de productos del catálogo</p>
                 </div>
-                <button type="button" class="button-primary size-adjustment" id="btnNewBrand">
-                    + Nueva Marca
-                </button>
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <a href="{{ route('admin.brands.bulk-edit') }}" class="prod-btn-outline">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 20h9" />
+                            <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
+                        </svg>
+                        Editar en lote
+                    </a>
+                    <button type="button" class="button-primary size-adjustment" id="btnNewBrand">
+                        + Nueva Marca
+                    </button>
+                </div>
             </header>
 
             {{-- Filters --}}

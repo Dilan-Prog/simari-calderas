@@ -249,6 +249,26 @@
                 </div>
                 @endif
             </div>
+
+            @if(!$service->from_quote_id && auth()->user()->isAdmin())
+            <div class="ts-card__divider" style="margin-top:1rem"></div>
+            <p style="font-size:0.8125rem;color:#6B7280;margin:0.75rem 0 0.5rem;">
+                Este servicio no tiene una cotización de origen vinculada.
+            </p>
+            <form method="POST" action="{{ route('admin.technical-services.attach-quote', $service) }}" style="display:flex;gap:0.5rem;">
+                @csrf
+                @method('PATCH')
+                <select name="from_quote_id" class="ts-select-field" required style="flex:1">
+                    <option value="">Seleccionar cotización aceptada...</option>
+                    @foreach($acceptedQuotes as $quote)
+                        <option value="{{ $quote->id }}">
+                            {{ $quote->quote_number }} — {{ $quote->customer->company ?: trim("{$quote->customer->first_name} {$quote->customer->last_name}") }}
+                        </option>
+                    @endforeach
+                </select>
+                <button type="submit" class="ts-btn ts-btn--primary">Vincular</button>
+            </form>
+            @endif
         </div>
 
         {{-- ── Technicians ────────────────────────── --}}

@@ -11,6 +11,7 @@ class Quote extends Model
     protected $fillable = [
         'quote_number',
         'created_by_user_id',
+        'customer_id',
         'status',
         'guest_name',
         'guest_email',
@@ -41,6 +42,11 @@ class Quote extends Model
     public function createdBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by_user_id');
+    }
+
+    public function customer(): BelongsTo
+    {
+        return $this->belongsTo(Customer::class);
     }
 
     public function items(): HasMany

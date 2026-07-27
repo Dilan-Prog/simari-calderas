@@ -10,6 +10,13 @@
     $ogTitle = $product->resolveVariables($product->og_title) ?: $metaTitle;
     $ogDescription = $product->resolveVariables($product->og_description) ?: $metaDescription;
     $ogImage = $product->og_image ?: $product->cover_image_url;
+
+    $categoryChain = [];
+    $chainCat = $product->category;
+    while ($chainCat) {
+        array_unshift($categoryChain, $chainCat);
+        $chainCat = $chainCat->parent;
+    }
 @endphp
 
 @section('title', $metaTitle)
@@ -23,43 +30,115 @@
 @endif
 
 @php
+    // JSON-LD BreadcrumbList: reusa $categoryChain (misma jerarquía que el
+    // breadcrumb visual de abajo), para que el schema nunca se desincronice
+    // de lo que el usuario realmente ve.
+    $breadcrumbSchema = [
+        '@context' => 'https://schema.org',
+        '@type' => 'BreadcrumbList',
+        'itemListElement' => array_merge(
+            [[
+                '@type' => 'ListItem',
+                'position' => 1,
+                'name' => 'Inicio',
+                'item' => route('home'),
+            ]],
+            collect($categoryChain)->values()->map(fn ($cat, $i) => [
+                '@type' => 'ListItem',
+                'position' => $i + 2,
+                'name' => $cat->name,
+                'item' => route('catalog.category', $cat->slug),
+            ])->all(),
+            [[
+                '@type' => 'ListItem',
+                'position' => count($categoryChain) + 2,
+                'name' => $resolvedName,
+                'item' => $canonicalUrl,
+            ]]
+        ),
+    ];
+
+    // JSON-LD Product: solo si el producto tiene un precio público real
+    // (price > 0 — "cotización bajo pedido" no tiene un estado propio en la
+    // BD todavía, así que se omite el schema completo en vez de anunciar
+    // un precio de $0.00).
+    $productSchema = null;
+    if ($product->price > 0) {
+        if ($product->stock <= 0) {
+            $availabilitySchema = 'https://schema.org/OutOfStock';
+        } elseif ($product->availability !== 'available') {
+            $availabilitySchema = 'https://schema.org/PreOrder';
+        } else {
+            $availabilitySchema = 'https://schema.org/InStock';
+        }
+
+        $productSchema = [
+            '@context' => 'https://schema.org',
+            '@type' => 'Product',
+            'name' => $resolvedName,
+            'sku' => $product->sku,
+            'url' => $canonicalUrl,
+            'offers' => [
+                '@type' => 'Offer',
+                'price' => number_format((float) $product->price, 2, '.', ''),
+                'priceCurrency' => $product->currency ?? 'MXN',
+                'availability' => $availabilitySchema,
+                'url' => $canonicalUrl,
+            ],
+        ];
+
+        if ($metaDescription) {
+            $productSchema['description'] = $metaDescription;
+        }
+        if ($product->cover_image_url) {
+            $productSchema['image'] = $product->cover_image_url;
+        }
+        if ($product->brand) {
+            $productSchema['brand'] = ['@type' => 'Brand', 'name' => $product->brand->name];
+        }
+    }
+
     // JSON-LD FAQPage: solo si el producto tiene FAQs Y la sección faq está
     // activa en el CMS (coherencia con lo que realmente se ve en la página).
     $schemaFaqs = collect($product->faqs ?? [])
         ->filter(fn ($item) => !empty($item['question']) && !empty($item['answer']))
         ->values();
     $faqSectionActive = $sections->contains(fn ($s) => $s->type === 'faq');
+    $faqSchema = null;
+    if ($faqSectionActive && $schemaFaqs->isNotEmpty()) {
+        $faqSchema = [
+            '@context' => 'https://schema.org',
+            '@type' => 'FAQPage',
+            'mainEntity' => $schemaFaqs->map(fn ($item) => [
+                '@type' => 'Question',
+                'name' => $product->resolveVariables($item['question']),
+                'acceptedAnswer' => [
+                    '@type' => 'Answer',
+                    'text' => $product->resolveVariables($item['answer']),
+                ],
+            ])->all(),
+        ];
+    }
 @endphp
 
-@if ($faqSectionActive && $schemaFaqs->isNotEmpty())
-    @section('schema')
+@section('schema')
+    <script type="application/ld+json">
+        {!! json_encode($breadcrumbSchema, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_PRETTY_PRINT) !!}
+    </script>
+    @if ($productSchema)
         <script type="application/ld+json">
-            {!! json_encode([
-                '@context' => 'https://schema.org',
-                '@type' => 'FAQPage',
-                'mainEntity' => $schemaFaqs->map(fn ($item) => [
-                    '@type' => 'Question',
-                    'name' => $product->resolveVariables($item['question']),
-                    'acceptedAnswer' => [
-                        '@type' => 'Answer',
-                        'text' => $product->resolveVariables($item['answer']),
-                    ],
-                ])->all(),
-            ], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_PRETTY_PRINT) !!}
+            {!! json_encode($productSchema, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_PRETTY_PRINT) !!}
         </script>
-    @endsection
-@endif
+    @endif
+    @if ($faqSchema)
+        <script type="application/ld+json">
+            {!! json_encode($faqSchema, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_PRETTY_PRINT) !!}
+        </script>
+    @endif
+@endsection
 
 @section('content')
 <div class="eq-shop-product">
-    @php
-        $categoryChain = [];
-        $chainCat = $product->category;
-        while ($chainCat) {
-            array_unshift($categoryChain, $chainCat);
-            $chainCat = $chainCat->parent;
-        }
-    @endphp
     <div class="product-breadcrumb">
         <a href="{{ route('home') }}">Inicio</a>
         @foreach ($categoryChain as $chainCat)

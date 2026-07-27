@@ -46,8 +46,68 @@
             document.getElementById('categoryModalTitle').textContent = 'Nueva Categoría';
             document.getElementById('categorySubmitBtn').textContent = 'Crear Categoría';
 
+            resetCategoryFaqs();
+
             document.getElementById('categoryLevel').dispatchEvent(new Event('change'));
         };
+
+        /* ── FAQ de la categoría ──
+           Names indexados faq_items[N][question|answer]; el campo vive
+           dentro de #categoryForm así que viaja en el FormData sin
+           necesitar el atributo form="". Sin filas al enviar, el backend
+           guarda faqs = null (mismo patrón que products/collections). */
+        const categoryAddFaqBtn = document.getElementById('categoryAddFaq');
+        const categoryFaqList = document.getElementById('categoryFaqList');
+        const categoryFaqEmpty = document.getElementById('categoryFaqEmpty');
+
+        function reindexCategoryFaqRows() {
+            Array.from(categoryFaqList.querySelectorAll('.category-faq-row')).forEach(function(row, i) {
+                row.querySelector('.category-faq-question').name = 'faq_items[' + i + '][question]';
+                row.querySelector('.category-faq-answer').name = 'faq_items[' + i + '][answer]';
+            });
+        }
+
+        function addCategoryFaqRow(question = '', answer = '') {
+            categoryFaqEmpty.style.display = 'none';
+            categoryFaqList.style.display = 'flex';
+
+            const row = document.createElement('div');
+            row.className = 'category-faq-row';
+            row.style.cssText = 'display:flex;gap:8px;align-items:flex-start;';
+            row.innerHTML =
+                '<div style="flex:1;display:flex;flex-direction:column;gap:6px;">' +
+                '<input type="text" class="users-manager-input category-faq-question" placeholder="Pregunta (ej: ¿Qué garantía tiene?)">' +
+                '<textarea class="users-manager-input client-modal-textarea category-faq-answer" rows="2" placeholder="Respuesta"></textarea>' +
+                '</div>' +
+                '<button type="button" class="table-users-manager-action-btn delete category-faq-del" title="Eliminar" style="flex-shrink:0;">' +
+                '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+                '<path d="M18 6 6 18"/><path d="m6 6 12 12"/>' +
+                '</svg>' +
+                '</button>';
+
+            row.querySelector('.category-faq-question').value = question;
+            row.querySelector('.category-faq-answer').value = answer;
+
+            row.querySelector('.category-faq-del').addEventListener('click', function() {
+                row.remove();
+                reindexCategoryFaqRows();
+                if (categoryFaqList.children.length === 0) {
+                    categoryFaqList.style.display = 'none';
+                    categoryFaqEmpty.style.display = 'block';
+                }
+            });
+
+            categoryFaqList.appendChild(row);
+            reindexCategoryFaqRows();
+        }
+
+        function resetCategoryFaqs() {
+            categoryFaqList.innerHTML = '';
+            categoryFaqList.style.display = 'none';
+            categoryFaqEmpty.style.display = 'block';
+        }
+
+        categoryAddFaqBtn.addEventListener('click', () => addCategoryFaqRow());
 
         // Open create modal
         document.getElementById('btnNewCategory').addEventListener('click', () => {
@@ -327,6 +387,9 @@
                         document.getElementById('categoryIsActive').value = cat.is_active ? '1' : '0';
                         document.getElementById('categorySeoTitle').value = cat.seo_title ?? '';
                         document.getElementById('categorySeoDesc').value = cat.seo_description ?? '';
+
+                        resetCategoryFaqs();
+                        (cat.faqs ?? []).forEach(faq => addCategoryFaqRow(faq.question ?? '', faq.answer ?? ''));
 
                         const level = cat.parent_id ?
                             (cat.parent?.parent_id ? 3 : 2) :

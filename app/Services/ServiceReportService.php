@@ -35,6 +35,7 @@ class ServiceReportService
                 'report_number'      => $this->generateReportNumber(),
                 'created_by_user_id' => $userId,
                 'assigned_user_id'   => $data['assigned_user_id'],
+                'service_id'         => $data['service_id'],
                 'customer_id'        => $data['customer_id'] ?? null,
                 'customer_name'      => $data['customer_name'],
                 'customer_company'   => $data['customer_company'] ?? null,
@@ -76,6 +77,7 @@ class ServiceReportService
         match($step) {
             1 => $report->fill([
                     'assigned_user_id'   => $data['assigned_user_id'],
+                    'service_id'         => $data['service_id'],
                     'customer_id'        => $data['customer_id'] ?? null,
                     'customer_name'      => $data['customer_name'],
                     'customer_company'   => $data['customer_company'] ?? null,

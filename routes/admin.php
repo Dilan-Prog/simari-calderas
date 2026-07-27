@@ -164,6 +164,11 @@ Route::controller(BrandController::class)
         Route::get('/marcas/editar/{id}', 'edit')->name('brands.edit');
         Route::put('/marcas/editar/{id}', 'update')->name('brands.update');
         Route::delete('/marcas/eliminar/{id}', 'destroy')->name('brands.destroy');
+        Route::get('/marcas/edicion-masiva', 'bulkEditIndex')->name('brands.bulk-edit');
+        Route::post('/marcas/edicion-masiva/guardar', 'bulkEditSave')->name('brands.bulk.save');
+        Route::post('/marcas/edicion-masiva/vistas', 'storeBulkEditView')->name('brands.bulk-edit.views.store');
+        Route::put('/marcas/edicion-masiva/vistas/{id}', 'updateBulkEditView')->name('brands.bulk-edit.views.update');
+        Route::delete('/marcas/edicion-masiva/vistas/{id}', 'destroyBulkEditView')->name('brands.bulk-edit.views.destroy');
     });
 
 // ============================================================
@@ -186,6 +191,7 @@ Route::controller(QuoteController::class)
         Route::get('/{quote}/pdf-preview', 'previewPdf')->name('pdf-preview');
         Route::post('/{quote}/enviar-correo', 'sendEmail')->name('send-email');
         Route::patch('/{quote}/estado', 'updateStatus')->name('update-status');
+        Route::patch('/{quote}/cliente', 'attachCustomer')->name('attach-customer');
     });
 
 // ============================================================
@@ -227,6 +233,7 @@ Route::prefix('service-reports')
         Route::get('/{report}/step/{step}', 'step')->name('step');
         Route::post('/{report}/step/{step}', 'saveStep')->name('save-step');
         Route::delete('/{report}/images/{image}', 'destroyImage')->name('images.destroy');
+        Route::post('/{report}/vincular-servicio', 'attachService')->name('attach-service');
     });
 
 // ============================================================
@@ -258,6 +265,7 @@ Route::controller(TechnicalServiceController::class)
         Route::patch('/{service}/update-date', 'updateDate')->name('update-date');
         Route::patch('/{service}/update-status', 'updateStatus')->name('update-status');
         Route::get('/{service}/generate-report', 'generateReport')->name('generate-report');
+        Route::patch('/{service}/cotizacion', 'attachQuote')->name('attach-quote');
     });
 
 // ============================================================

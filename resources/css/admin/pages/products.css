@@ -1119,3 +1119,14 @@ select.prod-bulk-input {
     overflow-y: auto;
     padding-right: 6px;
 }
+
+/* FIX: same overflow this modal box already handles for #bulkSpecsList —
+   #bulkFaqList (Preguntas Frecuentes) shares the same modal box but never
+   got the matching rule, so products with several FAQs pushed the box past
+   the viewport instead of scrolling internally. */
+.prod-bulk-specs-modal-box #bulkFaqList {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    padding-right: 6px;
+}

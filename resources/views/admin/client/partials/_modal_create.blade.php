@@ -56,13 +56,17 @@
                         placeholder="Ej: Acme S.A. de C.V." value="{{ old('company') }}">
                 </div>
                 <div>
-                    <label class="supliers-manager-slider-label">Email *</label>
+                    <label class="supliers-manager-slider-label">Email</label>
                     {{-- FIX QA-4: Added text-transform: lowercase for immediate visual
                          feedback while typing. The actual value is already forced to
                          lowercase in JS (dynamicEmailLowercase), this is just cosmetic. --}}
-                    <input class="users-manager-input" type="email" name="email"
+                    <input class="users-manager-input" type="email" name="email" id="clientEmailInput"
                         style="text-transform: lowercase" placeholder="correo@empresa.mx"
-                        value="{{ old('email') }}">
+                        value="{{ old('email') }}" {{ old('sin_correo') ? 'disabled' : '' }}>
+                    <label class="client-modal-checkbox-inline">
+                        <input type="checkbox" name="sin_correo" id="clientSinCorreo" value="1" {{ old('sin_correo') ? 'checked' : '' }}>
+                        Sin Correo
+                    </label>
                 </div>
                 <div>
                     <label class="supliers-manager-slider-label">Teléfono *</label>
@@ -75,9 +79,13 @@
                         placeholder="5551234567" value="{{ old('whatsapp') }}">
                 </div>
                 <div>
-                    <label class="supliers-manager-slider-label">RFC *</label>
-                    <input class="users-manager-input" type="text" name="rfc"
-                        placeholder="XAXX010101000" value="{{ old('rfc') }}">
+                    <label class="supliers-manager-slider-label">RFC</label>
+                    <input class="users-manager-input" type="text" name="rfc" id="clientRfcInput"
+                        placeholder="XAXX010101000" value="{{ old('rfc') }}" {{ old('rfc_generic') ? 'disabled' : '' }}>
+                    <label class="client-modal-checkbox-inline">
+                        <input type="checkbox" name="rfc_generic" id="clientRfcGenerico" value="1" {{ old('rfc_generic') ? 'checked' : '' }}>
+                        RFC Genérico
+                    </label>
                 </div>
                 <div>
                     {{-- FIX QA-12: required by validateFormFields() and by the

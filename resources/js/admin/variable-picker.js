@@ -44,6 +44,8 @@
         '.pform-faq-answer',
         '.bulk-faq-question',
         '.bulk-faq-answer',
+        '#hsTitle',
+        '#hsFaqDescription',
     ].join(', ');
 
     const quillRegistry = {};

@@ -1,4 +1,5 @@
 @push('scripts')
+    <script>window.PRODUCT_VARIABLES = @json(\App\Models\Products::VARIABLE_CATALOG);</script>
     <script>
         const homeSectionUrl = '{{ url('/admin/inicio-secciones') }}';
         const homeSectionModal = document.getElementById('homeSectionModal');
