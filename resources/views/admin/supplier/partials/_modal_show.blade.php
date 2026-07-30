@@ -176,10 +176,19 @@
 
             {{-- Tab: Products --}}
             <div class="tab-content-show-client" id="products">
+                <div class="card-information-show" style="background:#eff6ff;border:1px solid #bfdbfe;margin-bottom:16px;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;">
+                        <h3 style="margin:0;">Total Comprado</h3>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" x2="12" y1="2" y2="22"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                    </div>
+                    <h2 style="margin:8px 0 0;font-size:2rem;color:#1d4ed8;">${{ number_format($totalPurchased, 2) }}</h2>
+                    <p class="breadcrumb-clients-manager">Suma de órdenes de compra aceptadas</p>
+                </div>
+
                 <div class="card-information-show">
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
                         <h3 style="margin:0;">Productos del Proveedor</h3>
-                        <button type="button" class="button-primary size-adjustment"
+                        <button type="button" id="btnAssignProduct" class="button-primary size-adjustment"
                             style="font-size:14px;padding:8px 20px;">
                             + Asignar Producto
                         </button>
@@ -192,12 +201,19 @@
                                 <th>COSTO</th>
                                 <th>LEAD TIME</th>
                                 <th>PRIMARIO</th>
+                                <th>COMPRADO</th>
                                 <th>ACCIONES</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody id="supplierProductsTbody">
                             @forelse ($supplier->products as $product)
-                                <tr>
+                                <tr data-pivot-id="{{ $product->pivot->id }}"
+                                    data-product-id="{{ $product->id }}"
+                                    data-product-label="{{ $product->name }} ({{ $product->sku }})"
+                                    data-sku="{{ $product->pivot->sku }}"
+                                    data-cost="{{ $product->pivot->cost }}"
+                                    data-lead-time="{{ $product->pivot->lead_time_days }}"
+                                    data-is-primary="{{ $product->pivot->is_primary ? 1 : 0 }}">
                                     <td>
                                         <div style="display:flex;align-items:center;gap:8px;">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
@@ -212,8 +228,8 @@
                                             {{ $product->name }}
                                         </div>
                                     </td>
-                                    <td><span class="breadcrumb-clients-manager">{{ $product->sku }}</span></td>
-                                    <td><strong>${{ number_format($product->pivot->cost ?? 0, 0) }}</strong></td>
+                                    <td><span class="breadcrumb-clients-manager">{{ $product->pivot->sku ?? '—' }}</span></td>
+                                    <td><strong>${{ number_format($product->pivot->cost ?? 0, 2) }}</strong></td>
                                     <td>
                                         <span style="display:flex;align-items:center;gap:4px;">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"
@@ -241,8 +257,17 @@
                                         @endif
                                     </td>
                                     <td>
+                                        @php $bought = $purchasedByProduct->get($product->id); @endphp
+                                        @if ($bought)
+                                            <strong>${{ number_format($bought['total'], 2) }}</strong>
+                                            <div class="breadcrumb-clients-manager">{{ $bought['quantity'] }} unidades</div>
+                                        @else
+                                            <span class="breadcrumb-clients-manager">—</span>
+                                        @endif
+                                    </td>
+                                    <td>
                                         <div class="header-right-user-manager">
-                                            <button type="button" class="table-users-manager-action-btn edit">
+                                            <button type="button" class="table-users-manager-action-btn edit btn-edit-supplier-product">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
                                                     viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -251,7 +276,7 @@
                                                     </path>
                                                 </svg>
                                             </button>
-                                            <button type="button" class="table-users-manager-action-btn delete">
+                                            <button type="button" class="table-users-manager-action-btn delete btn-delete-supplier-product">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
                                                     viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -269,7 +294,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="6" style="text-align:center;padding:24px;">
+                                    <td colspan="7" style="text-align:center;padding:24px;">
                                         <p class="breadcrumb-clients-manager">Sin productos asignados.</p>
                                     </td>
                                 </tr>
@@ -360,6 +385,7 @@
 
         </section>
         @include('admin.supplier.partials._modal_edit')
+        @include('admin.supplier.partials._modal_assign_product')
     </div>
     @include('admin.supplier.partials._scripts_show')
 @endsection

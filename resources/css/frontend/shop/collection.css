@@ -69,6 +69,7 @@
 
 .eq-shop-collection .collection-hero__image img {
     width: 100%;
+    aspect-ratio: 16 / 9;
     max-height: 220px;
     object-fit: cover;
     border-radius: 10px;

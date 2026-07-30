@@ -1,6 +1,6 @@
 @if ($product->documents->count() > 0)
 <div id="documentos" class="product-documents">
-    <div class="product-documents__title">Documentos descargables</div>
+    <h2 class="product-documents__title">Documentos descargables</h2>
     <div class="product-documents__grid">
         @foreach ($product->documents as $document)
             <a href="{{ $document->url }}" download class="product-documents__item">

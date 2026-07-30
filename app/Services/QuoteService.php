@@ -30,7 +30,8 @@ class QuoteService
             $totals = $this->calculateTotals(
                 $items,
                 (float) ($data['discount_total'] ?? 0),
-                (float) ($data['tax_rate'] ?? 16)
+                (float) ($data['tax_rate'] ?? 16),
+                (float) ($data['isr_retention_rate'] ?? 0)
             );
 
             $quote = Quote::create([
@@ -48,6 +49,8 @@ class QuoteService
                 'discount_total'    => $totals['discount_total'],
                 'tax_rate'          => $data['tax_rate'] ?? 16.00,
                 'tax_total'         => $totals['tax_total'],
+                'isr_retention_rate'  => $data['isr_retention_rate'] ?? 0,
+                'isr_retention_total' => $totals['isr_retention_total'],
                 'total'             => $totals['total'],
                 'valid_until'       => $data['valid_until'] ?? null,
                 'notes'             => $data['notes'] ?? null,
@@ -81,7 +84,8 @@ class QuoteService
             $totals = $this->calculateTotals(
                 $items,
                 (float) ($data['discount_total'] ?? 0),
-                (float) ($data['tax_rate'] ?? 16)
+                (float) ($data['tax_rate'] ?? 16),
+                (float) ($data['isr_retention_rate'] ?? 0)
             );
 
             $quote->update([
@@ -96,6 +100,8 @@ class QuoteService
                 'discount_total'   => $totals['discount_total'],
                 'tax_rate'         => $data['tax_rate'] ?? 16.00,
                 'tax_total'        => $totals['tax_total'],
+                'isr_retention_rate'  => $data['isr_retention_rate'] ?? 0,
+                'isr_retention_total' => $totals['isr_retention_total'],
                 'total'            => $totals['total'],
                 'valid_until'      => $data['valid_until'] ?? null,
                 'notes'            => $data['notes'] ?? null,
@@ -124,18 +130,28 @@ class QuoteService
         });
     }
 
-    public function calculateTotals(array $items, float $discountTotal, float $taxRate): array
+    /**
+     * isr_retention_rate only applies when the quote's customer is "persona
+     * moral" (enforced client-side by disabling the field for persona
+     * física) — a moral entity paying a persona física for services must
+     * withhold ISR from the total. Calculated on the same taxable base as
+     * IVA (subtotal - discount), then subtracted from the total, matching
+     * how a real Mexican invoice with retention is paid out.
+     */
+    public function calculateTotals(array $items, float $discountTotal, float $taxRate, float $isrRetentionRate = 0): array
     {
         $subtotal = array_sum(array_column($items, 'line_total'));
         $taxableBase = $subtotal - $discountTotal;
         $taxTotal = round($taxableBase * ($taxRate / 100), 2);
-        $total = $taxableBase + $taxTotal;
+        $isrRetentionTotal = round($taxableBase * ($isrRetentionRate / 100), 2);
+        $total = $taxableBase + $taxTotal - $isrRetentionTotal;
 
         return [
-            'subtotal'       => round($subtotal, 2),
-            'discount_total' => round($discountTotal, 2),
-            'tax_total'      => $taxTotal,
-            'total'          => round($total, 2),
+            'subtotal'            => round($subtotal, 2),
+            'discount_total'      => round($discountTotal, 2),
+            'tax_total'           => $taxTotal,
+            'isr_retention_total' => $isrRetentionTotal,
+            'total'               => round($total, 2),
         ];
     }
 

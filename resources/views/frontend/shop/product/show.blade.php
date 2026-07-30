@@ -152,7 +152,7 @@
             @include('frontend.shop.product.partials.gallery')
             <div class="product-description">
                 @if ($product->description)
-                    <div class="product-description__title">Descripción</div>
+                    <h2 class="product-description__title">Descripción</h2>
                     <p>{{ $product->resolveVariables($product->description) }}</p>
                 @endif
             </div>

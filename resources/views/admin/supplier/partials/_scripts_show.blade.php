@@ -104,5 +104,141 @@
                 console.error('Error updating supplier:', err);
             }
         });
+
+        // ── Pestaña Productos: asignar / editar / eliminar vínculo ──
+        (function () {
+            const modal      = document.getElementById('assignProductModal');
+            const modalTitle = document.getElementById('assignProductModalTitle');
+            const addBtn     = document.getElementById('btnAssignProduct');
+            const tbody      = document.getElementById('supplierProductsTbody');
+            if (!modal || !addBtn || !tbody) return;
+
+            const closeBtn   = document.getElementById('closeAssignProductModal');
+            const cancelBtn  = document.getElementById('cancelAssignProductModal');
+            const saveBtn    = document.getElementById('apSave');
+            const errorsBox  = document.getElementById('assign-product-errors');
+
+            const pivotIdInput   = document.getElementById('apPivotId');
+            const productSelect  = document.getElementById('apProductSelect');
+            const skuInput       = document.getElementById('apSku');
+            const costInput      = document.getElementById('apCost');
+            const leadTimeInput  = document.getElementById('apLeadTime');
+            const isPrimaryInput = document.getElementById('apIsPrimary');
+
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+            const storeUrl  = '{{ route("admin.supplier-products.store") }}';
+
+            function updateUrl(id) {
+                return storeUrl + '/' + id;
+            }
+
+            function openModal(mode, row) {
+                errorsBox.style.display = 'none';
+                errorsBox.innerHTML = '';
+                pivotIdInput.value = '';
+                productSelect.value = '';
+                productSelect.disabled = false;
+                skuInput.value = '';
+                costInput.value = '';
+                leadTimeInput.value = '';
+                isPrimaryInput.checked = false;
+
+                if (mode === 'edit' && row) {
+                    modalTitle.textContent = 'Editar Producto';
+                    pivotIdInput.value = row.dataset.pivotId;
+                    productSelect.value = row.dataset.productId;
+                    productSelect.disabled = true; // no se permite cambiar de producto/proveedor al editar
+                    skuInput.value = row.dataset.sku !== 'null' ? row.dataset.sku : '';
+                    costInput.value = row.dataset.cost !== 'null' ? row.dataset.cost : '';
+                    leadTimeInput.value = row.dataset.leadTime !== 'null' ? row.dataset.leadTime : '';
+                    isPrimaryInput.checked = row.dataset.isPrimary === '1';
+                } else {
+                    modalTitle.textContent = 'Asignar Producto';
+                }
+
+                modal.style.display = 'flex';
+            }
+
+            function closeModal() {
+                modal.style.display = 'none';
+            }
+
+            addBtn.addEventListener('click', () => openModal('add'));
+            closeBtn.addEventListener('click', closeModal);
+            cancelBtn.addEventListener('click', closeModal);
+            modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+
+            tbody.addEventListener('click', function (e) {
+                const row = e.target.closest('tr[data-pivot-id]');
+                if (!row) return;
+
+                if (e.target.closest('.btn-edit-supplier-product')) {
+                    openModal('edit', row);
+                }
+
+                if (e.target.closest('.btn-delete-supplier-product')) {
+                    if (!confirm('¿Quitar este producto del proveedor?')) return;
+                    fetch(updateUrl(row.dataset.pivotId), {
+                        method: 'DELETE',
+                        headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
+                    })
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.success) {
+                                window.location.reload();
+                            } else {
+                                alert(data.message || 'No se pudo eliminar.');
+                            }
+                        });
+                }
+            });
+
+            saveBtn.addEventListener('click', function () {
+                errorsBox.style.display = 'none';
+                errorsBox.innerHTML = '';
+
+                if (!productSelect.value) {
+                    errorsBox.innerHTML = '<p>Selecciona un producto.</p>';
+                    errorsBox.style.display = 'block';
+                    return;
+                }
+
+                const payload = {
+                    supplier_id: currentSupplierId,
+                    product_id: productSelect.value,
+                    sku: skuInput.value || null,
+                    cost: costInput.value || null,
+                    lead_time_days: leadTimeInput.value || null,
+                    is_primary: isPrimaryInput.checked,
+                };
+
+                const isEdit = !!pivotIdInput.value;
+                const url = isEdit ? updateUrl(pivotIdInput.value) : storeUrl;
+                const method = isEdit ? 'PUT' : 'POST';
+
+                fetch(url, {
+                    method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Accept': 'application/json',
+                    },
+                    body: JSON.stringify(payload),
+                })
+                    .then(async (res) => {
+                        const data = await res.json();
+                        if (!res.ok || !data.success) {
+                            errorsBox.innerHTML = `<p>${data.message || 'No se pudo guardar.'}</p>`;
+                            errorsBox.style.display = 'block';
+                            return;
+                        }
+                        window.location.reload();
+                    })
+                    .catch(() => {
+                        errorsBox.innerHTML = '<p>Error de red al guardar.</p>';
+                        errorsBox.style.display = 'block';
+                    });
+            });
+        })();
     </script>
 @endpush

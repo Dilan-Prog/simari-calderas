@@ -88,6 +88,14 @@
                     </label>
                 </div>
                 <div>
+                    <label class="supliers-manager-slider-label">Tipo de Persona</label>
+                    <select class="users-manager-select" name="tipo_persona" id="clientTipoPersona">
+                        <option value="">Seleccionar...</option>
+                        <option value="fisica" {{ old('tipo_persona') == 'fisica' ? 'selected' : '' }}>Física</option>
+                        <option value="moral" {{ old('tipo_persona') == 'moral' ? 'selected' : '' }}>Moral</option>
+                    </select>
+                </div>
+                <div>
                     {{-- FIX QA-12: required by validateFormFields() and by the
                          server (required|in:...), but had no visual indicator. --}}
                     <label class="supliers-manager-slider-label">Tipo de documento *</label>

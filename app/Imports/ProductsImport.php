@@ -108,7 +108,10 @@ class ProductsImport implements ToModel, WithHeadingRow, WithValidation, WithBat
             'name' => $row['nombre'],
             'sku' => $row['sku'],
             'model' => $row['modelo'] ?? null,
-            'supplier_sku' => $row['sku_proveedor'] ?? null,
+            // El proveedor ahora se administra en la pestaña "Proveedores"
+            // del producto (tabla suppliers_products, con SKU propio por
+            // proveedor) — la importación multi-proveedor por Excel queda
+            // para una fase futura.
             'category_id' => $categoryId,
             'brand_id' => $brandId,
             'short_description' => $row['descripcion_corta'] ?? null,

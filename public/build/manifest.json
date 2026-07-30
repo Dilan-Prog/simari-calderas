@@ -9,7 +9,7 @@
     "isEntry": true
   },
   "resources/css/admin/app.css": {
-    "file": "assets/app-Xr9DGkWi.css",
+    "file": "assets/app-CarbovHO.css",
     "src": "resources/css/admin/app.css",
     "isEntry": true
   },
@@ -89,22 +89,22 @@
     "isEntry": true
   },
   "resources/css/frontend/shop/catalog.css": {
-    "file": "assets/catalog-BLvlSCrx.css",
+    "file": "assets/catalog-CUazkBgU.css",
     "src": "resources/css/frontend/shop/catalog.css",
     "isEntry": true
   },
   "resources/css/frontend/shop/collection.css": {
-    "file": "assets/collection-CT0Y38Bi.css",
+    "file": "assets/collection-zLqQ_4Jv.css",
     "src": "resources/css/frontend/shop/collection.css",
     "isEntry": true
   },
   "resources/css/frontend/shop/home.css": {
-    "file": "assets/home-BqeJPwyk.css",
+    "file": "assets/home-CYz8aEwq.css",
     "src": "resources/css/frontend/shop/home.css",
     "isEntry": true
   },
   "resources/css/frontend/shop/product-detail.css": {
-    "file": "assets/product-detail-r6bchBVq.css",
+    "file": "assets/product-detail-Dqbra9X8.css",
     "src": "resources/css/frontend/shop/product-detail.css",
     "isEntry": true
   },
@@ -114,7 +114,7 @@
     "isEntry": true
   },
   "resources/js/admin-quotes.js": {
-    "file": "assets/admin-quotes-C5r3yJVs.js",
+    "file": "assets/admin-quotes-D102Nu4-.js",
     "name": "admin-quotes",
     "src": "resources/js/admin-quotes.js",
     "isEntry": true

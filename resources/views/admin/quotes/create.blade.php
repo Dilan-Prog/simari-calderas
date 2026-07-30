@@ -59,7 +59,8 @@
                                          data-company="{{ $customer->company ?? '' }}"
                                          data-email="{{ $customer->email ?? '' }}"
                                          data-phone="{{ $customer->phone ?? '' }}"
-                                         data-rfc="{{ $customer->rfc ?? '' }}">
+                                         data-rfc="{{ $customer->rfc ?? '' }}"
+                                         data-tipo-persona="{{ $customer->tipo_persona ?? '' }}">
                                         <span class="client-dropdown__name">{{ $customer->company }}</span>
                                         @if($customer->company)
                                             <span class="client-dropdown__company">{{ trim($customer->first_name . ' ' . $customer->last_name) }}</span>
@@ -227,6 +228,18 @@
                         @error('tax_rate')<span class="form-error">{{ $message }}</span>@enderror
                     </div>
 
+                    {{-- FIX: solo aplica cuando el cliente seleccionado es
+                         persona moral (retiene ISR a quien le presta el
+                         servicio, per LISR Art. 106). Deshabilitado por
+                         defecto — clientSelect JS lo habilita/limpia según
+                         data-tipo-persona del cliente elegido. --}}
+                    <div class="form-group">
+                        <label class="form-label">Retención de ISR persona moral (%)</label>
+                        <input type="number" name="isr_retention_rate" id="isrRetentionRate" class="form-input"
+                               value="{{ old('isr_retention_rate', 10) }}" step="0.01" min="0" max="100" disabled>
+                        @error('isr_retention_rate')<span class="form-error">{{ $message }}</span>@enderror
+                    </div>
+
                     <div class="form-group">
                         <label class="form-label">Notas internas</label>
                         <textarea name="notes" class="form-textarea"
@@ -266,6 +279,10 @@
                         <div class="summary-totals__row">
                             <span>IVA (<span id="displayTaxRate">16</span>%)</span>
                             <span id="displayTaxTotal">$0.00</span>
+                        </div>
+                        <div class="summary-totals__row" id="displayRetentionRow" style="display:none">
+                            <span>Retención ISR (<span id="displayRetentionRate">0</span>%)</span>
+                            <span id="displayRetentionTotal">-$0.00</span>
                         </div>
                     </div>
 
@@ -498,6 +515,16 @@ window.ADMIN_QUOTES_CONFIG = {
             // Actualizar el buscador con el nombre seleccionado
             searchInput.value = item.dataset.name + (item.dataset.company ? ' — ' + item.dataset.company : '');
             dropdown.style.display = 'none';
+
+            // FIX: Retención de ISR solo aplica a clientes persona moral —
+            // se deshabilita y limpia para persona física (o sin cliente).
+            var isrInput = document.getElementById('isrRetentionRate');
+            if (isrInput) {
+                var isMoral = item.dataset.tipoPersona === 'moral';
+                isrInput.disabled = !isMoral;
+                if (!isMoral) isrInput.value = '';
+                if (window.QuoteForm) window.QuoteForm.calculateGlobalTotals();
+            }
         });
     });
 })();

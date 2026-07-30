@@ -761,7 +761,12 @@
     position: fixed;
     left: 50%;
     bottom: 24px;
-    transform: translateX(-50%) translateY(120%);
+    /* FIX: translateY(120%) only accounts for the bar's own height, not the
+       24px "bottom" offset stacked on top of it — left a ~13px sliver of
+       the bar peeking above the viewport edge even while "hidden". Adding
+       a fixed extra offset guarantees it clears the bottom gap regardless
+       of the bar's rendered height. */
+    transform: translateX(-50%) translateY(calc(100% + 40px));
     display: flex;
     align-items: center;
     gap: 14px;
@@ -776,6 +781,53 @@
 
 .prod-bulk-bar.active {
     transform: translateX(-50%) translateY(0);
+}
+
+/* ── Barra de asignación masiva de proveedor (backfill) ── */
+.prod-supplier-assign-bar {
+    position: fixed;
+    left: 50%;
+    bottom: 24px;
+    /* FIX: same as .prod-bulk-bar — translateY(120%) alone doesn't clear
+       the 24px bottom offset, leaving a sliver visible while "hidden". */
+    transform: translateX(-50%) translateY(calc(100% + 40px));
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: #1d4ed8;
+    color: #ffffff;
+    padding: 12px 16px;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+    z-index: 500;
+    transition: transform 0.2s ease;
+}
+
+.prod-supplier-assign-bar.active {
+    transform: translateX(-50%) translateY(0);
+}
+
+.prod-supplier-assign-bar select {
+    border-radius: 8px;
+    border: none;
+    padding: 8px 10px;
+    font-size: 13px;
+    color: #111827;
+}
+
+.prod-supplier-assign-bar button {
+    background: rgba(255, 255, 255, 0.15);
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.prod-supplier-assign-bar button:hover {
+    background: rgba(255, 255, 255, 0.25);
 }
 
 .prod-bulk-count {
@@ -829,7 +881,7 @@
         left: 12px;
         right: 12px;
         bottom: 12px;
-        transform: translateY(120%);
+        transform: translateY(calc(100% + 30px));
         width: auto;
     }
 
@@ -936,14 +988,24 @@ select.prod-bulk-input {
 .prod-bulk-edit-table td.prod-bulk-pinned-col:nth-child(1) {
     position: sticky;
     left: 0;
-    min-width: 180px;
+    min-width: 40px;
+    width: 40px;
     background: #ffffff;
+    text-align: center;
 }
 
 .prod-bulk-edit-table th.prod-bulk-pinned-col:nth-child(2),
 .prod-bulk-edit-table td.prod-bulk-pinned-col:nth-child(2) {
     position: sticky;
-    left: 180px;
+    left: 40px;
+    min-width: 180px;
+    background: #ffffff;
+}
+
+.prod-bulk-edit-table th.prod-bulk-pinned-col:nth-child(3),
+.prod-bulk-edit-table td.prod-bulk-pinned-col:nth-child(3) {
+    position: sticky;
+    left: 220px;
     min-width: 130px;
     background: #ffffff;
     border-right: 1px solid #e5e7eb;

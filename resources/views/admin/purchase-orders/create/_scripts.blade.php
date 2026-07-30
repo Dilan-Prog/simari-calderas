@@ -1,7 +1,31 @@
 @push('scripts')
     <script>
         (function() {
-            const catalogProducts = @json($catalogProducts);
+            // El catálogo se filtra al proveedor elegido (fetch), en vez de
+            // venir precargado con todo el catálogo activo.
+            let catalogProducts = [];
+
+            const productsBySupplierUrl = '{{ route("admin.purchase-orders.products-by-supplier") }}';
+
+            async function fetchProductsForSupplier(supplierId) {
+                if (!supplierId) {
+                    catalogProducts = [];
+                    return;
+                }
+                try {
+                    const url = new URL(productsBySupplierUrl, window.location.origin);
+                    url.searchParams.set('supplier_id', supplierId);
+                    const res = await fetch(url.toString(), {
+                        headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' },
+                    });
+                    catalogProducts = res.ok ? await res.json() : [];
+                } catch {
+                    catalogProducts = [];
+                }
+                if (typeof renderSearchResults === 'function' && poInput) {
+                    renderSearchResults(poInput.value || '');
+                }
+            }
 
             let items = [];
             let itemCounter = 0;
@@ -12,6 +36,7 @@
 
             supplierSelect.addEventListener('change', function() {
                 const opt = this.options[this.selectedIndex];
+                fetchProductsForSupplier(this.value);
                 if (!this.value) {
                     supplierInfoCard.style.display = 'none';
                     return;
@@ -24,6 +49,10 @@
                 document.getElementById('infoTerms').textContent = opt.dataset.terms || '—';
                 supplierInfoCard.style.display = 'block';
             });
+
+            if (supplierSelect.value) {
+                fetchProductsForSupplier(supplierSelect.value);
+            }
             // REVISAR ESTO
             if (supplierSelect.value) {
                 const opt = supplierSelect.options[supplierSelect.selectedIndex];

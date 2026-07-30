@@ -402,6 +402,7 @@
                 form.querySelector('[name="email"]').value             = supplier.email             ?? '';
                 form.querySelector('[name="phone"]').value             = supplier.phone             ?? '';
                 form.querySelector('[name="rfc"]').value               = supplier.rfc               ?? '';
+                form.querySelector('[name="tipo_persona"]').value       = supplier.tipo_persona       ?? '';
                 form.querySelector('[name="website"]').value           = supplier.website           ?? '';
                 form.querySelector('[name="address"]').value           = supplier.address           ?? '';
                 form.querySelector('[name="payment_terms"]').value     = supplier.payment_terms     ?? '';

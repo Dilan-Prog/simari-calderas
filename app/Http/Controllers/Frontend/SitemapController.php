@@ -55,6 +55,17 @@ class SitemapController extends Controller
 
         // ── Rutas dinámicas del e-commerce ──
 
+        // Catálogo (raíz del listado de productos)
+        $ultimoProductoPublicado = Products::where('is_active', true)
+            ->where('publish_on_website', true)
+            ->max('updated_at');
+        $sitemap->add(
+            Url::create(route('catalog.index'))
+                ->setPriority(0.9)
+                ->setChangeFrequency('daily')
+                ->setLastModificationDate($ultimoProductoPublicado ? Carbon::parse($ultimoProductoPublicado) : now())
+        );
+
         // Colecciones (páginas SEO /coleccion/{slug})
         foreach (Collection::where('is_active', true)->get(['slug', 'updated_at']) as $collection) {
             $sitemap->add(

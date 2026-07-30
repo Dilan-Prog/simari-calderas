@@ -22,6 +22,7 @@ class Customer extends Authenticatable
         'source',
         'company',
         'rfc',
+        'tipo_persona',
         'notes',
         'portal_access',
     ];

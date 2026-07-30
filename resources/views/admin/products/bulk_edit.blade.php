@@ -12,7 +12,6 @@
         // SKU no viven aquí: van fijos en la tabla, no se pueden ocultar.
         $bulkEditColumns = [
             ['key' => 'model', 'label' => 'Modelo', 'group' => 'Básicos', 'type' => 'text', 'maxlength' => 100],
-            ['key' => 'supplier_sku', 'label' => 'SKU Proveedor', 'group' => 'Básicos', 'type' => 'text', 'maxlength' => 100],
             ['key' => 'short_description', 'label' => 'Descripción Corta', 'group' => 'Básicos', 'type' => 'textarea', 'maxlength' => 500],
             ['key' => 'description', 'label' => 'Descripción Completa', 'group' => 'Básicos', 'type' => 'textarea'],
 
@@ -50,7 +49,7 @@
         // Columnas visibles por defecto la primera vez (antes de que exista
         // algo guardado en localStorage) — el set original + Nombre, para no
         // abrumar con ~27 columnas de entrada.
-        $defaultVisibleColumns = ['price', 'compare_price', 'cost', 'stock', 'supplier_sku', 'category_id', 'brand_id', 'is_active', 'publish_on_website'];
+        $defaultVisibleColumns = ['price', 'compare_price', 'cost', 'stock', 'category_id', 'brand_id', 'is_active', 'publish_on_website'];
         $columnGroups = collect($bulkEditColumns)->groupBy('group');
     @endphp
 
@@ -165,8 +164,12 @@
                 <table class="prod-bulk-edit-table">
                     <thead>
                         <tr>
+                            <th class="prod-bulk-pinned-col">
+                                <input type="checkbox" id="prodBulkSelectAll" title="Seleccionar todos">
+                            </th>
                             <th class="prod-bulk-pinned-col">Nombre</th>
                             <th class="prod-bulk-pinned-col">SKU</th>
+                            <th>SKU Proveedor (legacy)</th>
                             @foreach ($bulkEditColumns as $col)
                                 <th data-col="{{ $col['key'] }}">{{ $col['label'] }}</th>
                             @endforeach
@@ -199,10 +202,14 @@
                             @endphp
                             <tr data-row-id="{{ $product->id }}">
                                 <td class="prod-bulk-pinned-col">
+                                    <input type="checkbox" class="prod-bulk-row-select" value="{{ $product->id }}">
+                                </td>
+                                <td class="prod-bulk-pinned-col">
                                     <input type="text" class="prod-bulk-input" data-id="{{ $product->id }}"
                                         data-field="name" value="{{ $product->name }}" maxlength="255">
                                 </td>
                                 <td class="prod-bulk-readonly prod-bulk-pinned-col">{{ $product->sku }}</td>
+                                <td class="prod-bulk-readonly">{{ $product->supplier_sku }}</td>
 
                                 @foreach ($bulkEditColumns as $col)
                                     <td data-col="{{ $col['key'] }}"
@@ -326,7 +333,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="{{ count($bulkEditColumns) + 2 }}">
+                                <td colspan="{{ count($bulkEditColumns) + 4 }}">
                                     <p class="prod-empty">No se encontraron productos con los filtros actuales.</p>
                                 </td>
                             </tr>
@@ -395,6 +402,20 @@
         <span class="prod-bulk-count"><span id="prodBulkEditCount">0</span> cambio(s) sin guardar</span>
         <button type="button" class="prod-bulk-btn" id="prodBulkEditDiscardBtn">Descartar cambios</button>
         <button type="button" class="prod-bulk-btn" id="prodBulkEditSaveBtn">Guardar cambios</button>
+    </div>
+
+    {{-- Barra de asignación masiva de proveedor — vincula de golpe los N
+         productos seleccionados con 1 proveedor, llevándose su
+         "SKU Proveedor (legacy)" como el SKU de ese proveedor. --}}
+    <div id="prodSupplierAssignBar" class="prod-supplier-assign-bar">
+        <span class="prod-bulk-count"><span id="prodSupplierAssignCount">0</span> producto(s) seleccionado(s)</span>
+        <select id="prodSupplierAssignSelect">
+            <option value="">Asignar a proveedor...</option>
+            @foreach ($activeSuppliers as $supplier)
+                <option value="{{ $supplier->id }}">{{ $supplier->company_name }}</option>
+            @endforeach
+        </select>
+        <button type="button" id="prodSupplierAssignBtn">Asignar</button>
     </div>
 @endsection
 @include('admin.products._bulk_edit_scripts')

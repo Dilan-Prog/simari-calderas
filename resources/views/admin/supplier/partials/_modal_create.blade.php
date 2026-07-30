@@ -44,6 +44,14 @@
                         value="{{ old('rfc') }}">
                 </div>
                 <div>
+                    <label class="supliers-manager-slider-label">Tipo de Persona</label>
+                    <select class="users-manager-select" name="tipo_persona">
+                        <option value="">Seleccionar...</option>
+                        <option value="fisica" {{ old('tipo_persona') == 'fisica' ? 'selected' : '' }}>Física</option>
+                        <option value="moral" {{ old('tipo_persona') == 'moral' ? 'selected' : '' }}>Moral</option>
+                    </select>
+                </div>
+                <div>
                     <label class="supliers-manager-slider-label">Contacto Principal *</label>
                     <input class="users-manager-input" type="text" name="contact_name" placeholder="Ej: Juan Pérez"
                         value="{{ old('contact_name') }}">

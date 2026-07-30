@@ -55,6 +55,7 @@
     var quoteForm   = document.getElementById('quoteForm');
     var taxRateEl   = document.getElementById('taxRate');
     var discountEl  = document.getElementById('discountTotal');
+    var isrRetentionEl = document.getElementById('isrRetentionRate');
 
     if (!quoteForm) return; /* show page — nothing else needed */
 
@@ -70,6 +71,13 @@
     /* Recalculate when global discount changes */
     if (discountEl) {
         discountEl.addEventListener('input', function () {
+            if (window.QuoteForm) QuoteForm.calculateGlobalTotals();
+        });
+    }
+
+    /* Recalculate when ISR retention (persona moral only) changes */
+    if (isrRetentionEl) {
+        isrRetentionEl.addEventListener('input', function () {
             if (window.QuoteForm) QuoteForm.calculateGlobalTotals();
         });
     }

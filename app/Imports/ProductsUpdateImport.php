@@ -120,9 +120,10 @@ class ProductsUpdateImport implements ToModel, WithHeadingRow, WithValidation, W
         if ($this->present($row['modelo'] ?? null)) {
             $product->model = $row['modelo'];
         }
-        if ($this->present($row['sku_proveedor'] ?? null)) {
-            $product->supplier_sku = $row['sku_proveedor'];
-        }
+        // El proveedor ahora se administra en la pestaña "Proveedores" del
+        // producto (tabla suppliers_products, con SKU propio por
+        // proveedor) — la actualización multi-proveedor por Excel queda
+        // para una fase futura.
         if ($this->present($row['categoria'] ?? null)) {
             $categoryId = $this->resolveIdByName($row['categoria'], $this->categoriesByName);
             if ($categoryId) {

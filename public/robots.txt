@@ -6,4 +6,4 @@ Disallow: /register
 Disallow: /dashboard
 Disallow: /api/
 # Sitemap
-Sitemap: equitermindustries.com.mxsitemap.xml
+Sitemap: https://equitermindustries.com.mx/sitemap.xml

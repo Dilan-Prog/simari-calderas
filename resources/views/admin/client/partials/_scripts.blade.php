@@ -305,6 +305,7 @@
                         editClientForm.querySelector('[name="email"]').value = customer.email ?? '';
                         editClientForm.querySelector('[name="phone"]').value = customer.phone ?? '';
                         editClientForm.querySelector('[name="rfc"]').value = customer.rfc ?? '';
+                        editClientForm.querySelector('[name="tipo_persona"]').value = customer.tipo_persona ?? '';
 
                         // Reflejar "Sin Correo"/"RFC Genérico" según lo que
                         // realmente esté guardado, y deshabilitar el campo

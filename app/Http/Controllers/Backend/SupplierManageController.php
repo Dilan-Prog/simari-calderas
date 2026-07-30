@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Backend;
 
 use App\Http\Controllers\Controller;
+use App\Models\Products;
 use App\Models\Supplier;
 use Illuminate\Http\Request;
 
@@ -27,10 +28,16 @@ class SupplierManageController extends Controller
     public function information(string $id){
         $supplier = Supplier::with(['products'=>function($query){
             $query->select('products.id', 'products.name', 'products.sku')
-            ->withPivot('cost', 'lead_time_days', 'is_primary');
+            ->withPivot('id', 'sku', 'cost', 'lead_time_days', 'is_primary');
         }
         ])->findOrFail($id);
-        return view('admin.supplier.partials._modal_show', compact('supplier'));
+
+        $allProducts = Products::where('is_active', true)->orderBy('name')->get(['id', 'name', 'sku']);
+
+        $totalPurchased    = $supplier->totalPurchased();
+        $purchasedByProduct = $supplier->purchasedByProduct();
+
+        return view('admin.supplier.partials._modal_show', compact('supplier', 'allProducts', 'totalPurchased', 'purchasedByProduct'));
     }
 
     public function store(Request $request)
@@ -47,6 +54,7 @@ class SupplierManageController extends Controller
             'email'             => 'nullable|email|max:150|unique:suppliers,email',
             'address'           => 'nullable|string',
             'rfc'               => 'nullable|string|max:20',
+            'tipo_persona'      => 'nullable|in:fisica,moral',
             'website'           => ['nullable', 'string', 'max:255', 'regex:/^[\p{L}\p{N}\s.\-_\/,:]+$/u'],
             'status'            => 'required|in:active,inactive,suspended',
             'payment_terms'     => 'nullable|string|max:100',
@@ -66,6 +74,7 @@ class SupplierManageController extends Controller
         $supplier->email             = $request->email;
         $supplier->address           = $request->address;
         $supplier->rfc               = $request->rfc;
+        $supplier->tipo_persona      = $request->tipo_persona;
         $supplier->website           = $request->website;
         $supplier->status            = $request->status;
         $supplier->payment_terms     = $request->payment_terms;
@@ -105,6 +114,7 @@ class SupplierManageController extends Controller
             'email'             => 'nullable|email|max:150|unique:suppliers,email,' . $id,
             'address'           => 'nullable|string',
             'rfc'               => 'nullable|string|max:20',
+            'tipo_persona'      => 'nullable|in:fisica,moral',
             'website'           => ['nullable', 'string', 'max:255', 'regex:/^[\p{L}\p{N}\s.\-_\/,:]+$/u'],
             'status'            => 'required|in:active,inactive,suspended',
             'payment_terms'     => 'nullable|string|max:100',
@@ -123,6 +133,7 @@ class SupplierManageController extends Controller
         $supplier->email             = $request->email;
         $supplier->address           = $request->address;
         $supplier->rfc               = $request->rfc;
+        $supplier->tipo_persona      = $request->tipo_persona;
         $supplier->website           = $request->website;
         $supplier->status            = $request->status;
         $supplier->payment_terms     = $request->payment_terms;

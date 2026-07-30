@@ -12,6 +12,9 @@
 @endphp
 
 @section('title', ($category->name ?? 'Catálogo') . ' — Equiterm Industries')
+@section('description', $category?->seo_description
+    ?: \Illuminate\Support\Str::limit(strip_tags($category?->description ?? ''), 160)
+    ?: ('Explora el catálogo de ' . ($category->name ?? 'productos') . ' de Equiterm Industries.'))
 
 @php
     // JSON-LD BreadcrumbList: reusa $categoryChain (misma jerarquía que el
@@ -97,7 +100,9 @@
 
 @section('content')
 <div class="eq-shop-catalog">
-    <section class="catalog-hero"></section>
+    <section class="catalog-hero">
+        <h1 class="catalog-hero__title">{{ $category->name ?? 'Catálogo' }}</h1>
+    </section>
 
     @if ($category)
         <div class="product-breadcrumb">

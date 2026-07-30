@@ -68,6 +68,14 @@
                     </label>
                 </div>
                 <div>
+                    <label class="supliers-manager-slider-label">Tipo de Persona</label>
+                    <select class="users-manager-select" name="tipo_persona" id="clientEditTipoPersona">
+                        <option value="">Seleccionar...</option>
+                        <option value="fisica">Física</option>
+                        <option value="moral">Moral</option>
+                    </select>
+                </div>
+                <div>
                     {{-- FIX QA-12: this field is required by validateFormFields()
                          and by the server (required|in:...) in BOTH forms, but
                          neither Crear nor Editar showed a required asterisk. --}}

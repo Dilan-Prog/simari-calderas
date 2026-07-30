@@ -183,15 +183,28 @@
             var taxRateInput = document.getElementById('taxRate');
             var taxRate = taxRateInput ? (parseFloat(taxRateInput.value) || 0) : 16;
 
-            var taxable  = subtotal - discount;
-            var taxTotal = taxable * (taxRate / 100);
-            var total    = taxable + taxTotal;
+            // FIX: ISR retention (persona moral only) — disabled input has no
+            // value, so this is naturally 0 for persona física / no client.
+            var isrInput = document.getElementById('isrRetentionRate');
+            var isrRate  = (isrInput && !isrInput.disabled) ? (parseFloat(isrInput.value) || 0) : 0;
+
+            var taxable      = subtotal - discount;
+            var taxTotal     = taxable * (taxRate / 100);
+            var retentionTotal = taxable * (isrRate / 100);
+            var total        = taxable + taxTotal - retentionTotal;
 
             var el = function (id) { return document.getElementById(id); };
             if (el('displaySubtotal'))  el('displaySubtotal').textContent  = '$' + subtotal.toFixed(2);
             if (el('displayTaxRate'))   el('displayTaxRate').textContent   = taxRate;
             if (el('displayTaxTotal'))  el('displayTaxTotal').textContent  = '$' + taxTotal.toFixed(2);
             if (el('displayTotal'))     el('displayTotal').textContent     = '$' + total.toFixed(2);
+
+            var retentionRow = el('displayRetentionRow');
+            if (retentionRow) {
+                retentionRow.style.display = retentionTotal > 0 ? '' : 'none';
+                if (el('displayRetentionRate'))  el('displayRetentionRate').textContent  = isrRate;
+                if (el('displayRetentionTotal')) el('displayRetentionTotal').textContent = '-$' + retentionTotal.toFixed(2);
+            }
         },
 
         serializeItems: function () {

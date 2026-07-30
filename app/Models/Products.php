@@ -123,7 +123,7 @@ class Products extends Model
             '{precio_comparacion}'   => $this->compare_price ? number_format((float) $this->compare_price, 2) . ' ' . $currency : '',
             '{descuento_porcentaje}' => $discountPct !== null ? (string) $discountPct : '',
             '{moneda}'               => $currency,
-            '{proveedor_sku}'        => $this->supplier_sku ?? '',
+            '{proveedor_sku}'        => $this->primarySupplierSku() ?? '',
             '{existencias}'          => $this->stock !== null ? (string) $this->stock : '',
             '{anio_actual}'          => (string) now()->year,
         ];
@@ -188,7 +188,13 @@ class Products extends Model
             'suppliers_products',
             'product_id',
             'supplier_id'
-        )->withPivot('cost', 'lead_time_days', 'is_primary');
+        )->withPivot('id', 'sku', 'cost', 'lead_time_days', 'is_primary')
+         ->using(SupplierProduct::class);
+    }
+
+    public function primarySupplierSku(): ?string
+    {
+        return $this->suppliers()->wherePivot('is_primary', true)->first()?->pivot->sku;
     }
 
     // FIX BUG 2: Added so destroy() can check for blocking purchase order

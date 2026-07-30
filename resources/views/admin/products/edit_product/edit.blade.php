@@ -128,6 +128,17 @@
                     </svg>
                     Documentación
                 </button>
+                <button class="pform-tab" data-tab="pformPanel6" type="button" role="tab">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                        <circle cx="9" cy="7" r="4" />
+                        <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                    </svg>
+                    Proveedores
+                </button>
             </div>
         </div>
 
@@ -195,13 +206,6 @@
                                     <input type="text" id="pformModel" name="model" class="pform-input"
                                         placeholder="Hyperion 500" value="{{ $product->model ?? '' }}" />
                                 </div>
-                            </div>
-
-                            <div class="pform-field">
-                                <label class="pform-label" for="pformSupplierSku">SKU Proveedor</label>
-                                <input type="text" id="pformSupplierSku" name="supplier_sku" class="pform-input"
-                                    placeholder="Código con el que el proveedor identifica este producto"
-                                    value="{{ $product->supplier_sku ?? '' }}" />
                             </div>
 
                             <div class="pform-field">
@@ -802,6 +806,68 @@
                         </div>
                     </div>
 
+                    {{-- Panel 6: Proveedores --}}
+                    <div class="pform-tab-panel" id="pformPanel6" role="tabpanel">
+                        <div class="pform-panel">
+                            <div class="pform-specs-header">
+                                <div>
+                                    <h2 class="pform-panel-title">Proveedores</h2>
+                                    <p class="pform-hint" style="margin:0">Proveedores que surten este producto, cada
+                                        uno con su propio SKU y costo. El marcado como "Principal" es el que se usa en
+                                        exportaciones y en la variable {proveedor_sku}.</p>
+                                </div>
+                                <button type="button" class="pform-btn primary" id="pformAddSupplier">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                        stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M5 12h14" />
+                                        <path d="M12 5v14" />
+                                    </svg>
+                                    Asignar Proveedor
+                                </button>
+                            </div>
+
+                            <div class="pform-placeholder" id="pformSuppliersEmpty"
+                                style="{{ $product->suppliers->count() ? 'display:none' : '' }}">
+                                <p class="pform-placeholder-title">No hay proveedores asignados</p>
+                                <p class="pform-placeholder-sub">Asigna proveedores para llevar su SKU y costo por
+                                    separado</p>
+                            </div>
+
+                            <div id="pformSuppliersList" class="pform-spec-list"
+                                style="{{ $product->suppliers->count() ? '' : 'display:none' }}">
+                                @foreach ($product->suppliers as $supplier)
+                                    <div class="pform-supplier-row"
+                                        data-pivot-id="{{ $supplier->pivot->id }}"
+                                        data-supplier-id="{{ $supplier->id }}"
+                                        data-supplier-name="{{ $supplier->company_name }}"
+                                        data-sku="{{ $supplier->pivot->sku }}"
+                                        data-cost="{{ $supplier->pivot->cost }}"
+                                        data-lead-time="{{ $supplier->pivot->lead_time_days }}"
+                                        data-is-primary="{{ $supplier->pivot->is_primary ? 1 : 0 }}">
+                                        <div class="pform-supplier-row__info">
+                                            <strong>{{ $supplier->company_name }}</strong>
+                                            @if ($supplier->pivot->is_primary)
+                                                <span class="pform-supplier-badge">Principal</span>
+                                            @endif
+                                            <div class="pform-supplier-row__meta">
+                                                SKU: {{ $supplier->pivot->sku ?? '—' }}
+                                                &middot; Costo: {{ $supplier->pivot->cost !== null ? '$' . number_format($supplier->pivot->cost, 2) : '—' }}
+                                                &middot; Lead time: {{ $supplier->pivot->lead_time_days ?? '—' }} días
+                                            </div>
+                                        </div>
+                                        <div class="pform-supplier-row__actions">
+                                            <button type="button" class="pform-spec-del pform-supplier-edit" title="Editar">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
+                                            </button>
+                                            <button type="button" class="pform-spec-del pform-supplier-delete" title="Eliminar">✕</button>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             </form>
         </div>
@@ -1029,5 +1095,6 @@
         </div>
     </div>
     @include('admin.products.partials._image_source_modal')
+    @include('admin.products.edit_product._modal_supplier_link')
     @include('admin.products.edit_product._scripts')
 @endsection

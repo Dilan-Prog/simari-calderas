@@ -1306,5 +1306,139 @@
                 }
             });
         });
+
+        /* ── Panel 6: Proveedores ── */
+        (function() {
+            const productId  = {{ $product->id }};
+            const csrfToken  = document.querySelector('meta[name="csrf-token"]').content;
+            const modal      = document.getElementById('supplierLinkModal');
+            const modalTitle = document.getElementById('supplierLinkModalTitle');
+            const addBtn     = document.getElementById('pformAddSupplier');
+            const list       = document.getElementById('pformSuppliersList');
+            const emptyMsg   = document.getElementById('pformSuppliersEmpty');
+
+            const pivotIdInput   = document.getElementById('slPivotId');
+            const supplierSelect = document.getElementById('slSupplierSelect');
+            const skuInput       = document.getElementById('slSku');
+            const costInput      = document.getElementById('slCost');
+            const leadTimeInput  = document.getElementById('slLeadTime');
+            const isPrimaryInput = document.getElementById('slIsPrimary');
+            const errorEl        = document.getElementById('slError');
+            const cancelBtn      = document.getElementById('slCancel');
+            const saveBtn        = document.getElementById('slSave');
+
+            if (!addBtn || !modal) return;
+
+            const storeUrl = '{{ route("admin.products.supplier-products.store") }}';
+
+            function updateUrl(id) {
+                return storeUrl + '/' + id;
+            }
+
+            function showError(msg) {
+                errorEl.textContent = msg;
+                errorEl.style.display = 'block';
+            }
+
+            function openModal(mode, row) {
+                errorEl.style.display = 'none';
+                pivotIdInput.value = '';
+                supplierSelect.value = '';
+                supplierSelect.disabled = false;
+                skuInput.value = '';
+                costInput.value = '';
+                leadTimeInput.value = '';
+                isPrimaryInput.checked = false;
+
+                if (mode === 'edit' && row) {
+                    modalTitle.textContent = 'Editar Proveedor';
+                    pivotIdInput.value = row.dataset.pivotId;
+                    supplierSelect.value = row.dataset.supplierId;
+                    supplierSelect.disabled = true; // no se permite cambiar de proveedor/producto al editar
+                    skuInput.value = row.dataset.sku !== 'null' ? row.dataset.sku : '';
+                    costInput.value = row.dataset.cost !== 'null' ? row.dataset.cost : '';
+                    leadTimeInput.value = row.dataset.leadTime !== 'null' ? row.dataset.leadTime : '';
+                    isPrimaryInput.checked = row.dataset.isPrimary === '1';
+                } else {
+                    modalTitle.textContent = 'Asignar Proveedor';
+                }
+
+                modal.classList.add('active');
+            }
+
+            function closeModal() {
+                modal.classList.remove('active');
+            }
+
+            addBtn.addEventListener('click', () => openModal('add'));
+            cancelBtn.addEventListener('click', closeModal);
+            modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+
+            list?.addEventListener('click', function(e) {
+                const row = e.target.closest('.pform-supplier-row');
+                if (!row) return;
+
+                if (e.target.closest('.pform-supplier-edit')) {
+                    openModal('edit', row);
+                }
+
+                if (e.target.closest('.pform-supplier-delete')) {
+                    if (!confirm('¿Quitar este proveedor del producto?')) return;
+                    fetch(updateUrl(row.dataset.pivotId), {
+                        method: 'DELETE',
+                        headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
+                    })
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.success) {
+                                window.location.reload();
+                            } else {
+                                alert(data.message || 'No se pudo eliminar.');
+                            }
+                        });
+                }
+            });
+
+            saveBtn.addEventListener('click', function() {
+                errorEl.style.display = 'none';
+
+                if (!supplierSelect.value) {
+                    showError('Selecciona un proveedor.');
+                    return;
+                }
+
+                const payload = {
+                    supplier_id: supplierSelect.value,
+                    product_id: productId,
+                    sku: skuInput.value || null,
+                    cost: costInput.value || null,
+                    lead_time_days: leadTimeInput.value || null,
+                    is_primary: isPrimaryInput.checked,
+                };
+
+                const isEdit = !!pivotIdInput.value;
+                const url = isEdit ? updateUrl(pivotIdInput.value) : storeUrl;
+                const method = isEdit ? 'PUT' : 'POST';
+
+                fetch(url, {
+                    method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Accept': 'application/json',
+                    },
+                    body: JSON.stringify(payload),
+                })
+                    .then(async (res) => {
+                        const data = await res.json();
+                        if (!res.ok || !data.success) {
+                            showError(data.message || 'No se pudo guardar.');
+                            return;
+                        }
+                        window.location.reload();
+                    })
+                    .catch(() => showError('Error de red al guardar.'));
+            });
+        })();
     </script>
 @endpush

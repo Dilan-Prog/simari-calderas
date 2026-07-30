@@ -23,6 +23,7 @@ use App\Http\Controllers\Backend\MenuController;
 use App\Http\Controllers\Backend\CollectionController;
 use App\Http\Controllers\Backend\GalleryController;
 use App\Http\Controllers\Backend\MediaController;
+use App\Http\Controllers\Backend\SupplierProductController;
 
 // ============================================================
 // Dashboard — sin permiso, todos los usuarios autenticados
@@ -91,6 +92,20 @@ Route::controller(SupplierManageController::class)
         Route::get('/proveedores/informacion/{id}', 'information')->name('suppliers.information');
     });
 
+// Vínculo proveedor-producto — registrado también aquí (permission:suppliers)
+// porque la pantalla de Proveedores necesita poder llamarlo; el middleware
+// permission: solo admite un módulo por ruta, así que se duplica el grupo
+// en vez de tocarlo. Mismo controlador que la copia bajo permission:products.
+Route::controller(SupplierProductController::class)
+    ->middleware('permission:suppliers')
+    ->prefix('proveedor-productos')
+    ->name('supplier-products.')
+    ->group(function () {
+        Route::post('/', 'store')->name('store');
+        Route::put('/{id}', 'update')->name('update');
+        Route::delete('/{id}', 'destroy')->name('destroy');
+    });
+
 // ============================================================
 // Productos
 // ============================================================
@@ -114,6 +129,22 @@ Route::controller(ProductController::class)
         Route::post('/productos/edicion-masiva/vistas', 'storeBulkEditView')->name('products.bulk-edit.views.store');
         Route::put('/productos/edicion-masiva/vistas/{id}', 'updateBulkEditView')->name('products.bulk-edit.views.update');
         Route::delete('/productos/edicion-masiva/vistas/{id}', 'destroyBulkEditView')->name('products.bulk-edit.views.destroy');
+        Route::post('/productos/edicion-masiva/asignar-proveedor', 'bulkAssignSupplier')->name('products.bulk-edit.assign-supplier');
+    });
+
+// Vínculo proveedor-producto — mismo controlador que la copia bajo
+// permission:suppliers (ver arriba), duplicada aquí bajo permission:products
+// para que la pantalla de Productos también pueda llamarla. Prefijo y
+// nombre distintos (aunque apunten al mismo controlador) para que ambas
+// rutas sean físicamente alcanzables y route() no sea ambiguo.
+Route::controller(SupplierProductController::class)
+    ->middleware('permission:products')
+    ->prefix('productos/proveedor-productos')
+    ->name('products.supplier-products.')
+    ->group(function () {
+        Route::post('/', 'store')->name('store');
+        Route::put('/{id}', 'update')->name('update');
+        Route::delete('/{id}', 'destroy')->name('destroy');
     });
 
 // ============================================================
@@ -203,6 +234,8 @@ Route::controller(PurchaseOrderController::class)
         Route::get('/ordenes-compra',                  'index')->name('purchase-orders.index');
         Route::get('/ordenes-compra/nueva',            'create')->name('purchase-orders.create');
         Route::post('/ordenes-compra/nueva',           'store')->name('purchase-orders.store');
+        // Va antes de /{id} para no colisionar con el wildcard.
+        Route::get('/ordenes-compra/productos-por-proveedor', 'productsBySupplier')->name('purchase-orders.products-by-supplier');
         Route::get('/ordenes-compra/{id}',             'show')->name('purchase-orders.show');
         Route::get('/ordenes-compra/editar/{id}',      'edit')->name('purchase-orders.edit');
         Route::put('/ordenes-compra/editar/{id}',      'update')->name('purchase-orders.update');

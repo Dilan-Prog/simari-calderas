@@ -1,6 +1,6 @@
 @if ($specifications->count() > 0)
 <div id="especificaciones" class="product-specs">
-    <div class="product-specs__title">Especificaciones técnicas</div>
+    <h2 class="product-specs__title">Especificaciones técnicas</h2>
     <div class="product-specs__table">
         @foreach ($specifications as $spec)
             <div class="product-specs__row">

@@ -65,6 +65,7 @@ class ClientManageController extends Controller
             'email' => 'nullable|email|max:150|unique:customers,email',
             'phone' => 'nullable|string|max:30',
             'rfc' => 'nullable|string|max:20',
+            'tipo_persona' => 'nullable|in:fisica,moral',
             'sin_correo' => 'nullable|boolean',
             'rfc_generic' => 'nullable|boolean',
             // FIX QA-5: Changed to 'required|in:...' — document_type is NOT NULL
@@ -103,6 +104,7 @@ class ClientManageController extends Controller
         $customer->email = $request->boolean('sin_correo') ? null : ($request->filled('email') ? strtolower($request->email) : null);
         $customer->phone = $request->phone;
         $customer->rfc = $request->boolean('rfc_generic') ? self::RFC_GENERICO : $request->rfc;
+        $customer->tipo_persona = $request->tipo_persona;
         $customer->notes = $request->notes;
         $customer->document_type = $request->document_type;
         $customer->source = $request->source;
@@ -330,6 +332,7 @@ class ClientManageController extends Controller
             'email' => 'nullable|email|max:150|unique:customers,email,' . $id,
             'phone' => 'nullable|string|max:30',
             'rfc' => 'nullable|string|max:20',
+            'tipo_persona' => 'nullable|in:fisica,moral',
             'sin_correo' => 'nullable|boolean',
             'rfc_generic' => 'nullable|boolean',
             // FIX QA-5: document_type is NOT NULL in the DB; require it here too
@@ -361,6 +364,7 @@ class ClientManageController extends Controller
         $customer->email = $request->boolean('sin_correo') ? null : ($request->filled('email') ? strtolower($request->email) : null);
         $customer->phone = $request->phone;
         $customer->rfc = $request->boolean('rfc_generic') ? self::RFC_GENERICO : $request->rfc;
+        $customer->tipo_persona = $request->tipo_persona;
         $customer->document_type = $request->document_type;
         $customer->source = $request->source;
         $customer->notes = $request->notes;

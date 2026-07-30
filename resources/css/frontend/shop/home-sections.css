@@ -45,7 +45,7 @@
 /* FIX: en la página de producto se pidió alinear a la izquierda (no
    centrado) y ocupar el 80% del ancho, en vez del 95%/900px centrado que
    comparte con el home. */
-.eq-shop-product .home-faq { width: 80%; max-width: none; margin: 0; }
+.eq-shop-product .home-faq { width: 80%; max-width: none; margin: 0 0 0 32px; }
 :is(.eq-shop-home, .eq-shop-product) .home-faq__title { font-size: clamp(16px, 3vw, 20px); font-weight: 800; margin: 0 0 8px; }
 :is(.eq-shop-home, .eq-shop-product) .home-faq__description { font-size: 14.5px; color: #4b5563; line-height: 1.6; margin: 0 0 20px; }
 :is(.eq-shop-home, .eq-shop-product) .home-faq__item { border: 1px solid rgba(0,0,0,0.08); border-radius: 8px; margin-bottom: 10px; overflow: hidden; background: #fff; }

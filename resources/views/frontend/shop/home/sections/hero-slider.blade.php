@@ -6,7 +6,7 @@
             @if ($slide->link_url)
                 <a href="{{ $slide->link_url }}" class="hero-slider__slide" style="background-image:url('{{ $slide->image_url }}')" aria-label="{{ $slide->title }}"></a>
             @else
-                <div class="hero-slider__slide" style="background-image:url('{{ $slide->image_url }}')"></div>
+                <div class="hero-slider__slide" style="background-image:url('{{ $slide->image_url }}')" role="img" aria-label="{{ $slide->title }}"></div>
             @endif
         @endforeach
     </div>

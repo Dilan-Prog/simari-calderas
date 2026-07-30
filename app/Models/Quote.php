@@ -23,6 +23,8 @@ class Quote extends Model
         'discount_total',
         'tax_rate',
         'tax_total',
+        'isr_retention_rate',
+        'isr_retention_total',
         'total',
         'valid_until',
         'notes',
@@ -31,12 +33,14 @@ class Quote extends Model
     ];
 
     protected $casts = [
-        'subtotal'       => 'decimal:2',
-        'discount_total' => 'decimal:2',
-        'tax_rate'       => 'decimal:2',
-        'tax_total'      => 'decimal:2',
-        'total'          => 'decimal:2',
-        'valid_until'    => 'date',
+        'subtotal'             => 'decimal:2',
+        'discount_total'       => 'decimal:2',
+        'tax_rate'             => 'decimal:2',
+        'tax_total'            => 'decimal:2',
+        'isr_retention_rate'   => 'decimal:2',
+        'isr_retention_total'  => 'decimal:2',
+        'total'                => 'decimal:2',
+        'valid_until'          => 'date',
     ];
 
     public function createdBy(): BelongsTo

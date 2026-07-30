@@ -1,0 +1,21 @@
+# Equiterm Industries
+
+> Equiterm Industries diseña, instala y da mantenimiento a sistemas de calderas industriales (marca Simari), calentadores de agua (Rinnai/Masstercal), bombas de calor y equipos de tratamiento de agua para los sectores industrial, alimentario, hotelero y metalmecánico en México. El catálogo es de tipo B2B: los precios publicados son de referencia y la compra se gestiona por solicitud de cotización, no por checkout directo.
+
+## Catálogo
+
+- [Catálogo completo](https://equitermindustries.com.mx/catalogo): listado de todos los productos publicados, con filtros por categoría, marca y precio.
+- [Equipos de Refrigeración](https://equitermindustries.com.mx/catalogo/equipos-de-refrigeracion)
+- [Bombas de Calor](https://equitermindustries.com.mx/catalogo/bombas-de-calor)
+- [Calentadores Eléctricos](https://equitermindustries.com.mx/catalogo/calentadores-electricos)
+- [Calentadores Masstercal](https://equitermindustries.com.mx/catalogo/calentadores-masstercal)
+- [Calentadores Rinnai](https://equitermindustries.com.mx/catalogo/calentadores-rinnai)
+- [Tratamiento de Agua](https://equitermindustries.com.mx/catalogo/tratamiento-de-agua)
+
+Cada ficha de producto incluye SKU, marca, especificaciones técnicas, documentos descargables (fichas técnicas, manuales, certificaciones) y un formulario de solicitud de cotización.
+
+## Contacto
+
+- Teléfono: +52-449-434-8018
+- Email: administracion@equitermindustries.com.mx
+- [Página de contacto](https://equitermindustries.com.mx/contacto)

@@ -16,6 +16,8 @@ use Illuminate\Support\Str;
 use App\Models\Category;
 use App\Models\Brand;
 use App\Models\Collection;
+use App\Models\Supplier;
+use App\Models\SupplierProduct;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
@@ -236,7 +238,7 @@ class ProductController extends Controller
     }
 
     private const BULK_EDIT_FIELDS = [
-        'name', 'model', 'supplier_sku', 'short_description', 'description',
+        'name', 'model', 'short_description', 'description',
         'price', 'compare_price', 'cost', 'stock', 'stock_unit', 'currency', 'availability',
         'category_id', 'brand_id', 'is_active', 'publish_on_website', 'is_featured', 'is_new', 'is_recommended',
         'tags', 'specifications', 'faqs',
@@ -254,7 +256,7 @@ class ProductController extends Controller
     // porque Nombre va fijo/siempre visible, no es una columna que se pueda
     // ocultar dentro de una vista guardada.
     private const BULK_EDIT_VIEW_COLUMNS = [
-        'model', 'supplier_sku', 'short_description', 'description',
+        'model', 'short_description', 'description',
         'price', 'compare_price', 'cost', 'stock', 'stock_unit', 'currency', 'availability',
         'category_id', 'category_sub', 'category_child', 'brand_id', 'is_active', 'publish_on_website', 'is_featured', 'is_new', 'is_recommended',
         'tags', 'specifications', 'faqs',
@@ -337,8 +339,49 @@ class ProductController extends Controller
             ->orderBy('id')
             ->get(['id', 'name', 'columns']);
 
-        return view('admin.products.bulk_edit', compact('products', 'categories', 'categoryOptions', 'categoryTree', 'brands', 'totalFiltered', 'savedViews'))
+        $activeSuppliers = Supplier::where('status', 'active')->orderBy('company_name')->get(['id', 'company_name']);
+
+        return view('admin.products.bulk_edit', compact('products', 'categories', 'categoryOptions', 'categoryTree', 'brands', 'totalFiltered', 'savedViews', 'activeSuppliers'))
             ->with('perPageOptions', self::PER_PAGE_OPTIONS);
+    }
+
+    /**
+     * Backfill masivo: asigna de golpe N productos seleccionados a 1
+     * proveedor, llevándose el supplier_sku legacy de cada producto como el
+     * SKU de ese proveedor. Usa updateOrCreate a propósito para que la
+     * acción se pueda repetir sin error si el admin selecciona productos que
+     * se traslapan entre corridas. No toca cost/lead_time_days (no hay dato
+     * histórico que adivinar ahí) ni borra products.supplier_sku.
+     */
+    public function bulkAssignSupplier(Request $request)
+    {
+        $validated = $request->validate([
+            'supplier_id'    => 'required|exists:suppliers,id',
+            'product_ids'    => 'required|array|min:1',
+            'product_ids.*'  => 'integer|exists:products,id',
+        ]);
+
+        $assigned = 0;
+
+        DB::transaction(function () use ($validated, &$assigned) {
+            $products = Products::whereIn('id', $validated['product_ids'])->get(['id', 'supplier_sku']);
+
+            foreach ($products as $product) {
+                $row = SupplierProduct::updateOrCreate(
+                    ['supplier_id' => $validated['supplier_id'], 'product_id' => $product->id],
+                    ['sku' => $product->supplier_sku, 'is_primary' => true]
+                );
+
+                SupplierProduct::demoteOtherPrimaries($product->id, $row->id);
+                $assigned++;
+            }
+        });
+
+        return response()->json([
+            'success'  => true,
+            'assigned' => $assigned,
+            'message'  => "{$assigned} producto(s) asignado(s) correctamente.",
+        ]);
     }
 
     /**
@@ -398,14 +441,6 @@ class ProductController extends Controller
                 }
 
                 return [true, (int) $value, null];
-
-            case 'supplier_sku':
-                $v = trim((string) $value);
-                if (mb_strlen($v) > 100) {
-                    return [false, null, 'Máximo 100 caracteres.'];
-                }
-
-                return [true, $v === '' ? null : $v, null];
 
             case 'description':
                 // Se guarda tal cual, sin límite de longitud (igual que la
@@ -703,7 +738,6 @@ class ProductController extends Controller
             // product. Option A chosen: make it truly required.
             'brand_id'          => 'required|exists:brands,id',
             'model'             => 'nullable|string|max:100',
-            'supplier_sku'      => 'nullable|string|max:100',
             'price'             => 'required|numeric|min:0',
             'cost'              => 'nullable|numeric|min:0',
             'compare_price'     => 'nullable|numeric|min:0',
@@ -761,7 +795,6 @@ class ProductController extends Controller
         // FIX (reported bug): 'model' has a real column and a name="model"
         // input in the view, but was never assigned — always lost silently.
         $product->model              = $request->model         ?? null;
-        $product->supplier_sku      = $request->supplier_sku   ?? null;
         $product->price             = $request->price;
         $product->cost              = $request->cost           ?? 0;
         $product->compare_price     = $request->compare_price  ?? null;
@@ -840,7 +873,7 @@ class ProductController extends Controller
     {
         // FIX (Documentación tab): eager-load documents so the edit view
         // can show what's already uploaded per type.
-        $product = Products::with(['category', 'brand', 'images', 'documents'])->findOrFail($id);
+        $product = Products::with(['category', 'brand', 'images', 'documents', 'suppliers'])->findOrFail($id);
 
         $categories = Category::where('is_active', true)
             ->whereNull('parent_id')
@@ -855,9 +888,11 @@ class ProductController extends Controller
 
         $brands = Brand::where('is_active', true)->get(['id', 'name']);
 
+        $allSuppliers = Supplier::where('status', 'active')->orderBy('company_name')->get();
+
         return view(
             'admin.products.edit_product.edit',
-            compact('product', 'categories', 'brands')
+            compact('product', 'categories', 'brands', 'allSuppliers')
         );
     }
 
@@ -881,7 +916,6 @@ class ProductController extends Controller
             // FIX BUG 7: mirrors store() — brand_id is now truly required.
             'brand_id'          => 'required|exists:brands,id',
             'model'             => 'nullable|string|max:100',
-            'supplier_sku'      => 'nullable|string|max:100',
             'price'             => 'required|numeric|min:0',
             'cost'              => 'nullable|numeric|min:0',
             'compare_price'     => 'nullable|numeric|min:0',
@@ -935,7 +969,6 @@ class ProductController extends Controller
         // FIX (reported bug): 'model' has a real column and a name="model"
         // input in the view, but was never assigned — always lost silently.
         $product->model              = $request->model         ?? null;
-        $product->supplier_sku      = $request->supplier_sku   ?? null;
         $product->price             = $request->price;
         $product->cost              = $request->cost           ?? 0;
         $product->compare_price     = $request->compare_price  ?? null;

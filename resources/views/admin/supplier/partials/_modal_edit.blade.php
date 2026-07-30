@@ -22,6 +22,14 @@
                     <input class="users-manager-input" type="text" name="rfc" placeholder="XAXX010101000">
                 </div>
                 <div>
+                    <label class="supliers-manager-slider-label">Tipo de Persona</label>
+                    <select class="users-manager-select" name="tipo_persona">
+                        <option value="">Seleccionar...</option>
+                        <option value="fisica">Física</option>
+                        <option value="moral">Moral</option>
+                    </select>
+                </div>
+                <div>
                     <label class="supliers-manager-slider-label">Contacto Principal</label>
                     <input class="users-manager-input" type="text" name="contact_name" placeholder="Ej: Juan Pérez">
                 </div>

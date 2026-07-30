@@ -48,7 +48,7 @@ class QuoteController extends Controller
 
     public function create()
     {
-        $customers = \App\Models\Customer::select('id', 'first_name', 'last_name', 'email', 'phone', 'rfc', 'company')
+        $customers = \App\Models\Customer::select('id', 'first_name', 'last_name', 'email', 'phone', 'rfc', 'company', 'tipo_persona')
             ->where('status', 'active')
             ->orderBy('first_name')
             ->get();
@@ -68,6 +68,10 @@ class QuoteController extends Controller
             'valid_until'      => 'nullable|date',
             'tax_rate'         => 'required|numeric|min:0|max:100',
             'discount_total'   => 'nullable|numeric|min:0',
+            // FIX: ISR retention — only meaningful (and only enabled in the
+            // UI) when the selected customer is persona moral, but always
+            // validated as a plain optional percentage server-side.
+            'isr_retention_rate' => 'nullable|numeric|min:0|max:100',
             'notes'            => 'nullable|string',
             'terms_conditions' => 'nullable|string',
             'items_json'       => 'required|json',
@@ -81,7 +85,7 @@ class QuoteController extends Controller
 
         $data = $request->only([
             'customer_id', 'guest_name', 'guest_email', 'guest_phone', 'guest_company',
-            'guest_rfc', 'valid_until', 'tax_rate', 'discount_total',
+            'guest_rfc', 'valid_until', 'tax_rate', 'discount_total', 'isr_retention_rate',
             'notes', 'terms_conditions',
         ]);
         $data['items'] = $items;
@@ -111,7 +115,7 @@ class QuoteController extends Controller
                 ->with('error', 'Solo se pueden editar cotizaciones en estado Borrador o Enviada.');
         }
 
-        $customers = \App\Models\Customer::select('id', 'first_name', 'last_name', 'email', 'phone', 'rfc', 'company')
+        $customers = \App\Models\Customer::select('id', 'first_name', 'last_name', 'email', 'phone', 'rfc', 'company', 'tipo_persona')
             ->where('status', 'active')
             ->orderBy('first_name')
             ->get();
@@ -137,6 +141,7 @@ class QuoteController extends Controller
             'valid_until'      => 'nullable|date',
             'tax_rate'         => 'required|numeric|min:0|max:100',
             'discount_total'   => 'nullable|numeric|min:0',
+            'isr_retention_rate' => 'nullable|numeric|min:0|max:100',
             'notes'            => 'nullable|string',
             'terms_conditions' => 'nullable|string',
             'items_json'       => 'required|json',
@@ -150,7 +155,7 @@ class QuoteController extends Controller
 
         $data = $request->only([
             'customer_id', 'guest_name', 'guest_email', 'guest_phone', 'guest_company',
-            'guest_rfc', 'valid_until', 'tax_rate', 'discount_total',
+            'guest_rfc', 'valid_until', 'tax_rate', 'discount_total', 'isr_retention_rate',
             'notes', 'terms_conditions',
         ]);
         $data['items'] = $items;

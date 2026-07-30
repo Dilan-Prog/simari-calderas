@@ -640,6 +640,73 @@
             });
 
             syncUnsavedBar();
+
+            // ── Backfill masivo: asignar N productos seleccionados a 1 proveedor ──
+            const selectAllCb   = document.getElementById('prodBulkSelectAll');
+            const rowCheckboxes = () => Array.from(document.querySelectorAll('.prod-bulk-row-select'));
+            const assignBar     = document.getElementById('prodSupplierAssignBar');
+            const assignCount   = document.getElementById('prodSupplierAssignCount');
+            const assignSelect  = document.getElementById('prodSupplierAssignSelect');
+            const assignBtn     = document.getElementById('prodSupplierAssignBtn');
+            const assignUrl     = '{{ route("admin.products.bulk-edit.assign-supplier") }}';
+
+            function syncAssignBar() {
+                const selected = rowCheckboxes().filter(cb => cb.checked);
+                assignCount.textContent = selected.length;
+                assignBar.classList.toggle('active', selected.length > 0);
+            }
+
+            if (selectAllCb) {
+                selectAllCb.addEventListener('change', function () {
+                    rowCheckboxes().forEach(cb => { cb.checked = selectAllCb.checked; });
+                    syncAssignBar();
+                });
+            }
+
+            document.addEventListener('change', (e) => {
+                if (!e.target.matches('.prod-bulk-row-select')) return;
+                if (!e.target.checked) selectAllCb.checked = false;
+                syncAssignBar();
+            });
+
+            if (assignBtn) {
+                assignBtn.addEventListener('click', async () => {
+                    const supplierId = assignSelect.value;
+                    const productIds = rowCheckboxes().filter(cb => cb.checked).map(cb => cb.value);
+
+                    if (!supplierId) {
+                        showToast('Selecciona un proveedor.', 'error');
+                        return;
+                    }
+                    if (!productIds.length) {
+                        showToast('Selecciona al menos un producto.', 'error');
+                        return;
+                    }
+
+                    try {
+                        const response = await fetch(assignUrl, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': csrfToken,
+                                'Accept': 'application/json',
+                            },
+                            body: JSON.stringify({ supplier_id: supplierId, product_ids: productIds }),
+                        });
+                        const data = await response.json();
+                        if (response.ok && data.success) {
+                            showToast(data.message || 'Asignado correctamente.');
+                            rowCheckboxes().forEach(cb => { cb.checked = false; });
+                            if (selectAllCb) selectAllCb.checked = false;
+                            syncAssignBar();
+                        } else {
+                            showToast(data.message || 'No se pudo asignar.', 'error');
+                        }
+                    } catch (err) {
+                        showToast('Error de red al asignar.', 'error');
+                    }
+                });
+            }
         })();
     </script>
 @endpush

@@ -14,7 +14,10 @@ class ProductsExport implements FromQuery, WithHeadings, WithMapping, ShouldAuto
 {
     public function query()
     {
-        return Products::with(['category', 'brand', 'images'])->orderBy('id');
+        return Products::with([
+            'category', 'brand', 'images',
+            'suppliers' => fn ($q) => $q->wherePivot('is_primary', true),
+        ])->orderBy('id');
     }
 
     public function headings(): array
@@ -36,7 +39,7 @@ class ProductsExport implements FromQuery, WithHeadings, WithMapping, ShouldAuto
             $product->name,
             $product->sku,
             $product->model,
-            $product->supplier_sku,
+            $product->suppliers->first()?->pivot->sku,
             $product->category->name ?? '',
             $product->brand->name ?? '',
             $product->short_description,

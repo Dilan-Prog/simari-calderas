@@ -52,18 +52,9 @@ class PurchaseOrderController extends Controller
         $nextPoNumber          = PurchaseOrder::generatePoNumber();
         $nextInternalReference = PurchaseOrder::generateInternalReference();
 
-        $catalogProducts = Products::where('is_active', true)
-            ->get(['id', 'name', 'sku', 'cost'])
-            ->map(fn($p) => [
-                'id'    => $p->id,
-                'name'  => $p->name,
-                'sku'   => $p->sku ?? '',
-                'price' => (float) $p->cost,
-            ]);
-
         return view(
             'admin.purchase-orders.create.create',
-            compact('suppliers', 'nextPoNumber', 'nextInternalReference', 'catalogProducts')
+            compact('suppliers', 'nextPoNumber', 'nextInternalReference')
         );
     }
 
@@ -126,6 +117,34 @@ class PurchaseOrderController extends Controller
             ->with('success', 'Borrador guardado correctamente.');
     }
 
+    // Buscador de productos de la OC, filtrado al proveedor elegido — solo
+    // devuelve productos vinculados a ese proveedor vía suppliers_products,
+    // con su SKU/costo propios (con respaldo al SKU/costo genérico del
+    // producto si el proveedor no los tiene capturados todavía).
+    public function productsBySupplier(Request $request)
+    {
+        $request->validate([
+            'supplier_id' => 'required|exists:suppliers,id',
+        ]);
+
+        $products = Products::where('is_active', true)
+            ->whereHas('suppliers', fn ($q) => $q->where('suppliers.id', $request->supplier_id))
+            ->with(['suppliers' => fn ($q) => $q->where('suppliers.id', $request->supplier_id)])
+            ->get(['id', 'name', 'sku', 'cost'])
+            ->map(function ($p) {
+                $pivot = $p->suppliers->first()?->pivot;
+
+                return [
+                    'id'    => $p->id,
+                    'name'  => $p->name,
+                    'sku'   => $pivot?->sku ?: ($p->sku ?? ''),
+                    'price' => $pivot?->cost !== null ? (float) $pivot->cost : (float) $p->cost,
+                ];
+            });
+
+        return response()->json($products);
+    }
+
     public function show(string $id)
     {
         $order = PurchaseOrder::with(['supplier', 'createdBy', 'items'])
@@ -142,15 +161,6 @@ class PurchaseOrderController extends Controller
         $suppliers = Supplier::where('status', 'active')
             ->get(['id', 'company_name', 'contact_name', 'email', 'phone', 'rfc', 'payment_terms']);
 
-        $catalogProducts = Products::where('is_active', true)
-            ->get(['id', 'name', 'sku', 'cost'])
-            ->map(fn($p) => [
-                'id'    => $p->id,
-                'name'  => $p->name,
-                'sku'   => $p->sku ?? '',
-                'price' => (float) $p->cost,
-            ]);
-
         $existingItems = $order->items->map(fn($item) => [
             'id'        => $item->id,
             'productId' => $item->product_id,
@@ -166,7 +176,7 @@ class PurchaseOrderController extends Controller
 
         return view(
             'admin.purchase-orders.edit.edit',
-            compact('order', 'suppliers', 'catalogProducts', 'existingItems')
+            compact('order', 'suppliers', 'existingItems')
         );
     }
 
