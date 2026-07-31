@@ -17,6 +17,15 @@
     flex-wrap: wrap;
 }
 
+/* .button-secondary/.button-primary are styled for <button> elements only
+   (no text-decoration reset) — two of these header actions are <a> tags
+   (Exportar, Editar en lote), which without this fix show up underlined. */
+.supplier-header-actions a.button-secondary,
+.supplier-header-actions a.button-primary {
+    display: inline-flex;
+    text-decoration: none;
+}
+
 .grid-supplier-header {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
