@@ -25,6 +25,7 @@ class Products extends Model
         'description',
         'price',
         'compare_price',
+        'price_includes_tax',
         'cost',
         'stock',
         'weight',
@@ -64,6 +65,7 @@ class Products extends Model
         'is_new'          => 'boolean',
         'is_recommended'  => 'boolean',
         'publish_on_website' => 'boolean',
+        'price_includes_tax' => 'boolean',
         'price'       => 'decimal:2',
         'cost'        => 'decimal:2',
         'compare_price' => 'decimal:2',
@@ -119,7 +121,7 @@ class Products extends Model
             '{sku}'                  => $this->sku ?? '',
             '{categoria}'            => $this->category?->name ?? '',
             '{categoria_padre}'      => $this->category?->parent?->name ?? '',
-            '{precio}'               => $this->price !== null ? number_format((float) $this->price, 2) . ' ' . $currency : '',
+            '{precio}'               => $this->price !== null ? number_format($this->final_price, 2) . ' ' . $currency : '',
             '{precio_comparacion}'   => $this->compare_price ? number_format((float) $this->compare_price, 2) . ' ' . $currency : '',
             '{descuento_porcentaje}' => $discountPct !== null ? (string) $discountPct : '',
             '{moneda}'               => $currency,
@@ -163,6 +165,49 @@ class Products extends Model
         if (!$value) return null;
         if (str_starts_with($value, 'http')) return $value;
         return UploadPath::url($value);
+    }
+
+    // ── IVA ────────────────────────────────────────────────────────────────
+
+    public static function ivaRate(): float
+    {
+        return (float) Setting::get('ecommerce.iva_rate', 16);
+    }
+
+    // Monto de IVA implícito en este producto. Si price_includes_tax, se
+    // extrae del precio capturado (que ya es el final); si no, es lo que se
+    // le va a sumar encima para llegar al precio final.
+    public function getIvaAmountAttribute(): float
+    {
+        $price = (float) $this->price;
+        $rate = static::ivaRate();
+
+        if ($this->price_includes_tax) {
+            return round($price - ($price / (1 + $rate / 100)), 2);
+        }
+
+        return round($price * ($rate / 100), 2);
+    }
+
+    // Precio base (sin IVA), sin importar cómo se haya capturado.
+    public function getBasePriceAttribute(): float
+    {
+        $price = (float) $this->price;
+
+        return $this->price_includes_tax
+            ? round($price - $this->iva_amount, 2)
+            : round($price, 2);
+    }
+
+    // Precio final con IVA — el único precio que debe mostrarse/venderse al
+    // cliente.
+    public function getFinalPriceAttribute(): float
+    {
+        $price = (float) $this->price;
+
+        return $this->price_includes_tax
+            ? round($price, 2)
+            : round($price + $this->iva_amount, 2);
     }
 
     public function images()

@@ -1,6 +1,9 @@
 @props(['product', 'compact' => false])
 
 @php
+    // NOTA: compare_price no tiene su propia bandera de IVA — el % de
+    // descuento aquí sigue comparando contra el precio crudo, no contra
+    // final_price. Fuera de alcance por ahora (no pedido por el usuario).
     $hasDiscount = $product->compare_price && $product->compare_price > $product->price;
     $discountPct = $hasDiscount ? round((1 - ($product->price / $product->compare_price)) * 100) : null;
     $currency = $product->currency ?? 'MXN';
@@ -43,7 +46,7 @@
             <div class="product-card__original">${{ number_format($product->compare_price, 2) }} {{ $currency }}</div>
         @endif
         <div class="product-card__price-row">
-            <span class="product-card__price">${{ number_format($product->price, 2) }} {{ $currency }}</span>
+            <span class="product-card__price">${{ number_format($product->final_price, 2) }} {{ $currency }}</span>
             @if ($hasDiscount)
                 <span class="product-card__discount">{{ $discountPct }}% OFF</span>
             @endif

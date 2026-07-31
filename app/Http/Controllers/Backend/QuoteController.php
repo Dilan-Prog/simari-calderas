@@ -187,14 +187,16 @@ class QuoteController extends Controller
                       ->orWhereHas('brand', fn($b) => $b->where('name', 'like', "%{$q}%"))
                       ->orWhereHas('category', fn($c) => $c->where('name', 'like', "%{$q}%"));
             })
-            ->select('id', 'name', 'sku', 'price', 'stock', 'cover_image_url', 'brand_id', 'category_id')
+            ->select('id', 'name', 'sku', 'price', 'price_includes_tax', 'stock', 'cover_image_url', 'brand_id', 'category_id')
             ->take(12)
             ->get()
             ->map(fn($p) => [
                 'id'        => $p->id,
                 'name'      => $p->name,
                 'sku'       => $p->sku,
-                'price'     => $p->price,
+                // Siempre sin IVA — la cotización aplica su propio tax_rate
+                // encima, así que nunca se debe cobrar el impuesto dos veces.
+                'price'     => $p->base_price,
                 'stock'     => $p->stock,
                 'image_url' => $p->cover_image_url,
                 'category'  => $p->category?->name,

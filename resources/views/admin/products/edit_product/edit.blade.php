@@ -364,6 +364,15 @@
                                     </div>
                                 </div>
 
+                                <div class="pform-field">
+                                    <label style="display:flex;align-items:center;gap:8px;font-size:14px;font-weight:500;color:#374151;cursor:pointer">
+                                        <input type="checkbox" id="pformPriceIncludesTax" name="price_includes_tax" value="1" style="width:auto"
+                                            {{ $product->price_includes_tax ? 'checked' : '' }}>
+                                        ¿Este precio ya incluye IVA?
+                                    </label>
+                                    <p class="pform-hint">Si no lo marcas, el sistema sumará el IVA para calcular el precio final que verá el cliente.</p>
+                                </div>
+
                                 <div class="pform-grid-2">
                                     <div class="pform-field">
                                         <label class="pform-label">Precio de Oferta</label>
@@ -417,6 +426,33 @@
                                     <div class="pform-profit-margin">
                                         <p class="pform-profit-label">Margen de Ganancia</p>
                                         <p class="pform-profit-margin-value" id="pformProfitMargin">0%</p>
+                                    </div>
+                                </div>
+
+                                {{-- Desglose de IVA --}}
+                                <div class="pform-profit-card" style="margin-top:12px;">
+                                    <h4 class="pform-profit-title">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+                                            viewBox="0 0 24 24" fill="none" stroke="var(--secondary-color)" stroke-width="2"
+                                            stroke-linecap="round" stroke-linejoin="round">
+                                            <line x1="12" x2="12" y1="2" y2="22" />
+                                            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                                        </svg>
+                                        Desglose de IVA
+                                    </h4>
+                                    <div class="pform-profit-grid">
+                                        <div>
+                                            <p class="pform-profit-label">Precio base</p>
+                                            <p class="pform-profit-value" id="pformIvaBase">$0</p>
+                                        </div>
+                                        <div>
+                                            <p class="pform-profit-label" id="pformIvaRateLabel">IVA (16%)</p>
+                                            <p class="pform-profit-value" id="pformIvaAmount">$0</p>
+                                        </div>
+                                        <div>
+                                            <p class="pform-profit-label">Precio final</p>
+                                            <p class="pform-profit-value" style="color:var(--secondary-color)" id="pformIvaFinal">$0</p>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

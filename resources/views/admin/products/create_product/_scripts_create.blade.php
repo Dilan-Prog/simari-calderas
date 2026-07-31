@@ -1,5 +1,6 @@
 @push('scripts')
     <script>window.PRODUCT_VARIABLES = @json(\App\Models\Products::VARIABLE_CATALOG);</script>
+    <script>window.PFORM_IVA_RATE = @json(\App\Models\Products::ivaRate());</script>
     <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
     <script>
         (function() {
@@ -221,6 +222,35 @@
 
             costInput.addEventListener('input', updateProfit);
             priceInput.addEventListener('input', updateProfit);
+
+            /* ── Desglose de IVA ── */
+            const includesTaxInput = document.getElementById('pformPriceIncludesTax');
+
+            function updateIvaBreakdown() {
+                const price = parseFloat(priceInput.value) || 0;
+                const rate = window.PFORM_IVA_RATE || 16;
+                const includesTax = includesTaxInput.checked;
+
+                let base, ivaAmount, final;
+                if (includesTax) {
+                    ivaAmount = price - (price / (1 + rate / 100));
+                    base = price - ivaAmount;
+                    final = price;
+                } else {
+                    ivaAmount = price * (rate / 100);
+                    base = price;
+                    final = price + ivaAmount;
+                }
+
+                document.getElementById('pformIvaRateLabel').textContent = 'IVA (' + rate + '%)';
+                document.getElementById('pformIvaBase').textContent = '$' + base.toLocaleString('es-MX', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                document.getElementById('pformIvaAmount').textContent = '$' + ivaAmount.toLocaleString('es-MX', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                document.getElementById('pformIvaFinal').textContent = '$' + final.toLocaleString('es-MX', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            }
+
+            priceInput.addEventListener('input', updateIvaBreakdown);
+            includesTaxInput.addEventListener('change', updateIvaBreakdown);
+            updateIvaBreakdown();
 
             /* ── Availability buttons ── */
             document.querySelectorAll('.pform-avail-row').forEach(function(row) {

@@ -32,6 +32,13 @@ class SettingController extends Controller
                 continue;
             }
 
+            // La tasa de IVA alimenta el cálculo de precio de todo el
+            // catálogo — un valor no numérico rompería esa cuenta en todo
+            // el sitio, así que se descarta en vez de guardarse.
+            if ($key === 'ecommerce.iva_rate' && !is_numeric($value)) {
+                continue;
+            }
+
             Setting::set($key, $value, auth()->id());
         }
 

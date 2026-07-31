@@ -9,10 +9,12 @@
             'footer.phone' => 'Teléfono del footer',
             'footer.email' => 'Correo del footer',
             'footer.facebook_url' => 'URL de Facebook (footer)',
+            'ecommerce.iva_rate' => 'Tasa de IVA (%)',
         ];
 
         $groupTitles = [
             'footer' => 'Footer',
+            'ecommerce' => 'Ecommerce',
         ];
     @endphp
 

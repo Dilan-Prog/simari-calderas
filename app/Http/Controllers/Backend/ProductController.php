@@ -239,7 +239,7 @@ class ProductController extends Controller
 
     private const BULK_EDIT_FIELDS = [
         'name', 'model', 'short_description', 'description',
-        'price', 'compare_price', 'cost', 'stock', 'stock_unit', 'currency', 'availability',
+        'price', 'compare_price', 'price_includes_tax', 'cost', 'stock', 'stock_unit', 'currency', 'availability',
         'category_id', 'brand_id', 'is_active', 'publish_on_website', 'is_featured', 'is_new', 'is_recommended',
         'tags', 'specifications', 'faqs',
         'seo_title', 'seo_description', 'seo_keywords', 'og_title', 'og_description', 'og_image',
@@ -257,7 +257,7 @@ class ProductController extends Controller
     // ocultar dentro de una vista guardada.
     private const BULK_EDIT_VIEW_COLUMNS = [
         'model', 'short_description', 'description',
-        'price', 'compare_price', 'cost', 'stock', 'stock_unit', 'currency', 'availability',
+        'price', 'compare_price', 'price_includes_tax', 'cost', 'stock', 'stock_unit', 'currency', 'availability',
         'category_id', 'category_sub', 'category_child', 'brand_id', 'is_active', 'publish_on_website', 'is_featured', 'is_new', 'is_recommended',
         'tags', 'specifications', 'faqs',
         'seo_title', 'seo_description', 'seo_keywords', 'og_title', 'og_description', 'og_image',
@@ -293,11 +293,11 @@ class ProductController extends Controller
     {
         $query = $this->filteredProductsQuery($request, [
             'id', 'name', 'sku', 'model', 'supplier_sku', 'short_description', 'description',
-            'price', 'compare_price', 'cost', 'stock', 'stock_unit', 'currency', 'availability',
+            'price', 'compare_price', 'price_includes_tax', 'cost', 'stock', 'stock_unit', 'currency', 'availability',
             'category_id', 'brand_id', 'is_active', 'publish_on_website', 'is_featured', 'is_new', 'is_recommended',
             'tags', 'specifications', 'faqs',
             'seo_title', 'seo_description', 'seo_keywords', 'og_title', 'og_description', 'og_image',
-        ])->with('category.parent.parent');
+        ])->with(['category.parent.parent', 'suppliers']);
 
         $totalFiltered = (clone $query)->count();
         $perPageInput  = $request->input('per_page', 25);
@@ -495,6 +495,7 @@ class ProductController extends Controller
             case 'is_featured':
             case 'is_new':
             case 'is_recommended':
+            case 'price_includes_tax':
                 return [true, (bool) $value, null];
 
             case 'tags':
@@ -741,6 +742,7 @@ class ProductController extends Controller
             'price'             => 'required|numeric|min:0',
             'cost'              => 'nullable|numeric|min:0',
             'compare_price'     => 'nullable|numeric|min:0',
+            'price_includes_tax' => 'nullable|boolean',
             'stock'             => 'nullable|integer|min:0',
             'short_description' => 'nullable|string|max:500',
             'description'       => 'nullable|string',
@@ -798,6 +800,7 @@ class ProductController extends Controller
         $product->price             = $request->price;
         $product->cost              = $request->cost           ?? 0;
         $product->compare_price     = $request->compare_price  ?? null;
+        $product->price_includes_tax = $request->boolean('price_includes_tax', false);
         $product->stock             = $request->stock          ?? 0;
         $product->short_description = $request->short_description ?? null;
         $product->description       = $request->description    ?? null;
@@ -919,6 +922,7 @@ class ProductController extends Controller
             'price'             => 'required|numeric|min:0',
             'cost'              => 'nullable|numeric|min:0',
             'compare_price'     => 'nullable|numeric|min:0',
+            'price_includes_tax' => 'nullable|boolean',
             'stock'             => 'nullable|integer|min:0',
             'short_description' => 'nullable|string|max:500',
             'description'       => 'nullable|string',
@@ -972,6 +976,7 @@ class ProductController extends Controller
         $product->price             = $request->price;
         $product->cost              = $request->cost           ?? 0;
         $product->compare_price     = $request->compare_price  ?? null;
+        $product->price_includes_tax = $request->boolean('price_includes_tax', false);
         $product->stock             = $request->stock          ?? 0;
         $product->short_description = $request->short_description ?? null;
         $product->description       = $request->description    ?? null;

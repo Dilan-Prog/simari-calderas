@@ -32,6 +32,7 @@ class Setting extends Model
         return match ($row->type) {
             'boolean' => (bool) $row->value,
             'integer' => (int) $row->value,
+            'decimal' => (float) $row->value,
             'json'    => json_decode($row->value, true),
             default   => $row->value,
         };
