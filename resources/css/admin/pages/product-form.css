@@ -1469,7 +1469,10 @@
 .pform-float-menu {
     display: none;
     position: fixed;
-    z-index: 500;
+    /* FIX: sat below .del-confirm-overlay (z-index: 99999) — the "Especificaciones"
+       popover (product create/edit + bulk editor) that uses this dropdown,
+       so it rendered hidden behind the modal instead of on top of it. */
+    z-index: 100000;
     margin: 0;
     padding: 4px;
     list-style: none;

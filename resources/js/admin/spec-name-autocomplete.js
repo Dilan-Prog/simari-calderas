@@ -59,7 +59,14 @@
         menu.innerHTML = items
             .map((name) => `<li class="pform-float-menu-item">${escapeHtml(name)}</li>`)
             .join('');
-        positionDropdown(input);
+        // FIX: the "Especificaciones" modal has a 0.2s scale-in entrance
+        // animation (delBoxIn). If this is the first render right after the
+        // modal opens (user focuses/types almost immediately), reading the
+        // input's position synchronously can catch it mid-animation. A
+        // double rAF defers past the current paint so the position is read
+        // once the browser has settled — cheap and harmless once the modal
+        // has long finished animating (which is the common case).
+        requestAnimationFrame(() => requestAnimationFrame(() => positionDropdown(input)));
         menu.classList.add('is-open');
 
         Array.from(menu.children).forEach((li, i) => {

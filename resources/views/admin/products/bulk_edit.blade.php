@@ -16,6 +16,7 @@
             ['key' => 'description', 'label' => 'Descripción Completa', 'group' => 'Básicos', 'type' => 'textarea'],
 
             ['key' => 'price', 'label' => 'Precio', 'group' => 'Precios / Inventario', 'type' => 'text'],
+            ['key' => 'price_includes_tax', 'label' => '¿Precio incluye IVA?', 'group' => 'Precios / Inventario', 'type' => 'checkbox'],
             ['key' => 'compare_price', 'label' => 'Precio Comp.', 'group' => 'Precios / Inventario', 'type' => 'text'],
             ['key' => 'cost', 'label' => 'Costo', 'group' => 'Precios / Inventario', 'type' => 'text'],
             ['key' => 'stock', 'label' => 'Stock', 'group' => 'Precios / Inventario', 'type' => 'number'],
@@ -364,9 +365,15 @@
             </div>
             <div id="bulkSpecsList" class="pform-spec-list" style="display:none"></div>
 
-            <button type="button" class="pform-btn primary" id="bulkSpecsAddBtn" style="margin-top:14px">
-                + Agregar campo
-            </button>
+            {{-- FIX: wrapped left-aligned so it doesn't inherit .del-confirm-box's
+                 text-align:center (which still centers the title/description
+                 above), and switched from .primary (solid, full-bar looking)
+                 to .outline to match the compact size of Cancelar/Guardar. --}}
+            <div style="text-align:left; margin-top:14px">
+                <button type="button" class="pform-btn outline" id="bulkSpecsAddBtn">
+                    + Agregar campo
+                </button>
+            </div>
 
             <div class="del-confirm-actions">
                 <button type="button" class="button-secondary size-adjustment" id="bulkSpecsCancelBtn">Cancelar</button>
