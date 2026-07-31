@@ -10,6 +10,13 @@
     padding-right: 20px;
 }
 
+.supplier-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
 .grid-supplier-header {
     display: grid;
     grid-template-columns: repeat(4, 1fr);

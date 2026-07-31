@@ -36,7 +36,7 @@
             ['key' => 'is_featured', 'label' => 'Destacado', 'group' => 'Organización', 'type' => 'checkbox'],
             ['key' => 'is_new', 'label' => 'Nuevo', 'group' => 'Organización', 'type' => 'checkbox'],
             ['key' => 'is_recommended', 'label' => 'Recomendado', 'group' => 'Organización', 'type' => 'checkbox'],
-            ['key' => 'tags', 'label' => 'Tags', 'group' => 'Organización', 'type' => 'text'],
+            ['key' => 'tags', 'label' => 'Tags', 'group' => 'Organización', 'type' => 'tags'],
             ['key' => 'specifications', 'label' => 'Especificaciones', 'group' => 'Organización', 'type' => 'specs'],
 
             ['key' => 'seo_title', 'label' => 'Título SEO', 'group' => 'SEO / Social', 'type' => 'text', 'maxlength' => 60],
@@ -171,6 +171,7 @@
                             <th class="prod-bulk-pinned-col">Nombre</th>
                             <th class="prod-bulk-pinned-col">SKU</th>
                             <th>SKU Proveedor (legacy)</th>
+                            <th>Proveedores</th>
                             @foreach ($bulkEditColumns as $col)
                                 <th data-col="{{ $col['key'] }}">{{ $col['label'] }}</th>
                             @endforeach
@@ -211,20 +212,21 @@
                                 </td>
                                 <td class="prod-bulk-readonly prod-bulk-pinned-col">{{ $product->sku }}</td>
                                 <td class="prod-bulk-readonly">{{ $product->supplier_sku }}</td>
+                                <td class="prod-bulk-readonly prod-bulk-suppliers-cell">
+                                    @forelse ($product->suppliers as $supplier)
+                                        <div>{{ $supplier->company_name }}@if ($supplier->pivot->sku) (SKU: {{ $supplier->pivot->sku }})@endif</div>
+                                    @empty
+                                        —
+                                    @endforelse
+                                </td>
 
                                 @foreach ($bulkEditColumns as $col)
                                     <td data-col="{{ $col['key'] }}"
                                         @class(['prod-bulk-checkbox-cell' => $col['type'] === 'checkbox'])>
                                         @switch($col['type'])
                                             @case('text')
-                                                @php
-                                                    // 'tags' es un array (cast del modelo) — se muestra
-                                                    // como texto separado por comas, igual que se guarda.
-                                                    $rawVal = $product->{$col['key']};
-                                                    $textVal = is_array($rawVal) ? implode(', ', $rawVal) : $rawVal;
-                                                @endphp
                                                 <input type="text" class="prod-bulk-input" data-id="{{ $product->id }}"
-                                                    data-field="{{ $col['key'] }}" value="{{ $textVal }}"
+                                                    data-field="{{ $col['key'] }}" value="{{ $product->{$col['key']} }}"
                                                     @if (!empty($col['maxlength'])) maxlength="{{ $col['maxlength'] }}" @endif>
                                             @break
 
@@ -318,6 +320,17 @@
                                                 </button>
                                             @break
 
+                                            @case('tags')
+                                                @php
+                                                    $tagsList = is_array($product->tags) ? $product->tags : [];
+                                                @endphp
+                                                <button type="button" class="prod-bulk-popover-trigger"
+                                                    data-id="{{ $product->id }}" data-field="tags"
+                                                    data-tags="{{ json_encode($tagsList) }}">
+                                                    Tags ({{ count($tagsList) }})
+                                                </button>
+                                            @break
+
                                             @case('faq')
                                                 @php
                                                     $faqCount = count($product->faqs ?? []);
@@ -334,7 +347,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="{{ count($bulkEditColumns) + 4 }}">
+                                <td colspan="{{ count($bulkEditColumns) + 5 }}">
                                     <p class="prod-empty">No se encontraron productos con los filtros actuales.</p>
                                 </td>
                             </tr>
@@ -401,6 +414,45 @@
             <div class="del-confirm-actions">
                 <button type="button" class="button-secondary size-adjustment" id="bulkFaqCancelBtn">Cancelar</button>
                 <button type="button" class="button-primary size-adjustment" id="bulkFaqSaveBtn">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    {{-- Popover de Tags — mismo widget de chips + autocompletado ya usado
+         en Crear/Editar producto, adaptado al patrón de popover reutilizable
+         de esta pantalla (una sola instancia para cualquier fila). --}}
+    <div id="bulkTagsModal" class="del-confirm-overlay">
+        <div class="del-confirm-box prod-bulk-specs-modal-box">
+            <h2 class="del-confirm-title">Tags</h2>
+            <p class="del-confirm-desc">Busca entre tags ya usados en otros productos o escribe uno nuevo y presiona Enter.</p>
+
+            <div class="pform-tag-row">
+                <div class="pform-tag-input-wrap">
+                    <input type="text" id="bulkTagInput" class="pform-input"
+                        placeholder="Ejemplo: eficiente, industrial, premium..." autocomplete="off">
+                    <ul class="pform-tag-suggestions" id="bulkTagSuggestions"></ul>
+                </div>
+                <button type="button" id="bulkTagAdd" class="pform-btn primary">Agregar</button>
+            </div>
+            <div class="pform-tag-chips" id="bulkTagList"></div>
+
+            <div class="del-confirm-actions">
+                <button type="button" class="button-secondary size-adjustment" id="bulkTagsCancelBtn">Cancelar</button>
+                <button type="button" class="button-primary size-adjustment" id="bulkTagsSaveBtn">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    {{-- Confirmación de "Descartar cambios" — reemplaza el confirm() nativo
+         del navegador por el mismo componente modal usado en el resto de
+         esta pantalla. --}}
+    <div id="bulkDiscardModal" class="del-confirm-overlay">
+        <div class="del-confirm-box">
+            <h2 class="del-confirm-title">¿Descartar cambios?</h2>
+            <p class="del-confirm-desc" id="bulkDiscardDesc">Se perderán los cambios sin guardar.</p>
+            <div class="del-confirm-actions">
+                <button type="button" class="button-secondary size-adjustment" id="bulkDiscardCancelBtn">Cancelar</button>
+                <button type="button" class="button-primary size-adjustment" id="bulkDiscardConfirmBtn">Descartar cambios</button>
             </div>
         </div>
     </div>

@@ -188,11 +188,27 @@
                 }
             });
 
+            const discardModal = document.getElementById('bulkDiscardModal');
+            const discardDesc = document.getElementById('bulkDiscardDesc');
+            const discardCancelBtn = document.getElementById('bulkDiscardCancelBtn');
+            const discardConfirmBtn = document.getElementById('bulkDiscardConfirmBtn');
+
             discardBtn.addEventListener('click', () => {
                 if (!changes.size) return;
-                if (confirm('¿Descartar todos los cambios sin guardar?')) {
-                    window.location.reload();
-                }
+                discardDesc.textContent = `Se perderán ${changes.size} cambio(s) sin guardar.`;
+                discardModal.classList.add('active');
+            });
+            discardCancelBtn.addEventListener('click', () => discardModal.classList.remove('active'));
+            discardModal.addEventListener('click', (e) => {
+                if (e.target === discardModal) discardModal.classList.remove('active');
+            });
+            discardConfirmBtn.addEventListener('click', () => {
+                // Vacía el Map antes de recargar para que el listener de
+                // beforeunload (más abajo) no dispare a su vez el propio
+                // aviso nativo del navegador — ya se confirmó el descarte
+                // en el modal propio, no hace falta preguntarlo dos veces.
+                changes.clear();
+                window.location.reload();
             });
 
             // ── Menú de columnas visibles (persistido en localStorage) ──
@@ -506,9 +522,151 @@
 
             faqAddBtn.addEventListener('click', () => faqAddRow());
 
+            // ── Popover de Tags (chips + autocompletado de tags ya usados
+            // en otros productos) — mismo widget de Crear/Editar producto,
+            // adaptado al patrón de popover reutilizable de esta pantalla. ──
+            const tagsModal = document.getElementById('bulkTagsModal');
+            const tagList = document.getElementById('bulkTagList');
+            const tagInput = document.getElementById('bulkTagInput');
+            const tagSuggestionsList = document.getElementById('bulkTagSuggestions');
+            const tagAddBtn = document.getElementById('bulkTagAdd');
+            const tagsCancelBtn = document.getElementById('bulkTagsCancelBtn');
+            const tagsSaveBtn = document.getElementById('bulkTagsSaveBtn');
+            const tagSuggestionsUrl = '{{ route('admin.products.tags.suggestions') }}';
+            let tagsEditingTrigger = null;
+            let tagSuggestionsTimer = null;
+            let tagSuggestionActiveIndex = -1;
+
+            function addTagChip(val) {
+                const chip = document.createElement('span');
+                chip.className = 'pform-tag-chip';
+                chip.textContent = val;
+                chip.title = 'Clic para eliminar';
+                chip.addEventListener('click', function() {
+                    this.remove();
+                });
+                tagList.appendChild(chip);
+            }
+
+            function currentTagValuesLower() {
+                return Array.from(tagList.querySelectorAll('.pform-tag-chip'))
+                    .map(chip => chip.textContent.toLowerCase());
+            }
+
+            function addTag() {
+                const val = tagInput.value.trim();
+                if (!val) return;
+                if (!currentTagValuesLower().includes(val.toLowerCase())) addTagChip(val);
+                tagInput.value = '';
+                tagInput.focus();
+                closeTagSuggestions();
+            }
+
+            tagAddBtn.addEventListener('click', addTag);
+
+            function closeTagSuggestions() {
+                tagSuggestionsList.classList.remove('is-open');
+                tagSuggestionsList.innerHTML = '';
+                tagSuggestionActiveIndex = -1;
+            }
+
+            function renderTagSuggestions(tags) {
+                const existing = currentTagValuesLower();
+                const filtered = tags.filter(t => !existing.includes(t.toLowerCase()));
+                if (!filtered.length) {
+                    closeTagSuggestions();
+                    return;
+                }
+
+                tagSuggestionsList.innerHTML = filtered
+                    .map(t => `<li class="pform-tag-suggestion-item">${t}</li>`)
+                    .join('');
+                tagSuggestionsList.classList.add('is-open');
+                tagSuggestionActiveIndex = -1;
+
+                tagSuggestionsList.querySelectorAll('.pform-tag-suggestion-item').forEach(item => {
+                    item.addEventListener('mousedown', function(e) {
+                        e.preventDefault();
+                        addTagChip(this.textContent);
+                        tagInput.value = '';
+                        tagInput.focus();
+                        closeTagSuggestions();
+                    });
+                });
+            }
+
+            async function fetchTagSuggestions(term) {
+                try {
+                    const res = await fetch(`${tagSuggestionsUrl}?q=${encodeURIComponent(term)}`, {
+                        headers: { 'Accept': 'application/json' },
+                    });
+                    if (!res.ok) return;
+                    renderTagSuggestions(await res.json());
+                } catch (err) {
+                    console.error('Error fetching tag suggestions:', err);
+                }
+            }
+
+            tagInput.addEventListener('input', function() {
+                clearTimeout(tagSuggestionsTimer);
+                const term = this.value.trim();
+                tagSuggestionsTimer = setTimeout(() => fetchTagSuggestions(term), 250);
+            });
+
+            tagInput.addEventListener('focus', function() {
+                fetchTagSuggestions(this.value.trim());
+            });
+
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.pform-tag-input-wrap')) closeTagSuggestions();
+            });
+
+            tagInput.addEventListener('keydown', function(e) {
+                const items = tagSuggestionsList.querySelectorAll('.pform-tag-suggestion-item');
+
+                if (e.key === 'ArrowDown' && items.length) {
+                    e.preventDefault();
+                    tagSuggestionActiveIndex = Math.min(tagSuggestionActiveIndex + 1, items.length - 1);
+                    items.forEach((it, i) => it.classList.toggle('is-active', i === tagSuggestionActiveIndex));
+                } else if (e.key === 'ArrowUp' && items.length) {
+                    e.preventDefault();
+                    tagSuggestionActiveIndex = Math.max(tagSuggestionActiveIndex - 1, 0);
+                    items.forEach((it, i) => it.classList.toggle('is-active', i === tagSuggestionActiveIndex));
+                } else if (e.key === 'Escape') {
+                    closeTagSuggestions();
+                } else if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (tagSuggestionActiveIndex >= 0 && items[tagSuggestionActiveIndex]) {
+                        addTagChip(items[tagSuggestionActiveIndex].textContent);
+                        tagInput.value = '';
+                        tagInput.focus();
+                        closeTagSuggestions();
+                    } else {
+                        addTag();
+                    }
+                }
+            });
+
             document.addEventListener('click', (e) => {
                 const trigger = e.target.closest('.prod-bulk-popover-trigger');
                 if (!trigger) return;
+
+                if (trigger.dataset.field === 'tags') {
+                    tagsEditingTrigger = trigger;
+                    tagList.innerHTML = '';
+                    closeTagSuggestions();
+
+                    let tagValues = [];
+                    try {
+                        tagValues = JSON.parse(trigger.dataset.tags || '[]');
+                    } catch (err) {
+                        tagValues = [];
+                    }
+                    tagValues.forEach(t => addTagChip(t));
+
+                    tagsModal.classList.add('active');
+                    return;
+                }
 
                 if (trigger.dataset.field === 'faqs') {
                     faqEditingTrigger = trigger;
@@ -594,6 +752,23 @@
                 faqEditingTrigger.textContent = `FAQ (${items.length})`;
                 setPendingChange(faqEditingTrigger.dataset.id, 'faqs', json, faqEditingTrigger);
                 faqModal.classList.remove('active');
+            });
+
+            tagsCancelBtn.addEventListener('click', () => tagsModal.classList.remove('active'));
+            tagsModal.addEventListener('click', (e) => {
+                if (e.target === tagsModal) tagsModal.classList.remove('active');
+            });
+
+            tagsSaveBtn.addEventListener('click', () => {
+                if (!tagsEditingTrigger) return;
+
+                const tags = Array.from(tagList.querySelectorAll('.pform-tag-chip')).map(chip => chip.textContent);
+
+                const json = JSON.stringify(tags);
+                tagsEditingTrigger.dataset.tags = json;
+                tagsEditingTrigger.textContent = `Tags (${tags.length})`;
+                setPendingChange(tagsEditingTrigger.dataset.id, 'tags', json, tagsEditingTrigger);
+                tagsModal.classList.remove('active');
             });
 
             // ── Categoría en cascada (Principal > Subcategoría > Hija) ──

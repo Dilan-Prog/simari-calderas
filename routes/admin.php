@@ -24,6 +24,8 @@ use App\Http\Controllers\Backend\CollectionController;
 use App\Http\Controllers\Backend\GalleryController;
 use App\Http\Controllers\Backend\MediaController;
 use App\Http\Controllers\Backend\SupplierProductController;
+use App\Http\Controllers\Backend\SupplierProductImportExportController;
+use App\Http\Controllers\Backend\SupplierProductBulkEditController;
 
 // ============================================================
 // Dashboard — sin permiso, todos los usuarios autenticados
@@ -104,6 +106,28 @@ Route::controller(SupplierProductController::class)
         Route::post('/', 'store')->name('store');
         Route::put('/{id}', 'update')->name('update');
         Route::delete('/{id}', 'destroy')->name('destroy');
+    });
+
+// Proveedores Productos — import/export/editar en lote de la relación
+// proveedor↔producto (tabla suppliers_products), bajo permission:suppliers
+// igual que el resto del módulo de Proveedores.
+Route::controller(SupplierProductBulkEditController::class)
+    ->middleware('permission:suppliers')
+    ->prefix('proveedores/productos/edicion-masiva')
+    ->name('suppliers.products.bulk-edit.')
+    ->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::post('/guardar', 'save')->name('save');
+    });
+
+Route::controller(SupplierProductImportExportController::class)
+    ->middleware('permission:suppliers')
+    ->prefix('proveedores/productos')
+    ->name('suppliers.products.')
+    ->group(function () {
+        Route::get('/plantilla', 'downloadTemplate')->name('import.template');
+        Route::post('/importar', 'import')->name('import');
+        Route::get('/exportar', 'export')->name('export');
     });
 
 // ============================================================

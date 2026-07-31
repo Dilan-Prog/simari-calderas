@@ -922,6 +922,14 @@
     text-overflow: ellipsis;
 }
 
+/* Varios proveedores por producto: cada uno en su propia línea, sin el
+   nowrap/ellipsis del resto de las celdas de solo lectura. */
+.prod-bulk-suppliers-cell {
+    white-space: normal;
+    max-width: 240px;
+    font-size: 0.8rem;
+}
+
 .prod-bulk-input {
     width: 100%;
     min-width: 90px;

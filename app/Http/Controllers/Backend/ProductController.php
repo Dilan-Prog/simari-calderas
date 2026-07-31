@@ -499,11 +499,16 @@ class ProductController extends Controller
                 return [true, (bool) $value, null];
 
             case 'tags':
-                // Llega como texto separado por comas; el valor limpio es un
-                // array de PHP (no un JSON string), porque el modelo ya
-                // tiene 'tags' => 'array' en $casts — asignarle un string
-                // JSON aquí lo doble-codificaría.
-                $tags = array_values(array_filter(array_map('trim', explode(',', (string) $value)), fn ($t) => $t !== ''));
+                // Llega como JSON string armado por el popover de tags
+                // (mismo widget de chips que crear/editar producto). El
+                // valor limpio es un array de PHP (no un JSON string),
+                // porque el modelo ya tiene 'tags' => 'array' en $casts —
+                // asignarle un string JSON aquí lo doble-codificaría.
+                $decodedTags = json_decode((string) $value, true);
+                if (!is_array($decodedTags)) {
+                    return [false, null, 'Formato de tags inválido.'];
+                }
+                $tags = array_values(array_unique(array_filter(array_map(fn ($t) => trim((string) $t), $decodedTags), fn ($t) => $t !== '')));
 
                 return [true, $tags, null];
 

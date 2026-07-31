@@ -14,16 +14,18 @@ class ProductsExport implements FromQuery, WithHeadings, WithMapping, ShouldAuto
 {
     public function query()
     {
-        return Products::with([
-            'category', 'brand', 'images',
-            'suppliers' => fn ($q) => $q->wherePivot('is_primary', true),
-        ])->orderBy('id');
+        // Sin filtrar por is_primary: se necesitan TODOS los proveedores del
+        // producto para la columna "Proveedor(es)" — el SKU del proveedor
+        // principal (columna "SKU Proveedor") se calcula en PHP en map(),
+        // filtrando esta misma colección ya cargada, en vez de una segunda
+        // consulta con la condición a nivel de query.
+        return Products::with(['category', 'brand', 'images', 'suppliers'])->orderBy('id');
     }
 
     public function headings(): array
     {
         return [
-            'Nombre', 'SKU', 'Modelo', 'SKU Proveedor', 'Categoría', 'Marca',
+            'Nombre', 'SKU', 'Modelo', 'SKU Proveedor', 'Proveedor(es)', 'Categoría', 'Marca',
             'Descripción Corta', 'Descripción', 'Precio', 'Precio Comparativo',
             'Costo', 'Stock', 'Unidad Stock', 'Moneda', 'Disponibilidad',
             'Activo', 'Destacado', 'Nuevo', 'Recomendado', 'Publicar Web', 'Imagen URL',
@@ -39,7 +41,8 @@ class ProductsExport implements FromQuery, WithHeadings, WithMapping, ShouldAuto
             $product->name,
             $product->sku,
             $product->model,
-            $product->suppliers->first()?->pivot->sku,
+            $product->suppliers->first(fn ($s) => $s->pivot->is_primary)?->pivot->sku,
+            $product->suppliers->map(fn ($s) => $s->company_name . ($s->pivot->sku ? " (SKU: {$s->pivot->sku})" : ''))->implode(', '),
             $product->category->name ?? '',
             $product->brand->name ?? '',
             $product->short_description,
@@ -62,12 +65,12 @@ class ProductsExport implements FromQuery, WithHeadings, WithMapping, ShouldAuto
 
     public function styles(Worksheet $sheet)
     {
-        // Precio (I), Precio Comparativo (J) y Costo (K) son montos en
+        // Precio (J), Precio Comparativo (K) y Costo (L) son montos en
         // pesos — sin este formato se ven como números planos en vez de
-        // dinero al abrir el archivo. (Corrimiento de una columna por el
-        // nuevo campo "SKU Proveedor" insertado antes de Categoría.)
+        // dinero al abrir el archivo. (Corrimiento de una columna más por el
+        // nuevo campo "Proveedor(es)" insertado después de "SKU Proveedor".)
         $lastRow = max(2, $sheet->getHighestRow());
-        $sheet->getStyle("I2:K{$lastRow}")
+        $sheet->getStyle("J2:L{$lastRow}")
             ->getNumberFormat()
             ->setFormatCode('"$"#,##0');
 

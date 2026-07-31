@@ -13,7 +13,18 @@
                     <h1>Gestión de Proveedores</h1>
                     <p class="breadcrumb-clients-manager main">Administra tus proveedores y sus productos</p>
                 </div>
-                <button class="button-primary size-adjustment new-supplier-btn">+ Nuevo Proveedor</button>
+                <div class="supplier-header-actions">
+                    <a href="{{ route('admin.suppliers.products.export') }}" class="button-secondary size-adjustment">
+                        Exportar Proveedor-Producto
+                    </a>
+                    <button type="button" id="btnOpenSupplierProductImportModal" class="button-secondary size-adjustment">
+                        Importar Proveedor-Producto
+                    </button>
+                    <a href="{{ route('admin.suppliers.products.bulk-edit.index') }}" class="button-secondary size-adjustment">
+                        Editar Proveedor-Producto en lote
+                    </a>
+                    <button class="button-primary size-adjustment new-supplier-btn">+ Nuevo Proveedor</button>
+                </div>
             </header>
 
             {{-- Stats --}}
@@ -248,5 +259,7 @@
     @include('admin.supplier.partials._modal_create')
     @include('admin.supplier.partials._modal_edit')
     @include('admin.supplier.partials._modal_delete')
+    @include('admin.supplier.partials._import_supplier_products_modal')
     @include('admin.supplier.partials._scripts')
+    @include('admin.supplier.partials._import_supplier_products_scripts')
 @endsection
