@@ -119,7 +119,10 @@
             const errorsBox  = document.getElementById('assign-product-errors');
 
             const pivotIdInput   = document.getElementById('apPivotId');
-            const productSelect  = document.getElementById('apProductSelect');
+            const productIdInput = document.getElementById('apProductId');
+            const productSearch  = document.getElementById('apProductSearch');
+            const productDropdown = document.getElementById('apProductDropdown');
+            const productLockedNote = document.getElementById('apProductLockedNote');
             const skuInput       = document.getElementById('apSku');
             const costInput      = document.getElementById('apCost');
             const leadTimeInput  = document.getElementById('apLeadTime');
@@ -128,16 +131,64 @@
             const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
             const storeUrl  = '{{ route("admin.supplier-products.store") }}';
 
+            // Catálogo completo para el buscador — evita un <select> de
+            // cientos de <option>, filtrado en el cliente por nombre/SKU.
+            const allProductsData = @json($allProducts->map(fn ($p) => [
+                'id' => $p->id,
+                'label' => $p->name . ' (' . $p->sku . ')',
+            ]));
+
             function updateUrl(id) {
                 return storeUrl + '/' + id;
             }
+
+            function renderDropdown(query) {
+                const q = query.trim().toLowerCase();
+                const matches = (q === ''
+                    ? allProductsData
+                    : allProductsData.filter(p => p.label.toLowerCase().includes(q))
+                ).slice(0, 50);
+
+                if (!matches.length) {
+                    productDropdown.innerHTML = '<div class="ap-product-dropdown-empty">Sin resultados.</div>';
+                } else {
+                    productDropdown.innerHTML = matches.map(p =>
+                        `<div class="ap-product-dropdown-item" data-id="${p.id}" data-label="${p.label.replace(/"/g, '&quot;')}">${p.label}</div>`
+                    ).join('');
+                }
+                productDropdown.classList.add('active');
+            }
+
+            function hideDropdown() {
+                productDropdown.classList.remove('active');
+            }
+
+            productSearch.addEventListener('focus', () => renderDropdown(productSearch.value));
+            productSearch.addEventListener('input', () => {
+                productIdInput.value = '';
+                renderDropdown(productSearch.value);
+            });
+            productDropdown.addEventListener('mousedown', (e) => {
+                const item = e.target.closest('.ap-product-dropdown-item[data-id]');
+                if (!item) return;
+                e.preventDefault();
+                productIdInput.value = item.dataset.id;
+                productSearch.value = item.dataset.label;
+                hideDropdown();
+            });
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('#apProductPicker')) hideDropdown();
+            });
 
             function openModal(mode, row) {
                 errorsBox.style.display = 'none';
                 errorsBox.innerHTML = '';
                 pivotIdInput.value = '';
-                productSelect.value = '';
-                productSelect.disabled = false;
+                productIdInput.value = '';
+                productSearch.value = '';
+                productSearch.disabled = false;
+                productLockedNote.style.display = 'none';
+                hideDropdown();
                 skuInput.value = '';
                 costInput.value = '';
                 leadTimeInput.value = '';
@@ -146,8 +197,10 @@
                 if (mode === 'edit' && row) {
                     modalTitle.textContent = 'Editar Producto';
                     pivotIdInput.value = row.dataset.pivotId;
-                    productSelect.value = row.dataset.productId;
-                    productSelect.disabled = true; // no se permite cambiar de producto/proveedor al editar
+                    productIdInput.value = row.dataset.productId;
+                    productSearch.value = row.dataset.productLabel;
+                    productSearch.disabled = true; // no se permite cambiar de producto al editar
+                    productLockedNote.style.display = 'block';
                     skuInput.value = row.dataset.sku !== 'null' ? row.dataset.sku : '';
                     costInput.value = row.dataset.cost !== 'null' ? row.dataset.cost : '';
                     leadTimeInput.value = row.dataset.leadTime !== 'null' ? row.dataset.leadTime : '';
@@ -156,11 +209,11 @@
                     modalTitle.textContent = 'Asignar Producto';
                 }
 
-                modal.style.display = 'flex';
+                modal.classList.add('active');
             }
 
             function closeModal() {
-                modal.style.display = 'none';
+                modal.classList.remove('active');
             }
 
             addBtn.addEventListener('click', () => openModal('add'));
@@ -197,15 +250,15 @@
                 errorsBox.style.display = 'none';
                 errorsBox.innerHTML = '';
 
-                if (!productSelect.value) {
-                    errorsBox.innerHTML = '<p>Selecciona un producto.</p>';
+                if (!productIdInput.value) {
+                    errorsBox.innerHTML = '<p>Selecciona un producto de la lista.</p>';
                     errorsBox.style.display = 'block';
                     return;
                 }
 
                 const payload = {
                     supplier_id: currentSupplierId,
-                    product_id: productSelect.value,
+                    product_id: productIdInput.value,
                     sku: skuInput.value || null,
                     cost: costInput.value || null,
                     lead_time_days: leadTimeInput.value || null,

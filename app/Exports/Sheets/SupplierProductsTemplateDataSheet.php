@@ -14,6 +14,10 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
 class SupplierProductsTemplateDataSheet implements FromArray, WithHeadings, WithTitle, WithStyles, WithColumnWidths
 {
+    public function __construct(private ?string $forcedSupplierName = null)
+    {
+    }
+
     // Debe coincidir con SupplierProductsImport::sheets().
     public function title(): string
     {
@@ -28,8 +32,12 @@ class SupplierProductsTemplateDataSheet implements FromArray, WithHeadings, With
     public function array(): array
     {
         // Proveedores/productos reales tomados de la BD (nunca inventados)
-        // para que la plantilla nunca referencie algo inexistente.
-        $supplierNames = Supplier::where('status', 'active')->orderBy('company_name')->limit(2)->pluck('company_name')->toArray();
+        // para que la plantilla nunca referencie algo inexistente. Si la
+        // descarga viene escopeada a un proveedor (desde su pestaña
+        // Productos), los ejemplos usan siempre su nombre real.
+        $supplierNames = $this->forcedSupplierName
+            ? [$this->forcedSupplierName, $this->forcedSupplierName]
+            : Supplier::where('status', 'active')->orderBy('company_name')->limit(2)->pluck('company_name')->toArray();
         $products = Products::where('is_active', true)->orderBy('id', 'desc')->limit(2)->get(['sku', 'name']);
 
         // Si el catálogo/proveedores todavía tienen menos de 2 registros

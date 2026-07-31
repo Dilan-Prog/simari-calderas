@@ -15,6 +15,7 @@ use Maatwebsite\Excel\Concerns\WithChunkReading;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 use Maatwebsite\Excel\Concerns\WithValidation;
+use Illuminate\Validation\Rule;
 
 /**
  * Crea o actualiza vínculos proveedor↔producto (suppliers_products) desde un
@@ -37,10 +38,17 @@ class SupplierProductsImport implements ToModel, WithHeadingRow, WithValidation,
     /** @var array<string,int> SKU de producto (lower/trim) => id */
     private array $productsBySku = [];
 
+    /** Cuando se importa desde la pestaña "Productos" de un proveedor
+     *  específico, la columna "Proveedor" se vuelve opcional (se asume este
+     *  proveedor) y, si se llena, debe coincidir con él — evita que una fila
+     *  copiada/pegada por error asigne el vínculo a otro proveedor. */
+    private ?int $forcedSupplierId = null;
+    private ?string $forcedSupplierName = null;
+
     public int $createdCount = 0;
     public int $updatedCount = 0;
 
-    public function __construct()
+    public function __construct(?int $forcedSupplierId = null)
     {
         $this->suppliersByName = Supplier::pluck('id', 'company_name')
             ->mapWithKeys(fn ($id, $name) => [strtolower(trim($name)) => $id])
@@ -49,6 +57,11 @@ class SupplierProductsImport implements ToModel, WithHeadingRow, WithValidation,
         $this->productsBySku = Products::pluck('id', 'sku')
             ->mapWithKeys(fn ($id, $sku) => [strtolower(trim($sku)) => $id])
             ->toArray();
+
+        if ($forcedSupplierId) {
+            $this->forcedSupplierId = $forcedSupplierId;
+            $this->forcedSupplierName = Supplier::find($forcedSupplierId)?->company_name;
+        }
     }
 
     /**
@@ -69,7 +82,7 @@ class SupplierProductsImport implements ToModel, WithHeadingRow, WithValidation,
 
     public function model(array $row)
     {
-        $supplierId = $this->resolveIdByName($row['proveedor'] ?? null, $this->suppliersByName);
+        $supplierId = $this->forcedSupplierId ?? $this->resolveIdByName($row['proveedor'] ?? null, $this->suppliersByName);
         $productId = $this->resolveIdByName($row['sku_producto'] ?? null, $this->productsBySku);
 
         // rules() ya garantiza que ambos existan antes de llegar aquí; esto
@@ -121,11 +134,29 @@ class SupplierProductsImport implements ToModel, WithHeadingRow, WithValidation,
     public function rules(): array
     {
         return [
-            'proveedor' => ['required', function ($attribute, $value, $fail) {
-                if (!isset($this->suppliersByName[strtolower(trim($value ?? ''))])) {
-                    $fail("El proveedor \"{$value}\" no existe en el sistema.");
-                }
-            }],
+            // Rule::requiredIf() es "implícita" para el validador de Laravel:
+            // a diferencia de un closure suelto (que Laravel se salta por
+            // completo cuando el valor llega como cadena vacía, sin importar
+            // 'nullable'), esta sí se evalúa siempre, así que es la única
+            // forma de exigir el proveedor solo cuando NO hay uno forzado.
+            'proveedor' => [
+                Rule::requiredIf(fn () => !$this->forcedSupplierId),
+                function ($attribute, $value, $fail) {
+                    if (!$this->present($value)) {
+                        return; // vacío + proveedor forzado: se asume ese
+                    }
+
+                    $id = $this->suppliersByName[strtolower(trim($value))] ?? null;
+                    if (!$id) {
+                        $fail("El proveedor \"{$value}\" no existe en el sistema.");
+                        return;
+                    }
+
+                    if ($this->forcedSupplierId && $id !== $this->forcedSupplierId) {
+                        $fail("Esta importación está bloqueada al proveedor \"{$this->forcedSupplierName}\" — esta fila especifica \"{$value}\".");
+                    }
+                },
+            ],
             'sku_producto' => ['required', function ($attribute, $value, $fail) {
                 if (!isset($this->productsBySku[strtolower(trim($value ?? ''))])) {
                     $fail("El producto con SKU \"{$value}\" no existe en el sistema.");

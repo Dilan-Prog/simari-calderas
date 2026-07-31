@@ -17,6 +17,7 @@
             'categorias'  => 'Categorías',
             'colecciones' => 'Colecciones',
             'banners'     => 'Banners',
+            'duplicados'  => 'Duplicados',
         ];
     @endphp
 
@@ -28,15 +29,24 @@
             </p>
             <h1 style="margin:0 0 4px;">Galería de Imágenes</h1>
             <p class="breadcrumb-clients-manager main">
-                {{ $tab === 'galeria'
-                    ? 'Sube y administra tu biblioteca de imágenes'
-                    : 'Imágenes en uso: ' . $tabLabels[$tab] }}
+                @if ($tab === 'galeria')
+                    Sube y administra tu biblioteca de imágenes
+                @elseif ($tab === 'duplicados')
+                    Detecta imágenes visualmente iguales en todo el catálogo y consolídalas en una sola
+                @else
+                    Imágenes en uso: {{ $tabLabels[$tab] }}
+                @endif
             </p>
         </div>
         @if ($tab === 'galeria')
             <button type="button" class="button-primary size-adjustment" id="btnGalleryUpload"
                 style="background:#ff6213;border-color:#ff6213;white-space:nowrap;">
                 + Subir imágenes
+            </button>
+        @elseif ($tab === 'duplicados')
+            <button type="button" class="button-primary size-adjustment" id="btnDupScan"
+                style="background:#ff6213;border-color:#ff6213;white-space:nowrap;">
+                Escanear duplicados
             </button>
         @endif
     </div>
@@ -83,6 +93,8 @@
         @if ($galleryImages->hasPages())
             {{ $galleryImages->links('admin.components.pagination') }}
         @endif
+    @elseif ($tab === 'duplicados')
+        @include('admin.gallery.partials._duplicates_tab')
     @else
         <div class="gal-grid">
             @forelse ($items as $item)
@@ -124,6 +136,9 @@
 @if ($tab === 'galeria')
     @include('admin.gallery.partials._upload_modal')
     @include('admin.gallery.partials._delete_modal')
+@elseif ($tab === 'duplicados')
+    @include('admin.gallery.partials._duplicates_replace_modal')
+    @include('admin.gallery.partials._duplicates_scripts')
 @endif
 @include('admin.gallery.partials._scripts')
 @include('admin.components.center-toast')

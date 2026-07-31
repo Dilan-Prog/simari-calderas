@@ -186,12 +186,22 @@
                 </div>
 
                 <div class="card-information-show">
-                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:12px;">
                         <h3 style="margin:0;">Productos del Proveedor</h3>
-                        <button type="button" id="btnAssignProduct" class="button-primary size-adjustment"
-                            style="font-size:14px;padding:8px 20px;">
-                            + Asignar Producto
-                        </button>
+                        <div class="supplier-header-actions">
+                            <button type="button" id="btnOpenSupplierProductImportModal"
+                                class="button-secondary size-adjustment" style="font-size:14px;padding:8px 20px;">
+                                Importar
+                            </button>
+                            <a href="{{ route('admin.suppliers.products.bulk-edit.index', ['supplier_id' => $supplier->id]) }}"
+                                class="button-secondary size-adjustment" style="font-size:14px;padding:8px 20px;">
+                                Editar en lote
+                            </a>
+                            <button type="button" id="btnAssignProduct" class="button-primary size-adjustment"
+                                style="font-size:14px;padding:8px 20px;">
+                                + Asignar Producto
+                            </button>
+                        </div>
                     </div>
                     <table class="clients-manager-table">
                         <thead>
@@ -386,6 +396,8 @@
         </section>
         @include('admin.supplier.partials._modal_edit')
         @include('admin.supplier.partials._modal_assign_product')
+        @include('admin.supplier.partials._import_supplier_products_modal', ['scopedSupplier' => $supplier])
     </div>
     @include('admin.supplier.partials._scripts_show')
+    @include('admin.supplier.partials._import_supplier_products_scripts', ['scopedSupplier' => $supplier])
 @endsection

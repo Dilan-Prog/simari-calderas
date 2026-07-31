@@ -222,3 +222,165 @@
     gap: 10px;
     margin-top: 20px;
 }
+
+/* ============================================================
+   Duplicados
+   ============================================================ */
+.dup-scan-banner {
+    background: #fff7f2;
+    border: 1px solid #ffd9c2;
+    border-radius: 8px;
+    padding: 10px 16px;
+    margin-bottom: 20px;
+    font-size: 13.5px;
+    color: #7a3b13;
+}
+
+.dup-scan-banner__text--error { color: #c81e1e; }
+
+.dup-groups {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.dup-group {
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 10px;
+    padding: 16px;
+}
+
+.dup-group__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #141516;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.dup-group__actions { display: flex; gap: 8px; }
+
+.dup-group__grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+
+.dup-card {
+    display: block;
+    cursor: pointer;
+    position: relative;
+}
+
+.dup-card .dup-checkbox {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    width: 20px;
+    height: 20px;
+    z-index: 3;
+    cursor: pointer;
+    accent-color: #ff6213;
+}
+
+.dup-card__check {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 98, 19, 0.35);
+    opacity: 0;
+    transition: opacity 0.15s;
+    pointer-events: none;
+}
+
+.dup-checkbox:checked ~ .gal-card__img .dup-card__check { opacity: 1; }
+.dup-checkbox:checked ~ .gal-card__img { outline: 3px solid #ff6213; outline-offset: -3px; }
+
+.dup-card__badge {
+    position: absolute;
+    left: 6px;
+    bottom: 6px;
+    background: rgba(20, 21, 22, 0.75);
+    color: #fff;
+    font-size: 10.5px;
+    padding: 2px 7px;
+    border-radius: 999px;
+    z-index: 2;
+}
+
+/* Modal de reemplazo */
+.dup-replace-box { max-width: 640px; }
+
+.dup-replace-summary {
+    font-size: 13px;
+    color: #4b5563;
+    margin: 0 0 14px;
+}
+
+.dup-replace-tabs {
+    display: flex;
+    gap: 4px;
+    border-bottom: 2px solid #e5e7eb;
+    margin-bottom: 16px;
+}
+
+.dup-replace-tab {
+    padding: 8px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #6b7280;
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    cursor: pointer;
+}
+
+.dup-replace-tab:hover { color: #111827; }
+.dup-replace-tab.is-active { color: #ff6213; border-bottom-color: #ff6213; }
+
+.dup-replace-panel #dupLibrarySearch { margin-bottom: 12px; }
+
+.dup-replace-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+    gap: 10px;
+    max-height: 260px;
+    overflow-y: auto;
+}
+
+.dup-option {
+    border: 2px solid rgba(0, 0, 0, 0.08);
+    border-radius: 8px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: border-color 0.15s;
+}
+
+.dup-option:hover { border-color: rgba(255, 98, 19, 0.4); }
+.dup-option.is-selected { border-color: #ff6213; }
+
+.dup-option img {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+    display: block;
+}
+
+.dup-option__label {
+    font-size: 11px;
+    padding: 4px 6px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.dup-option-empty {
+    grid-column: 1 / -1;
+    font-size: 13px;
+    color: #9ca3af;
+    text-align: center;
+    padding: 20px;
+}

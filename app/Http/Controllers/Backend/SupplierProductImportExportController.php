@@ -14,14 +14,26 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class SupplierProductImportExportController extends Controller
 {
-    public function downloadTemplate()
+    public function downloadTemplate(Request $request)
     {
         if (!Supplier::where('status', 'active')->exists() || !Products::where('is_active', true)->exists()) {
             return redirect()->route('admin.suppliers.index')
                 ->with('error', 'Registra al menos un proveedor y un producto activos antes de descargar la plantilla.');
         }
 
-        return Excel::download(new SupplierProductsTemplateExport(), 'plantilla-proveedores-productos.xlsx');
+        // Descarga "escopeada" desde la pestaña Productos de un proveedor
+        // específico: los ejemplos de la hoja de datos usan su nombre real
+        // en vez de 2 proveedores cualquiera, para que quede claro que la
+        // columna Proveedor ya viene resuelta por contexto.
+        $forcedSupplierName = null;
+        if ($supplierId = $request->input('supplier_id')) {
+            $forcedSupplierName = Supplier::find($supplierId)?->company_name;
+        }
+
+        return Excel::download(
+            new SupplierProductsTemplateExport($forcedSupplierName),
+            'plantilla-proveedores-productos.xlsx'
+        );
     }
 
     public function export()
@@ -33,6 +45,7 @@ class SupplierProductImportExportController extends Controller
     {
         $request->validate([
             'file' => 'required|file|mimes:xlsx,xls,csv|max:5120',
+            'supplier_id' => 'nullable|integer|exists:suppliers,id',
         ], [
             'file.required' => 'Selecciona un archivo antes de subirlo.',
             'file.file'     => 'El archivo recibido no es válido.',
@@ -43,7 +56,7 @@ class SupplierProductImportExportController extends Controller
         set_time_limit(300);
 
         try {
-            $import = new SupplierProductsImport();
+            $import = new SupplierProductsImport($request->input('supplier_id') ? (int) $request->input('supplier_id') : null);
             Excel::import($import, $request->file('file'));
         } catch (\Throwable $e) {
             Log::error('Supplier-product import failed', [

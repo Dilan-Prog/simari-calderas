@@ -11,6 +11,7 @@
             const resultDetail = document.getElementById('spImportResultDetail');
             const cancelBtn = document.getElementById('spImportModalCancel');
             const doImportBtn = document.getElementById('btnDoSupplierProductImport');
+            const scopedSupplierId = {{ isset($scopedSupplier) ? (int) $scopedSupplier->id : 'null' }};
             let selectedFile = null;
 
             if (!modal || !openBtn) return;
@@ -110,6 +111,7 @@
 
                 const formData = new FormData();
                 formData.append('file', selectedFile);
+                if (scopedSupplierId) formData.append('supplier_id', scopedSupplierId);
 
                 try {
                     const response = await fetch('{{ route('admin.suppliers.products.import') }}', {

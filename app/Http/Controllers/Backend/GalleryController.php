@@ -9,7 +9,10 @@ use App\Models\Collection;
 use App\Models\GalleryImage;
 use App\Models\HomeSection;
 use App\Models\HomeSectionSlide;
+use App\Models\ImageDuplicateGroup;
+use App\Models\ImageDuplicateScan;
 use App\Models\ProductImage;
+use App\Services\ImageReferenceService;
 use App\Support\UploadPath;
 use App\Traits\ImageUploadTrait;
 use Illuminate\Http\Request;
@@ -18,7 +21,11 @@ class GalleryController extends Controller
 {
     use ImageUploadTrait;
 
-    protected array $tabs = ['galeria', 'productos', 'marcas', 'categorias', 'colecciones', 'banners'];
+    protected array $tabs = ['galeria', 'productos', 'marcas', 'categorias', 'colecciones', 'banners', 'duplicados'];
+
+    public function __construct(protected ImageReferenceService $referenceService)
+    {
+    }
 
     public function index(Request $request)
     {
@@ -30,6 +37,8 @@ class GalleryController extends Controller
         $galleryImages = null;
         $items = collect();
         $paginator = null;
+        $duplicateGroups = collect();
+        $lastScan = null;
 
         switch ($tab) {
             case 'galeria':
@@ -114,9 +123,44 @@ class GalleryController extends Controller
                     }
                 }
                 break;
+
+            case 'duplicados':
+                $lastScan = ImageDuplicateScan::latest('id')->first();
+
+                // Un mismo mapa de referencias (una sola pasada por las 6
+                // fuentes) para armar la etiqueta "usada en N lugares" de
+                // cada imagen sin repetir la consulta por cada una.
+                $refsByUrl = [];
+                foreach ($this->referenceService->listAll() as $ref) {
+                    $refsByUrl[$ref->imageUrl][] = $ref;
+                }
+
+                $groups = ImageDuplicateGroup::where('status', 'pending')
+                    ->with('images')
+                    ->latest('id')
+                    ->get();
+
+                $duplicateGroups = $groups->map(function (ImageDuplicateGroup $group) use ($refsByUrl) {
+                    return [
+                        'id' => $group->id,
+                        'images' => $group->images->map(function ($img) use ($refsByUrl) {
+                            $refs = $refsByUrl[$img->image_url] ?? [];
+                            $first = $refs[0] ?? null;
+
+                            return [
+                                'image_url' => $img->image_url,
+                                'url' => $this->resolveUrl($img->image_url),
+                                'label' => $first?->label ?? $img->image_url,
+                                'sublabel' => $first?->sublabel ?? '',
+                                'used_in' => count($refs),
+                            ];
+                        })->values(),
+                    ];
+                })->values();
+                break;
         }
 
-        return view('admin.gallery.index', compact('tab', 'galleryImages', 'items', 'paginator'));
+        return view('admin.gallery.index', compact('tab', 'galleryImages', 'items', 'paginator', 'duplicateGroups', 'lastScan'));
     }
 
     public function store(Request $request)

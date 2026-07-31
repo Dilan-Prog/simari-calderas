@@ -53,7 +53,14 @@ class SupplierProductBulkEditController extends Controller
         // suspendido/inactivo.
         $suppliers = Supplier::orderBy('company_name')->get(['id', 'company_name', 'status']);
 
-        return view('admin.supplier.bulk_edit_products', compact('links', 'suppliers', 'totalFiltered'))
+        // Cuando se llega desde la pestaña "Productos" de un proveedor
+        // específico, la vista bloquea el filtro a ese proveedor en vez de
+        // mostrar el selector de "todos los proveedores".
+        $lockedSupplier = $request->filled('supplier_id')
+            ? $suppliers->firstWhere('id', (int) $request->input('supplier_id'))
+            : null;
+
+        return view('admin.supplier.bulk_edit_products', compact('links', 'suppliers', 'totalFiltered', 'lockedSupplier'))
             ->with('perPageOptions', self::PER_PAGE_OPTIONS);
     }
 

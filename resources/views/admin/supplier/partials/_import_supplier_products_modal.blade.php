@@ -1,13 +1,28 @@
-{{-- Import supplier-products modal --}}
+{{-- Import supplier-products modal. Cuando se incluye con $scopedSupplier
+     (desde la pestaña Productos de un proveedor), la importación queda
+     bloqueada a ese proveedor — la columna "Proveedor" del archivo se vuelve
+     opcional y, si se llena, debe coincidir con él. --}}
 <div id="importSupplierProductsModal" class="del-confirm-overlay">
     <div class="del-confirm-box prod-import-box">
-        <h2 class="del-confirm-title">Importar Proveedores Productos</h2>
+        <h2 class="del-confirm-title">
+            @if (isset($scopedSupplier))
+                Importar Productos de {{ $scopedSupplier->company_name }}
+            @else
+                Importar Proveedores Productos
+            @endif
+        </h2>
         <p class="del-confirm-desc">
-            Sube un archivo Excel (.xlsx, .xls) o CSV para crear o actualizar vínculos proveedor-producto.
+            @if (isset($scopedSupplier))
+                Sube un archivo Excel (.xlsx, .xls) o CSV para crear o actualizar los productos de este proveedor.
+                La columna "Proveedor" es opcional aquí — se asume {{ $scopedSupplier->company_name }}.
+            @else
+                Sube un archivo Excel (.xlsx, .xls) o CSV para crear o actualizar vínculos proveedor-producto.
+            @endif
         </p>
 
         <div class="prod-import-templates">
-            <a href="{{ route('admin.suppliers.products.import.template') }}" class="prod-import-template-link">
+            <a href="{{ route('admin.suppliers.products.import.template', isset($scopedSupplier) ? ['supplier_id' => $scopedSupplier->id] : []) }}"
+                class="prod-import-template-link">
                 Descargar plantilla con ejemplos
             </a>
         </div>

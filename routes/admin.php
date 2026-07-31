@@ -22,6 +22,7 @@ use App\Http\Controllers\Backend\HomeSectionController;
 use App\Http\Controllers\Backend\MenuController;
 use App\Http\Controllers\Backend\CollectionController;
 use App\Http\Controllers\Backend\GalleryController;
+use App\Http\Controllers\Backend\DuplicateImageController;
 use App\Http\Controllers\Backend\MediaController;
 use App\Http\Controllers\Backend\SupplierProductController;
 use App\Http\Controllers\Backend\SupplierProductImportExportController;
@@ -442,6 +443,18 @@ Route::controller(GalleryController::class)
         Route::get('/', 'index')->name('index');
         Route::post('/subir', 'store')->name('store');
         Route::delete('/eliminar/{id}', 'destroy')->name('destroy');
+    });
+
+Route::controller(DuplicateImageController::class)
+    ->middleware('permission:gallery')
+    ->prefix('galeria/duplicados')
+    ->name('gallery.duplicates.')
+    ->group(function () {
+        Route::post('/escanear', 'scan')->name('scan');
+        Route::get('/ultimo-escaneo', 'lastScan')->name('last-scan');
+        Route::get('/buscar', 'searchLibrary')->name('search');
+        Route::post('/{group}/aplicar', 'apply')->name('apply');
+        Route::post('/{group}/descartar', 'dismiss')->name('dismiss');
     });
 
     // sig module
