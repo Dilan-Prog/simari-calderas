@@ -175,6 +175,39 @@
                             </div>
                         </div>
 
+                        {{-- Búsqueda inline de servicios (ServicePage) --}}
+                        <div class="inline-product-search" id="inlineServiceSearch">
+                            <div class="inline-product-search__input-wrap">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15"
+                                     viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                     stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"
+                                     class="inline-product-search__icon" aria-hidden="true">
+                                    <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+                                </svg>
+                                <input type="text"
+                                       id="inlineServiceInput"
+                                       class="inline-product-search__input"
+                                       placeholder="Buscar servicio por nombre..."
+                                       autocomplete="off">
+                                <button type="button"
+                                        class="inline-product-search__clear"
+                                        id="inlineServiceClear"
+                                        style="display:none"
+                                        aria-label="Limpiar búsqueda">✕</button>
+                            </div>
+
+                            <div class="inline-product-search__dropdown"
+                                 id="inlineServiceDropdown"
+                                 style="display:none">
+                                <div class="inline-product-search__empty"
+                                     id="inlineServiceEmpty"
+                                     style="display:none">
+                                    Sin resultados para "<span id="inlineServiceEmptyQuery"></span>"
+                                </div>
+                                <ul class="inline-product-search__list" id="inlineServiceList"></ul>
+                            </div>
+                        </div>
+
                         <button type="button" class="btn-add-row" onclick="QuoteForm.addFreeRow()">
                             <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15"
                                  viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -314,7 +347,8 @@
 <script src="{{ asset('js/quotes.js') }}"></script>
 <script>
 window.ADMIN_QUOTES_CONFIG = {
-    searchUrl: "{{ route('admin.quotes.search-products') }}"
+    searchUrl: "{{ route('admin.quotes.search-products') }}",
+    searchServicesUrl: "{{ route('admin.quotes.search-services') }}"
 };
 
 // ── Inline product search ────────────────────────────────
@@ -456,6 +490,136 @@ window.ADMIN_QUOTES_CONFIG = {
 
     document.addEventListener('click', (e) => {
         if (!e.target.closest('#inlineProductSearch')) hideDropdown();
+    });
+
+    input.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') { hideDropdown(); input.blur(); }
+    });
+})();
+
+// ── Buscador inline de servicios (ServicePage) ──────────
+(function () {
+    const input    = document.getElementById('inlineServiceInput');
+    const dropdown = document.getElementById('inlineServiceDropdown');
+    const list     = document.getElementById('inlineServiceList');
+    const empty    = document.getElementById('inlineServiceEmpty');
+    const emptyQ   = document.getElementById('inlineServiceEmptyQuery');
+    const clearBtn = document.getElementById('inlineServiceClear');
+    const SEARCH_URL = window.ADMIN_QUOTES_CONFIG.searchServicesUrl;
+
+    let debounceTimer = null;
+    let currentQuery  = '';
+
+    function showResults(items) {
+        if (items.length === 0) {
+            empty.style.display = 'flex';
+            emptyQ.textContent  = currentQuery;
+            list.style.display  = 'none';
+        } else {
+            empty.style.display = 'none';
+            list.style.display  = 'block';
+            renderItems(items);
+        }
+        dropdown.style.display = 'block';
+    }
+
+    function hideDropdown() {
+        dropdown.style.display = 'none';
+        list.innerHTML = '';
+    }
+
+    function formatPrice(n) {
+        return '$' + parseFloat(n).toLocaleString('es-MX', {
+            minimumFractionDigits: 2, maximumFractionDigits: 2
+        });
+    }
+
+    function esc(s) {
+        return String(s ?? '').replace(/&/g,'&amp;').replace(/"/g,'&quot;')
+                              .replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+
+    function renderItems(services) {
+        list.innerHTML = '';
+        services.forEach(s => {
+            const li = document.createElement('li');
+            li.className = 'inline-product-search__item';
+            const imgSrc = s.image_url ? esc(s.image_url) : '';
+            li.innerHTML = `
+                <div class="inline-product-search__item-img">
+                    ${imgSrc
+                        ? `<img src="${imgSrc}" alt="${esc(s.name)}" onerror="this.onerror=null;this.style.display='none';">`
+                        : `<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 12.5 8 15l2 2.5"/><path d="m14 12.5 2 2.5-2 2.5"/><rect width="18" height="18" x="3" y="3" rx="2"/></svg>`
+                    }
+                </div>
+                <div class="inline-product-search__item-info">
+                    <span class="inline-product-search__item-name">${esc(s.name)}</span>
+                    <span class="inline-product-search__item-sku">Servicio</span>
+                </div>
+                <div class="inline-product-search__item-right">
+                    <div class="inline-product-search__item-price">${formatPrice(s.price)}</div>
+                    <button type="button"
+                            class="inline-product-search__add-btn"
+                            aria-label="Agregar ${esc(s.name)}">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                             viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                             stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 5v14"/><path d="M5 12h14"/>
+                        </svg>
+                    </button>
+                </div>`;
+
+            li.querySelector('.inline-product-search__add-btn')
+              .addEventListener('click', () => {
+                  QuoteForm.addServiceRow(s);
+                  input.value = '';
+                  clearBtn.style.display = 'none';
+                  hideDropdown();
+                  input.focus();
+              });
+
+            list.appendChild(li);
+        });
+    }
+
+    async function fetchServices(query) {
+        try {
+            const url = new URL(SEARCH_URL, window.location.origin);
+            url.searchParams.set('q', query);
+            const res  = await fetch(url.toString(), {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            });
+            if (!res.ok) throw new Error('Server error');
+            const data = await res.json();
+            return Array.isArray(data) ? data : (data.data ?? []);
+        } catch {
+            return [];
+        }
+    }
+
+    input.addEventListener('input', function () {
+        const q = this.value.trim();
+        clearBtn.style.display = q ? 'block' : 'none';
+        clearTimeout(debounceTimer);
+
+        if (q.length < 2) { hideDropdown(); return; }
+
+        currentQuery = q;
+        debounceTimer = setTimeout(async () => {
+            const services = await fetchServices(q);
+            if (currentQuery === q) showResults(services);
+        }, 300);
+    });
+
+    clearBtn.addEventListener('click', () => {
+        input.value = '';
+        clearBtn.style.display = 'none';
+        hideDropdown();
+        input.focus();
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('#inlineServiceSearch')) hideDropdown();
     });
 
     input.addEventListener('keydown', (e) => {

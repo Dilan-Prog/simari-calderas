@@ -43,10 +43,28 @@ return [
         'route' => 'quotes.index',
         'order' => 7,
     ],
+    'service-pages' => [
+        'name'  => 'Páginas de Servicio',
+        'icon'  => 'file-code',
+        'route' => 'admin.service-pages.index',
+        'order' => 7,
+    ],
     'purchase-orders' => [
         'name'  => 'Órdenes de Compra',
         'icon'  => 'shopping-cart',
         'route' => 'purchase-orders.index',
+        'order' => 8,
+    ],
+    'sales-orders' => [
+        'name'  => 'Pedidos',
+        'icon'  => 'shopping-bag',
+        'route' => 'admin.sales-orders.index',
+        'order' => 8,
+    ],
+    'chemical-planning' => [
+        'name'  => 'Planeación de Químicos',
+        'icon'  => 'flask-conical',
+        'route' => 'admin.chemical-planning.index',
         'order' => 8,
     ],
     'orders' => [

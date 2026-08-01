@@ -3,7 +3,7 @@
     // Dueño de las FAQs según la página: producto o colección (misma
     // estructura [{question, answer}]); la sección solo aporta
     // título/descripción. Sin dueño o sin FAQs, no se muestra.
-    $faqOwner = $product ?? $collection ?? null;
+    $faqOwner = $product ?? $collection ?? $servicePage ?? null;
     $isProductOwner = $faqOwner instanceof \App\Models\Products;
     $items = collect($faqOwner?->faqs ?? [])
         ->filter(fn ($item) => !empty($item['question']) && !empty($item['answer']))

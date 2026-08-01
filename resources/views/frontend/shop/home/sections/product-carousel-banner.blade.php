@@ -1,7 +1,7 @@
 @php
     // Contexto de la página ANTES de cualquier reasignación (ver
     // product-carousel.blade.php).
-    $ctx = $product ?? $collection ?? null;
+    $ctx = $product ?? $collection ?? $servicePage ?? null;
 
     $config = $section->config ?? [];
     $source = $config['source'] ?? 'featured';

@@ -5,6 +5,7 @@ use App\Http\Controllers\Frontend\HomeController;
 use App\Http\Controllers\Frontend\Shop\CatalogController;
 use App\Http\Controllers\Frontend\Shop\CollectionController as ShopCollectionController;
 use App\Http\Controllers\Frontend\Shop\ProductController as ShopProductController;
+use App\Http\Controllers\Frontend\Shop\ServicePageController as ShopServicePageController;
 use App\Http\Controllers\Frontend\SitemapController;
 use App\Http\Controllers\MediaServeController;
 use App\Http\Controllers\ProfileController;
@@ -39,6 +40,10 @@ Route::controller(CatalogController::class)->group(function () {
 });
 Route::get('/producto/{slug}', [ShopProductController::class, 'show'])->name('product.show');
 Route::get('/coleccion/{slug}', [ShopCollectionController::class, 'show'])->name('collection.show');
+// Singular a propósito: /servicios/... ya tiene 9+ rutas estáticas de un
+// segmento (ver bloque "new/old services" más abajo); /servicio/{slug}
+// evita colisionar con ellas sin depender del orden de registro.
+Route::get('/servicio/{slug}', [ShopServicePageController::class, 'show'])->name('service-page.show');
 
 Route::controller(HomeController::class)->group(function () {
     Route::get('/nuestra-empresa', 'company')->name('company');

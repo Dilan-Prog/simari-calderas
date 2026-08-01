@@ -58,6 +58,11 @@ class Quote extends Model
         return $this->hasMany(QuoteItem::class)->orderBy('sort_order');
     }
 
+    public function salesOrders(): HasMany
+    {
+        return $this->hasMany(SalesOrder::class);
+    }
+
     public function scopeByStatus($query, string $status)
     {
         return $query->where('status', $status);

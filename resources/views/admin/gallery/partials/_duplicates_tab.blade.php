@@ -9,7 +9,7 @@
             <span class="dup-scan-banner__text">
                 Último escaneo: {{ optional($lastScan->finished_at)->diffForHumans() ?? 'en curso' }}
                 · {{ $lastScan->images_scanned }} imágenes revisadas
-                · {{ $duplicateGroups->count() }} grupo(s) pendiente(s)
+                · <span id="dupPendingCount">{{ $duplicateGroups->count() }}</span> grupo(s) pendiente(s)
             </span>
         @endif
     @else
@@ -17,20 +17,24 @@
     @endif
 </div>
 
-@if ($duplicateGroups->isEmpty())
-    <div class="gal-empty">
-        <p>
-            @if ($lastScan)
-                No se encontraron imágenes duplicadas pendientes de revisar.
-            @else
-                Presiona <strong>Escanear duplicados</strong> para analizar todo el catálogo (productos, marcas,
-                categorías, colecciones y banners).
-            @endif
-        </p>
-    </div>
-@else
-    <div class="dup-groups">
-        @foreach ($duplicateGroups as $group)
+{{-- FIX: ambos bloques (vacío y con grupos) se dejan siempre en el DOM,
+     alternando su visibilidad por JS — así "Aplicar"/"Descartar" pueden
+     quitar solo la tarjeta del grupo resuelto (ver _duplicates_scripts) en
+     vez de depender de una recarga completa que vuelva a traer TODO el
+     estado del servidor para mostrar un solo grupo menos. --}}
+<div class="gal-empty" id="dupEmptyState" style="{{ $duplicateGroups->isEmpty() ? '' : 'display:none' }}">
+    <p>
+        @if ($lastScan)
+            No se encontraron imágenes duplicadas pendientes de revisar.
+        @else
+            Presiona <strong>Escanear duplicados</strong> para analizar todo el catálogo (productos, marcas,
+            categorías, colecciones y banners).
+        @endif
+    </p>
+</div>
+
+<div class="dup-groups" id="dupGroupsList" style="{{ $duplicateGroups->isEmpty() ? 'display:none' : '' }}">
+    @foreach ($duplicateGroups as $group)
             <div class="dup-group" data-group-id="{{ $group['id'] }}" data-images="{{ json_encode($group['images']) }}">
                 <div class="dup-group__header">
                     <span>Grupo #{{ $group['id'] }} · {{ count($group['images']) }} imágenes</span>
@@ -67,4 +71,4 @@
             </div>
         @endforeach
     </div>
-@endif
+

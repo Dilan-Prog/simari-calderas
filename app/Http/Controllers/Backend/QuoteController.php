@@ -6,10 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Mail\QuoteMail;
 use App\Models\Quote;
 use App\Models\Products;
+use App\Models\ServicePage;
 use App\Services\QuoteService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 
 class QuoteController extends Controller
@@ -206,6 +208,30 @@ class QuoteController extends Controller
         return response()->json($products);
     }
 
+    /**
+     * Buscador inline de Servicios (ServicePage) para agregar como línea de
+     * cotización — análogo a searchProducts() pero sobre el catálogo de
+     * servicios, que no maneja stock ni SKU.
+     */
+    public function searchServices(Request $request)
+    {
+        $q = $request->get('q', '');
+
+        $services = ServicePage::where('is_active', 1)
+            ->where('name', 'like', "%{$q}%")
+            ->select('id', 'name', 'price', 'cover_image_url')
+            ->take(12)
+            ->get()
+            ->map(fn ($s) => [
+                'id'        => $s->id,
+                'name'      => $s->name,
+                'price'     => (float) ($s->price ?? 0),
+                'image_url' => $s->cover_image_url,
+            ]);
+
+        return response()->json($services);
+    }
+
     public function downloadPdf(Quote $quote)
     {
         $quote->load('items', 'createdBy');
@@ -242,7 +268,21 @@ class QuoteController extends Controller
             'status' => 'required|in:accepted,rejected,expired',
         ]);
 
-        $quote->update(['status' => $request->status]);
+        // Guard de idempotencia: si ya estaba aceptada, un reenvío del mismo
+        // cambio de estado no debe generar un segundo Pedido. Todo en una
+        // transacción: si processAcceptance() falla, el cambio de estado se
+        // revierte también, para no dejar la cotización marcada "accepted"
+        // sin su Pedido y sin poder reintentar (el guard de arriba bloquearía
+        // un segundo intento si el status ya hubiera quedado guardado).
+        $wasAccepted = $quote->status === 'accepted';
+
+        DB::transaction(function () use ($quote, $request, $wasAccepted) {
+            $quote->update(['status' => $request->status]);
+
+            if ($request->status === 'accepted' && !$wasAccepted) {
+                $this->quoteService->processAcceptance($quote);
+            }
+        });
 
         return redirect()->route('admin.quotes.show', $quote)
             ->with('success', 'Estado de la cotización actualizado.');

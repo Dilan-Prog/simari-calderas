@@ -21,6 +21,9 @@ use App\Http\Controllers\Backend\SettingController;
 use App\Http\Controllers\Backend\HomeSectionController;
 use App\Http\Controllers\Backend\MenuController;
 use App\Http\Controllers\Backend\CollectionController;
+use App\Http\Controllers\Backend\ChemicalPlanningController;
+use App\Http\Controllers\Backend\SalesOrderController;
+use App\Http\Controllers\Backend\ServicePageController;
 use App\Http\Controllers\Backend\GalleryController;
 use App\Http\Controllers\Backend\DuplicateImageController;
 use App\Http\Controllers\Backend\MediaController;
@@ -239,6 +242,7 @@ Route::controller(QuoteController::class)
         Route::get('/crear', 'create')->name('create');
         Route::post('/', 'store')->name('store');
         Route::get('/buscar-productos', 'searchProducts')->name('search-products');
+        Route::get('/buscar-servicios', 'searchServices')->name('search-services');
         Route::get('/{quote}', 'show')->name('show');
         Route::get('/{quote}/editar', 'edit')->name('edit');
         Route::put('/{quote}', 'update')->name('update');
@@ -268,6 +272,33 @@ Route::controller(PurchaseOrderController::class)
         Route::patch('/ordenes-compra/estado/{id}',    'updateStatus')->name('purchase-orders.status');
         Route::get('/ordenes-compra/{id}/pdf',         'downloadPdf')->name('purchase-orders.pdf');
         Route::get('/ordenes-compra/{id}/pdf-preview', 'previewPdf')->name('purchase-orders.pdf-preview');
+    });
+
+// ============================================================
+// Pedidos (generados automáticamente desde Cotizaciones aceptadas)
+// ============================================================
+Route::controller(SalesOrderController::class)
+    ->middleware('permission:sales-orders')
+    ->prefix('pedidos')
+    ->name('sales-orders.')
+    ->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::get('/{salesOrder}', 'show')->name('show');
+        Route::patch('/{salesOrder}/estado', 'updateStatus')->name('update-status');
+        Route::patch('/{salesOrder}/items/{item}/entrega', 'registerDelivery')->name('register-delivery');
+    });
+
+// ============================================================
+// Planeación de Químicos
+// ============================================================
+Route::controller(ChemicalPlanningController::class)
+    ->middleware('permission:chemical-planning')
+    ->prefix('planeacion-quimicos')
+    ->name('chemical-planning.')
+    ->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::post('/proyeccion', 'updateProjection')->name('projection.update');
+        Route::get('/exportar', 'export')->name('export');
     });
 
 // ============================================================
@@ -430,6 +461,29 @@ Route::controller(CollectionController::class)
         Route::post('/{collection}/productos', 'addProduct')->name('products.add');
         Route::delete('/{collection}/productos/{product}', 'removeProduct')->name('products.remove');
         Route::post('/{collection}/productos/reordenar', 'reorderProducts')->name('products.reorder');
+    });
+
+// ============================================================
+// Páginas de Servicio (catálogo público con secciones, SEO)
+// ============================================================
+Route::controller(ServicePageController::class)
+    ->middleware('permission:service-pages')
+    ->prefix('servicios-web')
+    ->name('service-pages.')
+    ->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::get('/crear', 'create')->name('create');
+        Route::post('/', 'store')->name('store');
+        Route::get('/productos/buscar', 'searchProducts')->name('products.search');
+        Route::get('/{servicePage}/editar', 'edit')->name('edit');
+        Route::put('/{servicePage}', 'update')->name('update');
+        Route::delete('/{servicePage}', 'destroy')->name('destroy');
+
+        Route::post('/{servicePage}/secciones', 'storeSection')->name('sections.store');
+        Route::get('/{servicePage}/secciones/{section}', 'editSection')->name('sections.edit');
+        Route::put('/{servicePage}/secciones/{section}', 'updateSection')->name('sections.update');
+        Route::delete('/{servicePage}/secciones/{section}', 'destroySection')->name('sections.destroy');
+        Route::post('/{servicePage}/secciones/reordenar', 'reorderSections')->name('sections.reorder');
     });
 
 // ============================================================

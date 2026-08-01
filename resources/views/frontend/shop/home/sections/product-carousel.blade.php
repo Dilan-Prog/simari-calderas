@@ -2,7 +2,7 @@
     // Contexto de la página ANTES de cualquier reasignación: en páginas de
     // colección $collection es la colección de la PÁGINA; la colección
     // fuente del carrusel se maneja aparte como $sourceCollection.
-    $ctx = $product ?? $collection ?? null;
+    $ctx = $product ?? $collection ?? $servicePage ?? null;
 
     $config = $section->config ?? [];
     $source = $config['source'] ?? 'featured';

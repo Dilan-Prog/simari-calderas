@@ -35,6 +35,30 @@
         }
     });
 
+    /* ── Quita del DOM solo la tarjeta del grupo resuelto/descartado, sin
+       recargar la página. FIX: antes se hacía window.location.reload()
+       tras Aplicar/Descartar, lo que forzaba a volver a pedir TODO el
+       estado de duplicados al servidor solo para reflejar un grupo menos
+       — cualquier inconsistencia ahí (caché intermedio, otra pestaña
+       escaneando, etc.) hacía parecer que el resto de los grupos pendientes
+       se habían "perdido". Quitando solo la tarjeta afectada del DOM, el
+       resto de los grupos ya renderizados nunca se vuelven a pedir ni se
+       pueden perder. ── */
+    function removeGroupFromDom(groupId) {
+        const groupEl = document.querySelector('.dup-group[data-group-id="' + groupId + '"]');
+        if (groupEl) groupEl.remove();
+
+        const countEl = document.getElementById('dupPendingCount');
+        if (countEl) countEl.textContent = Math.max(0, parseInt(countEl.textContent, 10) - 1);
+
+        const groupsList = document.getElementById('dupGroupsList');
+        const emptyState = document.getElementById('dupEmptyState');
+        if (groupsList && !groupsList.querySelector('.dup-group')) {
+            groupsList.style.display = 'none';
+            if (emptyState) emptyState.style.display = '';
+        }
+    }
+
     /* ── Selección de checkboxes → habilitar "Reemplazar con..." ── */
     function refreshReplaceButton(groupId) {
         const count = document.querySelectorAll('.dup-checkbox[data-group-id="' + groupId + '"]:checked').length;
@@ -62,8 +86,8 @@
                 const data = await response.json();
 
                 if (response.ok && data.success) {
-                    queueCenterToast('Grupo descartado.');
-                    window.location.reload();
+                    showCenterToast('Grupo descartado.');
+                    removeGroupFromDom(groupId);
                 } else {
                     showCenterToast(data.message ?? 'No se pudo descartar el grupo.', 'error');
                 }
@@ -232,8 +256,11 @@
             const data = await response.json();
 
             if (response.ok && data.success) {
-                queueCenterToast(data.message ?? 'Imágenes consolidadas.');
-                window.location.reload();
+                showCenterToast(data.message ?? 'Imágenes consolidadas.');
+                const resolvedGroupId = currentGroupId;
+                applyBtn.textContent = 'Aplicar';
+                window.dupCloseReplace();
+                removeGroupFromDom(resolvedGroupId);
             } else {
                 showCenterToast(data.message ?? 'No se pudo aplicar el reemplazo.', 'error');
                 applyBtn.disabled = false;

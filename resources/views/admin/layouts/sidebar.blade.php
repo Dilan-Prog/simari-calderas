@@ -43,8 +43,11 @@
             request()->routeIs('admin.service-reports.*') => 'reportes-servicio',
             request()->routeIs('admin.technical-services.*') => 'servicios-tecnicos',
             request()->routeIs('admin.purchase-orders.*') => 'ordenes-compra',
+            request()->routeIs('admin.sales-orders.*') => 'pedidos',
+            request()->routeIs('admin.chemical-planning.*') => 'planeacion-quimicos',
             request()->routeIs('admin.home-sections.*') => 'inicio-secciones',
             request()->routeIs('admin.collections.*') => 'colecciones',
+            request()->routeIs('admin.service-pages.*') => 'paginas-servicio',
             request()->routeIs('admin.gallery.*') => 'galeria',
             request()->routeIs('admin.menus.*') => 'menus',
             request()->routeIs('admin.settings.*') => 'configuracion-sitio',
@@ -55,9 +58,9 @@
         // Agrupación puramente visual del sidebar — no afecta rutas, permisos
         // ni estructura de carpetas, solo cómo se muestran los módulos.
         $groupSections = [
-            'ecommerce' => ['productos', 'categorias', 'marcas', 'colecciones', 'galeria', 'inicio-secciones', 'menus', 'configuracion-sitio', 'integraciones'],
+            'ecommerce' => ['productos', 'categorias', 'marcas', 'colecciones', 'paginas-servicio', 'galeria', 'inicio-secciones', 'menus', 'configuracion-sitio', 'integraciones'],
             'servicios' => ['reportes-servicio', 'servicios-tecnicos'],
-            'erp' => ['cotizaciones', 'proveedores', 'ordenes-compra', 'clientes'],
+            'erp' => ['cotizaciones', 'proveedores', 'ordenes-compra', 'pedidos', 'planeacion-quimicos', 'clientes'],
             'administracion' => ['roles', 'usuarios', 'google-ads'],
         ];
         $activeGroup = collect($groupSections)->search(fn ($sections) => in_array($activeSection, $sections));
@@ -66,6 +69,7 @@
             || $authUser->hasPermission('categories')
             || $authUser->hasPermission('brands')
             || $authUser->hasPermission('collections')
+            || $authUser->hasPermission('service-pages')
             || $authUser->hasPermission('gallery')
             || $authUser->hasPermission('home-sections')
             || $authUser->hasPermission('orders')
@@ -82,6 +86,8 @@
         $erpVisible = $authUser->hasPermission('quotes')
             || $authUser->hasPermission('suppliers')
             || $authUser->hasPermission('purchase-orders')
+            || $authUser->hasPermission('sales-orders')
+            || $authUser->hasPermission('chemical-planning')
             || $authUser->hasPermission('clients');
 
         $administracionVisible = $authUser->isAdmin()
@@ -196,6 +202,23 @@
                             <path d="M12 22V12" />
                         </svg>
                         <span class="sidebar-nav-item-label">Colecciones</span>
+                    </div>
+                </a>
+                @endif
+
+                {{-- Páginas de Servicio --}}
+                @if($authUser->hasPermission('service-pages'))
+                <a class="sidebar-nav-item {{ $activeSection === 'paginas-servicio' ? 'active' : '' }}" data-section="paginas-servicio" data-label="Páginas de Servicio"
+                    href="{{ route('admin.service-pages.index') }}">
+                    <div class="sidebar-nav-item-left">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round">
+                            <path d="M10 12.5 8 15l2 2.5" />
+                            <path d="m14 12.5 2 2.5-2 2.5" />
+                            <rect width="18" height="18" x="3" y="3" rx="2" />
+                        </svg>
+                        <span class="sidebar-nav-item-label">Páginas de Servicio</span>
                     </div>
                 </a>
                 @endif
@@ -512,6 +535,41 @@
                                 <path d="m9 14 2 2 4-4"></path>
                             </svg>
                             <span class="sidebar-nav-item-label">Órdenes de Compra</span>
+                        </div>
+                    </a>
+                @endif
+
+                {{-- Pedidos (generados automáticamente desde Cotizaciones aceptadas) --}}
+                @if ($authUser->hasPermission('sales-orders'))
+                    <a class="sidebar-nav-item {{ $activeSection === 'pedidos' ? 'active' : '' }}"
+                        href="{{ route('admin.sales-orders.index') }}" data-section="pedidos"
+                        data-label="Pedidos">
+                        <div class="sidebar-nav-item-left">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <circle cx="8" cy="21" r="1" /><circle cx="19" cy="21" r="1" />
+                                <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12" />
+                            </svg>
+                            <span class="sidebar-nav-item-label">Pedidos</span>
+                        </div>
+                    </a>
+                @endif
+
+                {{-- Planeación de Químicos --}}
+                @if ($authUser->hasPermission('chemical-planning'))
+                    <a class="sidebar-nav-item {{ $activeSection === 'planeacion-quimicos' ? 'active' : '' }}"
+                        href="{{ route('admin.chemical-planning.index') }}" data-section="planeacion-quimicos"
+                        data-label="Planeación de Químicos">
+                        <div class="sidebar-nav-item-left">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path d="M10 2v7.31" /><path d="M14 9.3V1.99" />
+                                <path d="M8.5 2h7" /><path d="M14 9.3a6.5 6.5 0 1 1-4 0" />
+                                <path d="M5.52 16h12.96" />
+                            </svg>
+                            <span class="sidebar-nav-item-label">Planeación de Químicos</span>
                         </div>
                     </a>
                 @endif

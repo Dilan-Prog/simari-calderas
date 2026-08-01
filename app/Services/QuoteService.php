@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Quote;
 use App\Models\QuoteItem;
+use App\Models\SalesOrder;
 use Illuminate\Support\Facades\DB;
 
 class QuoteService
@@ -61,6 +62,7 @@ class QuoteService
                 QuoteItem::create([
                     'quote_id'         => $quote->id,
                     'product_id'       => $item['product_id'] ?? null,
+                    'service_page_id'  => $item['service_page_id'] ?? null,
                     'product_name'     => $item['product_name'],
                     'product_sku'      => $item['product_sku'] ?? null,
                     'quantity'         => (int) $item['quantity'],
@@ -114,6 +116,7 @@ class QuoteService
                 QuoteItem::create([
                     'quote_id'         => $quote->id,
                     'product_id'       => $item['product_id'] ?? null,
+                    'service_page_id'  => $item['service_page_id'] ?? null,
                     'product_name'     => $item['product_name'],
                     'product_sku'      => $item['product_sku'] ?? null,
                     'quantity'         => (int) $item['quantity'],
@@ -155,8 +158,21 @@ class QuoteService
         ];
     }
 
-    public function convertToOrder(Quote $quote): void
+    /**
+     * Al aceptar una cotización: las líneas con product_id (bien físico)
+     * generan automáticamente un Pedido. Las líneas de servicio (o libres,
+     * sin product_id ni service_page_id) no generan nada aquí — siguen el
+     * botón manual "Generar Servicio" de siempre, sin cambios.
+     */
+    public function processAcceptance(Quote $quote): ?SalesOrder
     {
-        // Placeholder para fase 2
+        $quote->loadMissing('items.product');
+        $productItems = $quote->items->filter(fn ($i) => $i->product_id !== null);
+
+        if ($productItems->isEmpty()) {
+            return null;
+        }
+
+        return app(SalesOrderService::class)->createFromQuoteItems($quote, $productItems);
     }
 }
