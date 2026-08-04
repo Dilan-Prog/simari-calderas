@@ -39,6 +39,13 @@ class SettingController extends Controller
                 continue;
             }
 
+            // A diferencia de IVA (0 es válido — "sin impuesto"), este valor
+            // se usa como multiplicador/divisor de conversión — un 0 o un
+            // valor no numérico rompería silenciosamente toda conversión USD.
+            if ($key === 'ecommerce.usd_to_mxn_rate' && (!is_numeric($value) || (float) $value <= 0)) {
+                continue;
+            }
+
             Setting::set($key, $value, auth()->id());
         }
 

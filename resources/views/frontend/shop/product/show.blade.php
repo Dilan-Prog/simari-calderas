@@ -80,8 +80,8 @@
             'url' => $canonicalUrl,
             'offers' => [
                 '@type' => 'Offer',
-                'price' => number_format((float) $product->price, 2, '.', ''),
-                'priceCurrency' => $product->currency ?? 'MXN',
+                'price' => number_format($product->final_price, 2, '.', ''),
+                'priceCurrency' => 'MXN',
                 'availability' => $availabilitySchema,
                 'url' => $canonicalUrl,
             ],

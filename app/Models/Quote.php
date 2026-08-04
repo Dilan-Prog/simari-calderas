@@ -19,6 +19,7 @@ class Quote extends Model
         'guest_company',
         'guest_rfc',
         'currency',
+        'exchange_rate',
         'subtotal',
         'discount_total',
         'tax_rate',
@@ -36,6 +37,7 @@ class Quote extends Model
         'subtotal'             => 'decimal:2',
         'discount_total'       => 'decimal:2',
         'tax_rate'             => 'decimal:2',
+        'exchange_rate'        => 'decimal:4',
         'tax_total'            => 'decimal:2',
         'isr_retention_rate'   => 'decimal:2',
         'isr_retention_total'  => 'decimal:2',
@@ -68,8 +70,11 @@ class Quote extends Model
         return $query->where('status', $status);
     }
 
-    public function isEditable(): bool
+    public function isEditable(?\App\Models\User $user = null): bool
     {
+        if ($user?->isAdmin()) {
+            return true;
+        }
         return in_array($this->status, ['draft', 'sent']);
     }
 

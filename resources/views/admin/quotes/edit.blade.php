@@ -36,323 +36,446 @@
         @csrf
         @method('PUT')
 
-        <div class="quotes-layout">
+        {{-- ════════════════════════════════════════════
+             BARRA DE PROGRESO DEL WIZARD
+        ════════════════════════════════════════════ --}}
+        <div class="qwiz-bar">
+            <div class="qwiz-step" data-qwiz-step-item="1">
+                <span class="qwiz-step__circle">1</span>
+                <span class="qwiz-step__label">Cliente</span>
+            </div>
+            <div class="qwiz-step-connector"></div>
+            <div class="qwiz-step" data-qwiz-step-item="2">
+                <span class="qwiz-step__circle">2</span>
+                <span class="qwiz-step__label">Moneda y configuración</span>
+            </div>
+            <div class="qwiz-step-connector"></div>
+            <div class="qwiz-step" data-qwiz-step-item="3">
+                <span class="qwiz-step__circle">3</span>
+                <span class="qwiz-step__label">Tipo de cotización</span>
+            </div>
+            <div class="qwiz-step-connector"></div>
+            <div class="qwiz-step" data-qwiz-step-item="4">
+                <span class="qwiz-step__circle">4</span>
+                <span class="qwiz-step__label">Productos y servicios</span>
+            </div>
+        </div>
 
-            {{-- ════ MAIN (columna izquierda) ════ --}}
-            <div class="quotes-main">
+        {{-- ════════════════════════════════════════════
+             PASO 1 — Cliente
+        ════════════════════════════════════════════ --}}
+        <div class="qwiz-step-panel" data-qwiz-step="1">
+            <div class="quotes-card">
+                <h2 class="quotes-card__header">Datos del Receptor</h2>
 
-                {{-- Datos del Receptor --}}
-                <div class="quotes-card">
-                    <h2 class="quotes-card__header">Datos del Receptor</h2>
-
-                    {{-- Selector de cliente registrado --}}
-                    <div class="form-group">
-                        <label class="form-label">Cliente registrado <span class="form-req">*</span></label>
-                        <div class="client-select-wrap">
-                            <input type="text" id="clientSearchInput" class="form-input"
-                                   placeholder="Escribe el nombre o empresa..."
-                                   autocomplete="off"
-                                   value="{{ $quote->customer ? trim($quote->customer->first_name . ' ' . $quote->customer->last_name) . ($quote->customer->company ? ' — ' . $quote->customer->company : '') : '' }}">
-                            <div id="clientDropdown" class="client-dropdown" style="display:none">
-                                @foreach($customers as $customer)
-                                    <div class="client-dropdown__item"
-                                         data-id="{{ $customer->id }}"
-                                         data-name="{{ trim($customer->first_name . ' ' . $customer->last_name) }}"
-                                         data-company="{{ $customer->company ?? '' }}"
-                                         data-email="{{ $customer->email ?? '' }}"
-                                         data-phone="{{ $customer->phone ?? '' }}"
-                                         data-rfc="{{ $customer->rfc ?? '' }}"
-                                         data-tipo-persona="{{ $customer->tipo_persona ?? '' }}">
-                                        <span class="client-dropdown__name">{{ $customer->company }}</span>
-                                        @if($customer->company)
-                                            <span class="client-dropdown__company">{{ trim($customer->first_name . ' ' . $customer->last_name) }}</span>
-                                        @endif
-                                    </div>
-                                @endforeach
-                                <div class="client-dropdown__empty" style="display:none">Sin resultados</div>
-                            </div>
+                {{-- Selector de cliente registrado --}}
+                <div class="form-group">
+                    <label class="form-label">Cliente registrado <span class="form-req">*</span></label>
+                    <div class="client-select-wrap">
+                        <input type="text" id="clientSearchInput" class="form-input"
+                               placeholder="Escribe el nombre o empresa..."
+                               autocomplete="off"
+                               value="{{ $quote->customer ? trim($quote->customer->first_name . ' ' . $quote->customer->last_name) . ($quote->customer->company ? ' — ' . $quote->customer->company : '') : '' }}">
+                        <div id="clientDropdown" class="client-dropdown" style="display:none">
+                            @foreach($customers as $customer)
+                                <div class="client-dropdown__item"
+                                     data-id="{{ $customer->id }}"
+                                     data-name="{{ trim($customer->first_name . ' ' . $customer->last_name) }}"
+                                     data-company="{{ $customer->company ?? '' }}"
+                                     data-email="{{ $customer->email ?? '' }}"
+                                     data-phone="{{ $customer->phone ?? '' }}"
+                                     data-rfc="{{ $customer->rfc ?? '' }}"
+                                     data-tipo-persona="{{ $customer->tipo_persona ?? '' }}">
+                                    <span class="client-dropdown__name">{{ $customer->company }}</span>
+                                    @if($customer->company)
+                                        <span class="client-dropdown__company">{{ trim($customer->first_name . ' ' . $customer->last_name) }}</span>
+                                    @endif
+                                </div>
+                            @endforeach
+                            <div class="client-dropdown__empty" style="display:none">Sin resultados</div>
                         </div>
-                        <input type="hidden" name="customer_id" id="customerIdInput" value="{{ old('customer_id', $quote->customer_id) }}">
-                        <span id="customerIdError" class="form-error" style="display:none">Debes seleccionar un cliente registrado.</span>
-                        @error('customer_id')<span class="form-error">{{ $message }}</span>@enderror
                     </div>
+                    <input type="hidden" name="customer_id" id="customerIdInput" value="{{ old('customer_id', $quote->customer_id) }}">
+                    <span id="customerIdError" class="form-error" style="display:none">Debes seleccionar un cliente registrado.</span>
+                    @error('customer_id')<span class="form-error">{{ $message }}</span>@enderror
+                </div>
 
+                <div class="form-group">
+                    <label class="form-label">Nombre completo <span class="form-req">*</span></label>
+                    <input type="text" name="guest_name" id="guestName" class="form-input"
+                           value="{{ old('guest_name', $quote->guest_name) }}"
+                           autocomplete="off" placeholder="Nombre y apellidos del receptor">
+                    @error('guest_name')<span class="form-error">{{ $message }}</span>@enderror
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Empresa</label>
+                    <input type="text" name="guest_company" class="form-input"
+                           value="{{ old('guest_company', $quote->guest_company) }}"
+                           placeholder="Razón social o nombre comercial">
+                </div>
+
+                <div class="form-grid">
                     <div class="form-group">
-                        <label class="form-label">Nombre completo <span class="form-req">*</span></label>
-                        <input type="text" name="guest_name" id="guestName" class="form-input"
-                               value="{{ old('guest_name', $quote->guest_name) }}"
-                               autocomplete="off" placeholder="Nombre y apellidos del receptor">
-                        @error('guest_name')<span class="form-error">{{ $message }}</span>@enderror
+                        <label class="form-label">Correo electrónico</label>
+                        <input type="email" name="guest_email" class="form-input"
+                               value="{{ old('guest_email', $quote->guest_email) }}"
+                               placeholder="correo@empresa.com">
+                        @error('guest_email')<span class="form-error">{{ $message }}</span>@enderror
                     </div>
-
                     <div class="form-group">
-                        <label class="form-label">Empresa</label>
-                        <input type="text" name="guest_company" class="form-input"
-                               value="{{ old('guest_company', $quote->guest_company) }}"
-                               placeholder="Razón social o nombre comercial">
+                        <label class="form-label">Teléfono</label>
+                        <input type="text" name="guest_phone" class="form-input"
+                               value="{{ old('guest_phone', $quote->guest_phone) }}"
+                               placeholder="+52 449 000 0000">
                     </div>
+                </div>
 
+                {{-- Datos fiscales --}}
+                <div class="form-group--highlighted">
+                    <span class="form-section-label">Datos Fiscales</span>
                     <div class="form-grid">
                         <div class="form-group">
-                            <label class="form-label">Correo electrónico</label>
-                            <input type="email" name="guest_email" class="form-input"
-                                   value="{{ old('guest_email', $quote->guest_email) }}"
-                                   placeholder="correo@empresa.com">
-                            @error('guest_email')<span class="form-error">{{ $message }}</span>@enderror
+                            <label class="form-label">RFC</label>
+                            <input type="text" name="guest_rfc" class="form-input"
+                                   value="{{ old('guest_rfc', $quote->guest_rfc) }}"
+                                   placeholder="XXXX000000XX0">
                         </div>
                         <div class="form-group">
-                            <label class="form-label">Teléfono</label>
-                            <input type="text" name="guest_phone" class="form-input"
-                                   value="{{ old('guest_phone', $quote->guest_phone) }}"
-                                   placeholder="+52 449 000 0000">
+                            <label class="form-label">Válido hasta</label>
+                            <input type="date" name="valid_until" class="form-input"
+                                   value="{{ old('valid_until', $quote->valid_until ? $quote->valid_until->format('Y-m-d') : '') }}">
                         </div>
                     </div>
-
-                    {{-- Datos fiscales --}}
-                    <div class="form-group--highlighted">
-                        <span class="form-section-label">Datos Fiscales</span>
-                        <div class="form-grid">
-                            <div class="form-group">
-                                <label class="form-label">RFC</label>
-                                <input type="text" name="guest_rfc" class="form-input"
-                                       value="{{ old('guest_rfc', $quote->guest_rfc) }}"
-                                       placeholder="XXXX000000XX0">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Válido hasta</label>
-                                <input type="date" name="valid_until" class="form-input"
-                                       value="{{ old('valid_until', $quote->valid_until ? $quote->valid_until->format('Y-m-d') : '') }}">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {{-- Productos / Servicios --}}
-                <div class="quotes-card">
-                    <h2 class="quotes-card__header">Productos / Servicios</h2>
-
-                    @error('items_json')
-                    <div class="alert-error">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                            <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
-                        </svg>
-                        {{ $message }}
-                    </div>
-                    @enderror
-
-                    {{-- Error inline de validación JS --}}
-                    <div id="itemsError" class="alert-error" style="display:none;">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                            <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
-                        </svg>
-                        Debes agregar al menos un producto o servicio.
-                    </div>
-
-                    <div class="products-toolbar">
-
-                        {{-- Búsqueda inline de productos --}}
-                        <div class="inline-product-search" id="inlineProductSearch">
-                            <div class="inline-product-search__input-wrap">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15"
-                                     viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                     stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"
-                                     class="inline-product-search__icon" aria-hidden="true">
-                                    <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
-                                </svg>
-                                <input type="text"
-                                       id="inlineProductInput"
-                                       class="inline-product-search__input"
-                                       placeholder="Buscar por nombre, SKU, marca o categoría..."
-                                       autocomplete="off">
-                                <button type="button"
-                                        class="inline-product-search__clear"
-                                        id="inlineProductClear"
-                                        style="display:none"
-                                        aria-label="Limpiar búsqueda">✕</button>
-                            </div>
-
-                            <div class="inline-product-search__dropdown"
-                                 id="inlineProductDropdown"
-                                 style="display:none">
-                                <div class="inline-product-search__loading"
-                                     id="inlineProductLoading"
-                                     style="display:none">
-                                    <span class="inline-product-search__spinner"></span>
-                                    Buscando productos...
-                                </div>
-                                <div class="inline-product-search__empty"
-                                     id="inlineProductEmpty"
-                                     style="display:none">
-                                    Sin resultados para "<span id="inlineProductEmptyQuery"></span>"
-                                </div>
-                                <ul class="inline-product-search__list" id="inlineProductList"></ul>
-                            </div>
-                        </div>
-
-                        {{-- Búsqueda inline de servicios (ServicePage) --}}
-                        <div class="inline-product-search" id="inlineServiceSearch">
-                            <div class="inline-product-search__input-wrap">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15"
-                                     viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                     stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"
-                                     class="inline-product-search__icon" aria-hidden="true">
-                                    <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
-                                </svg>
-                                <input type="text"
-                                       id="inlineServiceInput"
-                                       class="inline-product-search__input"
-                                       placeholder="Buscar servicio por nombre..."
-                                       autocomplete="off">
-                                <button type="button"
-                                        class="inline-product-search__clear"
-                                        id="inlineServiceClear"
-                                        style="display:none"
-                                        aria-label="Limpiar búsqueda">✕</button>
-                            </div>
-
-                            <div class="inline-product-search__dropdown"
-                                 id="inlineServiceDropdown"
-                                 style="display:none">
-                                <div class="inline-product-search__empty"
-                                     id="inlineServiceEmpty"
-                                     style="display:none">
-                                    Sin resultados para "<span id="inlineServiceEmptyQuery"></span>"
-                                </div>
-                                <ul class="inline-product-search__list" id="inlineServiceList"></ul>
-                            </div>
-                        </div>
-
-                        <button type="button" class="btn-add-row" onclick="QuoteForm.addFreeRow()">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15"
-                                 viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                 stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"
-                                 aria-hidden="true">
-                                <path d="M12 5v14"/><path d="M5 12h14"/>
-                            </svg>
-                            Agregar línea libre
-                        </button>
-                    </div>
-
-                    <div class="products-table-wrap">
-                        <table class="products-table">
-                            <thead>
-                                <tr>
-                                    <th class="col-num">#</th>
-                                    <th class="col-name">Producto / Descripción</th>
-                                    <th class="col-sku">SKU</th>
-                                    <th class="col-qty">Cant.</th>
-                                    <th class="col-price">Precio Unit.</th>
-                                    <th class="col-disc">Desc. %</th>
-                                    <th class="col-total">Subtotal</th>
-                                    <th class="col-del"></th>
-                                </tr>
-                            </thead>
-                            <tbody id="itemsTableBody">
-                                <tr id="emptyRow" class="products-table-empty">
-                                    <td colspan="8">Agrega productos usando los botones de arriba</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <input type="hidden" name="items_json" id="itemsJson">
                 </div>
             </div>
+        </div>
 
-            {{-- ════ SIDEBAR (columna derecha) ════ --}}
-            <aside class="summary-panel">
+        {{-- ════════════════════════════════════════════
+             PASO 2 — Moneda y configuración
+        ════════════════════════════════════════════ --}}
+        <div class="qwiz-step-panel" data-qwiz-step="2">
+            <div class="quotes-card">
+                <h2 class="quotes-card__header">Configuración</h2>
 
-                {{-- Configuración --}}
-                <div class="quotes-card">
-                    <h2 class="quotes-card__header">Configuración</h2>
+                {{-- Moneda del documento + tipo de cambio USD→MXN editable
+                     por cotización. Si esta cotización ya tenía un
+                     exchange_rate guardado, ese es el que se muestra (no
+                     el global) — pero sigue siendo editable en cada
+                     guardado. --}}
+                <div class="form-group">
+                    <label class="form-label">Moneda <span class="form-req">*</span></label>
+                    <select name="currency" id="quoteCurrency" class="form-input">
+                        <option value="MXN" {{ old('currency', $quote->currency ?? 'MXN') === 'MXN' ? 'selected' : '' }}>MXN — Peso mexicano</option>
+                        <option value="USD" {{ old('currency', $quote->currency) === 'USD' ? 'selected' : '' }}>USD — Dólar estadounidense</option>
+                    </select>
+                    @error('currency')<span class="form-error">{{ $message }}</span>@enderror
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Tipo de cambio (USD→MXN) <span class="form-req">*</span></label>
+                    <input type="number" name="exchange_rate" id="quoteExchangeRate" class="form-input"
+                           value="{{ old('exchange_rate', $quote->exchange_rate ?? $defaultExchangeRate) }}"
+                           step="0.0001" min="0.01">
+                    @error('exchange_rate')<span class="form-error">{{ $message }}</span>@enderror
+                </div>
+                <p class="form-hint" style="font-size:11px;color:#6B7280;margin:-6px 0 12px;">
+                    Este tipo de cambio se usará para convertir los productos en dólares que agregues más adelante.
+                </p>
 
-                    <div class="form-group">
-                        <label class="form-label">IVA (%) <span class="form-req">*</span></label>
-                        <input type="number" name="tax_rate" id="taxRate" class="form-input"
-                               value="{{ old('tax_rate', $quote->tax_rate) }}"
-                               step="0.01" min="0" max="100">
-                        @error('tax_rate')<span class="form-error">{{ $message }}</span>@enderror
-                    </div>
-
-                    {{-- FIX: solo aplica cuando el cliente vinculado es
-                         persona moral — habilitado al cargar si ya lo es,
-                         y el JS del selector de cliente lo ajusta si se
-                         cambia de cliente. --}}
-                    <div class="form-group">
-                        <label class="form-label">Retención de ISR persona moral (%)</label>
-                        <input type="number" name="isr_retention_rate" id="isrRetentionRate" class="form-input"
-                               value="{{ old('isr_retention_rate', $quote->isr_retention_rate ?: 10) }}"
-                               step="0.01" min="0" max="100"
-                               {{ optional($quote->customer)->tipo_persona === 'moral' ? '' : 'disabled' }}>
-                        @error('isr_retention_rate')<span class="form-error">{{ $message }}</span>@enderror
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Notas internas</label>
-                        <textarea name="notes" class="form-textarea"
-                                  placeholder="Observaciones visibles solo para el equipo">{{ old('notes', $quote->notes) }}</textarea>
-                    </div>
-
-                    <div class="form-group" style="margin-top:4px;">
-                        <label class="form-label" style="margin-bottom:8px;">Términos y condiciones</label>
-                        <details class="accordion-conditions" {{ $quote->terms_conditions ? 'open' : '' }}>
-                            <summary class="accordion-conditions__summary">Editar condiciones</summary>
-                            <div class="accordion-conditions__body">
-                                <textarea name="terms_conditions" class="form-textarea"
-                                          placeholder="Términos que aparecerán en el PDF de la cotización">{{ old('terms_conditions', $quote->terms_conditions) }}</textarea>
-                            </div>
-                        </details>
-                    </div>
+                <div class="form-group">
+                    <label class="form-label">IVA (%) <span class="form-req">*</span></label>
+                    <input type="number" name="tax_rate" id="taxRate" class="form-input"
+                           value="{{ old('tax_rate', $quote->tax_rate) }}"
+                           step="0.01" min="0" max="100">
+                    @error('tax_rate')<span class="form-error">{{ $message }}</span>@enderror
                 </div>
 
-                {{-- Resumen / Totales + CTA --}}
-                <div class="quotes-card">
-                    <h2 class="quotes-card__header">Resumen</h2>
+                {{-- FIX: solo aplica cuando el cliente vinculado es
+                     persona moral — habilitado al cargar si ya lo es,
+                     y el JS del selector de cliente lo ajusta si se
+                     cambia de cliente. --}}
+                <div class="form-group">
+                    <label class="form-label">Retención de ISR persona moral (%)</label>
+                    <input type="number" name="isr_retention_rate" id="isrRetentionRate" class="form-input"
+                           value="{{ old('isr_retention_rate', $quote->isr_retention_rate ?: 10) }}"
+                           step="0.01" min="0" max="100"
+                           {{ optional($quote->customer)->tipo_persona === 'moral' ? '' : 'disabled' }}>
+                    @error('isr_retention_rate')<span class="form-error">{{ $message }}</span>@enderror
+                </div>
 
-                    <div class="summary-totals">
-                        <div class="summary-totals__row">
-                            <span>Subtotal</span>
-                            <span id="displaySubtotal">$0.00</span>
-                        </div>
-                        <div class="summary-totals__row">
-                            <span>Descuento global</span>
-                            <span>
-                                <input type="number" name="discount_total" id="discountTotal"
-                                       class="discount-input"
-                                       value="{{ old('discount_total', $quote->discount_total) }}"
-                                       min="0" step="0.01" placeholder="0.00">
-                            </span>
-                        </div>
-                        <div class="summary-totals__row">
-                            <span>IVA (<span id="displayTaxRate">{{ $quote->tax_rate }}</span>%)</span>
-                            <span id="displayTaxTotal">$0.00</span>
-                        </div>
-                        <div class="summary-totals__row" id="displayRetentionRow" style="display:none">
-                            <span>Retención ISR (<span id="displayRetentionRate">{{ $quote->isr_retention_rate }}</span>%)</span>
-                            <span id="displayRetentionTotal">-$0.00</span>
-                        </div>
-                    </div>
+                <div class="form-group">
+                    <label class="form-label">Notas internas</label>
+                    <textarea name="notes" class="form-textarea"
+                              placeholder="Observaciones visibles solo para el equipo">{{ old('notes', $quote->notes) }}</textarea>
+                </div>
 
-                    <div class="summary-total-block">
-                        <span class="summary-total-block__label">Total</span>
-                        <span class="summary-total-block__amount" id="displayTotal">$0.00</span>
-                    </div>
-                    <p class="iva-note">IVA incluido</p>
+                <div class="form-group" style="margin-top:4px;">
+                    <label class="form-label" style="margin-bottom:8px;">Términos y condiciones</label>
+                    <details class="accordion-conditions" {{ $quote->terms_conditions ? 'open' : '' }}>
+                        <summary class="accordion-conditions__summary">Editar condiciones</summary>
+                        <div class="accordion-conditions__body">
+                            <textarea name="terms_conditions" class="form-textarea"
+                                      placeholder="Términos que aparecerán en el PDF de la cotización">{{ old('terms_conditions', $quote->terms_conditions) }}</textarea>
+                        </div>
+                    </details>
+                </div>
+            </div>
+        </div>
 
-                    <button type="submit" class="btn-primary btn-primary--full">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
-                            <polyline points="17 21 17 13 7 13 7 21"/>
-                            <polyline points="7 3 7 8 15 8"/>
-                        </svg>
-                        Actualizar Cotización
+        {{-- ════════════════════════════════════════════
+             PASO 3 — Tipo de cotización
+        ════════════════════════════════════════════ --}}
+        <div class="qwiz-step-panel" data-qwiz-step="3">
+            <div class="quotes-card">
+                <h2 class="quotes-card__header">Tipo de cotización</h2>
+                <p class="qwiz-type-hint">Elige qué vas a cotizar. Esto determina qué buscador verás en el siguiente paso.</p>
+
+                <div class="qwiz-type-cards">
+                    <button type="button" class="qwiz-type-card" data-qwiz-type="products">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                        <span class="qwiz-type-card__title">Solo productos</span>
+                        <span class="qwiz-type-card__desc">Cotización basada únicamente en productos del catálogo.</span>
                     </button>
-                    <a href="{{ route('admin.quotes.show', $quote) }}" class="btn-cancel">Cancelar</a>
+                    <button type="button" class="qwiz-type-card" data-qwiz-type="services">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 12.5 8 15l2 2.5"/><path d="m14 12.5 2 2.5-2 2.5"/><rect width="18" height="18" x="3" y="3" rx="2"/></svg>
+                        <span class="qwiz-type-card__title">Solo servicios</span>
+                        <span class="qwiz-type-card__desc">Cotización basada únicamente en servicios (ServicePage).</span>
+                    </button>
+                    <button type="button" class="qwiz-type-card" data-qwiz-type="both">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/><path d="m3 12 5 5L19 6"/></svg>
+                        <span class="qwiz-type-card__title">Ambos</span>
+                        <span class="qwiz-type-card__desc">Combina productos y servicios en la misma cotización.</span>
+                    </button>
+                </div>
+                <span id="qwizTypeError" class="form-error" style="display:none">Selecciona un tipo de cotización para continuar.</span>
+            </div>
+        </div>
+
+        {{-- ════════════════════════════════════════════
+             PASO 4 — Productos y servicios + Resumen
+        ════════════════════════════════════════════ --}}
+        <div class="qwiz-step-panel" data-qwiz-step="4">
+            <div class="quotes-layout">
+
+                {{-- MAIN (columna izquierda) --}}
+                <div class="quotes-main">
+                    <div class="quotes-card">
+                        <h2 class="quotes-card__header">Productos / Servicios</h2>
+
+                        @error('items_json')
+                        <div class="alert-error">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+                            </svg>
+                            {{ $message }}
+                        </div>
+                        @enderror
+
+                        {{-- Error inline de validación JS --}}
+                        <div id="itemsError" class="alert-error" style="display:none;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+                            </svg>
+                            Debes agregar al menos un producto o servicio.
+                        </div>
+
+                        <div class="products-toolbar">
+
+                            {{-- Búsqueda inline de productos --}}
+                            <details class="accordion-conditions" id="qwizProductAccordion" open>
+                                <summary class="accordion-conditions__summary">Buscar productos</summary>
+                                <div class="accordion-conditions__body">
+                                    <div class="inline-product-search" id="inlineProductSearch">
+                                        <div class="inline-product-search__input-wrap">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15"
+                                                 viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                 stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"
+                                                 class="inline-product-search__icon" aria-hidden="true">
+                                                <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+                                            </svg>
+                                            <input type="text"
+                                                   id="inlineProductInput"
+                                                   class="inline-product-search__input"
+                                                   placeholder="Buscar por nombre, SKU, marca o categoría..."
+                                                   autocomplete="off">
+                                            <button type="button"
+                                                    class="inline-product-search__clear"
+                                                    id="inlineProductClear"
+                                                    style="display:none"
+                                                    aria-label="Limpiar búsqueda">✕</button>
+                                        </div>
+
+                                        <div class="inline-product-search__dropdown"
+                                             id="inlineProductDropdown"
+                                             style="display:none">
+                                            <div class="inline-product-search__loading"
+                                                 id="inlineProductLoading"
+                                                 style="display:none">
+                                                <span class="inline-product-search__spinner"></span>
+                                                Buscando productos...
+                                            </div>
+                                            <div class="inline-product-search__empty"
+                                                 id="inlineProductEmpty"
+                                                 style="display:none">
+                                                Sin resultados para "<span id="inlineProductEmptyQuery"></span>"
+                                            </div>
+                                            <ul class="inline-product-search__list" id="inlineProductList"></ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </details>
+
+                            {{-- Búsqueda inline de servicios (ServicePage) --}}
+                            <details class="accordion-conditions" id="qwizServiceAccordion" open>
+                                <summary class="accordion-conditions__summary">Buscar servicios</summary>
+                                <div class="accordion-conditions__body">
+                                    <div class="inline-product-search" id="inlineServiceSearch">
+                                        <div class="inline-product-search__input-wrap">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15"
+                                                 viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                 stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"
+                                                 class="inline-product-search__icon" aria-hidden="true">
+                                                <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+                                            </svg>
+                                            <input type="text"
+                                                   id="inlineServiceInput"
+                                                   class="inline-product-search__input"
+                                                   placeholder="Buscar servicio por nombre..."
+                                                   autocomplete="off">
+                                            <button type="button"
+                                                    class="inline-product-search__clear"
+                                                    id="inlineServiceClear"
+                                                    style="display:none"
+                                                    aria-label="Limpiar búsqueda">✕</button>
+                                        </div>
+
+                                        <div class="inline-product-search__dropdown"
+                                             id="inlineServiceDropdown"
+                                             style="display:none">
+                                            <div class="inline-product-search__empty"
+                                                 id="inlineServiceEmpty"
+                                                 style="display:none">
+                                                Sin resultados para "<span id="inlineServiceEmptyQuery"></span>"
+                                            </div>
+                                            <ul class="inline-product-search__list" id="inlineServiceList"></ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </details>
+
+                            <button type="button" class="btn-add-row" onclick="QuoteForm.addFreeRow()">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15"
+                                     viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                     stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"
+                                     aria-hidden="true">
+                                    <path d="M12 5v14"/><path d="M5 12h14"/>
+                                </svg>
+                                Agregar línea libre
+                            </button>
+                        </div>
+
+                        <div class="products-table-wrap">
+                            <table class="products-table">
+                                <thead>
+                                    <tr>
+                                        <th class="col-num">#</th>
+                                        <th class="col-name">Producto / Descripción</th>
+                                        <th class="col-sku">SKU</th>
+                                        <th class="col-qty">Cant.</th>
+                                        <th class="col-price">Precio Unit.</th>
+                                        <th class="col-disc">Desc. %</th>
+                                        <th class="col-total">Subtotal</th>
+                                        <th class="col-del"></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="itemsTableBody">
+                                    <tr id="emptyRow" class="products-table-empty">
+                                        <td colspan="8">Agrega productos usando los botones de arriba</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <input type="hidden" name="items_json" id="itemsJson">
+                    </div>
                 </div>
 
-            </aside>
+                {{-- SIDEBAR (columna derecha) --}}
+                <aside class="summary-panel">
+                    <div class="quotes-card">
+                        <h2 class="quotes-card__header">Resumen</h2>
+
+                        <div class="summary-totals">
+                            <div class="summary-totals__row">
+                                <span>Subtotal</span>
+                                <span id="displaySubtotal">$0.00</span>
+                            </div>
+                            <div class="summary-totals__row">
+                                <span>Descuento global</span>
+                                <span>
+                                    <input type="number" name="discount_total" id="discountTotal"
+                                           class="discount-input"
+                                           value="{{ old('discount_total', $quote->discount_total) }}"
+                                           min="0" step="0.01" placeholder="0.00">
+                                </span>
+                            </div>
+                            <div class="summary-totals__row">
+                                <span>IVA (<span id="displayTaxRate">{{ $quote->tax_rate }}</span>%)</span>
+                                <span id="displayTaxTotal">$0.00</span>
+                            </div>
+                            <div class="summary-totals__row" id="displayRetentionRow" style="display:none">
+                                <span>Retención ISR (<span id="displayRetentionRate">{{ $quote->isr_retention_rate }}</span>%)</span>
+                                <span id="displayRetentionTotal">-$0.00</span>
+                            </div>
+                        </div>
+
+                        <div class="summary-total-block">
+                            <span class="summary-total-block__label">Total</span>
+                            <span class="summary-total-block__amount" id="displayTotal">$0.00</span>
+                        </div>
+                        <p class="iva-note">IVA incluido</p>
+
+                        <button type="submit" class="btn-primary btn-primary--full">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                                <polyline points="17 21 17 13 7 13 7 21"/>
+                                <polyline points="7 3 7 8 15 8"/>
+                            </svg>
+                            Actualizar Cotización
+                        </button>
+                        <a href="{{ route('admin.quotes.show', $quote) }}" class="btn-cancel">Cancelar</a>
+                    </div>
+                </aside>
+            </div>
+        </div>
+
+        {{-- ════════════════════════════════════════════
+             FOOTER DEL WIZARD
+        ════════════════════════════════════════════ --}}
+        <div class="qwiz-footer">
+            <button type="button" id="qwizBackBtn" class="qwiz-btn--ghost">
+                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+                Atrás
+            </button>
+            <button type="button" id="qwizNextBtn" class="qwiz-btn--primary">
+                Siguiente
+                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+            </button>
         </div>
     </form>
+
+    {{-- ════════════════════════════════════════════
+         MODAL DE CONFIRMACIÓN AL RETROCEDER
+    ════════════════════════════════════════════ --}}
+    <div class="qwiz-confirm-backdrop">
+        <div class="qwiz-confirm-modal">
+            <p>Si regresas, se perderán los productos y servicios que ya agregaste. ¿Continuar?</p>
+            <div class="qwiz-confirm-modal__actions">
+                <button type="button" id="qwizConfirmNo" class="qwiz-btn--ghost">Cancelar</button>
+                <button type="button" id="qwizConfirmYes" class="qwiz-btn--primary">Continuar</button>
+            </div>
+        </div>
+    </div>
 </div>
 @endsection
 
@@ -619,6 +742,12 @@ window.ADMIN_QUOTES_CONFIG = {
         try {
             const url = new URL(SEARCH_URL, window.location.origin);
             url.searchParams.set('q', query);
+            // Moneda y tipo de cambio ACTUALES del formulario (no el global)
+            // para que el backend convierta cada producto USD por línea.
+            const currencyEl = document.getElementById('quoteCurrency');
+            const rateEl      = document.getElementById('quoteExchangeRate');
+            if (currencyEl) url.searchParams.set('currency', currencyEl.value);
+            if (rateEl && rateEl.value) url.searchParams.set('exchange_rate', rateEl.value);
             const res  = await fetch(url.toString(), {
                 headers: { 'X-Requested-With': 'XMLHttpRequest' }
             });
@@ -789,4 +918,5 @@ window.ADMIN_QUOTES_CONFIG = {
 })();
 </script>
 @vite(['resources/js/admin-quotes.js'])
+@vite(['resources/js/admin/wizard-core.js', 'resources/js/admin/quote-wizard.js'])
 @endpush

@@ -91,6 +91,9 @@
                             <p>Válida hasta: <span>{{ $quote->valid_until->format('d/m/Y') }}</span></p>
                             @endif
                             <p>Moneda: <span>{{ $quote->currency }}</span></p>
+                            @if($quote->exchange_rate)
+                            <p>Tipo de cambio: <span>{{ number_format($quote->exchange_rate, 4) }}</span></p>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -127,6 +130,12 @@
                                 <div class="info-item__label">Moneda</div>
                                 <div class="info-item__value">{{ $quote->currency }}</div>
                             </div>
+                            @if($quote->exchange_rate)
+                            <div>
+                                <div class="info-item__label">Tipo de cambio</div>
+                                <div class="info-item__value">{{ number_format($quote->exchange_rate, 4) }}</div>
+                            </div>
+                            @endif
                             @if($quote->valid_until)
                             <div>
                                 <div class="info-item__label">Vence</div>
@@ -259,6 +268,12 @@
                         <div class="info-item__label">Moneda</div>
                         <div class="info-item__value">{{ $quote->currency }}</div>
                     </div>
+                    @if($quote->exchange_rate)
+                    <div>
+                        <div class="info-item__label">Tipo de cambio</div>
+                        <div class="info-item__value">{{ number_format($quote->exchange_rate, 4) }}</div>
+                    </div>
+                    @endif
                     <div>
                         <div class="info-item__label">IVA</div>
                         <div class="info-item__value">{{ $quote->tax_rate }}%</div>

@@ -229,6 +229,9 @@ thead { display: table-header-group; }
                 <p>Válida hasta: <span>{{ $quote->valid_until->format('d/m/Y') }}</span></p>
                 @endif
                 <p>Moneda: <span>{{ $quote->currency }}</span></p>
+                @if($quote->exchange_rate)
+                <p>Tipo de cambio: <span>{{ number_format($quote->exchange_rate, 4) }}</span></p>
+                @endif
             </div>
         </div>
     </div>
@@ -295,6 +298,12 @@ thead { display: table-header-group; }
             <div class="cond-label">Moneda</div>
             <div class="cond-value">{{ $quote->currency }}</div>
         </div>
+        @if($quote->exchange_rate)
+        <div class="cond-item">
+            <div class="cond-label">Tipo de cambio</div>
+            <div class="cond-value">{{ number_format($quote->exchange_rate, 4) }}</div>
+        </div>
+        @endif
         @if($quote->valid_until)
         <div class="cond-item">
             <div class="cond-label">Válido hasta</div>

@@ -6,7 +6,8 @@
     // final_price. Fuera de alcance por ahora (no pedido por el usuario).
     $hasDiscount = $product->compare_price && $product->compare_price > $product->price;
     $discountPct = $hasDiscount ? round((1 - ($product->price / $product->compare_price)) * 100) : null;
-    $currency = $product->currency ?? 'MXN';
+    // Fijo a MXN: final_price/compare_price_in_mxn ya vienen convertidos.
+    $currency = 'MXN';
     $galleryUrls = $product->images->pluck('url')->filter()->values();
     $hasGallery = $galleryUrls->count() > 1;
     $imageUrl = $product->cover_image_url
@@ -43,7 +44,7 @@
         <div class="product-card__name">{{ $resolvedName }}</div>
         <div class="product-card__sku">{{ $product->sku }}</div>
         @if ($hasDiscount)
-            <div class="product-card__original">${{ number_format($product->compare_price, 2) }} {{ $currency }}</div>
+            <div class="product-card__original">${{ number_format($product->compare_price_in_mxn, 2) }} {{ $currency }}</div>
         @endif
         <div class="product-card__price-row">
             <span class="product-card__price">${{ number_format($product->final_price, 2) }} {{ $currency }}</span>

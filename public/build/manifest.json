@@ -4,7 +4,7 @@
     "name": "alpine-init"
   },
   "resources/css/admin-quotes.css": {
-    "file": "assets/admin-quotes-B9t4uuYe.css",
+    "file": "assets/admin-quotes-uzCElqHU.css",
     "src": "resources/css/admin-quotes.css",
     "isEntry": true
   },
@@ -59,7 +59,7 @@
     "isEntry": true
   },
   "resources/css/admin/pages/purchase-orders.css": {
-    "file": "assets/purchase-orders-Bg2xRxHf.css",
+    "file": "assets/purchase-orders-C0i1kK0n.css",
     "src": "resources/css/admin/pages/purchase-orders.css",
     "isEntry": true
   },
@@ -131,6 +131,18 @@
     "src": "resources/js/admin/image-picker.js",
     "isEntry": true
   },
+  "resources/js/admin/po-wizard.js": {
+    "file": "assets/po-wizard-Cn1FqbXq.js",
+    "name": "po-wizard",
+    "src": "resources/js/admin/po-wizard.js",
+    "isEntry": true
+  },
+  "resources/js/admin/quote-wizard.js": {
+    "file": "assets/quote-wizard-CyHBlgge.js",
+    "name": "quote-wizard",
+    "src": "resources/js/admin/quote-wizard.js",
+    "isEntry": true
+  },
   "resources/js/admin/roles.js": {
     "file": "assets/roles-CpcDjtCP.js",
     "name": "roles",
@@ -159,6 +171,12 @@
     "file": "assets/variable-picker-D4MB39z6.js",
     "name": "variable-picker",
     "src": "resources/js/admin/variable-picker.js",
+    "isEntry": true
+  },
+  "resources/js/admin/wizard-core.js": {
+    "file": "assets/wizard-core-Ddspc9c0.js",
+    "name": "wizard-core",
+    "src": "resources/js/admin/wizard-core.js",
     "isEntry": true
   },
   "resources/js/app.js": {

@@ -12,7 +12,7 @@ class PurchaseOrder extends Model
     protected $fillable = [
         'po_number', 'supplier_id', 'created_by_user_id',
         'status', 'order_date', 'expected_delivery_date',
-        'internal_reference', 'notes', 'currency',
+        'internal_reference', 'notes', 'currency', 'exchange_rate',
         'subtotal', 'discount_total', 'tax_rate',
         'tax_total', 'total',
     ];
@@ -23,6 +23,7 @@ class PurchaseOrder extends Model
         'subtotal'               => 'decimal:2',
         'discount_total'         => 'decimal:2',
         'tax_rate'               => 'decimal:2',
+        'exchange_rate'          => 'decimal:4',
         'tax_total'              => 'decimal:2',
         'total'                  => 'decimal:2',
     ];
@@ -30,6 +31,14 @@ class PurchaseOrder extends Model
     public function supplier()
     {
         return $this->belongsTo(Supplier::class);
+    }
+
+    public function isEditable(?\App\Models\User $user = null): bool
+    {
+        if ($user?->isAdmin()) {
+            return true;
+        }
+        return $this->status === 'pending';
     }
 
     public function createdBy()

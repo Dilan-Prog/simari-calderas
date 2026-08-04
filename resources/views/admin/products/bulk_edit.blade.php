@@ -23,7 +23,7 @@
             ['key' => 'stock_unit', 'label' => 'Unidad Stock', 'group' => 'Precios / Inventario', 'type' => 'select',
                 'options' => ['pieza' => 'Pieza', 'juego' => 'Juego', 'kit' => 'Kit', 'metro' => 'Metro', 'kg' => 'Kg', 'litro' => 'Litro']],
             ['key' => 'currency', 'label' => 'Moneda', 'group' => 'Precios / Inventario', 'type' => 'select',
-                'options' => ['MXN' => 'MXN', 'USD' => 'USD', 'EUR' => 'EUR']],
+                'options' => ['MXN' => 'MXN', 'USD' => 'USD']],
             ['key' => 'availability', 'label' => 'Disponibilidad', 'group' => 'Precios / Inventario', 'type' => 'select',
                 'options' => ['available' => 'Disponible', 'out_of_stock' => 'Agotado', 'on_order' => 'Sobre pedido']],
 

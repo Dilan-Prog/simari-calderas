@@ -295,6 +295,12 @@ thead { display: table-header-group; }
             <div class="cond-label">Moneda</div>
             <div class="cond-value">{{ $order->currency }}</div>
         </div>
+        @if($order->exchange_rate !== null)
+        <div class="cond-item">
+            <div class="cond-label">Tipo de cambio (USD → MXN)</div>
+            <div class="cond-value">{{ number_format($order->exchange_rate, 4) }}</div>
+        </div>
+        @endif
         @if($order->internal_reference)
         <div class="cond-item">
             <div class="cond-label">Referencia interna</div>

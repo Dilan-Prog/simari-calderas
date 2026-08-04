@@ -1,6 +1,7 @@
 @push('scripts')
     <script>window.PRODUCT_VARIABLES = @json(\App\Models\Products::VARIABLE_CATALOG);</script>
     <script>window.PFORM_IVA_RATE = @json(\App\Models\Products::ivaRate());</script>
+    <script>window.PFORM_EXCHANGE_RATE = @json(\App\Models\Products::exchangeRate());</script>
     <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
     <script>
         (function() {
@@ -223,13 +224,27 @@
             costInput.addEventListener('input', updateProfit);
             priceInput.addEventListener('input', updateProfit);
 
-            /* ── Desglose de IVA ── */
+            /* ── Desglose de IVA (con conversión USD→MXN si aplica) ── */
             const includesTaxInput = document.getElementById('pformPriceIncludesTax');
+            const currencySelect = document.querySelector('select[name="currency"]');
+            const exchangeRateHint = document.getElementById('pformExchangeRateHint');
 
             function updateIvaBreakdown() {
-                const price = parseFloat(priceInput.value) || 0;
+                const rawPrice = parseFloat(priceInput.value) || 0;
                 const rate = window.PFORM_IVA_RATE || 16;
                 const includesTax = includesTaxInput.checked;
+                const isUsd = currencySelect && currencySelect.value === 'USD';
+                const exchangeRate = window.PFORM_EXCHANGE_RATE || 1;
+
+                // Conversión primero, IVA después — mismo orden que Products::getFinalPriceAttribute().
+                const price = isUsd ? rawPrice * exchangeRate : rawPrice;
+
+                if (exchangeRateHint) {
+                    exchangeRateHint.style.display = isUsd ? '' : 'none';
+                    if (isUsd) {
+                        exchangeRateHint.textContent = '1 USD = $' + exchangeRate.toLocaleString('es-MX', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' MXN';
+                    }
+                }
 
                 let base, ivaAmount, final;
                 if (includesTax) {
@@ -250,6 +265,7 @@
 
             priceInput.addEventListener('input', updateIvaBreakdown);
             includesTaxInput.addEventListener('change', updateIvaBreakdown);
+            if (currencySelect) currencySelect.addEventListener('change', updateIvaBreakdown);
             updateIvaBreakdown();
 
             /* ── Availability buttons ── */

@@ -55,7 +55,12 @@ class QuoteController extends Controller
             ->orderBy('first_name')
             ->get();
 
-        return view('admin.quotes.create', compact('customers'));
+        // Tipo de cambio USD→MXN vigente al momento de crear el formulario —
+        // solo un valor por defecto para el campo editable; se guarda lo que
+        // el usuario deje en el campo al momento de enviar el form, no esto.
+        $defaultExchangeRate = Products::exchangeRate();
+
+        return view('admin.quotes.create', compact('customers', 'defaultExchangeRate'));
     }
 
     public function store(Request $request)
@@ -74,6 +79,8 @@ class QuoteController extends Controller
             // UI) when the selected customer is persona moral, but always
             // validated as a plain optional percentage server-side.
             'isr_retention_rate' => 'nullable|numeric|min:0|max:100',
+            'currency'         => 'required|in:MXN,USD',
+            'exchange_rate'    => 'required|numeric|min:0.01',
             'notes'            => 'nullable|string',
             'terms_conditions' => 'nullable|string',
             'items_json'       => 'required|json',
@@ -88,7 +95,7 @@ class QuoteController extends Controller
         $data = $request->only([
             'customer_id', 'guest_name', 'guest_email', 'guest_phone', 'guest_company',
             'guest_rfc', 'valid_until', 'tax_rate', 'discount_total', 'isr_retention_rate',
-            'notes', 'terms_conditions',
+            'currency', 'exchange_rate', 'notes', 'terms_conditions',
         ]);
         $data['items'] = $items;
 
@@ -112,9 +119,9 @@ class QuoteController extends Controller
 
     public function edit(Quote $quote)
     {
-        if (!$quote->isEditable()) {
+        if (!$quote->isEditable(auth()->user())) {
             return redirect()->route('admin.quotes.show', $quote)
-                ->with('error', 'Solo se pueden editar cotizaciones en estado Borrador o Enviada.');
+                ->with('error', 'Esta cotización ya no se puede editar en su estatus actual — solo un administrador puede hacerlo.');
         }
 
         $customers = \App\Models\Customer::select('id', 'first_name', 'last_name', 'email', 'phone', 'rfc', 'company', 'tipo_persona')
@@ -123,14 +130,20 @@ class QuoteController extends Controller
             ->get();
 
         $quote->load('items');
-        return view('admin.quotes.edit', compact('quote', 'customers'));
+
+        // Fallback para cotizaciones que aún no tienen exchange_rate guardado
+        // (nullable, capturadas antes de esta fase) — el campo en la vista
+        // sigue siendo editable, esto solo define qué se muestra por defecto.
+        $defaultExchangeRate = Products::exchangeRate();
+
+        return view('admin.quotes.edit', compact('quote', 'customers', 'defaultExchangeRate'));
     }
 
     public function update(Request $request, Quote $quote)
     {
-        if (!$quote->isEditable()) {
+        if (!$quote->isEditable(auth()->user())) {
             return redirect()->route('admin.quotes.show', $quote)
-                ->with('error', 'Solo se pueden editar cotizaciones en estado Borrador o Enviada.');
+                ->with('error', 'Esta cotización ya no se puede editar en su estatus actual — solo un administrador puede hacerlo.');
         }
 
         $request->validate([
@@ -144,6 +157,8 @@ class QuoteController extends Controller
             'tax_rate'         => 'required|numeric|min:0|max:100',
             'discount_total'   => 'nullable|numeric|min:0',
             'isr_retention_rate' => 'nullable|numeric|min:0|max:100',
+            'currency'         => 'required|in:MXN,USD',
+            'exchange_rate'    => 'required|numeric|min:0.01',
             'notes'            => 'nullable|string',
             'terms_conditions' => 'nullable|string',
             'items_json'       => 'required|json',
@@ -158,7 +173,7 @@ class QuoteController extends Controller
         $data = $request->only([
             'customer_id', 'guest_name', 'guest_email', 'guest_phone', 'guest_company',
             'guest_rfc', 'valid_until', 'tax_rate', 'discount_total', 'isr_retention_rate',
-            'notes', 'terms_conditions',
+            'currency', 'exchange_rate', 'notes', 'terms_conditions',
         ]);
         $data['items'] = $items;
 
@@ -181,6 +196,15 @@ class QuoteController extends Controller
     {
         $q = $request->get('q', '');
 
+        // Moneda del documento (Cotización) y tipo de cambio ACTUAL del
+        // campo del formulario — no el global — para convertir cada línea
+        // de producto USD antes de mostrarla. Si no vienen (compatibilidad
+        // con llamadas antiguas), cae al tipo de cambio global vigente.
+        $documentCurrency = $request->get('currency', 'MXN');
+        $exchangeRate = $request->filled('exchange_rate')
+            ? (float) $request->get('exchange_rate')
+            : Products::exchangeRate();
+
         $products = Products::with(['category:id,name', 'brand:id,name'])
             ->where('is_active', 1)
             ->where(function ($query) use ($q) {
@@ -189,21 +213,48 @@ class QuoteController extends Controller
                       ->orWhereHas('brand', fn($b) => $b->where('name', 'like', "%{$q}%"))
                       ->orWhereHas('category', fn($c) => $c->where('name', 'like', "%{$q}%"));
             })
-            ->select('id', 'name', 'sku', 'price', 'price_includes_tax', 'stock', 'cover_image_url', 'brand_id', 'category_id')
+            ->select('id', 'name', 'sku', 'price', 'price_includes_tax', 'stock', 'cover_image_url', 'brand_id', 'category_id', 'currency')
             ->take(12)
             ->get()
-            ->map(fn($p) => [
-                'id'        => $p->id,
-                'name'      => $p->name,
-                'sku'       => $p->sku,
-                // Siempre sin IVA — la cotización aplica su propio tax_rate
-                // encima, así que nunca se debe cobrar el impuesto dos veces.
-                'price'     => $p->base_price,
-                'stock'     => $p->stock,
-                'image_url' => $p->cover_image_url,
-                'category'  => $p->category?->name,
-                'brand'     => $p->brand?->name,
-            ]);
+            ->map(function ($p) use ($documentCurrency, $exchangeRate) {
+                // Precio base (sin IVA) en la moneda NATIVA del producto —
+                // el % de IVA es agnóstico a la moneda, así que primero se
+                // extrae el impuesto en la moneda propia del producto y solo
+                // AL FINAL se convierte, si la moneda del documento difiere
+                // de la del producto. No se reusa base_price (accessor):
+                // ese siempre pasa por MXN con el tipo de cambio GLOBAL
+                // horneado, lo que daba un resultado incorrecto tanto cuando
+                // el documento ya era USD y el producto también (se
+                // convertía de más) como cuando el documento era USD y el
+                // producto MXN (no se convertía en absoluto).
+                $rawPrice = (float) $p->price;
+                $ivaRate = Products::ivaRate();
+                $nativePrice = $p->price_includes_tax
+                    ? round($rawPrice / (1 + $ivaRate / 100), 2)
+                    : round($rawPrice, 2);
+
+                if ($documentCurrency === $p->currency) {
+                    $price = $nativePrice;
+                } elseif ($documentCurrency === 'MXN' && $p->currency === 'USD') {
+                    $price = round($nativePrice * $exchangeRate, 2);
+                } else {
+                    // $documentCurrency === 'USD' && $p->currency === 'MXN'
+                    $price = round($nativePrice / $exchangeRate, 2);
+                }
+
+                return [
+                    'id'        => $p->id,
+                    'name'      => $p->name,
+                    'sku'       => $p->sku,
+                    // Siempre sin IVA — la cotización aplica su propio tax_rate
+                    // encima, así que nunca se debe cobrar el impuesto dos veces.
+                    'price'     => $price,
+                    'stock'     => $p->stock,
+                    'image_url' => $p->cover_image_url,
+                    'category'  => $p->category?->name,
+                    'brand'     => $p->brand?->name,
+                ];
+            });
 
         return response()->json($products);
     }

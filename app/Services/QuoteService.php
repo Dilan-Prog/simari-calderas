@@ -46,6 +46,9 @@ class QuoteService
                 'guest_company'     => $data['guest_company'] ?? null,
                 'guest_rfc'         => $data['guest_rfc'] ?? null,
                 'currency'          => $data['currency'] ?? 'MXN',
+                // Se guarda literal lo que trae el request — campo editable
+                // de verdad en cada guardado, no un snapshot que se congela.
+                'exchange_rate'     => $data['exchange_rate'] ?? null,
                 'subtotal'          => $totals['subtotal'],
                 'discount_total'    => $totals['discount_total'],
                 'tax_rate'          => $data['tax_rate'] ?? 16.00,
@@ -98,6 +101,10 @@ class QuoteService
                 'guest_company'    => $data['guest_company'] ?? null,
                 'guest_rfc'        => $data['guest_rfc'] ?? null,
                 'currency'         => $data['currency'] ?? 'MXN',
+                // Igual que en store(): se guarda literal lo que trae el
+                // request en ese momento, sin recalcular ni comparar contra
+                // el valor anterior.
+                'exchange_rate'    => $data['exchange_rate'] ?? null,
                 'subtotal'         => $totals['subtotal'],
                 'discount_total'   => $totals['discount_total'],
                 'tax_rate'         => $data['tax_rate'] ?? 16.00,

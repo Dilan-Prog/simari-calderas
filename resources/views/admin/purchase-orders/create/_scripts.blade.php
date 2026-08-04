@@ -15,6 +15,10 @@
                 try {
                     const url = new URL(productsBySupplierUrl, window.location.origin);
                     url.searchParams.set('supplier_id', supplierId);
+                    const currencyEl = document.getElementById('currencySelect');
+                    const exchangeRateEl = document.getElementById('exchangeRate');
+                    if (currencyEl) url.searchParams.set('currency', currencyEl.value);
+                    if (exchangeRateEl) url.searchParams.set('exchange_rate', exchangeRateEl.value);
                     const res = await fetch(url.toString(), {
                         headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' },
                     });
@@ -53,6 +57,13 @@
             if (supplierSelect.value) {
                 fetchProductsForSupplier(supplierSelect.value);
             }
+
+            // NOTA (wizard de 3 pasos): moneda y tipo de cambio ahora quedan
+            // fijos en el Paso 2, ANTES de que el usuario pueda tocar
+            // productos en el Paso 3 — por eso ya no hace falta re-pedir el
+            // catálogo aquí con listeners de "change". El único fetch
+            // autoritativo ocurre al entrar al Paso 3 (ver po-wizard.js /
+            // window.__poWizardBridge.refetchCatalog).
             // REVISAR ESTO
             if (supplierSelect.value) {
                 const opt = supplierSelect.options[supplierSelect.selectedIndex];
@@ -433,6 +444,24 @@
 
                 if (!valid) e.preventDefault();
             });
+
+            // ── Puente hacia po-wizard.js ────────────────────────────
+            // `items` es local a este IIFE; el wizard necesita saber si hay
+            // contenido "bloqueado" (productos ya agregados) para confirmar
+            // antes de retroceder, poder limpiarlo, y disparar el fetch del
+            // catálogo una sola vez al entrar al Paso 3 (con la moneda/tipo
+            // de cambio ya fijos desde el Paso 2).
+            window.__poWizardBridge = {
+                hasItems: () => items.length > 0,
+                clearItems: () => {
+                    items = [];
+                    renderItems();
+                    calcTotals();
+                },
+                refetchCatalog: () => {
+                    if (supplierSelect.value) fetchProductsForSupplier(supplierSelect.value);
+                },
+            };
         })();
     </script>
 @endpush

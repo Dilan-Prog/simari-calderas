@@ -246,7 +246,7 @@ class ProductController extends Controller
     ];
 
     private const BULK_EDIT_STOCK_UNITS = ['pieza', 'juego', 'kit', 'metro', 'kg', 'litro'];
-    private const BULK_EDIT_CURRENCIES = ['MXN', 'USD', 'EUR'];
+    private const BULK_EDIT_CURRENCIES = ['MXN', 'USD'];
     private const BULK_EDIT_AVAILABILITY = ['available', 'out_of_stock', 'on_order'];
 
     // Copiada a mano (no derivada de BULK_EDIT_FIELDS con array_diff) para
@@ -761,7 +761,7 @@ class ProductController extends Controller
             'og_image'          => 'nullable|url|max:255',
             // FIX BUG 9: added validation for the new currency/stock_unit
             // columns.
-            'currency'          => 'nullable|in:MXN,USD,EUR',
+            'currency'          => 'nullable|in:MXN,USD',
             'stock_unit'        => 'nullable|in:pieza,juego,kit,metro,kg,litro',
             'slug'              => 'nullable|string|max:255|unique:products,slug',
             'is_active'         => 'nullable|boolean',
@@ -941,7 +941,7 @@ class ProductController extends Controller
             'og_image'          => 'nullable|url|max:255',
             // FIX BUG 9: added validation for the new currency/stock_unit
             // columns.
-            'currency'          => 'nullable|in:MXN,USD,EUR',
+            'currency'          => 'nullable|in:MXN,USD',
             'stock_unit'        => 'nullable|in:pieza,juego,kit,metro,kg,litro',
             'slug'              => 'nullable|string|max:255|unique:products,slug,' . $id,
             'is_active'         => 'nullable|boolean',

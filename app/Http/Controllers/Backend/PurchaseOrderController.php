@@ -51,10 +51,11 @@ class PurchaseOrderController extends Controller
 
         $nextPoNumber          = PurchaseOrder::generatePoNumber();
         $nextInternalReference = PurchaseOrder::generateInternalReference();
+        $defaultExchangeRate   = Products::exchangeRate();
 
         return view(
             'admin.purchase-orders.create.create',
-            compact('suppliers', 'nextPoNumber', 'nextInternalReference')
+            compact('suppliers', 'nextPoNumber', 'nextInternalReference', 'defaultExchangeRate')
         );
     }
 
@@ -65,6 +66,8 @@ class PurchaseOrderController extends Controller
             'order_date'         => 'required|date',
             'status'             => 'required|in:pending,accepted,rejected',
             'internal_reference' => 'required|string|max:50|unique:purchase_orders,internal_reference',
+            'currency'           => 'required|in:MXN,USD',
+            'exchange_rate'      => 'required|numeric|min:0.01',
             'subtotal'           => 'required|numeric|min:0',
             'tax_rate'           => 'required|numeric|min:0|max:100',
             'tax_total'          => 'required|numeric|min:0',
@@ -85,6 +88,7 @@ class PurchaseOrderController extends Controller
         $order->internal_reference     = $request->internal_reference     ?? null;
         $order->notes                  = $request->notes                  ?? null;
         $order->currency               = $request->currency ?? 'MXN';
+        $order->exchange_rate          = $request->exchange_rate;
         $order->subtotal               = $request->subtotal;
         $order->discount_total         = $request->discount_total ?? 0;
         $order->tax_rate               = $request->tax_rate;
@@ -124,21 +128,50 @@ class PurchaseOrderController extends Controller
     public function productsBySupplier(Request $request)
     {
         $request->validate([
-            'supplier_id' => 'required|exists:suppliers,id',
+            'supplier_id'   => 'required|exists:suppliers,id',
+            'currency'      => 'nullable|in:MXN,USD',
+            'exchange_rate' => 'nullable|numeric|min:0.01',
         ]);
+
+        // Moneda del documento (Orden de Compra en construcción) y tasa
+        // ACTUAL del formulario; si no vienen (compatibilidad hacia atrás),
+        // caen a MXN / al valor global configurado.
+        $documentCurrency = $request->get('currency', 'MXN');
+        $exchangeRate = $request->filled('exchange_rate')
+            ? (float) $request->exchange_rate
+            : Products::exchangeRate();
 
         $products = Products::where('is_active', true)
             ->whereHas('suppliers', fn ($q) => $q->where('suppliers.id', $request->supplier_id))
             ->with(['suppliers' => fn ($q) => $q->where('suppliers.id', $request->supplier_id)])
-            ->get(['id', 'name', 'sku', 'cost'])
-            ->map(function ($p) {
+            ->get(['id', 'name', 'sku', 'cost', 'currency'])
+            ->map(function ($p) use ($exchangeRate, $documentCurrency) {
                 $pivot = $p->suppliers->first()?->pivot;
+                $cost  = $pivot?->cost !== null ? (float) $pivot->cost : (float) $p->cost;
+
+                // El costo de proveedor no tiene columna de moneda propia:
+                // hereda products.currency del producto asociado. Se
+                // convierte solo si la moneda del documento difiere de la
+                // del producto — multiplicando USD→MXN o dividiendo MXN→USD
+                // con la tasa ACTUAL del formulario. Antes esto siempre
+                // pasaba por convertToMxn() sin mirar la moneda del
+                // documento: un costo USD en una orden ya en USD se
+                // convertía de más, y un costo MXN en una orden USD nunca
+                // se convertía (quedaba en pesos mostrado como si fuera
+                // dólares).
+                if ($documentCurrency === $p->currency) {
+                    $price = round($cost, 2);
+                } elseif ($documentCurrency === 'MXN' && $p->currency === 'USD') {
+                    $price = round($cost * $exchangeRate, 2);
+                } else {
+                    $price = round($cost / $exchangeRate, 2);
+                }
 
                 return [
                     'id'    => $p->id,
                     'name'  => $p->name,
                     'sku'   => $pivot?->sku ?: ($p->sku ?? ''),
-                    'price' => $pivot?->cost !== null ? (float) $pivot->cost : (float) $p->cost,
+                    'price' => $price,
                 ];
             });
 
@@ -158,8 +191,15 @@ class PurchaseOrderController extends Controller
         $order = PurchaseOrder::with(['supplier', 'createdBy', 'items'])
             ->findOrFail($id);
 
+        if (!$order->isEditable(auth()->user())) {
+            return redirect()->route('admin.purchase-orders.show', $id)
+                ->with('error', 'Esta orden de compra ya no se puede editar en su estatus actual — solo un administrador puede hacerlo.');
+        }
+
         $suppliers = Supplier::where('status', 'active')
             ->get(['id', 'company_name', 'contact_name', 'email', 'phone', 'rfc', 'payment_terms']);
+
+        $defaultExchangeRate = Products::exchangeRate();
 
         $existingItems = $order->items->map(fn($item) => [
             'id'        => $item->id,
@@ -176,7 +216,7 @@ class PurchaseOrderController extends Controller
 
         return view(
             'admin.purchase-orders.edit.edit',
-            compact('order', 'suppliers', 'existingItems')
+            compact('order', 'suppliers', 'existingItems', 'defaultExchangeRate')
         );
     }
 
@@ -184,10 +224,17 @@ class PurchaseOrderController extends Controller
     {
         $order = PurchaseOrder::findOrFail($id);
 
+        if (!$order->isEditable(auth()->user())) {
+            return redirect()->route('admin.purchase-orders.show', $id)
+                ->with('error', 'Esta orden de compra ya no se puede editar en su estatus actual — solo un administrador puede hacerlo.');
+        }
+
         $request->validate([
             'supplier_id'  => 'required|exists:suppliers,id',
             'order_date'   => 'required|date',
             'status'       => 'required|in:pending,accepted,rejected',
+            'currency'     => 'required|in:MXN,USD',
+            'exchange_rate' => 'required|numeric|min:0.01',
             'subtotal'     => 'required|numeric|min:0',
             'tax_rate'     => 'required|numeric|min:0|max:100',
             'tax_total'    => 'required|numeric|min:0',
@@ -204,6 +251,8 @@ class PurchaseOrderController extends Controller
         $order->expected_delivery_date = $request->expected_delivery_date ?? null;
         $order->internal_reference     = $request->internal_reference     ?? null;
         $order->notes                  = $request->notes                  ?? null;
+        $order->currency               = $request->currency;
+        $order->exchange_rate          = $request->exchange_rate;
         $order->subtotal               = $request->subtotal;
         $order->discount_total         = $request->discount_total ?? 0;
         $order->tax_rate               = $request->tax_rate;

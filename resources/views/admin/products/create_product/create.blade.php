@@ -398,7 +398,6 @@
                                         <select class="pform-select" name="currency">
                                             <option value="MXN">MXN - Peso Mexicano</option>
                                             <option value="USD">USD - Dólar Americano</option>
-                                            <option value="EUR">EUR - Euro</option>
                                         </select>
                                     </div>
                                 </div>
@@ -447,6 +446,7 @@
                                         </svg>
                                         Desglose de IVA
                                     </h4>
+                                    <p class="pform-profit-label" id="pformExchangeRateHint" style="display:none; margin-bottom:8px;"></p>
                                     <div class="pform-profit-grid">
                                         <div>
                                             <p class="pform-profit-label">Precio base</p>

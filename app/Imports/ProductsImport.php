@@ -121,7 +121,7 @@ class ProductsImport implements ToModel, WithHeadingRow, WithValidation, WithBat
             'cost' => $this->sanitizePrice($row['costo'] ?? null) ?? 0,
             'stock' => $row['stock'] ?? 0,
             'stock_unit' => $this->normalizeProductEnum($row['unidad_stock'] ?? null, ['pieza', 'juego', 'kit', 'metro', 'kg', 'litro'], 'pieza'),
-            'currency' => $this->normalizeProductEnum($row['moneda'] ?? null, ['MXN', 'USD', 'EUR'], 'MXN', true),
+            'currency' => $this->normalizeProductEnum($row['moneda'] ?? null, ['MXN', 'USD'], 'MXN', true),
             'is_active' => $this->normalizeProductBool($row['activo'] ?? true, true),
             'is_featured' => $this->normalizeProductBool($row['destacado'] ?? false, false),
             'is_new' => $this->normalizeProductBool($row['nuevo'] ?? false, false),

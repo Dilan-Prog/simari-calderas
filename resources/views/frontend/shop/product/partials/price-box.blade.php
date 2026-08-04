@@ -4,7 +4,8 @@
     // final_price. Fuera de alcance por ahora (no pedido por el usuario).
     $hasDiscount = $product->compare_price && $product->compare_price > $product->price;
     $discountPct = $hasDiscount ? round((1 - ($product->price / $product->compare_price)) * 100) : null;
-    $currency = $product->currency ?? 'MXN';
+    // Fijo a MXN: final_price/compare_price_in_mxn ya vienen convertidos.
+    $currency = 'MXN';
 @endphp
 <div class="product-price-box">
     <div class="product-price-box__eyebrow">{{ $product->availability === 'available' ? 'Disponible' : 'Sobre pedido' }} &nbsp;|&nbsp; SKU {{ $product->sku }}</div>
@@ -13,7 +14,7 @@
     @if ($hasDiscount)
         <div class="product-price-box__discount-row">
             <span class="product-price-box__discount-badge">{{ $discountPct }}% OFF</span>
-            <span class="product-price-box__original">${{ number_format($product->compare_price, 2) }}</span>
+            <span class="product-price-box__original">${{ number_format($product->compare_price_in_mxn, 2) }}</span>
         </div>
     @endif
     <div class="product-price-box__price">${{ number_format($product->final_price, 2) }} {{ $currency }}</div>

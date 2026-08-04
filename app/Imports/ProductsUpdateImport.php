@@ -36,7 +36,7 @@ class ProductsUpdateImport implements ToModel, WithHeadingRow, WithValidation, W
     use NormalizesProductFields;
 
     private const STOCK_UNITS = ['pieza', 'juego', 'kit', 'metro', 'kg', 'litro'];
-    private const CURRENCIES = ['MXN', 'USD', 'EUR'];
+    private const CURRENCIES = ['MXN', 'USD'];
 
     /** @var array<string,string> sku => URL de imagen pendiente de descargar */
     private array $pendingImageUrls = [];

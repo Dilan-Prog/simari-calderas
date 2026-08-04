@@ -147,6 +147,15 @@
 
 .po-req { color: #ef4444; }
 
+/* FASE D: nota de ayuda para el par moneda/tipo de cambio — recuerda que
+   cambiar cualquiera de los dos requiere volver a agregar los productos
+   para que sus costos se recalculen con la nueva tasa. */
+.po-help-note {
+    font-size: 12px;
+    color: #6b7280;
+    margin: -8px 0 16px;
+}
+
 .po-input,
 .po-select,
 .po-textarea {
@@ -708,5 +717,191 @@
     .po-btn-draft {
         font-size: 13px;
         padding: 10px;
+    }
+}
+
+/* ============================================================
+   WIZARD DE 3 PASOS (Órdenes de Compra)
+   Proveedor / Moneda y configuración quedan fijos ANTES de poder
+   tocar productos — por diseño, evita el bug de líneas con precio
+   viejo tras cambiar moneda o tipo de cambio.
+   ============================================================ */
+
+/* ── Barra de progreso ──────────────────────────────────── */
+.powiz-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    padding: 20px 24px;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    margin-bottom: 20px;
+}
+
+.powiz-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+}
+
+.powiz-step__circle {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    border: 2px solid #e5e7eb;
+    background: white;
+    color: #9ca3af;
+    transition: background .2s, border-color .2s, color .2s, box-shadow .2s;
+}
+
+.powiz-step__label {
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+    color: #9ca3af;
+    transition: color .2s;
+}
+
+.powiz-step.active .powiz-step__circle {
+    background: #ff6213;
+    border-color: #ff6213;
+    color: white;
+    box-shadow: 0 0 0 4px rgba(255, 98, 19, .2);
+}
+
+.powiz-step.active .powiz-step__label { color: #ff6213; }
+
+.powiz-step.completed .powiz-step__circle {
+    background: #fff7f3;
+    border-color: #ff6213;
+    color: #ff6213;
+}
+
+.powiz-step.completed .powiz-step__label { color: #ff6213; }
+
+.powiz-step-connector {
+    height: 2px;
+    width: 64px;
+    margin: 0 8px;
+    margin-bottom: 22px;
+    border-radius: 2px;
+    background: #e5e7eb;
+    flex-shrink: 0;
+}
+
+.powiz-step-connector--done { background: #ff6213; }
+
+/* ── Paneles de paso ────────────────────────────────────── */
+.powiz-step-panel { display: none; }
+
+.powiz-step-panel.active { display: block; }
+
+/* ── Footer del wizard ──────────────────────────────────── */
+.powiz-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #e5e7eb;
+}
+
+.powiz-btn--primary,
+.powiz-btn--ghost {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 42px;
+    padding: 0 22px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background .15s, color .15s, border-color .15s;
+}
+
+.powiz-btn--primary {
+    border: none;
+    background: #ff6213;
+    color: white;
+}
+
+.powiz-btn--primary:hover { background: #e55510; }
+
+.powiz-btn--ghost {
+    border: 1.5px solid #e5e7eb;
+    background: white;
+    color: #374151;
+}
+
+.powiz-btn--ghost:hover { background: #f9fafb; }
+
+/* ── Modal de confirmación al retroceder ────────────────── */
+.powiz-confirm-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(17, 24, 39, .5);
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.powiz-confirm-backdrop.active { display: flex; }
+
+.powiz-confirm-modal {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    max-width: 380px;
+    width: calc(100% - 32px);
+    box-shadow: 0 20px 48px #00000026;
+}
+
+.powiz-confirm-modal p {
+    margin: 0 0 20px;
+    font-size: 14px;
+    color: #374151;
+    line-height: 1.5;
+}
+
+.powiz-confirm-modal__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+/* ── Errores de validación de campo ─────────────────────── */
+.has-error {
+    border-color: #ef4444 !important;
+}
+
+/* ── Responsive ─────────────────────────────────────────── */
+@media (max-width: 768px) {
+    .powiz-bar {
+        padding: 16px;
+    }
+
+    .powiz-step-connector {
+        width: 32px;
+    }
+
+    .powiz-footer {
+        flex-direction: column-reverse;
+    }
+
+    .powiz-btn--primary,
+    .powiz-btn--ghost {
+        width: 100%;
+        justify-content: center;
     }
 }

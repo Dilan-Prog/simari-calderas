@@ -88,7 +88,7 @@ class Products extends Model
         ['key' => 'precio', 'label' => 'Precio', 'description' => 'El precio actual del producto, formateado con moneda (ej. "2,099.00 MXN").'],
         ['key' => 'precio_comparacion', 'label' => 'Precio de comparación', 'description' => 'El precio de comparación (antes del descuento), si existe.'],
         ['key' => 'descuento_porcentaje', 'label' => 'Descuento (%)', 'description' => 'El porcentaje de descuento calculado, si el precio de comparación es mayor al precio actual.'],
-        ['key' => 'moneda', 'label' => 'Moneda', 'description' => 'La moneda del producto (MXN, USD, EUR).'],
+        ['key' => 'moneda', 'label' => 'Moneda', 'description' => 'La moneda del producto (MXN, USD).'],
         ['key' => 'proveedor_sku', 'label' => 'SKU del proveedor', 'description' => 'El SKU/código que usa el proveedor para este producto.'],
         ['key' => 'existencias', 'label' => 'Existencias', 'description' => 'La cantidad en existencia del producto (útil para copy de urgencia).'],
         ['key' => 'anio_actual', 'label' => 'Año actual', 'description' => 'El año en curso (ej. "Modelo {anio_actual}").'],
@@ -105,7 +105,9 @@ class Products extends Model
     {
         $hasDiscount = $this->compare_price && $this->compare_price > $this->price;
         $discountPct = $hasDiscount ? round((1 - ((float) $this->price / (float) $this->compare_price)) * 100) : null;
-        $currency = $this->currency ?? 'MXN';
+        // Fijo a MXN: final_price/compare_price_in_mxn ya vienen convertidos,
+        // así que mostrar "USD" junto a un número ya en pesos sería engañoso.
+        $currency = 'MXN';
 
         $resolvedName = $this->name ?? '';
         if (!$this->resolvingName) {
@@ -122,7 +124,7 @@ class Products extends Model
             '{categoria}'            => $this->category?->name ?? '',
             '{categoria_padre}'      => $this->category?->parent?->name ?? '',
             '{precio}'               => $this->price !== null ? number_format($this->final_price, 2) . ' ' . $currency : '',
-            '{precio_comparacion}'   => $this->compare_price ? number_format((float) $this->compare_price, 2) . ' ' . $currency : '',
+            '{precio_comparacion}'   => $this->compare_price ? number_format($this->compare_price_in_mxn, 2) . ' ' . $currency : '',
             '{descuento_porcentaje}' => $discountPct !== null ? (string) $discountPct : '',
             '{moneda}'               => $currency,
             '{proveedor_sku}'        => $this->primarySupplierSku() ?? '',
@@ -167,6 +169,39 @@ class Products extends Model
         return UploadPath::url($value);
     }
 
+    // ── Moneda (USD → MXN) ──────────────────────────────────────────────────
+
+    // Tipo de cambio USD→MXN vigente (global, editable en Configuración >
+    // Ecommerce). Separado de ivaRate() para poder leerse/mockearse aparte.
+    public static function exchangeRate(): float
+    {
+        return (float) Setting::get('ecommerce.usd_to_mxn_rate', 17.5);
+    }
+
+    // Convierte un monto a MXN si currency es USD; si no (incluye el default
+    // histórico MXN), lo devuelve tal cual — multiplicador implícito de 1
+    // para todo el catálogo existente. Acepta una tasa explícita (usada por
+    // Cotizaciones/Órdenes de Compra, que tienen su propio tipo de cambio
+    // editable por documento) en vez de siempre caer al valor global.
+    public function convertToMxn(float $amount, ?float $rate = null): float
+    {
+        if ($this->currency !== 'USD') {
+            return $amount;
+        }
+
+        return round($amount * ($rate ?? static::exchangeRate()), 2);
+    }
+
+    public function getPriceInMxnAttribute(): float
+    {
+        return $this->convertToMxn((float) $this->price);
+    }
+
+    public function getComparePriceInMxnAttribute(): ?float
+    {
+        return $this->compare_price !== null ? $this->convertToMxn((float) $this->compare_price) : null;
+    }
+
     // ── IVA ────────────────────────────────────────────────────────────────
 
     public static function ivaRate(): float
@@ -176,10 +211,12 @@ class Products extends Model
 
     // Monto de IVA implícito en este producto. Si price_includes_tax, se
     // extrae del precio capturado (que ya es el final); si no, es lo que se
-    // le va a sumar encima para llegar al precio final.
+    // le va a sumar encima para llegar al precio final. Opera sobre
+    // price_in_mxn (no price crudo) — así la conversión de moneda ocurre
+    // ANTES del IVA, tal como se decidió: convertir primero, IVA después.
     public function getIvaAmountAttribute(): float
     {
-        $price = (float) $this->price;
+        $price = $this->price_in_mxn;
         $rate = static::ivaRate();
 
         if ($this->price_includes_tax) {
@@ -189,21 +226,21 @@ class Products extends Model
         return round($price * ($rate / 100), 2);
     }
 
-    // Precio base (sin IVA), sin importar cómo se haya capturado.
+    // Precio base (sin IVA), sin importar cómo se haya capturado. Ya en MXN.
     public function getBasePriceAttribute(): float
     {
-        $price = (float) $this->price;
+        $price = $this->price_in_mxn;
 
         return $this->price_includes_tax
             ? round($price - $this->iva_amount, 2)
             : round($price, 2);
     }
 
-    // Precio final con IVA — el único precio que debe mostrarse/venderse al
-    // cliente.
+    // Precio final con IVA, ya en MXN — el único precio que debe
+    // mostrarse/venderse al cliente.
     public function getFinalPriceAttribute(): float
     {
-        $price = (float) $this->price;
+        $price = $this->price_in_mxn;
 
         return $this->price_includes_tax
             ? round($price, 2)

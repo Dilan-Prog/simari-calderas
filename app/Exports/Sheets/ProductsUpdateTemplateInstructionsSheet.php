@@ -36,7 +36,7 @@ class ProductsUpdateTemplateInstructionsSheet implements FromArray, WithTitle, W
             ['Costo', 'No', 'Vacío = no cambia.'],
             ['Stock', 'No', 'Vacío = no cambia. Si se llena, número entero.'],
             ['Unidad Stock', 'No', 'Vacío = no cambia. Valores válidos: pieza, juego, kit, metro, kg, litro.'],
-            ['Moneda', 'No', 'Vacío = no cambia. Valores válidos: MXN, USD, EUR.'],
+            ['Moneda', 'No', 'Vacío = no cambia. Valores válidos: MXN, USD.'],
             ['Disponibilidad', 'No', 'Vacío = no cambia. Valores válidos: disponible, agotado, sobre_pedido.'],
             ['Activo', 'No', 'Vacío = no cambia. Si / No.'],
             ['Destacado', 'No', 'Vacío = no cambia. Si / No.'],

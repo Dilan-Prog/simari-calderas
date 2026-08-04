@@ -36,7 +36,7 @@ class ProductsTemplateInstructionsSheet implements FromArray, WithTitle, WithSty
             ['Costo', 'No', 'Número. Costo interno del producto.'],
             ['Stock', 'No', 'Número entero. Si se deja vacío, se guarda como 0.'],
             ['Unidad Stock', 'No', 'pieza, juego, kit, metro, kg o litro. Si se deja vacío, se usa "pieza".'],
-            ['Moneda', 'No', 'MXN, USD o EUR. Si se deja vacío, se usa "MXN".'],
+            ['Moneda', 'No', 'MXN o USD. Si se deja vacío, se usa "MXN".'],
             ['Disponibilidad', 'No', 'disponible, agotado o sobre_pedido. Si se deja vacío, se usa "disponible".'],
             ['Activo', 'No', 'Si / No. Si se deja vacío, se considera "Si" (el producto se muestra en el catálogo).'],
             ['Destacado', 'No', 'Si / No. Si se deja vacío, se considera "No".'],

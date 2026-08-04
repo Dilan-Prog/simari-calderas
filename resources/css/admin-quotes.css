@@ -1243,3 +1243,242 @@
     text-align: center;
 }
 
+/* ════════════════════════════════════════════
+   WIZARD DE 4 PASOS (Cotizaciones)
+════════════════════════════════════════════ */
+
+/* Barra de progreso */
+.qwiz-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    padding: 18px 20px;
+    background: var(--aq-card-bg);
+    border: 1px solid var(--aq-border);
+    border-radius: var(--aq-radius);
+    margin-bottom: var(--aq-gap);
+    flex-wrap: wrap;
+}
+
+.qwiz-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+}
+
+.qwiz-step__circle {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    border: 2px solid var(--aq-border);
+    background: var(--aq-card-bg);
+    color: var(--aq-text-muted);
+    transition: background 150ms ease, border-color 150ms ease, color 150ms ease, box-shadow 150ms ease;
+}
+
+.qwiz-step__label {
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+    color: var(--aq-text-muted);
+    transition: color 150ms ease;
+}
+
+.qwiz-step.active .qwiz-step__circle {
+    background: var(--aq-orange);
+    border-color: var(--aq-orange);
+    color: #ffffff;
+    box-shadow: 0 0 0 4px var(--aq-orange-alpha);
+}
+.qwiz-step.active .qwiz-step__label { color: var(--aq-orange); }
+
+.qwiz-step.completed .qwiz-step__circle {
+    background: #F0FDF4;
+    border-color: #16A34A;
+    color: #16A34A;
+}
+.qwiz-step.completed .qwiz-step__label { color: #16A34A; }
+
+.qwiz-step-connector {
+    height: 2px;
+    width: 64px;
+    margin: 0 6px;
+    margin-bottom: 20px;
+    border-radius: 2px;
+    background: var(--aq-border);
+    flex-shrink: 0;
+    transition: background 150ms ease;
+}
+.qwiz-step-connector--done,
+.qwiz-step-connector.done { background: #16A34A; }
+
+/* Paneles de paso */
+.qwiz-step-panel { display: none; }
+.qwiz-step-panel.active { display: block; }
+
+/* Footer con navegación Atrás / Siguiente */
+.qwiz-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: var(--aq-gap);
+    padding-top: 20px;
+    border-top: 1px solid var(--aq-border);
+    flex-wrap: wrap;
+}
+
+.qwiz-btn--primary,
+.qwiz-btn--ghost {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    height: 40px;
+    padding: 0 20px;
+    border-radius: var(--aq-radius-sm);
+    font-size: 14px;
+    font-weight: 700;
+    font-family: 'Inter', sans-serif;
+    cursor: pointer;
+    white-space: nowrap;
+    border: none;
+    transition: background 150ms ease, box-shadow 150ms ease, transform 150ms ease, color 150ms ease;
+}
+.qwiz-btn--primary {
+    background: var(--aq-orange);
+    color: #ffffff;
+    box-shadow: 0 4px 14px rgba(255, 98, 19, .35);
+    margin-left: auto;
+}
+.qwiz-btn--primary:hover {
+    background: var(--aq-orange-hover);
+    box-shadow: 0 6px 20px rgba(255, 98, 19, .45);
+    transform: translateY(-1px);
+    color: #ffffff;
+}
+.qwiz-btn--ghost {
+    background: transparent;
+    color: var(--aq-text-sec);
+    border: 1px solid var(--aq-border);
+}
+.qwiz-btn--ghost:hover { background: var(--aq-border-light); color: #374151; }
+
+/* Paso 3 — tarjetas de tipo de cotización */
+.qwiz-type-hint {
+    font-size: 13px;
+    color: var(--aq-text-sec);
+    margin: -6px 0 20px;
+}
+
+.qwiz-type-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+}
+
+.qwiz-type-card {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 20px;
+    background: var(--aq-page-bg);
+    border: 2px solid var(--aq-border);
+    border-radius: var(--aq-radius);
+    cursor: pointer;
+    text-align: left;
+    font-family: 'Inter', sans-serif;
+    transition: border-color 150ms ease, background 150ms ease, box-shadow 150ms ease, transform 150ms ease;
+}
+.qwiz-type-card svg { color: var(--aq-text-muted); transition: color 150ms ease; }
+.qwiz-type-card:hover {
+    border-color: rgba(255, 98, 19, .4);
+    background: var(--aq-card-bg);
+    transform: translateY(-1px);
+}
+.qwiz-type-card.selected {
+    border-color: var(--aq-orange);
+    background: var(--aq-orange-alpha);
+    box-shadow: 0 0 0 3px var(--aq-orange-alpha);
+}
+.qwiz-type-card.selected svg { color: var(--aq-orange); }
+
+.qwiz-type-card__title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--aq-text);
+}
+.qwiz-type-card__desc {
+    font-size: 12px;
+    color: var(--aq-text-sec);
+    line-height: 1.5;
+}
+
+/* Paso 4 — los dos buscadores apilados en acordeón, no lado a lado */
+.products-toolbar .accordion-conditions { width: 100%; }
+
+/* El acordeón base usa overflow:hidden tanto en el <details> como en su
+   body — para recortar las esquinas redondeadas y animar la altura (ver
+   admin-quotes.js) — pero aquí adentro vive un dropdown con
+   position:absolute (el buscador inline) que necesita desbordar el
+   contenedor una vez abierto. El JS sigue fijando overflow:hidden inline
+   en el body mientras anima la apertura/cierre (mayor especificidad que
+   esta regla), así que la animación no se rompe — solo se libera el
+   overflow en reposo, para ambos niveles. */
+.products-toolbar .accordion-conditions,
+.products-toolbar .accordion-conditions__body { overflow: visible; }
+
+/* Estado de error genérico usado por wizard-core.js (campos [required]) */
+.has-error { border-color: #DC2626 !important; box-shadow: 0 0 0 3px rgba(220,38,38,0.1) !important; }
+
+/* Modal de confirmación al retroceder con contenido bloqueado */
+.qwiz-confirm-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, .45);
+    backdrop-filter: blur(2px);
+    z-index: 1100;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+}
+.qwiz-confirm-backdrop.active { display: flex; }
+
+.qwiz-confirm-modal {
+    background: var(--aq-card-bg);
+    border-radius: 14px;
+    width: 420px;
+    max-width: 100%;
+    padding: 24px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, .2);
+}
+.qwiz-confirm-modal p {
+    font-size: 14px;
+    color: var(--aq-text);
+    line-height: 1.6;
+    margin: 0 0 20px;
+}
+.qwiz-confirm-modal__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+@media (max-width: 700px) {
+    .qwiz-bar { padding: 14px 10px; }
+    .qwiz-step-connector { width: 28px; }
+    .qwiz-step__label { display: none; }
+    .qwiz-type-cards { grid-template-columns: 1fr; }
+    .qwiz-footer { flex-direction: column-reverse; align-items: stretch; }
+    .qwiz-btn--primary { margin-left: 0; }
+    .qwiz-btn--primary, .qwiz-btn--ghost { justify-content: center; }
+}
+

@@ -10,6 +10,7 @@
             'footer.email' => 'Correo del footer',
             'footer.facebook_url' => 'URL de Facebook (footer)',
             'ecommerce.iva_rate' => 'Tasa de IVA (%)',
+            'ecommerce.usd_to_mxn_rate' => 'Tipo de cambio USD → MXN (valor por defecto)',
         ];
 
         $groupTitles = [

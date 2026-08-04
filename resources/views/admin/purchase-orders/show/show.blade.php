@@ -188,6 +188,14 @@
                             <span>IVA ({{ number_format($order->tax_rate, 2) }}%)</span>
                             <span class="po-summary__val">${{ number_format($order->tax_total, 2) }}</span>
                         </div>
+                        @if ($order->exchange_rate !== null)
+                            <div class="po-summary__row">
+                                <span>Tipo de cambio (USD → MXN)</span>
+                                <span class="po-summary__val">
+                                    {{ $order->currency }} · {{ number_format($order->exchange_rate, 4) }}
+                                </span>
+                            </div>
+                        @endif
                         <div class="po-summary__total">
                             <span>TOTAL</span>
                             <span class="po-summary__total-val">${{ number_format($order->total, 2) }}</span>
