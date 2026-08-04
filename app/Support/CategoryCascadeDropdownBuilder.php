@@ -6,6 +6,7 @@ use App\Models\Category;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use PhpOffice\PhpSpreadsheet\Cell\DataValidation;
 use PhpOffice\PhpSpreadsheet\NamedRange;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
 /**
@@ -239,7 +240,16 @@ class CategoryCascadeDropdownBuilder
         string $errorTitle,
         string $errorMessage
     ): void {
-        $validation = $sheet->getCell($cellCoordinate)->getDataValidation();
+        $cell = $sheet->getCell($cellCoordinate);
+
+        // Mismo relleno tenue que ExcelDropdown::applyListDropdown() — para
+        // que las 3 columnas de categoría se vean igual de "seleccionables"
+        // que el resto de los dropdowns simples del archivo.
+        $cell->getStyle()->getFill()
+            ->setFillType(Fill::FILL_SOLID)
+            ->getStartColor()->setRGB(ExcelDropdown::DROPDOWN_CELL_FILL_COLOR);
+
+        $validation = $cell->getDataValidation();
         $validation->setType(DataValidation::TYPE_LIST);
         $validation->setErrorStyle(DataValidation::STYLE_STOP);
         $validation->setAllowBlank(true);

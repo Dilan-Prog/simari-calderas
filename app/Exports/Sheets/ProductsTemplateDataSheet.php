@@ -137,15 +137,21 @@ class ProductsTemplateDataSheet implements FromArray, WithHeadings, WithTitle, W
             ExcelDropdown::applyListDropdown($sheet, $boolColumn, 2, 1000, ['Si', 'No'], 'Sí / No');
         }
 
-        return [
-            1 => [
-                'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
-                'fill' => [
-                    'fillType' => Fill::FILL_SOLID,
-                    'startColor' => ['rgb' => '1F3B57'],
-                ],
+        // Estilo base del encabezado aplicado directamente (no vía el array
+        // de retorno) para poder pintar el acento naranja de las columnas
+        // con dropdown DESPUÉS, sin que se sobreescriba — el array que
+        // devuelve styles() lo aplica el framework al final del método.
+        $sheet->getStyle('A1:W1')->applyFromArray([
+            'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
+            'fill' => [
+                'fillType' => Fill::FILL_SOLID,
+                'startColor' => ['rgb' => ExcelDropdown::HEADER_FILL_COLOR],
             ],
-        ];
+        ]);
+
+        ExcelDropdown::applyDropdownColumnHeaderAccent($sheet, ['E', 'F', 'G', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V']);
+
+        return [];
     }
 
     public function columnWidths(): array

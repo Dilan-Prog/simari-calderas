@@ -219,7 +219,7 @@ class ProductController extends Controller
             'cover_image_url',
             'category_id',
             'brand_id',
-        ])->with(['category', 'brand', 'images']);
+        ])->with(['category.parent.parent', 'brand', 'images']);
 
         // Totals over the filtered set, computed before pagination/get()
         // consumes the query builder below.
@@ -288,7 +288,7 @@ class ProductController extends Controller
     private const INDEX_VIEW_COLUMNS = [
         'sku', 'model', 'brand_id', 'supplier_sku',
         'price', 'compare_price', 'cost', 'stock', 'currency', 'availability',
-        'category_id', 'is_active', 'publish_on_website', 'is_featured', 'is_new', 'is_recommended',
+        'category_id', 'category_sub', 'category_child', 'is_active', 'publish_on_website', 'is_featured', 'is_new', 'is_recommended',
     ];
     private const INDEX_VIEWS_MAX_PER_USER = 10;
 

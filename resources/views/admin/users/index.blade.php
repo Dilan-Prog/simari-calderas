@@ -22,7 +22,7 @@
                         'tableKey' => 'users.index',
                         'columnDefs' => ['email' => 'Email', 'rol' => 'Rol', 'estado' => 'Estado'],
                     ])
-                    <button class="button-primary size-adjustment">
+                    <button class="button-primary size-adjustment" id="btnNewUser">
                         + Nuevo Usuario
                     </button>
                 </div>

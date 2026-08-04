@@ -69,7 +69,7 @@ class ProductsTemplateInstructionsSheet implements FromArray, WithTitle, WithSty
         $sheet->getRowDimension(2)->setRowHeight(45);
 
         $sheet->getStyle('A4:C4')->getFont()->setBold(true)->getColor()->setRGB('FFFFFF');
-        $sheet->getStyle('A4:C4')->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB('1F3B57');
+        $sheet->getStyle('A4:C4')->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB(\App\Support\ExcelDropdown::HEADER_FILL_COLOR);
 
         foreach (range(5, 27) as $row) {
             $sheet->getStyle("C{$row}")->getAlignment()->setWrapText(true);

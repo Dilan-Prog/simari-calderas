@@ -178,7 +178,12 @@
     }
 
     // ── Create modal ────────────────────────────────────────
-    const openBtn = document.querySelector('.button-primary.size-adjustment');
+    // FIX BUG: querySelector('.button-primary.size-adjustment') matched the
+    // global image-picker modal's "Usar esta Imagen" button first (same two
+    // classes, included on every admin page via admin.layouts.master) — the
+    // real "Nuevo Usuario" button never got its click listener. Selecting by
+    // a unique id avoids any future collision.
+    const openBtn = document.getElementById('btnNewUser');
     const modal = document.getElementById('userModal');
     const closeBtn = document.getElementById('closeModal');
     const cancelBtn = document.getElementById('cancelModal');

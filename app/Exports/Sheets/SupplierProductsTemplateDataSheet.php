@@ -78,15 +78,20 @@ class SupplierProductsTemplateDataSheet implements FromArray, WithHeadings, With
         // Es Principal (G): dropdown Sí/No en vez de texto libre.
         ExcelDropdown::applyListDropdown($sheet, 'G', 2, 1000, ['Si', 'No'], 'Es Principal');
 
-        return [
-            1 => [
-                'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
-                'fill' => [
-                    'fillType' => Fill::FILL_SOLID,
-                    'startColor' => ['rgb' => '1F3B57'],
-                ],
+        // Estilo base aplicado directamente (no vía el array de retorno)
+        // para poder pintar el acento naranja de la columna con dropdown
+        // DESPUÉS, sin que se sobreescriba.
+        $sheet->getStyle('A1:G1')->applyFromArray([
+            'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
+            'fill' => [
+                'fillType' => Fill::FILL_SOLID,
+                'startColor' => ['rgb' => ExcelDropdown::HEADER_FILL_COLOR],
             ],
-        ];
+        ]);
+
+        ExcelDropdown::applyDropdownColumnHeaderAccent($sheet, ['G']);
+
+        return [];
     }
 
     public function columnWidths(): array

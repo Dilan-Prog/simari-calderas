@@ -7,9 +7,26 @@
         // Catálogo de columnas configurables del listado normal (tabla +
         // tarjetas). Contrato coordinado con ProductController::index()
         // ($savedViews) y las rutas products.index-views.* — ver CLAUDE.md.
+        // Descompone la cadena de ancestros de una categoría (requiere
+        // 'category.parent.parent' precargado) para las columnas de
+        // Categoría/Subcategoría/Categoría Hija — mismos 3 niveles que los
+        // selects en cascada de crear/editar producto.
+        $categoryChainLevel = function (?\App\Models\Category $category, int $level) {
+            if (!$category) return null;
+            $chain = [];
+            $node = $category;
+            while ($node) {
+                array_unshift($chain, $node);
+                $node = $node->parent;
+            }
+            return $chain[$level - 1]->name ?? null;
+        };
+
         $indexColumns = [
             ['key' => 'sku', 'label' => 'SKU', 'group' => 'Básicos', 'showInGrid' => false],
             ['key' => 'category_id', 'label' => 'Categoría', 'group' => 'Organización', 'showInGrid' => true],
+            ['key' => 'category_sub', 'label' => 'Subcategoría', 'group' => 'Organización', 'showInGrid' => false],
+            ['key' => 'category_child', 'label' => 'Categoría Hija', 'group' => 'Organización', 'showInGrid' => false],
             ['key' => 'model', 'label' => 'Modelo', 'group' => 'Básicos', 'showInGrid' => true],
             ['key' => 'brand_id', 'label' => 'Marca', 'group' => 'Básicos', 'showInGrid' => true],
             ['key' => 'supplier_sku', 'label' => 'SKU Proveedor', 'group' => 'Básicos', 'showInGrid' => false],
@@ -233,7 +250,9 @@
                                             @case('model') {{ $product->model ?: '—' }} @break
                                             @case('brand_id') {{ $product->brand->name ?? '—' }} @break
                                             @case('supplier_sku') {{ $product->supplier_sku ?: '—' }} @break
-                                            @case('category_id') {{ $product->category->name ?? '—' }} @break
+                                            @case('category_id') {{ $categoryChainLevel($product->category, 1) ?? '—' }} @break
+                                            @case('category_sub') {{ $categoryChainLevel($product->category, 2) ?? '—' }} @break
+                                            @case('category_child') {{ $categoryChainLevel($product->category, 3) ?? '—' }} @break
                                             @case('price') <span class="prod-price">${{ number_format($product->price, 0) }}</span> @break
                                             @case('compare_price') {{ $product->compare_price ? '$'.number_format($product->compare_price, 0) : '—' }} @break
                                             @case('cost') <span class="prod-price">${{ number_format($product->cost ?? 0, 0) }}</span> @break
@@ -337,7 +356,7 @@
                                     <span class="prod-grid-meta-label">{{ $col['label'] }}</span>
                                     <span class="prod-grid-meta-val {{ $col['key'] === 'price' ? 'price' : '' }}">
                                         @switch($col['key'])
-                                            @case('category_id') {{ $product->category->name ?? '—' }} @break
+                                            @case('category_id') {{ $categoryChainLevel($product->category, 1) ?? '—' }} @break
                                             @case('model') {{ $product->model ?: '—' }} @break
                                             @case('brand_id') {{ $product->brand->name ?? '—' }} @break
                                             @case('price') ${{ number_format($product->price, 0) }} @break

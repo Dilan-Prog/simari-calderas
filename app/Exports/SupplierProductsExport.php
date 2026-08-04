@@ -10,6 +10,7 @@ use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Concerns\WithTitle;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
 class SupplierProductsExport implements FromQuery, WithHeadings, WithMapping, ShouldAutoSize, WithStyles, WithTitle
@@ -61,8 +62,19 @@ class SupplierProductsExport implements FromQuery, WithHeadings, WithMapping, Sh
         // Es Principal (G): dropdown Sí/No en vez de texto libre.
         ExcelDropdown::applyListDropdown($sheet, 'G', 2, $lastRow + 500, ['Si', 'No'], 'Es Principal');
 
-        return [
-            1 => ['font' => ['bold' => true]],
-        ];
+        // Estilo base aplicado directamente (no vía el array de retorno)
+        // para poder pintar el acento naranja de la columna con dropdown
+        // DESPUÉS, sin que se sobreescriba.
+        $sheet->getStyle('A1:G1')->applyFromArray([
+            'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
+            'fill' => [
+                'fillType' => Fill::FILL_SOLID,
+                'startColor' => ['rgb' => ExcelDropdown::HEADER_FILL_COLOR],
+            ],
+        ]);
+
+        ExcelDropdown::applyDropdownColumnHeaderAccent($sheet, ['G']);
+
+        return [];
     }
 }

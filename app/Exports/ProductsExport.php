@@ -10,6 +10,7 @@ use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithStyles;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
 class ProductsExport implements FromQuery, WithHeadings, WithMapping, ShouldAutoSize, WithStyles
@@ -101,8 +102,22 @@ class ProductsExport implements FromQuery, WithHeadings, WithMapping, ShouldAuto
             ExcelDropdown::applyListDropdown($sheet, $boolColumn, 2, $dropdownLastRow, ['Si', 'No'], 'Sí / No');
         }
 
-        return [
-            1 => ['font' => ['bold' => true]],
-        ];
+        // Estilo base del encabezado aplicado directamente (no vía el array
+        // de retorno) para poder pintar el acento naranja de las columnas
+        // con dropdown DESPUÉS, sin que se sobreescriba — el array que
+        // devuelve styles() lo aplica el framework al final del método, así
+        // que cualquier estilo de fila 1 puesto ahí pisaría un acento
+        // aplicado antes dentro del cuerpo del método.
+        $sheet->getStyle('A1:X1')->applyFromArray([
+            'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
+            'fill' => [
+                'fillType' => Fill::FILL_SOLID,
+                'startColor' => ['rgb' => ExcelDropdown::HEADER_FILL_COLOR],
+            ],
+        ]);
+
+        ExcelDropdown::applyDropdownColumnHeaderAccent($sheet, ['F', 'G', 'H', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W']);
+
+        return [];
     }
 }
