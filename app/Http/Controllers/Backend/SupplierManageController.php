@@ -16,7 +16,11 @@ class SupplierManageController extends Controller
             'phone', 'rfc', 'status', 'rating_quality', 'rating_compliance', 'payment_terms'
         ]);
 
-        return view('admin.supplier.index', compact('suppliers'));
+        $visibleColumns = \App\Models\UserColumnPreference::where('user_id', auth()->id())
+            ->where('table_key', 'suppliers.index')
+            ->value('columns');
+
+        return view('admin.supplier.index', compact('suppliers', 'visibleColumns'));
     }
 
     public function show(string $id)

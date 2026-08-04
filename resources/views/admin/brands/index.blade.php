@@ -19,6 +19,14 @@
                     <p class="breadcrumb-clients-manager main">Administra las marcas de productos del catálogo</p>
                 </div>
                 <div style="display:flex; align-items:center; gap:10px;">
+                    @include('admin.components._column_visibility_menu', [
+                        'tableKey' => 'brands.index',
+                        'columnDefs' => [
+                            'slug' => 'Slug',
+                            'descripcion' => 'Descripción',
+                            'estado' => 'Estado',
+                        ],
+                    ])
                     <a href="{{ route('admin.brands.bulk-edit') }}" class="prod-btn-outline">
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -63,9 +71,9 @@
                             <tr>
                                 <th style="width: 80px;">LOGO</th>
                                 <th>MARCA</th>
-                                <th>SLUG</th>
-                                <th>DESCRIPCIÓN</th>
-                                <th>ESTADO</th>
+                                <th data-col="slug">SLUG</th>
+                                <th data-col="descripcion">DESCRIPCIÓN</th>
+                                <th data-col="estado">ESTADO</th>
                                 <th>ACCIONES</th>
                             </tr>
                         </thead>
@@ -100,19 +108,19 @@
                                         </span>
                                     </td>
 
-                                    <td>
+                                    <td data-col="slug">
                                         <span class="brand-slug-badge">
                                             {{ $brand->slug }}
                                         </span>
                                     </td>
 
-                                    <td>
+                                    <td data-col="descripcion">
                                         <p class="brand-description">
                                             {{ $brand->description ? Str::limit($brand->description, 60) : '—' }}
                                         </p>
                                     </td>
 
-                                    <td>
+                                    <td data-col="estado">
                                         <span
                                             class="brand-status-badge {{ $brand->is_active ? 'status-active' : 'status-inactive' }}"
                                             data-status="{{ $brand->is_active ? 'active' : 'inactive' }}">
@@ -169,6 +177,16 @@
             {{ $brands->links('admin.components.pagination') }}
         </section>
     </div>
+@push('scripts')
+    <script src="{{ asset('js/admin/column-visibility.js') }}"></script>
+    <script>
+        initColumnVisibility({
+            tableKey: 'brands.index',
+            savedColumns: @json($visibleColumns),
+            saveUrl: '{{ route('admin.column-preferences.update') }}',
+        });
+    </script>
+@endpush
 @endsection
 @include('admin.brands.partials._scripts')
 @include('admin.brands.partials._delete_modal')

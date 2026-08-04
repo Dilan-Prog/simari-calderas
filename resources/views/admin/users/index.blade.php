@@ -17,9 +17,15 @@
                         Administrar roles y permisos del sistema
                     </p>
                 </div>
-                <button class="button-primary size-adjustment">
-                    + Nuevo Usuario
-                </button>
+                <div class="users-header-actions">
+                    @include('admin.components._column_visibility_menu', [
+                        'tableKey' => 'users.index',
+                        'columnDefs' => ['email' => 'Email', 'rol' => 'Rol', 'estado' => 'Estado'],
+                    ])
+                    <button class="button-primary size-adjustment">
+                        + Nuevo Usuario
+                    </button>
+                </div>
             </header>
             <!-- TABLE -->
             <main class="table-container-users-manager">
@@ -27,9 +33,9 @@
                     <thead>
                         <tr>
                             <th>USUARIO</th>
-                            <th>EMAIL</th>
-                            <th>ROL</th>
-                            <th>ESTADO</th>
+                            <th data-col="email">EMAIL</th>
+                            <th data-col="rol">ROL</th>
+                            <th data-col="estado">ESTADO</th>
                             <th>ACCIONES</th>
                         </tr>
                     </thead>
@@ -55,10 +61,10 @@
                                             <span class="users-manager-date-user">{{ $user->created_at?->locale('es')->translatedFormat('j M Y') }}</span>
                                         </div>
                                     </td>
-                                    <td>
+                                    <td data-col="email">
                                         <p class="breadcrumb-users-manager main">{{ $user->email }}</p>
                                     </td>
-                                    <td>
+                                    <td data-col="rol">
                                         @php
                                             $roleClass = '';
                                             $roleName  = strtolower($user->role->name_role_es ?? '');
@@ -74,7 +80,7 @@
                                             {{ $user->role->name_role_es ?? 'Sin rol' }}
                                         </span>
                                     </td>
-                                    <td>
+                                    <td data-col="estado">
                                         @if ($user->status == 'active')
                                             <span class="users-manager-badge status">Activo</span>
                                         @else
@@ -148,4 +154,14 @@
 @endsection
 @push('scripts')
 @include('admin.users.partials._scripts')
+@endpush
+@push('scripts')
+    <script src="{{ asset('js/admin/column-visibility.js') }}"></script>
+    <script>
+        initColumnVisibility({
+            tableKey: 'users.index',
+            savedColumns: @json($visibleColumns),
+            saveUrl: '{{ route('admin.column-preferences.update') }}',
+        });
+    </script>
 @endpush

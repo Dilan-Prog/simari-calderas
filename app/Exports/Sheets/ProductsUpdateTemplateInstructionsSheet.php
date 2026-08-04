@@ -27,7 +27,10 @@ class ProductsUpdateTemplateInstructionsSheet implements FromArray, WithTitle, W
             ['SKU', 'Sí', 'Identifica qué producto se actualiza. No lo cambies ni lo dejes vacío.'],
             ['Modelo', 'No', 'Vacío = no cambia.'],
             ['SKU Proveedor', 'No', 'Vacío = no cambia.'],
-            ['Categoría', 'No', 'Vacío = no cambia. Si se llena, debe coincidir EXACTAMENTE con el nombre de una categoría ya registrada en el sistema.'],
+            ['Proveedor(es)', 'No', 'Solo de referencia — no se lee al actualizar (la importación multi-proveedor por Excel es una fase futura).'],
+            ['Categoría Principal', 'No', 'Vacío = no cambia. Si llenas cualquier campo de categoría, Categoría Principal es obligatoria — selecciónala del menú desplegable.'],
+            ['Subcategoría', 'No', 'Vacío = no cambia la categoría. Selecciónala del menú desplegable (depende de la Categoría Principal elegida en la misma fila).'],
+            ['Categoría Hija', 'No', 'Vacío = no cambia la categoría. Selecciónala del menú desplegable (depende de la Subcategoría elegida en la misma fila). Si la llenas, Subcategoría también debe estar llena.'],
             ['Marca', 'No', 'Vacío = no cambia. Si se llena, debe coincidir EXACTAMENTE con el nombre de una marca ya registrada en el sistema.'],
             ['Descripción Corta', 'No', 'Vacío = no cambia.'],
             ['Descripción', 'No', 'Vacío = no cambia.'],
@@ -35,9 +38,9 @@ class ProductsUpdateTemplateInstructionsSheet implements FromArray, WithTitle, W
             ['Precio Comparativo', 'No', 'Vacío = no cambia.'],
             ['Costo', 'No', 'Vacío = no cambia.'],
             ['Stock', 'No', 'Vacío = no cambia. Si se llena, número entero.'],
-            ['Unidad Stock', 'No', 'Vacío = no cambia. Valores válidos: pieza, juego, kit, metro, kg, litro.'],
-            ['Moneda', 'No', 'Vacío = no cambia. Valores válidos: MXN, USD.'],
-            ['Disponibilidad', 'No', 'Vacío = no cambia. Valores válidos: disponible, agotado, sobre_pedido.'],
+            ['Unidad Stock', 'No', 'Vacío = no cambia. Selecciónala del menú desplegable: pieza, juego, kit, metro, kg, litro.'],
+            ['Moneda', 'No', 'Vacío = no cambia. Selecciónala del menú desplegable: MXN, USD.'],
+            ['Disponibilidad', 'No', 'Vacío = no cambia. Selecciónala del menú desplegable: Disponible, Agotado, Sobre Pedido.'],
             ['Activo', 'No', 'Vacío = no cambia. Si / No.'],
             ['Destacado', 'No', 'Vacío = no cambia. Si / No.'],
             ['Nuevo', 'No', 'Vacío = no cambia. Si / No.'],
@@ -52,6 +55,9 @@ class ProductsUpdateTemplateInstructionsSheet implements FromArray, WithTitle, W
             ['- No cambies ni borres la columna SKU: es la que identifica qué producto se actualiza.', '', ''],
             ['- No agregues, quites ni renombres columnas de la hoja "Productos": el sistema las reconoce por su nombre.', '', ''],
             ['- No renombres la pestaña "Productos": el sistema solo lee los datos de la hoja que tenga ese nombre exacto.', '', ''],
+            ['- Categoría Hija requiere que Subcategoría también esté llena — no puedes saltarte un nivel.', '', ''],
+            ['- Si el nombre de una categoría se repite en más de una rama del catálogo, el desplegable en cascada de Subcategoría/Categoría Hija podría no mostrar opciones para esa fila — escribe el valor manualmente, la validación al importar de todas formas lo revisa.', '', ''],
+            ['- Los desplegables en cascada de categoría funcionan de forma confiable en Microsoft Excel. En Google Sheets, LibreOffice Calc o Apple Numbers pueden no aparecer — si no ves el desplegable, escribe el valor manualmente; el sistema valida los datos al importar de cualquier forma.', '', ''],
         ];
     }
 
@@ -67,14 +73,14 @@ class ProductsUpdateTemplateInstructionsSheet implements FromArray, WithTitle, W
         $sheet->getStyle('A4:C4')->getFont()->setBold(true)->getColor()->setRGB('FFFFFF');
         $sheet->getStyle('A4:C4')->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB('1F3B57');
 
-        foreach (range(5, 25) as $row) {
+        foreach (range(5, 28) as $row) {
             $sheet->getStyle("C{$row}")->getAlignment()->setWrapText(true);
         }
 
-        $sheet->getStyle('A27')->getFont()->setBold(true);
-        $sheet->mergeCells('A27:C27');
+        $sheet->getStyle('A30')->getFont()->setBold(true);
+        $sheet->mergeCells('A30:C30');
 
-        foreach (range(28, 33) as $row) {
+        foreach (range(31, 39) as $row) {
             $sheet->mergeCells("A{$row}:C{$row}");
             $sheet->getStyle("A{$row}")->getAlignment()->setWrapText(true);
         }

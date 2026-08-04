@@ -18,6 +18,18 @@
             <h1>Pedidos</h1>
             <p class="breadcrumb-clients-manager">Generados automáticamente al aceptar cotizaciones de productos</p>
         </div>
+        <div style="display:flex; align-items:center; gap:10px;">
+            @include('admin.components._column_visibility_menu', [
+                'tableKey' => 'sales-orders.index',
+                'columnDefs' => [
+                    'cliente' => 'Cliente',
+                    'cotizacion' => 'Cotización',
+                    'productos' => 'Productos',
+                    'estado' => 'Estado',
+                    'fecha' => 'Fecha',
+                ],
+            ])
+        </div>
     </div>
 
     {{-- Stats --}}
@@ -60,11 +72,11 @@
             <thead>
                 <tr>
                     <th>FOLIO</th>
-                    <th>CLIENTE</th>
-                    <th>COTIZACIÓN</th>
-                    <th>PRODUCTOS</th>
-                    <th>ESTADO</th>
-                    <th>FECHA</th>
+                    <th data-col="cliente">CLIENTE</th>
+                    <th data-col="cotizacion">COTIZACIÓN</th>
+                    <th data-col="productos">PRODUCTOS</th>
+                    <th data-col="estado">ESTADO</th>
+                    <th data-col="fecha">FECHA</th>
                     <th>ACCIONES</th>
                 </tr>
             </thead>
@@ -90,26 +102,26 @@
                         <td style="padding:14px 16px;">
                             <p style="margin:0;font-weight:700;color:#ff6213;font-size:14px;">{{ $order->order_number }}</p>
                         </td>
-                        <td style="padding:14px 16px;">
+                        <td style="padding:14px 16px;" data-col="cliente">
                             <p style="margin:0;font-weight:600;font-size:14px;color:#111827;">{{ $customerName }}</p>
                         </td>
-                        <td style="padding:14px 16px;">
+                        <td style="padding:14px 16px;" data-col="cotizacion">
                             @if ($order->quote)
                                 <a href="{{ route('admin.quotes.show', $order->quote) }}" style="font-size:13px;color:#ff6213;">{{ $order->quote->quote_number }}</a>
                             @else
                                 <span style="font-size:13px;color:#9ca3af;">—</span>
                             @endif
                         </td>
-                        <td style="padding:14px 16px;">
+                        <td style="padding:14px 16px;" data-col="productos">
                             <p style="margin:0;font-size:13px;color:#6b7280;">{{ $order->items_count }} producto{{ $order->items_count !== 1 ? 's' : '' }}</p>
                         </td>
-                        <td style="padding:14px 16px;">
+                        <td style="padding:14px 16px;" data-col="estado">
                             <span style="display:inline-block;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;
                                 background:{{ $statusConfig['bg'] }};color:{{ $statusConfig['color'] }};">
                                 {{ $statusConfig['label'] }}
                             </span>
                         </td>
-                        <td style="padding:14px 16px;">
+                        <td style="padding:14px 16px;" data-col="fecha">
                             <p style="margin:0;font-size:13px;color:#374151;">{{ $order->created_at->format('j M Y') }}</p>
                         </td>
                         <td style="padding:14px 16px;">
@@ -142,3 +154,13 @@
 </section>
 </div>
 @endsection
+@push('scripts')
+    <script src="{{ asset('js/admin/column-visibility.js') }}"></script>
+    <script>
+        initColumnVisibility({
+            tableKey: 'sales-orders.index',
+            savedColumns: @json($visibleColumns),
+            saveUrl: '{{ route('admin.column-preferences.update') }}',
+        });
+    </script>
+@endpush

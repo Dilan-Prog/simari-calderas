@@ -865,3 +865,8 @@
     transform: translateX(20px);
 }
 
+/* Menú genérico "mostrar/ocultar columnas" — column-visibility.js */
+.col-hidden {
+    display: none !important;
+}
+

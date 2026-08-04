@@ -18,10 +18,16 @@
             <h1 style="margin:0 0 4px;">Gestión de Menús</h1>
             <p class="breadcrumb-clients-manager main">Orden de la navegación principal, el mega-menú de Servicios y las columnas del footer</p>
         </div>
-        <button type="button" class="button-primary size-adjustment" id="btnNewMenu"
-            style="background:#ff6213;border-color:#ff6213;white-space:nowrap;">
-            + Nuevo Menú
-        </button>
+        <div style="display:flex;align-items:flex-start;gap:8px;">
+            @include('admin.components._column_visibility_menu', [
+                'tableKey' => 'menus.index',
+                'columnDefs' => ['ubicacion' => 'Ubicación', 'elementos' => 'Elementos', 'estado' => 'Estado'],
+            ])
+            <button type="button" class="button-primary size-adjustment" id="btnNewMenu"
+                style="background:#ff6213;border-color:#ff6213;white-space:nowrap;">
+                + Nuevo Menú
+            </button>
+        </div>
     </div>
 
     {{-- Table --}}
@@ -30,9 +36,9 @@
             <thead>
                 <tr>
                     <th>NOMBRE</th>
-                    <th>UBICACIÓN</th>
-                    <th>ELEMENTOS</th>
-                    <th>ESTADO</th>
+                    <th data-col="ubicacion">UBICACIÓN</th>
+                    <th data-col="elementos">ELEMENTOS</th>
+                    <th data-col="estado">ESTADO</th>
                     <th>ACCIONES</th>
                 </tr>
             </thead>
@@ -47,11 +53,11 @@
                                 {{ $menu->name }}
                             </a>
                         </td>
-                        <td style="padding:12px 16px;">
+                        <td data-col="ubicacion" style="padding:12px 16px;">
                             <span style="display:inline-block;padding:3px 10px;background:#f1f5f9;border-radius:6px;font-size:12px;font-family:monospace;color:#475569;">{{ $menu->location }}</span>
                         </td>
-                        <td style="padding:12px 16px;text-align:center;font-size:14px;color:#374151;">{{ $menu->items_count }}</td>
-                        <td style="padding:12px 16px;">
+                        <td data-col="elementos" style="padding:12px 16px;text-align:center;font-size:14px;color:#374151;">{{ $menu->items_count }}</td>
+                        <td data-col="estado" style="padding:12px 16px;">
                             @if ($menu->is_active)
                                 <span class="users-manager-badge status" data-status="active">Activo</span>
                             @else
@@ -97,4 +103,14 @@
 @include('admin.menus.partials._delete_modal')
 @include('admin.menus.partials._scripts')
 </div>
+@push('scripts')
+    <script src="{{ asset('js/admin/column-visibility.js') }}"></script>
+    <script>
+        initColumnVisibility({
+            tableKey: 'menus.index',
+            savedColumns: @json($visibleColumns),
+            saveUrl: '{{ route('admin.column-preferences.update') }}',
+        });
+    </script>
+@endpush
 @endsection

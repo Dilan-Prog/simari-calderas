@@ -44,8 +44,8 @@ class ProductsUpdateImport implements ToModel, WithHeadingRow, WithValidation, W
     /** Filas cuya imagen no se pudo descargar: [['sku' => x, 'url' => y], ...] */
     public array $imageDownloadFailures = [];
 
-    /** @var array<string,int> nombre de categoría (lower/trim) => id */
-    private array $categoriesByName = [];
+    /** @var array<int,array<string,int>> [parent_id (0 = raíz) => [nombre_lower_trim => id]] */
+    private array $categoriesByParentId = [];
 
     /** @var array<string,int> nombre de marca (lower/trim) => id */
     private array $brandsByName = [];
@@ -60,9 +60,9 @@ class ProductsUpdateImport implements ToModel, WithHeadingRow, WithValidation, W
 
     public function __construct()
     {
-        $this->categoriesByName = Category::pluck('id', 'name')
-            ->mapWithKeys(fn ($id, $name) => [strtolower(trim($name)) => $id])
-            ->toArray();
+        foreach (Category::select('id', 'name', 'parent_id')->get() as $cat) {
+            $this->categoriesByParentId[$cat->parent_id ?? 0][strtolower(trim($cat->name))] = $cat->id;
+        }
 
         $this->brandsByName = Brand::pluck('id', 'name')
             ->mapWithKeys(fn ($id, $name) => [strtolower(trim($name)) => $id])
@@ -81,11 +81,6 @@ class ProductsUpdateImport implements ToModel, WithHeadingRow, WithValidation, W
     public function sheets(): array
     {
         return ['Productos' => $this];
-    }
-
-    private function present($value): bool
-    {
-        return $value !== null && trim((string) $value) !== '';
     }
 
     public function model(array $row)
@@ -124,8 +119,8 @@ class ProductsUpdateImport implements ToModel, WithHeadingRow, WithValidation, W
         // producto (tabla suppliers_products, con SKU propio por
         // proveedor) — la actualización multi-proveedor por Excel queda
         // para una fase futura.
-        if ($this->present($row['categoria'] ?? null)) {
-            $categoryId = $this->resolveIdByName($row['categoria'], $this->categoriesByName);
+        if ($this->present($row['categoria_principal'] ?? null) || $this->present($row['subcategoria'] ?? null) || $this->present($row['categoria_hija'] ?? null)) {
+            [$categoryId, ] = $this->resolveCategoryChain($row['categoria_principal'] ?? null, $row['subcategoria'] ?? null, $row['categoria_hija'] ?? null, $this->categoriesByParentId);
             if ($categoryId) {
                 $product->category_id = $categoryId;
             }
@@ -235,11 +230,13 @@ class ProductsUpdateImport implements ToModel, WithHeadingRow, WithValidation, W
     {
         return [
             'sku' => 'required|string|max:100',
-            'categoria' => ['nullable', function ($attribute, $value, $fail) {
-                if ($this->present($value) && !isset($this->categoriesByName[strtolower(trim($value))])) {
-                    $fail("La categoría \"{$value}\" no existe en el sistema.");
+            'categoria_principal' => ['nullable', function ($attribute, $value, $fail) {
+                if ($this->present($value) && !isset($this->categoriesByParentId[0][strtolower(trim($value))])) {
+                    $fail("La categoría principal \"{$value}\" no existe en el sistema (o no es una categoría de nivel 1).");
                 }
             }],
+            'subcategoria' => 'nullable|string|max:120',
+            'categoria_hija' => 'nullable|string|max:120',
             'marca' => ['nullable', function ($attribute, $value, $fail) {
                 if ($this->present($value) && !isset($this->brandsByName[strtolower(trim($value))])) {
                     $fail("La marca \"{$value}\" no existe en el sistema.");
@@ -280,6 +277,32 @@ class ProductsUpdateImport implements ToModel, WithHeadingRow, WithValidation, W
         return [
             'sku.required' => 'Falta el SKU del producto a actualizar.',
         ];
+    }
+
+    /**
+     * Igual que ProductsImport::withValidator(), pero solo valida la cadena
+     * jerárquica si AL MENOS UNO de los 3 campos de categoría viene lleno en
+     * la fila — los 3 vacíos significan "no cambiar categoría" y no deben
+     * generar ningún error.
+     */
+    public function withValidator($validator)
+    {
+        $validator->after(function ($validator) {
+            foreach ($validator->getData() as $rowIndex => $row) {
+                $principal = $row['categoria_principal'] ?? null;
+                $sub = $row['subcategoria'] ?? null;
+                $child = $row['categoria_hija'] ?? null;
+
+                if (!$this->present($principal) && !$this->present($sub) && !$this->present($child)) {
+                    continue;
+                }
+
+                [, $errors] = $this->resolveCategoryChain($principal, $sub, $child, $this->categoriesByParentId);
+                foreach ($errors as $field => $message) {
+                    $validator->errors()->add("{$rowIndex}.{$field}", $message);
+                }
+            }
+        });
     }
 
     public function chunkSize(): int

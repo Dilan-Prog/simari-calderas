@@ -78,6 +78,30 @@ class Category extends Model
         return 3;
     }
 
+    /**
+     * [nombrePrincipal, nombreSub, nombreHija] recorriendo $this->parent
+     * hacia arriba — strings vacíos para los niveles que no aplican (p. ej.
+     * una categoría de nivel 1 devuelve [nombre, '', '']). Requiere que
+     * parent.parent ya venga precargado por quien llama (mismo patrón que
+     * ProductController::bulkEditIndex()/categoryBreadcrumb()) para no
+     * disparar queries nuevas aquí.
+     */
+    public function levelNames(): array
+    {
+        $chain = [$this->name];
+        $node = $this;
+        while ($node->parent) {
+            $node = $node->parent;
+            array_unshift($chain, $node->name);
+        }
+
+        return [
+            $chain[0] ?? '',
+            $chain[1] ?? '',
+            $chain[2] ?? '',
+        ];
+    }
+
     public function products()
     {
         return $this->hasMany(Products::class, 'category_id');

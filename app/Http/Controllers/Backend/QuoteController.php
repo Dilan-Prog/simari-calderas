@@ -45,7 +45,11 @@ class QuoteController extends Controller
 
         $quotes = $query->paginate(15)->withQueryString();
 
-        return view('admin.quotes.index', compact('quotes'));
+        $visibleColumns = \App\Models\UserColumnPreference::where('user_id', auth()->id())
+            ->where('table_key', 'quotes.index')
+            ->value('columns');
+
+        return view('admin.quotes.index', compact('quotes', 'visibleColumns'));
     }
 
     public function create()

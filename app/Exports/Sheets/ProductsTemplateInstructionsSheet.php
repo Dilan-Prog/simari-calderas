@@ -27,7 +27,9 @@ class ProductsTemplateInstructionsSheet implements FromArray, WithTitle, WithSty
             ['SKU', 'Sí', 'Código único del producto. No debe repetirse con uno ya existente.'],
             ['Modelo', 'No', 'Texto libre.'],
             ['SKU Proveedor', 'No', 'Texto libre. Código con el que el proveedor identifica este producto (uso interno, distinto del SKU propio).'],
-            ['Categoría', 'Sí', 'Debe coincidir EXACTAMENTE con el nombre de una categoría ya registrada en el sistema (no distingue mayúsculas/minúsculas).'],
+            ['Categoría Principal', 'Sí', 'Selecciónala del menú desplegable. Debe ser una categoría de nivel 1 ya registrada en el sistema.'],
+            ['Subcategoría', 'No', 'Selecciónala del menú desplegable (depende de la Categoría Principal elegida en la misma fila). Si la llenas, Categoría Principal es obligatoria.'],
+            ['Categoría Hija', 'No', 'Selecciónala del menú desplegable (depende de la Subcategoría elegida en la misma fila). Si la llenas, Subcategoría también debe estar llena.'],
             ['Marca', 'Sí', 'Debe coincidir EXACTAMENTE con el nombre de una marca ya registrada en el sistema (no distingue mayúsculas/minúsculas).'],
             ['Descripción Corta', 'No', 'Texto libre, resumen breve.'],
             ['Descripción', 'No', 'Texto libre, descripción completa.'],
@@ -35,9 +37,9 @@ class ProductsTemplateInstructionsSheet implements FromArray, WithTitle, WithSty
             ['Precio Comparativo', 'No', 'Número. Precio "antes de descuento" a mostrar tachado.'],
             ['Costo', 'No', 'Número. Costo interno del producto.'],
             ['Stock', 'No', 'Número entero. Si se deja vacío, se guarda como 0.'],
-            ['Unidad Stock', 'No', 'pieza, juego, kit, metro, kg o litro. Si se deja vacío, se usa "pieza".'],
-            ['Moneda', 'No', 'MXN o USD. Si se deja vacío, se usa "MXN".'],
-            ['Disponibilidad', 'No', 'disponible, agotado o sobre_pedido. Si se deja vacío, se usa "disponible".'],
+            ['Unidad Stock', 'No', 'Selecciónala del menú desplegable: pieza, juego, kit, metro, kg o litro. Si se deja vacío, se usa "pieza".'],
+            ['Moneda', 'No', 'Selecciónala del menú desplegable: MXN o USD. Si se deja vacío, se usa "MXN".'],
+            ['Disponibilidad', 'No', 'Selecciónala del menú desplegable: Disponible, Agotado o Sobre Pedido. Si se deja vacío, se usa "Disponible".'],
             ['Activo', 'No', 'Si / No. Si se deja vacío, se considera "Si" (el producto se muestra en el catálogo).'],
             ['Destacado', 'No', 'Si / No. Si se deja vacío, se considera "No".'],
             ['Nuevo', 'No', 'Si / No. Si se deja vacío, se considera "No".'],
@@ -51,6 +53,9 @@ class ProductsTemplateInstructionsSheet implements FromArray, WithTitle, WithSty
             ['- Si la Imagen URL no se puede descargar (link roto, tarda demasiado, o no es una imagen válida), el producto se crea igual sin esa imagen, y se te informa cuál falló.', '', ''],
             ['- No agregues, quites ni renombres columnas de la hoja "Productos": el sistema las reconoce por su nombre.', '', ''],
             ['- No renombres la pestaña "Productos": el sistema solo lee los datos de la hoja que tenga ese nombre exacto.', '', ''],
+            ['- Categoría Hija requiere que Subcategoría también esté llena — no puedes saltarte un nivel.', '', ''],
+            ['- Si el nombre de una categoría se repite en más de una rama del catálogo, el desplegable en cascada de Subcategoría/Categoría Hija podría no mostrar opciones para esa fila — escribe el valor manualmente, la validación al importar de todas formas lo revisa.', '', ''],
+            ['- Los desplegables en cascada de categoría funcionan de forma confiable en Microsoft Excel. En Google Sheets, LibreOffice Calc o Apple Numbers pueden no aparecer — si no ves el desplegable, escribe el valor manualmente; el sistema valida los datos al importar de cualquier forma.', '', ''],
         ];
     }
 
@@ -66,14 +71,14 @@ class ProductsTemplateInstructionsSheet implements FromArray, WithTitle, WithSty
         $sheet->getStyle('A4:C4')->getFont()->setBold(true)->getColor()->setRGB('FFFFFF');
         $sheet->getStyle('A4:C4')->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB('1F3B57');
 
-        foreach (range(5, 25) as $row) {
+        foreach (range(5, 27) as $row) {
             $sheet->getStyle("C{$row}")->getAlignment()->setWrapText(true);
         }
 
-        $sheet->getStyle('A27')->getFont()->setBold(true);
-        $sheet->mergeCells('A27:C27');
+        $sheet->getStyle('A29')->getFont()->setBold(true);
+        $sheet->mergeCells('A29:C29');
 
-        foreach (range(28, 32) as $row) {
+        foreach (range(30, 37) as $row) {
             $sheet->mergeCells("A{$row}:C{$row}");
             $sheet->getStyle("A{$row}")->getAlignment()->setWrapText(true);
         }

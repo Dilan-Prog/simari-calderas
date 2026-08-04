@@ -38,10 +38,16 @@
             <h1 style="margin:0 0 4px;">{{ $pageMeta[$page]['title'] }}</h1>
             <p class="breadcrumb-clients-manager main">{{ $pageMeta[$page]['subtitle'] }}</p>
         </div>
-        <button type="button" class="button-primary size-adjustment" id="btnNewHomeSection"
-            style="background:#ff6213;border-color:#ff6213;white-space:nowrap;">
-            + Nueva Sección
-        </button>
+        <div style="display:flex;align-items:flex-start;gap:8px;">
+            @include('admin.components._column_visibility_menu', [
+                'tableKey' => 'home-sections.index',
+                'columnDefs' => ['tipo' => 'Tipo', 'orden' => 'Orden', 'estado' => 'Estado'],
+            ])
+            <button type="button" class="button-primary size-adjustment" id="btnNewHomeSection"
+                style="background:#ff6213;border-color:#ff6213;white-space:nowrap;">
+                + Nueva Sección
+            </button>
+        </div>
     </div>
 
     {{-- Tabs de página --}}
@@ -60,10 +66,10 @@
             <thead>
                 <tr>
                     <th style="width:32px;"></th>
-                    <th>TIPO</th>
+                    <th data-col="tipo">TIPO</th>
                     <th>TÍTULO</th>
-                    <th>ORDEN</th>
-                    <th>ESTADO</th>
+                    <th data-col="orden">ORDEN</th>
+                    <th data-col="estado">ESTADO</th>
                     <th>ACCIONES</th>
                 </tr>
             </thead>
@@ -89,12 +95,12 @@
                         <td style="padding:12px 8px;text-align:center;color:#9ca3af;cursor:grab;" class="hs-drag-handle">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="5" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="9" cy="19" r="1"/><circle cx="15" cy="5" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="19" r="1"/></svg>
                         </td>
-                        <td style="padding:12px 16px;">
+                        <td data-col="tipo" style="padding:12px 16px;">
                             <span class="hs-type-badge" data-type="{{ $section->type }}">{{ $typeLabels[$section->type] ?? $section->type }}</span>
                         </td>
                         <td style="padding:12px 16px;font-weight:500;">{{ $section->title ?? '—' }}</td>
-                        <td style="padding:12px 16px;text-align:center;color:#374151;" class="hs-sort-order">{{ $section->sort_order }}</td>
-                        <td style="padding:12px 16px;">
+                        <td data-col="orden" style="padding:12px 16px;text-align:center;color:#374151;" class="hs-sort-order">{{ $section->sort_order }}</td>
+                        <td data-col="estado" style="padding:12px 16px;">
                             <span class="users-manager-badge {{ $section->is_active ? 'status' : 'status-inactive' }}">
                                 {{ $section->is_active ? 'Activa' : 'Inactiva' }}
                             </span>
@@ -141,4 +147,14 @@
 @include('admin.home-sections.partials._scripts')
 @include('admin.components.center-toast')
 </div>
+@push('scripts')
+    <script src="{{ asset('js/admin/column-visibility.js') }}"></script>
+    <script>
+        initColumnVisibility({
+            tableKey: 'home-sections.index',
+            savedColumns: @json($visibleColumns),
+            saveUrl: '{{ route('admin.column-preferences.update') }}',
+        });
+    </script>
+@endpush
 @endsection

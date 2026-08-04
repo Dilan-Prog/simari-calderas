@@ -36,8 +36,8 @@ class ProductsImport implements ToModel, WithHeadingRow, WithValidation, WithBat
     /** Filas cuya imagen no se pudo descargar: [['sku' => x, 'url' => y], ...] */
     public array $imageDownloadFailures = [];
 
-    /** @var array<string,int> nombre de categoría (lower/trim) => id */
-    private array $categoriesByName = [];
+    /** @var array<int,array<string,int>> [parent_id (0 = raíz) => [nombre_lower_trim => id]] */
+    private array $categoriesByParentId = [];
 
     /** @var array<string,int> nombre de marca (lower/trim) => id */
     private array $brandsByName = [];
@@ -55,9 +55,9 @@ class ProductsImport implements ToModel, WithHeadingRow, WithValidation, WithBat
 
     public function __construct()
     {
-        $this->categoriesByName = Category::pluck('id', 'name')
-            ->mapWithKeys(fn ($id, $name) => [strtolower(trim($name)) => $id])
-            ->toArray();
+        foreach (Category::select('id', 'name', 'parent_id')->get() as $cat) {
+            $this->categoriesByParentId[$cat->parent_id ?? 0][strtolower(trim($cat->name))] = $cat->id;
+        }
 
         $this->brandsByName = Brand::pluck('id', 'name')
             ->mapWithKeys(fn ($id, $name) => [strtolower(trim($name)) => $id])
@@ -93,7 +93,7 @@ class ProductsImport implements ToModel, WithHeadingRow, WithValidation, WithBat
         }
         $this->seenInFile[$skuKey] = true;
 
-        $categoryId = $this->resolveIdByName($row['categoria'] ?? null, $this->categoriesByName);
+        [$categoryId, ] = $this->resolveCategoryChain($row['categoria_principal'] ?? null, $row['subcategoria'] ?? null, $row['categoria_hija'] ?? null, $this->categoriesByParentId);
         $brandId = $this->resolveIdByName($row['marca'] ?? null, $this->brandsByName);
 
         // rules() ya garantiza que categoria/marca existan antes de llegar
@@ -178,11 +178,13 @@ class ProductsImport implements ToModel, WithHeadingRow, WithValidation, WithBat
         return [
             'nombre' => 'required|string|max:255',
             'sku' => 'required|string|max:100',
-            'categoria' => ['required', function ($attribute, $value, $fail) {
-                if (!isset($this->categoriesByName[strtolower(trim($value ?? ''))])) {
-                    $fail("La categoría \"{$value}\" no existe en el sistema.");
+            'categoria_principal' => ['required', function ($attribute, $value, $fail) {
+                if (!isset($this->categoriesByParentId[0][strtolower(trim($value ?? ''))])) {
+                    $fail("La categoría principal \"{$value}\" no existe en el sistema (o no es una categoría de nivel 1).");
                 }
             }],
+            'subcategoria' => 'nullable|string|max:120',
+            'categoria_hija' => 'nullable|string|max:120',
             'marca' => ['required', function ($attribute, $value, $fail) {
                 if (!isset($this->brandsByName[strtolower(trim($value ?? ''))])) {
                     $fail("La marca \"{$value}\" no existe en el sistema.");
@@ -219,6 +221,28 @@ class ProductsImport implements ToModel, WithHeadingRow, WithValidation, WithBat
             'precio.required' => 'Falta el precio del producto.',
             'precio.numeric' => 'El precio no es un número válido.',
         ];
+    }
+
+    /**
+     * Valida la cadena jerárquica completa Categoría Principal > Subcategoría
+     * > Categoría Hija por fila (no se puede expresar con reglas por-campo
+     * de Maatwebsite\Excel porque depende de varias columnas a la vez).
+     */
+    public function withValidator($validator)
+    {
+        $validator->after(function ($validator) {
+            foreach ($validator->getData() as $rowIndex => $row) {
+                [, $errors] = $this->resolveCategoryChain(
+                    $row['categoria_principal'] ?? null,
+                    $row['subcategoria'] ?? null,
+                    $row['categoria_hija'] ?? null,
+                    $this->categoriesByParentId
+                );
+                foreach ($errors as $field => $message) {
+                    $validator->errors()->add("{$rowIndex}.{$field}", $message);
+                }
+            }
+        });
     }
 
     public function batchSize(): int

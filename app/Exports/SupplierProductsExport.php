@@ -3,6 +3,7 @@
 namespace App\Exports;
 
 use App\Models\SupplierProduct;
+use App\Support\ExcelDropdown;
 use Maatwebsite\Excel\Concerns\FromQuery;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithHeadings;
@@ -56,6 +57,9 @@ class SupplierProductsExport implements FromQuery, WithHeadings, WithMapping, Sh
         $sheet->getStyle("E2:E{$lastRow}")
             ->getNumberFormat()
             ->setFormatCode('"$"#,##0');
+
+        // Es Principal (G): dropdown Sí/No en vez de texto libre.
+        ExcelDropdown::applyListDropdown($sheet, 'G', 2, $lastRow + 500, ['Si', 'No'], 'Es Principal');
 
         return [
             1 => ['font' => ['bold' => true]],

@@ -27,13 +27,24 @@
                 <h1 class="roles-title">Gestión de Roles</h1>
                 <p class="roles-subtitle">Administra los roles y permisos del sistema</p>
             </div>
-            <button class="roles-btn-new" type="button" onclick="openCreateDrawer()">
-                <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M5 12h14"/><path d="M12 5v14"/>
-                </svg>
-                Nuevo Rol
-            </button>
+            <div class="roles-header-actions">
+                @include('admin.components._column_visibility_menu', [
+                    'tableKey' => 'roles.index',
+                    'columnDefs' => [
+                        'descripcion' => 'Descripción',
+                        'usuarios' => 'Usuarios',
+                        'permisos' => 'Permisos',
+                        'creado' => 'Creado',
+                    ],
+                ])
+                <button class="roles-btn-new" type="button" onclick="openCreateDrawer()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M5 12h14"/><path d="M12 5v14"/>
+                    </svg>
+                    Nuevo Rol
+                </button>
+            </div>
         </div>
     </div>
 
@@ -91,10 +102,10 @@
             <thead>
                 <tr>
                     <th>ROL</th>
-                    <th>DESCRIPCIÓN</th>
-                    <th>USUARIOS</th>
-                    <th>PERMISOS</th>
-                    <th>CREADO</th>
+                    <th data-col="descripcion">DESCRIPCIÓN</th>
+                    <th data-col="usuarios">USUARIOS</th>
+                    <th data-col="permisos">PERMISOS</th>
+                    <th data-col="creado">CREADO</th>
                     <th>ACCIONES</th>
                 </tr>
             </thead>
@@ -124,20 +135,20 @@
                             <span class="roles-role-name">{{ $role->name_role }}</span>
                         </div>
                     </td>
-                    <td class="roles-cell-desc">{{ $role->description_role }}</td>
-                    <td>
+                    <td class="roles-cell-desc" data-col="descripcion">{{ $role->description_role }}</td>
+                    <td data-col="usuarios">
                         <span class="roles-users-count">
                             {{ $role->users_count }} {{ $role->users_count === 1 ? 'usuario' : 'usuarios' }}
                         </span>
                     </td>
-                    <td>
+                    <td data-col="permisos">
                         @if($role->isAdmin())
                             <span class="roles-badge roles-badge--admin">Todos los módulos</span>
                         @else
                             <span class="roles-badge roles-badge--default">{{ $role->permissions_count }} módulos</span>
                         @endif
                     </td>
-                    <td class="roles-cell-date">
+                    <td class="roles-cell-date" data-col="creado">
                         {{ $role->created_at ? \Carbon\Carbon::parse($role->created_at)->format('d M Y') : '—' }}
                     </td>
                     <td>
@@ -215,4 +226,14 @@
 
 @push('scripts')
     @vite('resources/js/admin/roles.js')
+@endpush
+@push('scripts')
+    <script src="{{ asset('js/admin/column-visibility.js') }}"></script>
+    <script>
+        initColumnVisibility({
+            tableKey: 'roles.index',
+            savedColumns: @json($visibleColumns),
+            saveUrl: '{{ route('admin.column-preferences.update') }}',
+        });
+    </script>
 @endpush

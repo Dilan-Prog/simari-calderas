@@ -59,8 +59,12 @@ class TechnicalServiceController extends Controller
             ? $tableQuery->paginate(15)->appends($request->query())
             : $tableQuery->get();
 
+        $visibleColumns = \App\Models\UserColumnPreference::where('user_id', auth()->id())
+            ->where('table_key', 'technical-services.index')
+            ->value('columns');
+
         return view('admin.technical-services.index', compact(
-            'services', 'calendarServices', 'technicians', 'currentMonth', 'currentYear', 'viewMode'
+            'services', 'calendarServices', 'technicians', 'currentMonth', 'currentYear', 'viewMode', 'visibleColumns'
         ));
     }
 

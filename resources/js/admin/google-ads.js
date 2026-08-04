@@ -71,6 +71,35 @@ $(function () {
         ],
     });
 
+    if (typeof window.initColumnVisibility === 'function') {
+        const gaTableEl = document.getElementById('gaTable');
+        const columnIndexByKey = {
+            gclid: 1,
+            conversion: 2,
+            valor: 3,
+            moneda: 4,
+            orden_id: 5,
+            estado: 6,
+            tiempo: 7,
+            creado: 8,
+        };
+        let savedColumns = null;
+        try {
+            savedColumns = JSON.parse(gaTableEl.dataset.savedColumns);
+        } catch (e) {
+            savedColumns = null;
+        }
+
+        window.initColumnVisibility({
+            tableKey: 'google-ads.index',
+            savedColumns: savedColumns,
+            saveUrl: gaTableEl.dataset.saveColumnsUrl,
+            applyFn: function (colKey, visible) {
+                table.column(columnIndexByKey[colKey]).visible(visible);
+            },
+        });
+    }
+
     new $.fn.dataTable.Buttons(table, {
         buttons: [
             {

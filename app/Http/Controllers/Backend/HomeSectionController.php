@@ -58,7 +58,11 @@ class HomeSectionController extends Controller
         $brands = Brand::orderBy('name')->get();
         $collections = Collection::where('is_active', true)->orderBy('name')->get();
 
-        return view('admin.home-sections.index', compact('sections', 'categories', 'brands', 'collections', 'page'));
+        $visibleColumns = \App\Models\UserColumnPreference::where('user_id', auth()->id())
+            ->where('table_key', 'home-sections.index')
+            ->value('columns');
+
+        return view('admin.home-sections.index', compact('sections', 'categories', 'brands', 'collections', 'page', 'visibleColumns'));
     }
 
     /**

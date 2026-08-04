@@ -33,7 +33,11 @@ class ServicePageController extends Controller
             ->paginate(15)
             ->withQueryString();
 
-        return view('admin.service-pages.index', compact('servicePages'));
+        $visibleColumns = \App\Models\UserColumnPreference::where('user_id', auth()->id())
+            ->where('table_key', 'service-pages.index')
+            ->value('columns');
+
+        return view('admin.service-pages.index', compact('servicePages', 'visibleColumns'));
     }
 
     public function create()

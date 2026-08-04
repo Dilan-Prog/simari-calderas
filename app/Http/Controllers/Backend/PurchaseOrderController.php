@@ -41,7 +41,11 @@ class PurchaseOrderController extends Controller
             'rejected' => PurchaseOrder::where('status', 'rejected')->count(),
         ];
 
-        return view('admin.purchase-orders.index', compact('orders', 'stats'));
+        $visibleColumns = \App\Models\UserColumnPreference::where('user_id', auth()->id())
+            ->where('table_key', 'purchase-orders.index')
+            ->value('columns');
+
+        return view('admin.purchase-orders.index', compact('orders', 'stats', 'visibleColumns'));
     }
 
     public function create()

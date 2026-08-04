@@ -75,11 +75,6 @@ class SupplierProductsImport implements ToModel, WithHeadingRow, WithValidation,
         return ['ProveedoresProductos' => $this];
     }
 
-    private function present($value): bool
-    {
-        return $value !== null && trim((string) $value) !== '';
-    }
-
     public function model(array $row)
     {
         $supplierId = $this->forcedSupplierId ?? $this->resolveIdByName($row['proveedor'] ?? null, $this->suppliersByName);

@@ -20,10 +20,16 @@
             <h1 style="margin:0 0 4px;">Gestión de Colecciones</h1>
             <p class="breadcrumb-clients-manager main">Agrupa productos manualmente o con reglas automáticas</p>
         </div>
-        <button type="button" class="button-primary size-adjustment" id="btnNewCollection"
-            style="background:#ff6213;border-color:#ff6213;white-space:nowrap;">
-            + Nueva Colección
-        </button>
+        <div style="display:flex;align-items:flex-start;gap:8px;">
+            @include('admin.components._column_visibility_menu', [
+                'tableKey' => 'collections.index',
+                'columnDefs' => ['tipo' => 'Tipo', 'productos' => 'Productos', 'orden' => 'Orden', 'estado' => 'Estado'],
+            ])
+            <button type="button" class="button-primary size-adjustment" id="btnNewCollection"
+                style="background:#ff6213;border-color:#ff6213;white-space:nowrap;">
+                + Nueva Colección
+            </button>
+        </div>
     </div>
 
     {{-- Stats cards --}}
@@ -96,10 +102,10 @@
             <thead>
                 <tr>
                     <th>NOMBRE</th>
-                    <th>TIPO</th>
-                    <th>PRODUCTOS</th>
-                    <th>ORDEN</th>
-                    <th>ESTADO</th>
+                    <th data-col="tipo">TIPO</th>
+                    <th data-col="productos">PRODUCTOS</th>
+                    <th data-col="orden">ORDEN</th>
+                    <th data-col="estado">ESTADO</th>
                     <th>ACCIONES</th>
                 </tr>
             </thead>
@@ -121,18 +127,18 @@
                                 <span style="font-size:12px;color:#6b7280;">/{{ $collection->slug }}</span>
                             </div>
                         </td>
-                        <td style="padding:12px 16px;">
+                        <td data-col="tipo" style="padding:12px 16px;">
                             <span class="collection-type-badge {{ $isManual ? 'manual' : 'automatic' }}">
                                 {{ $isManual ? 'Manual' : 'Automática' }}
                             </span>
                         </td>
-                        <td style="padding:12px 16px;text-align:center;font-size:14px;color:#374151;">
+                        <td data-col="productos" style="padding:12px 16px;text-align:center;font-size:14px;color:#374151;">
                             {{ $productCount }}
                         </td>
-                        <td style="padding:12px 16px;text-align:center;font-size:14px;color:#374151;">
+                        <td data-col="orden" style="padding:12px 16px;text-align:center;font-size:14px;color:#374151;">
                             {{ $collection->sort_order }}
                         </td>
-                        <td style="padding:12px 16px;">
+                        <td data-col="estado" style="padding:12px 16px;">
                             <span class="users-manager-badge {{ $statusClass }}" data-status="{{ $collection->is_active ? 'active' : 'inactive' }}">
                                 {{ $statusLabel }}
                             </span>
@@ -182,4 +188,14 @@
 @include('admin.collections.partials._scripts')
 @include('admin.components.center-toast')
 </div>
+@push('scripts')
+    <script src="{{ asset('js/admin/column-visibility.js') }}"></script>
+    <script>
+        initColumnVisibility({
+            tableKey: 'collections.index',
+            savedColumns: @json($visibleColumns),
+            saveUrl: '{{ route('admin.column-preferences.update') }}',
+        });
+    </script>
+@endpush
 @endsection

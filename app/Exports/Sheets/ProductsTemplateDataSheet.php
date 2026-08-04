@@ -5,6 +5,8 @@ namespace App\Exports\Sheets;
 use App\Models\Brand;
 use App\Models\Category;
 use App\Services\ProductSkuGenerator;
+use App\Support\CategoryCascadeDropdownBuilder;
+use App\Support\ExcelDropdown;
 use Maatwebsite\Excel\Concerns\FromArray;
 use Maatwebsite\Excel\Concerns\WithColumnWidths;
 use Maatwebsite\Excel\Concerns\WithHeadings;
@@ -23,7 +25,8 @@ class ProductsTemplateDataSheet implements FromArray, WithHeadings, WithTitle, W
     public function headings(): array
     {
         return [
-            'Nombre', 'SKU', 'Modelo', 'SKU Proveedor', 'Categoría', 'Marca',
+            'Nombre', 'SKU', 'Modelo', 'SKU Proveedor',
+            'Categoría Principal', 'Subcategoría', 'Categoría Hija', 'Marca',
             'Descripción Corta', 'Descripción', 'Precio', 'Precio Comparativo',
             'Costo', 'Stock', 'Unidad Stock', 'Moneda', 'Disponibilidad',
             'Activo', 'Destacado', 'Nuevo', 'Recomendado', 'Publicar Web', 'Imagen URL',
@@ -43,26 +46,26 @@ class ProductsTemplateDataSheet implements FromArray, WithHeadings, WithTitle, W
         return [
             [
                 'Caldera Industrial 500L', $skus[0], 'CI-500', 'PROV-CI500',
-                $categories[0], $brands[0],
+                $categories[0], '', '', $brands[0],
                 'Caldera industrial de alta eficiencia',
                 'Caldera de vapor industrial de 500 litros, ideal para procesos productivos continuos.',
-                45000, 52000, 32000, 8, 'pieza', 'MXN', 'available',
+                45000, 52000, 32000, 8, 'pieza', 'MXN', 'Disponible',
                 'Si', 'Si', 'No', 'Si', 'Si', '',
             ],
             [
                 'Calentador Solar 200L', $skus[1], 'CS-200', 'PROV-CS200',
-                $categories[1], $brands[1],
+                $categories[1], '', '', $brands[1],
                 'Sistema de calentamiento solar residencial',
                 'Calentador solar de tubos evacuados, capacidad 200 litros, incluye kit de instalación.',
-                12500, 14000, 8900, 15, 'pieza', 'MXN', 'available',
+                12500, 14000, 8900, 15, 'pieza', 'MXN', 'Disponible',
                 'Si', 'No', 'Si', 'No', 'Si', '',
             ],
             [
                 'Caldereta a Gas 100L', $skus[2], 'CG-100', '',
-                $categories[2], $brands[2],
+                $categories[2], '', '', $brands[2],
                 'Caldereta compacta para uso comercial',
                 'Caldereta a gas natural/LP de 100 litros, encendido electrónico, panel digital.',
-                9800, '', 6500, 20, 'pieza', 'MXN', 'sobre_pedido',
+                9800, '', 6500, 20, 'pieza', 'MXN', 'Sobre Pedido',
                 'Si', 'No', 'No', 'No', 'No', '',
             ],
         ];
@@ -111,14 +114,28 @@ class ProductsTemplateDataSheet implements FromArray, WithHeadings, WithTitle, W
 
     public function styles(Worksheet $sheet)
     {
-        // Precio (I), Precio Comparativo (J) y Costo (K) son montos en
+        // Precio (K), Precio Comparativo (L) y Costo (M) son montos en
         // pesos: sin este formato, Excel las trata como texto/número plano
         // y no se ven como dinero al llenarlas. Se aplica a un rango amplio
         // (hasta la fila 1000) para cubrir cuánto sea que el usuario
         // extienda la plantilla al capturar su catálogo.
-        $sheet->getStyle('I2:K1000')
+        $sheet->getStyle('K2:M1000')
             ->getNumberFormat()
             ->setFormatCode('"$"#,##0');
+
+        // Dropdowns en cascada para Categoría Principal (E) / Subcategoría
+        // (F) / Categoría Hija (G) — Subcategoría solo muestra las hijas de
+        // la Categoría Principal de esa misma fila, y así sucesivamente.
+        CategoryCascadeDropdownBuilder::apply($sheet, 'E', 'F', 'G', 2, 1000);
+
+        // Dropdowns simples (lista fija) para el resto de campos de valor
+        // constante, para que el usuario no cometa errores de tipeo.
+        ExcelDropdown::applyListDropdown($sheet, 'O', 2, 1000, ['pieza', 'juego', 'kit', 'metro', 'kg', 'litro'], 'Unidad de Stock');
+        ExcelDropdown::applyListDropdown($sheet, 'P', 2, 1000, ['MXN', 'USD'], 'Moneda');
+        ExcelDropdown::applyListDropdown($sheet, 'Q', 2, 1000, ['Disponible', 'Agotado', 'Sobre Pedido'], 'Disponibilidad');
+        foreach (['R', 'S', 'T', 'U', 'V'] as $boolColumn) {
+            ExcelDropdown::applyListDropdown($sheet, $boolColumn, 2, 1000, ['Si', 'No'], 'Sí / No');
+        }
 
         return [
             1 => [
@@ -134,10 +151,9 @@ class ProductsTemplateDataSheet implements FromArray, WithHeadings, WithTitle, W
     public function columnWidths(): array
     {
         return [
-            'A' => 28, 'B' => 14, 'C' => 12, 'D' => 16, 'E' => 20, 'F' => 16,
-            'G' => 30, 'H' => 45, 'I' => 12, 'J' => 14, 'K' => 12,
-            'L' => 10, 'M' => 14, 'N' => 10, 'O' => 16,
-            'P' => 10, 'Q' => 12, 'R' => 10, 'S' => 14, 'T' => 14, 'U' => 40,
+            'A' => 28, 'B' => 14, 'C' => 12, 'D' => 16, 'E' => 20, 'F' => 20, 'G' => 20, 'H' => 16,
+            'I' => 30, 'J' => 45, 'K' => 12, 'L' => 14, 'M' => 12, 'N' => 10, 'O' => 14,
+            'P' => 10, 'Q' => 16, 'R' => 10, 'S' => 12, 'T' => 10, 'U' => 14, 'V' => 14, 'W' => 40,
         ];
     }
 }

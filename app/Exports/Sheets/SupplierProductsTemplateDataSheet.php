@@ -4,6 +4,7 @@ namespace App\Exports\Sheets;
 
 use App\Models\Products;
 use App\Models\Supplier;
+use App\Support\ExcelDropdown;
 use Maatwebsite\Excel\Concerns\FromArray;
 use Maatwebsite\Excel\Concerns\WithColumnWidths;
 use Maatwebsite\Excel\Concerns\WithHeadings;
@@ -73,6 +74,9 @@ class SupplierProductsTemplateDataSheet implements FromArray, WithHeadings, With
         $sheet->getStyle('E2:E1000')
             ->getNumberFormat()
             ->setFormatCode('"$"#,##0');
+
+        // Es Principal (G): dropdown Sí/No en vez de texto libre.
+        ExcelDropdown::applyListDropdown($sheet, 'G', 2, 1000, ['Si', 'No'], 'Es Principal');
 
         return [
             1 => [

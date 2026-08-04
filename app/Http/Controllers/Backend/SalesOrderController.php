@@ -41,7 +41,11 @@ class SalesOrderController extends Controller
             'entregado'   => SalesOrder::where('status', 'entregado')->count(),
         ];
 
-        return view('admin.sales-orders.index', compact('orders', 'stats'));
+        $visibleColumns = \App\Models\UserColumnPreference::where('user_id', auth()->id())
+            ->where('table_key', 'sales-orders.index')
+            ->value('columns');
+
+        return view('admin.sales-orders.index', compact('orders', 'stats', 'visibleColumns'));
     }
 
     public function show(SalesOrder $salesOrder)

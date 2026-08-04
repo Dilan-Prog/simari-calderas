@@ -5,6 +5,16 @@
    to admin/components/ui-kit.css instead.
    ============================================================ */
 
+/* Wrapper for the header toolbar of the users index (column-visibility
+   menu + "Nuevo Usuario") — mirrors .supplier-header-actions in
+   proveedores.css / .clients-header-actions in clientes.css. */
+.users-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
 /* Avatar upload widget (create/edit user form) */
 .user-manager-avatar-upload-container {
     display: flex;

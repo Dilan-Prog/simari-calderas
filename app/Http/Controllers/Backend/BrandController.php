@@ -39,7 +39,11 @@ class BrandController extends Controller
             ->orderBy('name')
             ->paginate(10);
 
-        return view('admin.brands.index', compact('brands'));
+        $visibleColumns = \App\Models\UserColumnPreference::where('user_id', auth()->id())
+            ->where('table_key', 'brands.index')
+            ->value('columns');
+
+        return view('admin.brands.index', compact('brands', 'visibleColumns'));
     }
 
     public function store(Request $request)

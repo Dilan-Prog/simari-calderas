@@ -115,13 +115,29 @@
 
                     <div class="google-ads-filters-spacer"></div>
 
+                    @include('admin.components._column_visibility_menu', [
+                        'tableKey' => 'google-ads.index',
+                        'columnDefs' => [
+                            'gclid' => 'GCLID',
+                            'conversion' => 'Conversión',
+                            'valor' => 'Valor',
+                            'moneda' => 'Moneda',
+                            'orden_id' => 'Orden ID',
+                            'estado' => 'Estado',
+                            'tiempo' => 'Tiempo',
+                            'creado' => 'Creado',
+                        ],
+                    ])
+
                     {{-- CSV export button rendered by DataTables Buttons --}}
                     <div id="gaExportWrapper"></div>
                 </div>
 
                 {{-- DataTable --}}
                 <div class="table-scroll" style="overflow-x:auto;">
-                    <table id="gaTable" class="users-manager-table" style="width:100%">
+                    <table id="gaTable" class="users-manager-table" style="width:100%"
+                        data-saved-columns="{{ json_encode($visibleColumns) }}"
+                        data-save-columns-url="{{ route('admin.column-preferences.update') }}">
                         <thead>
                             <tr>
                                 <th>ID</th>

@@ -11,6 +11,7 @@ use App\Models\Products;
 use App\Models\ProductImage;
 use App\Models\ProductDocument;
 use App\Models\ProductBulkEditView;
+use App\Models\ProductIndexView;
 use App\Models\ProductSpecName;
 use Illuminate\Support\Str;
 use App\Models\Category;
@@ -198,15 +199,23 @@ class ProductController extends Controller
             'id',
             'name',
             'sku',
+            'model',
+            'supplier_sku',
             'price',
+            'compare_price',
             'cost',
             'stock',
             // FIX BUG 11/9: stock_unit is now a real column (see BUG 9) —
             // added here so index.blade.php's inventory summary shows the
             // real unit instead of always falling back to 'unidades'.
             'stock_unit',
+            'currency',
+            'availability',
             'is_active',
             'is_featured',
+            'is_new',
+            'is_recommended',
+            'publish_on_website',
             'cover_image_url',
             'category_id',
             'brand_id',
@@ -228,12 +237,19 @@ class ProductController extends Controller
 
         $categories = Category::orderBy('name')->get(['id', 'name']);
 
+        // Vistas de columnas guardadas por el usuario actual para el listado
+        // normal (hasta 10) — ver storeIndexView()/updateIndexView()/destroyIndexView().
+        $savedViews = ProductIndexView::where('user_id', auth()->id())
+            ->orderBy('id')
+            ->get(['id', 'name', 'columns']);
+
         return view('admin.products.index', compact(
             'products',
             'categories',
             'totalFiltered',
             'stockSum',
-            'firstStockUnit'
+            'firstStockUnit',
+            'savedViews'
         ))->with('perPageOptions', self::PER_PAGE_OPTIONS);
     }
 
@@ -263,6 +279,18 @@ class ProductController extends Controller
         'seo_title', 'seo_description', 'seo_keywords', 'og_title', 'og_description', 'og_image',
     ];
     private const BULK_EDIT_VIEWS_MAX_PER_USER = 10;
+
+    // Catálogo de columnas mostrables/ocultables en el listado normal de
+    // Productos (admin/productos) — whitelist para las vistas guardadas de
+    // ese listado (ver storeIndexView()/updateIndexView()). Sistema aparte
+    // del de Edición Masiva (BULK_EDIT_VIEW_COLUMNS arriba): tabla, modelo y
+    // rutas propias.
+    private const INDEX_VIEW_COLUMNS = [
+        'sku', 'model', 'brand_id', 'supplier_sku',
+        'price', 'compare_price', 'cost', 'stock', 'currency', 'availability',
+        'category_id', 'is_active', 'publish_on_website', 'is_featured', 'is_new', 'is_recommended',
+    ];
+    private const INDEX_VIEWS_MAX_PER_USER = 10;
 
     /**
      * Etiqueta tipo "Padre > Hijo" para que el <select> de categoría del
@@ -695,6 +723,70 @@ class ProductController extends Controller
         $view = ProductBulkEditView::findOrFail($id);
         abort_if($view->user_id !== auth()->id(), 403);
 
+        $view->delete();
+
+        return response()->json(['success' => true]);
+    }
+
+    private function indexViewValidationRules(): array
+    {
+        return [
+            'name' => ['required', 'string', 'max:60'],
+            'columns' => ['required', 'array', 'min:1'],
+            'columns.*' => ['string', Rule::in(self::INDEX_VIEW_COLUMNS)],
+        ];
+    }
+
+    /**
+     * true si el usuario actual ya tiene otra vista con este nombre
+     * (case-insensitive, sin espacios en los extremos). $excludeId permite
+     * ignorar la propia fila al renombrar en updateIndexView().
+     */
+    private function indexViewNameTaken(string $name, ?int $excludeId = null): bool
+    {
+        return ProductIndexView::where('user_id', auth()->id())
+            ->when($excludeId, fn ($q) => $q->where('id', '!=', $excludeId))
+            ->whereRaw('LOWER(name) = ?', [strtolower(trim($name))])
+            ->exists();
+    }
+
+    public function storeIndexView(Request $request)
+    {
+        $request->validate($this->indexViewValidationRules());
+
+        if (ProductIndexView::where('user_id', auth()->id())->count() >= self::INDEX_VIEWS_MAX_PER_USER) {
+            return response()->json(['success' => false, 'message' => 'Ya tienes el máximo de ' . self::INDEX_VIEWS_MAX_PER_USER . ' vistas guardadas. Elimina una para poder guardar otra.'], 422);
+        }
+        if ($this->indexViewNameTaken($request->name)) {
+            return response()->json(['success' => false, 'message' => 'Ya tienes una vista guardada con ese nombre.'], 422);
+        }
+
+        $view = ProductIndexView::create([
+            'user_id' => auth()->id(), 'name' => trim($request->name), 'columns' => $request->columns,
+        ]);
+
+        return response()->json(['success' => true, 'view' => $view->only(['id', 'name', 'columns'])]);
+    }
+
+    public function updateIndexView(Request $request, string $id)
+    {
+        $view = ProductIndexView::findOrFail($id);
+        abort_if($view->user_id !== auth()->id(), 403);
+        $request->validate($this->indexViewValidationRules());
+
+        if ($this->indexViewNameTaken($request->name, $view->id)) {
+            return response()->json(['success' => false, 'message' => 'Ya tienes una vista guardada con ese nombre.'], 422);
+        }
+
+        $view->update(['name' => trim($request->name), 'columns' => $request->columns]);
+
+        return response()->json(['success' => true, 'view' => $view->only(['id', 'name', 'columns'])]);
+    }
+
+    public function destroyIndexView(string $id)
+    {
+        $view = ProductIndexView::findOrFail($id);
+        abort_if($view->user_id !== auth()->id(), 403);
         $view->delete();
 
         return response()->json(['success' => true]);

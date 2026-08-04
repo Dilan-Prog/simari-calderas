@@ -25,9 +25,15 @@
                     </p>
                 </div>
 
-                <button class="button-primary size-adjustment clients">
-                    + Nuevo Cliente
-                </button>
+                <div class="clients-header-actions">
+                    @include('admin.components._column_visibility_menu', [
+                        'tableKey' => 'clients.index',
+                        'columnDefs' => ['cliente' => 'Cliente', 'contacto' => 'Contacto', 'rfc' => 'RFC', 'estado' => 'Estado'],
+                    ])
+                    <button class="button-primary size-adjustment clients">
+                        + Nuevo Cliente
+                    </button>
+                </div>
             </header>
 
             <section class="filters-clients-manager">
@@ -64,10 +70,10 @@
                         <thead>
                             <tr>
                                 <th>EMPRESA</th>
-                                <th>CLIENTE</th>
-                                <th>CONTACTO</th>
-                                <th>RFC</th>
-                                <th>ESTADO</th>
+                                <th data-col="cliente">CLIENTE</th>
+                                <th data-col="contacto">CONTACTO</th>
+                                <th data-col="rfc">RFC</th>
+                                <th data-col="estado">ESTADO</th>
                                 <th>ACCIONES</th>
                             </tr>
                         </thead>
@@ -102,7 +108,7 @@
                                                 </span>
                                             </div>
                                         </td>
-                                        <td>
+                                        <td data-col="cliente">
                                             <div class="avatar-user-manager">
                                                     D
                                                 </div>
@@ -112,7 +118,7 @@
                                         </td>
 
 
-                                        <td>
+                                        <td data-col="contacto">
                                             <p class="breadcrumb-clients-manager">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"
                                                     viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -135,11 +141,11 @@
                                             </p>
                                         </td>
 
-                                        <td>
+                                        <td data-col="rfc">
                                             <span class="breadcrumb-clients-manager client-rfc">{{ $customer->rfc ?? '—' }}</span>
                                         </td>
 
-                                        <td>
+                                        <td data-col="estado">
                                             @php
                                                 $statusLabel = match ($customer->status) {
                                                     'active' => 'Activo',
@@ -240,3 +246,14 @@
         @include('admin.client.partials._modal_delete')
     </div>
 @endsection
+
+@push('scripts')
+    <script src="{{ asset('js/admin/column-visibility.js') }}"></script>
+    <script>
+        initColumnVisibility({
+            tableKey: 'clients.index',
+            savedColumns: @json($visibleColumns),
+            saveUrl: '{{ route('admin.column-preferences.update') }}',
+        });
+    </script>
+@endpush

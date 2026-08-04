@@ -240,10 +240,22 @@
             <h1 class="quotes-title">Gestión de Cotizaciones</h1>
             <p class="quotes-subtitle">Crea y administra cotizaciones para tus clientes</p>
         </div>
-        <a href="{{ route('admin.quotes.create') }}" class="quotes-btn-new">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
-            Nueva Cotización
-        </a>
+        <div style="display:flex; align-items:center; gap:8px; flex-shrink:0;">
+            @include('admin.components._column_visibility_menu', [
+                'tableKey' => 'quotes.index',
+                'columnDefs' => [
+                    'receptor' => 'Receptor',
+                    'empresa' => 'Empresa',
+                    'total' => 'Total',
+                    'estado' => 'Estado',
+                    'valido_hasta' => 'Válido hasta',
+                ],
+            ])
+            <a href="{{ route('admin.quotes.create') }}" class="quotes-btn-new">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+                Nueva Cotización
+            </a>
+        </div>
     </div>
 
     {{-- Filters --}}
@@ -300,11 +312,11 @@
                 <thead>
                     <tr>
                         <th>Folio</th>
-                        <th>Receptor</th>
-                        <th>Empresa</th>
-                        <th>Total</th>
-                        <th>Estado</th>
-                        <th>Válido hasta</th>
+                        <th data-col="receptor">Receptor</th>
+                        <th data-col="empresa">Empresa</th>
+                        <th data-col="total">Total</th>
+                        <th data-col="estado">Estado</th>
+                        <th data-col="valido_hasta">Válido hasta</th>
                         <th>Acciones</th>
                     </tr>
                 </thead>
@@ -312,10 +324,10 @@
                     @forelse($quotes as $quote)
                     <tr>
                         <td><a href="{{ route('admin.quotes.show', $quote) }}" class="quotes-td-folio">{{ $quote->quote_number }}</a></td>
-                        <td class="quotes-td-receptor">{{ $quote->guest_name }}</td>
-                        <td class="quotes-td-empresa">{{ $quote->guest_company ?? '—' }}</td>
-                        <td class="quotes-td-total">{{ $quote->currency }} ${{ number_format($quote->total, 2) }}</td>
-                        <td>
+                        <td class="quotes-td-receptor" data-col="receptor">{{ $quote->guest_name }}</td>
+                        <td class="quotes-td-empresa" data-col="empresa">{{ $quote->guest_company ?? '—' }}</td>
+                        <td class="quotes-td-total" data-col="total">{{ $quote->currency }} ${{ number_format($quote->total, 2) }}</td>
+                        <td data-col="estado">
                             @php
                                 $badgeMap = [
                                     'draft'    => ['class' => 'quotes-badge-draft',    'label' => 'Borrador'],
@@ -328,7 +340,7 @@
                             @endphp
                             <span class="quotes-badge {{ $badge['class'] }}">{{ $badge['label'] }}</span>
                         </td>
-                        <td class="quotes-td-fecha">{{ $quote->valid_until ? $quote->valid_until->format('d M Y') : '—' }}</td>
+                        <td class="quotes-td-fecha" data-col="valido_hasta">{{ $quote->valid_until ? $quote->valid_until->format('d M Y') : '—' }}</td>
                         <td>
                             <div class="quotes-actions">
                                 <a href="{{ route('admin.quotes.show', $quote) }}" class="quotes-action-btn" title="Ver">
@@ -724,5 +736,13 @@
         : init();
 
 })();
+</script>
+<script src="{{ asset('js/admin/column-visibility.js') }}"></script>
+<script>
+    initColumnVisibility({
+        tableKey: 'quotes.index',
+        savedColumns: @json($visibleColumns),
+        saveUrl: '{{ route('admin.column-preferences.update') }}',
+    });
 </script>
 @endpush

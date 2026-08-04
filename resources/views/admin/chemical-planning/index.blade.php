@@ -14,10 +14,21 @@
             <h1 style="margin:0 0 4px;">Planeación de Químicos</h1>
             <p class="breadcrumb-clients-manager">Entregado, pendiente, proyección e inventario por cliente y producto</p>
         </div>
-        <a href="{{ route('admin.chemical-planning.export') }}" class="button-primary size-adjustment"
-            style="background:#ff6213;border-color:#ff6213;white-space:nowrap;">
-            Exportar a Excel
-        </a>
+        <div style="display:flex;align-items:center;gap:10px;">
+            @include('admin.components._column_visibility_menu', [
+                'tableKey' => 'chemical-planning.index',
+                'columnDefs' => [
+                    'entregado' => 'Entregado',
+                    'por_entregar' => 'Por Entregar',
+                    'proyeccion' => 'Proyección',
+                    'inventario' => 'Inventario',
+                ],
+            ])
+            <a href="{{ route('admin.chemical-planning.export') }}" class="button-primary size-adjustment"
+                style="background:#ff6213;border-color:#ff6213;white-space:nowrap;">
+                Exportar a Excel
+            </a>
+        </div>
     </div>
 
     <main class="table-container-clients-manager">
@@ -26,10 +37,10 @@
                 <tr>
                     <th>CLIENTE</th>
                     <th>PRODUCTO</th>
-                    <th>ENTREGADO</th>
-                    <th>POR ENTREGAR</th>
-                    <th>PROYECCIÓN</th>
-                    <th>INVENTARIO</th>
+                    <th data-col="entregado">ENTREGADO</th>
+                    <th data-col="por_entregar">POR ENTREGAR</th>
+                    <th data-col="proyeccion">PROYECCIÓN</th>
+                    <th data-col="inventario">INVENTARIO</th>
                 </tr>
             </thead>
         </table>
@@ -40,16 +51,16 @@
                     <tr style="border-bottom:1px solid #f1f5f9;">
                         <td style="padding:14px 16px;font-weight:600;color:#111827;">{{ $row['customer_name'] }}</td>
                         <td style="padding:14px 16px;">{{ $row['product_name'] }}</td>
-                        <td style="padding:14px 16px;">{{ $row['delivered'] }} {{ $row['stock_unit'] }}</td>
-                        <td style="padding:14px 16px;{{ $row['pending'] > 0 ? 'color:#d97706;font-weight:600;' : '' }}">{{ $row['pending'] }} {{ $row['stock_unit'] }}</td>
-                        <td style="padding:14px 16px;">
+                        <td data-col="entregado" style="padding:14px 16px;">{{ $row['delivered'] }} {{ $row['stock_unit'] }}</td>
+                        <td data-col="por_entregar" style="padding:14px 16px;{{ $row['pending'] > 0 ? 'color:#d97706;font-weight:600;' : '' }}">{{ $row['pending'] }} {{ $row['stock_unit'] }}</td>
+                        <td data-col="proyeccion" style="padding:14px 16px;">
                             <input type="number" class="users-manager-input projection-input" style="max-width:110px;"
                                 min="0" step="0.01"
                                 value="{{ $row['projected_quantity'] }}"
                                 data-customer-id="{{ $row['customer_id'] }}"
                                 data-product-id="{{ $row['product_id'] }}">
                         </td>
-                        <td style="padding:14px 16px;font-weight:600;">{{ $row['stock'] }} {{ $row['stock_unit'] }}</td>
+                        <td data-col="inventario" style="padding:14px 16px;font-weight:600;">{{ $row['stock'] }} {{ $row['stock_unit'] }}</td>
                     </tr>
                 @empty
                     <tr>
@@ -66,7 +77,14 @@
 </section>
 
 @push('scripts')
+<script src="{{ asset('js/admin/column-visibility.js') }}"></script>
 <script>
+    initColumnVisibility({
+        tableKey: 'chemical-planning.index',
+        savedColumns: @json($visibleColumns),
+        saveUrl: '{{ route('admin.column-preferences.update') }}',
+    });
+
     let projectionDebounce = null;
 
     document.querySelectorAll('.projection-input').forEach(function (input) {

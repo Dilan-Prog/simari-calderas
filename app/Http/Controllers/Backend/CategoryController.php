@@ -57,7 +57,11 @@ class CategoryController extends Controller
         // full, unpaginated list dedicated to that dropdown.
         $allCategories = Category::orderBy('sort_order')->orderBy('name')->get();
 
-        return view('admin.categories.index', compact('categories', 'allCategories'));
+        $visibleColumns = \App\Models\UserColumnPreference::where('user_id', auth()->id())
+            ->where('table_key', 'categories.index')
+            ->value('columns');
+
+        return view('admin.categories.index', compact('categories', 'allCategories', 'visibleColumns'));
     }
 
     public function store(Request $request)

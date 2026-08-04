@@ -36,6 +36,16 @@
     margin: 0;
 }
 
+/* Wrapper for the header toolbar (column-visibility menu + "Nuevo Rol") —
+   mirrors .supplier-header-actions / .clients-header-actions /
+   .users-header-actions in the other admin list modules. */
+.roles-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
 .roles-btn-new {
     display: inline-flex;
     align-items: center;

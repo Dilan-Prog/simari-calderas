@@ -16,12 +16,17 @@ class RoleController extends Controller
             ->with('permissions')
             ->get();
 
+        $visibleColumns = \App\Models\UserColumnPreference::where('user_id', auth()->id())
+            ->where('table_key', 'roles.index')
+            ->value('columns');
+
         return view('admin.roles.index', [
             'roles'        => $roles,
             'totalRoles'   => $roles->count(),
             'totalUsers'   => User::whereNotNull('role_id')->count(),
             'totalModules' => Permission::distinct('module')->count('module'),
             'modules'      => config('modules'),
+            'visibleColumns' => $visibleColumns,
         ]);
     }
 

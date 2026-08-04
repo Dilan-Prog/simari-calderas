@@ -26,7 +26,11 @@ class ClientManageController extends Controller
         $customers = Customer::with(['customer_addresses:city,state,customer_id,id', 'portalRequest:id,customer_id,completed_at'])
             ->get(['id', 'first_name', 'last_name', 'company', 'email', 'phone', 'rfc', 'status', 'source', 'password_hash', 'portal_access']);
 
-        return view('admin.client.index', compact('customers'));
+        $visibleColumns = \App\Models\UserColumnPreference::where('user_id', auth()->id())
+            ->where('table_key', 'clients.index')
+            ->value('columns');
+
+        return view('admin.client.index', compact('customers', 'visibleColumns'));
     }
 
     public function information(string $id)

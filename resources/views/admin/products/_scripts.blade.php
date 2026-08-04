@@ -514,6 +514,224 @@
                     showProductToast('Error de conexión. Intenta de nuevo.', 'error');
                 }
             });
+
+            // ── Columnas configurables + vistas guardadas (listado normal) ──
+            // Mismo patrón que _bulk_edit_scripts.blade.php (columnsBtn/
+            // applyColumnVisibility/loadStoredColumns/viewSelect/etc.), solo
+            // con IDs/clases propios (prodIndex*/.prod-index-col-toggle) para
+            // no colisionar con Edición Masiva, y un solo selector de
+            // data-col que cubre tabla Y tarjetas a la vez.
+            const INDEX_COLUMNS_STORAGE_KEY = 'admin_products_index_visible_columns';
+            const indexColumnsBtn = document.getElementById('prodIndexColumnsBtn');
+            const indexColumnsMenu = document.getElementById('prodIndexColumnsMenu');
+            const indexColToggles = document.querySelectorAll('.prod-index-col-toggle');
+
+            function applyIndexColumnVisibility() {
+                indexColToggles.forEach(cb => {
+                    document.querySelectorAll(`[data-col="${cb.value}"]`).forEach(el => {
+                        el.classList.toggle('prod-col-hidden', !cb.checked);
+                    });
+                });
+            }
+
+            function loadStoredIndexColumns() {
+                let raw;
+                try {
+                    raw = localStorage.getItem(INDEX_COLUMNS_STORAGE_KEY);
+                } catch (e) {
+                    return;
+                }
+                if (!raw) return; // nada guardado todavía: se respeta el default del servidor
+                try {
+                    const visible = JSON.parse(raw);
+                    indexColToggles.forEach(cb => { cb.checked = visible.includes(cb.value); });
+                } catch (e) {
+                    // localStorage corrupto/no es JSON válido: se ignora y se
+                    // mantienen los defaults renderizados por el servidor.
+                }
+            }
+
+            function saveIndexColumnsPreference() {
+                const visible = Array.from(indexColToggles).filter(cb => cb.checked).map(cb => cb.value);
+                try {
+                    localStorage.setItem(INDEX_COLUMNS_STORAGE_KEY, JSON.stringify(visible));
+                } catch (e) {
+                    // Almacenamiento lleno/bloqueado: la preferencia
+                    // simplemente no persiste, no es un error fatal.
+                }
+            }
+
+            indexColToggles.forEach(cb => cb.addEventListener('change', () => {
+                applyIndexColumnVisibility();
+                saveIndexColumnsPreference();
+            }));
+
+            indexColumnsBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                indexColumnsMenu.classList.toggle('active');
+            });
+            document.addEventListener('click', (e) => {
+                if (indexColumnsMenu.classList.contains('active') && !indexColumnsMenu.contains(e.target) && e.target !== indexColumnsBtn) {
+                    indexColumnsMenu.classList.remove('active');
+                }
+            });
+
+            loadStoredIndexColumns();
+            applyIndexColumnVisibility();
+
+            // ── Vistas guardadas de columnas (hasta 10, por usuario) ──
+            const INDEX_VIEWS_MAX = 10;
+            const indexViewSelect = document.getElementById('prodIndexViewSelect');
+            const indexViewNameInput = document.getElementById('prodIndexViewNameInput');
+            const indexViewSaveBtn = document.getElementById('prodIndexViewSaveBtn');
+            const indexViewManageRow = document.getElementById('prodIndexViewManageRow');
+            const indexViewUpdateBtn = document.getElementById('prodIndexViewUpdateBtn');
+            const indexViewDeleteBtn = document.getElementById('prodIndexViewDeleteBtn');
+            const prodIndexViewsUrl = '{{ url('/admin/productos/vistas') }}';
+
+            function updateIndexViewManageVisibility() {
+                indexViewManageRow.style.display = indexViewSelect.value ? 'flex' : 'none';
+            }
+
+            function applyIndexColumnsList(keys) {
+                indexColToggles.forEach(cb => { cb.checked = keys.includes(cb.value); });
+                applyIndexColumnVisibility();
+                saveIndexColumnsPreference();
+            }
+
+            indexViewSelect.addEventListener('change', () => {
+                const opt = indexViewSelect.options[indexViewSelect.selectedIndex];
+                if (!opt.value) {
+                    updateIndexViewManageVisibility();
+                    return;
+                }
+                let keys = [];
+                try {
+                    keys = JSON.parse(opt.dataset.columns || '[]');
+                } catch (e) {
+                    keys = [];
+                }
+                applyIndexColumnsList(keys);
+                updateIndexViewManageVisibility();
+            });
+
+            function currentCheckedIndexColumns() {
+                return Array.from(indexColToggles).filter(cb => cb.checked).map(cb => cb.value);
+            }
+
+            indexViewSaveBtn.addEventListener('click', async () => {
+                const name = indexViewNameInput.value.trim();
+                if (!name) {
+                    showProductToast('Ponle un nombre a la vista antes de guardarla.', 'error');
+                    return;
+                }
+                // Solo UX — el límite real lo aplica el servidor.
+                if (indexViewSelect.options.length - 1 >= INDEX_VIEWS_MAX) {
+                    showProductToast(`Ya tienes el máximo de ${INDEX_VIEWS_MAX} vistas guardadas. Elimina una para poder guardar otra.`, 'error');
+                    return;
+                }
+
+                indexViewSaveBtn.disabled = true;
+                try {
+                    const response = await fetch(prodIndexViewsUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken,
+                            'Accept': 'application/json',
+                        },
+                        body: JSON.stringify({ name, columns: currentCheckedIndexColumns() }),
+                    });
+                    const data = await response.json();
+
+                    if (!response.ok || !data.success) {
+                        showProductToast(data.message ?? 'No se pudo guardar la vista.', 'error');
+                        return;
+                    }
+
+                    const opt = document.createElement('option');
+                    opt.value = data.view.id;
+                    opt.dataset.columns = JSON.stringify(data.view.columns);
+                    opt.textContent = data.view.name;
+                    indexViewSelect.appendChild(opt);
+                    indexViewSelect.value = data.view.id;
+                    indexViewNameInput.value = '';
+                    updateIndexViewManageVisibility();
+                    showProductToast(`Vista "${data.view.name}" guardada.`);
+                } catch (err) {
+                    console.error('Error saving index view:', err);
+                    showProductToast('Error de conexión. Intenta de nuevo.', 'error');
+                } finally {
+                    indexViewSaveBtn.disabled = false;
+                }
+            });
+
+            indexViewUpdateBtn.addEventListener('click', async () => {
+                const id = indexViewSelect.value;
+                if (!id) return;
+                const name = indexViewSelect.options[indexViewSelect.selectedIndex].textContent.trim();
+
+                indexViewUpdateBtn.disabled = true;
+                try {
+                    const response = await fetch(prodIndexViewsUrl + '/' + id, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken,
+                            'Accept': 'application/json',
+                        },
+                        body: JSON.stringify({ name, columns: currentCheckedIndexColumns() }),
+                    });
+                    const data = await response.json();
+
+                    if (!response.ok || !data.success) {
+                        showProductToast(data.message ?? 'No se pudo actualizar la vista.', 'error');
+                        return;
+                    }
+
+                    indexViewSelect.options[indexViewSelect.selectedIndex].dataset.columns = JSON.stringify(data.view.columns);
+                    showProductToast(`Vista "${data.view.name}" actualizada.`);
+                } catch (err) {
+                    console.error('Error updating index view:', err);
+                    showProductToast('Error de conexión. Intenta de nuevo.', 'error');
+                } finally {
+                    indexViewUpdateBtn.disabled = false;
+                }
+            });
+
+            indexViewDeleteBtn.addEventListener('click', async () => {
+                const id = indexViewSelect.value;
+                if (!id) return;
+                const name = indexViewSelect.options[indexViewSelect.selectedIndex].textContent.trim();
+                if (!confirm(`¿Eliminar la vista "${name}"?`)) return;
+
+                indexViewDeleteBtn.disabled = true;
+                try {
+                    const response = await fetch(prodIndexViewsUrl + '/' + id, {
+                        method: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': csrfToken,
+                            'Accept': 'application/json',
+                        },
+                    });
+                    const data = await response.json();
+
+                    if (!response.ok || !data.success) {
+                        showProductToast(data.message ?? 'No se pudo eliminar la vista.', 'error');
+                        return;
+                    }
+
+                    indexViewSelect.options[indexViewSelect.selectedIndex].remove();
+                    indexViewSelect.value = '';
+                    updateIndexViewManageVisibility();
+                    showProductToast(`Vista "${name}" eliminada.`);
+                } catch (err) {
+                    console.error('Error deleting index view:', err);
+                    showProductToast('Error de conexión. Intenta de nuevo.', 'error');
+                } finally {
+                    indexViewDeleteBtn.disabled = false;
+                }
+            });
         })();
     </script>
 @endpush

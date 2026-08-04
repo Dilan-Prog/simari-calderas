@@ -37,7 +37,11 @@ class UserManageController extends Controller
 
         $roles = Role::select('id', 'name_role_es')->get();
 
-        return view('admin.users.index', compact('users', 'roles'));
+        $visibleColumns = \App\Models\UserColumnPreference::where('user_id', auth()->id())
+            ->where('table_key', 'users.index')
+            ->value('columns');
+
+        return view('admin.users.index', compact('users', 'roles', 'visibleColumns'));
     }
 
     public function store(Request $request)

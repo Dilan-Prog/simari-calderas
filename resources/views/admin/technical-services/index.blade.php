@@ -158,16 +158,28 @@
 
     {{-- ── TABLE VIEW ──────────────────────────────────── --}}
     <div id="ts-table-view" style="display:none">
+        <div style="display:flex;justify-content:flex-end;margin-bottom:8px;">
+            @include('admin.components._column_visibility_menu', [
+                'tableKey' => 'technical-services.index',
+                'columnDefs' => [
+                    'cliente' => 'Cliente',
+                    'tipo' => 'Tipo',
+                    'fecha' => 'Fecha',
+                    'estado' => 'Estado',
+                    'tecnicos' => 'Técnicos',
+                ],
+            ])
+        </div>
         <div class="ts-table-wrap">
             <table class="ts-table">
                 <thead>
                     <tr>
                         <th>FOLIO</th>
-                        <th>CLIENTE</th>
-                        <th>TIPO</th>
-                        <th>FECHA</th>
-                        <th>ESTADO</th>
-                        <th>TÉCNICOS</th>
+                        <th data-col="cliente">CLIENTE</th>
+                        <th data-col="tipo">TIPO</th>
+                        <th data-col="fecha">FECHA</th>
+                        <th data-col="estado">ESTADO</th>
+                        <th data-col="tecnicos">TÉCNICOS</th>
                         <th>ACCIONES</th>
                     </tr>
                 </thead>
@@ -190,20 +202,20 @@
                     @forelse($services as $service)
                     <tr>
                         <td><div class="ts-table-num">{{ $service->service_number }}</div></td>
-                        <td><div class="ts-table-customer">{{ $service->customer_name }}</div></td>
-                        <td><div class="ts-table-type">{{ $service->service_type_label }}</div></td>
-                        <td class="ts-table-date">
+                        <td data-col="cliente"><div class="ts-table-customer">{{ $service->customer_name }}</div></td>
+                        <td data-col="tipo"><div class="ts-table-type">{{ $service->service_type_label }}</div></td>
+                        <td class="ts-table-date" data-col="fecha">
                             {{ $service->service_date ? \Carbon\Carbon::parse($service->service_date)->format('d M Y') : '—' }}
                             @if($service->service_time)
                                 <br><span style="font-size:0.75rem;color:#9CA3AF">{{ $service->service_time }}</span>
                             @endif
                         </td>
-                        <td>
+                        <td data-col="estado">
                             <span class="ts-badge {{ $statusClasses[$service->status] ?? '' }}">
                                 {{ $statusLabels[$service->status] ?? $service->status }}
                             </span>
                         </td>
-                        <td>
+                        <td data-col="tecnicos">
                             <div class="ts-table-techs">
                                 @foreach($service->assignedTechnicians->take(3) as $tech)
                                     <div class="ts-tech-avatar" title="{{ $tech->full_name }}">
@@ -412,5 +424,13 @@
     if (searchInput)  searchInput.addEventListener('input',  filterCards);
     if (statusSelect) statusSelect.addEventListener('change', filterCards);
 })();
+</script>
+<script src="{{ asset('js/admin/column-visibility.js') }}"></script>
+<script>
+    initColumnVisibility({
+        tableKey: 'technical-services.index',
+        savedColumns: @json($visibleColumns),
+        saveUrl: '{{ route('admin.column-preferences.update') }}',
+    });
 </script>
 @endpush

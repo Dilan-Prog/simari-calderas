@@ -14,6 +14,17 @@
                     <p class="breadcrumb-clients-manager main">Administra tus proveedores y sus productos</p>
                 </div>
                 <div class="supplier-header-actions">
+                    @include('admin.components._column_visibility_menu', [
+                        'tableKey' => 'suppliers.index',
+                        'columnDefs' => [
+                            'contacto' => 'Contacto',
+                            'contacto_info' => 'Email / Teléfono',
+                            'condiciones_pago' => 'Condiciones de Pago',
+                            'calidad' => 'Calidad',
+                            'cumplimiento' => 'Cumplimiento',
+                            'estado' => 'Estado',
+                        ],
+                    ])
                     <a href="{{ route('admin.suppliers.products.export') }}" class="button-secondary size-adjustment">
                         Exportar Proveedor-Producto
                     </a>
@@ -95,12 +106,12 @@
                         <thead>
                             <tr>
                                 <th>EMPRESA</th>
-                                <th>CONTACTO</th>
-                                <th>EMAIL / TELÉFONO</th>
-                                <th>CONDICIONES DE PAGO</th>
-                                <th>CALIDAD</th>
-                                <th>CUMPLIMIENTO</th>
-                                <th>ESTADO</th>
+                                <th data-col="contacto">CONTACTO</th>
+                                <th data-col="contacto_info">EMAIL / TELÉFONO</th>
+                                <th data-col="condiciones_pago">CONDICIONES DE PAGO</th>
+                                <th data-col="calidad">CALIDAD</th>
+                                <th data-col="cumplimiento">CUMPLIMIENTO</th>
+                                <th data-col="estado">ESTADO</th>
                                 <th>ACCIONES</th>
                             </tr>
                         </thead>
@@ -130,11 +141,11 @@
                                                     class="clients-manager-ubication-client supplier-rfc">{{ $supplier->rfc ?? '—' }}</span>
                                             </div>
                                         </td>
-                                        <td>
+                                        <td data-col="contacto">
                                             <p class="breadcrumb-clients-manager supplier-contact">
                                                 {{ $supplier->contact_name ?? '—' }}</p>
                                         </td>
-                                        <td>
+                                        <td data-col="contacto_info">
                                             <p class="breadcrumb-clients-manager supplier-email">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"
                                                     viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -155,14 +166,14 @@
                                                 {{ $supplier->phone ?? '—' }}
                                             </p>
                                         </td>
-                                        <td>
+                                        <td data-col="condiciones_pago">
                                             <span class="users-manager-badge role-employee supplier-payment"
                                                 data-payment="{{ $supplier->payment_terms }}">
                                                 {{ $supplier->payment_terms ?? '—' }}
                                             </span>
                                         </td>
                                         {{-- Quality stars --}}
-                                        <td>
+                                        <td data-col="calidad">
                                             <span class="supplier-stars-svg"
                                                 data-rating="{{ $supplier->rating_quality ?? 0 }}">
                                                 @for ($s = 1; $s <= 5; $s++)
@@ -179,7 +190,7 @@
                                             </span>
                                         </td>
                                         {{-- Compliance stars --}}
-                                        <td>
+                                        <td data-col="cumplimiento">
                                             <span class="supplier-stars-svg"
                                                 data-rating="{{ $supplier->rating_compliance ?? 0 }}">
                                                 @for ($s = 1; $s <= 5; $s++)
@@ -195,7 +206,7 @@
                                                 @endfor
                                             </span>
                                         </td>
-                                        <td>
+                                        <td data-col="estado">
                                             <span class="users-manager-badge {{ $statusClass }} supplier-status-badge"
                                                 data-status="{{ $supplier->status }}">
                                                 {{ $statusLabel }}
@@ -262,4 +273,15 @@
     @include('admin.supplier.partials._import_supplier_products_modal')
     @include('admin.supplier.partials._scripts')
     @include('admin.supplier.partials._import_supplier_products_scripts')
+
+    @push('scripts')
+        <script src="{{ asset('js/admin/column-visibility.js') }}"></script>
+        <script>
+            initColumnVisibility({
+                tableKey: 'suppliers.index',
+                savedColumns: @json($visibleColumns),
+                saveUrl: '{{ route('admin.column-preferences.update') }}',
+            });
+        </script>
+    @endpush
 @endsection

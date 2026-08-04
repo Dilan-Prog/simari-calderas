@@ -16,10 +16,16 @@
             <h1 style="margin:0 0 4px;">Páginas de Servicio</h1>
             <p class="breadcrumb-clients-manager main">Catálogo de servicios con su propia página pública (SEO, secciones)</p>
         </div>
-        <a href="{{ route('admin.service-pages.create') }}" class="button-primary size-adjustment"
-            style="background:#ff6213;border-color:#ff6213;white-space:nowrap;">
-            + Nuevo Servicio
-        </a>
+        <div style="display:flex;align-items:flex-start;gap:8px;">
+            @include('admin.components._column_visibility_menu', [
+                'tableKey' => 'service-pages.index',
+                'columnDefs' => ['precio' => 'Precio', 'orden' => 'Orden', 'estado' => 'Estado'],
+            ])
+            <a href="{{ route('admin.service-pages.create') }}" class="button-primary size-adjustment"
+                style="background:#ff6213;border-color:#ff6213;white-space:nowrap;">
+                + Nuevo Servicio
+            </a>
+        </div>
     </div>
 
     <form method="GET" style="margin-bottom:16px;max-width:360px;">
@@ -32,9 +38,9 @@
             <thead>
                 <tr>
                     <th>NOMBRE</th>
-                    <th>PRECIO</th>
-                    <th>ORDEN</th>
-                    <th>ESTADO</th>
+                    <th data-col="precio">PRECIO</th>
+                    <th data-col="orden">ORDEN</th>
+                    <th data-col="estado">ESTADO</th>
                     <th>ACCIONES</th>
                 </tr>
             </thead>
@@ -50,13 +56,13 @@
                                 <span style="font-size:12px;color:#6b7280;">/servicio/{{ $servicePage->slug }}</span>
                             </div>
                         </td>
-                        <td style="padding:12px 16px;">
+                        <td data-col="precio" style="padding:12px 16px;">
                             {{ $servicePage->price ? '$' . number_format($servicePage->price, 2) . ' ' . $servicePage->currency : '—' }}
                         </td>
-                        <td style="padding:12px 16px;text-align:center;font-size:14px;color:#374151;">
+                        <td data-col="orden" style="padding:12px 16px;text-align:center;font-size:14px;color:#374151;">
                             {{ $servicePage->sort_order }}
                         </td>
-                        <td style="padding:12px 16px;">
+                        <td data-col="estado" style="padding:12px 16px;">
                             <span class="users-manager-badge {{ $servicePage->is_active ? 'status' : 'status-inactive' }}">
                                 {{ $servicePage->is_active ? 'Activo' : 'Inactivo' }}
                             </span>
@@ -155,6 +161,14 @@
         } catch (err) {
             showCenterToast('Error de conexión al eliminar.', 'error');
         }
+    });
+</script>
+<script src="{{ asset('js/admin/column-visibility.js') }}"></script>
+<script>
+    initColumnVisibility({
+        tableKey: 'service-pages.index',
+        savedColumns: @json($visibleColumns),
+        saveUrl: '{{ route('admin.column-preferences.update') }}',
     });
 </script>
 @endpush

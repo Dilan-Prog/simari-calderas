@@ -10,6 +10,16 @@
     overflow-y: auto;
 }
 
+/* Wrapper for the header toolbar of the clients index (column-visibility
+   menu + "Nuevo Cliente") — mirrors .supplier-header-actions in
+   proveedores.css, which shares the same .clients-manager-main header. */
+.clients-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
 .clients-manager-section.show {
     background: var(--bg-light);
 }

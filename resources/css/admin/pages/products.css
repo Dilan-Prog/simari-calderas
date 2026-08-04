@@ -644,7 +644,11 @@
 }
 
 /* ── Responsive ── */
-@media (max-width: 1280px) {
+/* FIX: 1280px medía el viewport completo, pero el sidebar (~256px) +
+   padding reducen el ancho real disponible — en ventanas de 1281-1366px
+   (laptop típica) 3 columnas quedaban apretadas/cortadas. Se alinea con
+   el mismo rango "laptop" que ya usa .prod-table más abajo (769-1366px). */
+@media (max-width: 1366px) {
     .prod-grid-container { grid-template-columns: repeat(2, 1fr); }
 }
 
@@ -1029,6 +1033,13 @@ select.prod-bulk-input {
 }
 
 .prod-bulk-col-hidden {
+    display: none;
+}
+
+/* Columnas configurables del listado normal (index) — clase deliberadamente
+   separada de .prod-bulk-col-hidden para no acoplar esta pantalla con
+   Edición Masiva, aunque el efecto visual sea el mismo. */
+.prod-col-hidden {
     display: none;
 }
 

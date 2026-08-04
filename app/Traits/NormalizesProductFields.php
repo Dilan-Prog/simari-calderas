@@ -72,4 +72,65 @@ trait NormalizesProductFields
     {
         return $namesToIdsLowerTrimmed[strtolower(trim($name ?? ''))] ?? null;
     }
+
+    private function present(?string $value): bool
+    {
+        return $value !== null && trim((string) $value) !== '';
+    }
+
+    /**
+     * Resuelve la cadena jerárquica Categoría Principal > Subcategoría >
+     * Categoría Hija a un único category_id final. Si un nivel indicado NO
+     * resuelve (typo), nunca hace fallback silencioso al nivel anterior:
+     * devuelve el error correspondiente y deja category_id en null — es
+     * responsabilidad de quien llama rechazar la fila.
+     *
+     * @param  array<int,array<string,int>>  $categoriesByParentId  [parent_id (0 = raíz) => [nombre_lower_trim => id]]
+     * @return array{0: int|null, 1: array<string,string>} [categoryId, errores por campo ('categoria_principal'|'subcategoria'|'categoria_hija')]
+     */
+    private function resolveCategoryChain(?string $principalName, ?string $subName, ?string $childName, array $categoriesByParentId): array
+    {
+        $principalPresent = $this->present($principalName);
+        $subPresent = $this->present($subName);
+        $childPresent = $this->present($childName);
+
+        if (!$principalPresent && !$subPresent && !$childPresent) {
+            return [null, []];
+        }
+
+        if (!$principalPresent) {
+            $field = $subPresent ? 'subcategoria' : 'categoria_hija';
+
+            return [null, [$field => 'Debes indicar Categoría Principal si llenas Subcategoría o Categoría Hija.']];
+        }
+
+        $principalId = $categoriesByParentId[0][strtolower(trim($principalName))] ?? null;
+        if (!$principalId) {
+            // rules() ya reporta este error (categoría principal inexistente);
+            // no lo duplicamos aquí.
+            return [null, []];
+        }
+
+        $subId = null;
+        if ($subPresent) {
+            $subId = $categoriesByParentId[$principalId][strtolower(trim($subName))] ?? null;
+            if (!$subId) {
+                return [null, ['subcategoria' => "\"{$subName}\" no es una subcategoría válida de \"{$principalName}\"."]];
+            }
+        }
+
+        if ($childPresent && !$subPresent) {
+            return [null, ['categoria_hija' => 'Debes indicar Subcategoría para poder usar Categoría Hija.']];
+        }
+
+        $childId = null;
+        if ($childPresent) {
+            $childId = $categoriesByParentId[$subId][strtolower(trim($childName))] ?? null;
+            if (!$childId) {
+                return [null, ['categoria_hija' => "\"{$childName}\" no es una categoría hija válida de \"{$subName}\"."]];
+            }
+        }
+
+        return [$childId ?? $subId ?? $principalId, []];
+    }
 }

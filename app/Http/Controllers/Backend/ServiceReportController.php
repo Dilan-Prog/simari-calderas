@@ -58,7 +58,11 @@ class ServiceReportController extends Controller
         // wizard already uses so the dropdown values are guaranteed correct.
         $serviceTypes = $this->service->getServiceTypes();
 
-        return view('admin.service-reports.index', compact('reports', 'serviceTypes'));
+        $visibleColumns = \App\Models\UserColumnPreference::where('user_id', auth()->id())
+            ->where('table_key', 'service-reports.index')
+            ->value('columns');
+
+        return view('admin.service-reports.index', compact('reports', 'serviceTypes', 'visibleColumns'));
     }
 
     // ── Create ─────────────────────────────────────────────────────────────────

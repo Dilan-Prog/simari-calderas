@@ -15,7 +15,14 @@ class ChemicalPlanningController extends Controller
 {
     public function index()
     {
-        return view('admin.chemical-planning.index', ['rows' => $this->buildRows()]);
+        $visibleColumns = \App\Models\UserColumnPreference::where('user_id', auth()->id())
+            ->where('table_key', 'chemical-planning.index')
+            ->value('columns');
+
+        return view('admin.chemical-planning.index', [
+            'rows' => $this->buildRows(),
+            'visibleColumns' => $visibleColumns,
+        ]);
     }
 
     public function export()

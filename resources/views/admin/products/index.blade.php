@@ -3,6 +3,32 @@
     Productos - Admin
 @endsection
 @section('content')
+    @php
+        // Catálogo de columnas configurables del listado normal (tabla +
+        // tarjetas). Contrato coordinado con ProductController::index()
+        // ($savedViews) y las rutas products.index-views.* — ver CLAUDE.md.
+        $indexColumns = [
+            ['key' => 'sku', 'label' => 'SKU', 'group' => 'Básicos', 'showInGrid' => false],
+            ['key' => 'category_id', 'label' => 'Categoría', 'group' => 'Organización', 'showInGrid' => true],
+            ['key' => 'model', 'label' => 'Modelo', 'group' => 'Básicos', 'showInGrid' => true],
+            ['key' => 'brand_id', 'label' => 'Marca', 'group' => 'Básicos', 'showInGrid' => true],
+            ['key' => 'supplier_sku', 'label' => 'SKU Proveedor', 'group' => 'Básicos', 'showInGrid' => false],
+            ['key' => 'price', 'label' => 'Precio', 'group' => 'Precios / Inventario', 'showInGrid' => true],
+            ['key' => 'compare_price', 'label' => 'Precio Comp.', 'group' => 'Precios / Inventario', 'showInGrid' => true],
+            ['key' => 'cost', 'label' => 'Costo', 'group' => 'Precios / Inventario', 'showInGrid' => true],
+            ['key' => 'stock', 'label' => 'Stock', 'group' => 'Precios / Inventario', 'showInGrid' => true],
+            ['key' => 'currency', 'label' => 'Moneda', 'group' => 'Precios / Inventario', 'showInGrid' => true],
+            ['key' => 'availability', 'label' => 'Disponibilidad', 'group' => 'Precios / Inventario', 'showInGrid' => true],
+            ['key' => 'is_active', 'label' => 'Estado', 'group' => 'Organización', 'showInGrid' => false],
+            ['key' => 'publish_on_website', 'label' => 'Publicado Web', 'group' => 'Organización', 'showInGrid' => true],
+            ['key' => 'is_featured', 'label' => 'Destacado', 'group' => 'Organización', 'showInGrid' => true],
+            ['key' => 'is_new', 'label' => 'Nuevo', 'group' => 'Organización', 'showInGrid' => true],
+            ['key' => 'is_recommended', 'label' => 'Recomendado', 'group' => 'Organización', 'showInGrid' => true],
+        ];
+        $defaultVisibleIndexColumns = ['sku', 'category_id', 'price', 'cost', 'stock', 'is_active'];
+        $indexColumnGroups = collect($indexColumns)->groupBy('group');
+        $indexGridColumns = collect($indexColumns)->where('showInGrid', true);
+    @endphp
     <div class="prod-page">
         <div class="prod-page-header">
             <div class="prod-header-top">
@@ -86,6 +112,42 @@
                     @endforeach
                     <option value="all" @selected(request('per_page') === 'all')>Todos</option>
                 </select>
+                <div class="prod-bulk-views-wrap">
+                    <select id="prodIndexViewSelect" class="prod-filter-select prod-bulk-view-select">
+                        <option value="">Vista personalizada</option>
+                        @foreach ($savedViews as $view)
+                            <option value="{{ $view->id }}" data-columns="{{ json_encode($view->columns) }}">{{ $view->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="prod-bulk-columns-wrap">
+                    <button type="button" class="prod-filter-select prod-bulk-columns-btn" id="prodIndexColumnsBtn">Columnas</button>
+                    <div class="prod-bulk-columns-menu" id="prodIndexColumnsMenu">
+                        @foreach ($indexColumnGroups as $group => $cols)
+                            <div class="prod-bulk-columns-group">
+                                <p class="prod-bulk-columns-group-title">{{ $group }}</p>
+                                @foreach ($cols as $col)
+                                    <label class="prod-bulk-columns-item">
+                                        <input type="checkbox" class="prod-index-col-toggle" value="{{ $col['key'] }}"
+                                            @checked(in_array($col['key'], $defaultVisibleIndexColumns, true))>
+                                        {{ $col['label'] }}
+                                    </label>
+                                @endforeach
+                            </div>
+                        @endforeach
+                        <div class="prod-bulk-view-actions">
+                            <div class="prod-bulk-view-save-row">
+                                <input type="text" id="prodIndexViewNameInput" class="pform-input prod-bulk-view-name-input"
+                                    placeholder="Nombre de la nueva vista" maxlength="60">
+                                <button type="button" class="pform-btn primary" id="prodIndexViewSaveBtn">Guardar como vista nueva</button>
+                            </div>
+                            <div class="prod-bulk-view-manage-row" id="prodIndexViewManageRow" style="display:none">
+                                <button type="button" class="button-secondary size-adjustment" id="prodIndexViewUpdateBtn">Actualizar vista actual</button>
+                                <button type="button" class="button-secondary size-adjustment" id="prodIndexViewDeleteBtn">Eliminar vista actual</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <div class="prod-view-toggle">
                     <button class="prod-view-btn" id="btnViewGrid" data-view="grid" type="button">
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
@@ -115,27 +177,13 @@
             <div class="prod-list-container" id="prodListView">
                 <div class="products-table-wrapper">
                 <table class="prod-table">
-                    <colgroup>
-                        <col style="width:4%">
-                        <col style="width:22%">
-                        <col style="width:9%">
-                        <col style="width:12%">
-                        <col style="width:9%">
-                        <col style="width:9%">
-                        <col style="width:9%">
-                        <col style="width:10%">
-                        <col style="width:16%">
-                    </colgroup>
                     <thead>
                         <tr>
                             <th><input type="checkbox" id="prodSelectAllList" class="prod-row-checkbox"></th>
                             <th>Producto</th>
-                            <th>SKU</th>
-                            <th>Categoría</th>
-                            <th>Precio</th>
-                            <th>Costo</th>
-                            <th>Stock</th>
-                            <th>Estado</th>
+                            @foreach ($indexColumns as $col)
+                                <th data-col="{{ $col['key'] }}" @class(['prod-col-hidden' => !in_array($col['key'], $defaultVisibleIndexColumns, true)])>{{ $col['label'] }}</th>
+                            @endforeach
                             <th>Acciones</th>
                         </tr>
                     </thead>
@@ -177,18 +225,37 @@
                                         </div>
                                     </div>
                                 </td>
-                                <td data-label="SKU">{{ $product->sku }}</td>
-                                <td data-label="Categoría">{{ $product->category->name ?? '—' }}</td>
-                                <td data-label="Precio"><span class="prod-price">${{ number_format($product->price, 0) }}</span></td>
-                                <td data-label="Costo"><span class="prod-price">${{ number_format($product->cost ?? 0, 0) }}</span></td>
-                                <td data-label="Stock">
-                                    <span class="prod-stock {{ $stockClass }}">
-                                        {{ $product->stock ?? 0 }} unidades
-                                    </span>
-                                </td>
-                                <td data-label="Estado">
-                                    <span class="prod-badge {{ $statusClass }}">{{ $statusLabel }}</span>
-                                </td>
+                                @foreach ($indexColumns as $col)
+                                    <td data-col="{{ $col['key'] }}" data-label="{{ $col['label'] }}"
+                                        @class(['prod-col-hidden' => !in_array($col['key'], $defaultVisibleIndexColumns, true)])>
+                                        @switch($col['key'])
+                                            @case('sku') {{ $product->sku }} @break
+                                            @case('model') {{ $product->model ?: '—' }} @break
+                                            @case('brand_id') {{ $product->brand->name ?? '—' }} @break
+                                            @case('supplier_sku') {{ $product->supplier_sku ?: '—' }} @break
+                                            @case('category_id') {{ $product->category->name ?? '—' }} @break
+                                            @case('price') <span class="prod-price">${{ number_format($product->price, 0) }}</span> @break
+                                            @case('compare_price') {{ $product->compare_price ? '$'.number_format($product->compare_price, 0) : '—' }} @break
+                                            @case('cost') <span class="prod-price">${{ number_format($product->cost ?? 0, 0) }}</span> @break
+                                            @case('stock')
+                                                <span class="prod-stock {{ $stockClass }}">{{ $product->stock ?? 0 }} unidades</span>
+                                                @break
+                                            @case('currency') {{ $product->currency ?: '—' }} @break
+                                            @case('availability')
+                                                {{ ['available' => 'Disponible', 'out_of_stock' => 'Agotado', 'on_order' => 'Sobre pedido'][$product->availability] ?? '—' }}
+                                                @break
+                                            @case('is_active')
+                                                <span class="prod-badge {{ $statusClass }}">{{ $statusLabel }}</span>
+                                                @break
+                                            @case('publish_on_website')
+                                            @case('is_featured')
+                                            @case('is_new')
+                                            @case('is_recommended')
+                                                <span class="prod-badge {{ $product->{$col['key']} ? 'published' : 'draft' }}">{{ $product->{$col['key']} ? 'Sí' : 'No' }}</span>
+                                                @break
+                                        @endswitch
+                                    </td>
+                                @endforeach
                                 <td data-label="Acciones">
                                     <div class="prod-actions">
                                         <button class="prod-action-btn edit" type="button"
@@ -217,7 +284,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="9">
+                                <td colspan="{{ count($indexColumns) + 3 }}">
                                     <p class="prod-empty">No se encontraron productos con los filtros actuales.</p>
                                 </td>
                             </tr>
@@ -264,25 +331,35 @@
                             <p class="prod-grid-cat">SKU: {{ $product->sku }}</p>
                         </div>
                         <div class="prod-grid-meta">
-                            <div class="prod-grid-meta-row">
-                                <span class="prod-grid-meta-label">Categoría</span>
-                                <span class="prod-grid-meta-val">{{ $product->category->name ?? '—' }}</span>
-                            </div>
-                            <div class="prod-grid-meta-row">
-                                <span class="prod-grid-meta-label">Precio</span>
-                                <span class="prod-grid-meta-val price">${{ number_format($product->price, 0) }}</span>
-                            </div>
-                            <div class="prod-grid-meta-row">
-                                <span class="prod-grid-meta-label">Costo</span>
-                                <span class="prod-grid-meta-val">${{ number_format($product->cost ?? 0, 0) }}</span>
-                            </div>
-                            <div class="prod-grid-meta-row">
-                                <span class="prod-grid-meta-label">Stock</span>
-                                <span class="prod-grid-meta-val"
-                                    style="color:{{ ($product->stock ?? 0) > 0 ? '#16a34a' : '#dc2626' }}">
-                                    {{ $product->stock ?? 0 }} unidades
-                                </span>
-                            </div>
+                            @foreach ($indexGridColumns as $col)
+                                <div class="prod-grid-meta-row" data-col="{{ $col['key'] }}"
+                                    @class(['prod-col-hidden' => !in_array($col['key'], $defaultVisibleIndexColumns, true)])>
+                                    <span class="prod-grid-meta-label">{{ $col['label'] }}</span>
+                                    <span class="prod-grid-meta-val {{ $col['key'] === 'price' ? 'price' : '' }}">
+                                        @switch($col['key'])
+                                            @case('category_id') {{ $product->category->name ?? '—' }} @break
+                                            @case('model') {{ $product->model ?: '—' }} @break
+                                            @case('brand_id') {{ $product->brand->name ?? '—' }} @break
+                                            @case('price') ${{ number_format($product->price, 0) }} @break
+                                            @case('compare_price') {{ $product->compare_price ? '$'.number_format($product->compare_price, 0) : '—' }} @break
+                                            @case('cost') ${{ number_format($product->cost ?? 0, 0) }} @break
+                                            @case('stock')
+                                                <span style="color:{{ ($product->stock ?? 0) > 0 ? '#16a34a' : '#dc2626' }}">{{ $product->stock ?? 0 }} unidades</span>
+                                                @break
+                                            @case('currency') {{ $product->currency ?: '—' }} @break
+                                            @case('availability')
+                                                {{ ['available' => 'Disponible', 'out_of_stock' => 'Agotado', 'on_order' => 'Sobre pedido'][$product->availability] ?? '—' }}
+                                                @break
+                                            @case('publish_on_website')
+                                            @case('is_featured')
+                                            @case('is_new')
+                                            @case('is_recommended')
+                                                {{ $product->{$col['key']} ? 'Sí' : 'No' }}
+                                                @break
+                                        @endswitch
+                                    </span>
+                                </div>
+                            @endforeach
                         </div>
                         <div class="prod-grid-footer">
                             <span class="prod-badge {{ $statusClass }}">{{ $statusLabel }}</span>

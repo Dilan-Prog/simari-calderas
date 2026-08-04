@@ -18,10 +18,22 @@
             <h1 style="margin:0 0 4px;">Gestión de Categorías</h1>
             <p class="breadcrumb-clients-manager main">Jerarquía de 3 niveles para el catálogo de productos</p>
         </div>
-        <button type="button" class="button-primary size-adjustment" id="btnNewCategory"
-            style="background:#ff6213;border-color:#ff6213;white-space:nowrap;">
-            + Nueva Categoría
-        </button>
+        <div style="display:flex;align-items:center;gap:10px;">
+            @include('admin.components._column_visibility_menu', [
+                'tableKey' => 'categories.index',
+                'columnDefs' => [
+                    'nivel' => 'Nivel',
+                    'slug' => 'Slug',
+                    'descripcion' => 'Descripción',
+                    'orden' => 'Orden',
+                    'estado' => 'Estado',
+                ],
+            ])
+            <button type="button" class="button-primary size-adjustment" id="btnNewCategory"
+                style="background:#ff6213;border-color:#ff6213;white-space:nowrap;">
+                + Nueva Categoría
+            </button>
+        </div>
     </div>
 
     {{-- Stats cards --}}
@@ -143,11 +155,11 @@
             <thead>
                 <tr>
                     <th class="">CATEGORÍA</th>
-                    <th>NIVEL</th>
-                    <th>SLUG</th>
-                    <th>DESCRIPCIÓN</th>
-                    <th>ORDEN</th>
-                    <th>ESTADO</th>
+                    <th data-col="nivel">NIVEL</th>
+                    <th data-col="slug">SLUG</th>
+                    <th data-col="descripcion">DESCRIPCIÓN</th>
+                    <th data-col="orden">ORDEN</th>
+                    <th data-col="estado">ESTADO</th>
                     <th>ACCIONES</th>
                 </tr>
             </thead>
@@ -196,17 +208,17 @@
                         }
                         echo '<span style="font-weight:'.($level === 1 ? '700' : '500').';font-size:14px;">'.e($cat->name).'</span>';
                         echo '</div></td>';
-                        echo '<td style="padding:12px 16px;">';
+                        echo '<td data-col="nivel" style="padding:12px 16px;">';
                         echo '<span style="display:inline-block;padding:3px 10px;border-radius:6px;font-size:12px;font-weight:600;background:'.$levelBg.';color:'.$levelColor.';border:1px solid '.$levelColor.'40;">'.$levelLabel.'</span>';
                         echo '</td>';
-                        echo '<td style="padding:12px 16px;">';
+                        echo '<td data-col="slug" style="padding:12px 16px;">';
                         echo '<span style="display:inline-block;padding:3px 10px;background:#f1f5f9;border-radius:6px;font-size:12px;font-family:monospace;color:#475569;">'.e($cat->slug).'</span>';
                         echo '</td>';
-                        echo '<td style="padding:12px 16px;max-width:260px;">';
+                        echo '<td data-col="descripcion" style="padding:12px 16px;max-width:260px;">';
                         echo '<p style="margin:0;font-size:13px;color:#475569;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'.e(\Illuminate\Support\Str::limit($cat->description ?? '—', 55)).'</p>';
                         echo '</td>';
-                        echo '<td style="padding:12px 16px;text-align:center;font-size:14px;color:#374151;">'.$cat->sort_order.'</td>';
-                        echo '<td style="padding:12px 16px;">';
+                        echo '<td data-col="orden" style="padding:12px 16px;text-align:center;font-size:14px;color:#374151;">'.$cat->sort_order.'</td>';
+                        echo '<td data-col="estado" style="padding:12px 16px;">';
                         echo '<span class="users-manager-badge '.$statusClass.'" data-status="'.$dataStatus.'">'.$statusLabel.'</span>';
                         echo '</td>';
                         echo '<td style="padding:12px 16px;">';
@@ -260,4 +272,14 @@
 @include('admin.categories.partials._delete_modal')
 @include('admin.categories.partials._scripts')
 </div>
+@push('scripts')
+    <script src="{{ asset('js/admin/column-visibility.js') }}"></script>
+    <script>
+        initColumnVisibility({
+            tableKey: 'categories.index',
+            savedColumns: @json($visibleColumns),
+            saveUrl: '{{ route('admin.column-preferences.update') }}',
+        });
+    </script>
+@endpush
 @endsection

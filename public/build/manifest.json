@@ -9,7 +9,7 @@
     "isEntry": true
   },
   "resources/css/admin/app.css": {
-    "file": "assets/app-Lnvf5M46.css",
+    "file": "assets/app-DU_kUGvW.css",
     "src": "resources/css/admin/app.css",
     "isEntry": true
   },
@@ -24,7 +24,7 @@
     "isEntry": true
   },
   "resources/css/admin/pages/clientes.css": {
-    "file": "assets/clientes-CUnRAAxc.css",
+    "file": "assets/clientes-XAiO3cCl.css",
     "src": "resources/css/admin/pages/clientes.css",
     "isEntry": true
   },
@@ -64,12 +64,12 @@
     "isEntry": true
   },
   "resources/css/admin/pages/usuarios.css": {
-    "file": "assets/usuarios-Bw1Vm7qI.css",
+    "file": "assets/usuarios-DZrUzb5x.css",
     "src": "resources/css/admin/pages/usuarios.css",
     "isEntry": true
   },
   "resources/css/admin/roles.css": {
-    "file": "assets/roles-BINgigIa.css",
+    "file": "assets/roles-BZkU3jKy.css",
     "src": "resources/css/admin/roles.css",
     "isEntry": true
   },
@@ -120,7 +120,7 @@
     "isEntry": true
   },
   "resources/js/admin/google-ads.js": {
-    "file": "assets/google-ads-Cuv0h1CS.js",
+    "file": "assets/google-ads-DRbbyq5l.js",
     "name": "google-ads",
     "src": "resources/js/admin/google-ads.js",
     "isEntry": true

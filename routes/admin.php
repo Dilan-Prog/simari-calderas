@@ -30,6 +30,7 @@ use App\Http\Controllers\Backend\MediaController;
 use App\Http\Controllers\Backend\SupplierProductController;
 use App\Http\Controllers\Backend\SupplierProductImportExportController;
 use App\Http\Controllers\Backend\SupplierProductBulkEditController;
+use App\Http\Controllers\Backend\ColumnPreferenceController;
 
 // ============================================================
 // Dashboard — sin permiso, todos los usuarios autenticados
@@ -158,6 +159,9 @@ Route::controller(ProductController::class)
         Route::put('/productos/edicion-masiva/vistas/{id}', 'updateBulkEditView')->name('products.bulk-edit.views.update');
         Route::delete('/productos/edicion-masiva/vistas/{id}', 'destroyBulkEditView')->name('products.bulk-edit.views.destroy');
         Route::post('/productos/edicion-masiva/asignar-proveedor', 'bulkAssignSupplier')->name('products.bulk-edit.assign-supplier');
+        Route::post('/productos/vistas', 'storeIndexView')->name('products.index-views.store');
+        Route::put('/productos/vistas/{id}', 'updateIndexView')->name('products.index-views.update');
+        Route::delete('/productos/vistas/{id}', 'destroyIndexView')->name('products.index-views.destroy');
     });
 
 // Vínculo proveedor-producto — mismo controlador que la copia bajo
@@ -369,6 +373,14 @@ Route::controller(GoogleAdsController::class)
         Route::get('/datatable', 'datatable')->name('datatable');
         Route::get('/{id}', 'show')->name('show');
     });
+
+// ============================================================
+// Preferencia de columnas visibles — genérico, sin permiso propio
+// (utilidad transversal, igual que Media, disponible a cualquier
+// usuario autenticado para su propia preferencia)
+// ============================================================
+Route::put('/preferencias-columnas', [ColumnPreferenceController::class, 'update'])->name('column-preferences.update');
+
 // ============================================================
 // Paqueterías
 // ============================================================

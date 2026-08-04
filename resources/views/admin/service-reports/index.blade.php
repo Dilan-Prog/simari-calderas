@@ -21,12 +21,24 @@
             <p class="sr-page-subtitle">Gestiona y genera reportes técnicos de los servicios realizados</p>
         </div>
 
-        <a href="{{ route('admin.service-reports.create') }}" class="sr-btn-new">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M5 12h14"/><path d="M12 5v14"/>
-            </svg>
-            Nuevo Reporte
-        </a>
+        <div style="display:flex;align-items:center;gap:10px;">
+            @include('admin.components._column_visibility_menu', [
+                'tableKey' => 'service-reports.index',
+                'columnDefs' => [
+                    'cliente' => 'Cliente',
+                    'tipo_servicio' => 'Tipo de Servicio',
+                    'encargado' => 'Encargado',
+                    'estado' => 'Estado',
+                    'fecha' => 'Fecha',
+                ],
+            ])
+            <a href="{{ route('admin.service-reports.create') }}" class="sr-btn-new">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M5 12h14"/><path d="M12 5v14"/>
+                </svg>
+                Nuevo Reporte
+            </a>
+        </div>
     </div>
 
     {{-- ── FILTERS ── --}}
@@ -129,11 +141,11 @@
                 <thead>
                     <tr>
                         <th>Folio</th>
-                        <th>Cliente</th>
-                        <th>Tipo de Servicio</th>
-                        <th>Encargado</th>
-                        <th>Estado</th>
-                        <th>Fecha</th>
+                        <th data-col="cliente">Cliente</th>
+                        <th data-col="tipo_servicio">Tipo de Servicio</th>
+                        <th data-col="encargado">Encargado</th>
+                        <th data-col="estado">Estado</th>
+                        <th data-col="fecha">Fecha</th>
                         <th>Acciones</th>
                     </tr>
                 </thead>
@@ -170,16 +182,16 @@
                                 </td>
 
                                 {{-- CLIENTE --}}
-                                <td class="sr-td-client">{{ $report->customer_name }}</td>
+                                <td class="sr-td-client" data-col="cliente">{{ $report->customer_name }}</td>
 
                                 {{-- TIPO DE SERVICIO --}}
-                                <td class="sr-td-type">{{ $report->service_type_label }}</td>
+                                <td class="sr-td-type" data-col="tipo_servicio">{{ $report->service_type_label }}</td>
 
                                 {{-- ENCARGADO --}}
-                                <td class="sr-td-assigned">{{ $report->assigned_user_name }}</td>
+                                <td class="sr-td-assigned" data-col="encargado">{{ $report->assigned_user_name }}</td>
 
                                 {{-- ESTADO --}}
-                                <td>
+                                <td data-col="estado">
                                     @php
                                         $badgeClass = match($report->status) {
                                             'draft'       => 'sr-badge--draft',
@@ -200,7 +212,7 @@
                                 </td>
 
                                 {{-- FECHA --}}
-                                <td class="sr-td-date">{{ $report->service_date }}</td>
+                                <td class="sr-td-date" data-col="fecha">{{ $report->service_date }}</td>
 
                                 {{-- ACCIONES --}}
                                 <td>
@@ -400,6 +412,14 @@
             var folioLink = row.querySelector('.sr-folio-link');
             if (folioLink) window.location.href = folioLink.href;
         });
+    });
+</script>
+<script src="{{ asset('js/admin/column-visibility.js') }}"></script>
+<script>
+    initColumnVisibility({
+        tableKey: 'service-reports.index',
+        savedColumns: @json($visibleColumns),
+        saveUrl: '{{ route('admin.column-preferences.update') }}',
     });
 </script>
 @endpush

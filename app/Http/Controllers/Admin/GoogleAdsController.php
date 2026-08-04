@@ -32,11 +32,16 @@ class GoogleAdsController extends Controller
             ->pluck('count', 'status')
             ->toArray();
 
+        $visibleColumns = \App\Models\UserColumnPreference::where('user_id', auth()->id())
+            ->where('table_key', 'google-ads.index')
+            ->value('columns');
+
         return view('admin.google-ads.index', compact(
             'totalConversions',
             'totalValue',
             'todayConversions',
-            'statusBreakdown'
+            'statusBreakdown',
+            'visibleColumns'
         ));
     }
 

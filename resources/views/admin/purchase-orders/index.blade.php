@@ -18,12 +18,24 @@
             <h1>Órdenes de Compra</h1>
             <p class="breadcrumb-clients-manager">Gestiona las órdenes de compra a proveedores</p>
         </div>
-        <a href="{{ route('admin.purchase-orders.create') }}"
-            class="button-primary size-adjustment"
-            style="background:#ff6213;border-color:#ff6213;text-decoration:none;
-                   display:flex;align-items:center;gap:6px;">
-            + Nueva Orden
-        </a>
+        <div style="display:flex; align-items:center; gap:10px;">
+            @include('admin.components._column_visibility_menu', [
+                'tableKey' => 'purchase-orders.index',
+                'columnDefs' => [
+                    'proveedor' => 'Proveedor',
+                    'productos' => 'Productos',
+                    'total' => 'Total',
+                    'estado' => 'Estado',
+                    'fecha' => 'Fecha',
+                ],
+            ])
+            <a href="{{ route('admin.purchase-orders.create') }}"
+                class="button-primary size-adjustment"
+                style="background:#ff6213;border-color:#ff6213;text-decoration:none;
+                       display:flex;align-items:center;gap:6px;">
+                + Nueva Orden
+            </a>
+        </div>
     </div>
 
     {{-- Stats --}}
@@ -129,11 +141,11 @@
             <thead>
                 <tr>
                     <th>FOLIO</th>
-                    <th>PROVEEDOR</th>
-                    <th>PRODUCTOS</th>
-                    <th>TOTAL</th>
-                    <th>ESTADO</th>
-                    <th>FECHA</th>
+                    <th data-col="proveedor">PROVEEDOR</th>
+                    <th data-col="productos">PRODUCTOS</th>
+                    <th data-col="total">TOTAL</th>
+                    <th data-col="estado">ESTADO</th>
+                    <th data-col="fecha">FECHA</th>
                     <th>ACCIONES</th>
                 </tr>
             </thead>
@@ -158,22 +170,22 @@
                                 {{ $order->po_number }}
                             </p>
                         </td>
-                        <td style="padding:14px 16px;">
+                        <td style="padding:14px 16px;" data-col="proveedor">
                             <p style="margin:0;font-weight:600;font-size:14px;color:#111827;">
                                 {{ strtoupper($order->supplier->company_name) }}
                             </p>
                         </td>
-                        <td style="padding:14px 16px;">
+                        <td style="padding:14px 16px;" data-col="productos">
                             <p style="margin:0;font-size:13px;color:#6b7280;">
                                 {{ $order->items_count }} producto{{ $order->items_count !== 1 ? 's' : '' }}
                             </p>
                         </td>
-                        <td style="padding:14px 16px;">
+                        <td style="padding:14px 16px;" data-col="total">
                             <p style="margin:0;font-weight:700;font-size:14px;color:#111827;">
                                 ${{ number_format($order->total, 2) }}
                             </p>
                         </td>
-                        <td style="padding:14px 16px;">
+                        <td style="padding:14px 16px;" data-col="estado">
                             <span style="display:inline-block;padding:4px 12px;border-radius:20px;
                                 font-size:12px;font-weight:600;
                                 background:{{ $statusConfig['bg'] }};
@@ -182,7 +194,7 @@
                                 {{ $statusConfig['label'] }}
                             </span>
                         </td>
-                        <td style="padding:14px 16px;">
+                        <td style="padding:14px 16px;" data-col="fecha">
                             <p style="margin:0;font-size:13px;color:#374151;">
                                 {{ $order->order_date->format('j M Y') }}
                             </p>
@@ -327,3 +339,13 @@
 </script>
 </div>
 @endsection
+@push('scripts')
+    <script src="{{ asset('js/admin/column-visibility.js') }}"></script>
+    <script>
+        initColumnVisibility({
+            tableKey: 'purchase-orders.index',
+            savedColumns: @json($visibleColumns),
+            saveUrl: '{{ route('admin.column-preferences.update') }}',
+        });
+    </script>
+@endpush

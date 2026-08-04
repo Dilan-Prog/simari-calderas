@@ -22,7 +22,11 @@ class CollectionController extends Controller
         $categories = Category::where('is_active', true)->get(['id', 'name']);
         $brands     = Brand::where('is_active', true)->get(['id', 'name']);
 
-        return view('admin.collections.index', compact('collections', 'categories', 'brands'));
+        $visibleColumns = \App\Models\UserColumnPreference::where('user_id', auth()->id())
+            ->where('table_key', 'collections.index')
+            ->value('columns');
+
+        return view('admin.collections.index', compact('collections', 'categories', 'brands', 'visibleColumns'));
     }
 
     public function store(Request $request)

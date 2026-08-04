@@ -14,7 +14,11 @@ class MenuController extends Controller
     {
         $menus = Menu::withCount('items')->orderBy('name')->get();
 
-        return view('admin.menus.index', compact('menus'));
+        $visibleColumns = \App\Models\UserColumnPreference::where('user_id', auth()->id())
+            ->where('table_key', 'menus.index')
+            ->value('columns');
+
+        return view('admin.menus.index', compact('menus', 'visibleColumns'));
     }
 
     public function create()
