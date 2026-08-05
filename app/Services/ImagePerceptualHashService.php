@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\ImageHash;
+use App\Support\UploadPath;
 use Intervention\Image\ImageManager;
 use Jenssegers\ImageHash\ImageHash as Hasher;
 use Jenssegers\ImageHash\Implementations\DifferenceHash;
@@ -88,5 +89,33 @@ class ImagePerceptualHashService
         );
 
         return $phash;
+    }
+
+    /**
+     * Hashea un archivo recién guardado en disco y busca en image_hashes una
+     * entrada existente dentro de un umbral (deliberadamente más estricto que
+     * el del escaneo manual — aquí se fusiona sin revisión humana) cuyo
+     * archivo físico todavía exista. Devuelve la image_url existente
+     * reutilizable, o null si no hay coincidencia aceptable.
+     */
+    public function findNearDuplicateUrl(string $diskPath, ?int $threshold = null): ?string
+    {
+        $phash = $this->hash($diskPath);
+        if (!$phash) {
+            return null;
+        }
+
+        $threshold ??= (int) config('gallery.ingestion_hamming_threshold', 3);
+
+        foreach (ImageHash::select(['image_url', 'phash'])->cursor() as $row) {
+            if ($this->hammingDistance($phash, $row->phash) <= $threshold) {
+                $candidatePath = UploadPath::full($row->image_url);
+                if (file_exists($candidatePath)) {
+                    return $row->image_url;
+                }
+            }
+        }
+
+        return null;
     }
 }

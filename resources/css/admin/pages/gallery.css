@@ -310,6 +310,21 @@
     z-index: 2;
 }
 
+.gal-card__used-badge {
+    position: absolute;
+    left: 6px;
+    bottom: 6px;
+    background: rgba(20, 21, 22, 0.75);
+    color: #fff;
+    font-size: 10.5px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 999px;
+    z-index: 2;
+    white-space: nowrap;
+    pointer-events: none;
+}
+
 /* Modal de reemplazo */
 .dup-replace-box { max-width: 640px; }
 

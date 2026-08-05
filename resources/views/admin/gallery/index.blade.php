@@ -101,6 +101,9 @@
                 <div class="gal-card">
                     <div class="gal-card__img">
                         <img src="{{ $item['url'] }}" alt="{{ $item['label'] }}" loading="lazy">
+                        @if (isset($item['used_count']))
+                            <span class="gal-card__used-badge">Usado en {{ $item['used_count'] }} {{ $item['used_count'] === 1 ? 'producto' : 'productos' }}</span>
+                        @endif
                         <div class="gal-card__overlay">
                             <button type="button" class="gal-action" title="Ver" onclick="galOpenLightbox('{{ $item['url'] }}')">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/></svg>

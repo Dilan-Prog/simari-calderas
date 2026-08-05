@@ -5,19 +5,23 @@ namespace App\Services;
 use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Collection;
+use App\Models\GalleryImage;
 use App\Models\HomeSection;
 use App\Models\HomeSectionSlide;
 use App\Models\ProductImage;
+use App\Models\Products;
+use App\Models\ServicePage;
 use App\Support\ImageReference;
 use App\Support\UploadPath;
 use Illuminate\Support\Arr;
 
 /**
- * Uniformiza las 6 formas reales en las que el catálogo guarda una ruta de
+ * Uniformiza las formas reales en las que el catálogo guarda una ruta de
  * imagen (fila de product_images, columnas simples en Brand/Category/
- * Collection, fila de HomeSectionSlide, o llaves dentro del JSON config de
- * HomeSection) para que el detector/consolidador de duplicados pueda leer,
- * comparar y reescribir cualquiera de ellas sin tocar sus controladores.
+ * Collection/Products/ServicePage, fila de HomeSectionSlide, o llaves
+ * dentro del JSON config de HomeSection) para que el detector/consolidador
+ * de duplicados pueda leer, comparar y reescribir cualquiera de ellas sin
+ * tocar sus controladores.
  */
 class ImageReferenceService
 {
@@ -56,6 +60,30 @@ class ImageReferenceService
                 continue;
             }
             $refs[] = new ImageReference('category', $cat->id, 'image_url', $raw, $cat->name, 'Categoría');
+        }
+
+        foreach (Products::whereNotNull('cover_image_url')->where('cover_image_url', '!=', '')->get() as $product) {
+            $raw = $product->getRawOriginal('cover_image_url');
+            if (!$raw || str_starts_with($raw, 'http')) {
+                continue;
+            }
+            $refs[] = new ImageReference('product_cover', $product->id, 'cover_image_url', $raw, $product->name, 'Imagen de portada');
+        }
+
+        foreach (ServicePage::whereNotNull('cover_image_url')->where('cover_image_url', '!=', '')->get() as $sp) {
+            $raw = $sp->getRawOriginal('cover_image_url');
+            if (!$raw || str_starts_with($raw, 'http')) {
+                continue;
+            }
+            $refs[] = new ImageReference('service_page_cover', $sp->id, 'cover_image_url', $raw, $sp->name, 'Portada de servicio');
+        }
+
+        foreach (GalleryImage::whereNotNull('path')->where('path', '!=', '')->get() as $galleryImage) {
+            $raw = $galleryImage->getRawOriginal('path');
+            if (!$raw || str_starts_with($raw, 'http')) {
+                continue;
+            }
+            $refs[] = new ImageReference('gallery_image', $galleryImage->id, 'path', $raw, $galleryImage->original_name ?: 'Imagen de galería', 'Galería');
         }
 
         foreach (Collection::all() as $col) {
@@ -153,7 +181,10 @@ class ImageReferenceService
     public function rewriteReference(ImageReference $ref, string $newImageUrl): void
     {
         match ($ref->sourceType) {
-            'product_image' => ProductImage::where('id', $ref->sourceId)->update(['image_url' => $newImageUrl]),
+            'product_image' => $this->rewriteProductImage($ref->sourceId, $newImageUrl),
+            'product_cover' => Products::where('id', $ref->sourceId)->update(['cover_image_url' => $newImageUrl]),
+            'service_page_cover' => ServicePage::where('id', $ref->sourceId)->update(['cover_image_url' => $newImageUrl]),
+            'gallery_image' => $this->rewriteGalleryImage($ref->sourceId, $newImageUrl),
             'brand' => Brand::where('id', $ref->sourceId)->update(['logo_url' => $newImageUrl]),
             'category' => Category::where('id', $ref->sourceId)->update(['image_url' => $newImageUrl]),
             'collection' => Collection::where('id', $ref->sourceId)->update(['image_url' => $newImageUrl]),
@@ -162,6 +193,60 @@ class ImageReferenceService
             'home_section' => $this->rewriteHomeSectionField($ref->sourceId, $ref->fieldPath, $newImageUrl),
             default => throw new \InvalidArgumentException("Tipo de referencia desconocido: {$ref->sourceType}"),
         };
+    }
+
+    /**
+     * A diferencia de las demás fuentes (columna única por fila), un producto
+     * puede tener varias filas ProductImage en su propia galería. Si la URL
+     * ganadora ya está presente en la galería de ESTE producto bajo otra
+     * fila, actualizar in-place solo crearía una segunda fila idéntica —
+     * se borra la fila perdedora en su lugar.
+     */
+    protected function rewriteProductImage(int $productImageId, string $newImageUrl): void
+    {
+        $current = ProductImage::find($productImageId);
+        if (!$current) {
+            return;
+        }
+
+        $duplicateExists = ProductImage::where('product_id', $current->product_id)
+            ->where('id', '!=', $productImageId)
+            ->where('image_url', $newImageUrl)
+            ->exists();
+
+        if ($duplicateExists) {
+            $current->delete();
+            return;
+        }
+
+        $current->update(['image_url' => $newImageUrl]);
+    }
+
+    /**
+     * A diferencia de las columnas únicas por fila (Brand/Category/etc.),
+     * gallery_images es una lista plana global — casi cualquier imagen del
+     * catálogo pasó por aquí en algún momento. Si la URL ganadora YA es el
+     * path de otra fila GalleryImage, actualizar in-place crearía dos filas
+     * idénticas en la biblioteca — se borra la fila perdedora en su lugar
+     * (mismo criterio que rewriteProductImage()).
+     */
+    protected function rewriteGalleryImage(int $galleryImageId, string $newImageUrl): void
+    {
+        $current = GalleryImage::find($galleryImageId);
+        if (!$current) {
+            return;
+        }
+
+        $duplicateExists = GalleryImage::where('id', '!=', $galleryImageId)
+            ->where('path', $newImageUrl)
+            ->exists();
+
+        if ($duplicateExists) {
+            $current->delete();
+            return;
+        }
+
+        $current->update(['path' => $newImageUrl]);
     }
 
     protected function rewriteHomeSectionField(int $sectionId, string $fieldPath, string $newImageUrl): void
@@ -175,7 +260,7 @@ class ImageReferenceService
 
     /**
      * Borra el archivo físico solo si, tras las reescrituras ya aplicadas,
-     * ninguna de las 6 fuentes sigue apuntando a esa ruta.
+     * ninguna fuente conocida sigue apuntando a esa ruta.
      */
     public function deletePhysicalFileIfOrphaned(string $imageUrl): bool
     {

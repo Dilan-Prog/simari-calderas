@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Backend;
 
 use App\Http\Controllers\Controller;
 use App\Models\GalleryImage;
+use App\Models\ProductImage;
 use App\Support\UploadPath;
 use App\Traits\ImageUploadTrait;
 use Illuminate\Http\Request;
@@ -46,21 +47,54 @@ class MediaController extends Controller
             });
         }
 
-        $images = DB::query()
+        // Agrupado por image_path: la misma imagen puede vivir tanto en
+        // gallery_images como reutilizada en varios product_images — antes
+        // se listaba una tarjeta por cada fila, pareciendo un archivo
+        // duplicado cuando en realidad es 1 solo compartido. used_count = #
+        // de referencias (gallery + productos) que apuntan a esa ruta.
+        $grouped = DB::query()
             ->fromSub($galleryQ->unionAll($productQ), 'media')
-            ->orderByDesc('created_at')
-            ->orderByDesc('uid')
+            ->select('image_path')
+            ->selectRaw('MAX(uid) as representative_uid')
+            ->selectRaw('MAX(created_at) as latest_created_at')
+            ->selectRaw('COUNT(*) as used_count')
+            ->groupBy('image_path')
+            ->orderByDesc('latest_created_at')
+            ->orderByDesc('representative_uid')
             ->paginate(24, ['*'], 'page', (int) $request->input('page', 1));
 
+        $representatives = collect($grouped->items())->mapWithKeys(function ($row) {
+            $prefix = substr($row->representative_uid, 0, 1);
+            $id = (int) substr($row->representative_uid, 1);
+
+            if ($prefix === 'g') {
+                $g = GalleryImage::find($id);
+                return [$row->representative_uid => [
+                    'label'    => $g?->original_name ?: 'Galería',
+                    'sublabel' => 'Galería',
+                ]];
+            }
+
+            $p = ProductImage::with('product:id,name,sku')->find($id);
+            return [$row->representative_uid => [
+                'label'    => $p?->product?->name,
+                'sublabel' => $p?->product?->sku ? 'SKU: ' . $p->product->sku : '',
+            ]];
+        });
+
         return response()->json([
-            'data' => collect($images->items())->map(fn ($img) => [
-                'id'           => $img->uid,
-                'url'          => str_starts_with($img->image_path, 'http') ? $img->image_path : UploadPath::url($img->image_path),
-                'product_name' => $img->label,
-                'product_sku'  => $img->sublabel,
-            ]),
-            'has_more'  => $images->hasMorePages(),
-            'next_page' => $images->currentPage() + 1,
+            'data' => collect($grouped->items())->map(function ($row) use ($representatives) {
+                $rep = $representatives->get($row->representative_uid, []);
+                return [
+                    'id'           => $row->representative_uid,
+                    'url'          => str_starts_with($row->image_path, 'http') ? $row->image_path : UploadPath::url($row->image_path),
+                    'product_name' => $rep['label'] ?? null,
+                    'product_sku'  => $rep['sublabel'] ?? null,
+                    'used_count'   => (int) $row->used_count,
+                ];
+            }),
+            'has_more'  => $grouped->hasMorePages(),
+            'next_page' => $grouped->currentPage() + 1,
         ]);
     }
 

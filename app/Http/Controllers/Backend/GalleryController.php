@@ -46,16 +46,34 @@ class GalleryController extends Controller
                 break;
 
             case 'productos':
-                $paginator = ProductImage::with('product:id,name,sku')
-                    ->whereHas('product')
-                    ->orderByDesc('id')
+                // Agrupado por image_url: la misma foto puede estar en la
+                // galería de varios productos (reutilización vía
+                // "Biblioteca") — antes se listaba una tarjeta por cada uno,
+                // pareciendo un archivo duplicado cuando en realidad es 1
+                // solo compartido. used_count = # de productos que la usan.
+                $paginator = ProductImage::whereHas('product')
+                    ->select('image_url')
+                    ->selectRaw('MAX(id) as representative_id')
+                    ->selectRaw('COUNT(DISTINCT product_id) as used_count')
+                    ->groupBy('image_url')
+                    ->orderByDesc('representative_id')
                     ->paginate(24)
                     ->withQueryString();
-                $items = $paginator->getCollection()->map(fn ($img) => [
-                    'url'      => $img->url,
-                    'label'    => $img->product->name,
-                    'sublabel' => $img->product->sku ? 'SKU: ' . $img->product->sku : '',
-                ]);
+
+                $representatives = ProductImage::with('product:id,name,sku')
+                    ->whereIn('id', $paginator->getCollection()->pluck('representative_id'))
+                    ->get()
+                    ->keyBy('id');
+
+                $items = $paginator->getCollection()->map(function ($row) use ($representatives) {
+                    $rep = $representatives->get($row->representative_id);
+                    return [
+                        'url'        => $rep?->url,
+                        'label'      => $rep?->product?->name,
+                        'sublabel'   => $rep?->product?->sku ? 'SKU: ' . $rep->product->sku : '',
+                        'used_count' => (int) $row->used_count,
+                    ];
+                });
                 break;
 
             case 'marcas':

@@ -190,6 +190,11 @@ document.addEventListener('DOMContentLoaded', function () {
             img.loading = 'lazy';
             cell.appendChild(img);
 
+            const badge = document.createElement('span');
+            badge.className = 'img-library-item-badge';
+            badge.textContent = 'Usado en ' + libItem.used_count + (libItem.used_count === 1 ? ' lugar' : ' lugares');
+            cell.appendChild(badge);
+
             const label = document.createElement('span');
             label.className = 'img-library-item-label';
             label.textContent = libItem.product_name || 'Sin nombre';

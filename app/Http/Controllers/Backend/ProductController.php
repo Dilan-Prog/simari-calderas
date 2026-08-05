@@ -1187,9 +1187,7 @@ class ProductController extends Controller
      */
     public function mediaLibrary(Request $request)
     {
-        $query = ProductImage::with('product:id,name,sku')
-            ->whereHas('product')
-            ->orderBy('id', 'desc');
+        $query = ProductImage::query()->whereHas('product');
 
         if ($request->filled('search')) {
             $term = $request->search;
@@ -1198,17 +1196,37 @@ class ProductController extends Controller
             });
         }
 
-        $images = $query->paginate(24, ['*'], 'page', (int) $request->input('page', 1));
+        // Agrupado por image_url: la misma foto puede estar en la galería de
+        // varios productos (reutilización vía "Biblioteca"), y antes se
+        // listaba una tarjeta por cada uno — confuso, parecía una imagen
+        // duplicada cuando en realidad es 1 sola archivo compartido. Se
+        // muestra una sola vez con used_count = # de productos que la usan.
+        $grouped = (clone $query)
+            ->select('image_url')
+            ->selectRaw('MAX(id) as representative_id')
+            ->selectRaw('COUNT(DISTINCT product_id) as used_count')
+            ->groupBy('image_url')
+            ->orderByDesc('representative_id')
+            ->paginate(24, ['*'], 'page', (int) $request->input('page', 1));
+
+        $representatives = ProductImage::with('product:id,name,sku')
+            ->whereIn('id', $grouped->getCollection()->pluck('representative_id'))
+            ->get()
+            ->keyBy('id');
 
         return response()->json([
-            'data' => $images->getCollection()->map(fn ($img) => [
-                'id'           => $img->id,
-                'url'          => $img->url,
-                'product_name' => $img->product->name,
-                'product_sku'  => $img->product->sku,
-            ]),
-            'has_more'  => $images->hasMorePages(),
-            'next_page' => $images->currentPage() + 1,
+            'data' => $grouped->getCollection()->map(function ($row) use ($representatives) {
+                $rep = $representatives->get($row->representative_id);
+                return [
+                    'id'           => $row->representative_id,
+                    'url'          => $rep?->url,
+                    'product_name' => $rep?->product?->name,
+                    'product_sku'  => $rep?->product?->sku,
+                    'used_count'   => (int) $row->used_count,
+                ];
+            }),
+            'has_more'  => $grouped->hasMorePages(),
+            'next_page' => $grouped->currentPage() + 1,
         ]);
     }
 

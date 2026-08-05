@@ -30,7 +30,7 @@ trait ImageUploadTrait
                     })
                     ->save(UploadPath::full($path), $quality);
 
-                $paths[] = $path;
+                $paths[] = $this->deduplicateOrCache($path);
             } catch (\Throwable $e) {
                 // A file GD/Intervention can't decode (corrupted upload, or a
                 // format like HEIC this server's GD build doesn't support)
@@ -92,7 +92,7 @@ trait ImageUploadTrait
                 })
                 ->save(UploadPath::full($path), $quality);
 
-            return $path;
+            return $this->deduplicateOrCache($path);
         } catch (\Throwable $e) {
             return null;
         }
@@ -105,5 +105,35 @@ trait ImageUploadTrait
         if (file_exists($fullPath)) {
             unlink($fullPath);
         }
+    }
+
+    /**
+     * Se llama justo después de guardar un archivo nuevo en disco (subida o
+     * descarga de URL), antes de que el llamador cree su registro en BD.
+     * Si el contenido es casi-idéntico a una imagen que ya existe en el
+     * catálogo (dentro de un umbral estricto — ver config('gallery.
+     * ingestion_hamming_threshold')), borra el archivo recién guardado y
+     * devuelve la URL ya existente en su lugar, evitando reinsertar una
+     * imagen que ya fue consolidada como duplicado o simplemente ya está en
+     * uso. Si no hay coincidencia, cachea el hash del archivo nuevo de una
+     * vez (no hace falta esperar a un escaneo manual) y devuelve su propia
+     * ruta sin cambios.
+     */
+    protected function deduplicateOrCache(string $path): string
+    {
+        $hashService = app(\App\Services\ImagePerceptualHashService::class);
+        $diskPath = UploadPath::full($path);
+
+        $existingUrl = $hashService->findNearDuplicateUrl($diskPath);
+
+        if ($existingUrl !== null) {
+            @unlink($diskPath);
+
+            return $existingUrl;
+        }
+
+        $hashService->getOrRefresh($path, $diskPath);
+
+        return $path;
     }
 }

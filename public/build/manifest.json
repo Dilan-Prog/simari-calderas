@@ -9,7 +9,7 @@
     "isEntry": true
   },
   "resources/css/admin/app.css": {
-    "file": "assets/app-DpPWw1gz.css",
+    "file": "assets/app-D3sFO4FS.css",
     "src": "resources/css/admin/app.css",
     "isEntry": true
   },
@@ -39,7 +39,7 @@
     "isEntry": true
   },
   "resources/css/admin/pages/gallery.css": {
-    "file": "assets/gallery-BkDERaJv.css",
+    "file": "assets/gallery-DMzsa3nQ.css",
     "src": "resources/css/admin/pages/gallery.css",
     "isEntry": true
   },
@@ -126,7 +126,7 @@
     "isEntry": true
   },
   "resources/js/admin/image-picker.js": {
-    "file": "assets/image-picker-Qn4SjJIF.js",
+    "file": "assets/image-picker-hSUTRu36.js",
     "name": "image-picker",
     "src": "resources/js/admin/image-picker.js",
     "isEntry": true
