@@ -498,6 +498,20 @@
     text-align: left;
 }
 
+/* En pantallas de escritorio/tablet, el modal ocupa ~60% del viewport en vez
+   del ancho fijo de arriba (que se conserva como techo de seguridad para
+   móvil, donde 60vw quedaría demasiado angosto) — mismo breakpoint de
+   768px ya usado en el resto del admin (ui-kit.css). */
+@media (min-width: 769px) {
+    .img-source-box {
+        max-width: 60vw;
+    }
+
+    .img-source-box .img-library-grid {
+        max-height: 50vh;
+    }
+}
+
 /* This modal's footer only ever has one button ("Cerrar"), unlike the
    delete/import modals it borrows .del-confirm-actions from — centered
    alone at the default width it looked lost, so give it real presence. */

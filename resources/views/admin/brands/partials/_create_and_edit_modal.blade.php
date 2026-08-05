@@ -36,8 +36,14 @@
 
                     <div class="users-manager-email-camp" style="margin-top:12px;">
                         <label class="supliers-manager-slider-label">URL del Logo</label>
-                        <input type="text" class="users-manager-input" name="logo_url" id="brandLogoUrl"
-                            placeholder="https://...">
+                        <div class="img-picker-field">
+                            <input type="text" class="users-manager-input" name="logo_url" id="brandLogoUrl"
+                                placeholder="https://...">
+                            <button type="button" class="img-picker-trigger-btn" onclick="openImagePicker('brandLogoUrl')">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+                                Seleccionar
+                            </button>
+                        </div>
                     </div>
 
                     <div class="user-manager-form" style="margin-top:12px;">
