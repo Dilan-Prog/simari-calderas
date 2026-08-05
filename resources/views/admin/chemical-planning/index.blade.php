@@ -24,10 +24,11 @@
                     'inventario' => 'Inventario',
                 ],
             ])
-            <a href="{{ route('admin.chemical-planning.export') }}" class="button-primary size-adjustment"
-                style="background:#ff6213;border-color:#ff6213;white-space:nowrap;">
+            <button type="button" class="button-primary size-adjustment"
+                style="background:#ff6213;border-color:#ff6213;white-space:nowrap;"
+                data-download-url="{{ route('admin.chemical-planning.export') }}">
                 Exportar a Excel
-            </a>
+            </button>
         </div>
     </div>
 
@@ -118,7 +119,12 @@
         });
     });
 </script>
+<script src="{{ asset('js/admin/download-format.js') }}"></script>
+<script>
+    initDownloadFormatModal();
+</script>
 @endpush
 @include('admin.components.center-toast')
+@include('admin.components._download_format_modal')
 </div>
 @endsection

@@ -35,6 +35,17 @@ class Category extends Model
     }
 
     /**
+     * IDs de esta categoría más sus subcategorías directas — mismo alcance
+     * que usa CatalogController para /catalogo/{slug}, para que cualquier
+     * otro lugar que filtre "productos de esta categoría" (p. ej. los
+     * carruseles del Home) muestre exactamente los mismos productos.
+     */
+    public function idsWithChildren(): array
+    {
+        return $this->children()->pluck('id')->push($this->id)->all();
+    }
+
+    /**
      * FIX (SEO slugs): slug stores the FULL ancestor-joined path (e.g.
      * "tratamiento-de-agua/filtros-turbidex"), not just this category's own
      * segment. If a category's own slug changes, every descendant's stored

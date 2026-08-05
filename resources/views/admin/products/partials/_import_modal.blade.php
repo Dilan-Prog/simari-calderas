@@ -7,12 +7,12 @@
         </p>
 
         <div class="prod-import-templates">
-            <a href="{{ route('admin.products.import.template') }}" class="prod-import-template-link">
+            <button type="button" class="prod-import-template-link" data-download-url="{{ route('admin.products.import.template') }}">
                 ① Plantilla para crear productos nuevos
-            </a>
-            <a href="{{ route('admin.products.import.template.update') }}" class="prod-import-template-link">
+            </button>
+            <button type="button" class="prod-import-template-link" data-download-url="{{ route('admin.products.import.template.update') }}">
                 ② Plantilla para actualizar productos existentes
-            </a>
+            </button>
         </div>
 
         <div class="prod-import-mode-toggle" role="radiogroup" aria-label="Tipo de importación">

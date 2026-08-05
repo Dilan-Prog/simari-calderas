@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\ChemicalProjection;
 use App\Models\Customer;
 use App\Models\Products;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
@@ -25,11 +26,18 @@ class ChemicalPlanningController extends Controller
         ]);
     }
 
-    public function export()
+    public function export(Request $request)
     {
+        $rows = $this->buildRows();
+
+        if ($request->input('format') === 'pdf') {
+            return Pdf::loadView('admin.chemical-planning.pdf', ['rows' => $rows])
+                ->setPaper('a4', 'landscape')->download('planeacion-quimicos-' . now()->format('Y-m-d') . '.pdf');
+        }
+
         $filename = 'planeacion-quimicos-' . now()->format('Y-m-d') . '.xlsx';
 
-        return Excel::download(new ChemicalPlanningExport($this->buildRows()), $filename);
+        return Excel::download(new ChemicalPlanningExport($rows), $filename);
     }
 
     public function updateProjection(Request $request)

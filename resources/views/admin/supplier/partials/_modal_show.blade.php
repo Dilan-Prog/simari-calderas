@@ -397,7 +397,15 @@
         @include('admin.supplier.partials._modal_edit')
         @include('admin.supplier.partials._modal_assign_product')
         @include('admin.supplier.partials._import_supplier_products_modal', ['scopedSupplier' => $supplier])
+        @include('admin.components._download_format_modal')
     </div>
     @include('admin.supplier.partials._scripts_show')
     @include('admin.supplier.partials._import_supplier_products_scripts', ['scopedSupplier' => $supplier])
+
+    @push('scripts')
+        <script src="{{ asset('js/admin/download-format.js') }}"></script>
+        <script>
+            initDownloadFormatModal();
+        </script>
+    @endpush
 @endsection

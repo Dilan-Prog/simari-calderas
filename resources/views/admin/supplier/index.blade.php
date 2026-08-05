@@ -25,9 +25,9 @@
                             'estado' => 'Estado',
                         ],
                     ])
-                    <a href="{{ route('admin.suppliers.products.export') }}" class="button-secondary size-adjustment">
+                    <button type="button" class="button-secondary size-adjustment" data-download-url="{{ route('admin.suppliers.products.export') }}">
                         Exportar Proveedor-Producto
-                    </a>
+                    </button>
                     <button type="button" id="btnOpenSupplierProductImportModal" class="button-secondary size-adjustment">
                         Importar Proveedor-Producto
                     </button>
@@ -271,6 +271,7 @@
     @include('admin.supplier.partials._modal_edit')
     @include('admin.supplier.partials._modal_delete')
     @include('admin.supplier.partials._import_supplier_products_modal')
+    @include('admin.components._download_format_modal')
     @include('admin.supplier.partials._scripts')
     @include('admin.supplier.partials._import_supplier_products_scripts')
 
@@ -282,6 +283,10 @@
                 savedColumns: @json($visibleColumns),
                 saveUrl: '{{ route('admin.column-preferences.update') }}',
             });
+        </script>
+        <script src="{{ asset('js/admin/download-format.js') }}"></script>
+        <script>
+            initDownloadFormatModal();
         </script>
     @endpush
 @endsection

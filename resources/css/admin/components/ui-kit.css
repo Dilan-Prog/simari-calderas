@@ -842,6 +842,75 @@
     margin: 0;
 }
 
+/* ── Modal genérico "Elige el formato de descarga" (PDF / Excel / Hoja de
+   cálculo). Reutilizable desde cualquier botón de descarga del admin —
+   ver resources/views/admin/components/_download_format_modal.blade.php
+   y public/js/admin/download-format.js ── */
+.download-format-box {
+    max-width: 460px;
+    text-align: left;
+}
+
+.download-format-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 4px;
+}
+
+.download-format-title {
+    margin-bottom: 0;
+    text-align: left;
+}
+
+.download-format-close-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #9ca3af;
+    padding: 2px;
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.download-format-close-btn:hover {
+    color: #374151;
+}
+
+.download-format-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 1.25rem 0 1.5rem;
+}
+
+.download-format-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    flex: 1;
+    min-width: 110px;
+    padding: 18px 14px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    background: #fff;
+    color: #374151;
+    font-size: 13px;
+    font-weight: 500;
+    font-family: var(--font-family);
+    cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+
+.download-format-btn:hover {
+    border-color: var(--secondary-color, #ff6213);
+    background: #fff7f5;
+    color: var(--secondary-color, #ff6213);
+}
+
 .delete-confirmation-modal-button {
     background: var(--button-primary-color-rinnai);
 }

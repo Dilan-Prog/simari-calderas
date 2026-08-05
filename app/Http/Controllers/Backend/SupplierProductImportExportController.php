@@ -8,6 +8,8 @@ use App\Http\Controllers\Controller;
 use App\Imports\SupplierProductsImport;
 use App\Models\Products;
 use App\Models\Supplier;
+use App\Models\SupplierProduct;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
@@ -30,14 +32,31 @@ class SupplierProductImportExportController extends Controller
             $forcedSupplierName = Supplier::find($supplierId)?->company_name;
         }
 
+        if ($request->input('format') === 'pdf') {
+            return Pdf::loadView('admin.supplier.pdf.template', [
+                'rows' => (new \App\Exports\Sheets\SupplierProductsTemplateInstructionsSheet())->instructionRows(),
+            ])->setPaper('a4', 'portrait')->download('plantilla-proveedores-productos.pdf');
+        }
+
         return Excel::download(
             new SupplierProductsTemplateExport($forcedSupplierName),
             'plantilla-proveedores-productos.xlsx'
         );
     }
 
-    public function export()
+    public function export(Request $request)
     {
+        if ($request->input('format') === 'pdf') {
+            $links = SupplierProduct::with(['supplier:id,company_name', 'product:id,name,sku'])
+                ->join('suppliers', 'suppliers.id', '=', 'suppliers_products.supplier_id')
+                ->orderBy('suppliers.company_name')
+                ->select('suppliers_products.*')
+                ->get();
+
+            return Pdf::loadView('admin.supplier.pdf.catalog', ['links' => $links])
+                ->setPaper('a4', 'landscape')->download('proveedores-productos-' . now()->format('Y-m-d') . '.pdf');
+        }
+
         return Excel::download(new SupplierProductsExport(), 'proveedores-productos-' . now()->format('Y-m-d') . '.xlsx');
     }
 

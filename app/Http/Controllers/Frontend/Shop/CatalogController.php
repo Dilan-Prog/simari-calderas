@@ -137,8 +137,7 @@ class CatalogController extends Controller
             }]);
 
         if ($category) {
-            $categoryIds = $category->children()->pluck('id')->push($category->id);
-            $query->whereIn('category_id', $categoryIds);
+            $query->whereIn('category_id', $category->idsWithChildren());
         }
 
         if ($request->filled('categoria')) {

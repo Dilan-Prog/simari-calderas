@@ -18,6 +18,11 @@ class ProductsUpdateTemplateInstructionsSheet implements FromArray, WithTitle, W
 
     public function array(): array
     {
+        return $this->instructionRows();
+    }
+
+    public function instructionRows(): array
+    {
         return [
             ['Cómo llenar la plantilla de actualización de productos', '', ''],
             ['Este archivo ya trae tus productos reales con sus valores actuales. Edita solo las celdas que quieras cambiar y deja las demás tal como están: a diferencia de la plantilla de creación, aquí una celda vacía significa "no cambiar" — nunca borra ni resetea el campo en el producto ya guardado.', '', ''],

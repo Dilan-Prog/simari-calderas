@@ -21,10 +21,10 @@
         </p>
 
         <div class="prod-import-templates">
-            <a href="{{ route('admin.suppliers.products.import.template', isset($scopedSupplier) ? ['supplier_id' => $scopedSupplier->id] : []) }}"
-                class="prod-import-template-link">
+            <button type="button" class="prod-import-template-link"
+                data-download-url="{{ route('admin.suppliers.products.import.template', isset($scopedSupplier) ? ['supplier_id' => $scopedSupplier->id] : []) }}">
                 Descargar plantilla con ejemplos
-            </a>
+            </button>
         </div>
 
         <div class="prod-import-dropzone" id="spImportDropzone" role="button" tabindex="0">

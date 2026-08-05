@@ -116,6 +116,23 @@
     text-decoration: underline;
 }
 
+/* Estos links pasaron de <a> a <button type="button"> (para poder abrir el
+   modal de "elegir formato" en vez de navegar directo) — sin este reset el
+   navegador les aplica su estilo nativo de botón (borde, fondo, padding,
+   centrado), ya que la clase de arriba nunca necesitó anular eso siendo un
+   <a>. Alcance acotado a <button>, no afecta los usos existentes como <a>. */
+button.prod-import-template-link {
+    display: block;
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    width: auto;
+}
+
 .prod-import-mode-toggle {
     display: flex;
     gap: 16px;

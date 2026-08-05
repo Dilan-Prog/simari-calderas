@@ -90,8 +90,12 @@
         if ($metaDescription) {
             $productSchema['description'] = $metaDescription;
         }
-        if ($product->cover_image_url) {
-            $productSchema['image'] = $product->cover_image_url;
+        $schemaImages = $product->images->pluck('url')->values()->all();
+        if (empty($schemaImages) && $product->cover_image_url) {
+            $schemaImages = [$product->cover_image_url];
+        }
+        if (!empty($schemaImages)) {
+            $productSchema['image'] = $schemaImages;
         }
         if ($product->brand) {
             $productSchema['brand'] = ['@type' => 'Brand', 'name' => $product->brand->name];

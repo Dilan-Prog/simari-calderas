@@ -18,6 +18,11 @@ class ProductsTemplateInstructionsSheet implements FromArray, WithTitle, WithSty
 
     public function array(): array
     {
+        return $this->instructionRows();
+    }
+
+    public function instructionRows(): array
+    {
         return [
             ['Cómo llenar la plantilla de productos', '', ''],
             ['Llena tus productos en la hoja "Productos", debajo de las 3 filas de ejemplo. Puedes borrar los ejemplos antes de subir el archivo, o dejarlos (se omitirán porque su SKU ya quedará registrado la primera vez que los importes).', '', ''],

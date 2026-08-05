@@ -18,6 +18,11 @@ class SupplierProductsTemplateInstructionsSheet implements FromArray, WithTitle,
 
     public function array(): array
     {
+        return $this->instructionRows();
+    }
+
+    public function instructionRows(): array
+    {
         return [
             ['Cómo llenar la plantilla de Proveedores Productos', '', ''],
             ['Llena en la hoja "ProveedoresProductos" cada vínculo proveedor-producto que quieras crear o actualizar. Si el proveedor y el producto ya están vinculados, se actualiza ese vínculo; si no, se crea uno nuevo. Una celda vacía en un vínculo que ya existe significa "no cambiar ese campo" — nunca lo borra.', '', ''],

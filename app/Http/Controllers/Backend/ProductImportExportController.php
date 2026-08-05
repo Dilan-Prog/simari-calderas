@@ -10,34 +10,54 @@ use App\Imports\ProductsImport;
 use App\Imports\ProductsUpdateImport;
 use App\Models\Brand;
 use App\Models\Category;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
 
 class ProductImportExportController extends Controller
 {
-    public function downloadTemplate()
+    public function downloadTemplate(Request $request)
     {
         if (!Category::where('is_active', true)->exists() || !Brand::where('is_active', true)->exists()) {
             return redirect()->route('admin.products.index')
                 ->with('error', 'Registra al menos una categoría y una marca activas antes de descargar la plantilla.');
+        }
+
+        if ($request->input('format') === 'pdf') {
+            return Pdf::loadView('admin.products.pdf.template-create', [
+                'rows' => (new \App\Exports\Sheets\ProductsTemplateInstructionsSheet())->instructionRows(),
+            ])->setPaper('a4', 'portrait')->download('plantilla-productos.pdf');
         }
 
         return Excel::download(new ProductsTemplateExport(), 'plantilla-productos.xlsx');
     }
 
-    public function downloadUpdateTemplate()
+    public function downloadUpdateTemplate(Request $request)
     {
         if (!Category::where('is_active', true)->exists() || !Brand::where('is_active', true)->exists()) {
             return redirect()->route('admin.products.index')
                 ->with('error', 'Registra al menos una categoría y una marca activas antes de descargar la plantilla.');
         }
 
+        if ($request->input('format') === 'pdf') {
+            return Pdf::loadView('admin.products.pdf.template-update', [
+                'rows' => (new \App\Exports\Sheets\ProductsUpdateTemplateInstructionsSheet())->instructionRows(),
+            ])->setPaper('a4', 'portrait')->download('plantilla-actualizacion-productos.pdf');
+        }
+
         return Excel::download(new ProductsUpdateTemplateExport(), 'plantilla-actualizacion-productos.xlsx');
     }
 
-    public function export()
+    public function export(Request $request)
     {
+        if ($request->input('format') === 'pdf') {
+            $products = \App\Models\Products::with(['category.parent.parent', 'brand'])->orderBy('id')->get();
+
+            return Pdf::loadView('admin.products.pdf.catalog', ['products' => $products])
+                ->setPaper('a4', 'landscape')->download('catalogo-productos-' . now()->format('Y-m-d') . '.pdf');
+        }
+
         return Excel::download(new ProductsExport(), 'productos-' . now()->format('Y-m-d') . '.xlsx');
     }
 

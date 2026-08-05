@@ -54,7 +54,7 @@
                     <p class="prod-subtitle">Gestiona el catálogo de productos industriales</p>
                 </div>
                 <div class="prod-header-actions">
-                    <a href="{{ route('admin.products.export') }}" class="prod-btn-outline">
+                    <button type="button" class="prod-btn-outline" data-download-url="{{ route('admin.products.export') }}">
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M12 15V3" />
@@ -62,7 +62,7 @@
                             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
                         </svg>
                         Exportar
-                    </a>
+                    </button>
                     <button class="prod-btn-outline" type="button" id="btnOpenImportModal">
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -427,4 +427,12 @@
 @include('admin.products.partials._import_modal')
 @include('admin.products.partials._bulk_action_bar')
 @include('admin.products.partials._bulk_delete_modal')
+@include('admin.components._download_format_modal')
 @include('admin.products._scripts')
+
+@push('scripts')
+    <script src="{{ asset('js/admin/download-format.js') }}"></script>
+    <script>
+        initDownloadFormatModal();
+    </script>
+@endpush
