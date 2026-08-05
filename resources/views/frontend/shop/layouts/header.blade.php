@@ -215,8 +215,20 @@
         <div class="eq-mega__col eq-mega__col--featured">
           <div class="eq-mega__col-label">Productos destacados</div>
           <div class="eq-mega__grid">
+            {{--
+              FIX: $megaMenuCategoryProducts agrupa por el category_id
+              PROPIO de cada producto — que casi siempre es una subcategoría
+              (hoja), no la categoría padre. Antes esto solo comparaba contra
+              activeCategoryId (padre), así que la columna quedaba vacía en
+              cuanto una categoría tenía subcategorías (el caso normal): el
+              grupo de productos vive bajo el id de la subcategoría, nunca
+              bajo el del padre. Ahora compara contra la subcategoría activa
+              cuando hay una elegida, y contra la categoría padre solo
+              cuando todavía no se ha entrado a ninguna subcategoría (padres
+              sin hijas, p. ej. "Equipos de Refrigeración").
+            --}}
             @foreach ($megaMenuCategoryProducts as $categoryId => $products)
-              <template x-if="activeCategoryId === {{ $categoryId }}">
+              <template x-if="activeSubCategoryId === {{ $categoryId }} || (activeCategoryId === {{ $categoryId }} && activeSubCategoryId === null)">
                 <div class="eq-mega__grid-row">
                   @foreach ($products as $product)
                     <x-frontend.shop.product-card :product="$product" compact="true" />
