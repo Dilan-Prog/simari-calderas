@@ -202,7 +202,7 @@
               <template x-if="activeCategoryId === {{ $category->id }} && activeSubCategoryId === {{ $sub->id }}">
                 <div>
                   @forelse ($sub->children as $child)
-                    <a href="{{ route('catalog.category', $child->slug) }}" class="eq-mega__model">{{ $child->name }}</a>
+                    <a href="{{ route('catalog.category', $child->slug) }}" class="eq-mega__model" @mouseenter="setModel({{ $child->id }})">{{ $child->name }}</a>
                   @empty
                     <p class="eq-mega__empty">Sin categorías hijas</p>
                   @endforelse
@@ -226,9 +226,14 @@
               cuando hay una elegida, y contra la categoría padre solo
               cuando todavía no se ha entrado a ninguna subcategoría (padres
               sin hijas, p. ej. "Equipos de Refrigeración").
+              Además ahora existe un 3er nivel (activeModelId, categoría
+              hija / "modelo"). La condición prioriza el nivel más
+              específico activo: hija > subcategoría > categoría padre.
             --}}
             @foreach ($megaMenuCategoryProducts as $categoryId => $products)
-              <template x-if="activeSubCategoryId === {{ $categoryId }} || (activeCategoryId === {{ $categoryId }} && activeSubCategoryId === null)">
+              <template x-if="activeModelId === {{ $categoryId }}
+                  || (activeModelId === null && activeSubCategoryId === {{ $categoryId }})
+                  || (activeModelId === null && activeSubCategoryId === null && activeCategoryId === {{ $categoryId }})">
                 <div class="eq-mega__grid-row">
                   @foreach ($products as $product)
                     <x-frontend.shop.product-card :product="$product" compact="true" />

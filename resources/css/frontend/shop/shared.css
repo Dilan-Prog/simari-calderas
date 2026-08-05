@@ -399,7 +399,7 @@ img { max-width: 100%; height: auto; display: block; }
 
 /* ===== Product card ===== */
 .product-card {
-    position: relative; z-index: 2; background: #fff; border: 1px solid rgba(0,0,0,0.08); border-radius: 8px;
+    position: relative; z-index: 1; background: #fff; border: 1px solid rgba(0,0,0,0.08); border-radius: 8px;
     padding: 14px; display: flex; flex-direction: column; gap: 8px; height: 100%; width: 100%;
     min-width: 0; box-sizing: border-box; transition: box-shadow .2s, transform .2s;
 }
@@ -473,7 +473,7 @@ img { max-width: 100%; height: auto; display: block; }
 .product-carousel__item { flex: 0 0 max(150px, calc((100% - 5*16px)/6)); min-width: 0; box-sizing: border-box; display: flex; }
 .product-carousel__empty { color: #9ca3af; font-size: 14px; padding: 24px 0; }
 .product-carousel__nav {
-    position: absolute; z-index: 1; top: calc(50% + 9px); width: 40px; height: 40px; border-radius: 50%; background: #fff;
+    position: absolute; z-index: 2; top: calc(50% + 9px); width: 40px; height: 40px; border-radius: 50%; background: #fff;
     border: 1px solid rgba(0,0,0,0.1); box-shadow: 0 6px 16px rgba(0,0,0,0.12); cursor: pointer; font-size: 18px;
 }
 .product-carousel__nav--prev { left: -18px; }

@@ -119,6 +119,7 @@ Alpine.data('megaMenu', () => ({
     activeMenu: null,
     activeCategoryId: null,
     activeSubCategoryId: null,
+    activeModelId: null,
     closeTimer: null,
 
     open(name) {
@@ -143,10 +144,16 @@ Alpine.data('megaMenu', () => ({
     setCategory(id) {
         this.activeCategoryId = id;
         this.activeSubCategoryId = null;
+        this.activeModelId = null;
     },
 
     setSubCategory(id) {
         this.activeSubCategoryId = id;
+        this.activeModelId = null;
+    },
+
+    setModel(id) {
+        this.activeModelId = id;
     },
 }));
 
