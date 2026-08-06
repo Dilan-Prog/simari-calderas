@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\GoogleAdsController;
 use App\Http\Controllers\Backend\AdminController;
 use App\Http\Controllers\Backend\CategoryController;
 use App\Http\Controllers\Backend\ClientManageController;
+use App\Http\Controllers\Backend\DevOpsController;
 use App\Http\Controllers\Backend\ProductController;
 use App\Http\Controllers\Backend\ProductImportExportController;
 use App\Http\Controllers\Backend\QuoteController;
@@ -521,6 +522,20 @@ Route::controller(DuplicateImageController::class)
         Route::get('/buscar', 'searchLibrary')->name('search');
         Route::post('/{group}/aplicar', 'apply')->name('apply');
         Route::post('/{group}/descartar', 'dismiss')->name('dismiss');
+    });
+
+// ============================================================
+// DevOps — consola SQL (solo Admin; 'devops' se omite a propósito
+// de config/modules.php para que nunca sea asignable a otros roles,
+// ver DevOpsController)
+// ============================================================
+Route::controller(DevOpsController::class)
+    ->middleware('permission:devops')
+    ->prefix('devops')
+    ->name('devops.')
+    ->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::post('/ejecutar', 'execute')->name('execute');
     });
 
     // sig module

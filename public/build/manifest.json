@@ -38,6 +38,11 @@
     "src": "resources/css/admin/pages/delivery.css",
     "isEntry": true
   },
+  "resources/css/admin/pages/devops.css": {
+    "file": "assets/devops-CBXkbcNs.css",
+    "src": "resources/css/admin/pages/devops.css",
+    "isEntry": true
+  },
   "resources/css/admin/pages/gallery.css": {
     "file": "assets/gallery-DMzsa3nQ.css",
     "src": "resources/css/admin/pages/gallery.css",
