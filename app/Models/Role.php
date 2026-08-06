@@ -2,12 +2,20 @@
 
 namespace App\Models;
 
+use App\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Role extends Model
 {
+    use LogsActivity;
+
+    protected static function logEntityType(): string
+    {
+        return 'role';
+    }
+
     public $timestamps = false;
 
     protected $fillable = [

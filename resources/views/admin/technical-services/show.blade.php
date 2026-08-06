@@ -320,6 +320,32 @@
             @endif
         </div>
 
+        {{-- ── Bitácora ──────────────────────────────── --}}
+        <div class="ts-card">
+            <div class="ts-card__title">Bitácora</div>
+            <div class="ts-card__divider"></div>
+            @if($service->logs->isEmpty())
+                <p style="font-size:0.875rem;color:#9CA3AF;text-align:center;padding:1rem 0">
+                    Sin eventos registrados
+                </p>
+            @else
+            <div class="ts-mat-list">
+                @foreach($service->logs as $log)
+                <div class="ts-mat-item">
+                    <span class="ts-mat-item__name">{{ $log->action }}</span>
+                    <span style="font-size:0.75rem;color:#9CA3AF">
+                        {{ $log->performedBy ? trim($log->performedBy->first_name.' '.$log->performedBy->last_name) : 'Sistema' }}
+                        — {{ $log->created_at->format('d/m/Y H:i') }}
+                    </span>
+                    @if($log->comment)
+                        <span style="font-size:0.75rem;color:#9CA3AF">— {{ $log->comment }}</span>
+                    @endif
+                </div>
+                @endforeach
+            </div>
+            @endif
+        </div>
+
     </div>
 
     {{-- ── Metadata ──────────────────────────────── --}}

@@ -9,8 +9,13 @@
     "isEntry": true
   },
   "resources/css/admin/app.css": {
-    "file": "assets/app-D03_rX6V.css",
+    "file": "assets/app-Cd2i3sMm.css",
     "src": "resources/css/admin/app.css",
+    "isEntry": true
+  },
+  "resources/css/admin/pages/audit.css": {
+    "file": "assets/audit-JREXDBq6.css",
+    "src": "resources/css/admin/pages/audit.css",
     "isEntry": true
   },
   "resources/css/admin/pages/brands.css": {

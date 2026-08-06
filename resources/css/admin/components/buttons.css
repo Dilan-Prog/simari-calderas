@@ -19,6 +19,7 @@
     cursor: pointer;
     transition: all 0.1s ease-in-out;
     font-family: var(--font-family);
+    text-decoration: none;
 }
 .button-primary:hover {
     background: var(--button-primary-color-hover);
@@ -41,6 +42,7 @@
     border: 2px solid white;
     cursor: pointer;
     font-family: var(--font-family);
+    text-decoration: none;
 }
 .button-secondary:hover {
     background: var(--button-secondary-color-hover);

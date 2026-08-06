@@ -2,12 +2,18 @@
 
 namespace App\Models;
 
+use App\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class PurchaseOrder extends Model
 {
-    use HasFactory;
+    use HasFactory, LogsActivity;
+
+    protected static function logEntityType(): string
+    {
+        return 'purchase_order';
+    }
 
     protected $fillable = [
         'po_number', 'supplier_id', 'created_by_user_id',

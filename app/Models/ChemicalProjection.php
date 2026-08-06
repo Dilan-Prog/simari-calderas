@@ -2,11 +2,19 @@
 
 namespace App\Models;
 
+use App\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ChemicalProjection extends Model
 {
+    use LogsActivity;
+
+    protected static function logEntityType(): string
+    {
+        return 'chemical_projection';
+    }
+
     protected $fillable = ['customer_id', 'product_id', 'projected_quantity', 'period'];
 
     protected $casts = [

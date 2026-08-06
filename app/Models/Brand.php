@@ -3,12 +3,18 @@
 namespace App\Models;
 
 use App\Support\UploadPath;
+use App\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Brand extends Model
 {
-    use HasFactory;
+    use HasFactory, LogsActivity;
+
+    protected static function logEntityType(): string
+    {
+        return 'brand';
+    }
 
     protected $fillable = [
         'name', 'slug', 'description', 'logo_url', 'is_active',

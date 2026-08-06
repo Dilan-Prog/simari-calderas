@@ -2,10 +2,18 @@
 
 namespace App\Models;
 
+use App\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Model;
 
 class Collection extends Model
 {
+    use LogsActivity;
+
+    protected static function logEntityType(): string
+    {
+        return 'collection';
+    }
+
     protected $fillable = [
         'name', 'slug', 'description', 'type', 'match_type',
         'image_url', 'sort_order', 'is_active',

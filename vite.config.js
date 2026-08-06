@@ -31,6 +31,7 @@ export default defineConfig({
                 'resources/css/admin/pages/home-sections.css',
                 'resources/css/admin/pages/menus.css',
                 'resources/css/admin/pages/devops.css',
+                'resources/css/admin/pages/audit.css',
                 'resources/css/frontend/shop/home.css',
                 'resources/js/frontend/shop/home.js',
                 'resources/css/frontend/shop/catalog.css',

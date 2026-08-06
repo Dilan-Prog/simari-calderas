@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -9,6 +10,20 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class ServiceReport extends Model
 {
+    use LogsActivity;
+
+    protected static function logEntityType(): string
+    {
+        return 'service_report';
+    }
+
+    // signature_data guarda la imagen capturada de la firma — se excluye
+    // por tamaño de fila, no por sensibilidad.
+    protected static function logExcept(): array
+    {
+        return ['signature_data'];
+    }
+
     protected $fillable = [
         'report_number',
         'created_by_user_id',

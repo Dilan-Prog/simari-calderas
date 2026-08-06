@@ -3,11 +3,19 @@
 namespace App\Models;
 
 use App\Support\UploadPath;
+use App\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class ServicePage extends Model
 {
+    use LogsActivity;
+
+    protected static function logEntityType(): string
+    {
+        return 'service_page';
+    }
+
     protected $fillable = [
         'name', 'slug', 'short_description', 'description',
         'price', 'currency', 'cover_image_url', 'is_active', 'sort_order',

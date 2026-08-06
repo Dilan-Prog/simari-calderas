@@ -2,10 +2,18 @@
 
 namespace App\Models;
 
+use App\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Model;
 
 class HomeSection extends Model
 {
+    use LogsActivity;
+
+    protected static function logEntityType(): string
+    {
+        return 'home_section';
+    }
+
     protected $fillable = ['type', 'page', 'title', 'config', 'sort_order', 'is_active'];
 
     protected $casts = [

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -9,6 +10,20 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class TechnicalService extends Model
 {
+    use LogsActivity;
+
+    protected static function logEntityType(): string
+    {
+        return 'technical_service';
+    }
+
+    // draft_token da acceso sin autenticación a un borrador — excluirlo del
+    // log es una medida de seguridad barata, mismo espíritu que password.
+    protected static function logExcept(): array
+    {
+        return ['draft_token'];
+    }
+
     protected $table = 'services';
 
     protected $fillable = [

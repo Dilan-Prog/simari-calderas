@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\GoogleAdsController;
 use App\Http\Controllers\Backend\AdminController;
 use App\Http\Controllers\Backend\CategoryController;
 use App\Http\Controllers\Backend\ClientManageController;
+use App\Http\Controllers\Backend\AuditController;
 use App\Http\Controllers\Backend\DevOpsController;
 use App\Http\Controllers\Backend\ProductController;
 use App\Http\Controllers\Backend\ProductImportExportController;
@@ -536,6 +537,20 @@ Route::controller(DevOpsController::class)
     ->group(function () {
         Route::get('/', 'index')->name('index');
         Route::post('/ejecutar', 'execute')->name('execute');
+    });
+
+// ============================================================
+// Auditoría Sistema — lectura de system_logs (bitácora genérica escrita por
+// el trait LogsActivity). A diferencia de DevOps, es de solo lectura sobre
+// datos ya filtrados/redactados, así que usa el gate normal asignable por
+// rol en vez del abort_unless(isAdmin()) hardcodeado de DevOps.
+// ============================================================
+Route::controller(AuditController::class)
+    ->middleware('permission:audit')
+    ->prefix('auditoria')
+    ->name('audit.')
+    ->group(function () {
+        Route::get('/', 'index')->name('index');
     });
 
     // sig module

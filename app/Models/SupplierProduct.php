@@ -2,11 +2,19 @@
 
 namespace App\Models;
 
+use App\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 
 class SupplierProduct extends Pivot
 {
+    use LogsActivity;
+
+    protected static function logEntityType(): string
+    {
+        return 'supplier_product';
+    }
+
     protected $table = 'suppliers_products';
 
     public $incrementing = true;

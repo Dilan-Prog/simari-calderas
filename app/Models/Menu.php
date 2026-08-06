@@ -2,10 +2,18 @@
 
 namespace App\Models;
 
+use App\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Model;
 
 class Menu extends Model
 {
+    use LogsActivity;
+
+    protected static function logEntityType(): string
+    {
+        return 'menu';
+    }
+
     protected $fillable = ['name', 'location', 'is_active'];
 
     protected $casts = [

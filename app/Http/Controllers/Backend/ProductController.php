@@ -19,6 +19,7 @@ use App\Models\Brand;
 use App\Models\Collection;
 use App\Models\Supplier;
 use App\Models\SupplierProduct;
+use App\Models\SystemLog;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
@@ -172,7 +173,9 @@ class ProductController extends Controller
         if ($search = $request->input('search')) {
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('sku', 'like', "%{$search}%");
+                    ->orWhere('sku', 'like', "%{$search}%")
+                    ->orWhere('supplier_sku', 'like', "%{$search}%")
+                    ->orWhereHas('suppliers', fn($s) => $s->where('suppliers_products.sku', 'like', "%{$search}%"));
             });
         }
 
@@ -1432,6 +1435,29 @@ class ProductController extends Controller
      * "Seleccionar todos" en la UI solo opera sobre la página actualmente
      * visible, así que $ids siempre es una lista acotada, no todo el catálogo.
      */
+    /**
+     * activate/deactivate/publish/unpublish usan Products::whereIn(...)->update(...)
+     * — una actualización por query builder que Eloquent NO dispara como
+     * evento, así que el trait LogsActivity nunca la ve. Se registra un
+     * único resumen de lote aquí, mismo criterio que DevOpsController usa
+     * para acciones sin una sola entidad (entity_id=0 como centinela).
+     */
+    private function logBulkProductAction(string $action, array $ids): void
+    {
+        SystemLog::create([
+            'entity_type' => 'product',
+            'entity_id' => 0,
+            'action' => 'bulk_' . $action,
+            'description' => count($ids) . ' producto(s)',
+            'old_value' => null,
+            'new_value' => ['ids' => $ids],
+            'performed_by_user_id' => auth()->id(),
+            'performed_at' => now(),
+            'ip_address' => request()?->ip(),
+            'user_agent' => request()?->userAgent(),
+        ]);
+    }
+
     public function bulkUpdate(Request $request)
     {
         $request->validate([
@@ -1445,12 +1471,14 @@ class ProductController extends Controller
 
         if ($action === 'activate' || $action === 'deactivate') {
             $updated = Products::whereIn('id', $ids)->update(['is_active' => $action === 'activate']);
+            $this->logBulkProductAction($action, $ids);
 
             return response()->json(['success' => true, 'action' => $action, 'updated' => $updated]);
         }
 
         if ($action === 'publish' || $action === 'unpublish') {
             $updated = Products::whereIn('id', $ids)->update(['publish_on_website' => $action === 'publish']);
+            $this->logBulkProductAction($action, $ids);
 
             return response()->json(['success' => true, 'action' => $action, 'updated' => $updated]);
         }

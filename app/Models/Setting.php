@@ -2,10 +2,28 @@
 
 namespace App\Models;
 
+use App\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Model;
 
 class Setting extends Model
 {
+    use LogsActivity;
+
+    protected static function logEntityType(): string
+    {
+        return 'setting';
+    }
+
+    // Tabla genérica clave→valor compartida por Configuración del Sitio E
+    // Integraciones (esta última guarda ahí credenciales SMTP encriptadas).
+    // La sensibilidad depende del `key` de cada fila, no hay forma de
+    // excluir por valor de campo — se excluye `value` en bloque para nunca
+    // arriesgar que una credencial, ni siquiera encriptada, llegue al log.
+    protected static function logExcept(): array
+    {
+        return ['value'];
+    }
+
     public $timestamps = false;
 
     const UPDATED_AT = 'updated_at';
