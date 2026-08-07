@@ -10,6 +10,23 @@ use Illuminate\Http\Request;
 
 class RoleController extends Controller
 {
+    /**
+     * Bloquea que un rol se renombre a algo que satisfaga Role::isAdmin()
+     * ("admin"/"administrador", case-insensitive) a menos que quien hace la
+     * petición ya sea admin — sin esto, en cuanto el permiso de Roles se
+     * pueda delegar a un no-admin (ver fix del mismatch permission:role vs
+     * config('modules.roles')), ese usuario podría renombrar su propio rol
+     * a "Administrador" y auto-otorgarse acceso total.
+     */
+    private function reservedRoleNameRule(): \Closure
+    {
+        return function ($attribute, $value, $fail) {
+            if (!auth()->user()?->isAdmin() && in_array(strtolower(trim($value)), ['admin', 'administrador'], true)) {
+                $fail('Ese nombre de rol está reservado.');
+            }
+        };
+    }
+
     public function index()
     {
         $roles = Role::withCount(['users', 'permissions'])
@@ -51,7 +68,7 @@ class RoleController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name_role'        => 'required|string|max:100|unique:roles,name_role',
+            'name_role'        => ['required', 'string', 'max:100', 'unique:roles,name_role', $this->reservedRoleNameRule()],
             'name_role_es'     => 'nullable|string|max:100',
             'description_role' => 'nullable|string|max:255',
             'permissions'      => 'nullable|array',
@@ -80,7 +97,7 @@ class RoleController extends Controller
         $role = Role::findOrFail($id);
 
         $validated = $request->validate([
-            'name_role'        => 'required|string|max:100|unique:roles,name_role,' . $id,
+            'name_role'        => ['required', 'string', 'max:100', 'unique:roles,name_role,' . $id, $this->reservedRoleNameRule()],
             'name_role_es'     => 'nullable|string|max:100',
             'description_role' => 'nullable|string|max:255',
             'permissions'      => 'nullable|array',

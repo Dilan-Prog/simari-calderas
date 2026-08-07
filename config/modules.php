@@ -37,6 +37,24 @@ return [
         'route' => 'admin.brands.index',
         'order' => 6,
     ],
+    'collections' => [
+        'name'  => 'Colecciones',
+        'icon'  => 'layers',
+        'route' => 'admin.collections.index',
+        'order' => 6,
+    ],
+    'gallery' => [
+        'name'  => 'Galería',
+        'icon'  => 'image',
+        'route' => 'admin.gallery.index',
+        'order' => 6,
+    ],
+    'home-sections' => [
+        'name'  => 'Inicio - Secciones',
+        'icon'  => 'layout',
+        'route' => 'admin.home-sections.index',
+        'order' => 6,
+    ],
     'quotes' => [
         'name'  => 'Cotizaciones',
         'icon'  => 'file-text',

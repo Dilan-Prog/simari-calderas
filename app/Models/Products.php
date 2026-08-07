@@ -16,6 +16,29 @@ class Products extends Model
         return 'product';
     }
 
+    /**
+     * FIX (SEO redirects): a product's slug can change (edit, or the
+     * {marca}/{modelo}-in-name slug bug being corrected) — sin esto la URL
+     * vieja simplemente 404 sin avisar. Mismo patrón que
+     * Category::booted()/cascadeSlugToDescendants(): al guardar, si el
+     * slug cambió en un producto YA existente (no uno recién creado, que
+     * no tiene "URL vieja" que redirigir), registra un 301 de la ruta
+     * anterior a la nueva.
+     */
+    protected static function booted(): void
+    {
+        static::saved(function (Products $product) {
+            if ($product->wasRecentlyCreated || !$product->wasChanged('slug')) {
+                return;
+            }
+
+            $oldSlug = $product->getOriginal('slug');
+            if ($oldSlug) {
+                \App\Models\Redirect::record('/producto/' . $oldSlug, '/producto/' . $product->slug);
+            }
+        });
+    }
+
     protected $fillable = [
         'category_id',
         'brand_id',

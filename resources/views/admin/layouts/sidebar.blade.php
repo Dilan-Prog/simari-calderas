@@ -79,7 +79,7 @@
             || $authUser->hasPermission('shipments')
             || $authUser->hasPermission('carriers')
             || $authUser->hasPermission('payment-methods')
-            || $authUser->hasPermission('menus')
+            || $authUser->hasPermission('menu')
             || $authUser->hasPermission('settings');
 
         $serviciosVisible = $authUser->hasPermission('service-reports')
@@ -344,7 +344,7 @@
                 @endif
 
                 {{-- Menús de navegación --}}
-                @if ($authUser->hasPermission('menus'))
+                @if ($authUser->hasPermission('menu'))
                     <a class="sidebar-nav-item {{ $activeSection === 'menus' ? 'active' : '' }}" data-section="menus" data-label="Menús"
                         href="{{ route('admin.menus.index') }}">
                         <div class="sidebar-nav-item-left">

@@ -44,7 +44,7 @@ Route::get('/', [AdminController::class, 'dashboard'])->name('dashboard');
 // Roles
 // ============================================================
 Route::controller(RoleController::class)
-    ->middleware('permission:role')
+    ->middleware('permission:roles')
     ->group(function () {
         Route::get('/roles', 'index')->name('roles.index');
         Route::get('/roles/mostrar-rol/{id}', 'show')->name('roles.show');
@@ -443,7 +443,7 @@ Route::controller(HomeSectionController::class)
 // Menús de navegación
 // ============================================================
 Route::controller(MenuController::class)
-    ->middleware('permission:menus')
+    ->middleware('permission:menu')
     ->group(function () {
         Route::get('/menus', 'index')->name('menus.index');
         Route::get('/menus/nuevo', 'create')->name('menus.create');

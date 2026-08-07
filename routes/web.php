@@ -36,7 +36,7 @@ Route::controller(CatalogController::class)->group(function () {
     Route::get('/catalogo/{categorySlug}', 'category')
         ->where('categorySlug', '.*')
         ->name('catalog.category');
-    Route::get('/buscar-en-vivo', 'liveSearch')->name('catalog.live-search');
+    Route::get('/buscar-en-vivo', 'liveSearch')->middleware('throttle:30,1')->name('catalog.live-search');
 });
 Route::get('/producto/{slug}', [ShopProductController::class, 'show'])->name('product.show');
 Route::get('/coleccion/{slug}', [ShopCollectionController::class, 'show'])->name('collection.show');

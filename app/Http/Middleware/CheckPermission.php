@@ -19,7 +19,10 @@ class CheckPermission
 
         if(!$user)
             {
-                return $next($request);
+                if($request->expectsJson()) {
+                    return response()->json(['message' => 'No autenticado.'], 403);
+                }
+                return redirect()->route('login');
             }
         if($user->isAdmin())
             {

@@ -27,14 +27,23 @@ trait LogsActivity
      * modelo. created_at/updated_at se excluyen porque Eloquent los toca en
      * CADA save() aunque no cambie nada de negocio — dejarlos generaría una
      * fila de bitácora por cada guardado no-op.
+     *
+     * Método en vez de constante de trait: las constantes de trait requieren
+     * PHP 8.2+ (`Traits cannot have constants` en 8.1, la versión real que
+     * corre este proyecto en producción/Apache — el `php` de CLI en esta
+     * máquina resuelve a un binario 8.2 distinto, por eso este bug no se
+     * detectó hasta probar contra el servidor web real).
      */
-    private const BASE_EXCLUDED_FIELDS = [
-        'password',
-        'password_hash',
-        'remember_token',
-        'created_at',
-        'updated_at',
-    ];
+    private static function baseExcludedFields(): array
+    {
+        return [
+            'password',
+            'password_hash',
+            'remember_token',
+            'created_at',
+            'updated_at',
+        ];
+    }
 
     /** Override por modelo, ej.: protected static function logExcept(): array { return ['signature_data']; } */
     protected static function logExcept(): array
@@ -86,7 +95,7 @@ trait LogsActivity
 
     private static function filterLogAttributes(array $attributes): array
     {
-        $excluded = array_merge(self::BASE_EXCLUDED_FIELDS, static::logExcept());
+        $excluded = array_merge(self::baseExcludedFields(), static::logExcept());
 
         return Arr::except($attributes, $excluded);
     }

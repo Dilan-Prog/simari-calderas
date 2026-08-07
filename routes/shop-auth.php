@@ -23,7 +23,7 @@ Route::prefix('cuenta')->name('shop.')->group(function () {
         Route::post('iniciar-sesion', [LoginController::class, 'store'])->name('login.store');
 
         Route::get('registro', [RegisterController::class, 'create'])->name('register');
-        Route::post('registro', [RegisterController::class, 'store'])->name('register.store');
+        Route::post('registro', [RegisterController::class, 'store'])->middleware('throttle:5,1')->name('register.store');
 
         Route::get('olvide-contrasena', [PasswordResetController::class, 'request'])->name('password.request');
         Route::post('olvide-contrasena', [PasswordResetController::class, 'email'])->name('password.email');

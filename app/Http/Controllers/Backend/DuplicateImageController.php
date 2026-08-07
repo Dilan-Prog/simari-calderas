@@ -94,7 +94,7 @@ class DuplicateImageController extends Controller
             'remove_image_urls' => ['required', 'array', 'min:1'],
             'remove_image_urls.*' => ['string'],
             'replacement_image_url' => ['nullable', 'string'],
-            'new_image' => ['nullable', 'image', 'max:8192'],
+            'new_image' => ['nullable', 'mimes:jpg,jpeg,png,gif,bmp,webp', 'max:8192'],
         ]);
 
         $removeUrls = array_values(array_unique($data['remove_image_urls']));

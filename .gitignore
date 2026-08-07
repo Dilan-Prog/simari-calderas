@@ -6,9 +6,8 @@
 # /public/link.php
 /storage/*.key
 /vendor
-.env
-.env.backup
-.env.production
+.env*
+!.env.example
 .phpunit.result.cache
 Homestead.json
 Homestead.yaml
@@ -25,4 +24,5 @@ yarn-error.log
 /public/uploads
 obsidian-vault
 CLAUDE.md
+SEO-ROADMAP-SHOP.md
 

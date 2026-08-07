@@ -146,7 +146,7 @@ class ProductController extends Controller
         if (!is_dir($dir)) {
             mkdir($dir, 0755, true);
         }
-        $ext = strtolower($file->getClientOriginalExtension());
+        $ext = $file->guessExtension() ?: strtolower($file->getClientOriginalExtension());
         $filename = uniqid() . '.' . $ext;
         $file->move($dir, $filename);
 
@@ -891,9 +891,6 @@ class ProductController extends Controller
         $product = new Products();
         $product->name              = $request->name;
         $product->sku               = $request->sku;
-        $product->slug              = $request->slug
-            ? Str::slug($request->slug)
-            : Str::slug($request->name);
         // FIX (reported bug): 'model' has a real column and a name="model"
         // input in the view, but was never assigned — always lost silently.
         $product->model              = $request->model         ?? null;
@@ -956,6 +953,18 @@ class ProductController extends Controller
             ->values()
             ->all();
         $product->faqs = $faqs ?: null;
+
+        // FIX (reported bug): el slug se generaba con el nombre CRUDO, aún
+        // con placeholders sin resolver (ej. "Bomba de calor BCP 110
+        // {marca}") — Str::slug() no entiende esa sintaxis y la reduce a
+        // texto literal ("...-marca" en vez de "...-masstercal"). Se genera
+        // aquí, después de asignar brand_id/model/category_id/etc., para
+        // poder resolver las variables reales del producto antes de
+        // slugificar. Si el admin escribió un slug manual, se respeta tal
+        // cual (mismo comportamiento de siempre).
+        $product->slug = $request->slug
+            ? Str::slug($request->slug)
+            : Str::slug($product->resolveVariables($request->name));
 
         $product->save();
 
@@ -1067,9 +1076,6 @@ class ProductController extends Controller
 
         $product->name              = $request->name;
         $product->sku               = $request->sku;
-        $product->slug              = $request->slug
-            ? Str::slug($request->slug)
-            : Str::slug($request->name);
         // FIX (reported bug): 'model' has a real column and a name="model"
         // input in the view, but was never assigned — always lost silently.
         $product->model              = $request->model         ?? null;
@@ -1136,6 +1142,18 @@ class ProductController extends Controller
             ->values()
             ->all();
         $product->faqs = $faqs ?: null;
+
+        // FIX (reported bug): el slug se generaba con el nombre CRUDO, aún
+        // con placeholders sin resolver (ej. "Bomba de calor BCP 110
+        // {marca}") — Str::slug() no entiende esa sintaxis y la reduce a
+        // texto literal ("...-marca" en vez de "...-masstercal"). Se genera
+        // aquí, después de asignar brand_id/model/category_id/etc., para
+        // poder resolver las variables reales del producto antes de
+        // slugificar. Si el admin escribió un slug manual, se respeta tal
+        // cual (mismo comportamiento de siempre).
+        $product->slug = $request->slug
+            ? Str::slug($request->slug)
+            : Str::slug($product->resolveVariables($request->name));
 
         $product->save();
 

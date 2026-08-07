@@ -26,6 +26,28 @@
 @endif
 
 @php
+    // JSON-LD BreadcrumbList: reusa el mismo breadcrumb visual de abajo
+    // (Inicio > Colección), mismo patrón que product/show.blade.php y
+    // catalog/index.blade.php.
+    $breadcrumbSchema = [
+        '@context' => 'https://schema.org',
+        '@type' => 'BreadcrumbList',
+        'itemListElement' => [
+            [
+                '@type' => 'ListItem',
+                'position' => 1,
+                'name' => 'Inicio',
+                'item' => route('home'),
+            ],
+            [
+                '@type' => 'ListItem',
+                'position' => 2,
+                'name' => $collection->name,
+                'item' => $canonicalUrl,
+            ],
+        ],
+    ];
+
     // JSON-LD: FAQPage (si la sección faq está activa y hay preguntas) +
     // CollectionPage/ItemList con los productos de la página actual.
     $schemaFaqs = collect($collection->faqs ?? [])
@@ -42,6 +64,9 @@
 @endphp
 
 @section('schema')
+    <script type="application/ld+json">
+        {!! json_encode($breadcrumbSchema, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_PRETTY_PRINT) !!}
+    </script>
     <script type="application/ld+json">
         {!! json_encode([
             '@context' => 'https://schema.org',

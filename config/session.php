@@ -168,7 +168,10 @@ return [
     |
     */
 
-    'secure' => env('SESSION_SECURE_COOKIE'),
+    // Sin SESSION_SECURE_COOKIE explícito, se autoconfigura según APP_URL —
+    // si es https, la cookie se marca segura sola, sin depender de que
+    // alguien lo recuerde agregar a mano por ambiente.
+    'secure' => env('SESSION_SECURE_COOKIE', str_starts_with(env('APP_URL', ''), 'https://')),
 
     /*
     |--------------------------------------------------------------------------

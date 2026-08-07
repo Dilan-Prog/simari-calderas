@@ -19,14 +19,24 @@ use Illuminate\Support\Facades\DB;
  * stay browsable from the Galería module (no more orphan files).
  * Not gated behind a specific resource permission since it's read-only
  * browsing plus a generic upload utility, used across many different
- * permission-gated sections.
+ * permission-gated sections — but still requires the requesting user to
+ * have a role assigned (same minimum bar as CheckPermission), so a staff
+ * account with zero modules granted still can't reach it.
  */
 class MediaController extends Controller
 {
     use ImageUploadTrait;
 
+    private function ensureStaffRoleAssigned(): void
+    {
+        $user = auth()->user();
+        abort_unless($user->isAdmin() || $user->role, 403, 'No tienes un rol asignado. Contacta al administrador.');
+    }
+
     public function library(Request $request)
     {
+        $this->ensureStaffRoleAssigned();
+
         $term = trim((string) $request->input('search', ''));
 
         // Dos fuentes normalizadas a las mismas columnas y unidas en una sola
@@ -100,8 +110,10 @@ class MediaController extends Controller
 
     public function upload(Request $request)
     {
+        $this->ensureStaffRoleAssigned();
+
         $request->validate([
-            'file' => 'nullable|image|max:8192',
+            'file' => 'nullable|mimes:jpg,jpeg,png,gif,bmp,webp|max:8192',
             'url'  => 'nullable|url',
         ]);
 

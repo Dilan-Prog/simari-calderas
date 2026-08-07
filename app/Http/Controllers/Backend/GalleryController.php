@@ -185,7 +185,7 @@ class GalleryController extends Controller
     {
         $request->validate([
             'files'   => ['nullable', 'array'],
-            'files.*' => ['image', 'max:8192'],
+            'files.*' => ['mimes:jpg,jpeg,png,gif,bmp,webp', 'max:8192'],
             'url'     => ['nullable', 'url'],
         ], [
             'files.*.image' => 'Uno de los archivos no es una imagen válida.',

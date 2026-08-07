@@ -18,7 +18,11 @@ trait ImageUploadTrait
         }
 
         foreach ($files as $file) {
-            $ext      = strtolower($file->getClientOriginalExtension());
+            // guessExtension() se basa en el MIME real del contenido (magic
+            // bytes), no en lo que el navegador declaró — getClientOriginalExtension()
+            // es confiable en el cliente y no debería decidir con qué
+            // extensión se guarda el archivo en disco.
+            $ext      = $file->guessExtension() ?: strtolower($file->getClientOriginalExtension());
             $filename = uniqid() . '.' . $ext;
             $path     = $folder . '/' . $filename;
 
@@ -56,6 +60,10 @@ trait ImageUploadTrait
     public function downloadImageFromUrl(string $url, string $folder = 'products', int $width = 1200, int $quality = 85): ?string
     {
         if (!filter_var($url, FILTER_VALIDATE_URL) || !preg_match('/^https?:\/\//i', $url)) {
+            return null;
+        }
+
+        if (!$this->isPubliclyRoutableUrl($url)) {
             return null;
         }
 
@@ -98,13 +106,61 @@ trait ImageUploadTrait
         }
     }
 
+    /**
+     * Guardia anti-SSRF: resuelve el host de la URL y rechaza si cualquiera
+     * de sus IPs cae en un rango privado/loopback/link-local/reservado
+     * (127.0.0.0/8, 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16,
+     * 169.254.0.0/16, ::1, fc00::/7, etc. — cubierto por los flags nativos
+     * de filter_var). Sin esto, "usar URL" podría usarse para que el
+     * servidor haga peticiones HTTP a su propia red interna.
+     */
+    private function isPubliclyRoutableUrl(string $url): bool
+    {
+        $host = parse_url($url, PHP_URL_HOST);
+        if (!$host) {
+            return false;
+        }
+
+        if (filter_var($host, FILTER_VALIDATE_IP)) {
+            $ips = [$host];
+        } else {
+            $ips = array_merge(
+                gethostbynamel($host) ?: [],
+                array_column(dns_get_record($host, DNS_AAAA) ?: [], 'ipv6')
+            );
+        }
+
+        if (empty($ips)) {
+            return false;
+        }
+
+        foreach ($ips as $ip) {
+            if (!filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Chequeo de contención tipo realpath(), mismo patrón que ya usa
+     * MediaServeController::show() para servir archivos — hoy ningún
+     * llamador de deleteImage() pasa input de usuario directo (siempre rutas
+     * generadas por uniqid() o leídas de una columna de BD), pero esto evita
+     * que un futuro llamador que sí lo haga pueda borrar cualquier archivo
+     * del servidor con un path tipo "../../".
+     */
     public function deleteImage(string $path): void
     {
-        $fullPath = UploadPath::full($path);
+        $base = realpath(UploadPath::base());
+        $full = realpath(UploadPath::full($path));
 
-        if (file_exists($fullPath)) {
-            unlink($fullPath);
+        if (!$base || !$full || !str_starts_with($full, $base) || !is_file($full)) {
+            return;
         }
+
+        unlink($full);
     }
 
     /**
