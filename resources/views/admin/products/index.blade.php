@@ -30,6 +30,7 @@
             ['key' => 'model', 'label' => 'Modelo', 'group' => 'Básicos', 'showInGrid' => true],
             ['key' => 'brand_id', 'label' => 'Marca', 'group' => 'Básicos', 'showInGrid' => true],
             ['key' => 'supplier_sku', 'label' => 'SKU Proveedor', 'group' => 'Básicos', 'showInGrid' => false],
+            ['key' => 'canonical_url', 'label' => 'URL Canónica', 'group' => 'Básicos', 'showInGrid' => false],
             ['key' => 'price', 'label' => 'Precio', 'group' => 'Precios / Inventario', 'showInGrid' => true],
             ['key' => 'compare_price', 'label' => 'Precio Comp.', 'group' => 'Precios / Inventario', 'showInGrid' => true],
             ['key' => 'cost', 'label' => 'Costo', 'group' => 'Precios / Inventario', 'showInGrid' => true],
@@ -250,6 +251,7 @@
                                             @case('model') {{ $product->model ?: '—' }} @break
                                             @case('brand_id') {{ $product->brand->name ?? '—' }} @break
                                             @case('supplier_sku') {{ $product->supplier_sku ?: '—' }} @break
+                                            @case('canonical_url') {{ $product->canonical_url ?: '—' }} @break
                                             @case('category_id') {{ $categoryChainLevel($product->category, 1) ?? '—' }} @break
                                             @case('category_sub') {{ $categoryChainLevel($product->category, 2) ?? '—' }} @break
                                             @case('category_child') {{ $categoryChainLevel($product->category, 3) ?? '—' }} @break

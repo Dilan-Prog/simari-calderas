@@ -1079,8 +1079,11 @@
 
                         <div class="pform-field" style="margin-bottom:0">
                             <label class="pform-label">URL Canónica</label>
-                            <input type="url" class="pform-input" placeholder="https://simari.com/productos/...">
-                            <p class="pform-hint">Opcional: URL preferida para evitar contenido duplicado</p>
+                            <input type="url" class="pform-input" name="canonical_url" form="productCreateForm"
+                                maxlength="255" placeholder="https://equitermindustries.com.mx/producto/otro-producto-similar">
+                            <p class="pform-hint">Opcional. Solo llénalo si este producto es muy parecido a otro que ya
+                                existe y quieres que Google indexe ese otro producto como el original. Déjalo vacío en
+                                el 99% de los casos.</p>
                         </div>
                     </div>
 

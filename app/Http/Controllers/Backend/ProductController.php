@@ -261,7 +261,7 @@ class ProductController extends Controller
         'price', 'compare_price', 'price_includes_tax', 'cost', 'stock', 'stock_unit', 'currency', 'availability',
         'category_id', 'brand_id', 'is_active', 'publish_on_website', 'is_featured', 'is_new', 'is_recommended',
         'tags', 'specifications', 'faqs',
-        'seo_title', 'seo_description', 'seo_keywords', 'og_title', 'og_description', 'og_image',
+        'seo_title', 'seo_description', 'seo_keywords', 'og_title', 'og_description', 'og_image', 'canonical_url',
     ];
 
     private const BULK_EDIT_STOCK_UNITS = ['pieza', 'juego', 'kit', 'metro', 'kg', 'litro'];
@@ -279,9 +279,13 @@ class ProductController extends Controller
         'price', 'compare_price', 'price_includes_tax', 'cost', 'stock', 'stock_unit', 'currency', 'availability',
         'category_id', 'category_sub', 'category_child', 'brand_id', 'is_active', 'publish_on_website', 'is_featured', 'is_new', 'is_recommended',
         'tags', 'specifications', 'faqs',
-        'seo_title', 'seo_description', 'seo_keywords', 'og_title', 'og_description', 'og_image',
+        'seo_title', 'seo_description', 'seo_keywords', 'og_title', 'og_description', 'og_image', 'canonical_url',
     ];
     private const BULK_EDIT_VIEWS_MAX_PER_USER = 10;
+    // Columnas fijas/pegadas de la tabla (nunca ocultables, por eso no
+    // viven en BULK_EDIT_VIEW_COLUMNS) — sí necesitan poder guardar un
+    // ancho ajustado, a diferencia de la visibilidad.
+    private const BULK_EDIT_PINNED_COLUMNS = ['_select', 'name', 'sku'];
 
     // Catálogo de columnas mostrables/ocultables en el listado normal de
     // Productos (admin/productos) — whitelist para las vistas guardadas de
@@ -292,6 +296,7 @@ class ProductController extends Controller
         'sku', 'model', 'brand_id', 'supplier_sku',
         'price', 'compare_price', 'cost', 'stock', 'currency', 'availability',
         'category_id', 'category_sub', 'category_child', 'is_active', 'publish_on_website', 'is_featured', 'is_new', 'is_recommended',
+        'canonical_url',
     ];
     private const INDEX_VIEWS_MAX_PER_USER = 10;
 
@@ -368,7 +373,7 @@ class ProductController extends Controller
         // ver storeBulkEditView()/updateBulkEditView()/destroyBulkEditView().
         $savedViews = ProductBulkEditView::where('user_id', auth()->id())
             ->orderBy('id')
-            ->get(['id', 'name', 'columns']);
+            ->get(['id', 'name', 'columns', 'widths']);
 
         $activeSuppliers = Supplier::where('status', 'active')->orderBy('company_name')->get(['id', 'company_name']);
 
@@ -429,6 +434,7 @@ class ProductController extends Controller
         'seo_keywords' => 255,
         'og_title' => 255,
         'og_image' => 255,
+        'canonical_url' => 255,
     ];
 
     /**
@@ -448,7 +454,7 @@ class ProductController extends Controller
             if (mb_strlen($v) > self::BULK_EDIT_TEXT_MAX[$field]) {
                 return [false, null, 'Máximo ' . self::BULK_EDIT_TEXT_MAX[$field] . ' caracteres.'];
             }
-            if ($field === 'og_image' && $v !== '' && !filter_var($v, FILTER_VALIDATE_URL)) {
+            if (($field === 'og_image' || $field === 'canonical_url') && $v !== '' && !filter_var($v, FILTER_VALIDATE_URL)) {
                 return [false, null, 'No es una URL válida.'];
             }
 
@@ -649,6 +655,15 @@ class ProductController extends Controller
             'name' => ['required', 'string', 'max:60'],
             'columns' => ['required', 'array', 'min:1'],
             'columns.*' => ['string', Rule::in(self::BULK_EDIT_VIEW_COLUMNS)],
+            'widths' => ['nullable', 'array', function ($attribute, $value, $fail) {
+                $allowed = array_merge(self::BULK_EDIT_VIEW_COLUMNS, self::BULK_EDIT_PINNED_COLUMNS);
+                foreach (array_keys($value) as $key) {
+                    if (!in_array($key, $allowed, true)) {
+                        $fail("Columna de ancho no soportada: {$key}.");
+                    }
+                }
+            }],
+            'widths.*' => ['integer', 'min:50', 'max:800'],
         ];
     }
 
@@ -688,11 +703,12 @@ class ProductController extends Controller
             'user_id' => auth()->id(),
             'name' => trim($request->name),
             'columns' => $request->columns,
+            'widths' => $request->widths,
         ]);
 
         return response()->json([
             'success' => true,
-            'view' => $view->only(['id', 'name', 'columns']),
+            'view' => $view->only(['id', 'name', 'columns', 'widths']),
         ]);
     }
 
@@ -713,11 +729,12 @@ class ProductController extends Controller
         $view->update([
             'name' => trim($request->name),
             'columns' => $request->columns,
+            'widths' => $request->widths,
         ]);
 
         return response()->json([
             'success' => true,
-            'view' => $view->only(['id', 'name', 'columns']),
+            'view' => $view->only(['id', 'name', 'columns', 'widths']),
         ]);
     }
 
@@ -854,6 +871,7 @@ class ProductController extends Controller
             'og_title'          => 'nullable|string|max:255',
             'og_description'    => 'nullable|string',
             'og_image'          => 'nullable|url|max:255',
+            'canonical_url'     => 'nullable|url|max:255',
             // FIX BUG 9: added validation for the new currency/stock_unit
             // columns.
             'currency'          => 'nullable|in:MXN,USD',
@@ -916,6 +934,7 @@ class ProductController extends Controller
         $product->og_title          = $request->og_title       ?? null;
         $product->og_description    = $request->og_description ?? null;
         $product->og_image          = $request->og_image       ?? null;
+        $product->canonical_url     = $request->canonical_url  ?? null;
         // FIX BUG 9: currency + stock_unit now have a real column and a
         // name= attribute in the view.
         $product->currency          = $request->currency       ?? 'MXN';
@@ -1043,6 +1062,7 @@ class ProductController extends Controller
             'og_title'          => 'nullable|string|max:255',
             'og_description'    => 'nullable|string',
             'og_image'          => 'nullable|url|max:255',
+            'canonical_url'     => 'nullable|url|max:255',
             // FIX BUG 9: added validation for the new currency/stock_unit
             // columns.
             'currency'          => 'nullable|in:MXN,USD',
@@ -1100,6 +1120,7 @@ class ProductController extends Controller
         $product->og_title          = $request->og_title       ?? null;
         $product->og_description    = $request->og_description ?? null;
         $product->og_image          = $request->og_image       ?? null;
+        $product->canonical_url     = $request->canonical_url  ?? null;
         // FIX BUG 9: currency + stock_unit now have a real column and a
         // name= attribute in the view.
         $product->currency          = $request->currency       ?? 'MXN';

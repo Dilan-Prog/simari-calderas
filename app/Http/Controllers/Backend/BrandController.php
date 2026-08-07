@@ -24,6 +24,11 @@ class BrandController extends Controller
     // columnas que el usuario puede mostrar/ocultar en el editor en lote.
     private const BULK_EDIT_VIEW_COLUMNS = ['slug', 'description', 'logo_url', 'is_active', 'seo_title', 'seo_description'];
 
+    // Columna fija/pegada de la tabla (nunca ocultable, por eso no vive en
+    // BULK_EDIT_VIEW_COLUMNS) — sí necesita poder guardar un ancho ajustado,
+    // a diferencia de la visibilidad.
+    private const BULK_EDIT_PINNED_COLUMNS = ['name'];
+
     private const BULK_EDIT_TEXT_MAX = [
         'name' => 120,
         'slug' => 150,
@@ -162,7 +167,7 @@ class BrandController extends Controller
         // ver storeBulkEditView()/updateBulkEditView()/destroyBulkEditView().
         $savedViews = BrandBulkEditView::where('user_id', auth()->id())
             ->orderBy('id')
-            ->get(['id', 'name', 'columns']);
+            ->get(['id', 'name', 'columns', 'widths']);
 
         return view('admin.brands.bulk_edit', compact('brands', 'totalFiltered', 'savedViews'))
             ->with('perPageOptions', self::PER_PAGE_OPTIONS);
@@ -281,6 +286,15 @@ class BrandController extends Controller
             'name' => ['required', 'string', 'max:60'],
             'columns' => ['required', 'array', 'min:1'],
             'columns.*' => ['string', Rule::in(self::BULK_EDIT_VIEW_COLUMNS)],
+            'widths' => ['nullable', 'array', function ($attribute, $value, $fail) {
+                $allowed = array_merge(self::BULK_EDIT_VIEW_COLUMNS, self::BULK_EDIT_PINNED_COLUMNS);
+                foreach (array_keys($value) as $key) {
+                    if (!in_array($key, $allowed, true)) {
+                        $fail("Columna de ancho no soportada: {$key}.");
+                    }
+                }
+            }],
+            'widths.*' => ['integer', 'min:50', 'max:800'],
         ];
     }
 
@@ -320,11 +334,12 @@ class BrandController extends Controller
             'user_id' => auth()->id(),
             'name' => trim($request->name),
             'columns' => $request->columns,
+            'widths' => $request->widths,
         ]);
 
         return response()->json([
             'success' => true,
-            'view' => $view->only(['id', 'name', 'columns']),
+            'view' => $view->only(['id', 'name', 'columns', 'widths']),
         ]);
     }
 
@@ -345,11 +360,12 @@ class BrandController extends Controller
         $view->update([
             'name' => trim($request->name),
             'columns' => $request->columns,
+            'widths' => $request->widths,
         ]);
 
         return response()->json([
             'success' => true,
-            'view' => $view->only(['id', 'name', 'columns']),
+            'view' => $view->only(['id', 'name', 'columns', 'widths']),
         ]);
     }
 

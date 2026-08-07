@@ -69,37 +69,57 @@
         <div class="prod-content-area">
             <div class="products-table-wrapper prod-bulk-edit-table-wrapper">
                 <table class="prod-bulk-edit-table">
+                    <colgroup>
+                        <col data-col="product">
+                        <col data-col="supplier">
+                        <col data-col="sku">
+                        <col data-col="cost">
+                        <col data-col="lead_time_days">
+                        <col data-col="is_primary">
+                    </colgroup>
                     <thead>
                         <tr>
-                            <th>Producto</th>
-                            <th>Proveedor</th>
-                            <th>SKU Proveedor</th>
-                            <th>Costo</th>
-                            <th>Lead Time (días)</th>
-                            <th>Es Principal</th>
+                            <th data-col="product">Producto
+                                <span class="prod-bulk-resize-handle" data-resize-col="product"></span>
+                            </th>
+                            <th data-col="supplier">Proveedor
+                                <span class="prod-bulk-resize-handle" data-resize-col="supplier"></span>
+                            </th>
+                            <th data-col="sku">SKU Proveedor
+                                <span class="prod-bulk-resize-handle" data-resize-col="sku"></span>
+                            </th>
+                            <th data-col="cost">Costo
+                                <span class="prod-bulk-resize-handle" data-resize-col="cost"></span>
+                            </th>
+                            <th data-col="lead_time_days">Lead Time (días)
+                                <span class="prod-bulk-resize-handle" data-resize-col="lead_time_days"></span>
+                            </th>
+                            <th data-col="is_primary">Es Principal
+                                <span class="prod-bulk-resize-handle" data-resize-col="is_primary"></span>
+                            </th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse ($links as $link)
                             <tr data-row-id="{{ $link->id }}">
-                                <td class="prod-bulk-readonly">
+                                <td class="prod-bulk-readonly" data-col="product">
                                     {{ $link->product->name ?? '—' }}
                                     <br><span style="color:#9ca3af">{{ $link->product->sku ?? '' }}</span>
                                 </td>
-                                <td class="prod-bulk-readonly">{{ $link->supplier->company_name ?? '—' }}</td>
-                                <td>
+                                <td class="prod-bulk-readonly" data-col="supplier">{{ $link->supplier->company_name ?? '—' }}</td>
+                                <td data-col="sku">
                                     <input type="text" class="prod-bulk-input" data-id="{{ $link->id }}"
                                         data-field="sku" value="{{ $link->sku }}" maxlength="100">
                                 </td>
-                                <td>
+                                <td data-col="cost">
                                     <input type="text" class="prod-bulk-input" data-id="{{ $link->id }}"
                                         data-field="cost" value="{{ $link->cost }}">
                                 </td>
-                                <td>
+                                <td data-col="lead_time_days">
                                     <input type="number" min="0" class="prod-bulk-input" data-id="{{ $link->id }}"
                                         data-field="lead_time_days" value="{{ $link->lead_time_days }}">
                                 </td>
-                                <td class="prod-bulk-checkbox-cell">
+                                <td class="prod-bulk-checkbox-cell" data-col="is_primary">
                                     <input type="checkbox" class="prod-bulk-input" data-id="{{ $link->id }}"
                                         data-field="is_primary" @checked($link->is_primary)>
                                 </td>

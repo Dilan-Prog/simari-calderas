@@ -153,6 +153,99 @@
                 }
             });
 
+            // ── Ancho de columnas ajustable (persistido en localStorage) ──
+            const WIDTHS_STORAGE_KEY = 'admin_supplier_product_bulk_edit_column_widths';
+            const PINNED_COLS = [];
+            const MIN_COL_WIDTH = 50;
+            const MAX_COL_WIDTH = 800;
+            const DEFAULT_COL_WIDTHS = {
+                product: 220, supplier: 160, sku: 140, cost: 110, lead_time_days: 130, is_primary: 100,
+            };
+
+            function getCol(key) {
+                return document.querySelector(`colgroup col[data-col="${key}"]`);
+            }
+
+            function clampWidth(px) {
+                return Math.min(MAX_COL_WIDTH, Math.max(MIN_COL_WIDTH, px));
+            }
+
+            function getColWidth(key) {
+                const col = getCol(key);
+                const raw = col ? parseInt(col.style.width, 10) : NaN;
+                return Number.isFinite(raw) ? raw : (DEFAULT_COL_WIDTHS[key] ?? 140);
+            }
+
+            function setColWidth(key, px) {
+                const col = getCol(key);
+                if (col) col.style.width = clampWidth(px) + 'px';
+            }
+
+            function recomputePinnedOffsets() {
+                let left = 0;
+                PINNED_COLS.forEach(key => {
+                    document.querySelectorAll(`[data-col="${key}"].prod-bulk-pinned-col`).forEach(el => {
+                        el.style.left = left + 'px';
+                    });
+                    left += getColWidth(key);
+                });
+            }
+
+            function applyStoredWidths() {
+                let stored = {};
+                try {
+                    stored = JSON.parse(localStorage.getItem(WIDTHS_STORAGE_KEY) || '{}');
+                } catch (e) {
+                    stored = {};
+                }
+                document.querySelectorAll('colgroup col[data-col]').forEach(col => {
+                    const key = col.dataset.col;
+                    setColWidth(key, stored[key] ?? DEFAULT_COL_WIDTHS[key] ?? 140);
+                });
+            }
+
+            function currentColumnWidths() {
+                const widths = {};
+                document.querySelectorAll('colgroup col[data-col]').forEach(col => {
+                    widths[col.dataset.col] = parseInt(col.style.width, 10) || DEFAULT_COL_WIDTHS[col.dataset.col] || 140;
+                });
+                return widths;
+            }
+
+            function saveWidthsPreference() {
+                try {
+                    localStorage.setItem(WIDTHS_STORAGE_KEY, JSON.stringify(currentColumnWidths()));
+                } catch (e) {
+                    // Almacenamiento lleno/bloqueado: no es fatal, solo no persiste.
+                }
+            }
+
+            applyStoredWidths();
+            recomputePinnedOffsets();
+
+            let resizing = null;
+            document.querySelectorAll('.prod-bulk-resize-handle').forEach(handle => {
+                handle.addEventListener('mousedown', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const key = handle.dataset.resizeCol;
+                    resizing = { key, startX: e.clientX, startWidth: getColWidth(key) };
+                    handle.classList.add('resizing');
+                });
+            });
+            document.addEventListener('mousemove', (e) => {
+                if (!resizing) return;
+                const newWidth = resizing.startWidth + (e.clientX - resizing.startX);
+                setColWidth(resizing.key, newWidth);
+                if (PINNED_COLS.includes(resizing.key)) recomputePinnedOffsets();
+            });
+            document.addEventListener('mouseup', () => {
+                if (!resizing) return;
+                document.querySelectorAll('.prod-bulk-resize-handle.resizing').forEach(h => h.classList.remove('resizing'));
+                resizing = null;
+                saveWidthsPreference();
+            });
+
             syncBar();
         })();
     </script>

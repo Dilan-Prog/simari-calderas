@@ -7,6 +7,12 @@
     $metaTitle = $product->resolveVariables($product->seo_title) ?: ($resolvedName . ' — Equiterm Industries');
     $metaDescription = $product->resolveVariables($product->seo_description ?: $product->short_description);
     $canonicalUrl = route('product.show', $product->slug);
+    // URL canónica manual (admin > Productos > SEO): para cuando este
+    // producto es muy parecido a otro y se quiere que Google indexe el otro
+    // como el "original". Solo afecta el <link rel="canonical"> — el resto
+    // de la página (og:url, JSON-LD) sigue describiendo este producto tal
+    // como es, en su propia URL.
+    $canonicalTagUrl = $product->canonical_url ?: $canonicalUrl;
     $ogTitle = $product->resolveVariables($product->og_title) ?: $metaTitle;
     $ogDescription = $product->resolveVariables($product->og_description) ?: $metaDescription;
     $ogImage = $product->og_image ?: $product->cover_image_url;
@@ -21,7 +27,7 @@
 
 @section('title', $metaTitle)
 @section('description', $metaDescription)
-@section('canonical', $canonicalUrl)
+@section('canonical', $canonicalTagUrl)
 @section('og_title', $ogTitle)
 @section('og_description', $ogDescription)
 @section('og_url', $canonicalUrl)

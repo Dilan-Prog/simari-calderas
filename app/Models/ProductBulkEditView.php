@@ -6,10 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class ProductBulkEditView extends Model
 {
-    protected $fillable = ['user_id', 'name', 'columns'];
+    protected $fillable = ['user_id', 'name', 'columns', 'widths'];
 
     protected $casts = [
         'columns' => 'array',
+        'widths' => 'array',
     ];
 
     public function user()

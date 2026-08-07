@@ -356,6 +356,13 @@
                     // Asignar errores devueltos por el servidor a los inputs correspondientes
                     if (data.errors.name) showError(nameInput, data.errors.name[0]);
                     if (data.errors.parent_id) showError(categoryParentSearch, data.errors.parent_id[0]);
+                    // FIX (reported bug): el título/descripción SEO (y el
+                    // slug) sí se validan en el servidor pero no marcaban el
+                    // campo en rojo — el error solo aparecía en la lista
+                    // genérica de arriba, sin señalar cuál input corregir.
+                    if (data.errors.slug) showError(document.getElementById('categorySlug'), data.errors.slug[0]);
+                    if (data.errors.seo_title) showError(document.getElementById('categorySeoTitle'), data.errors.seo_title[0]);
+                    if (data.errors.seo_description) showError(document.getElementById('categorySeoDesc'), data.errors.seo_description[0]);
                 }
             } catch (err) {
                 console.error('Error:', err);

@@ -80,6 +80,7 @@ class Products extends Model
         'og_title',
         'og_description',
         'og_image',
+        'canonical_url',
         // FIX BUG 9: currency + stock_unit columns added via
         // 2026_07_13_201018_add_currency_and_stock_unit_to_products_table.
         'currency',

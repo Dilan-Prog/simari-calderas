@@ -76,6 +76,9 @@ class CategoryController extends Controller
             'sort_order'  => 'nullable|integer|min:0',
             'seo_title'   => 'nullable|string|max:60',
             'seo_description' => 'nullable|string|max:160',
+        ], [
+            'seo_title.max' => 'El título SEO no puede tener más de 60 caracteres.',
+            'seo_description.max' => 'La meta description no puede tener más de 160 caracteres.',
         ]);
 
         $category = new Category();
@@ -115,6 +118,16 @@ class CategoryController extends Controller
             'image_url'   => 'nullable|string|max:255',
             'is_active'   => 'nullable|boolean',
             'sort_order'  => 'nullable|integer|min:0',
+            // FIX (reported bug): faltaban aquí — sí estaban en store() —
+            // así que editar (no crear) una categoría con un Título SEO de
+            // más de 60 caracteres pasaba la validación pero luego tronaba
+            // con un 500 al chocar contra el límite real de la columna
+            // seo_title VARCHAR(60) en la base de datos.
+            'seo_title'   => 'nullable|string|max:60',
+            'seo_description' => 'nullable|string|max:160',
+        ], [
+            'seo_title.max' => 'El título SEO no puede tener más de 60 caracteres.',
+            'seo_description.max' => 'La meta description no puede tener más de 160 caracteres.',
         ]);
 
         $category->name        = $request->name;

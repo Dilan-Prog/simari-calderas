@@ -218,6 +218,110 @@
             loadStoredColumns();
             applyColumnVisibility();
 
+            // ── Ancho de columnas ajustable (persistido en localStorage +
+            // opcionalmente en la vista guardada, ver más abajo) ──
+            const WIDTHS_STORAGE_KEY = 'admin_brands_bulk_edit_column_widths';
+            const PINNED_COLS = ['name'];
+            const MIN_COL_WIDTH = 50;
+            const MAX_COL_WIDTH = 800;
+            const DEFAULT_COL_WIDTHS = {
+                name: 180, slug: 150, description: 200, logo_url: 160, is_active: 90,
+                seo_title: 160, seo_description: 200,
+            };
+
+            function getCol(key) {
+                return document.querySelector(`colgroup col[data-col="${key}"]`);
+            }
+
+            function clampWidth(px) {
+                return Math.min(MAX_COL_WIDTH, Math.max(MIN_COL_WIDTH, px));
+            }
+
+            function getColWidth(key) {
+                const col = getCol(key);
+                const raw = col ? parseInt(col.style.width, 10) : NaN;
+                return Number.isFinite(raw) ? raw : (DEFAULT_COL_WIDTHS[key] ?? 140);
+            }
+
+            function setColWidth(key, px) {
+                const col = getCol(key);
+                if (col) col.style.width = clampWidth(px) + 'px';
+            }
+
+            function recomputePinnedOffsets() {
+                let left = 0;
+                PINNED_COLS.forEach(key => {
+                    document.querySelectorAll(`[data-col="${key}"].prod-bulk-pinned-col`).forEach(el => {
+                        el.style.left = left + 'px';
+                    });
+                    left += getColWidth(key);
+                });
+            }
+
+            function applyStoredWidths() {
+                let stored = {};
+                try {
+                    stored = JSON.parse(localStorage.getItem(WIDTHS_STORAGE_KEY) || '{}');
+                } catch (e) {
+                    stored = {};
+                }
+                document.querySelectorAll('colgroup col[data-col]').forEach(col => {
+                    const key = col.dataset.col;
+                    setColWidth(key, stored[key] ?? DEFAULT_COL_WIDTHS[key] ?? 140);
+                });
+            }
+
+            function currentColumnWidths() {
+                const widths = {};
+                document.querySelectorAll('colgroup col[data-col]').forEach(col => {
+                    widths[col.dataset.col] = parseInt(col.style.width, 10) || DEFAULT_COL_WIDTHS[col.dataset.col] || 140;
+                });
+                return widths;
+            }
+
+            function saveWidthsPreference() {
+                try {
+                    localStorage.setItem(WIDTHS_STORAGE_KEY, JSON.stringify(currentColumnWidths()));
+                } catch (e) {
+                    // Almacenamiento lleno/bloqueado: no es fatal, solo no persiste.
+                }
+            }
+
+            function applyWidthsMap(widths) {
+                document.querySelectorAll('colgroup col[data-col]').forEach(col => {
+                    const key = col.dataset.col;
+                    setColWidth(key, (widths && widths[key]) ?? DEFAULT_COL_WIDTHS[key] ?? 140);
+                });
+                recomputePinnedOffsets();
+                saveWidthsPreference();
+            }
+
+            applyStoredWidths();
+            recomputePinnedOffsets();
+
+            let resizing = null;
+            document.querySelectorAll('.prod-bulk-resize-handle').forEach(handle => {
+                handle.addEventListener('mousedown', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const key = handle.dataset.resizeCol;
+                    resizing = { key, startX: e.clientX, startWidth: getColWidth(key) };
+                    handle.classList.add('resizing');
+                });
+            });
+            document.addEventListener('mousemove', (e) => {
+                if (!resizing) return;
+                const newWidth = resizing.startWidth + (e.clientX - resizing.startX);
+                setColWidth(resizing.key, newWidth);
+                if (PINNED_COLS.includes(resizing.key)) recomputePinnedOffsets();
+            });
+            document.addEventListener('mouseup', () => {
+                if (!resizing) return;
+                document.querySelectorAll('.prod-bulk-resize-handle.resizing').forEach(h => h.classList.remove('resizing'));
+                resizing = null;
+                saveWidthsPreference();
+            });
+
             // ── Vistas guardadas de columnas (hasta 10, por usuario) ──
             const VIEWS_MAX = 10;
             const viewSelect = document.getElementById('bulkEditViewSelect');
@@ -251,6 +355,13 @@
                     keys = [];
                 }
                 applyColumnsList(keys);
+                let widths = {};
+                try {
+                    widths = JSON.parse(opt.dataset.widths || '{}');
+                } catch (e) {
+                    widths = {};
+                }
+                applyWidthsMap(widths);
                 updateViewManageVisibility();
             });
 
@@ -278,7 +389,7 @@
                             'X-CSRF-TOKEN': csrfToken,
                             'Accept': 'application/json',
                         },
-                        body: JSON.stringify({ name, columns: currentCheckedColumns() }),
+                        body: JSON.stringify({ name, columns: currentCheckedColumns(), widths: currentColumnWidths() }),
                     });
                     const data = await response.json();
 
@@ -290,6 +401,7 @@
                     const opt = document.createElement('option');
                     opt.value = data.view.id;
                     opt.dataset.columns = JSON.stringify(data.view.columns);
+                    opt.dataset.widths = JSON.stringify(data.view.widths);
                     opt.textContent = data.view.name;
                     viewSelect.appendChild(opt);
                     viewSelect.value = data.view.id;
@@ -318,7 +430,7 @@
                             'X-CSRF-TOKEN': csrfToken,
                             'Accept': 'application/json',
                         },
-                        body: JSON.stringify({ name, columns: currentCheckedColumns() }),
+                        body: JSON.stringify({ name, columns: currentCheckedColumns(), widths: currentColumnWidths() }),
                     });
                     const data = await response.json();
 
@@ -328,6 +440,7 @@
                     }
 
                     viewSelect.options[viewSelect.selectedIndex].dataset.columns = JSON.stringify(data.view.columns);
+                    viewSelect.options[viewSelect.selectedIndex].dataset.widths = JSON.stringify(data.view.widths);
                     showToast(`Vista "${data.view.name}" actualizada.`);
                 } catch (err) {
                     console.error('Error updating bulk edit view:', err);

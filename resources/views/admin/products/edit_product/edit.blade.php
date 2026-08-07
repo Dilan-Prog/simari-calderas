@@ -964,6 +964,16 @@
                         </div>
 
                         <div class="pform-field">
+                            <label class="pform-label" for="pformCanonicalUrl">URL Canónica</label>
+                            <input type="url" id="pformCanonicalUrl" name="canonical_url" class="pform-input"
+                                maxlength="255" placeholder="https://equitermindustries.com.mx/producto/otro-producto-similar"
+                                value="{{ $product->canonical_url ?? '' }}" form="productEditForm">
+                            <p class="pform-hint">Opcional. Solo llénalo si este producto es muy parecido a otro que ya
+                                existe y quieres que Google indexe ese otro producto como el original. Déjalo vacío en
+                                el 99% de los casos.</p>
+                        </div>
+
+                        <div class="pform-field">
                             <label class="pform-label" for="pformSeoSlug">URL Slug</label>
                             <div class="pform-tag-row">
                                 <input type="text" id="pformSeoSlug" name="slug" class="pform-input"

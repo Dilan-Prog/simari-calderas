@@ -91,13 +91,13 @@
                 <div class="user-manager-form">
                     <div>
                         <label class="supliers-manager-slider-label">Título SEO</label>
-                        <input type="text" class="users-manager-input" name="seo_title"
+                        <input type="text" class="users-manager-input" name="seo_title" maxlength="60"
                             id="categorySeoTitle" placeholder="Título para buscadores" value="{{ old('seo_title') }}">
                     </div>
                 </div>
                 <div class="users-manager-email-camp">
                     <label class="supliers-manager-slider-label">Meta Description</label>
-                    <textarea class="users-manager-input client-modal-textarea" name="seo_description"
+                    <textarea class="users-manager-input client-modal-textarea" name="seo_description" maxlength="160"
                         id="categorySeoDesc" rows="3"
                         placeholder="Descripción para buscadores...">{{ old('seo_description') }}</textarea>
                 </div>

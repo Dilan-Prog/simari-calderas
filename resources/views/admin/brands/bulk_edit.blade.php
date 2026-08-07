@@ -63,7 +63,7 @@
                     <select id="bulkEditViewSelect" class="prod-filter-select prod-bulk-view-select">
                         <option value="">Vista personalizada</option>
                         @foreach ($savedViews as $view)
-                            <option value="{{ $view->id }}" data-columns="{{ json_encode($view->columns) }}">
+                            <option value="{{ $view->id }}" data-columns="{{ json_encode($view->columns) }}" data-widths="{{ json_encode($view->widths) }}">
                                 {{ $view->name }}
                             </option>
                         @endforeach
@@ -114,18 +114,28 @@
         <div class="prod-content-area">
             <div class="products-table-wrapper prod-bulk-edit-table-wrapper">
                 <table class="prod-bulk-edit-table">
+                    <colgroup>
+                        <col data-col="name">
+                        @foreach ($bulkEditColumns as $col)
+                            <col data-col="{{ $col['key'] }}">
+                        @endforeach
+                    </colgroup>
                     <thead>
                         <tr>
-                            <th class="prod-bulk-pinned-col">Nombre</th>
+                            <th class="prod-bulk-pinned-col" data-col="name">Nombre
+                                <span class="prod-bulk-resize-handle" data-resize-col="name"></span>
+                            </th>
                             @foreach ($bulkEditColumns as $col)
-                                <th data-col="{{ $col['key'] }}">{{ $col['label'] }}</th>
+                                <th data-col="{{ $col['key'] }}">{{ $col['label'] }}
+                                    <span class="prod-bulk-resize-handle" data-resize-col="{{ $col['key'] }}"></span>
+                                </th>
                             @endforeach
                         </tr>
                     </thead>
                     <tbody>
                         @forelse ($brands as $brand)
                             <tr data-row-id="{{ $brand->id }}">
-                                <td class="prod-bulk-pinned-col">
+                                <td class="prod-bulk-pinned-col" data-col="name">
                                     <input type="text" class="prod-bulk-input" data-id="{{ $brand->id }}"
                                         data-field="name" value="{{ $brand->name }}" maxlength="120">
                                 </td>

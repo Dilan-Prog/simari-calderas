@@ -45,6 +45,7 @@
             ['key' => 'og_title', 'label' => 'Título Social', 'group' => 'SEO / Social', 'type' => 'text', 'maxlength' => 255],
             ['key' => 'og_description', 'label' => 'Descripción Social', 'group' => 'SEO / Social', 'type' => 'textarea'],
             ['key' => 'og_image', 'label' => 'Imagen Social (URL)', 'group' => 'SEO / Social', 'type' => 'text', 'maxlength' => 255],
+            ['key' => 'canonical_url', 'label' => 'URL Canónica', 'group' => 'SEO / Social', 'type' => 'text', 'maxlength' => 255],
             ['key' => 'faqs', 'label' => 'FAQ', 'group' => 'SEO / Social', 'type' => 'faq'],
         ];
         // Columnas visibles por defecto la primera vez (antes de que exista
@@ -110,7 +111,7 @@
                     <select id="bulkEditViewSelect" class="prod-filter-select prod-bulk-view-select">
                         <option value="">Vista personalizada</option>
                         @foreach ($savedViews as $view)
-                            <option value="{{ $view->id }}" data-columns="{{ json_encode($view->columns) }}">
+                            <option value="{{ $view->id }}" data-columns="{{ json_encode($view->columns) }}" data-widths="{{ json_encode($view->widths) }}">
                                 {{ $view->name }}
                             </option>
                         @endforeach
@@ -163,17 +164,38 @@
         <div class="prod-content-area">
             <div class="products-table-wrapper prod-bulk-edit-table-wrapper">
                 <table class="prod-bulk-edit-table">
+                    <colgroup>
+                        <col data-col="_select">
+                        <col data-col="name">
+                        <col data-col="sku">
+                        <col data-col="supplier_sku">
+                        <col data-col="suppliers">
+                        @foreach ($bulkEditColumns as $col)
+                            <col data-col="{{ $col['key'] }}">
+                        @endforeach
+                    </colgroup>
                     <thead>
                         <tr>
-                            <th class="prod-bulk-pinned-col">
+                            <th class="prod-bulk-pinned-col" data-col="_select">
                                 <input type="checkbox" id="prodBulkSelectAll" title="Seleccionar todos">
+                                <span class="prod-bulk-resize-handle" data-resize-col="_select"></span>
                             </th>
-                            <th class="prod-bulk-pinned-col">Nombre</th>
-                            <th class="prod-bulk-pinned-col">SKU</th>
-                            <th>SKU Proveedor (legacy)</th>
-                            <th>Proveedores</th>
+                            <th class="prod-bulk-pinned-col" data-col="name">Nombre
+                                <span class="prod-bulk-resize-handle" data-resize-col="name"></span>
+                            </th>
+                            <th class="prod-bulk-pinned-col" data-col="sku">SKU
+                                <span class="prod-bulk-resize-handle" data-resize-col="sku"></span>
+                            </th>
+                            <th data-col="supplier_sku">SKU Proveedor (legacy)
+                                <span class="prod-bulk-resize-handle" data-resize-col="supplier_sku"></span>
+                            </th>
+                            <th data-col="suppliers">Proveedores
+                                <span class="prod-bulk-resize-handle" data-resize-col="suppliers"></span>
+                            </th>
                             @foreach ($bulkEditColumns as $col)
-                                <th data-col="{{ $col['key'] }}">{{ $col['label'] }}</th>
+                                <th data-col="{{ $col['key'] }}">{{ $col['label'] }}
+                                    <span class="prod-bulk-resize-handle" data-resize-col="{{ $col['key'] }}"></span>
+                                </th>
                             @endforeach
                         </tr>
                     </thead>
@@ -203,16 +225,16 @@
                                 }
                             @endphp
                             <tr data-row-id="{{ $product->id }}">
-                                <td class="prod-bulk-pinned-col">
+                                <td class="prod-bulk-pinned-col" data-col="_select">
                                     <input type="checkbox" class="prod-bulk-row-select" value="{{ $product->id }}">
                                 </td>
-                                <td class="prod-bulk-pinned-col">
+                                <td class="prod-bulk-pinned-col" data-col="name">
                                     <input type="text" class="prod-bulk-input" data-id="{{ $product->id }}"
                                         data-field="name" value="{{ $product->name }}" maxlength="255">
                                 </td>
-                                <td class="prod-bulk-readonly prod-bulk-pinned-col">{{ $product->sku }}</td>
-                                <td class="prod-bulk-readonly">{{ $product->supplier_sku }}</td>
-                                <td class="prod-bulk-readonly prod-bulk-suppliers-cell">
+                                <td class="prod-bulk-readonly prod-bulk-pinned-col" data-col="sku">{{ $product->sku }}</td>
+                                <td class="prod-bulk-readonly" data-col="supplier_sku">{{ $product->supplier_sku }}</td>
+                                <td class="prod-bulk-readonly prod-bulk-suppliers-cell" data-col="suppliers">
                                     @forelse ($product->suppliers as $supplier)
                                         <div>{{ $supplier->company_name }}@if ($supplier->pivot->sku) (SKU: {{ $supplier->pivot->sku }})@endif</div>
                                     @empty

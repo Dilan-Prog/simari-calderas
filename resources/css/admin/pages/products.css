@@ -915,6 +915,7 @@ button.prod-import-template-link {
 .prod-bulk-edit-table {
     width: 100%;
     border-collapse: collapse;
+    table-layout: fixed;
     font-size: 0.85rem;
 }
 
@@ -927,6 +928,29 @@ button.prod-import-template-link {
     white-space: nowrap;
     position: sticky;
     top: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Ajuste de ancho de columna: franja delgada en el borde derecho de cada
+   <th>, arrastrable. El ancho real lo controla el <col> correspondiente del
+   <colgroup> (ver bulk_edit.blade.php de cada módulo) vía JS — table-layout:
+   fixed hace que ese sea el único lugar que manda el ancho de columna. */
+.prod-bulk-resize-handle {
+    position: absolute;
+    top: 0;
+    right: -3px;
+    width: 6px;
+    height: 100%;
+    cursor: col-resize;
+    z-index: 4;
+    background: transparent;
+}
+
+.prod-bulk-resize-handle:hover,
+.prod-bulk-resize-handle.resizing {
+    background: var(--secondary-color);
+    opacity: 0.5;
 }
 
 .prod-bulk-edit-table td {
@@ -1013,12 +1037,14 @@ select.prod-bulk-input {
     overflow-x: auto;
 }
 
+/* left ya no se hardcodea aquí — lo calcula recomputePinnedOffsets() en JS
+   como suma acumulada de los anchos (guardados o default) de las columnas
+   fijas previas, para que el ancho de una columna fija sea ajustable sin
+   que las siguientes columnas fijas se encimen o dejen hueco. El ancho en
+   sí lo pone el <col> del <colgroup> (table-layout: fixed). */
 .prod-bulk-edit-table th.prod-bulk-pinned-col:nth-child(1),
 .prod-bulk-edit-table td.prod-bulk-pinned-col:nth-child(1) {
     position: sticky;
-    left: 0;
-    min-width: 40px;
-    width: 40px;
     background: #ffffff;
     text-align: center;
 }
@@ -1026,16 +1052,12 @@ select.prod-bulk-input {
 .prod-bulk-edit-table th.prod-bulk-pinned-col:nth-child(2),
 .prod-bulk-edit-table td.prod-bulk-pinned-col:nth-child(2) {
     position: sticky;
-    left: 40px;
-    min-width: 180px;
     background: #ffffff;
 }
 
 .prod-bulk-edit-table th.prod-bulk-pinned-col:nth-child(3),
 .prod-bulk-edit-table td.prod-bulk-pinned-col:nth-child(3) {
     position: sticky;
-    left: 220px;
-    min-width: 130px;
     background: #ffffff;
     border-right: 1px solid #e5e7eb;
 }
