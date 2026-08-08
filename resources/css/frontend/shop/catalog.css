@@ -1,4 +1,11 @@
 @import 'shared.css';
+/* FIX (07/08/2026): faltaba este import — el bloque de FAQ que pinta esta
+   vista (.home-faq*, alimentado por $category->faqs) usa las mismas clases
+   que las secciones reutilizables de home-sections.css, pero ese archivo
+   nunca se cargaba aquí, así que ninguna de esas reglas podía aplicar sin
+   importar qué tuviera el :is() de ese archivo. Mismo patrón que ya usan
+   collection.css/home.css/product-detail.css. */
+@import 'home-sections.css';
 
 .eq-shop-catalog {
     font-family: var(--font-family);

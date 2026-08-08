@@ -1,65 +1,72 @@
-/* Secciones CMS reutilizables (Inicio, Página de Producto y Colección).
-   Triple scope con :is() — misma especificidad que el scope original
-   (.eq-shop-home X), por lo que el Home no sufre regresión visual.
+/* Secciones CMS reutilizables (Inicio, Página de Producto, Colección y
+   Catálogo por categoría). Scope múltiple con :is() — misma especificidad
+   que el scope original (.eq-shop-home X), por lo que el Home no sufre
+   regresión visual.
    El hero-slider NO vive aquí (solo existe en el Home, queda en home.css);
    .product-carousel tampoco (ya es global en shared.css).
    FIX (07/08/2026): .eq-shop-collection faltaba en el :is() — las
    secciones reutilizables en páginas de colección
    (HomeSectionController::$collectionPageTypes admite los mismos tipos que
    producto, incluido "faq") no tenían NINGUNA de estas reglas aplicada,
-   cayendo al estilo por defecto del navegador. */
+   cayendo al estilo por defecto del navegador.
+   FIX (07/08/2026, segunda ronda): mismo problema en /catalogo/{slug}
+   (wrapper .eq-shop-catalog, catalog/index.blade.php) — esa vista pinta su
+   propio bloque .home-faq inline (alimentado por $category->faqs, mismo
+   patrón que $collection->faqs) y tampoco estaba cubierto. Se agregó junto
+   con .eq-shop-collection para no repetir el mismo hueco un tercer contexto
+   más adelante. */
 
 /* Brand carousel */
-:is(.eq-shop-home, .eq-shop-product, .eq-shop-collection) .brand-carousel { padding: 36px 0; border-bottom: 1px solid rgba(0,0,0,0.06); }
-:is(.eq-shop-home, .eq-shop-product, .eq-shop-collection) .brand-carousel__label { text-align: center; color: #4b5563; font-size: 12.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; margin-bottom: 22px; }
-:is(.eq-shop-home, .eq-shop-product, .eq-shop-collection) .brand-carousel__track { display: flex; gap: 16px; overflow-x: auto; width: 95%; margin: 0 auto; scrollbar-width: none; }
-:is(.eq-shop-home, .eq-shop-product, .eq-shop-collection) .brand-carousel__item {
+:is(.eq-shop-home, .eq-shop-product, .eq-shop-collection, .eq-shop-catalog) .brand-carousel { padding: 36px 0; border-bottom: 1px solid rgba(0,0,0,0.06); }
+:is(.eq-shop-home, .eq-shop-product, .eq-shop-collection, .eq-shop-catalog) .brand-carousel__label { text-align: center; color: #4b5563; font-size: 12.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; margin-bottom: 22px; }
+:is(.eq-shop-home, .eq-shop-product, .eq-shop-collection, .eq-shop-catalog) .brand-carousel__track { display: flex; gap: 16px; overflow-x: auto; width: 95%; margin: 0 auto; scrollbar-width: none; }
+:is(.eq-shop-home, .eq-shop-product, .eq-shop-collection, .eq-shop-catalog) .brand-carousel__item {
     flex: 0 0 max(140px, calc((100% - 5*16px)/6)); min-width: 0; height: 80px; border: 1px solid rgba(0,0,0,0.08);
     border-radius: 8px; display: flex; align-items: center; justify-content: center; padding: 12px;
 }
-:is(.eq-shop-home, .eq-shop-product, .eq-shop-collection) .brand-carousel__item img { max-width: 100%; max-height: 100%; object-fit: contain; }
-:is(.eq-shop-home, .eq-shop-product, .eq-shop-collection) .brand-carousel__name { font-size: 14px; font-weight: 700; color: #374151; text-align: center; letter-spacing: .02em; }
+:is(.eq-shop-home, .eq-shop-product, .eq-shop-collection, .eq-shop-catalog) .brand-carousel__item img { max-width: 100%; max-height: 100%; object-fit: contain; }
+:is(.eq-shop-home, .eq-shop-product, .eq-shop-collection, .eq-shop-catalog) .brand-carousel__name { font-size: 14px; font-weight: 700; color: #374151; text-align: center; letter-spacing: .02em; }
 
 /* Category grid */
-:is(.eq-shop-home, .eq-shop-product, .eq-shop-collection) .category-grid { padding: 48px 0; width: 95%; margin: 0 auto; }
-:is(.eq-shop-home, .eq-shop-product, .eq-shop-collection) .category-grid__title { font-size: clamp(16px, 3vw, 20px); font-weight: 800; margin: 0 0 20px; }
-:is(.eq-shop-home, .eq-shop-product, .eq-shop-collection) .category-grid__items { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; }
+:is(.eq-shop-home, .eq-shop-product, .eq-shop-collection, .eq-shop-catalog) .category-grid { padding: 48px 0; width: 95%; margin: 0 auto; }
+:is(.eq-shop-home, .eq-shop-product, .eq-shop-collection, .eq-shop-catalog) .category-grid__title { font-size: clamp(16px, 3vw, 20px); font-weight: 800; margin: 0 0 20px; }
+:is(.eq-shop-home, .eq-shop-product, .eq-shop-collection, .eq-shop-catalog) .category-grid__items { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; }
 @media (max-width: 900px) {
-    :is(.eq-shop-home, .eq-shop-product, .eq-shop-collection) .category-grid__items { grid-template-columns: repeat(3, 1fr); }
+    :is(.eq-shop-home, .eq-shop-product, .eq-shop-collection, .eq-shop-catalog) .category-grid__items { grid-template-columns: repeat(3, 1fr); }
 }
 @media (max-width: 560px) {
-    :is(.eq-shop-home, .eq-shop-product, .eq-shop-collection) .category-grid__items { grid-template-columns: repeat(2, 1fr); }
+    :is(.eq-shop-home, .eq-shop-product, .eq-shop-collection, .eq-shop-catalog) .category-grid__items { grid-template-columns: repeat(2, 1fr); }
 }
-:is(.eq-shop-home, .eq-shop-product, .eq-shop-collection) .category-grid__item {
+:is(.eq-shop-home, .eq-shop-product, .eq-shop-collection, .eq-shop-catalog) .category-grid__item {
     border: 1px solid rgba(0,0,0,0.08); border-radius: 8px; padding: 18px; display: flex; flex-direction: column;
     align-items: center; gap: 14px; text-decoration: none; color: inherit; transition: box-shadow .2s, transform .2s;
 }
-:is(.eq-shop-home, .eq-shop-product, .eq-shop-collection) .category-grid__item:hover { box-shadow: 0 10px 24px rgba(0,0,0,0.1); transform: translateY(-3px); }
-:is(.eq-shop-home, .eq-shop-product, .eq-shop-collection) .category-grid__img-wrap { width: 100%; height: 110px; border-radius: 6px; overflow: hidden; background: #f5f6f7; }
-:is(.eq-shop-home, .eq-shop-product, .eq-shop-collection) .category-grid__img-wrap img { width: 100%; height: 100%; object-fit: cover; }
-:is(.eq-shop-home, .eq-shop-product, .eq-shop-collection) .category-grid__item span { font-size: 14px; font-weight: 700; color: var(--secondary-color); text-align: center; }
+:is(.eq-shop-home, .eq-shop-product, .eq-shop-collection, .eq-shop-catalog) .category-grid__item:hover { box-shadow: 0 10px 24px rgba(0,0,0,0.1); transform: translateY(-3px); }
+:is(.eq-shop-home, .eq-shop-product, .eq-shop-collection, .eq-shop-catalog) .category-grid__img-wrap { width: 100%; height: 110px; border-radius: 6px; overflow: hidden; background: #f5f6f7; }
+:is(.eq-shop-home, .eq-shop-product, .eq-shop-collection, .eq-shop-catalog) .category-grid__img-wrap img { width: 100%; height: 100%; object-fit: cover; }
+:is(.eq-shop-home, .eq-shop-product, .eq-shop-collection, .eq-shop-catalog) .category-grid__item span { font-size: 14px; font-weight: 700; color: var(--secondary-color); text-align: center; }
 
 /* Banners */
-:is(.eq-shop-home, .eq-shop-product, .eq-shop-collection) .home-banner { width: 95%; margin: 32px auto; border-radius: 8px; overflow: hidden; }
-:is(.eq-shop-home, .eq-shop-product, .eq-shop-collection) .home-banner img { width: 100%; display: block; }
-:is(.eq-shop-home, .eq-shop-product, .eq-shop-collection) .home-dual-banner { width: 95%; margin: 0 auto 32px; display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; }
-:is(.eq-shop-home, .eq-shop-product, .eq-shop-collection) .home-dual-banner__item img { width: 100%; border-radius: 8px; display: block; }
+:is(.eq-shop-home, .eq-shop-product, .eq-shop-collection, .eq-shop-catalog) .home-banner { width: 95%; margin: 32px auto; border-radius: 8px; overflow: hidden; }
+:is(.eq-shop-home, .eq-shop-product, .eq-shop-collection, .eq-shop-catalog) .home-banner img { width: 100%; display: block; }
+:is(.eq-shop-home, .eq-shop-product, .eq-shop-collection, .eq-shop-catalog) .home-dual-banner { width: 95%; margin: 0 auto 32px; display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; }
+:is(.eq-shop-home, .eq-shop-product, .eq-shop-collection, .eq-shop-catalog) .home-dual-banner__item img { width: 100%; border-radius: 8px; display: block; }
 
 /* FAQ (acordeón) */
-:is(.eq-shop-home, .eq-shop-product, .eq-shop-collection) .home-faq { width: 95%; max-width: 900px; margin: 0 auto; padding: 40px 0; }
+:is(.eq-shop-home, .eq-shop-product, .eq-shop-collection, .eq-shop-catalog) .home-faq { width: 95%; max-width: 900px; margin: 0 auto; padding: 40px 0; }
 /* FIX: en la página de producto se pidió alinear a la izquierda (no
    centrado) y ocupar el 80% del ancho, en vez del 95%/900px centrado que
    comparte con el home. */
 .eq-shop-product .home-faq { width: 80%; max-width: none; margin: 0 0 0 32px; }
-:is(.eq-shop-home, .eq-shop-product, .eq-shop-collection) .home-faq__title { font-size: clamp(16px, 3vw, 20px); font-weight: 800; margin: 0 0 8px; }
-:is(.eq-shop-home, .eq-shop-product, .eq-shop-collection) .home-faq__description { font-size: 14.5px; color: #4b5563; line-height: 1.6; margin: 0 0 20px; }
-:is(.eq-shop-home, .eq-shop-product, .eq-shop-collection) .home-faq__item { border: 1px solid rgba(0,0,0,0.08); border-radius: 8px; margin-bottom: 10px; overflow: hidden; background: #fff; }
-:is(.eq-shop-home, .eq-shop-product, .eq-shop-collection) .home-faq__question {
+:is(.eq-shop-home, .eq-shop-product, .eq-shop-collection, .eq-shop-catalog) .home-faq__title { font-size: clamp(16px, 3vw, 20px); font-weight: 800; margin: 0 0 8px; }
+:is(.eq-shop-home, .eq-shop-product, .eq-shop-collection, .eq-shop-catalog) .home-faq__description { font-size: 14.5px; color: #4b5563; line-height: 1.6; margin: 0 0 20px; }
+:is(.eq-shop-home, .eq-shop-product, .eq-shop-collection, .eq-shop-catalog) .home-faq__item { border: 1px solid rgba(0,0,0,0.08); border-radius: 8px; margin-bottom: 10px; overflow: hidden; background: #fff; }
+:is(.eq-shop-home, .eq-shop-product, .eq-shop-collection, .eq-shop-catalog) .home-faq__question {
     width: 100%; display: flex; justify-content: space-between; align-items: center; gap: 12px;
     padding: 14px 18px; background: none; border: none; cursor: pointer; text-align: left;
     font-size: 14.5px; font-weight: 700; color: #17181a; font-family: inherit;
 }
-:is(.eq-shop-home, .eq-shop-product, .eq-shop-collection) .home-faq__question:hover { background: #fafafa; }
-:is(.eq-shop-home, .eq-shop-product, .eq-shop-collection) .home-faq__question span:last-child { color: var(--secondary-color); font-size: 18px; font-weight: 800; flex-shrink: 0; }
-:is(.eq-shop-home, .eq-shop-product, .eq-shop-collection) .home-faq__answer { padding: 0 18px 14px; }
-:is(.eq-shop-home, .eq-shop-product, .eq-shop-collection) .home-faq__answer p { margin: 0; font-size: 14px; color: #4b5563; line-height: 1.65; }
+:is(.eq-shop-home, .eq-shop-product, .eq-shop-collection, .eq-shop-catalog) .home-faq__question:hover { background: #fafafa; }
+:is(.eq-shop-home, .eq-shop-product, .eq-shop-collection, .eq-shop-catalog) .home-faq__question span:last-child { color: var(--secondary-color); font-size: 18px; font-weight: 800; flex-shrink: 0; }
+:is(.eq-shop-home, .eq-shop-product, .eq-shop-collection, .eq-shop-catalog) .home-faq__answer { padding: 0 18px 14px; }
+:is(.eq-shop-home, .eq-shop-product, .eq-shop-collection, .eq-shop-catalog) .home-faq__answer p { margin: 0; font-size: 14px; color: #4b5563; line-height: 1.65; }
