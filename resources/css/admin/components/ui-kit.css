@@ -971,6 +971,32 @@
     background-color: #fef2f2;
 }
 
+/* FIX (regresión encontrada 07/08/2026): .val-error-input y .val-error-msg
+   son las clases que Usuarios/Clientes/Menús/etc. SÍ aplican vía JS
+   (valMark()) al marcar un campo inválido, pero no tenían ninguna regla en
+   ningún archivo del admin — probablemente se perdieron al modularizar este
+   CSS. Mismo tratamiento visual que .is-invalid/.field-error-msg arriba,
+   ya probado y funcionando, para no inventar un estilo nuevo. */
+.val-error-input {
+    border: 1px solid #dc2626;
+    background-color: #fef2f2;
+}
+
+.val-error-input:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.2);
+    border-color: #dc2626;
+}
+
+.val-error-msg {
+    color: #dc2626;
+    font-size: 13px;
+    display: block;
+    margin-top: 5px;
+    font-weight: 500;
+    width: 100%;
+}
+
 .hidden { display: none !important; }
 
 /* ── Detail/"show" page primitives — shared by Usuarios, Clientes and

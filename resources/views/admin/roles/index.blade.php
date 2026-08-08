@@ -215,7 +215,11 @@
 </div>
 
 {{-- Overlay --}}
-<div id="roles-overlay" class="roles-overlay" onclick="closeAll()"></div>
+{{-- FIX: si una creación/edición de rol falla la validación server-side, el
+     redirect()->back() vuelve a esta página con $errors poblado. El overlay
+     debe verse visible para que el drawer correspondiente (ver _drawer_create
+     / _drawer_edit) quede visible encima de él. --}}
+<div id="roles-overlay" class="roles-overlay {{ $errors->any() ? 'is-visible' : '' }}" onclick="closeAll()"></div>
 
 @include('admin.roles.partials._drawer_create')
 @include('admin.roles.partials._drawer_edit')

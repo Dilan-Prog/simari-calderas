@@ -349,6 +349,14 @@
                 body: new FormData(createUserForm),
             });
 
+            if (response.status === 419) {
+                if (errorsContainer) {
+                    errorsContainer.innerHTML = '<p>Tu sesión expiró. Por favor recarga la página e intenta de nuevo.</p>';
+                    errorsContainer.style.display = 'block';
+                }
+                return;
+            }
+
             const data = await response.json();
 
             if (response.ok) {
@@ -591,6 +599,12 @@
                 },
                 body: formData,
             });
+
+            if (response.status === 419) {
+                errorsContainer.innerHTML = '<p>Tu sesión expiró. Por favor recarga la página e intenta de nuevo.</p>';
+                errorsContainer.style.display = 'block';
+                return;
+            }
 
             const data = await response.json();
             console.log('Edit response:', response.status, data);

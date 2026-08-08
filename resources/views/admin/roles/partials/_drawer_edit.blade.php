@@ -1,4 +1,15 @@
-﻿<div id="roles-drawer-edit" class="roles-drawer">
+﻿<?php
+    // FIX: mismo razonamiento que en _drawer_create.blade.php — "_role_form"
+    // distingue si el intento fallido pertenece a este formulario (Editar) y
+    // no al de Crear, ya que ambos comparten nombres de campo (name_role,
+    // description_role) y old()/$errors son globales a la sesión.
+    $isEditFormError = old('_role_form') === 'edit';
+    // "_role_id" viaja como hidden dentro del propio form (ver roles.js,
+    // openEditDrawer) para poder reconstruir la action del form y
+    // reabrir el drawer apuntando al rol correcto tras un redirect()->back().
+    $editRoleId = old('_role_id');
+?>
+<div id="roles-drawer-edit" class="roles-drawer {{ $errors->any() && $isEditFormError ? 'is-open' : '' }}">
     <div class="roles-drawer__header">
         <div>
             <h2 class="roles-drawer__title">Editar Rol</h2>
@@ -12,18 +23,34 @@
         </button>
     </div>
     <div class="roles-drawer__body">
-        <form id="roles-edit-form" method="POST" action=""
+        <form id="roles-edit-form" method="POST"
+            action="{{ $isEditFormError && $editRoleId ? route('admin.roles.update', $editRoleId) : '' }}"
             onsubmit="serializePermissions('roles-edit-form')">
             @csrf
             @method('PUT')
-            <input type="hidden" id="edit-role-id" name="_role_id" value="">
+            <input type="hidden" id="edit-role-id" name="_role_id" value="{{ $editRoleId }}">
+            <input type="hidden" name="_role_form" value="edit">
             <div class="roles-field">
                 <label class="roles-label" for="edit-name">Nombre del Rol <span class="roles-required">*</span></label>
-                <input type="text" id="edit-name" name="name_role" class="roles-input" required>
+                <input type="text" id="edit-name" name="name_role"
+                    class="roles-input {{ $isEditFormError && $errors->has('name_role') ? 'is-invalid' : '' }}"
+                    value="{{ $isEditFormError ? old('name_role') : '' }}" required>
+                @if ($isEditFormError)
+                    @error('name_role')
+                        <span class="field-error-msg">{{ $message }}</span>
+                    @enderror
+                @endif
             </div>
             <div class="roles-field">
                 <label class="roles-label" for="edit-desc">Descripción</label>
-                <textarea id="edit-desc" name="description_role" class="roles-textarea" rows="3"></textarea>
+                <textarea id="edit-desc" name="description_role"
+                    class="roles-textarea {{ $isEditFormError && $errors->has('description_role') ? 'is-invalid' : '' }}"
+                    rows="3">{{ $isEditFormError ? old('description_role') : '' }}</textarea>
+                @if ($isEditFormError)
+                    @error('description_role')
+                        <span class="field-error-msg">{{ $message }}</span>
+                    @enderror
+                @endif
             </div>
             <div class="roles-modules-header">
                 <span class="roles-label" style="margin:0">Módulos con acceso</span>

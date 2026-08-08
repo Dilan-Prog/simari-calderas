@@ -167,9 +167,23 @@
             }
         });
 
+        // Marca un campo inválido inline: agrega .is-invalid al elemento y
+        // muestra el mensaje real del servidor como .field-error-msg, junto
+        // al patrón ya usado en home-sections/service-pages para 422s.
+        function showCollectionFieldError(element, message) {
+            element.classList.add('is-invalid');
+            const errorSpan = document.createElement('span');
+            errorSpan.className = 'field-error-msg';
+            errorSpan.innerText = message;
+            const container = element.closest('.users-manager-email-camp') || element.parentElement;
+            if (container) container.appendChild(errorSpan);
+        }
+
         // Submit form (create or update)
         collectionForm.addEventListener('submit', async (e) => {
             e.preventDefault();
+            document.querySelectorAll('.field-error-msg').forEach(el => el.remove());
+            document.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
             errorsContainer.style.display = 'none';
             errorsContainer.innerHTML = '';
 
@@ -191,6 +205,13 @@
                     body: formData,
                 });
 
+                if (response.status === 419) {
+                    errorsContainer.innerHTML = '<p>Tu sesión expiró. Por favor recarga la página e intenta de nuevo.</p>';
+                    errorsContainer.style.display = 'block';
+                    showCenterToast('Tu sesión expiró. Por favor recarga la página e intenta de nuevo.', 'error');
+                    return;
+                }
+
                 const data = await response.json();
 
                 if (response.ok) {
@@ -198,10 +219,16 @@
                     queueCenterToast(isEditMode ? 'Colección actualizada correctamente.' : 'Colección creada correctamente.');
                     setTimeout(() => window.location.reload(), 200);
                 } else if (response.status === 422) {
-                    const errorList = Object.values(data.errors).flat();
+                    const errors = data.errors || {};
+                    const errorList = Object.values(errors).flat();
                     errorsContainer.innerHTML = errorList.map(m => `<p>${m}</p>`).join('');
                     errorsContainer.style.display = 'block';
                     showCenterToast('Revisa los campos marcados.', 'error');
+
+                    Object.keys(errors).forEach(field => {
+                        const input = collectionForm.querySelector(`[name="${field}"]`);
+                        if (input) showCollectionFieldError(input, errors[field][0]);
+                    });
                 }
             } catch (err) {
                 console.error('Error:', err);

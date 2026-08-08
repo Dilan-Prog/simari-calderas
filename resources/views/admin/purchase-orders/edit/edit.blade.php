@@ -6,6 +6,26 @@
 @section('content')
     <div class="po-page">
 
+        {{-- Si un submit falló la validación server-side en un campo de los
+             Pasos 2 o 3, el wizard (que siempre arranca en el Paso 1 vía
+             AdminWizard.init) necesita saber a qué paso saltar para que el
+             error no quede oculto por el CSS de paneles. Ver po-wizard.js. --}}
+        @if ($errors->any())
+            <script>
+                window.__poFormErrorStep = {{
+                    $errors->has('currency') || $errors->has('exchange_rate') || $errors->has('internal_reference')
+                        ? 2
+                        : (
+                            $errors->has('status') || $errors->has('tax_rate') || $errors->has('subtotal')
+                            || $errors->has('tax_total') || $errors->has('total') || $errors->has('items')
+                            || collect($errors->keys())->contains(fn ($k) => str_starts_with($k, 'items.'))
+                                ? 3
+                                : 1
+                        )
+                }};
+            </script>
+        @endif
+
         {{-- Header --}}
         <header class="po-header">
             <nav class="po-breadcrumb">
@@ -73,7 +93,7 @@
                         <label class="po-label">
                             PROVEEDOR <span class="po-req">*</span>
                         </label>
-                        <select name="supplier_id" id="supplierSelect" class="po-select" required>
+                        <select name="supplier_id" id="supplierSelect" class="po-select {{ $errors->has('supplier_id') ? 'is-invalid' : '' }}" required>
                             <option value="">Buscar proveedor...</option>
                             @foreach ($suppliers as $supplier)
                                 <option value="{{ $supplier->id }}" data-contact="{{ $supplier->contact_name ?? '' }}"
@@ -81,11 +101,14 @@
                                     data-phone="{{ $supplier->phone ?? '' }}" data-rfc="{{ $supplier->rfc ?? '' }}"
                                     data-terms="{{ $supplier->payment_terms ?? '' }}"
                                     data-company="{{ $supplier->company_name }}"
-                                    {{ $order->supplier_id == $supplier->id ? 'selected' : '' }}>
+                                    {{ old('supplier_id', $order->supplier_id) == $supplier->id ? 'selected' : '' }}>
                                     {{ strtoupper($supplier->company_name) }}
                                 </option>
                             @endforeach
                         </select>
+                        @error('supplier_id')
+                            <span class="field-error-msg">{{ $message }}</span>
+                        @enderror
                     </div>
 
                     {{-- Supplier info card --}}
@@ -113,13 +136,16 @@
                             <label class="po-label">
                                 FECHA DE LA ORDEN <span class="po-req">*</span>
                             </label>
-                            <input type="date" name="order_date" class="po-input"
-                                value="{{ $order->order_date->format('Y-m-d') }}" required>
+                            <input type="date" name="order_date" class="po-input {{ $errors->has('order_date') ? 'is-invalid' : '' }}"
+                                value="{{ old('order_date', $order->order_date->format('Y-m-d')) }}" required>
+                            @error('order_date')
+                                <span class="field-error-msg">{{ $message }}</span>
+                            @enderror
                         </div>
                         <div class="po-form-group">
                             <label class="po-label">FECHA DE ENTREGA ESPERADA</label>
                             <input type="date" name="expected_delivery_date" class="po-input"
-                                value="{{ $order->expected_delivery_date?->format('Y-m-d') ?? '' }}">
+                                value="{{ old('expected_delivery_date', $order->expected_delivery_date?->format('Y-m-d') ?? '') }}">
                         </div>
                     </div>
                 </div>
@@ -142,16 +168,22 @@
                     <div class="po-form-grid">
                         <div class="po-form-group">
                             <label class="po-label">MONEDA <span class="po-req">*</span></label>
-                            <select name="currency" id="currencySelect" class="po-select">
-                                <option value="MXN" {{ $order->currency === 'MXN' ? 'selected' : '' }}>MXN</option>
-                                <option value="USD" {{ $order->currency === 'USD' ? 'selected' : '' }}>USD</option>
+                            <select name="currency" id="currencySelect" class="po-select {{ $errors->has('currency') ? 'is-invalid' : '' }}">
+                                <option value="MXN" {{ old('currency', $order->currency) === 'MXN' ? 'selected' : '' }}>MXN</option>
+                                <option value="USD" {{ old('currency', $order->currency) === 'USD' ? 'selected' : '' }}>USD</option>
                             </select>
+                            @error('currency')
+                                <span class="field-error-msg">{{ $message }}</span>
+                            @enderror
                         </div>
                         <div class="po-form-group">
                             <label class="po-label">TIPO DE CAMBIO (USD → MXN) <span class="po-req">*</span></label>
-                            <input type="number" name="exchange_rate" id="exchangeRate" class="po-input"
+                            <input type="number" name="exchange_rate" id="exchangeRate" class="po-input {{ $errors->has('exchange_rate') ? 'is-invalid' : '' }}"
                                 step="0.0001" min="0.01"
                                 value="{{ old('exchange_rate', $order->exchange_rate ?? $defaultExchangeRate) }}">
+                            @error('exchange_rate')
+                                <span class="field-error-msg">{{ $message }}</span>
+                            @enderror
                         </div>
                     </div>
                     <p class="po-help-note">
@@ -160,14 +192,17 @@
 
                     <div class="po-form-group">
                         <label class="po-label">REFERENCIA INTERNA</label>
-                        <input type="text" name="internal_reference" class="po-input"
-                            placeholder="Ej: REF-2026-001" value="{{ $order->internal_reference ?? '' }}">
+                        <input type="text" name="internal_reference" class="po-input {{ $errors->has('internal_reference') ? 'is-invalid' : '' }}"
+                            placeholder="Ej: REF-2026-001" value="{{ old('internal_reference', $order->internal_reference ?? '') }}">
+                        @error('internal_reference')
+                            <span class="field-error-msg">{{ $message }}</span>
+                        @enderror
                     </div>
 
                     <div class="po-form-group">
                         <label class="po-label">NOTAS AL PROVEEDOR</label>
                         <textarea name="notes" class="po-textarea" rows="3"
-                            placeholder="Instrucciones especiales, condiciones de entrega...">{{ $order->notes ?? '' }}</textarea>
+                            placeholder="Instrucciones especiales, condiciones de entrega...">{{ old('notes', $order->notes ?? '') }}</textarea>
                     </div>
                 </div>
             </div>
@@ -288,13 +323,16 @@
                                 <div class="po-summary__row">
                                     <span>IVA</span>
                                     <div class="po-summary__input-group">
-                                        <input type="number" name="tax_rate" id="taxRate" class="po-summary__input"
-                                            value="{{ $order->tax_rate }}" min="0" max="100" step="0.01">
+                                        <input type="number" name="tax_rate" id="taxRate" class="po-summary__input {{ $errors->has('tax_rate') ? 'is-invalid' : '' }}"
+                                            value="{{ old('tax_rate', $order->tax_rate) }}" min="0" max="100" step="0.01">
                                         <span class="po-summary__pct">%</span>
                                         <span id="summaryTax" class="po-summary__val">
                                             ${{ number_format($order->tax_total, 2) }}
                                         </span>
                                     </div>
+                                    @error('tax_rate')
+                                        <span class="field-error-msg">{{ $message }}</span>
+                                    @enderror
                                 </div>
                                 <div class="po-summary__total">
                                     <span>TOTAL</span>
@@ -308,17 +346,20 @@
                         {{-- Estado --}}
                         <div class="po-card">
                             <h2 class="po-card__header">Estado de la Orden</h2>
-                            <select name="status" id="statusSelect" class="po-select po-status-select">
-                                <option value="pending" {{ $order->status === 'pending' ? 'selected' : '' }}>
+                            <select name="status" id="statusSelect" class="po-select po-status-select {{ $errors->has('status') ? 'is-invalid' : '' }}">
+                                <option value="pending" {{ old('status', $order->status) === 'pending' ? 'selected' : '' }}>
                                     ● Pendiente
                                 </option>
-                                <option value="accepted" {{ $order->status === 'accepted' ? 'selected' : '' }}>
+                                <option value="accepted" {{ old('status', $order->status) === 'accepted' ? 'selected' : '' }}>
                                     ● Aceptada
                                 </option>
-                                <option value="rejected" {{ $order->status === 'rejected' ? 'selected' : '' }}>
+                                <option value="rejected" {{ old('status', $order->status) === 'rejected' ? 'selected' : '' }}>
                                     ● Rechazada
                                 </option>
                             </select>
+                            @error('status')
+                                <span class="field-error-msg">{{ $message }}</span>
+                            @enderror
                         </div>
 
                         {{-- Info adicional --}}

@@ -792,6 +792,10 @@
                 headers: { 'X-CSRF-TOKEN': csrfToken(), 'Accept': 'application/json' },
                 body: formData,
             });
+            if (res.status === 419) {
+                showNotification('Tu sesión expiró. Por favor recarga la página e intenta de nuevo.', 'error');
+                return;
+            }
             if (!res.ok && res.status !== 422) {
                 showNotification(`Error del servidor (${res.status}).`, 'error');
                 return;

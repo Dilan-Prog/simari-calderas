@@ -13,7 +13,7 @@
 document.addEventListener('DOMContentLoaded', function () {
     if (!window.AdminWizard) return;
 
-    window.AdminWizard.init({
+    const wizard = window.AdminWizard.init({
         totalSteps: 3,
         stepPanelSelector: '.powiz-step-panel',
         // NOTA: wizard-core.js interpola este valor literalmente en
@@ -71,4 +71,14 @@ document.addEventListener('DOMContentLoaded', function () {
             if (window.__poWizardBridge) window.__poWizardBridge.clearItems();
         },
     });
+
+    // Si el submit anterior falló validación server-side en un campo que
+    // vive en el Paso 2 o 3, AdminWizard.init() ya forzó showStep(1) — el
+    // panel con el @error real queda oculto por el CSS de paneles y el
+    // usuario solo ve el toast genérico sin saber a qué paso ir. La vista
+    // (create.blade.php / edit.blade.php) calcula el paso correcto en
+    // window.__poFormErrorStep antes de que corra este script.
+    if (wizard && window.__poFormErrorStep && window.__poFormErrorStep > 1) {
+        wizard.goToStep(window.__poFormErrorStep);
+    }
 });

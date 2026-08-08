@@ -213,6 +213,19 @@
             if (e.target === serviceSectionModal) closeServiceSectionWithAnim();
         });
 
+        // Marca un campo inválido inline: agrega .is-invalid al elemento y
+        // muestra el mensaje real del servidor como .field-error-msg. La
+        // limpieza de estas marcas ya existía (ver resetServiceSectionForm y
+        // el inicio de este submit handler) pero nada las creaba todavía.
+        function ssShowError(element, message) {
+            element.classList.add('is-invalid');
+            const errorSpan = document.createElement('span');
+            errorSpan.className = 'field-error-msg';
+            errorSpan.innerText = message;
+            const container = element.closest('.users-manager-email-camp') || element.parentElement;
+            if (container) container.appendChild(errorSpan);
+        }
+
         serviceSectionForm.addEventListener('submit', async (e) => {
             e.preventDefault();
 
@@ -252,6 +265,13 @@
                     body: formData,
                 });
 
+                if (response.status === 419) {
+                    ssErrorsContainer.innerHTML = '<p>Tu sesión expiró. Por favor recarga la página e intenta de nuevo.</p>';
+                    ssErrorsContainer.style.display = 'block';
+                    showCenterToast('Tu sesión expiró. Por favor recarga la página e intenta de nuevo.', 'error');
+                    return;
+                }
+
                 const data = await response.json();
 
                 if (response.ok) {
@@ -259,10 +279,16 @@
                     queueCenterToast(ssIsEditMode ? 'Sección actualizada correctamente.' : 'Sección creada correctamente.');
                     setTimeout(() => window.location.reload(), 200);
                 } else if (response.status === 422) {
-                    const errorList = Object.values(data.errors).flat();
+                    const errors = data.errors || {};
+                    const errorList = Object.values(errors).flat();
                     ssErrorsContainer.innerHTML = errorList.map(m => `<p>${m}</p>`).join('');
                     ssErrorsContainer.style.display = 'block';
                     showCenterToast('Revisa los campos marcados.', 'error');
+
+                    Object.keys(errors).forEach(field => {
+                        const input = serviceSectionForm.querySelector(`[name="${field}"]`);
+                        if (input) ssShowError(input, errors[field][0]);
+                    });
                 }
             } catch (err) {
                 console.error('Error:', err);

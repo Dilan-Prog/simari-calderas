@@ -55,6 +55,12 @@
                 }
             });
 
+            // Re-carga la descripción si la página se está re-renderizando
+            // tras un error de validación del servidor (withErrors()) —
+            // old('description') viaja en el input oculto pformDescHidden.
+            const oldDescription = document.getElementById('pformDescHidden').value;
+            if (oldDescription) quillInstance.setText(oldDescription);
+
             // variable-picker.js es un script tipo módulo (diferido): se
             // ejecuta después de este script inline clásico, por eso el
             // registro espera a DOMContentLoaded en vez de comprobar
@@ -332,6 +338,22 @@
             }
 
             document.getElementById('pformTagAdd').addEventListener('click', addTag);
+
+            // Restaura los chips de etiquetas si la página se re-renderiza
+            // tras un error de validación del servidor en OTRO campo —
+            // old('tags') trae el mismo JSON que el input oculto ya
+            // serializaba antes de enviarse.
+            @if (old('tags'))
+                (function restoreOldTags() {
+                    try {
+                        const oldTags = JSON.parse(@json(old('tags')));
+                        if (Array.isArray(oldTags)) {
+                            oldTags.forEach(t => addTagChip(t));
+                            syncTagsHidden();
+                        }
+                    } catch (e) {}
+                })();
+            @endif
 
             /* ── Tag autocomplete: sugiere etiquetas ya usadas en otros
                productos (no existe tabla de tags, se buscan en vivo). Si
@@ -620,6 +642,29 @@
                 el.querySelector('svg').style.stroke = ok ? '#16a34a' : '#d97706';
             }
 
+            /* ── Server-side validation errors (withErrors() redirect back) ──
+               El servidor marca cada campo inválido con la clase
+               .pform-field-error vía @@error() en el blade (ver
+               showFieldError() arriba, mismo nombre de clase que ya usa la
+               validación del lado del cliente). Si el primer error cae en
+               una pestaña que no es la activa por defecto, o dentro del
+               modal de SEO (que vive fuera del sistema de pestañas), esto
+               la muestra automáticamente para que el admin no tenga que
+               ir clic por clic buscando cuál de los ~20+ campos falló. */
+            const firstServerError = document.querySelector('.pform-field-error');
+            if (firstServerError) {
+                if (seoModal.contains(firstServerError)) {
+                    seoModal.style.display = 'flex';
+                } else {
+                    const panel = firstServerError.closest('.pform-tab-panel');
+                    if (panel) switchToPanel(panel.id);
+                }
+                setTimeout(() => firstServerError.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'center'
+                }), 150);
+            }
+
         })();
 
         /* ── Category cascade ── */
@@ -707,6 +752,51 @@
             updateBreadcrumb();
             updateCategoryIdHidden();
         });
+
+        @php
+            // FIX (validación de servidor): si la categoría enviada falló la
+            // validación por otro motivo distinto a category_id (ej. SKU
+            // duplicado), old('category_id') permite restaurar la selección
+            // en las 3 pestañas en cascada — sin esto, un error en OTRO
+            // campo hacía que el admin tuviera que volver a elegir la
+            // categoría desde cero.
+            $oldCategoryId = old('category_id');
+            $oldCategory = $oldCategoryId ? \App\Models\Category::with('parent.parent')->find($oldCategoryId) : null;
+            $initialMainId = $initialSubId = $initialChildId = null;
+            if ($oldCategory) {
+                $level = $oldCategory->level;
+                if ($level === 1) {
+                    $initialMainId = $oldCategory->id;
+                } elseif ($level === 2) {
+                    $initialMainId = $oldCategory->parent_id;
+                    $initialSubId = $oldCategory->id;
+                } else {
+                    $initialSubId = $oldCategory->parent_id;
+                    $initialChildId = $oldCategory->id;
+                    $initialMainId = $oldCategory->parent?->parent_id;
+                }
+            }
+        @endphp
+
+        (function restoreCategoryCascadeFromOldInput() {
+            const initialMainId = @json($initialMainId);
+            const initialSubId = @json($initialSubId);
+            const initialChildId = @json($initialChildId);
+
+            if (!initialMainId) return;
+
+            categoryMain.value = initialMainId;
+            populateSubOptions(initialMainId);
+
+            if (initialSubId) {
+                categorySub.value = initialSubId;
+                populateChildOptions(initialMainId, initialSubId);
+                if (initialChildId) categoryChild.value = initialChildId;
+            }
+
+            updateBreadcrumb();
+            updateCategoryIdHidden();
+        })();
 
         /* ── Badge sync ── */
         const badgeFeatured = document.getElementById('badgeFeatured');

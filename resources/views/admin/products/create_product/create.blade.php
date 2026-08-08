@@ -174,10 +174,10 @@
                 enctype="multipart/form-data" novalidate>
                 @csrf
                 <input type="hidden" name="is_active" value="1">
-                <input type="hidden" name="is_featured" id="pformIsFeatured" value="0">
-                <input type="hidden" name="is_new" id="pformIsNew" value="0">
-                <input type="hidden" name="is_recommended" id="pformIsRecommended" value="0">
-                <input type="hidden" name="publish_on_website" id="pformPublishOnWebsite" value="0">
+                <input type="hidden" name="is_featured" id="pformIsFeatured" value="{{ old('is_featured', '0') }}">
+                <input type="hidden" name="is_new" id="pformIsNew" value="{{ old('is_new', '0') }}">
+                <input type="hidden" name="is_recommended" id="pformIsRecommended" value="{{ old('is_recommended', '0') }}">
+                <input type="hidden" name="publish_on_website" id="pformPublishOnWebsite" value="{{ old('publish_on_website', '0') }}">
                 <div class="pform-panel-wrap">
 
                     {{-- Panel 0: Información Básica --}}
@@ -193,8 +193,11 @@
                                     </label>
                                     <button type="button" class="pform-insert-variable-btn" data-variable-target="pformName">{ } Insertar variable</button>
                                 </div>
-                                <input type="text" id="pformName" class="pform-input" name="name"
-                                    placeholder="Ej: Caldera Industrial Hyperion 500" required />
+                                <input type="text" id="pformName" class="pform-input @error('name') pform-field-error @enderror" name="name"
+                                    placeholder="Ej: Caldera Industrial Hyperion 500" value="{{ old('name') }}" required />
+                                @error('name')
+                                    <p class="pform-error-msg">{{ $message }}</p>
+                                @enderror
                                 <p class="pform-hint">Este nombre aparecerá en el catálogo y en los resultados de búsqueda.
                                     Puedes usar variables como {marca} o {modelo}.
                                 </p>
@@ -205,23 +208,32 @@
                                     <label class="pform-label" for="pformSku">
                                         SKU <span class="pform-required">*</span>
                                     </label>
-                                    <input type="text" id="pformSku" class="pform-input" name="sku"
-                                        value="{{ $sku }}" readonly />
+                                    <input type="text" id="pformSku" class="pform-input @error('sku') pform-field-error @enderror" name="sku"
+                                        value="{{ old('sku', $sku) }}" readonly />
+                                    @error('sku')
+                                        <p class="pform-error-msg">{{ $message }}</p>
+                                    @enderror
                                 </div>
                                 <div class="pform-field">
                                     <label class="pform-label" for="pformBrand">Marca <span
                                             class="pform-required">*</span></label>
-                                    <select id="pformBrand" name="brand_id" class="pform-select" required>
+                                    <select id="pformBrand" name="brand_id" class="pform-select @error('brand_id') pform-field-error @enderror" required>
                                         <option value="">Seleccionar...</option>
                                         @foreach ($brands as $brand)
-                                            <option value="{{ $brand->id }}">{{ $brand->name }}</option>
+                                            <option value="{{ $brand->id }}" {{ (string) old('brand_id') === (string) $brand->id ? 'selected' : '' }}>{{ $brand->name }}</option>
                                         @endforeach
                                     </select>
+                                    @error('brand_id')
+                                        <p class="pform-error-msg">{{ $message }}</p>
+                                    @enderror
                                 </div>
                                 <div class="pform-field">
                                     <label class="pform-label" for="pformModel">Modelo</label>
-                                    <input type="text" id="pformModel" class="pform-input" name="model"
-                                        placeholder="Hyperion 500" />
+                                    <input type="text" id="pformModel" class="pform-input @error('model') pform-field-error @enderror" name="model"
+                                        placeholder="Hyperion 500" value="{{ old('model') }}" />
+                                    @error('model')
+                                        <p class="pform-error-msg">{{ $message }}</p>
+                                    @enderror
                                 </div>
                             </div>
 
@@ -230,11 +242,14 @@
                                     <label class="pform-label" for="pformShortDesc">Descripción Corta</label>
                                     <button type="button" class="pform-insert-variable-btn" data-variable-target="pformShortDesc">{ } Insertar variable</button>
                                 </div>
-                                <textarea id="pformShortDesc" class="pform-textarea" rows="3" maxlength="200" name="short_description"
-                                    placeholder="Resumen breve del producto (aparecerá en las tarjetas del catálogo)"></textarea>
+                                <textarea id="pformShortDesc" class="pform-textarea @error('short_description') pform-field-error @enderror" rows="3" maxlength="200" name="short_description"
+                                    placeholder="Resumen breve del producto (aparecerá en las tarjetas del catálogo)">{{ old('short_description') }}</textarea>
+                                @error('short_description')
+                                    <p class="pform-error-msg">{{ $message }}</p>
+                                @enderror
                                 <div class="pform-char-row">
                                     <span class="pform-hint" style="margin:0">Máximo 200 caracteres</span>
-                                    <span class="pform-char-count" id="pformCharCount">0/200</span>
+                                    <span class="pform-char-count" id="pformCharCount">{{ strlen(old('short_description', '')) }}/200</span>
                                 </div>
                             </div>
 
@@ -246,7 +261,10 @@
                                 <div class="pform-quill-wrap">
                                     <div id="pformQuillEditor"></div>
                                 </div>
-                                <input type="hidden" name="description" id="pformDescHidden">
+                                <input type="hidden" name="description" id="pformDescHidden" value="{{ old('description') }}">
+                                @error('description')
+                                    <p class="pform-error-msg">{{ $message }}</p>
+                                @enderror
                                 <p class="pform-hint">Usa el editor para crear una descripción rica con formato, tablas
                                     técnicas, listas de características, etc. Puedes usar variables como {marca} o {modelo}.</p>
                             </div>
@@ -288,6 +306,11 @@
                                 <input type="file" id="pformImageInput" name="images[]"
                                     accept="image/png,image/jpeg,image/jpg" multiple style="display:none">
                             </div>
+                            @foreach ($errors->keys() as $errorKey)
+                                @if (\Illuminate\Support\Str::startsWith($errorKey, 'images') || \Illuminate\Support\Str::startsWith($errorKey, 'image_urls'))
+                                    <p class="pform-error-msg">{{ $errors->first($errorKey) }}</p>
+                                @endif
+                            @endforeach
 
                             {{-- Hidden inputs kept in sync by JS: one image_urls[] per pending
                                  "usar URL" image, plus image_source_order[] recording the final
@@ -351,9 +374,12 @@
                                         <div class="pform-price-wrap">
                                             <span class="pform-price-prefix">$</span>
                                             <input type="number" id="pformCost" name="cost"
-                                                class="pform-input pform-input-prefixed" placeholder="0.00"
-                                                step="0.01" min="0" required>
+                                                class="pform-input pform-input-prefixed @error('cost') pform-field-error @enderror" placeholder="0.00"
+                                                step="0.01" min="0" value="{{ old('cost') }}" required>
                                         </div>
+                                        @error('cost')
+                                            <p class="pform-error-msg">{{ $message }}</p>
+                                        @enderror
                                         <p class="pform-hint">Costo de adquisición o producción</p>
                                     </div>
                                     <div class="pform-field">
@@ -362,9 +388,12 @@
                                         <div class="pform-price-wrap">
                                             <span class="pform-price-prefix">$</span>
                                             <input type="number" id="pformPrice" name="price"
-                                                class="pform-input pform-input-prefixed" placeholder="0.00"
-                                                step="0.01" min="0" required>
+                                                class="pform-input pform-input-prefixed @error('price') pform-field-error @enderror" placeholder="0.00"
+                                                step="0.01" min="0" value="{{ old('price') }}" required>
                                         </div>
+                                        @error('price')
+                                            <p class="pform-error-msg">{{ $message }}</p>
+                                        @enderror
                                         <p class="pform-hint">Precio público del producto</p>
                                     </div>
                                 </div>
@@ -386,19 +415,25 @@
                                                  existed and had a real column + validation rule, but
                                                  was never actually submitted on create (edit already
                                                  had it). --}}
-                                            <input type="number" class="pform-input pform-input-prefixed"
-                                                name="compare_price" placeholder="0.00" step="0.01" min="0">
+                                            <input type="number" class="pform-input pform-input-prefixed @error('compare_price') pform-field-error @enderror"
+                                                name="compare_price" placeholder="0.00" step="0.01" min="0" value="{{ old('compare_price') }}">
                                         </div>
+                                        @error('compare_price')
+                                            <p class="pform-error-msg">{{ $message }}</p>
+                                        @enderror
                                         <p class="pform-hint">Opcional: precio en promoción</p>
                                     </div>
                                     <div class="pform-field">
                                         <label class="pform-label">Moneda</label>
                                         {{-- FIX BUG 9: added name="currency" — existed but was
                                              never submitted. --}}
-                                        <select class="pform-select" name="currency">
-                                            <option value="MXN">MXN - Peso Mexicano</option>
-                                            <option value="USD">USD - Dólar Americano</option>
+                                        <select class="pform-select @error('currency') pform-field-error @enderror" name="currency">
+                                            <option value="MXN" {{ old('currency', 'MXN') == 'MXN' ? 'selected' : '' }}>MXN - Peso Mexicano</option>
+                                            <option value="USD" {{ old('currency') == 'USD' ? 'selected' : '' }}>USD - Dólar Americano</option>
                                         </select>
+                                        @error('currency')
+                                            <p class="pform-error-msg">{{ $message }}</p>
+                                        @enderror
                                     </div>
                                 </div>
 
@@ -488,41 +523,50 @@
                                     <div class="pform-field">
                                         <label class="pform-label">Inventario Disponible <span
                                                 class="pform-required">*</span></label>
-                                        <input type="number" class="pform-input" name="stock" placeholder="0"
-                                            min="0" required>
+                                        <input type="number" class="pform-input @error('stock') pform-field-error @enderror" name="stock" placeholder="0"
+                                            min="0" value="{{ old('stock') }}" required>
+                                        @error('stock')
+                                            <p class="pform-error-msg">{{ $message }}</p>
+                                        @enderror
                                     </div>
                                     <div class="pform-field">
                                         <label class="pform-label">Unidad de Medida</label>
                                         {{-- FIX BUG 9: added name="stock_unit" — existed but was
                                              never submitted. --}}
-                                        <select class="pform-select" name="stock_unit">
-                                            <option value="pieza">Pieza</option>
-                                            <option value="juego">Juego</option>
-                                            <option value="kit">Kit</option>
-                                            <option value="metro">Metro</option>
-                                            <option value="kg">Kilogramo</option>
-                                            <option value="litro">Litro</option>
+                                        <select class="pform-select @error('stock_unit') pform-field-error @enderror" name="stock_unit">
+                                            <option value="pieza" {{ old('stock_unit', 'pieza') == 'pieza' ? 'selected' : '' }}>Pieza</option>
+                                            <option value="juego" {{ old('stock_unit') == 'juego' ? 'selected' : '' }}>Juego</option>
+                                            <option value="kit" {{ old('stock_unit') == 'kit' ? 'selected' : '' }}>Kit</option>
+                                            <option value="metro" {{ old('stock_unit') == 'metro' ? 'selected' : '' }}>Metro</option>
+                                            <option value="kg" {{ old('stock_unit') == 'kg' ? 'selected' : '' }}>Kilogramo</option>
+                                            <option value="litro" {{ old('stock_unit') == 'litro' ? 'selected' : '' }}>Litro</option>
                                         </select>
+                                        @error('stock_unit')
+                                            <p class="pform-error-msg">{{ $message }}</p>
+                                        @enderror
                                     </div>
                                 </div>
 
                                 <div class="pform-field" style="margin-bottom:0">
                                     <label class="pform-label">Estado de Disponibilidad</label>
-                                    <input type="hidden" name="availability" id="pformAvailability" value="available">
+                                    <input type="hidden" name="availability" id="pformAvailability" value="{{ old('availability', 'available') }}">
                                     <div class="pform-avail-row">
-                                        <button type="button" class="pform-avail-btn active">
+                                        <button type="button" class="pform-avail-btn {{ old('availability', 'available') == 'available' ? 'active' : '' }}">
                                             <div class="pform-avail-btn-title">Disponible</div>
                                             <div class="pform-avail-btn-sub">En stock y listo para envío</div>
                                         </button>
-                                        <button type="button" class="pform-avail-btn">
+                                        <button type="button" class="pform-avail-btn {{ old('availability') == 'on_order' ? 'active' : '' }}">
                                             <div class="pform-avail-btn-title">Bajo Pedido</div>
                                             <div class="pform-avail-btn-sub">Se fabrica al recibir orden</div>
                                         </button>
-                                        <button type="button" class="pform-avail-btn">
+                                        <button type="button" class="pform-avail-btn {{ old('availability') == 'out_of_stock' ? 'active' : '' }}">
                                             <div class="pform-avail-btn-title">Agotado</div>
                                             <div class="pform-avail-btn-sub">Sin inventario disponible</div>
                                         </button>
                                     </div>
+                                    @error('availability')
+                                        <p class="pform-error-msg">{{ $message }}</p>
+                                    @enderror
                                 </div>
                             </div>
                         </div>
@@ -555,7 +599,7 @@
                                     <div class="pform-field">
                                         <label class="pform-label">Categoría Principal <span
                                                 class="pform-required">*</span></label>
-                                        <select class="pform-select" id="pformCategoryMain" required>
+                                        <select class="pform-select @error('category_id') pform-field-error @enderror" id="pformCategoryMain" required>
                                             <option value="">Seleccionar...</option>
                                             @foreach ($categories as $category)
                                                 <option value="{{ $category->id }}">{{ $category->name }}</option>
@@ -580,13 +624,16 @@
                                     </div>
                                 </div>
 
-                                <input type="hidden" name="category_id" id="pformCategoryIdHidden" value="">
+                                <input type="hidden" name="category_id" id="pformCategoryIdHidden" value="{{ old('category_id') }}">
 
                                 <div class="pform-breadcrumb" id="pformBreadcrumb">
                                     <span style="color:#6b7280">Ruta de navegación:</span>
                                     <strong style="color:#111827;margin-left:4px"
                                         id="pformBreadcrumbText">Catálogo</strong>
                                 </div>
+                                @error('category_id')
+                                    <p class="pform-error-msg">{{ $message }}</p>
+                                @enderror
                             </div>
 
                             {{-- Etiquetas --}}
@@ -627,7 +674,7 @@
                                 <h3 class="pform-section-title">Destacados y Badges</h3>
                                 <div class="pform-grid-3">
 
-                                    <button type="button" class="pform-badge-card" id="badgeFeatured">
+                                    <button type="button" class="pform-badge-card {{ old('is_featured') ? 'active' : '' }}" id="badgeFeatured">
                                         <div class="pform-badge-card-header">
                                             <div class="pform-badge-icon">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
@@ -645,7 +692,7 @@
                                         <p class="pform-badge-sub">Aparecerá en la sección de productos destacados</p>
                                     </button>
 
-                                    <button type="button" class="pform-badge-card" id="badgeNew">
+                                    <button type="button" class="pform-badge-card {{ old('is_new') ? 'active' : '' }}" id="badgeNew">
                                         <div class="pform-badge-card-header">
                                             <div class="pform-badge-icon">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
@@ -667,7 +714,7 @@
                                         <p class="pform-badge-sub">Mostrará badge de "Nuevo" en el producto</p>
                                     </button>
 
-                                    <button type="button" class="pform-badge-card" id="badgeRecommended">
+                                    <button type="button" class="pform-badge-card {{ old('is_recommended') ? 'active' : '' }}" id="badgeRecommended">
                                         <div class="pform-badge-card-header">
                                             <div class="pform-badge-icon">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
@@ -686,7 +733,7 @@
                                         <p class="pform-badge-sub">Aparecerá en sugerencias y recomendaciones</p>
                                     </button>
 
-                                    <button type="button" class="pform-badge-card" id="badgePublishOnWebsite">
+                                    <button type="button" class="pform-badge-card {{ old('publish_on_website') ? 'active' : '' }}" id="badgePublishOnWebsite">
                                         <div class="pform-badge-card-header">
                                             <div class="pform-badge-icon">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
@@ -819,6 +866,9 @@
                                         Subir
                                         <input type="file" hidden accept=".pdf" name="doc_ficha" class="pform-doc-input">
                                     </label>
+                                    @error('doc_ficha')
+                                        <p class="pform-error-msg">{{ $message }}</p>
+                                    @enderror
                                 </div>
 
                                 <div class="pform-doc-row">
@@ -848,6 +898,9 @@
                                         Subir
                                         <input type="file" hidden accept=".pdf" name="doc_manual" class="pform-doc-input">
                                     </label>
+                                    @error('doc_manual')
+                                        <p class="pform-error-msg">{{ $message }}</p>
+                                    @enderror
                                 </div>
 
                                 <div class="pform-doc-row">
@@ -877,6 +930,9 @@
                                         Subir
                                         <input type="file" hidden accept=".pdf" name="doc_catalogo" class="pform-doc-input">
                                     </label>
+                                    @error('doc_catalogo')
+                                        <p class="pform-error-msg">{{ $message }}</p>
+                                    @enderror
                                 </div>
 
                                 <div class="pform-doc-row">
@@ -906,6 +962,9 @@
                                         Subir
                                         <input type="file" hidden accept=".pdf" name="doc_certificacion" class="pform-doc-input">
                                     </label>
+                                    @error('doc_certificacion')
+                                        <p class="pform-error-msg">{{ $message }}</p>
+                                    @enderror
                                 </div>
 
                                 <div class="pform-doc-row">
@@ -935,6 +994,9 @@
                                         Subir
                                         <input type="file" hidden accept=".pdf" name="doc_garantia" class="pform-doc-input">
                                     </label>
+                                    @error('doc_garantia')
+                                        <p class="pform-error-msg">{{ $message }}</p>
+                                    @enderror
                                 </div>
 
                                 <div class="pform-doc-row">
@@ -961,6 +1023,9 @@
                                         Subir
                                         <input type="file" hidden accept=".pdf,.doc,.docx" name="doc_otro" class="pform-doc-input">
                                     </label>
+                                    @error('doc_otro')
+                                        <p class="pform-error-msg">{{ $message }}</p>
+                                    @enderror
                                 </div>
 
                             </div>
@@ -1033,24 +1098,30 @@
                                         class="pform-required">*</span></label>
                                 <button type="button" class="pform-insert-variable-btn" data-variable-target="pformSeoTitle">{ } Insertar variable</button>
                             </div>
-                            <input type="text" id="pformSeoTitle" class="pform-input" name="seo_title"
-                                form="productCreateForm" placeholder="Bomba de Calor Rinnai 20HP" maxlength="60">
+                            <input type="text" id="pformSeoTitle" class="pform-input @error('seo_title') pform-field-error @enderror" name="seo_title"
+                                form="productCreateForm" placeholder="Bomba de Calor Rinnai 20HP" maxlength="60" value="{{ old('seo_title') }}">
+                            @error('seo_title')
+                                <p class="pform-error-msg">{{ $message }}</p>
+                            @enderror
                             <div class="pform-char-row">
                                 <span class="pform-hint" style="margin:0">Óptimo: 30-60 caracteres</span>
-                                <span class="pform-char-count" id="pformSeoTitleCount">0/60</span>
+                                <span class="pform-char-count" id="pformSeoTitleCount">{{ strlen(old('seo_title', '')) }}/60</span>
                             </div>
                         </div>
 
                         <div class="pform-field">
                             <label class="pform-label" for="pformSeoSlug">URL Slug</label>
                             <div class="pform-tag-row">
-                                <input type="text" id="pformSeoSlug" class="pform-input" name="slug"
-                                    form="productCreateForm" placeholder="producto-ejemplo">
+                                <input type="text" id="pformSeoSlug" class="pform-input @error('slug') pform-field-error @enderror" name="slug"
+                                    form="productCreateForm" placeholder="producto-ejemplo" value="{{ old('slug') }}">
                                 <button type="button" id="pformSeoAutoSlug" class="pform-btn outline">Generar
                                     Auto</button>
                             </div>
+                            @error('slug')
+                                <p class="pform-error-msg">{{ $message }}</p>
+                            @enderror
                             <p class="pform-hint">URL: <span style="color:#1d4ed8">simari.com/productos/<span
-                                        id="pformSeoSlugPreview">producto-ejemplo</span></span></p>
+                                        id="pformSeoSlugPreview">{{ old('slug', 'producto-ejemplo') }}</span></span></p>
                         </div>
 
                         <div class="pform-field">
@@ -1059,11 +1130,14 @@
                                         class="pform-required">*</span></label>
                                 <button type="button" class="pform-insert-variable-btn" data-variable-target="pformSeoMeta">{ } Insertar variable</button>
                             </div>
-                            <textarea id="pformSeoMeta" class="pform-textarea" rows="3" maxlength="160" name = "seo_description"
-                                form="productCreateForm" placeholder="Descripción breve que aparecerá en los resultados de búsqueda de Google"></textarea>
+                            <textarea id="pformSeoMeta" class="pform-textarea @error('seo_description') pform-field-error @enderror" rows="3" maxlength="160" name = "seo_description"
+                                form="productCreateForm" placeholder="Descripción breve que aparecerá en los resultados de búsqueda de Google">{{ old('seo_description') }}</textarea>
+                            @error('seo_description')
+                                <p class="pform-error-msg">{{ $message }}</p>
+                            @enderror
                             <div class="pform-char-row">
                                 <span class="pform-hint" style="margin:0">Óptimo: 120-160 caracteres</span>
-                                <span class="pform-char-count" id="pformSeoMetaCount">0/160</span>
+                                <span class="pform-char-count" id="pformSeoMetaCount">{{ strlen(old('seo_description', '')) }}/160</span>
                             </div>
                         </div>
 
@@ -1071,16 +1145,22 @@
                             <label class="pform-label">Palabras Clave (Keywords)</label>
                             {{-- FIX BUG 5: added name="seo_keywords" + form= — the input
                                  existed but was never submitted (no name= at all). --}}
-                            <input type="text" class="pform-input" name="seo_keywords"
-                                form="productCreateForm"
+                            <input type="text" class="pform-input @error('seo_keywords') pform-field-error @enderror" name="seo_keywords"
+                                form="productCreateForm" value="{{ old('seo_keywords') }}"
                                 placeholder="caldera, industrial, vapor, alta presión">
+                            @error('seo_keywords')
+                                <p class="pform-error-msg">{{ $message }}</p>
+                            @enderror
                             <p class="pform-hint">Separa las palabras clave con comas</p>
                         </div>
 
                         <div class="pform-field" style="margin-bottom:0">
                             <label class="pform-label">URL Canónica</label>
-                            <input type="url" class="pform-input" name="canonical_url" form="productCreateForm"
-                                maxlength="255" placeholder="https://equitermindustries.com.mx/producto/otro-producto-similar">
+                            <input type="url" class="pform-input @error('canonical_url') pform-field-error @enderror" name="canonical_url" form="productCreateForm"
+                                maxlength="255" placeholder="https://equitermindustries.com.mx/producto/otro-producto-similar" value="{{ old('canonical_url') }}">
+                            @error('canonical_url')
+                                <p class="pform-error-msg">{{ $message }}</p>
+                            @enderror
                             <p class="pform-hint">Opcional. Solo llénalo si este producto es muy parecido a otro que ya
                                 existe y quieres que Google indexe ese otro producto como el original. Déjalo vacío en
                                 el 99% de los casos.</p>
@@ -1109,8 +1189,11 @@
                             </div>
                             {{-- FIX BUG 5: added name="og_title" + form= — Open Graph fields
                                  existed visually but were never submitted. --}}
-                            <input type="text" id="pformOgTitle" class="pform-input" name="og_title" form="productCreateForm"
-                                placeholder="Bomba de Calor Rinnai 20HP">
+                            <input type="text" id="pformOgTitle" class="pform-input @error('og_title') pform-field-error @enderror" name="og_title" form="productCreateForm"
+                                placeholder="Bomba de Calor Rinnai 20HP" value="{{ old('og_title') }}">
+                            @error('og_title')
+                                <p class="pform-error-msg">{{ $message }}</p>
+                            @enderror
                         </div>
 
                         <div class="pform-field">
@@ -1118,20 +1201,26 @@
                                 <label class="pform-label" for="pformOgDescription">Descripción para Redes Sociales</label>
                                 <button type="button" class="pform-insert-variable-btn" data-variable-target="pformOgDescription">{ } Insertar variable</button>
                             </div>
-                            <textarea id="pformOgDescription" class="pform-textarea" rows="3" name="og_description" form="productCreateForm"
-                                placeholder="Descripción que aparecerá cuando se comparta en Facebook, LinkedIn, etc."></textarea>
+                            <textarea id="pformOgDescription" class="pform-textarea @error('og_description') pform-field-error @enderror" rows="3" name="og_description" form="productCreateForm"
+                                placeholder="Descripción que aparecerá cuando se comparta en Facebook, LinkedIn, etc.">{{ old('og_description') }}</textarea>
+                            @error('og_description')
+                                <p class="pform-error-msg">{{ $message }}</p>
+                            @enderror
                         </div>
 
                         <div class="pform-field" style="margin-bottom:0">
                             <label class="pform-label">Imagen para Redes Sociales</label>
                             <div class="img-picker-field">
-                                <input type="url" class="pform-input" name="og_image" id="pformOgImage" form="productCreateForm"
-                                    placeholder="URL de la imagen (1200x630px recomendado)">
+                                <input type="url" class="pform-input @error('og_image') pform-field-error @enderror" name="og_image" id="pformOgImage" form="productCreateForm"
+                                    placeholder="URL de la imagen (1200x630px recomendado)" value="{{ old('og_image') }}">
                                 <button type="button" class="img-picker-trigger-btn" onclick="openImagePicker('pformOgImage')">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
                                     Seleccionar
                                 </button>
                             </div>
+                            @error('og_image')
+                                <p class="pform-error-msg">{{ $message }}</p>
+                            @enderror
                             <p class="pform-hint">Recomendado: 1200x630px &bull; Máximo: 5MB &bull; Formato: JPG o PNG
                             </p>
                         </div>

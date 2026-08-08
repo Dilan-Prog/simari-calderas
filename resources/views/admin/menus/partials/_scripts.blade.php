@@ -95,6 +95,12 @@
                         body: formData,
                     });
 
+                    if (response.status === 419) {
+                        errorsContainer.innerHTML = '<p>Tu sesión expiró. Por favor recarga la página e intenta de nuevo.</p>';
+                        errorsContainer.style.display = 'block';
+                        return;
+                    }
+
                     const data = await response.json();
 
                     if (response.ok) {
@@ -104,7 +110,17 @@
                         const errorList = Object.values(data.errors).flat();
                         errorsContainer.innerHTML = errorList.map(m => `<p>${m}</p>`).join('');
                         errorsContainer.style.display = 'block';
-                        if (data.errors.name) showError(nameInput, data.errors.name[0]);
+
+                        // Loop dinámico sobre data.errors en vez de solo revisar
+                        // 'name' — así 'location' (y cualquier otra regla que se
+                        // agregue después en MenuController::store()/update())
+                        // también marca su campo en rojo. querySelector se limita
+                        // a menuForm, así que solo puede marcar campos que existen
+                        // en ESTE formulario (no cruza con el de menuItemForm).
+                        Object.keys(data.errors).forEach(field => {
+                            const input = menuForm.querySelector(`[name="${field}"]`);
+                            if (input) showError(input, data.errors[field][0]);
+                        });
                     }
                 } catch (err) {
                     console.error('Error saving menu:', err);
@@ -334,6 +350,12 @@
                         body: formData,
                     });
 
+                    if (response.status === 419) {
+                        errorsContainer.innerHTML = '<p>Tu sesión expiró. Por favor recarga la página e intenta de nuevo.</p>';
+                        errorsContainer.style.display = 'block';
+                        return;
+                    }
+
                     const data = await response.json();
 
                     if (response.ok) {
@@ -343,8 +365,18 @@
                         const errorList = Object.values(data.errors).flat();
                         errorsContainer.innerHTML = errorList.map(m => `<p>${m}</p>`).join('');
                         errorsContainer.style.display = 'block';
-                        if (data.errors.title) showError(titleInput, data.errors.title[0]);
-                        if (data.errors.parent_id) showError(parentSelect, data.errors.parent_id[0]);
+
+                        // Loop dinámico sobre data.errors en vez de solo revisar
+                        // 'title'/'parent_id' — así 'url' y 'sort_order' (y
+                        // cualquier otra regla que se agregue después en
+                        // MenuController::storeItem()/updateItem()) también
+                        // marcan su campo en rojo. querySelector se limita a
+                        // itemForm, así que solo puede marcar campos que existen
+                        // en ESTE formulario (no cruza con el de menuForm).
+                        Object.keys(data.errors).forEach(field => {
+                            const input = itemForm.querySelector(`[name="${field}"]`);
+                            if (input) showError(input, data.errors[field][0]);
+                        });
                     }
                 } catch (err) {
                     console.error('Error saving menu item:', err);

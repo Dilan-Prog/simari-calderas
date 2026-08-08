@@ -407,6 +407,22 @@
 
 
 
+        // Labels reutilizados de validateFormFields() (definida más abajo en
+        // este mismo archivo) para marcar el campo específico que el
+        // servidor rechazó en la respuesta 422 del submit de edición. Los
+        // campos que no tienen una etiqueta explícita ahí (status, city,
+        // state, country, address_line1/2, reference, notes, tipo_persona)
+        // caen al nombre crudo del campo — no se inventan etiquetas nuevas.
+        const clientFieldLabels = {
+            full_name: 'Nombre',
+            company: 'Empresa',
+            document_type: 'Tipo de Documento',
+            source: 'Origen',
+            email: 'Correo Electrónico',
+            phone: 'Teléfono',
+            postal_code: 'Código Postal',
+        };
+
         // SUBMIT EDIT
         editClientForm.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -435,6 +451,12 @@
                     body: formData,
                 });
 
+                if (response.status === 419) {
+                    errorsContainer.innerHTML = '<p>Tu sesión expiró. Por favor recarga la página e intenta de nuevo.</p>';
+                    errorsContainer.style.display = 'block';
+                    return;
+                }
+
                 const data = await response.json();
 
                 if (response.ok) {
@@ -445,6 +467,19 @@
                     const errorList = Object.values(data.errors).flat();
                     errorsContainer.innerHTML = errorList.map(msg => `<p>${msg}</p>`).join('');
                     errorsContainer.style.display = 'block';
+
+                    // FIX: also mark the specific offending field(s) inline
+                    // (val-error-input/select + val-error-msg), reusing the
+                    // valMark/valClear helpers already defined in this file
+                    // for client-side pre-submit checks — previously only the
+                    // generic banner above was populated on a 422 response.
+                    Object.keys(data.errors ?? {}).forEach(field => {
+                        const input = editClientForm.querySelector(`[name="${field}"]`);
+                        if (!input) return;
+                        valMark(editClientForm, field, clientFieldLabels[field] || field);
+                        const msg = editClientForm.querySelector(`.val-error-msg[data-for="${field}"]`);
+                        if (msg) msg.textContent = data.errors[field][0];
+                    });
                 } else {
                     errorsContainer.innerHTML =
                         `<p>${data.message ?? 'Ocurrió un error al guardar el cliente.'}</p>`;

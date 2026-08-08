@@ -102,7 +102,7 @@
 
                 <div class="form-group">
                     <label class="form-label">Nombre completo <span class="form-req">*</span></label>
-                    <input type="text" name="guest_name" id="guestName" class="form-input"
+                    <input type="text" name="guest_name" id="guestName" class="form-input {{ $errors->has('guest_name') ? 'is-invalid' : '' }}"
                            value="{{ old('guest_name', $quote->guest_name) }}"
                            autocomplete="off" placeholder="Nombre y apellidos del receptor">
                     @error('guest_name')<span class="form-error">{{ $message }}</span>@enderror
@@ -118,7 +118,7 @@
                 <div class="form-grid">
                     <div class="form-group">
                         <label class="form-label">Correo electrónico</label>
-                        <input type="email" name="guest_email" class="form-input"
+                        <input type="email" name="guest_email" class="form-input {{ $errors->has('guest_email') ? 'is-invalid' : '' }}"
                                value="{{ old('guest_email', $quote->guest_email) }}"
                                placeholder="correo@empresa.com">
                         @error('guest_email')<span class="form-error">{{ $message }}</span>@enderror
@@ -165,7 +165,7 @@
                      guardado. --}}
                 <div class="form-group">
                     <label class="form-label">Moneda <span class="form-req">*</span></label>
-                    <select name="currency" id="quoteCurrency" class="form-input">
+                    <select name="currency" id="quoteCurrency" class="form-input {{ $errors->has('currency') ? 'is-invalid' : '' }}">
                         <option value="MXN" {{ old('currency', $quote->currency ?? 'MXN') === 'MXN' ? 'selected' : '' }}>MXN — Peso mexicano</option>
                         <option value="USD" {{ old('currency', $quote->currency) === 'USD' ? 'selected' : '' }}>USD — Dólar estadounidense</option>
                     </select>
@@ -173,7 +173,7 @@
                 </div>
                 <div class="form-group">
                     <label class="form-label">Tipo de cambio (USD→MXN) <span class="form-req">*</span></label>
-                    <input type="number" name="exchange_rate" id="quoteExchangeRate" class="form-input"
+                    <input type="number" name="exchange_rate" id="quoteExchangeRate" class="form-input {{ $errors->has('exchange_rate') ? 'is-invalid' : '' }}"
                            value="{{ old('exchange_rate', $quote->exchange_rate ?? $defaultExchangeRate) }}"
                            step="0.0001" min="0.01">
                     @error('exchange_rate')<span class="form-error">{{ $message }}</span>@enderror
@@ -184,7 +184,7 @@
 
                 <div class="form-group">
                     <label class="form-label">IVA (%) <span class="form-req">*</span></label>
-                    <input type="number" name="tax_rate" id="taxRate" class="form-input"
+                    <input type="number" name="tax_rate" id="taxRate" class="form-input {{ $errors->has('tax_rate') ? 'is-invalid' : '' }}"
                            value="{{ old('tax_rate', $quote->tax_rate) }}"
                            step="0.01" min="0" max="100">
                     @error('tax_rate')<span class="form-error">{{ $message }}</span>@enderror
@@ -196,7 +196,7 @@
                      cambia de cliente. --}}
                 <div class="form-group">
                     <label class="form-label">Retención de ISR persona moral (%)</label>
-                    <input type="number" name="isr_retention_rate" id="isrRetentionRate" class="form-input"
+                    <input type="number" name="isr_retention_rate" id="isrRetentionRate" class="form-input {{ $errors->has('isr_retention_rate') ? 'is-invalid' : '' }}"
                            value="{{ old('isr_retention_rate', $quote->isr_retention_rate ?: 10) }}"
                            step="0.01" min="0" max="100"
                            {{ optional($quote->customer)->tipo_persona === 'moral' ? '' : 'disabled' }}>

@@ -444,8 +444,21 @@
             });
 
             // FIX BUG 3: pre-populate the chips from the product's saved
-            // tags when opening the edit form.
-            @json($product->tags ?? []).forEach(addTagChip);
+            // tags when opening the edit form. Si la página se re-renderiza
+            // tras un error de validación del servidor en OTRO campo,
+            // old('tags') (mismo JSON que ya serializaba el input oculto)
+            // tiene prioridad para no perder tags que el admin acababa de
+            // editar.
+            @if (old('tags'))
+                (function() {
+                    try {
+                        const oldTags = JSON.parse(@json(old('tags')));
+                        if (Array.isArray(oldTags)) oldTags.forEach(addTagChip);
+                    } catch (e) {}
+                })();
+            @else
+                @json($product->tags ?? []).forEach(addTagChip);
+            @endif
             syncTagsHidden();
 
             /* ── Specs ── */
@@ -665,6 +678,27 @@
             if (seoMeta) seoMeta.dispatchEvent(new Event('input'));
             if (seoSlug) seoSlug.dispatchEvent(new Event('input'));
 
+            /* ── Server-side validation errors (withErrors() redirect back) ──
+               Mismo mecanismo que create_product/_scripts_create.blade.php:
+               el servidor marca cada campo inválido con .pform-field-error
+               vía @@error() en el blade. Si el primer error cae en una
+               pestaña que no es la activa por defecto, o dentro del modal
+               de SEO (fuera del sistema de pestañas), esto lo muestra
+               automáticamente. */
+            const firstServerError = document.querySelector('.pform-field-error');
+            if (firstServerError) {
+                if (seoModal.contains(firstServerError)) {
+                    seoModal.style.display = 'flex';
+                } else {
+                    const panel = firstServerError.closest('.pform-tab-panel');
+                    if (panel) switchToPanel(panel.id);
+                }
+                setTimeout(() => firstServerError.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'center'
+                }), 150);
+            }
+
         })();
 
         /* ── Category cascade ── */
@@ -704,8 +738,17 @@
             $initialSubId = null;
             $initialChildId = null;
 
-            if ($product->category) {
-                $cat = $product->category;
+            // FIX (validación de servidor): si el guardado falló por otro
+            // campo distinto a category_id (ej. SKU duplicado), old('category_id')
+            // tiene prioridad sobre la categoría ya guardada del producto —
+            // sin esto, un error en OTRO campo hacía que el cascade volviera
+            // a mostrar la categoría ANTERIOR en vez de la que el admin
+            // acababa de seleccionar antes de enviar el formulario.
+            $cat = old('category_id')
+                ? \App\Models\Category::with('parent.parent')->find(old('category_id'))
+                : $product->category;
+
+            if ($cat) {
                 $level = $cat->level;
 
                 if ($level === 1) {
@@ -1481,6 +1524,10 @@
                     body: JSON.stringify(payload),
                 })
                     .then(async (res) => {
+                        if (res.status === 419) {
+                            showError('Tu sesión expiró. Por favor recarga la página e intenta de nuevo.');
+                            return;
+                        }
                         const data = await res.json();
                         if (!res.ok || !data.success) {
                             showError(data.message || 'No se pudo guardar.');

@@ -119,6 +119,39 @@
         });
     }
 
+    // ── Helpers de validación inline (marcan el campo del servidor con error) ──
+    // No existía ningún helper de este tipo en este archivo (a diferencia de
+    // users/_scripts.blade.php y client/_scripts.blade.php); se agrega aquí
+    // siguiendo el mismo patrón val-error-input/val-error-select/val-error-msg
+    // que ya usa el propio módulo de proveedores en _modal_create.blade.php.
+    const supplierFieldLabels = {
+        company_name: 'Nombre de la Empresa', contact_name: 'Contacto Principal',
+        phone: 'Teléfono', email: 'Email', address: 'Dirección', rfc: 'RFC',
+        tipo_persona: 'Tipo de Persona', website: 'Sitio Web', status: 'Estado',
+        payment_terms: 'Condiciones de Pago', notes: 'Notas',
+        rating_quality: 'Rating de Calidad', rating_compliance: 'Rating de Cumplimiento',
+    };
+
+    function supplierValClear(form, name) {
+        const f = form.querySelector(`[name="${name}"]`);
+        if (!f) return;
+        f.classList.remove('val-error-input', 'val-error-select');
+        form.querySelectorAll(`.val-error-msg[data-for="${name}"]`).forEach(el => el.remove());
+    }
+
+    function supplierValMark(form, name, message) {
+        const f = form.querySelector(`[name="${name}"]`);
+        if (!f) return;
+        f.classList.add(f.tagName === 'SELECT' ? 'val-error-select' : 'val-error-input');
+        if (!form.querySelector(`.val-error-msg[data-for="${name}"]`)) {
+            const msg = document.createElement('span');
+            msg.className = 'val-error-msg';
+            msg.dataset.for = name;
+            msg.textContent = message;
+            f.insertAdjacentElement('afterend', msg);
+        }
+    }
+
     // Bind create modal inputs al cargar
     (function bindCreateInputs() {
         const modal = document.getElementById('supplierCreateModal');
@@ -332,6 +365,17 @@
                 },
                 body: formData,
             });
+
+            if (res.status === 419) {
+                const errBox = document.getElementById('supplier-create-errors');
+                if (errBox) {
+                    errBox.innerHTML = '<p>Tu sesión expiró. Por favor recarga la página e intenta de nuevo.</p>';
+                    errBox.style.display = 'block';
+                }
+                showSupplierToast('Tu sesión expiró. Por favor recarga la página e intenta de nuevo.', 'error');
+                return;
+            }
+
             const data = await res.json();
 
             if (res.ok) {
@@ -340,11 +384,35 @@
                 showSupplierToast('Proveedor creado correctamente.');
                 setTimeout(() => window.location.reload(), 1500);
             } else if (res.status === 422) {
+                // Loop dinámico sobre data.errors (no una lista fija de campos)
+                // para que cualquier regla de validación del servidor marque el
+                // input correspondiente en rojo con el mensaje real, además del
+                // resumen general arriba del modal.
+                let firstMarked = null;
+                const nonFieldErrors = [];
+
+                Object.keys(data.errors ?? {}).forEach(field => {
+                    const input = cForm.querySelector(`[name="${field}"]`);
+                    if (input) {
+                        supplierValMark(cForm, field, data.errors[field][0] || supplierFieldLabels[field] || field);
+                        if (!firstMarked) firstMarked = input;
+                    } else {
+                        nonFieldErrors.push(...data.errors[field]);
+                    }
+                });
+
                 const errBox = document.getElementById('supplier-create-errors');
                 if (errBox) {
-                    errBox.innerHTML     = Object.values(data.errors).flat().map(m => `<p>${m}</p>`).join('');
-                    errBox.style.display = 'block';
+                    if (nonFieldErrors.length > 0) {
+                        errBox.innerHTML     = nonFieldErrors.map(m => `<p>${m}</p>`).join('');
+                        errBox.style.display = 'block';
+                    } else {
+                        errBox.innerHTML     = '';
+                        errBox.style.display = 'none';
+                    }
                 }
+
+                if (firstMarked) firstMarked.scrollIntoView({ behavior: 'smooth', block: 'center' });
             } else {
                 showSupplierToast(data.message ?? 'Error al crear el proveedor.', 'error');
             }
@@ -471,6 +539,17 @@
                 },
                 body: formData,
             });
+
+            if (res.status === 419) {
+                const errBox = document.getElementById('supplier-edit-errors');
+                if (errBox) {
+                    errBox.innerHTML = '<p>Tu sesión expiró. Por favor recarga la página e intenta de nuevo.</p>';
+                    errBox.style.display = 'block';
+                }
+                showSupplierToast('Tu sesión expiró. Por favor recarga la página e intenta de nuevo.', 'error');
+                return;
+            }
+
             const data = await res.json();
 
             if (res.ok) {
@@ -478,11 +557,33 @@
                 updateSupplierTableRow(data.supplier);
                 showSupplierToast('Proveedor actualizado correctamente.');
             } else if (res.status === 422) {
+                // Mismo loop dinámico que en el submit de creación — ver
+                // comentario arriba.
+                let firstMarked = null;
+                const nonFieldErrors = [];
+
+                Object.keys(data.errors ?? {}).forEach(field => {
+                    const input = eForm.querySelector(`[name="${field}"]`);
+                    if (input) {
+                        supplierValMark(eForm, field, data.errors[field][0] || supplierFieldLabels[field] || field);
+                        if (!firstMarked) firstMarked = input;
+                    } else {
+                        nonFieldErrors.push(...data.errors[field]);
+                    }
+                });
+
                 const errBox = document.getElementById('supplier-edit-errors');
                 if (errBox) {
-                    errBox.innerHTML     = Object.values(data.errors).flat().map(m => `<p>${m}</p>`).join('');
-                    errBox.style.display = 'block';
+                    if (nonFieldErrors.length > 0) {
+                        errBox.innerHTML     = nonFieldErrors.map(m => `<p>${m}</p>`).join('');
+                        errBox.style.display = 'block';
+                    } else {
+                        errBox.innerHTML     = '';
+                        errBox.style.display = 'none';
+                    }
                 }
+
+                if (firstMarked) firstMarked.scrollIntoView({ behavior: 'smooth', block: 'center' });
             } else {
                 showSupplierToast(data.message ?? 'Error al actualizar.', 'error');
             }

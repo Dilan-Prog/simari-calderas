@@ -129,6 +129,12 @@
                     body: formData,
                 });
 
+                if (response.status === 419) {
+                    brandErrors.innerHTML = '<p>Tu sesión expiró. Por favor recarga la página e intenta de nuevo.</p>';
+                    brandErrors.style.display = 'block';
+                    return;
+                }
+
                 const data = await response.json();
 
                 if (response.ok) {

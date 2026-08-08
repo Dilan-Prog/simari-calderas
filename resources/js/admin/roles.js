@@ -38,6 +38,11 @@
         document.getElementById('edit-name').value = name;
         document.getElementById('edit-desc').value = description;
         document.getElementById('roles-edit-form').action = urlUpdate + '/' + id;
+        // FIX: mantener el hidden "_role_id" sincronizado con el rol que se
+        // está editando. Viaja con el POST y vuelve vía old('_role_id') si el
+        // servidor rechaza la validación, permitiendo que el drawer se
+        // reabra apuntando al rol correcto (ver _drawer_edit.blade.php).
+        document.getElementById('edit-role-id').value = id;
 
         document.getElementById('edit-modules-grid')
             .querySelectorAll('.roles-module-card')

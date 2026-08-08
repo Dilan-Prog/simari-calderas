@@ -153,6 +153,14 @@
                 headers: { 'X-CSRF-TOKEN': csrf, 'Accept': 'application/json' },
                 body: formData,
             });
+
+            if (response.status === 419) {
+                showCenterToast('Tu sesión expiró. Por favor recarga la página e intenta de nuevo.', 'error');
+                uploadBtn.disabled = false;
+                uploadBtn.textContent = 'Subir';
+                return;
+            }
+
             const data = await response.json();
 
             if (response.ok && data.success) {

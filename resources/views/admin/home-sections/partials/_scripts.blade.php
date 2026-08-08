@@ -267,6 +267,13 @@
                     body: formData,
                 });
 
+                if (response.status === 419) {
+                    errorsContainer.innerHTML = '<p>Tu sesión expiró. Por favor recarga la página e intenta de nuevo.</p>';
+                    errorsContainer.style.display = 'block';
+                    showCenterToast('Tu sesión expiró. Por favor recarga la página e intenta de nuevo.', 'error');
+                    return;
+                }
+
                 const data = await response.json();
 
                 if (response.ok) {
@@ -274,10 +281,16 @@
                     queueCenterToast(isEditMode ? 'Sección actualizada correctamente.' : 'Sección creada correctamente.');
                     setTimeout(() => window.location.reload(), 200);
                 } else if (response.status === 422) {
-                    const errorList = Object.values(data.errors).flat();
+                    const errors = data.errors || {};
+                    const errorList = Object.values(errors).flat();
                     errorsContainer.innerHTML = errorList.map(m => `<p>${m}</p>`).join('');
                     errorsContainer.style.display = 'block';
                     showCenterToast('Revisa los campos marcados.', 'error');
+
+                    Object.keys(errors).forEach(field => {
+                        const input = homeSectionForm.querySelector(`[name="${field}"]`);
+                        if (input) showError(input, errors[field][0]);
+                    });
                 }
             } catch (err) {
                 console.error('Error:', err);
