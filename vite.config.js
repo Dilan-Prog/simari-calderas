@@ -42,6 +42,7 @@ export default defineConfig({
                 'resources/js/frontend/shop/account.js',
                 'resources/css/frontend/shop/collection.css',
                 'resources/js/frontend/shop/collection.js',
+                'resources/css/frontend/shop/legal.css',
                 'resources/css/admin/pages/collections.css',
                 'resources/css/admin/pages/gallery.css',
                 'resources/js/admin/wizard-core.js',

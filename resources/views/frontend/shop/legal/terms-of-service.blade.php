@@ -1,36 +1,42 @@
-@extends('frontend.layouts.master')
+@extends('frontend.shop.layouts.master')
 
-@section('title')
-Equiterm Industries Terminos y Condiciones
-@endsection
+@php
+    $shopVite = ['resources/css/frontend/shop/legal.css'];
+    $metaTitle = 'Términos y Condiciones — Equiterm Industries';
+    $metaDescription = 'Condiciones generales de uso del sitio web y contratación de servicios de Equiterm Industries.';
+    $canonicalUrl = route('terms-of-service');
+@endphp
+
+@section('title', $metaTitle)
+@section('description', $metaDescription)
+@section('canonical', $canonicalUrl)
+@section('og_title', $metaTitle)
+@section('og_description', $metaDescription)
+@section('og_url', $canonicalUrl)
 
 @section('content')
+<div class="eq-shop-legal">
 <section class="simari-privacy-body" aria-label="Contenido de términos y condiciones">
-    {{-- HERO con look Tailwind --}}
-    <section class="simari-privacy-presentation simari-hero">
-        <div class="simari-hero__bg" aria-hidden="true"></div>
+    <section class="simari-privacy-presentation">
+        <div class="presentation-container">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                 viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                 class="lucide lucide-scale">
+                <path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"></path>
+                <path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"></path>
+                <path d="M7 21h10"></path>
+                <path d="M12 3v18"></path>
+                <path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"></path>
+            </svg>
 
-        <div class="presentation-container simari-hero__container">
-            <div class="simari-hero__badge" aria-hidden="true">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                     viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                     class="lucide lucide-scale">
-                    <path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"></path>
-                    <path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"></path>
-                    <path d="M7 21h10"></path>
-                    <path d="M12 3v18"></path>
-                    <path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"></path>
-                </svg>
-            </div>
+            <h1>Términos y Condiciones</h1>
 
-            <h1 class="simari-hero__title">Términos y Condiciones</h1>
-
-            <p class="presentation-subcontent-title simari-hero__subtitle">
+            <p class="presentation-subcontent-title">
                 Condiciones generales de uso del sitio web y contratación de servicios de Equiterm Industries
             </p>
 
-            <p class="presentation-subcontent-date simari-hero__date">
+            <p class="presentation-subcontent-date">
                 Última actualización: 28 de febrero de 2026
             </p>
         </div>
@@ -57,9 +63,9 @@ Equiterm Industries Terminos y Condiciones
           <div class="simari-terms-card__content">
             <h2 class="simari-privacy-card__title simari-terms-card__title">Aceptación de los Términos</h2>
             <div class="simari-privacy-card__text">
-              <p>Al acceder y utilizar el sitio web de Equiterm Industries S.A. de C.V. (en adelante "SIMARI" o "el Sitio"), usted acepta estar legalmente obligado por estos Términos y Condiciones de Uso.</p>
+              <p>Al acceder y utilizar el sitio web de Equiterm Industries S.A. de C.V. (en adelante "Equiterm Industries" o "el Sitio"), usted acepta estar legalmente obligado por estos Términos y Condiciones de Uso.</p>
               <p>Si no está de acuerdo con estos términos, le solicitamos que no utilice nuestro sitio web ni nuestros servicios.</p>
-              <p>SIMARI se reserva el derecho de modificar estos términos en cualquier momento. Es responsabilidad del usuario revisar periódicamente esta página para estar al tanto de cualquier cambio.</p>
+              <p>Equiterm Industries se reserva el derecho de modificar estos términos en cualquier momento. Es responsabilidad del usuario revisar periódicamente esta página para estar al tanto de cualquier cambio.</p>
             </div>
           </div>
         </div>
@@ -83,7 +89,7 @@ Equiterm Industries Terminos y Condiciones
                 <li>No intentar obtener acceso no autorizado a ninguna parte del Sitio</li>
                 <li>No utilizar el Sitio para transmitir material ilegal, amenazante, abusivo, difamatorio u obsceno</li>
                 <li>No utilizar robots, spiders u otros dispositivos automáticos para monitorear el Sitio</li>
-                <li>No infringir los derechos de propiedad intelectual de SIMARI o de terceros</li>
+                <li>No infringir los derechos de propiedad intelectual de Equiterm Industries o de terceros</li>
               </ul>
             </div>
           </div>
@@ -106,9 +112,9 @@ Equiterm Industries Terminos y Condiciones
           <div class="simari-terms-card__content">
             <h2 class="simari-privacy-card__title simari-terms-card__title">Propiedad Intelectual</h2>
             <div class="simari-privacy-card__text">
-              <p>Todo el contenido incluido en este Sitio, incluyendo pero no limitado a textos, gráficos, logos, íconos, imágenes, clips de audio, descargas digitales y compilaciones de datos, es propiedad de SIMARI o de sus proveedores de contenido y está protegido por las leyes mexicanas e internacionales de propiedad intelectual.</p>
-              <p>Las marcas comerciales, marcas de servicio y logos utilizados en este Sitio son propiedad de SIMARI o de terceros autorizados. Ningún contenido de este Sitio debe ser interpretado como una concesión de licencia o derecho de uso.</p>
-              <p class="simari-privacy-emphasis">Queda estrictamente prohibida la reproducción, distribución o modificación del contenido sin autorización expresa y por escrito de SIMARI.</p>
+              <p>Todo el contenido incluido en este Sitio, incluyendo pero no limitado a textos, gráficos, logos, íconos, imágenes, clips de audio, descargas digitales y compilaciones de datos, es propiedad de Equiterm Industries o de sus proveedores de contenido y está protegido por las leyes mexicanas e internacionales de propiedad intelectual.</p>
+              <p>Las marcas comerciales, marcas de servicio y logos utilizados en este Sitio son propiedad de Equiterm Industries o de terceros autorizados. Ningún contenido de este Sitio debe ser interpretado como una concesión de licencia o derecho de uso.</p>
+              <p class="simari-privacy-emphasis">Queda estrictamente prohibida la reproducción, distribución o modificación del contenido sin autorización expresa y por escrito de Equiterm Industries.</p>
             </div>
           </div>
         </div>
@@ -129,7 +135,7 @@ Equiterm Industries Terminos y Condiciones
           <div class="simari-terms-card__content">
             <h2 class="simari-privacy-card__title simari-terms-card__title">Productos y Servicios</h2>
             <div class="simari-privacy-card__text">
-              <p>SIMARI se esfuerza por proporcionar información precisa sobre productos y servicios. Sin embargo:</p>
+              <p>Equiterm Industries se esfuerza por proporcionar información precisa sobre productos y servicios. Sin embargo:</p>
               <ul class="simari-privacy-bullets">
                 <li>Las especificaciones técnicas pueden estar sujetas a cambios sin previo aviso</li>
                 <li>Las imágenes de productos son referenciales y pueden diferir del producto real</li>
@@ -158,7 +164,7 @@ Equiterm Industries Terminos y Condiciones
               <p>El proceso de cotización y compra incluye:</p>
               <ul class="simari-privacy-bullets">
                 <li><strong>Solicitud:</strong> El cliente solicita cotización mediante el sitio web o contacto directo</li>
-                <li><strong>Cotización:</strong> SIMARI proporciona una cotización detallada con especificaciones y precios</li>
+                <li><strong>Cotización:</strong> Equiterm Industries proporciona una cotización detallada con especificaciones y precios</li>
                 <li><strong>Aceptación:</strong> El cliente acepta la cotización y proporciona datos para facturación</li>
                 <li><strong>Orden de Compra:</strong> Se genera orden de compra formal con términos y condiciones</li>
                 <li><strong>Anticipo:</strong> Según producto, puede requerirse anticipo del 30-50%</li>
@@ -166,7 +172,7 @@ Equiterm Industries Terminos y Condiciones
               </ul>
 
               <div class="simari-privacy-note">
-                <strong>Importante:</strong> La orden de compra se considera confirmada únicamente cuando SIMARI emite confirmación por escrito.
+                <strong>Importante:</strong> La orden de compra se considera confirmada únicamente cuando Equiterm Industries emite confirmación por escrito.
               </div>
             </div>
           </div>
@@ -197,7 +203,7 @@ Equiterm Industries Terminos y Condiciones
               </ul>
 
               <p><strong>Instalación:</strong></p>
-              <p>Los servicios de instalación se cotizan por separado y deben ser realizados por personal autorizado de SIMARI o técnicos certificados. La garantía del equipo puede verse afectada si la instalación es realizada por personal no autorizado.</p>
+              <p>Los servicios de instalación se cotizan por separado y deben ser realizados por personal autorizado de Equiterm Industries o técnicos certificados. La garantía del equipo puede verse afectada si la instalación es realizada por personal no autorizado.</p>
               <p class="simari-privacy-emphasis">El cliente es responsable de proporcionar las condiciones adecuadas del sitio de instalación según especificaciones técnicas.</p>
             </div>
           </div>
@@ -216,7 +222,7 @@ Equiterm Industries Terminos y Condiciones
           <div class="simari-terms-card__content">
             <h2 class="simari-privacy-card__title simari-terms-card__title">Garantías</h2>
             <div class="simari-privacy-card__text">
-              <p>SIMARI ofrece garantías según el tipo de producto:</p>
+              <p>Equiterm Industries ofrece garantías según el tipo de producto:</p>
               <ul class="simari-privacy-bullets">
                 <li><strong>Calderas industriales:</strong> 12 meses contra defectos de fabricación</li>
                 <li><strong>Bombas de calor:</strong> Según garantía del fabricante (12-24 meses)</li>
@@ -251,7 +257,7 @@ Equiterm Industries Terminos y Condiciones
           <div class="simari-terms-card__content">
             <h2 class="simari-privacy-card__title simari-terms-card__title">Limitación de Responsabilidad</h2>
             <div class="simari-privacy-card__text">
-              <p>SIMARI no será responsable por daños directos, indirectos, incidentales, especiales o consecuentes que resulten de:</p>
+              <p>Equiterm Industries no será responsable por daños directos, indirectos, incidentales, especiales o consecuentes que resulten de:</p>
               <ul class="simari-privacy-bullets">
                 <li>El uso o la imposibilidad de usar el Sitio</li>
                 <li>Errores u omisiones en el contenido del Sitio</li>
@@ -281,7 +287,7 @@ Equiterm Industries Terminos y Condiciones
           <div class="simari-terms-card__content">
             <h2 class="simari-privacy-card__title simari-terms-card__title">Ley Aplicable y Jurisdicción</h2>
             <div class="simari-privacy-card__text">
-              <p>Estos Términos y Condiciones se rigen por las leyes de los Estados Unidos Mexicanos. Cualquier controversia derivada del uso del Sitio o de la prestación de servicios será resuelta ante los tribunales competentes de [Ciudad/Estado], renunciando expresamente a cualquier otra jurisdicción que pudiera corresponderles.</p>
+              <p>Estos Términos y Condiciones se rigen por las leyes de los Estados Unidos Mexicanos. Cualquier controversia derivada del uso del Sitio o de la prestación de servicios será resuelta ante los tribunales competentes de Aguascalientes, México, renunciando expresamente a cualquier otra jurisdicción que pudiera corresponderles.</p>
               <p>En caso de que alguna disposición de estos términos sea considerada inválida o inaplicable, las disposiciones restantes continuarán en pleno vigor y efecto.</p>
             </div>
           </div>
@@ -307,9 +313,8 @@ Equiterm Industries Terminos y Condiciones
               <p>Para cualquier consulta sobre estos Términos y Condiciones, o para reportar un problema, puede contactarnos a través de:</p>
 
               <div class="simari-terms-contact-box">
-                <p><strong>Correo electrónico:</strong> <a class="simari-privacy-link" href="mailto:info@simaricalderas.com">info@simaricalderas.com</a></p>
-                <p><strong>Teléfono:</strong> +52 (55) 1234-5678</p>
-                <p><strong>Horario de atención:</strong> Lunes a Viernes, 9:00 - 18:00 hrs</p>
+                <p><strong>Correo electrónico:</strong> <a class="simari-privacy-link" href="mailto:administracion@equitermindustries.com.mx">administracion@equitermindustries.com.mx</a></p>
+                <p><strong>Teléfono:</strong> +52 (449) 434-8018</p>
               </div>
             </div>
           </div>
@@ -328,14 +333,14 @@ Equiterm Industries Terminos y Condiciones
 
       <h3 class="simari-privacy-cta__title">Tu confianza es nuestra prioridad</h3>
       <p class="simari-privacy-cta__text">
-        En SIMARI nos comprometemos a proporcionar equipos de la más alta calidad y un servicio excepcional. Estos términos están diseñados para proteger tanto tus derechos como los nuestros.
+        En Equiterm Industries nos comprometemos a proporcionar equipos de la más alta calidad y un servicio excepcional. Estos términos están diseñados para proteger tanto tus derechos como los nuestros.
       </p>
 
       <div class="simari-cta__footer">
-        © 2026 Equiterm Industries S.A. de C.V. - Todos los derechos reservados
+        © {{ now()->year }} Equiterm Industries S.A. de C.V. - Todos los derechos reservados
       </div>
     </div>
   </div>
 </section>
-
+</div>
 @endsection

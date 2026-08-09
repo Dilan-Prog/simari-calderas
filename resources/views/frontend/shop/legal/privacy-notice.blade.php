@@ -1,22 +1,34 @@
-@extends('frontend.layouts.master')
-@section('title')
-Equiterm Industries Aviso de Privacidad
-@endsection
+@extends('frontend.shop.layouts.master')
+
+@php
+    $shopVite = ['resources/css/frontend/shop/legal.css'];
+    $metaTitle = 'Aviso de Privacidad — Equiterm Industries';
+    $metaDescription = 'Conoce cómo Equiterm Industries recaba, usa y protege tus datos personales, y cómo ejercer tus derechos ARCO.';
+    $canonicalUrl = route('privacy-notice');
+@endphp
+
+@section('title', $metaTitle)
+@section('description', $metaDescription)
+@section('canonical', $canonicalUrl)
+@section('og_title', $metaTitle)
+@section('og_description', $metaDescription)
+@section('og_url', $canonicalUrl)
+
 @section('content')
+<div class="eq-shop-legal">
     <section class="simari-privacy-body" aria-label="Contenido del aviso">
         <section class="simari-privacy-presentation">
             <div class="presentation-container">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                    stroke-linejoin="round" class="lucide lucide-shield w-10 h-10 text-[#C62828]"
-                    data-fg-d5gj105="113.257:113.10658:/src/app/pages/public/Privacy.tsx:133:15:6865:47:e:Shield::::::B8zf">
+                    stroke-linejoin="round" class="lucide lucide-shield">
                     <path
                         d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z">
                     </path>
                 </svg>
                 <h1>Aviso de Privacidad</h1>
                 <p class="presentation-subcontent-title">
-                    En SIMARI valoramos y protegemos su privacidad. Conoce cómo tratamos tus datos personales de manera responsable y transparente.
+                    En Equiterm Industries valoramos y protegemos su privacidad. Conoce cómo tratamos tus datos personales de manera responsable y transparente.
                 </p>
                 <p class="presentation-subcontent-date">
                     Última actualización: 28 de febrero de 2026
@@ -25,7 +37,7 @@ Equiterm Industries Aviso de Privacidad
         </section>
         <div class="simari-privacy-body__inner">
             <div class="simari-privacy-body__stack">
-                <article class="simari-privacy-article" aria-label="Aviso de Privacidad de SIMARI">
+                <article class="simari-privacy-article" aria-label="Aviso de Privacidad de Equiterm Industries">
                     <section class="simari-privacy-card" aria-labelledby="sec-responsable">
                         <div class="simari-privacy-card__row">
                             <div class="simari-privacy-card__badge" aria-hidden="true">
@@ -45,7 +57,7 @@ Equiterm Industries Aviso de Privacidad
                                 </h2>
                                 <div class="simari-privacy-card__text">
                                     <p>
-                                        <strong>Equiterm Industries S.A. de C.V.</strong> (en adelante “SIMARI”), con domicilio
+                                        <strong>Equiterm Industries S.A. de C.V.</strong>, con domicilio
                                         en
                                         <span class="simari-privacy-placeholder">[Dirección completa]</span>, es responsable
                                         del tratamiento de sus datos personales.
@@ -174,8 +186,8 @@ Equiterm Industries Aviso de Privacidad
                                         Para ejercer estos derechos, deberá presentar una solicitud mediante correo
                                         electrónico a:
                                         <a class="simari-privacy-link"
-                                            href="mailto:privacidad@simaricalderas.com">privacidad@simaricalderas.com</a>
-                                        (o al correo que corresponda), especificando:
+                                            href="mailto:administracion@equitermindustries.com.mx">administracion@equitermindustries.com.mx</a>
+                                        especificando:
                                     </p>
 
                                     <ul class="simari-privacy-bullets">
@@ -239,7 +251,7 @@ Equiterm Industries Aviso de Privacidad
                                 </h2>
                                 <div class="simari-privacy-card__text">
                                     <p>
-                                        SIMARI no realiza transferencias de datos personales a terceros, salvo aquellas
+                                        Equiterm Industries no realiza transferencias de datos personales a terceros, salvo aquellas
                                         necesarias para atender requerimientos de autoridades
                                         competentes, debidamente fundados y motivados.
                                     </p>
@@ -280,9 +292,8 @@ Equiterm Industries Aviso de Privacidad
                                     </p>
                                     <p>
                                         Cualquier modificación al presente aviso será publicada en:
-                                        <a class="simari-privacy-link" href="https://www.simaricalderas.com"
-                                            target="_blank" rel="noopener noreferrer">
-                                            www.simaricalderas.com
+                                        <a class="simari-privacy-link" href="{{ route('home') }}">
+                                            equitermindustries.com.mx
                                         </a>
                                     </p>
                                 </div>
@@ -293,13 +304,6 @@ Equiterm Industries Aviso de Privacidad
                     <!-- CTA CONTACT -->
                     <section class="simari-privacy-cta" aria-labelledby="sec-contacto">
                         <h2 class="simari-privacy-cta__title" id="sec-contacto">
-                            <svg class="simari-privacy-icon simari-privacy-icon--lg simari-privacy-icon--primary"
-                                xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round" aria-hidden="true" focusable="false">
-                                <rect width="20" height="16" x="2" y="4" rx="2"></rect>
-                                <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
-                            </svg>
                             ¿Tienes dudas sobre tu privacidad?
                         </h2>
 
@@ -320,8 +324,8 @@ Equiterm Industries Aviso de Privacidad
                                 <div class="simari-privacy-contact__body">
                                     <p class="simari-privacy-contact__label">Correo electrónico</p>
                                     <p class="simari-privacy-contact__value">
-                                        <a class="simari-privacy-link" href="mailto:privacidad@simaricalderas.com">
-                                            privacidad@simaricalderas.com
+                                        <a class="simari-privacy-link" href="mailto:administracion@equitermindustries.com.mx">
+                                            administracion@equitermindustries.com.mx
                                         </a>
                                     </p>
                                 </div>
@@ -340,7 +344,7 @@ Equiterm Industries Aviso de Privacidad
                                 <div class="simari-privacy-contact__body">
                                     <p class="simari-privacy-contact__label">Teléfono</p>
                                     <p class="simari-privacy-contact__value">
-                                        <a class="simari-privacy-link" href="tel:+525512345678">+52 (55) 1234-5678</a>
+                                        <a class="simari-privacy-link" href="tel:+524494348018">+52 (449) 434-8018</a>
                                     </p>
                                 </div>
                             </div>
@@ -352,4 +356,5 @@ Equiterm Industries Aviso de Privacidad
             </div>
         </div>
     </section>
+</div>
 @endsection

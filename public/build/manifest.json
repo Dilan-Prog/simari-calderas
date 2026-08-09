@@ -113,6 +113,11 @@
     "src": "resources/css/frontend/shop/home.css",
     "isEntry": true
   },
+  "resources/css/frontend/shop/legal.css": {
+    "file": "assets/legal-CpHImTGj.css",
+    "src": "resources/css/frontend/shop/legal.css",
+    "isEntry": true
+  },
   "resources/css/frontend/shop/product-detail.css": {
     "file": "assets/product-detail-oCMszbTH.css",
     "src": "resources/css/frontend/shop/product-detail.css",
