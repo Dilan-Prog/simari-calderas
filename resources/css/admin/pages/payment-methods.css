@@ -1,0 +1,474 @@
+/* Métodos de Pago — el shell de tabla/modal es 100% reutilizado de
+   ui-kit.css (.clients-manager-table, .action-btn, .brand-status-badge,
+   .del-confirm-overlay/.del-confirm-box, .is-invalid/.field-error-msg).
+   Las clases "ap-modal-", "ap-field-" y "ap-primary-toggle" son una
+   convención ya usada en inventory.css y proveedores.css, pero como cada
+   página del admin sólo carga su propio CSS (@push('styles')), se
+   redefinen aquí también — mismo criterio ya seguido por esos dos
+   archivos. */
+
+.pm-name {
+    font-weight: 600;
+    color: var(--text-black, #111);
+    margin: 0;
+}
+
+.pm-type {
+    text-transform: capitalize;
+}
+
+.pm-bank-summary {
+    color: #4b5563;
+    font-size: 0.85rem;
+    line-height: 1.4;
+}
+
+.pm-clabe {
+    color: #6b7280;
+    font-size: 0.78rem;
+}
+
+/* ============================================================
+   Modal shell — clon de .ap-modal-* (inventory.css / proveedores.css),
+   con .pm-modal-box para el ancho ampliado de dos columnas.
+   ============================================================ */
+.ap-modal-box {
+    max-width: 640px;
+    width: 94%;
+    text-align: left;
+}
+
+.pm-modal-box {
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+/* Piso de ancho fijo en móvil (arriba); en escritorio sube a 60vw para
+   dar espacio real a la columna de vista previa — mismo criterio que
+   .img-source-box en product-form.css. */
+@media (min-width: 769px) {
+    .pm-modal-box {
+        max-width: 60vw;
+    }
+}
+
+.ap-modal-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    margin-bottom: 20px;
+}
+
+.ap-modal-icon-wrap {
+    flex-shrink: 0;
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: #fff3ea;
+    color: var(--button-primary-color, #ff6213);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ap-modal-header-text {
+    flex: 1;
+}
+
+.ap-modal-header-text .del-confirm-title {
+    margin-bottom: 4px;
+    text-align: left;
+}
+
+.ap-modal-header-text .del-confirm-desc {
+    margin-bottom: 0;
+    text-align: left;
+}
+
+.ap-modal-header > button {
+    flex-shrink: 0;
+}
+
+.ap-modal-errors {
+    display: none;
+    background: #fee2e2;
+    color: #991b1b;
+    border: 1px solid #fecaca;
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 13px;
+    margin-bottom: 16px;
+}
+
+.ap-modal-errors p {
+    margin: 0;
+}
+
+.ap-modal-body {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    text-align: left;
+}
+
+.ap-field-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.ap-field-grid {
+    margin-top: 0;
+}
+
+.ap-readonly-note {
+    font-size: 12px;
+    color: #9ca3af;
+    margin: 6px 0 0;
+}
+
+.ap-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+/* Toggle de checkbox usado por is_active / allows_invoicing / captura_manual
+   / requiere_aprobacion — clon exacto de proveedores.css. */
+.ap-primary-toggle {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px 16px;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    background: #f9fafb;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.ap-primary-toggle:has(input:checked) {
+    border-color: var(--button-primary-color, #ff6213);
+    background: #fff7ed;
+}
+
+.ap-primary-toggle input[type="checkbox"] {
+    width: auto;
+    margin-top: 2px;
+    flex-shrink: 0;
+}
+
+.ap-primary-toggle strong {
+    display: block;
+    font-size: 13px;
+    color: #111827;
+}
+
+.ap-primary-toggle span {
+    display: block;
+    font-size: 12px;
+    color: #6b7280;
+    margin-top: 2px;
+}
+
+/* ============================================================
+   Layout de dos columnas: formulario + vista previa en vivo.
+   Colapsa a una sola columna en móvil (criterio de .po-layout en
+   purchase-orders.css, aplicado aquí dentro del modal).
+   ============================================================ */
+.pm-modal-columns {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+@media (min-width: 769px) {
+    .pm-modal-columns {
+        display: grid;
+        grid-template-columns: 1fr 316px;
+        gap: 24px;
+        align-items: start;
+    }
+}
+
+.pm-modal-main {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    min-width: 0;
+}
+
+.pm-section-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #111827;
+    margin: 0 0 12px;
+}
+
+/* ── Sección 1: selector de tipo (clon de .pform-badge-card) ── */
+.pm-type-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+}
+
+.pm-type-card {
+    padding: 14px;
+    border-radius: 8px;
+    border: 2px solid #e5e7eb;
+    background: #ffffff;
+    cursor: pointer;
+    text-align: left;
+    width: 100%;
+    font-family: var(--font-family);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.pm-type-card:hover:not(.active) {
+    border-color: #d1d5db;
+}
+
+.pm-type-card.active {
+    border-color: var(--secondary-color, #ff6213);
+    background: #fff7ed;
+}
+
+.pm-type-icon {
+    width: 30px;
+    height: 30px;
+    border-radius: 7px;
+    background: #f3f4f6;
+    color: #9ca3af;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 4px;
+    transition: background 0.15s, color 0.15s;
+}
+
+.pm-type-card.active .pm-type-icon {
+    background: #ffe4d1;
+    color: var(--button-primary-color, #ff6213);
+}
+
+.pm-type-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: #111827;
+}
+
+.pm-type-hint {
+    font-size: 11px;
+    color: #6b7280;
+    line-height: 1.35;
+}
+
+@media (max-width: 640px) {
+    .pm-type-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+/* ── Sección 2: contador de caracteres de la descripción ── */
+.pm-char-count {
+    font-size: 11px;
+    color: #9ca3af;
+    margin: 0;
+    text-align: right;
+}
+
+.pm-char-count.is-limit {
+    color: #dc2626;
+}
+
+/* ── Sección 3: bloques condicionales por tipo (clon de home-sections) ── */
+.config-fields {
+    display: none;
+    margin-top: 4px;
+}
+
+.pm-config-note {
+    font-size: 12px;
+    color: #9ca3af;
+    background: #f9fafb;
+    border: 1px dashed #e5e7eb;
+    border-radius: 8px;
+    padding: 14px;
+    margin: 0;
+    text-align: center;
+}
+
+/* ── Pills (checkboxes como chips) — canales / MSI ── */
+.pm-pill-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.pm-pill-input {
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+    pointer-events: none;
+}
+
+.pm-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 14px;
+    border-radius: 20px;
+    border: 1.5px solid #e5e7eb;
+    background: #ffffff;
+    color: #4b5563;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    user-select: none;
+    transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+
+.pm-pill-input:checked + .pm-pill {
+    border-color: var(--button-primary-color, #ff6213);
+    background: #fff3ea;
+    color: var(--button-primary-color, #ff6213);
+}
+
+.pm-pill-input:focus-visible + .pm-pill {
+    outline: 2px solid var(--button-primary-color, #ff6213);
+    outline-offset: 2px;
+}
+
+/* ============================================================
+   Columna de vista previa + checklist en vivo
+   ============================================================ */
+.pm-preview-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 16px;
+    position: sticky;
+    top: 0;
+}
+
+.pm-preview-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #9ca3af;
+    margin: 4px 0 0;
+}
+
+.pm-preview-label:first-child {
+    margin-top: 0;
+}
+
+.pm-preview-card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.pm-preview-name {
+    font-size: 14px;
+    font-weight: 700;
+    color: #111827;
+    margin: 0;
+}
+
+.pm-preview-type {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--button-primary-color, #ff6213);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    margin: 0;
+}
+
+.pm-preview-desc {
+    font-size: 12px;
+    color: #4b5563;
+    margin: 0;
+    line-height: 1.4;
+}
+
+.pm-preview-detail {
+    font-size: 12px;
+    color: #6b7280;
+    margin: 0;
+    padding-top: 6px;
+    border-top: 1px dashed #e5e7eb;
+    line-height: 1.4;
+}
+
+.pm-preview-invoice-badge {
+    align-self: flex-start;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: #15803d;
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    border-radius: 20px;
+    padding: 3px 10px;
+    margin-top: 2px;
+}
+
+.pm-checklist {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.pm-checklist-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: #9ca3af;
+}
+
+.pm-checklist-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 1.5px solid #d1d5db;
+    font-size: 10px;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.pm-checklist-item.is-done {
+    color: #15803d;
+}
+
+.pm-checklist-item.is-done .pm-checklist-icon {
+    border-color: #16a34a;
+    background: #f0fdf4;
+    color: #16a34a;
+}
+
+@media (max-width: 768px) {
+    .pm-preview-panel {
+        position: static;
+    }
+}

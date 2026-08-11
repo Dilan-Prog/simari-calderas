@@ -202,6 +202,9 @@
                 <li>Proyectos especiales: según cotización específica</li>
               </ul>
 
+              <p><strong>Costo de envío adicional:</strong></p>
+              <p>Algunos productos, por su peso o dimensiones, pueden tener un costo de envío adicional. Este costo, cuando aplica, se muestra siempre en la ficha del producto y en el resumen del pedido antes de confirmar la compra.</p>
+
               <p><strong>Instalación:</strong></p>
               <p>Los servicios de instalación se cotizan por separado y deben ser realizados por personal autorizado de Equiterm Industries o técnicos certificados. La garantía del equipo puede verse afectada si la instalación es realizada por personal no autorizado.</p>
               <p class="simari-privacy-emphasis">El cliente es responsable de proporcionar las condiciones adecuadas del sitio de instalación según especificaciones técnicas.</p>

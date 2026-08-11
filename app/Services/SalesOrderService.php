@@ -59,7 +59,15 @@ class SalesOrderService
             $item->increment('quantity_delivered', $quantity);
 
             if ($item->product_id) {
-                Products::where('id', $item->product_id)->decrement('stock', $quantity);
+                app(\App\Services\InventoryService::class)->applyMovement(
+                    app(\App\Services\InventoryService::class)->defaultWarehouseId(),
+                    $item->product_id,
+                    'salida',
+                    $quantity,
+                    \App\Models\SalesOrderItem::class,
+                    $item->id,
+                    "Entrega Pedido " . ($item->salesOrder->order_number ?? '')
+                );
             }
 
             $item->salesOrder->recalculateStatus();

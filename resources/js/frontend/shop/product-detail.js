@@ -1,5 +1,54 @@
 import Alpine from './alpine-init.js';
 
+// Botón "Agregar al carrito" de la ficha de producto (price-box.blade.php).
+// Plain JS (no Alpine.data) porque solo hay un botón por página y no
+// necesita estado reactivo — feedback simple con cambio de texto, ya que
+// el proyecto no tiene un helper showToast()/Toast() reutilizable todavía.
+document.addEventListener('DOMContentLoaded', () => {
+    const addBtn = document.querySelector('.product-price-box__add-btn');
+    if (!addBtn) return;
+
+    const originalLabel = addBtn.textContent;
+
+    addBtn.addEventListener('click', async () => {
+        const productId = addBtn.dataset.productId;
+        if (!productId || addBtn.disabled) return;
+
+        const quantityInput = document.querySelector('[name="quantity"], .product-price-box__quantity-input');
+        const quantity = quantityInput ? Math.max(1, parseInt(quantityInput.value, 10) || 1) : 1;
+
+        addBtn.disabled = true;
+
+        try {
+            const response = await fetch('/carrito/agregar', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    Accept: 'application/json',
+                },
+                body: JSON.stringify({ product_id: productId, quantity }),
+            });
+
+            if (!response.ok) throw new Error('add-to-cart failed');
+
+            await Alpine.store('shop').refreshCartCount();
+
+            addBtn.textContent = 'Agregado ✓';
+            setTimeout(() => {
+                addBtn.textContent = originalLabel;
+                addBtn.disabled = false;
+            }, 1500);
+        } catch (err) {
+            addBtn.textContent = 'Error, intenta de nuevo';
+            setTimeout(() => {
+                addBtn.textContent = originalLabel;
+                addBtn.disabled = false;
+            }, 1500);
+        }
+    });
+});
+
 Alpine.data('productGallery', (images, labels = []) => ({
     images,
     labels,

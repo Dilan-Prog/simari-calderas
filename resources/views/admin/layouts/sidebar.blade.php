@@ -45,24 +45,27 @@
             request()->routeIs('admin.technical-services.*') => 'servicios-tecnicos',
             request()->routeIs('admin.purchase-orders.*') => 'ordenes-compra',
             request()->routeIs('admin.sales-orders.*') => 'pedidos',
+            request()->routeIs('admin.material-delivery-reports.*') => 'entrega-material',
             request()->routeIs('admin.chemical-planning.*') => 'planeacion-quimicos',
             request()->routeIs('admin.home-sections.*') => 'inicio-secciones',
             request()->routeIs('admin.collections.*') => 'colecciones',
             request()->routeIs('admin.service-pages.*') => 'paginas-servicio',
             request()->routeIs('admin.gallery.*') => 'galeria',
+            request()->routeIs('admin.inventory.*') => 'inventory',
             request()->routeIs('admin.menus.*') => 'menus',
             request()->routeIs('admin.settings.*') => 'configuracion-sitio',
             request()->routeIs('admin.integrations.*') => 'integraciones',
             request()->routeIs('admin.audit.*') => 'audit',
+            request()->routeIs('admin.payment-methods.*') => 'metodos-de-pago',
             default => '',
         };
 
         // Agrupación puramente visual del sidebar — no afecta rutas, permisos
         // ni estructura de carpetas, solo cómo se muestran los módulos.
         $groupSections = [
-            'ecommerce' => ['productos', 'categorias', 'marcas', 'colecciones', 'paginas-servicio', 'galeria', 'inicio-secciones', 'menus', 'configuracion-sitio', 'integraciones'],
+            'ecommerce' => ['productos', 'categorias', 'marcas', 'colecciones', 'paginas-servicio', 'galeria', 'inicio-secciones', 'inventory', 'menus', 'configuracion-sitio', 'integraciones', 'metodos-de-pago'],
             'servicios' => ['reportes-servicio', 'servicios-tecnicos'],
-            'erp' => ['cotizaciones', 'proveedores', 'ordenes-compra', 'pedidos', 'planeacion-quimicos', 'clientes'],
+            'erp' => ['cotizaciones', 'proveedores', 'ordenes-compra', 'pedidos', 'entrega-material', 'planeacion-quimicos', 'clientes'],
             'administracion' => ['roles', 'usuarios', 'google-ads', 'devops', 'audit'],
         ];
         $activeGroup = collect($groupSections)->search(fn ($sections) => in_array($activeSection, $sections));
@@ -89,6 +92,7 @@
             || $authUser->hasPermission('suppliers')
             || $authUser->hasPermission('purchase-orders')
             || $authUser->hasPermission('sales-orders')
+            || $authUser->hasPermission('material-delivery-reports')
             || $authUser->hasPermission('chemical-planning')
             || $authUser->hasPermission('clients');
 
@@ -278,7 +282,8 @@
 
                 {{-- Inventario --}}
                 @if ($authUser->hasPermission('inventory'))
-                    <a class="sidebar-nav-item disabled" data-section="coming-soon" data-label="Inventario">
+                    <a class="sidebar-nav-item {{ $activeSection === 'inventory' ? 'active' : '' }}" data-section="inventory"
+                        href="{{ route('admin.inventory.index') }}" data-label="Inventario">
                         <div class="sidebar-nav-item-left">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -330,7 +335,7 @@
 
                 {{-- Métodos de Pago --}}
                 @if ($authUser->hasPermission('payment-methods'))
-                    <a class="sidebar-nav-item disabled" data-section="coming-soon" data-label="Métodos de Pago">
+                    <a href="{{ route('admin.payment-methods.index') }}" class="sidebar-nav-item {{ $activeSection === 'metodos-de-pago' ? 'active' : '' }}" data-section="metodos-de-pago" data-label="Métodos de Pago">
                         <div class="sidebar-nav-item-left">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -554,6 +559,27 @@
                                 <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12" />
                             </svg>
                             <span class="sidebar-nav-item-label">Pedidos</span>
+                        </div>
+                    </a>
+                @endif
+
+                {{-- Entrega de Material (Reportes de Entrega) --}}
+                @if ($authUser->hasPermission('material-delivery-reports'))
+                    <a class="sidebar-nav-item {{ $activeSection === 'entrega-material' ? 'active' : '' }}"
+                        href="{{ route('admin.material-delivery-reports.index') }}" data-section="entrega-material"
+                        data-label="Entrega de Material">
+                        <div class="sidebar-nav-item-left">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" class="lucide lucide-package-check">
+                                <path d="M16 16h6" />
+                                <path d="m19 13-3 3 3 3" />
+                                <path d="M21 10V7a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 7v10a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l2-1.14" />
+                                <path d="M12 22V12" />
+                                <path d="M12 12 3.29 7" />
+                                <path d="m7.5 4.27 9 5.15" />
+                            </svg>
+                            <span class="sidebar-nav-item-label">Entrega de Material</span>
                         </div>
                     </a>
                 @endif

@@ -136,12 +136,20 @@ class CatalogController extends Controller
                 $q->orderBy('sort_order');
             }]);
 
-        if ($category) {
-            $query->whereIn('category_id', $category->idsWithChildren());
-        }
+        // No se pueden aplicar como dos whereIn() independientes: Eloquent los
+        // une con AND sobre la misma columna, y si el checkbox marcado es una
+        // subcategoría anidada (nieto+) del $category de la ruta, la
+        // intersección quedaba vacía aunque el producto sí perteneciera a
+        // ambos alcances lógicamente. Se combinan explícitamente aquí.
+        $categoryIds = $category ? $category->idsWithChildren() : null;
 
         if ($request->filled('categoria')) {
-            $query->whereIn('category_id', (array) $request->input('categoria'));
+            $requestedIds = array_map('intval', (array) $request->input('categoria'));
+            $categoryIds = $categoryIds ? array_values(array_intersect($categoryIds, $requestedIds)) : $requestedIds;
+        }
+
+        if ($categoryIds !== null) {
+            $query->whereIn('category_id', $categoryIds);
         }
         if ($request->filled('marca')) {
             $query->whereIn('brand_id', (array) $request->input('marca'));

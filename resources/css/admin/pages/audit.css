@@ -3,6 +3,9 @@
     max-width: 1300px;
     margin: 0 auto;
     padding: 24px 0 48px;
+    height: 100%;
+    overflow-y: auto;
+    box-sizing: border-box;
 }
 
 .audit-card {
@@ -52,6 +55,8 @@
 
 .audit-table-wrap {
     overflow-x: auto;
+    overflow-y: auto;
+    max-height: 60vh;
     border: 1px solid rgba(0, 0, 0, 0.08);
     border-radius: 8px;
 }

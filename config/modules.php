@@ -79,6 +79,12 @@ return [
         'route' => 'admin.sales-orders.index',
         'order' => 8,
     ],
+    'material-delivery-reports' => [
+        'name'  => 'Entrega de Material',
+        'icon'  => 'package-check',
+        'route' => 'admin.material-delivery-reports.index',
+        'order' => 8,
+    ],
     'chemical-planning' => [
         'name'  => 'Planeación de Químicos',
         'icon'  => 'flask-conical',

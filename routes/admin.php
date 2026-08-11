@@ -33,6 +33,9 @@ use App\Http\Controllers\Backend\SupplierProductController;
 use App\Http\Controllers\Backend\SupplierProductImportExportController;
 use App\Http\Controllers\Backend\SupplierProductBulkEditController;
 use App\Http\Controllers\Backend\ColumnPreferenceController;
+use App\Http\Controllers\Backend\InventoryController;
+use App\Http\Controllers\Backend\PaymentMethodController;
+use App\Http\Controllers\Backend\MaterialDeliveryReportController;
 
 // ============================================================
 // Dashboard — sin permiso, todos los usuarios autenticados
@@ -237,6 +240,27 @@ Route::controller(BrandController::class)
     });
 
 // ============================================================
+// Inventario
+// ============================================================
+Route::controller(InventoryController::class)
+    ->middleware('permission:inventory')
+    ->prefix('inventario')
+    ->name('inventory.')
+    ->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::post('/movimientos', 'store')->name('store');
+        Route::get('/almacenes', 'warehousesIndex')->name('warehouses.index');
+        Route::post('/almacenes', 'warehousesStore')->name('warehouses.store');
+        Route::put('/almacenes/{id}', 'warehousesUpdate')->name('warehouses.update');
+        Route::delete('/almacenes/{id}', 'warehousesDestroy')->name('warehouses.destroy');
+        Route::get('/edicion-masiva', 'bulkEditIndex')->name('bulk-edit');
+        Route::post('/edicion-masiva/guardar', 'bulkEditSave')->name('bulk.save');
+        Route::post('/edicion-masiva/vistas', 'storeBulkEditView')->name('bulk-edit.views.store');
+        Route::put('/edicion-masiva/vistas/{id}', 'updateBulkEditView')->name('bulk-edit.views.update');
+        Route::delete('/edicion-masiva/vistas/{id}', 'destroyBulkEditView')->name('bulk-edit.views.destroy');
+    });
+
+// ============================================================
 // Cotizaciones
 // ============================================================
 Route::controller(QuoteController::class)
@@ -292,6 +316,31 @@ Route::controller(SalesOrderController::class)
         Route::get('/{salesOrder}', 'show')->name('show');
         Route::patch('/{salesOrder}/estado', 'updateStatus')->name('update-status');
         Route::patch('/{salesOrder}/items/{item}/entrega', 'registerDelivery')->name('register-delivery');
+    });
+
+// ============================================================
+// Entrega de Material (Reportes de Entrega) — módulo independiente,
+// NO comparte endpoint con SalesOrderService::registerDelivery()
+// ni con SalesOrderController::registerDelivery(). Ver decisión en
+// MaterialDeliveryReportService: no toca quantity_delivered.
+// ============================================================
+Route::prefix('entrega-material')
+    ->name('material-delivery-reports.')
+    ->middleware('permission:material-delivery-reports')
+    ->controller(MaterialDeliveryReportController::class)
+    ->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::get('/create', 'create')->name('create');
+        Route::post('/', 'store')->name('store');
+        Route::get('/{report}', 'show')->name('show');
+        Route::get('/{report}/edit', 'edit')->name('edit');
+        Route::delete('/{report}', 'destroy')->name('destroy');
+        Route::get('/{report}/pdf', 'downloadPdf')->name('download-pdf');
+        Route::get('/{report}/pdf-preview', 'previewPdf')->name('pdf-preview');
+        Route::post('/{report}/sign', 'sign')->name('sign');
+        Route::get('/{report}/step/{step}', 'step')->name('step');
+        Route::post('/{report}/step/{step}', 'saveStep')->name('save-step');
+        Route::delete('/{report}/images/{image}', 'destroyImage')->name('images.destroy');
     });
 
 // ============================================================
@@ -395,6 +444,21 @@ Route::controller(DeliveryController::class)
         Route::post('/crear', 'store')->name('store');
         Route::put('/editar/{id}', 'update')->name('update');
         Route::delete('/eliminar/{id}', 'destroy')->name('destroy');
+    });
+
+// ============================================================
+// Métodos de Pago
+// ============================================================
+Route::controller(PaymentMethodController::class)
+    ->middleware('permission:payment-methods')
+    ->prefix('metodos-de-pago')
+    ->name('payment-methods.')
+    ->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::post('/', 'store')->name('store');
+        Route::get('/{id}/editar', 'edit')->name('edit');
+        Route::put('/{id}', 'update')->name('update');
+        Route::delete('/{id}', 'destroy')->name('destroy');
     });
 
 // ============================================================

@@ -29,7 +29,14 @@ class SecurityHeaders
 
         $csp = implode('; ', [
             "default-src 'self'",
-            "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com",
+            // 'unsafe-eval' es necesario porque Alpine.js (usado en todo el
+            // storefront: mega-menú, carrito, checkout, galería de producto)
+            // evalúa las expresiones de x-show/x-data/x-text con `new Function()`
+            // internamente — sin esto, Alpine nunca lanza una excepción visible
+            // al usuario, simplemente deja de evaluar condiciones y los
+            // elementos x-show quedan permanentemente en su estado inicial del
+            // DOM (visible), como el mega-menú "Próximamente" que nunca cierra.
+            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com",
             "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
             "font-src 'self' https://fonts.gstatic.com",
             "img-src 'self' data: https:",

@@ -41,14 +41,25 @@ class Category extends Model
     }
 
     /**
-     * IDs de esta categoría más sus subcategorías directas — mismo alcance
-     * que usa CatalogController para /catalogo/{slug}, para que cualquier
-     * otro lugar que filtre "productos de esta categoría" (p. ej. los
-     * carruseles del Home) muestre exactamente los mismos productos.
+     * IDs de esta categoría más TODOS sus descendientes (hijos, nietos, etc.)
+     * — mismo alcance que usa CatalogController para /catalogo/{slug}, para
+     * que cualquier otro lugar que filtre "productos de esta categoría"
+     * (p. ej. los carruseles del Home) muestre exactamente los mismos
+     * productos. Recursivo: antes solo bajaba un nivel, lo que rompía el
+     * filtro de checkboxes del catálogo para subcategorías anidadas a 2+
+     * niveles (p. ej. "Carbón activado" bajo "Filtros" bajo "Tratamiento de
+     * Agua") — el checkbox devolvía category_id fuera del alcance de esta
+     * función y la intersección con el filtro quedaba vacía.
      */
     public function idsWithChildren(): array
     {
-        return $this->children()->pluck('id')->push($this->id)->all();
+        $ids = collect([$this->id]);
+
+        foreach ($this->children as $child) {
+            $ids = $ids->merge($child->idsWithChildren());
+        }
+
+        return $ids->all();
     }
 
     /**

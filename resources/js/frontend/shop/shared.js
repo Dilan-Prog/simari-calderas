@@ -1,24 +1,26 @@
 import Alpine from 'alpinejs';
 
 Alpine.store('shop', {
-    cartOpen: false,
     cartCount: 0,
-    quoteOpen: false,
-    quoteSubmitted: false,
 
-    toggleCart() {
-        this.cartOpen = !this.cartOpen;
+    // Alpine llama init() automáticamente al registrar el store (mismo
+    // momento en que Alpine.start() arranca) — así el badge del carrito
+    // se llena solo al cargar cualquier página del shop, sin que cada
+    // vista tenga que acordarse de llamarlo.
+    init() {
+        this.refreshCartCount();
     },
 
-    openQuote() {
-        this.quoteOpen = true;
-        this.quoteSubmitted = false;
-        this.cartOpen = false;
-    },
-
-    closeQuote() {
-        this.quoteOpen = false;
-        this.quoteSubmitted = false;
+    async refreshCartCount() {
+        try {
+            const response = await fetch('/carrito/mini', { headers: { Accept: 'application/json' } });
+            if (!response.ok) return;
+            const data = await response.json();
+            this.cartCount = data.cartCount ?? 0;
+        } catch (err) {
+            // Silencioso: si falla, el badge simplemente se queda en su
+            // último valor conocido en vez de romper la página.
+        }
     },
 });
 

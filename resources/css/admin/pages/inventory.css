@@ -1,0 +1,195 @@
+/* ============================================================
+   INVENTARIO — mismo patrón de extracción que brands.css/proveedores.css:
+   solo reglas exclusivas de este módulo. Los primitivos genéricos
+   (.clients-manager-table, .user-manager-modal, .del-confirm-*, etc.) ya
+   viven en admin/components/ui-kit.css (cargado globalmente vía app.css).
+
+   Las clases ap-modal-X / ap-product-X se DUPLICAN aquí a propósito en vez
+   de depender de pages/proveedores.css: el módulo de Inventario debe ser
+   100% autocontenido y no asumir que otro módulo (en construcción en
+   paralelo) siga cargando esas clases o mantenga su CSS estable.
+   ============================================================ */
+
+.inv-page .filters-clients-manager.inv-filters {
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.inv-table th,
+.inv-table td {
+    white-space: nowrap;
+}
+
+.inv-type-badge {
+    display: inline-block;
+    padding: 6px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: capitalize;
+}
+
+.inv-type-entrada {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.inv-type-salida {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.inv-type-ajuste {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.inv-product-filter-wrap {
+    position: relative;
+}
+
+.inv-product-dropdown {
+    display: none;
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    max-height: 240px;
+    overflow-y: auto;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    z-index: 20;
+}
+
+.inv-product-dropdown.active {
+    display: block;
+}
+
+.inv-product-dropdown .ap-product-dropdown-item,
+.inv-product-dropdown .ap-product-dropdown-empty {
+    padding: 10px 14px;
+    font-size: 13px;
+}
+
+/* ── Modal "Registrar movimiento" — centrado sobre .del-confirm-overlay/
+   .del-confirm-box, con selector de producto buscable en vez de un
+   <select> con cientos de opciones (mismo patrón que Proveedores). ── */
+.ap-modal-box {
+    max-width: 640px;
+    width: 92%;
+    text-align: left;
+}
+
+.ap-modal-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    margin-bottom: 20px;
+}
+
+.ap-modal-icon-wrap {
+    flex-shrink: 0;
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: #fff3ea;
+    color: var(--button-primary-color, #ff6213);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ap-modal-header-text {
+    flex: 1;
+}
+
+.ap-modal-header-text .del-confirm-title {
+    margin-bottom: 4px;
+    text-align: left;
+}
+
+.ap-modal-header-text .del-confirm-desc {
+    margin-bottom: 0;
+    text-align: left;
+}
+
+.ap-modal-header > button {
+    flex-shrink: 0;
+}
+
+.ap-modal-errors {
+    display: none;
+    background: #fee2e2;
+    color: #991b1b;
+    border: 1px solid #fecaca;
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 13px;
+    margin-bottom: 16px;
+}
+
+.ap-modal-errors p {
+    margin: 0;
+}
+
+.ap-modal-body {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    text-align: left;
+}
+
+.ap-field-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.ap-product-picker {
+    position: relative;
+}
+
+.ap-product-dropdown {
+    display: none;
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    max-height: 240px;
+    overflow-y: auto;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    z-index: 20;
+}
+
+.ap-product-dropdown.active {
+    display: block;
+}
+
+.ap-product-dropdown-item {
+    padding: 10px 14px;
+    font-size: 13px;
+    color: #111827;
+    cursor: pointer;
+}
+
+.ap-product-dropdown-item:hover {
+    background: #fff7ed;
+}
+
+.ap-product-dropdown-empty {
+    padding: 10px 14px;
+    font-size: 13px;
+    color: #9ca3af;
+}
+
+.ap-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}

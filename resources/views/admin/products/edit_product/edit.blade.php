@@ -439,6 +439,20 @@
                                     <p class="pform-hint">Si no lo marcas, el sistema sumará el IVA para calcular el precio final que verá el cliente.</p>
                                 </div>
 
+                                <div class="pform-field">
+                                    <label class="pform-label">Costo de Envío (opcional)</label>
+                                    <div class="pform-price-wrap">
+                                        <span class="pform-price-prefix">$</span>
+                                        <input type="number" id="pformShippingCost" name="shipping_cost"
+                                            class="pform-input pform-input-prefixed @error('shipping_cost') pform-field-error @enderror" placeholder="0.00"
+                                            step="0.01" min="0" value="{{ old('shipping_cost', $product->shipping_cost ?? '') }}">
+                                    </div>
+                                    @error('shipping_cost')
+                                        <p class="pform-error-msg">{{ $message }}</p>
+                                    @enderror
+                                    <p class="pform-hint">Déjalo vacío para envío estándar. Solo llénalo si este producto tiene un cargo de flete especial.</p>
+                                </div>
+
                                 <div class="pform-grid-2">
                                     <div class="pform-field">
                                         <label class="pform-label">Precio de Oferta</label>

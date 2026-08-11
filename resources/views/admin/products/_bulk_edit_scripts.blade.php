@@ -279,7 +279,7 @@
             const DEFAULT_COL_WIDTHS = {
                 _select: 40, name: 180, sku: 130, supplier_sku: 160, suppliers: 200,
                 model: 160, short_description: 200, description: 200,
-                price: 120, price_includes_tax: 120, compare_price: 120, cost: 120,
+                price: 120, price_includes_tax: 120, compare_price: 120, cost: 120, shipping_cost: 120,
                 stock: 100, stock_unit: 140, currency: 100, availability: 140,
                 category_id: 160, category_sub: 160, category_child: 160, brand_id: 160,
                 is_active: 90, publish_on_website: 110, is_featured: 100, is_new: 90, is_recommended: 120,

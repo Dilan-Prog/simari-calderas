@@ -258,7 +258,7 @@ class ProductController extends Controller
 
     private const BULK_EDIT_FIELDS = [
         'name', 'model', 'short_description', 'description',
-        'price', 'compare_price', 'price_includes_tax', 'cost', 'stock', 'stock_unit', 'currency', 'availability',
+        'price', 'compare_price', 'price_includes_tax', 'cost', 'shipping_cost', 'stock', 'stock_unit', 'currency', 'availability',
         'category_id', 'brand_id', 'is_active', 'publish_on_website', 'is_featured', 'is_new', 'is_recommended',
         'tags', 'specifications', 'faqs',
         'seo_title', 'seo_description', 'seo_keywords', 'og_title', 'og_description', 'og_image', 'canonical_url',
@@ -276,7 +276,7 @@ class ProductController extends Controller
     // ocultar dentro de una vista guardada.
     private const BULK_EDIT_VIEW_COLUMNS = [
         'model', 'short_description', 'description',
-        'price', 'compare_price', 'price_includes_tax', 'cost', 'stock', 'stock_unit', 'currency', 'availability',
+        'price', 'compare_price', 'price_includes_tax', 'cost', 'shipping_cost', 'stock', 'stock_unit', 'currency', 'availability',
         'category_id', 'category_sub', 'category_child', 'brand_id', 'is_active', 'publish_on_website', 'is_featured', 'is_new', 'is_recommended',
         'tags', 'specifications', 'faqs',
         'seo_title', 'seo_description', 'seo_keywords', 'og_title', 'og_description', 'og_image', 'canonical_url',
@@ -329,7 +329,7 @@ class ProductController extends Controller
     {
         $query = $this->filteredProductsQuery($request, [
             'id', 'name', 'sku', 'model', 'supplier_sku', 'short_description', 'description',
-            'price', 'compare_price', 'price_includes_tax', 'cost', 'stock', 'stock_unit', 'currency', 'availability',
+            'price', 'compare_price', 'price_includes_tax', 'cost', 'shipping_cost', 'stock', 'stock_unit', 'currency', 'availability',
             'category_id', 'brand_id', 'is_active', 'publish_on_website', 'is_featured', 'is_new', 'is_recommended',
             'tags', 'specifications', 'faqs',
             'seo_title', 'seo_description', 'seo_keywords', 'og_title', 'og_description', 'og_image',
@@ -467,6 +467,17 @@ class ProductController extends Controller
             case 'cost':
                 $clean = $this->sanitizePrice($value);
                 if ($clean === null || $clean < 0) {
+                    return [false, null, 'No es un número válido.'];
+                }
+
+                return [true, $clean, null];
+
+            case 'shipping_cost':
+                // A diferencia de price/cost, aquí un valor vacío SÍ es
+                // válido: significa "envío estándar" (sin cargo especial),
+                // no un error de captura.
+                $clean = $this->sanitizePrice($value);
+                if ($value !== null && trim((string) $value) !== '' && ($clean === null || $clean < 0)) {
                     return [false, null, 'No es un número válido.'];
                 }
 
@@ -858,6 +869,9 @@ class ProductController extends Controller
             'model'             => 'nullable|string|max:100',
             'price'             => 'required|numeric|min:0',
             'cost'              => 'nullable|numeric|min:0',
+            // Cargo de envío adicional fijo (equipo pesado/voluminoso).
+            // nullable/vacío = envío estándar, sin cargo especial.
+            'shipping_cost'     => 'nullable|numeric|min:0',
             'compare_price'     => 'nullable|numeric|min:0',
             'price_includes_tax' => 'nullable|boolean',
             'stock'             => 'nullable|integer|min:0',
@@ -914,6 +928,10 @@ class ProductController extends Controller
         $product->model              = $request->model         ?? null;
         $product->price             = $request->price;
         $product->cost              = $request->cost           ?? 0;
+        // Vacío = envío estándar (sin cargo especial) — a diferencia de
+        // cost, aquí NO se normaliza a 0, porque null y 0 son ambos
+        // "estándar" pero null deja claro que el admin no capturó nada.
+        $product->shipping_cost     = $request->filled('shipping_cost') ? $request->shipping_cost : null;
         $product->compare_price     = $request->compare_price  ?? null;
         $product->price_includes_tax = $request->boolean('price_includes_tax', false);
         $product->stock             = $request->stock          ?? 0;
@@ -1049,6 +1067,9 @@ class ProductController extends Controller
             'model'             => 'nullable|string|max:100',
             'price'             => 'required|numeric|min:0',
             'cost'              => 'nullable|numeric|min:0',
+            // Cargo de envío adicional fijo (equipo pesado/voluminoso).
+            // nullable/vacío = envío estándar, sin cargo especial.
+            'shipping_cost'     => 'nullable|numeric|min:0',
             'compare_price'     => 'nullable|numeric|min:0',
             'price_includes_tax' => 'nullable|boolean',
             'stock'             => 'nullable|integer|min:0',
@@ -1101,6 +1122,9 @@ class ProductController extends Controller
         $product->model              = $request->model         ?? null;
         $product->price             = $request->price;
         $product->cost              = $request->cost           ?? 0;
+        // Vacío = envío estándar (sin cargo especial) — mismo criterio que
+        // store(): a diferencia de cost, NO se normaliza a 0.
+        $product->shipping_cost     = $request->filled('shipping_cost') ? $request->shipping_cost : null;
         $product->compare_price     = $request->compare_price  ?? null;
         $product->price_includes_tax = $request->boolean('price_includes_tax', false);
         $product->stock             = $request->stock          ?? 0;

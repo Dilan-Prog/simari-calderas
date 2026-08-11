@@ -1,7 +1,9 @@
 <?php
 
 use App\Http\Controllers\Backend\AdminController;
+use App\Http\Controllers\Frontend\Shop\CartController;
 use App\Http\Controllers\Frontend\Shop\CatalogController;
+use App\Http\Controllers\Frontend\Shop\CheckoutController;
 use App\Http\Controllers\Frontend\Shop\CollectionController as ShopCollectionController;
 use App\Http\Controllers\Frontend\Shop\LegalController;
 use App\Http\Controllers\Frontend\Shop\ProductController as ShopProductController;
@@ -37,6 +39,19 @@ Route::controller(CatalogController::class)->group(function () {
         ->where('categorySlug', '.*')
         ->name('catalog.category');
     Route::get('/buscar-en-vivo', 'liveSearch')->middleware('throttle:30,1')->name('catalog.live-search');
+});
+Route::controller(CartController::class)->prefix('carrito')->name('cart.')->group(function () {
+    Route::post('/agregar', 'add')->name('add');
+    Route::patch('/actualizar', 'update')->name('update');
+    Route::delete('/eliminar', 'remove')->name('remove');
+    Route::get('/mini', 'mini')->name('mini');
+});
+Route::controller(CheckoutController::class)->prefix('finalizar-pedido')->name('checkout.')->group(function () {
+    Route::get('/', 'index')->name('index');
+    Route::get('/envio', 'shipping')->name('shipping');
+    Route::post('/envio', 'storeShipping')->name('shipping.store');
+    Route::get('/pago', 'payment')->name('payment');
+    Route::post('/confirmar', 'confirm')->name('confirm');
 });
 Route::get('/producto/{slug}', [ShopProductController::class, 'show'])->name('product.show');
 Route::get('/coleccion/{slug}', [ShopCollectionController::class, 'show'])->name('collection.show');

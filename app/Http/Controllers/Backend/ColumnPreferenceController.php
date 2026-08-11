@@ -34,6 +34,7 @@ class ColumnPreferenceController extends Controller
         'sales-orders.index',
         'chemical-planning.index',
         'google-ads.index',
+        'inventory-movements.index',
     ];
 
     public function update(Request $request): JsonResponse

@@ -143,11 +143,11 @@
           <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20s-8-4.5-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 9c0 6.5-8 11-8 11z" stroke-linejoin="round"/></svg>
           <span>Favoritos</span>
         </a>
-        <button type="button" class="eq-header__action eq-header__cart" @click="$store.shop.toggleCart()">
+        <a href="{{ route('checkout.index') }}" class="eq-header__action eq-header__cart">
           <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3h2l2.4 12.4a2 2 0 0 0 2 1.6h8.6a2 2 0 0 0 2-1.6L22 8H6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="9" cy="21" r="1.4" fill="currentColor" stroke="none"/><circle cx="18" cy="21" r="1.4" fill="currentColor" stroke="none"/></svg>
           <span>Carrito</span>
           <span class="eq-header__cart-badge" x-text="$store.shop.cartCount">0</span>
-        </button>
+        </a>
       </div>
     </div>
   </div>

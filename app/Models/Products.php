@@ -56,6 +56,9 @@ class Products extends Model
         'compare_price',
         'price_includes_tax',
         'cost',
+        // Cargo de envío adicional fijo para productos pesados/voluminosos.
+        // null o 0 = envío estándar (comportamiento actual, sin cargo extra).
+        'shipping_cost',
         'stock',
         'weight',
         'height',
@@ -98,6 +101,7 @@ class Products extends Model
         'price_includes_tax' => 'boolean',
         'price'       => 'decimal:2',
         'cost'        => 'decimal:2',
+        'shipping_cost' => 'decimal:2',
         'compare_price' => 'decimal:2',
         // FIX BUG 3: cast tags to a PHP array automatically so the edit
         // view can read $product->tags directly without manual json_decode.

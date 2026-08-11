@@ -12,8 +12,7 @@
         @yield('content')
     </main>
     @include('frontend.shop.layouts.footer')
-    @include('frontend.shop.partials.cart-drawer')
-    @include('frontend.shop.partials.quote-modal')
+    @include('frontend.shop.partials.whatsapp-button')
 
   </body>
 </html>

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\PurchaseOrder;
 use App\Models\Supplier;
 use App\Models\Products;;
+use App\Services\PurchaseOrderService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 
@@ -113,6 +114,10 @@ class PurchaseOrderController extends Controller
                 'line_total'       => $itemData['line_total']       ?? 0,
                 'sort_order'       => $itemData['sort_order']       ?? $index,
             ]);
+        }
+
+        if ($order->status === 'accepted') {
+            app(PurchaseOrderService::class)->applyStockReceipt($order);
         }
 
         // Redirect based on action button
@@ -281,6 +286,10 @@ class PurchaseOrderController extends Controller
             ]);
         }
 
+        if ($order->status === 'accepted') {
+            app(PurchaseOrderService::class)->applyStockReceipt($order);
+        }
+
         return redirect()->route('admin.purchase-orders.index')
             ->with('success', 'Orden actualizada correctamente.');
     }
@@ -307,6 +316,11 @@ class PurchaseOrderController extends Controller
         $request->validate(['status' => 'required|in:pending,accepted,rejected']);
         $order->status = $request->status;
         $order->save();
+
+        if ($order->status === 'accepted') {
+            app(PurchaseOrderService::class)->applyStockReceipt($order);
+        }
+
         return response()->json(['success' => true]);
     }
 
