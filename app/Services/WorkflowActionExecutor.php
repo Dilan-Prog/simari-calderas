@@ -35,6 +35,41 @@ class WorkflowActionExecutor
         };
     }
 
+    /**
+     * Lista de action_type soportados por execute()/match(), con un label
+     * para UI y un ejemplo de la forma real de action_config esperada por
+     * cada método privado correspondiente.
+     */
+    public static function supportedActions(): array
+    {
+        return [
+            'create_task' => [
+                'label' => 'Crear tarea',
+                'example_config' => ['title' => 'Dar seguimiento', 'description' => null, 'due_at' => null, 'assigned_to' => null],
+            ],
+            'notify_rep' => [
+                'label' => 'Notificar al vendedor',
+                'example_config' => [],
+            ],
+            'update_property' => [
+                'label' => 'Actualizar propiedad del negocio',
+                'example_config' => ['field' => 'notes', 'value' => ''],
+            ],
+            'move_deal_stage' => [
+                'label' => 'Mover etapa del negocio',
+                'example_config' => ['stage_id' => null],
+            ],
+            'enroll_in_workflow' => [
+                'label' => 'Inscribir en otro workflow',
+                'example_config' => ['workflow_id' => null],
+            ],
+            'send_email' => [
+                'label' => 'Enviar correo',
+                'example_config' => ['template_id' => null],
+            ],
+        ];
+    }
+
     private function createTask(WorkflowEnrollment $enrollment, WorkflowStep $step): void
     {
         if (!class_exists(\App\Models\Task::class)) {

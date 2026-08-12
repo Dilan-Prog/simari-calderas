@@ -39,7 +39,11 @@ use App\Http\Controllers\Backend\MaterialDeliveryReportController;
 use App\Http\Controllers\Backend\PipelineController;
 use App\Http\Controllers\Backend\DealController;
 use App\Http\Controllers\Backend\WorkflowController;
+use App\Http\Controllers\Backend\WorkflowExecutionController;
+use App\Http\Controllers\Backend\CredentialController;
 use App\Http\Controllers\Backend\WorkflowStepController;
+use App\Http\Controllers\Backend\WorkflowVariableController;
+use App\Http\Controllers\Backend\WorkflowCanvasNoteController;
 use App\Http\Controllers\Backend\ErpSettingController;
 use App\Http\Controllers\Backend\EmailCampaignController;
 use App\Http\Controllers\Backend\EmailSequenceController;
@@ -406,13 +410,38 @@ Route::controller(WorkflowController::class)
     ->name('workflows.')
     ->group(function () {
         Route::get('/', 'index')->name('index');
-        Route::get('/crear', 'create')->name('create');
-        Route::post('/', 'store')->name('store');
+        Route::get('/plantillas', 'templates')->name('templates');
+        Route::post('/rapido', 'quickCreate')->name('quick-create');
+        Route::get('/{workflow}/canvas', 'canvas')->name('canvas');
+        Route::post('/{workflow}/test', 'test')->name('test');
         Route::get('/{workflow}/editar', 'edit')->name('edit');
         Route::put('/{workflow}', 'update')->name('update');
         Route::get('/{workflow}', 'show')->name('show');
         Route::post('/{workflow}/toggle', 'toggleActive')->name('toggle');
         Route::delete('/{workflow}', 'destroy')->name('destroy');
+        Route::post('/{workflow}/duplicar', 'duplicate')->name('duplicate');
+        Route::post('/{workflow}/deshacer', 'undo')->name('undo');
+        Route::post('/{workflow}/rehacer', 'redo')->name('redo');
+    });
+
+Route::controller(WorkflowExecutionController::class)
+    ->middleware('permission:automations')
+    ->prefix('automatizaciones-ejecuciones')
+    ->name('workflow-executions.')
+    ->group(function () {
+        Route::get('/', 'index')->name('index');
+    });
+
+Route::controller(CredentialController::class)
+    ->middleware('permission:credentials')
+    ->prefix('credenciales')
+    ->name('credentials.')
+    ->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::post('/', 'store')->name('store');
+        Route::get('/{credential}/editar', 'edit')->name('edit');
+        Route::put('/{credential}', 'update')->name('update');
+        Route::delete('/{credential}', 'destroy')->name('destroy');
     });
 
 Route::controller(WorkflowStepController::class)
@@ -420,10 +449,33 @@ Route::controller(WorkflowStepController::class)
     ->prefix('automatizaciones/{workflow}/pasos')
     ->name('workflow-steps.')
     ->group(function () {
+        Route::post('/layout', 'saveLayout')->name('layout');
         Route::post('/', 'store')->name('store');
         Route::put('/{step}', 'update')->name('update');
         Route::delete('/{step}', 'destroy')->name('destroy');
         Route::post('/reorder', 'reorder')->name('reorder');
+    });
+
+Route::controller(WorkflowVariableController::class)
+    ->middleware('permission:automations')
+    ->prefix('automatizaciones/{workflow}/variables')
+    ->name('workflow-variables.')
+    ->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::post('/', 'store')->name('store');
+        Route::put('/{variable}', 'update')->name('update');
+        Route::delete('/{variable}', 'destroy')->name('destroy');
+    });
+
+Route::controller(WorkflowCanvasNoteController::class)
+    ->middleware('permission:automations')
+    ->prefix('automatizaciones/{workflow}/notas')
+    ->name('workflow-notes.')
+    ->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::post('/', 'store')->name('store');
+        Route::put('/{note}', 'update')->name('update');
+        Route::delete('/{note}', 'destroy')->name('destroy');
     });
 
 // ============================================================

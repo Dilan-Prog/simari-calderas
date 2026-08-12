@@ -14,10 +14,10 @@ use Illuminate\Database\Eloquent\Model;
 class WorkflowConditionEvaluator
 {
     /**
-     * @param Model $model      Modelo contra el que se evalúa la condición.
-     * @param array $condition  ["field" => ..., "operator" => ..., "value" => ...]
+     * @param Model|array $model  Modelo (o array plano) contra el que se evalúa la condición.
+     * @param array $condition    ["field" => ..., "operator" => ..., "value" => ...]
      */
-    public static function evaluate(Model $model, array $condition): bool
+    public static function evaluate(Model|array $model, array $condition): bool
     {
         // Sin condición => se considera "default" / siempre verdadero.
         if (empty($condition)) {

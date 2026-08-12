@@ -12,8 +12,8 @@ use Illuminate\Database\Seeder;
  * probar el step-builder y la vista de debug de ejecuciones
  * (admin.workflows.show) sin tener que armar un workflow a mano primero.
  *
- * NO está registrado en DatabaseSeeder todavía -- es opcional, se corre
- * manualmente con:
+ * Registrado en DatabaseSeeder (se corre con el resto de seeders vía
+ * `php artisan db:seed`), pero también se puede correr manualmente con:
  *   php artisan db:seed --class=WorkflowTemplateSeeder
  */
 class WorkflowTemplateSeeder extends Seeder
@@ -51,6 +51,7 @@ class WorkflowTemplateSeeder extends Seeder
             'is_active'            => true,
             'reenrollment_allowed' => false,
             'created_by'           => null,
+            'is_template'          => true,
         ]);
 
         $waitStep = WorkflowStep::create([
@@ -103,6 +104,7 @@ class WorkflowTemplateSeeder extends Seeder
             'is_active'            => true,
             'reenrollment_allowed' => false,
             'created_by'           => null,
+            'is_template'          => true,
         ]);
 
         WorkflowStep::create([

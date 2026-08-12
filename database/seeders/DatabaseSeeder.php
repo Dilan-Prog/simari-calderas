@@ -23,6 +23,7 @@ class DatabaseSeeder extends Seeder
             SettingsSeeder::class,
             MenusSeeder::class,
             HomeSectionsSeeder::class,
+            \Database\Seeders\WorkflowTemplateSeeder::class,
         ]);
     }
 }

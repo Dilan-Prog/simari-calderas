@@ -63,7 +63,17 @@ class WorkflowEngineService
             return;
         }
 
-        $step = $enrollment->currentStep;
+        // IMPORTANTE: se usa currentStep() (llamada al método de relación,
+        // que ejecuta una consulta fresca) en vez del accessor de propiedad
+        // mágico $enrollment->currentStep. processStep() se recursa sobre la
+        // MISMA instancia de $enrollment (mismo objeto PHP) al avanzar de un
+        // step a otro; el accessor de propiedad cachea la relación cargada
+        // la primera vez que se accede y Eloquent no invalida ese caché solo
+        // porque cambiemos current_step_id y guardemos. Si se usara el
+        // accessor aquí, cada llamada recursiva volvería a ver el PRIMER
+        // step cargado (nunca el step al que acabamos de avanzar), lo que
+        // provoca recursión infinita reprocesando siempre el mismo step.
+        $step = $enrollment->currentStep()->first();
 
         if (!$step) {
             $enrollment->status = 'completed';
@@ -100,40 +110,40 @@ class WorkflowEngineService
         }
 
         if ($step->step_type === 'condition') {
-            $children = $step->children()->get();
+            $branchResult = \App\Services\WorkflowConditionEvaluator::evaluate($enrollment->enrollable, $step->branch_condition ?? []);
+            $branchKey = $branchResult ? 'yes' : 'no';
 
-            $matched = null;
-            $default = null;
+            $next = WorkflowStep::where('parent_step_id', $step->id)
+                ->where('branch_key', $branchKey)
+                ->orderBy('order')
+                ->first();
 
-            foreach ($children as $child) {
-                if (!empty($child->branch_condition)) {
-                    if (\App\Services\WorkflowConditionEvaluator::evaluate($enrollment->enrollable, $child->branch_condition)) {
-                        $matched = $child;
-                        break;
-                    }
-                } elseif (!$default) {
-                    $default = $child;
-                }
-            }
-
-            $next = $matched ?? $default;
+            WorkflowEnrollmentLog::create([
+                'enrollment_id' => $enrollment->id,
+                'step_id'       => $step->id,
+                'action_taken'  => 'condition',
+                'result'        => $branchKey,
+                'logged_at'     => now(),
+            ]);
 
             $enrollment->current_step_id = $next?->id;
             $enrollment->save();
 
-            $this->processStep($enrollment);
+            if (!$next) {
+                $enrollment->status = 'completed';
+                $enrollment->completed_at = now();
+                $enrollment->save();
+                return;
+            }
 
+            $this->processStep($enrollment);
             return;
         }
 
         if ($step->step_type === 'action') {
             app(\App\Services\WorkflowActionExecutor::class)->execute($enrollment, $step);
 
-            $next = WorkflowStep::where('workflow_id', $step->workflow_id)
-                ->where('parent_step_id', $step->parent_step_id)
-                ->where('order', '>', $step->order)
-                ->orderBy('order')
-                ->first();
+            $next = $this->nextSiblingOf($step);
 
             $enrollment->current_step_id = $next?->id;
 
@@ -168,17 +178,13 @@ class WorkflowEngineService
             return;
         }
 
-        $waitStep = $enrollment->currentStep;
+        $waitStep = $enrollment->currentStep()->first();
 
         $enrollment->status = 'active';
         $enrollment->resume_at = null;
 
         if ($waitStep) {
-            $next = WorkflowStep::where('workflow_id', $waitStep->workflow_id)
-                ->where('parent_step_id', $waitStep->parent_step_id)
-                ->where('order', '>', $waitStep->order)
-                ->orderBy('order')
-                ->first();
+            $next = $this->nextSiblingOf($waitStep);
 
             $enrollment->current_step_id = $next?->id;
         }
@@ -186,5 +192,26 @@ class WorkflowEngineService
         $enrollment->save();
 
         $this->processStep($enrollment);
+    }
+
+    /**
+     * Encuentra el siguiente step hermano de $step: mismo workflow, mismo
+     * parent_step_id, mismo branch_key (o ambos null si $step no está en
+     * una rama), con order mayor, ordenado por order.
+     */
+    private function nextSiblingOf(WorkflowStep $step): ?WorkflowStep
+    {
+        $query = WorkflowStep::where('workflow_id', $step->workflow_id)
+            ->where('parent_step_id', $step->parent_step_id)
+            ->where('order', '>', $step->order)
+            ->orderBy('order');
+
+        if ($step->branch_key === null) {
+            $query->whereNull('branch_key');
+        } else {
+            $query->where('branch_key', $step->branch_key);
+        }
+
+        return $query->first();
     }
 }

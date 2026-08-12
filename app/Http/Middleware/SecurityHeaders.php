@@ -27,6 +27,17 @@ class SecurityHeaders
             $response->headers->set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
         }
 
+        // En local, el servidor de Vite (npm run dev) sirve assets/HMR desde
+        // un origen distinto (127.0.0.1:5173 por defecto) — sin permitirlo
+        // explícitamente en el CSP, el navegador bloquea en silencio todos los
+        // <script>/<link>/WebSocket de Vite y la página queda sin estilos ni
+        // JS, aunque el servidor responda bien (se ve como "Failed to fetch"
+        // en devtools, no un error de Laravel). No aplica en producción,
+        // donde no corre ningún dev server.
+        $viteDevOrigins = app()->environment('local')
+            ? ['http://127.0.0.1:5173', 'http://localhost:5173', 'ws://127.0.0.1:5173', 'ws://localhost:5173']
+            : [];
+
         $csp = implode('; ', [
             "default-src 'self'",
             // 'unsafe-eval' es necesario porque Alpine.js (usado en todo el
@@ -36,11 +47,11 @@ class SecurityHeaders
             // al usuario, simplemente deja de evaluar condiciones y los
             // elementos x-show quedan permanentemente en su estado inicial del
             // DOM (visible), como el mega-menú "Próximamente" que nunca cierra.
-            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com",
-            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com" . (app()->environment('local') ? ' http://127.0.0.1:5173 http://localhost:5173' : ''),
+            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com" . (app()->environment('local') ? ' http://127.0.0.1:5173 http://localhost:5173' : ''),
             "font-src 'self' https://fonts.gstatic.com",
             "img-src 'self' data: https:",
-            "connect-src 'self' https://www.google-analytics.com",
+            "connect-src 'self' https://www.google-analytics.com" . (app()->environment('local') ? ' ' . implode(' ', $viteDevOrigins) : ''),
             "frame-ancestors 'self'",
         ]);
         $response->headers->set('Content-Security-Policy', $csp);

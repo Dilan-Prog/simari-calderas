@@ -1,4 +1,8 @@
 {
+  "__commonjsHelpers-Cpj98o6Y.js": {
+    "file": "assets/_commonjsHelpers-Cpj98o6Y.js",
+    "name": "_commonjsHelpers"
+  },
   "_alpine-init-tYkrgErl.js": {
     "file": "assets/alpine-init-tYkrgErl.js",
     "name": "alpine-init"
@@ -30,7 +34,7 @@
     "isEntry": true
   },
   "resources/css/admin/pages/automations.css": {
-    "file": "assets/automations-BUQTABA6.css",
+    "file": "assets/automations-tn0RQdqM.css",
     "src": "resources/css/admin/pages/automations.css",
     "isEntry": true
   },
@@ -122,6 +126,16 @@
   "resources/css/admin/pages/usuarios.css": {
     "file": "assets/usuarios-DZrUzb5x.css",
     "src": "resources/css/admin/pages/usuarios.css",
+    "isEntry": true
+  },
+  "resources/css/admin/pages/workflow-canvas.css": {
+    "file": "assets/workflow-canvas-CNRPft4d.css",
+    "src": "resources/css/admin/pages/workflow-canvas.css",
+    "isEntry": true
+  },
+  "resources/css/admin/pages/workflows-index.css": {
+    "file": "assets/workflows-index-BMs7vEKB.css",
+    "src": "resources/css/admin/pages/workflows-index.css",
     "isEntry": true
   },
   "resources/css/admin/roles.css": {
@@ -223,10 +237,13 @@
     "isEntry": true
   },
   "resources/js/admin/google-ads.js": {
-    "file": "assets/google-ads-DRbbyq5l.js",
+    "file": "assets/google-ads-DL_7ORDf.js",
     "name": "google-ads",
     "src": "resources/js/admin/google-ads.js",
-    "isEntry": true
+    "isEntry": true,
+    "imports": [
+      "__commonjsHelpers-Cpj98o6Y.js"
+    ]
   },
   "resources/js/admin/image-picker.js": {
     "file": "assets/image-picker-hSUTRu36.js",
@@ -301,14 +318,23 @@
     "src": "resources/js/admin/wizard-core.js",
     "isEntry": true
   },
-  "resources/js/admin/workflow-builder.js": {
-    "file": "assets/workflow-builder-BbNCPDzg.js",
-    "name": "workflow-builder",
-    "src": "resources/js/admin/workflow-builder.js",
+  "resources/js/admin/workflow-canvas.jsx": {
+    "file": "assets/workflow-canvas-CMxJKcYK.js",
+    "name": "workflow-canvas",
+    "src": "resources/js/admin/workflow-canvas.jsx",
     "isEntry": true,
     "imports": [
-      "_sortable.esm-D-EvzYhP.js"
+      "__commonjsHelpers-Cpj98o6Y.js"
+    ],
+    "css": [
+      "assets/workflow-canvas-BnuhLJ6X.css"
     ]
+  },
+  "resources/js/admin/workflows-index.js": {
+    "file": "assets/workflows-index-CLzu8Upp.js",
+    "name": "workflows-index",
+    "src": "resources/js/admin/workflows-index.js",
+    "isEntry": true
   },
   "resources/js/app.js": {
     "file": "assets/app-Br5zntOM.js",

@@ -223,4 +223,10 @@ return [
         'route' => 'admin.workflows.index',
         'order' => 29,
     ],
+    'credentials' => [
+        'name'  => 'Credenciales',
+        'icon'  => 'key',
+        'route' => 'admin.credentials.index',
+        'order' => 30,
+    ],
 ];

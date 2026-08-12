@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite';
 import laravel from 'laravel-vite-plugin';
+import react from '@vitejs/plugin-react';
 
 export default defineConfig({
     plugins: [
@@ -56,7 +57,8 @@ export default defineConfig({
                 'resources/css/admin/pages/pipelines.css',
                 'resources/js/admin/pipeline-board.js',
                 'resources/css/admin/pages/automations.css',
-                'resources/js/admin/workflow-builder.js',
+                'resources/css/admin/pages/workflow-canvas.css',
+                'resources/js/admin/workflow-canvas.jsx',
                 'resources/css/admin/pages/email-marketing.css',
                 'resources/js/admin/email-template-editor.js',
                 'resources/js/admin/dashboard-editor.js',
@@ -64,8 +66,15 @@ export default defineConfig({
                 'resources/js/admin/charts.js',
                 'resources/js/admin/report-builder.js',
                 'resources/js/admin/dashboard-grid.js',
+                'resources/css/admin/pages/workflows-index.css',
+                'resources/js/admin/workflows-index.js',
             ],
             refresh: true,
         }),
+        react(),
     ],
+    server: {
+        host: '127.0.0.1',
+        strictPort: true,
+    },
 });

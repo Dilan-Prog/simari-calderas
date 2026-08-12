@@ -13,10 +13,12 @@ class Workflow extends Model
 
     protected $fillable = [
         'name',
+        'description',
         'type',
         'enrollment_trigger',
         'is_active',
         'reenrollment_allowed',
+        'is_template',
         'created_by',
     ];
 
@@ -24,6 +26,7 @@ class Workflow extends Model
         'enrollment_trigger'    => 'array',
         'is_active'             => 'boolean',
         'reenrollment_allowed'  => 'boolean',
+        'is_template'           => 'boolean',
     ];
 
     public function steps(): HasMany

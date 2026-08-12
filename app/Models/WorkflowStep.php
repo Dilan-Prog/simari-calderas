@@ -19,12 +19,18 @@ class WorkflowStep extends Model
         'step_type',
         'action_type',
         'action_config',
+        'branch_key',
+        'position_x',
+        'position_y',
     ];
 
     protected $casts = [
         'branch_condition' => 'array',
         'action_config'    => 'array',
     ];
+
+    public const BRANCH_YES = 'yes';
+    public const BRANCH_NO = 'no';
 
     public function workflow(): BelongsTo
     {
