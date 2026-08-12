@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Backend;
 
 use App\Http\Controllers\Controller;
 use App\Models\Credential;
+use App\Services\ExternalDatabaseConnectionService;
 use Illuminate\Http\Request;
 
 /**
@@ -88,5 +89,33 @@ class CredentialController extends Controller
         $credential->delete();
 
         return response()->json(['success' => true]);
+    }
+
+    /**
+     * Botón "Probar conexión" del modal de crear/editar. Recibe
+     * {type, payload} sin persistir nada; solo soporta type=mysql por
+     * ahora (única integración real de Fase 8). El payload de entrada
+     * (host/usuario/contraseña) nunca se refleja de vuelta en la respuesta.
+     */
+    public function testConnection(Request $request, ExternalDatabaseConnectionService $service)
+    {
+        $data = $request->validate([
+            'type' => 'required|string|max:100',
+            'payload' => 'nullable',
+        ]);
+
+        if ($data['type'] !== 'mysql') {
+            return response()->json([
+                'ok' => false,
+                'message' => 'La prueba de conexión solo está disponible para credenciales tipo mysql.',
+            ], 422);
+        }
+
+        $rawPayload = $data['payload'] ?? [];
+        $payload = is_array($rawPayload) ? $rawPayload : (json_decode((string) $rawPayload, true) ?? []);
+
+        $result = $service->testConnection($payload);
+
+        return response()->json($result);
     }
 }

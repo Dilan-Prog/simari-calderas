@@ -15,6 +15,58 @@
             credentialModal.classList.remove('active');
         };
 
+        // Fase 8 -- toggle entre el textarea JSON genérico y el sub-formulario
+        // de campos mysql (host/puerto/base de datos/usuario/contraseña)
+        // según lo que el usuario escriba en "Tipo".
+        const credMysqlFields = document.getElementById('credMysqlFields');
+        const credPayloadGroup = document.getElementById('credPayloadGroup');
+        const credTestResult = document.getElementById('credTestConnectionResult');
+
+        const isMysqlType = () => (document.getElementById('credType').value || '').trim().toLowerCase() === 'mysql';
+
+        const syncCredentialTypeUI = () => {
+            const mysql = isMysqlType();
+            credMysqlFields.style.display = mysql ? 'grid' : 'none';
+            credPayloadGroup.style.display = mysql ? 'none' : 'block';
+            credTestResult.style.display = 'none';
+        };
+
+        document.getElementById('credType').addEventListener('input', syncCredentialTypeUI);
+
+        const buildMysqlPayload = () => ({
+            host: document.getElementById('credMysqlHost').value || '127.0.0.1',
+            port: document.getElementById('credMysqlPort').value || '3306',
+            database: document.getElementById('credMysqlDatabase').value || '',
+            username: document.getElementById('credMysqlUsername').value || '',
+            password: document.getElementById('credMysqlPassword').value || '',
+        });
+
+        document.getElementById('credTestConnectionBtn').addEventListener('click', async () => {
+            credTestResult.style.display = 'block';
+            credTestResult.textContent = 'Probando conexión...';
+
+            try {
+                const response = await fetch('{{ route('admin.credentials.test-connection') }}', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ type: 'mysql', payload: buildMysqlPayload() }),
+                });
+
+                const data = await response.json();
+                credTestResult.textContent = data.ok ?
+                    'Conexión exitosa.' :
+                    (data.message || 'No se pudo conectar.');
+                credTestResult.style.color = data.ok ? '#16a34a' : '#ef4444';
+            } catch (err) {
+                credTestResult.textContent = 'No se pudo probar la conexión.';
+                credTestResult.style.color = '#ef4444';
+            }
+        });
+
         const resetCredentialForm = () => {
             credentialForm.reset();
             credentialErrors.style.display = 'none';
@@ -23,6 +75,7 @@
             isCredentialEditMode = false;
             document.getElementById('credentialModalTitle').textContent = 'Nueva Credencial';
             document.getElementById('credSubmitBtn').textContent = 'Crear Credencial';
+            syncCredentialTypeUI();
         };
 
         // Open create
@@ -70,6 +123,18 @@
             credentialErrors.innerHTML = '';
 
             const formData = new FormData(credentialForm);
+
+            // Fase 8 -- si type=mysql, el payload real viene del sub-formulario
+            // de campos separados, no del textarea genérico (oculto en ese caso).
+            if (isMysqlType()) {
+                const mysqlPayload = buildMysqlPayload();
+                const hasAnyValue = Object.values(mysqlPayload).some(v => v !== '');
+                if (hasAnyValue) {
+                    formData.set('payload', JSON.stringify(mysqlPayload));
+                } else {
+                    formData.delete('payload');
+                }
+            }
 
             const url = isCredentialEditMode ?
                 `${credentialUrl}/${currentCredentialId}` :
@@ -139,6 +204,7 @@
                         document.getElementById('credName').value = cred.name ?? '';
                         document.getElementById('credType').value = cred.type ?? '';
                         document.getElementById('credPayload').value = '';
+                        syncCredentialTypeUI();
 
                         credentialModal.classList.add('active');
                     })

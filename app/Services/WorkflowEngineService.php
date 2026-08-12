@@ -198,6 +198,24 @@ class WorkflowEngineService
      * Encuentra el siguiente step hermano de $step: mismo workflow, mismo
      * parent_step_id, mismo branch_key (o ambos null si $step no está en
      * una rama), con order mayor, ordenado por order.
+     *
+     * ============================================================================
+     *  ESPEJADO MANUALMENTE EN resources/js/admin/canvas/graph/toFlow.js
+     * ============================================================================
+     * El canvas de React Flow (toFlow.js::buildPredecessorMap()) reproduce esta
+     * misma semántica en JS (en sentido inverso, buscando el predecesor de cada
+     * step) para dibujar las conexiones del editor visual. Si esta lógica
+     * cambia, toFlow.js debe actualizarse igual o el canvas mostrará conexiones
+     * que no coinciden con la ruta que el motor realmente ejecuta.
+     *
+     * Fase 10, punto 2: la paridad entre ambas implementaciones está cubierta
+     * por tests/Feature/Workflows/CanvasEngineParityTest.php, que ejercita el
+     * comando `workflows:debug-next-steps` (wrapper de solo lectura sobre este
+     * método vía nextStepSequence()) contra 3 árboles representativos (lineal,
+     * condición de dos ramas, ramas de longitud desigual) y compara la
+     * secuencia resultante contra el valor esperado. Si se toca esta función,
+     * correr ese test.
+     * ============================================================================
      */
     private function nextSiblingOf(WorkflowStep $step): ?WorkflowStep
     {
@@ -213,5 +231,33 @@ class WorkflowEngineService
         }
 
         return $query->first();
+    }
+
+    /**
+     * Expone, sin cambiar ninguna lógica de negocio, la secuencia completa de
+     * "siguiente step" que nextSiblingOf() produce para cada step de un
+     * workflow. Es un wrapper de solo lectura pensado para depuración/tests
+     * de paridad contra el canvas de React (ver comentario en nextSiblingOf()
+     * y tests/Feature/Workflows/CanvasEngineParityTest.php) — nunca se usa en
+     * el flujo real de ejecución (enroll()/processStep()/resumeWaiting()).
+     *
+     * @param int $workflowId
+     * @return array<int, array{step_id:int, next_step_id:?int}> ordenado por
+     *   (parent_step_id, branch_key, order) para que la salida sea determinista.
+     */
+    public function nextStepSequence(int $workflowId): array
+    {
+        $steps = WorkflowStep::where('workflow_id', $workflowId)
+            ->orderBy('parent_step_id')
+            ->orderBy('branch_key')
+            ->orderBy('order')
+            ->get();
+
+        return $steps->map(function (WorkflowStep $step) {
+            return [
+                'step_id'      => $step->id,
+                'next_step_id' => $this->nextSiblingOf($step)?->id,
+            ];
+        })->all();
     }
 }

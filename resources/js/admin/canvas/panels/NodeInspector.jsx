@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { listDatabaseCredentials, listDatabaseTables, listDatabaseColumns } from '../api/stepsApi.js';
 
 const TRIGGER_TYPE_OPTIONS = {
     deal: 'Negociación',
@@ -6,6 +7,41 @@ const TRIGGER_TYPE_OPTIONS = {
     company: 'Empresa',
     date_based: 'Basado en fecha',
 };
+
+// Fase 8 -- nodo de acción 'external_db_query' (Base de datos externa MySQL).
+const DB_OPERATIONS = {
+    select: 'Consultar (SELECT)',
+    insert: 'Insertar (INSERT)',
+    update: 'Actualizar (UPDATE)',
+    delete: 'Eliminar (DELETE)',
+};
+
+const DB_WHERE_OPERATORS = {
+    '=': 'igual a (=)',
+    '!=': 'distinto de (!=)',
+    '>': 'mayor que (>)',
+    '<': 'menor que (<)',
+    '>=': 'mayor o igual (>=)',
+    '<=': 'menor o igual (<=)',
+    like: 'contiene (LIKE)',
+};
+
+function normalizeDbColumnRow(row) {
+    return {
+        column: row?.column || '',
+        value_source: row?.value_source === 'variable' ? 'variable' : 'literal',
+        value: row?.value ?? '',
+    };
+}
+
+function normalizeDbWhereRow(row) {
+    return {
+        column: row?.column || '',
+        operator: row?.operator && DB_WHERE_OPERATORS[row.operator] ? row.operator : '=',
+        value_source: row?.value_source === 'variable' ? 'variable' : 'literal',
+        value: row?.value ?? '',
+    };
+}
 
 /**
  * NodeInspector
@@ -25,6 +61,9 @@ const TRIGGER_TYPE_OPTIONS = {
  *                  onSave cuando step.step_type === 'trigger'.
  *   onDelete:      (stepId) => void
  *   onClose:       () => void
+ *   variables:     WorkflowVariable[] ya cargadas en WorkflowCanvasApp -- se
+ *                  usan para poblar los selects de "valor = variable" del
+ *                  formulario estructurado de 'external_db_query' (Fase 8).
  */
 const STEP_TYPE_LABELS = {
     trigger: 'Trigger',
@@ -41,7 +80,7 @@ function initialsForStepType(stepType) {
     return '--';
 }
 
-export default function NodeInspector({ step, catalog, onSave, onSaveTrigger, onDelete, onClose }) {
+export default function NodeInspector({ step, catalog, onSave, onSaveTrigger, onDelete, onClose, variables }) {
     const [inspectorTab, setInspectorTab] = useState('params');
     const [actionType, setActionType] = useState('');
     const [actionConfigText, setActionConfigText] = useState('');
@@ -53,6 +92,169 @@ export default function NodeInspector({ step, catalog, onSave, onSaveTrigger, on
     const [triggerType, setTriggerType] = useState('');
     const [triggerConfigText, setTriggerConfigText] = useState('');
     const [error, setError] = useState('');
+
+    // Fase 8 -- estado del formulario estructurado de 'external_db_query'.
+    const [dbJsonMode, setDbJsonMode] = useState(false);
+    const [dbCredentialId, setDbCredentialId] = useState('');
+    const [dbTable, setDbTable] = useState('');
+    const [dbOperation, setDbOperation] = useState('select');
+    const [dbColumnsRows, setDbColumnsRows] = useState([]);
+    const [dbWhereRows, setDbWhereRows] = useState([]);
+    const [dbOutputVariable, setDbOutputVariable] = useState('');
+    const [dbLimit, setDbLimit] = useState('');
+    const [dbCredentials, setDbCredentials] = useState([]);
+    const [dbTables, setDbTables] = useState([]);
+    const [dbTableColumns, setDbTableColumns] = useState([]);
+    const [dbMetaError, setDbMetaError] = useState('');
+    const [dbLoadingTables, setDbLoadingTables] = useState(false);
+    const [dbLoadingColumns, setDbLoadingColumns] = useState(false);
+
+    const variableList = variables || [];
+
+    function applyDbConfigToState(cfg) {
+        const c = cfg || {};
+        setDbCredentialId(c.credential_id != null ? String(c.credential_id) : '');
+        setDbTable(c.table || '');
+        setDbOperation(c.operation || 'select');
+        setDbColumnsRows(Array.isArray(c.columns) ? c.columns.map(normalizeDbColumnRow) : []);
+        setDbWhereRows(Array.isArray(c.where) ? c.where.map(normalizeDbWhereRow) : []);
+        setDbOutputVariable(c.output_variable || '');
+        setDbLimit(c.limit != null ? String(c.limit) : '');
+    }
+
+    function buildDbConfigFromState() {
+        const config = {
+            credential_id: dbCredentialId ? Number(dbCredentialId) : null,
+            table: dbTable,
+            operation: dbOperation,
+        };
+        if (dbOperation === 'insert' || dbOperation === 'update') {
+            config.columns = dbColumnsRows
+                .filter((row) => row.column)
+                .map((row) => ({ column: row.column, value_source: row.value_source, value: row.value }));
+        }
+        if (dbOperation === 'select' || dbOperation === 'update' || dbOperation === 'delete') {
+            config.where = dbWhereRows
+                .filter((row) => row.column)
+                .map((row) => ({
+                    column: row.column,
+                    operator: row.operator,
+                    value_source: row.value_source,
+                    value: row.value,
+                }));
+        }
+        if (dbOperation === 'select') {
+            if (dbOutputVariable.trim()) config.output_variable = dbOutputVariable.trim();
+            if (dbLimit !== '') config.limit = Number(dbLimit);
+        }
+        return config;
+    }
+
+    function addDbColumnRow() {
+        setDbColumnsRows((rows) => [...rows, { column: '', value_source: 'literal', value: '' }]);
+    }
+
+    function updateDbColumnRow(index, patch) {
+        setDbColumnsRows((rows) => rows.map((row, i) => (i === index ? { ...row, ...patch } : row)));
+    }
+
+    function removeDbColumnRow(index) {
+        setDbColumnsRows((rows) => rows.filter((_, i) => i !== index));
+    }
+
+    function addDbWhereRow() {
+        setDbWhereRows((rows) => [...rows, { column: '', operator: '=', value_source: 'literal', value: '' }]);
+    }
+
+    function updateDbWhereRow(index, patch) {
+        setDbWhereRows((rows) => rows.map((row, i) => (i === index ? { ...row, ...patch } : row)));
+    }
+
+    function removeDbWhereRow(index) {
+        setDbWhereRows((rows) => rows.filter((_, i) => i !== index));
+    }
+
+    function handleToggleDbJsonMode() {
+        if (!dbJsonMode) {
+            setActionConfigText(JSON.stringify(buildDbConfigFromState(), null, 2));
+            setDbJsonMode(true);
+            setError('');
+            return;
+        }
+
+        try {
+            const parsed = actionConfigText.trim() ? JSON.parse(actionConfigText) : {};
+            applyDbConfigToState(parsed);
+            setDbJsonMode(false);
+            setError('');
+        } catch (e) {
+            setError('El JSON no es válido. Corrígelo antes de volver al formulario.');
+        }
+    }
+
+    // Fetch de metadatos de solo lectura (nunca el secreto de la credencial)
+    // para poblar los selects del formulario estructurado.
+    useEffect(() => {
+        if (actionType !== 'external_db_query') return undefined;
+        let cancelled = false;
+        setDbMetaError('');
+        listDatabaseCredentials()
+            .then((list) => {
+                if (!cancelled) setDbCredentials(Array.isArray(list) ? list : []);
+            })
+            .catch((err) => {
+                if (!cancelled) setDbMetaError(err.message || 'No se pudieron cargar las credenciales.');
+            });
+        return () => {
+            cancelled = true;
+        };
+    }, [actionType]);
+
+    useEffect(() => {
+        if (actionType !== 'external_db_query' || !dbCredentialId) {
+            setDbTables([]);
+            return undefined;
+        }
+        let cancelled = false;
+        setDbLoadingTables(true);
+        setDbMetaError('');
+        listDatabaseTables(dbCredentialId)
+            .then((list) => {
+                if (!cancelled) setDbTables(Array.isArray(list) ? list : []);
+            })
+            .catch((err) => {
+                if (!cancelled) setDbMetaError(err.message || 'No se pudieron cargar las tablas.');
+            })
+            .finally(() => {
+                if (!cancelled) setDbLoadingTables(false);
+            });
+        return () => {
+            cancelled = true;
+        };
+    }, [actionType, dbCredentialId]);
+
+    useEffect(() => {
+        if (actionType !== 'external_db_query' || !dbCredentialId || !dbTable) {
+            setDbTableColumns([]);
+            return undefined;
+        }
+        let cancelled = false;
+        setDbLoadingColumns(true);
+        setDbMetaError('');
+        listDatabaseColumns(dbCredentialId, dbTable)
+            .then((list) => {
+                if (!cancelled) setDbTableColumns(Array.isArray(list) ? list : []);
+            })
+            .catch((err) => {
+                if (!cancelled) setDbMetaError(err.message || 'No se pudieron cargar las columnas.');
+            })
+            .finally(() => {
+                if (!cancelled) setDbLoadingColumns(false);
+            });
+        return () => {
+            cancelled = true;
+        };
+    }, [actionType, dbCredentialId, dbTable]);
 
     // Re-inicializa el formulario cada vez que cambia el step seleccionado.
     useEffect(() => {
@@ -66,6 +268,10 @@ export default function NodeInspector({ step, catalog, onSave, onSaveTrigger, on
             setActionConfigText(
                 step.action_config != null ? JSON.stringify(step.action_config, null, 2) : ''
             );
+            setDbJsonMode(false);
+            if (step.action_type === 'external_db_query') {
+                applyDbConfigToState(step.action_config || {});
+            }
         } else if (step.step_type === 'condition') {
             const cond = step.branch_condition || {};
             setConditionField(cond.field ?? '');
@@ -93,6 +299,7 @@ export default function NodeInspector({ step, catalog, onSave, onSaveTrigger, on
         const selected = e.target.value;
         setActionType(selected);
         setError('');
+        setDbJsonMode(false);
 
         // Sólo autocompleta con el ejemplo si el usuario todavía no escribió nada.
         if (actionConfigText.trim() === '') {
@@ -100,6 +307,10 @@ export default function NodeInspector({ step, catalog, onSave, onSaveTrigger, on
             if (example !== undefined) {
                 setActionConfigText(JSON.stringify(example, null, 2));
             }
+        }
+
+        if (selected === 'external_db_query') {
+            applyDbConfigToState({});
         }
     }
 
@@ -132,6 +343,36 @@ export default function NodeInspector({ step, catalog, onSave, onSaveTrigger, on
         }
 
         if (step.step_type === 'action') {
+            if (actionType === 'external_db_query' && !dbJsonMode) {
+                if (!dbCredentialId) {
+                    setError('Selecciona una credencial de base de datos.');
+                    return;
+                }
+                if (!dbTable) {
+                    setError('Selecciona una tabla.');
+                    return;
+                }
+                if (dbOperation === 'update' || dbOperation === 'delete') {
+                    const hasWhere = dbWhereRows.some((row) => row.column);
+                    if (!hasWhere) {
+                        setError('Actualizar/Eliminar requiere al menos una condición (WHERE) para evitar afectar toda la tabla.');
+                        return;
+                    }
+                }
+                if (dbOperation === 'select' && dbLimit !== '') {
+                    const limitNumber = Number(dbLimit);
+                    if (Number.isNaN(limitNumber) || limitNumber < 1 || limitNumber > 500) {
+                        setError('El límite de filas debe ser un número entre 1 y 500.');
+                        return;
+                    }
+                }
+                onSave(step.id, {
+                    action_type: actionType,
+                    action_config: buildDbConfigFromState(),
+                });
+                return;
+            }
+
             let parsedConfig = {};
             const trimmed = actionConfigText.trim();
             if (trimmed !== '') {
@@ -234,12 +475,26 @@ export default function NodeInspector({ step, catalog, onSave, onSaveTrigger, on
             </div>
 
             <div className="wf-inspector-body">
-                {inspectorTab !== 'params' && (
+                {inspectorTab === 'credentials' && step.step_type === 'action' && actionType === 'external_db_query' ? (
                     <div className="wf-inspector-empty-tab">
-                        {inspectorTab === 'credentials' && 'Este tipo de nodo no requiere credenciales.'}
-                        {inspectorTab === 'input' && 'El input de este paso aparecerá aquí después de ejecutar una prueba.'}
-                        {inspectorTab === 'output' && 'El output de este paso aparecerá aquí después de ejecutar una prueba.'}
+                        {dbCredentialId ? (
+                            <>
+                                Credencial seleccionada:{' '}
+                                {dbCredentials.find((c) => String(c.id) === String(dbCredentialId))?.name || `#${dbCredentialId}`}{' '}
+                                (tipo: mysql)
+                            </>
+                        ) : (
+                            'Este paso todavía no tiene una credencial de base de datos seleccionada.'
+                        )}
                     </div>
+                ) : (
+                    inspectorTab !== 'params' && (
+                        <div className="wf-inspector-empty-tab">
+                            {inspectorTab === 'credentials' && 'Este tipo de nodo no requiere credenciales.'}
+                            {inspectorTab === 'input' && 'El input de este paso aparecerá aquí después de ejecutar una prueba.'}
+                            {inspectorTab === 'output' && 'El output de este paso aparecerá aquí después de ejecutar una prueba.'}
+                        </div>
+                    )
                 )}
 
                 {inspectorTab === 'params' && step.step_type === 'trigger' && (
@@ -294,27 +549,286 @@ export default function NodeInspector({ step, catalog, onSave, onSaveTrigger, on
                             ))}
                         </select>
 
-                        <div className="wf-field-row-header">
-                            <label className="wf-field-label" htmlFor="wf-action-config">
-                                Configuración (JSON)
-                            </label>
-                            <button
-                                type="button"
-                                className="wf-btn-link"
-                                onClick={fillExample}
-                                disabled={!actionType}
-                            >
-                                Ver ejemplo
-                            </button>
-                        </div>
-                        <textarea
-                            id="wf-action-config"
-                            className="wf-field-input wf-field-textarea"
-                            rows={10}
-                            value={actionConfigText}
-                            onChange={(e) => setActionConfigText(e.target.value)}
-                            spellCheck={false}
-                        />
+                        {actionType === 'external_db_query' ? (
+                            <>
+                                <div className="wf-field-row-header">
+                                    <label className="wf-field-label">Configuración</label>
+                                    <button type="button" className="wf-btn-link" onClick={handleToggleDbJsonMode}>
+                                        {dbJsonMode ? 'Editar con formulario' : 'Editar como JSON'}
+                                    </button>
+                                </div>
+
+                                {dbMetaError && <div className="wf-inspector-error">{dbMetaError}</div>}
+
+                                {dbJsonMode ? (
+                                    <textarea
+                                        id="wf-action-config"
+                                        className="wf-field-input wf-field-textarea"
+                                        rows={12}
+                                        value={actionConfigText}
+                                        onChange={(e) => setActionConfigText(e.target.value)}
+                                        spellCheck={false}
+                                    />
+                                ) : (
+                                    <>
+                                        <label className="wf-field-label" htmlFor="wf-db-credential">
+                                            Credencial
+                                        </label>
+                                        <select
+                                            id="wf-db-credential"
+                                            className="wf-field-input"
+                                            value={dbCredentialId}
+                                            onChange={(e) => {
+                                                setDbCredentialId(e.target.value);
+                                                setDbTable('');
+                                            }}
+                                        >
+                                            <option value="">-- Selecciona --</option>
+                                            {dbCredentials.map((cred) => (
+                                                <option key={cred.id} value={cred.id}>
+                                                    {cred.name}
+                                                </option>
+                                            ))}
+                                        </select>
+
+                                        <label className="wf-field-label" htmlFor="wf-db-table">
+                                            Tabla
+                                        </label>
+                                        <select
+                                            id="wf-db-table"
+                                            className="wf-field-input"
+                                            value={dbTable}
+                                            onChange={(e) => setDbTable(e.target.value)}
+                                            disabled={!dbCredentialId || dbLoadingTables}
+                                        >
+                                            <option value="">
+                                                {dbLoadingTables ? 'Cargando...' : '-- Selecciona --'}
+                                            </option>
+                                            {dbTables.map((table) => (
+                                                <option key={table} value={table}>
+                                                    {table}
+                                                </option>
+                                            ))}
+                                        </select>
+
+                                        <label className="wf-field-label" htmlFor="wf-db-operation">
+                                            Operación
+                                        </label>
+                                        <select
+                                            id="wf-db-operation"
+                                            className="wf-field-input"
+                                            value={dbOperation}
+                                            onChange={(e) => setDbOperation(e.target.value)}
+                                        >
+                                            {Object.entries(DB_OPERATIONS).map(([key, label]) => (
+                                                <option key={key} value={key}>
+                                                    {label}
+                                                </option>
+                                            ))}
+                                        </select>
+
+                                        {(dbOperation === 'insert' || dbOperation === 'update') && (
+                                            <>
+                                                <div className="wf-field-row-header">
+                                                    <label className="wf-field-label">Columnas</label>
+                                                    <button type="button" className="wf-btn-link" onClick={addDbColumnRow}>
+                                                        + Agregar columna
+                                                    </button>
+                                                </div>
+                                                {dbColumnsRows.length === 0 && (
+                                                    <div className="wf-inspector-empty-tab">Sin columnas configuradas.</div>
+                                                )}
+                                                {dbColumnsRows.map((row, index) => (
+                                                    <div className="wf-field-row" key={index}>
+                                                        <select
+                                                            className="wf-field-input"
+                                                            value={row.column}
+                                                            onChange={(e) => updateDbColumnRow(index, { column: e.target.value })}
+                                                        >
+                                                            <option value="">-- Columna --</option>
+                                                            {dbTableColumns.map((col) => (
+                                                                <option key={col} value={col}>
+                                                                    {col}
+                                                                </option>
+                                                            ))}
+                                                        </select>
+                                                        <select
+                                                            className="wf-field-input"
+                                                            value={row.value_source}
+                                                            onChange={(e) => updateDbColumnRow(index, { value_source: e.target.value })}
+                                                        >
+                                                            <option value="literal">Valor literal</option>
+                                                            <option value="variable">Variable</option>
+                                                        </select>
+                                                        {row.value_source === 'variable' ? (
+                                                            <select
+                                                                className="wf-field-input"
+                                                                value={row.value}
+                                                                onChange={(e) => updateDbColumnRow(index, { value: e.target.value })}
+                                                            >
+                                                                <option value="">-- Variable --</option>
+                                                                {variableList.map((v) => (
+                                                                    <option key={v.id} value={v.name}>
+                                                                        {v.name}
+                                                                    </option>
+                                                                ))}
+                                                            </select>
+                                                        ) : (
+                                                            <input
+                                                                type="text"
+                                                                className="wf-field-input"
+                                                                value={row.value}
+                                                                onChange={(e) => updateDbColumnRow(index, { value: e.target.value })}
+                                                            />
+                                                        )}
+                                                        <button
+                                                            type="button"
+                                                            className="wf-btn-link"
+                                                            onClick={() => removeDbColumnRow(index)}
+                                                        >
+                                                            Quitar
+                                                        </button>
+                                                    </div>
+                                                ))}
+                                            </>
+                                        )}
+
+                                        {(dbOperation === 'select' || dbOperation === 'update' || dbOperation === 'delete') && (
+                                            <>
+                                                <div className="wf-field-row-header">
+                                                    <label className="wf-field-label">
+                                                        Condiciones (WHERE)
+                                                        {(dbOperation === 'update' || dbOperation === 'delete') && ' -- obligatorio'}
+                                                    </label>
+                                                    <button type="button" className="wf-btn-link" onClick={addDbWhereRow}>
+                                                        + Agregar condición
+                                                    </button>
+                                                </div>
+                                                {dbWhereRows.length === 0 && (
+                                                    <div className="wf-inspector-empty-tab">Sin condiciones configuradas.</div>
+                                                )}
+                                                {dbWhereRows.map((row, index) => (
+                                                    <div className="wf-field-row" key={index}>
+                                                        <select
+                                                            className="wf-field-input"
+                                                            value={row.column}
+                                                            onChange={(e) => updateDbWhereRow(index, { column: e.target.value })}
+                                                        >
+                                                            <option value="">-- Columna --</option>
+                                                            {dbTableColumns.map((col) => (
+                                                                <option key={col} value={col}>
+                                                                    {col}
+                                                                </option>
+                                                            ))}
+                                                        </select>
+                                                        <select
+                                                            className="wf-field-input"
+                                                            value={row.operator}
+                                                            onChange={(e) => updateDbWhereRow(index, { operator: e.target.value })}
+                                                        >
+                                                            {Object.entries(DB_WHERE_OPERATORS).map(([key, label]) => (
+                                                                <option key={key} value={key}>
+                                                                    {label}
+                                                                </option>
+                                                            ))}
+                                                        </select>
+                                                        <select
+                                                            className="wf-field-input"
+                                                            value={row.value_source}
+                                                            onChange={(e) => updateDbWhereRow(index, { value_source: e.target.value })}
+                                                        >
+                                                            <option value="literal">Valor literal</option>
+                                                            <option value="variable">Variable</option>
+                                                        </select>
+                                                        {row.value_source === 'variable' ? (
+                                                            <select
+                                                                className="wf-field-input"
+                                                                value={row.value}
+                                                                onChange={(e) => updateDbWhereRow(index, { value: e.target.value })}
+                                                            >
+                                                                <option value="">-- Variable --</option>
+                                                                {variableList.map((v) => (
+                                                                    <option key={v.id} value={v.name}>
+                                                                        {v.name}
+                                                                    </option>
+                                                                ))}
+                                                            </select>
+                                                        ) : (
+                                                            <input
+                                                                type="text"
+                                                                className="wf-field-input"
+                                                                value={row.value}
+                                                                onChange={(e) => updateDbWhereRow(index, { value: e.target.value })}
+                                                            />
+                                                        )}
+                                                        <button
+                                                            type="button"
+                                                            className="wf-btn-link"
+                                                            onClick={() => removeDbWhereRow(index)}
+                                                        >
+                                                            Quitar
+                                                        </button>
+                                                    </div>
+                                                ))}
+                                            </>
+                                        )}
+
+                                        {dbOperation === 'select' && (
+                                            <>
+                                                <label className="wf-field-label" htmlFor="wf-db-output-variable">
+                                                    Variable de salida (opcional)
+                                                </label>
+                                                <input
+                                                    id="wf-db-output-variable"
+                                                    type="text"
+                                                    className="wf-field-input"
+                                                    value={dbOutputVariable}
+                                                    onChange={(e) => setDbOutputVariable(e.target.value)}
+                                                    placeholder="p. ej. resultado_consulta"
+                                                />
+
+                                                <label className="wf-field-label" htmlFor="wf-db-limit">
+                                                    Límite de filas (máx. 500)
+                                                </label>
+                                                <input
+                                                    id="wf-db-limit"
+                                                    type="number"
+                                                    className="wf-field-input"
+                                                    min="1"
+                                                    max="500"
+                                                    value={dbLimit}
+                                                    onChange={(e) => setDbLimit(e.target.value)}
+                                                />
+                                            </>
+                                        )}
+                                    </>
+                                )}
+                            </>
+                        ) : (
+                            <>
+                                <div className="wf-field-row-header">
+                                    <label className="wf-field-label" htmlFor="wf-action-config">
+                                        Configuración (JSON)
+                                    </label>
+                                    <button
+                                        type="button"
+                                        className="wf-btn-link"
+                                        onClick={fillExample}
+                                        disabled={!actionType}
+                                    >
+                                        Ver ejemplo
+                                    </button>
+                                </div>
+                                <textarea
+                                    id="wf-action-config"
+                                    className="wf-field-input wf-field-textarea"
+                                    rows={10}
+                                    value={actionConfigText}
+                                    onChange={(e) => setActionConfigText(e.target.value)}
+                                    spellCheck={false}
+                                />
+                            </>
+                        )}
                     </>
                 )}
 

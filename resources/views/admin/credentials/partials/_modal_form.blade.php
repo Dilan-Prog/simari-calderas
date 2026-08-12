@@ -42,7 +42,42 @@
                 </div>
             </div>
 
-            <div class="ap-field-group" style="margin-top:12px;">
+            {{-- Sub-formulario específico para type=mysql (Fase 8): campos
+                 separados en vez del textarea JSON genérico. Se ensamblan a
+                 JSON en el cliente antes de enviar (ver _scripts.blade.php).
+                 Oculto por defecto; el JS lo muestra/oculta según el valor
+                 escrito en "Tipo". --}}
+            <div id="credMysqlFields" class="ap-field-grid" style="display:none; margin-top:12px;">
+                <div class="ap-field-group">
+                    <label class="supliers-manager-slider-label">Host</label>
+                    <input type="text" class="users-manager-input" id="credMysqlHost" placeholder="127.0.0.1">
+                </div>
+                <div class="ap-field-group">
+                    <label class="supliers-manager-slider-label">Puerto</label>
+                    <input type="text" class="users-manager-input" id="credMysqlPort" placeholder="3306">
+                </div>
+                <div class="ap-field-group">
+                    <label class="supliers-manager-slider-label">Base de datos</label>
+                    <input type="text" class="users-manager-input" id="credMysqlDatabase">
+                </div>
+                <div class="ap-field-group">
+                    <label class="supliers-manager-slider-label">Usuario</label>
+                    <input type="text" class="users-manager-input" id="credMysqlUsername">
+                </div>
+                <div class="ap-field-group">
+                    <label class="supliers-manager-slider-label">Contraseña</label>
+                    <input type="password" class="users-manager-input" id="credMysqlPassword"
+                        placeholder="Al editar, déjalo vacío para conservar el valor actual">
+                </div>
+                <div class="ap-field-group" style="display:flex; align-items:flex-end; gap:8px;">
+                    <button type="button" class="button-secondary size-adjustment" id="credTestConnectionBtn">
+                        Probar conexión
+                    </button>
+                </div>
+            </div>
+            <p id="credTestConnectionResult" class="ap-readonly-note" style="display:none; margin-top:4px;"></p>
+
+            <div class="ap-field-group" id="credPayloadGroup" style="margin-top:12px;">
                 <label class="supliers-manager-slider-label">Payload</label>
                 <textarea class="users-manager-input" name="payload" id="credPayload" rows="8"
                     placeholder='{"api_key": "...", "otro_campo": "..."}'></textarea>

@@ -69,12 +69,12 @@ function CanvasSurface({
   return (
     <div className="wf-canvas-main" style={{ flex: 1, position: 'relative' }}>
       {error && (
-        <div style={{ position: 'absolute', top: 8, left: 8, right: 8, zIndex: 10, background: '#fee', color: '#900', padding: 8, borderRadius: 4 }}>
+        <div style={{ position: 'absolute', top: 56, left: 8, right: 8, zIndex: 10, background: '#fee', color: '#900', padding: 8, borderRadius: 4 }}>
           {error}
         </div>
       )}
 
-      <div className="wf-canvas-toolbar">
+      <div className="wf-canvas-toolbar" style={{ zIndex: 11 }}>
         <button type="button" className="wf-canvas-toolbar-btn" onClick={onAddNote} title="Agregar nota">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
@@ -324,7 +324,7 @@ export default function WorkflowCanvasApp({
         return;
       }
 
-      queuePosition(node.id, node.position.x, node.position.y);
+      queuePosition(node.id, Math.round(node.position.x), Math.round(node.position.y));
     },
     [queuePosition, notesUrl]
   );
@@ -614,6 +614,7 @@ export default function WorkflowCanvasApp({
               catalog={data ? data.catalog : []}
               workflowId={workflowId}
               testUrl={testUrl}
+              variables={data?.variables || []}
               onSave={handleSaveStep}
               onSaveTrigger={handleSaveTrigger}
               onDelete={handleDeleteStep}

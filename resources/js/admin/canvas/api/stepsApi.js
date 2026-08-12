@@ -141,6 +141,42 @@ export async function deleteVariable(baseUrl, id) {
   return handleResponse(response);
 }
 
+// ── Bases de datos externas (nodo 'external_db_query') ──────────
+// Metadatos de solo lectura para poblar el formulario estructurado del
+// inspector: nunca devuelven el payload/secreto de la credencial.
+
+const DB_CREDENTIALS_BASE_URL = '/admin/automatizaciones/credenciales-bd';
+
+export async function listDatabaseCredentials() {
+  const response = await fetch(DB_CREDENTIALS_BASE_URL, {
+    method: 'GET',
+    headers: baseHeaders(),
+    credentials: 'same-origin',
+  });
+  return handleResponse(response);
+}
+
+export async function listDatabaseTables(credentialId) {
+  const response = await fetch(`${DB_CREDENTIALS_BASE_URL}/${credentialId}/tablas`, {
+    method: 'GET',
+    headers: baseHeaders(),
+    credentials: 'same-origin',
+  });
+  return handleResponse(response);
+}
+
+export async function listDatabaseColumns(credentialId, table) {
+  const response = await fetch(
+    `${DB_CREDENTIALS_BASE_URL}/${credentialId}/tablas/${encodeURIComponent(table)}/columnas`,
+    {
+      method: 'GET',
+      headers: baseHeaders(),
+      credentials: 'same-origin',
+    }
+  );
+  return handleResponse(response);
+}
+
 // ── Notas (StickyNote) ────────────────────────────────────────
 
 export async function getNotes(url) {

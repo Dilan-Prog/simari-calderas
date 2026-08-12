@@ -29,6 +29,15 @@
  * se hace, el canvas mostrará conexiones entre steps que NO coinciden con
  * la ruta que el motor de workflows realmente ejecuta en producción, lo
  * cual puede confundir gravemente a quien edite el workflow visualmente.
+ *
+ * Fase 10, punto 2: esta paridad está cubierta por un test de integración,
+ * tests/Feature/Workflows/CanvasEngineParityTest.php, que ejercita
+ * directamente nextSiblingOf() en PHP (vía el comando de depuración
+ * `workflows:debug-next-steps`, wrapper de solo lectura definido en
+ * WorkflowEngineService::nextStepSequence()) contra 3 árboles representativos
+ * (lineal, condición de dos ramas, ramas de longitud desigual) y compara la
+ * secuencia resultante contra el valor esperado. Si se toca esta función o
+ * nextSiblingOf() en PHP, correr ese test.
  * ============================================================================
  */
 

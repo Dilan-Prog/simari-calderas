@@ -169,11 +169,21 @@ class WorkflowSnapshotService
             return $this->currentState($workflow);
         }
 
-        DB::transaction(function () use ($workflow, $target) {
+        // Si no hay ningún snapshot más nuevo que el destino, este es el
+        // último punto de la historia -- redo() nos devuelve al "en vivo"
+        // real (current_snapshot_id = null), no a una posición fija. Este es
+        // el mismo snapshot que undo() capturó del estado en vivo antes de
+        // retroceder por primera vez, así que aplicar su contenido y volver
+        // a null preserva el invariante documentado arriba de la clase.
+        $isNewest = !WorkflowEditSnapshot::where('workflow_id', $workflow->id)
+            ->where('id', '>', $target->id)
+            ->exists();
+
+        DB::transaction(function () use ($workflow, $target, $isNewest) {
             $this->reconcileSteps($workflow, $target->steps_snapshot);
 
             $workflow->fill($target->workflow_snapshot);
-            $workflow->current_snapshot_id = $target->id;
+            $workflow->current_snapshot_id = $isNewest ? null : $target->id;
             $workflow->save();
         });
 

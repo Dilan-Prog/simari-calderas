@@ -44,6 +44,7 @@ use App\Http\Controllers\Backend\CredentialController;
 use App\Http\Controllers\Backend\WorkflowStepController;
 use App\Http\Controllers\Backend\WorkflowVariableController;
 use App\Http\Controllers\Backend\WorkflowCanvasNoteController;
+use App\Http\Controllers\Backend\ExternalDatabaseController;
 use App\Http\Controllers\Backend\ErpSettingController;
 use App\Http\Controllers\Backend\EmailCampaignController;
 use App\Http\Controllers\Backend\EmailSequenceController;
@@ -399,6 +400,27 @@ Route::controller(EmailSequenceController::class)
         Route::post('/{emailSequence}/inscribir', 'enrollCustomer')->name('enroll-customer')->middleware('permission:email-marketing,edit');
     });
 
+// Metadatos de solo-lectura (nombres de credencial mysql, sus tablas, sus
+// columnas) para poblar el formulario estructurado del nodo "Base de datos
+// externa" en el inspector del canvas de Automatizaciones. Mismo permiso
+// que el resto del editor de workflows: no exponen ningún secreto.
+// IMPORTANTE: declarada ANTES del grupo de WorkflowController de abajo —
+// su prefijo 'automatizaciones/credenciales-bd' cae bajo el mismo espacio
+// que 'automatizaciones/{workflow}' (show), y Laravel resuelve rutas en
+// orden de registro: si este grupo se registrara después, GET
+// /automatizaciones/credenciales-bd sería capturado por el wildcard
+// {workflow} de abajo (intentaría Workflow::findOrFail('credenciales-bd')
+// y tiraría 404) en vez de llegar a ExternalDatabaseController::index().
+Route::controller(ExternalDatabaseController::class)
+    ->middleware('permission:automations')
+    ->prefix('automatizaciones/credenciales-bd')
+    ->name('workflow-db-credentials.')
+    ->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::get('/{credential}/tablas', 'tables')->name('tables');
+        Route::get('/{credential}/tablas/{table}/columnas', 'columns')->name('columns');
+    });
+
 // ============================================================
 // Automatizaciones (Workflows) — motor de automatización tipo
 // enrollment/steps. Nota: /crear se declara ANTES de /{workflow} para
@@ -439,6 +461,7 @@ Route::controller(CredentialController::class)
     ->group(function () {
         Route::get('/', 'index')->name('index');
         Route::post('/', 'store')->name('store');
+        Route::post('/probar', 'testConnection')->name('test-connection');
         Route::get('/{credential}/editar', 'edit')->name('edit');
         Route::put('/{credential}', 'update')->name('update');
         Route::delete('/{credential}', 'destroy')->name('destroy');
