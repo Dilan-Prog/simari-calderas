@@ -39,10 +39,12 @@
             </p>
         </div>
         @if ($tab === 'galeria')
+            @permiso('gallery','create')
             <button type="button" class="button-primary size-adjustment" id="btnGalleryUpload"
                 style="background:#ff6213;border-color:#ff6213;white-space:nowrap;">
                 + Subir imágenes
             </button>
+            @endpermiso
         @elseif ($tab === 'duplicados')
             <button type="button" class="button-primary size-adjustment" id="btnDupScan"
                 style="background:#ff6213;border-color:#ff6213;white-space:nowrap;">
@@ -73,10 +75,12 @@
                             <button type="button" class="gal-action" title="Copiar URL" onclick="galCopyUrl('{{ $image->url }}', this)">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="14" height="14" x="8" y="8" rx="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
                             </button>
+                            @permiso('gallery','delete')
                             <button type="button" class="gal-action gal-action--danger" title="Eliminar"
                                 onclick="galAskDelete({{ $image->id }}, '{{ addslashes($image->original_name ?? 'esta imagen') }}')">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
                             </button>
+                            @endpermiso
                         </div>
                     </div>
                     <div class="gal-card__meta">

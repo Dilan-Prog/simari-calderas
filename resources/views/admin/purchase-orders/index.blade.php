@@ -29,12 +29,14 @@
                     'fecha' => 'Fecha',
                 ],
             ])
+            @permiso('purchase-orders','create')
             <a href="{{ route('admin.purchase-orders.create') }}"
                 class="button-primary size-adjustment"
                 style="background:#ff6213;border-color:#ff6213;text-decoration:none;
                        display:flex;align-items:center;gap:6px;">
                 + Nueva Orden
             </a>
+            @endpermiso
         </div>
     </div>
 
@@ -212,6 +214,7 @@
                                     </svg>
                                 </a>
                                 {{-- Editar --}}
+                                @permiso('purchase-orders','edit')
                                 <a href="{{ route('admin.purchase-orders.edit', $order->id) }}"
                                     class="table-users-manager-action-btn edit" title="Editar">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
@@ -220,6 +223,7 @@
                                         <path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/>
                                     </svg>
                                 </a>
+                                @endpermiso
                                 {{-- PDF --}}
                                 <a href="{{ route('admin.purchase-orders.pdf', $order->id) }}"
                                     class="table-users-manager-action-btn edit" title="Exportar PDF">
@@ -232,6 +236,7 @@
                                     </svg>
                                 </a>
                                 {{-- Eliminar --}}
+                                @permiso('purchase-orders','delete')
                                 <button type="button"
                                     class="table-users-manager-action-btn delete btn-delete-po"
                                     data-id="{{ $order->id }}"
@@ -248,6 +253,7 @@
                                         <line x1="14" x2="14" y1="11" y2="17"/>
                                     </svg>
                                 </button>
+                                @endpermiso
                             </div>
                         </td>
                     </tr>

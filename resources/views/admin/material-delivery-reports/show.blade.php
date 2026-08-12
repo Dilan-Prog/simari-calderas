@@ -68,12 +68,14 @@
             </div>
         </div>
         <div class="mdr-show-actions">
+            @permiso('material-delivery-reports', 'edit')
             @if($report->isEditable())
                 <a href="{{ route('admin.material-delivery-reports.edit', $report) }}" class="mdr-btn mdr-btn-outline">
                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/></svg>
                     Editar
                 </a>
             @endif
+            @endpermiso
             <button type="button" class="mdr-btn mdr-btn-outline" onclick="openPdfModal()">
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/><path d="M12 18v-6"/><path d="m9 15 3 3 3-3"/></svg>
                 Vista previa PDF
@@ -91,6 +93,7 @@
                     </a>
                 @endif
             @endif
+            @permiso('material-delivery-reports', 'delete')
             @if($report->isDeletable())
                 <form method="POST" action="{{ route('admin.material-delivery-reports.destroy', $report) }}" style="display:inline;"
                     onsubmit="return confirm('¿Eliminar este reporte? Esta acción no se puede deshacer.')">
@@ -98,6 +101,7 @@
                     <button type="submit" class="mdr-btn mdr-btn-danger">Eliminar</button>
                 </form>
             @endif
+            @endpermiso
         </div>
     </div>
 
@@ -356,13 +360,16 @@
             Descargar PDF
         </a>
 
+        @permiso('material-delivery-reports', 'edit')
         @if($report->isEditable())
             <a href="{{ route('admin.material-delivery-reports.edit', $report) }}" class="mdr-btn mdr-btn-outline">
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/></svg>
                 Editar
             </a>
         @endif
+        @endpermiso
 
+        @permiso('material-delivery-reports', 'delete')
         @if($report->isDeletable())
             <form method="POST" action="{{ route('admin.material-delivery-reports.destroy', $report) }}"
                   style="display:contents"
@@ -371,6 +378,7 @@
                 <button type="submit" class="mdr-btn mdr-btn-danger mdr-btn-danger-link">Eliminar</button>
             </form>
         @endif
+        @endpermiso
     </div>
 
     {{-- Lightbox --}}

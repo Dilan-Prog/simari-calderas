@@ -7,6 +7,7 @@ use App\Models\ServiceReportActivity;
 use App\Models\ServiceReportCustomField;
 use App\Models\ServiceReportImage;
 use App\Models\ServiceReportMeasurement;
+use App\Models\ServiceReportType;
 use App\Traits\ImageUploadTrait;
 use Illuminate\Support\Facades\DB;
 
@@ -229,16 +230,7 @@ class ServiceReportService
 
     public function getServiceTypes(): array
     {
-        return [
-            'chemical_analysis'      => 'Análisis Químico',
-            'maintenance_preventive' => 'Mantenimiento Preventivo',
-            'maintenance_corrective' => 'Mantenimiento Correctivo',
-            'inspection'             => 'Inspección',
-            'cleaning'               => 'Limpieza',
-            'calibration'            => 'Calibración',
-            'activity_report'        => 'Reporte de Actividades',
-            'custom'                 => 'Personalizado',
-        ];
+        return ServiceReportType::active()->orderBy('sort_order')->pluck('label', 'key')->toArray();
     }
 
     public function getSystemsChecked(): array

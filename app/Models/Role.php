@@ -38,10 +38,11 @@ class Role extends Model
         return $this->belongsToMany(Permission::class, 'role_permissions', 'role_id', 'permission_id');
     }
 
-    public function hasPermission(string $module): bool
+    public function hasPermission(string $module, string $action = 'view'): bool
     {
         return $this->permissions()
             ->where('module', $module)
+            ->where('action', $action)
             ->exists();
     }
 

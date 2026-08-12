@@ -73,6 +73,7 @@
                         </svg>
                         Importar Productos
                     </button>
+                    @permiso('products','edit')
                     <a href="{{ route('admin.products.bulk-edit') }}" class="prod-btn-outline">
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -81,6 +82,8 @@
                         </svg>
                         Editar en lote
                     </a>
+                    @endpermiso
+                    @permiso('products','create')
                     <button class="prod-btn-new" type="button"
                         onclick="window.location.href='{{ route('admin.products.create') }}'">
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
@@ -90,6 +93,7 @@
                         </svg>
                         Nuevo Producto
                     </button>
+                    @endpermiso
                 </div>
             </div>
 
@@ -279,6 +283,7 @@
                                 @endforeach
                                 <td data-label="Acciones">
                                     <div class="prod-actions">
+                                        @permiso('products','edit')
                                         <button class="prod-action-btn edit" type="button"
                                             onclick="window.location.href='{{ route('admin.products.edit', $product->id) }}'">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17"
@@ -288,6 +293,8 @@
                                                     d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z" />
                                             </svg>
                                         </button>
+                                        @endpermiso
+                                        @permiso('products','delete')
                                         <button class="prod-action-btn delete btn-delete-product" type="button"
                                             data-id="{{ $product->id }}" data-name="{{ $product->name }}"
                                             data-sku="{{ $product->sku }}">
@@ -300,6 +307,7 @@
                                                 <line x1="14" x2="14" y1="11" y2="17" />
                                             </svg>
                                         </button>
+                                        @endpermiso
                                     </div>
                                 </td>
                             </tr>
@@ -385,6 +393,7 @@
                         <div class="prod-grid-footer">
                             <span class="prod-badge {{ $statusClass }}">{{ $statusLabel }}</span>
                             <div class="prod-actions">
+                                @permiso('products','edit')
                                 <button class="prod-action-btn edit" type="button"
                                     onclick="window.location.href='{{ route('admin.products.edit', $product->id) }}'">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17"
@@ -394,6 +403,8 @@
                                             d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z" />
                                     </svg>
                                 </button>
+                                @endpermiso
+                                @permiso('products','delete')
                                 <button class="prod-action-btn delete btn-delete-product" type="button"
                                     data-id="{{ $product->id }}" data-name="{{ $product->name }}"
                                     data-sku="{{ $product->sku }}">
@@ -406,6 +417,7 @@
                                         <line x1="14" x2="14" y1="11" y2="17" />
                                     </svg>
                                 </button>
+                                @endpermiso
                             </div>
                         </div>
                     </div>

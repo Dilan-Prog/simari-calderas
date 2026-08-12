@@ -1170,7 +1170,7 @@
     height: 30px;
     border-radius: 6px;
     border: none;
-    background: #6366f1;
+    background: var(--button-primary-color);
     color: #fff;
     cursor: pointer;
     display: flex;
@@ -1178,7 +1178,7 @@
     justify-content: center;
     transition: background .15s, transform .1s;
 }
-.inline-product-search__add-btn:hover:not(:disabled) { background:#4f46e5; transform:scale(1.08); }
+.inline-product-search__add-btn:hover:not(:disabled) { background: var(--button-primary-color-hover); transform:scale(1.08); }
 .inline-product-search__add-btn:disabled { background:#e2e8f0; color:#94a3b8; cursor:not-allowed; }
 
 .sku-readonly {

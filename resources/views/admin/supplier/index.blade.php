@@ -31,10 +31,14 @@
                     <button type="button" id="btnOpenSupplierProductImportModal" class="button-secondary size-adjustment">
                         Importar Proveedor-Producto
                     </button>
+                    @permiso('suppliers','edit')
                     <a href="{{ route('admin.suppliers.products.bulk-edit.index') }}" class="button-secondary size-adjustment">
                         Editar Proveedor-Producto en lote
                     </a>
+                    @endpermiso
+                    @permiso('suppliers','create')
                     <button class="button-primary size-adjustment new-supplier-btn">+ Nuevo Proveedor</button>
+                    @endpermiso
                 </div>
             </header>
 
@@ -226,6 +230,7 @@
                                                         <circle cx="12" cy="12" r="3"></circle>
                                                     </svg>
                                                 </button>
+                                                @permiso('suppliers','edit')
                                                 <button type="button"
                                                     class="table-users-manager-action-btn edit btn-edit-supplier"
                                                     data-id="{{ $supplier->id }}">
@@ -237,6 +242,8 @@
                                                         </path>
                                                     </svg>
                                                 </button>
+                                                @endpermiso
+                                                @permiso('suppliers','delete')
                                                 <button type="button"
                                                     class="table-users-manager-action-btn delete btn-delete-supplier"
                                                     data-id="{{ $supplier->id }}"
@@ -255,6 +262,7 @@
                                                             y2="17"></line>
                                                     </svg>
                                                 </button>
+                                                @endpermiso
                                             </div>
                                         </td>
                                     </tr>

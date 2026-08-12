@@ -20,9 +20,11 @@
                         clientes</p>
                 </div>
                 <div style="display:flex; align-items:center; gap:10px;">
+                    @permiso('payment-methods', 'create')
                     <button type="button" class="button-primary size-adjustment" id="btnNewPaymentMethod">
                         + Nuevo método de pago
                     </button>
+                    @endpermiso
                 </div>
             </header>
 
@@ -109,6 +111,7 @@
                                     </td>
                                     <td>
                                         <div class="actions-container">
+                                            @permiso('payment-methods', 'edit')
                                             <button type="button" class="action-btn btn-edit-payment-method"
                                                 data-id="{{ $paymentMethod->id }}" title="Editar">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
@@ -118,6 +121,8 @@
                                                         d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z" />
                                                 </svg>
                                             </button>
+                                            @endpermiso
+                                            @permiso('payment-methods', 'delete')
                                             <button type="button" class="action-btn btn-delete-payment-method"
                                                 data-id="{{ $paymentMethod->id }}" data-name="{{ $paymentMethod->name }}"
                                                 title="Eliminar">
@@ -131,6 +136,7 @@
                                                     <line x1="14" x2="14" y1="11" y2="17" />
                                                 </svg>
                                             </button>
+                                            @endpermiso
                                         </div>
                                     </td>
                                 </tr>

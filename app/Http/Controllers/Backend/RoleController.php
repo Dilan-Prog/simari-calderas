@@ -27,9 +27,43 @@ class RoleController extends Controller
         };
     }
 
+    /**
+     * Agrupación puramente visual del grid de permisos del drawer de Roles —
+     * mismo criterio de secciones que el sidebar (sidebar.blade.php
+     * $groupSections), salvo que aquí "CRM" se separa de ERP para que el
+     * admin ubique más rápido Clientes/Pipelines/Negocios/Automatizaciones.
+     * No afecta rutas, permisos ni config('modules') — solo el orden de
+     * renderizado del grid.
+     */
+    private function moduleGroups(): array
+    {
+        return [
+            'Ecommerce' => [
+                'dashboard', 'products', 'categories', 'brands', 'collections',
+                'service-pages', 'gallery', 'home-sections', 'orders', 'inventory',
+                'shipments', 'carriers', 'payment-methods', 'menu', 'settings',
+            ],
+            'ERP y Servicios' => [
+                'quotes', 'suppliers', 'purchase-orders', 'sales-orders',
+                'material-delivery-reports', 'chemical-planning', 'erp-settings',
+                'technical-services', 'service-reports',
+            ],
+            'Administración' => [
+                'roles', 'users', 'google-ads', 'email-marketing', 'analytics',
+                'audit', 'blog', 'seo', 'whatsapp',
+            ],
+            'CRM' => [
+                'clients', 'pipeline', 'deals', 'automations',
+            ],
+        ];
+    }
+
     public function index()
     {
-        $roles = Role::withCount(['users', 'permissions'])
+        $roles = Role::withCount([
+                'users',
+                'permissions as modules_count' => fn ($q) => $q->where('action', 'view'),
+            ])
             ->with('permissions')
             ->get();
 
@@ -43,6 +77,7 @@ class RoleController extends Controller
             'totalUsers'   => User::whereNotNull('role_id')->count(),
             'totalModules' => Permission::distinct('module')->count('module'),
             'modules'      => config('modules'),
+            'moduleGroups' => $this->moduleGroups(),
             'visibleColumns' => $visibleColumns,
         ]);
     }
@@ -60,7 +95,7 @@ class RoleController extends Controller
                     ? \Carbon\Carbon::parse($role->created_at)->format('d M Y')
                     : '—',
             ],
-            'permissions' => $role->permissions->pluck('module')->toArray(),
+            'permissions' => $role->permissions->groupBy('module')->map(fn ($p) => $p->pluck('action')->values()),
             'isAdmin'     => $role->isAdmin(),
         ]);
     }
@@ -72,7 +107,7 @@ class RoleController extends Controller
             'name_role_es'     => 'nullable|string|max:100',
             'description_role' => 'nullable|string|max:255',
             'permissions'      => 'nullable|array',
-            'permissions.*'    => 'string',
+            'permissions.*'    => ['string', 'regex:/^[a-z0-9\-]+:(view|create|edit|delete|log)$/'],
         ]);
 
         $role = Role::create([
@@ -83,13 +118,36 @@ class RoleController extends Controller
         ]);
 
         if (!empty($validated['permissions'])) {
-            $permIds = Permission::whereIn('module', $validated['permissions'])
-                ->pluck('id');
-            $role->permissions()->sync($permIds);
+            $role->permissions()->sync($this->resolvePermissionIds($validated['permissions']));
         }
 
         return redirect()->route('admin.roles.index')
             ->with('success', 'Rol creado correctamente.');
+    }
+
+    /**
+     * Convierte el payload plano "modulo:accion" en IDs de Permission,
+     * aplicando defensa en profundidad: descarta cualquier acción de un
+     * módulo que no incluya también 'view' en el mismo payload, aunque el
+     * cliente la haya enviado manipulada (la UI ya deshabilita esos
+     * checkboxes, pero el servidor no debe confiar únicamente en eso).
+     */
+    private function resolvePermissionIds(array $permissions)
+    {
+        $pairs = collect($permissions)
+            ->map(fn ($p) => explode(':', $p, 2))
+            ->filter(fn ($p) => count($p) === 2);
+
+        $byModule = $pairs->groupBy(fn ($p) => $p[0]);
+        $validPairs = $byModule
+            ->filter(fn ($actions) => $actions->contains(fn ($p) => $p[1] === 'view'))
+            ->flatten(1);
+
+        return Permission::where(function ($q) use ($validPairs) {
+            foreach ($validPairs as [$module, $action]) {
+                $q->orWhere(fn ($qq) => $qq->where('module', $module)->where('action', $action));
+            }
+        })->pluck('id');
     }
 
     public function update(Request $request, int $id)
@@ -101,7 +159,7 @@ class RoleController extends Controller
             'name_role_es'     => 'nullable|string|max:100',
             'description_role' => 'nullable|string|max:255',
             'permissions'      => 'nullable|array',
-            'permissions.*'    => 'string',
+            'permissions.*'    => ['string', 'regex:/^[a-z0-9\-]+:(view|create|edit|delete|log)$/'],
         ]);
 
         $role->update([
@@ -111,10 +169,16 @@ class RoleController extends Controller
         ]);
 
         $permIds = !empty($validated['permissions'])
-            ? Permission::whereIn('module', $validated['permissions'])->pluck('id')
+            ? $this->resolvePermissionIds($validated['permissions'])
             : [];
 
         $role->permissions()->sync($permIds);
+
+        // Invalida la caché de permisos de los usuarios afectados: el
+        // middleware/User::hasPermission() de otro agente memoiza permisos
+        // por usuario, así que un sync() aquí no se reflejaría en sesiones
+        // ya activas sin este paso.
+        User::where('role_id', $role->id)->get()->each->clearPermissionsCache();
 
         return redirect()->route('admin.roles.index')
             ->with('success', 'Rol actualizado correctamente.');

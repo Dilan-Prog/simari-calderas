@@ -23,10 +23,12 @@
                 'tableKey' => 'menus.index',
                 'columnDefs' => ['ubicacion' => 'Ubicación', 'elementos' => 'Elementos', 'estado' => 'Estado'],
             ])
+            @permiso('menu', 'create')
             <button type="button" class="button-primary size-adjustment" id="btnNewMenu"
                 style="background:#ff6213;border-color:#ff6213;white-space:nowrap;">
                 + Nuevo Menú
             </button>
+            @endpermiso
         </div>
     </div>
 
@@ -66,6 +68,7 @@
                         </td>
                         <td style="padding:12px 16px;">
                             <div class="header-right-user-manager">
+                                @permiso('menu', 'edit')
                                 <a href="{{ route('admin.menus.edit', $menu->id) }}"
                                     class="table-users-manager-action-btn edit" title="Editar árbol de elementos">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="21" x2="14" y1="4" y2="4"/><line x1="10" x2="3" y1="4" y2="4"/><line x1="21" x2="12" y1="12" y2="12"/><line x1="8" x2="3" y1="12" y2="12"/><line x1="21" x2="16" y1="20" y2="20"/><line x1="12" x2="3" y1="20" y2="20"/><line x1="14" x2="14" y1="2" y2="6"/><line x1="8" x2="8" y1="10" y2="14"/><line x1="16" x2="16" y1="18" y2="22"/></svg>
@@ -78,10 +81,13 @@
                                     title="Renombrar menú">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg>
                                 </button>
+                                @endpermiso
+                                @permiso('menu', 'delete')
                                 <button type="button" class="table-users-manager-action-btn delete btn-delete-menu"
                                     data-id="{{ $menu->id }}" data-name="{{ $menu->name }}">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
                                 </button>
+                                @endpermiso
                             </div>
                         </td>
                     </tr>

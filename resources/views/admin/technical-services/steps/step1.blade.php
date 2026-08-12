@@ -62,42 +62,14 @@ window.__tsConfig = {
             @php
                 $linkedQuoteId = old('from_quote_id', $service?->from_quote_id ?? $fromQuote?->id);
                 $linkedQuote   = $linkedQuoteId ? $acceptedQuotes->firstWhere('id', (int) $linkedQuoteId) : null;
+                // Modo legacy: solo aplica al EDITAR un servicio que ya existía sin
+                // cotización de origen (borradores viejos). Los servicios nuevos
+                // siempre se crean a partir de una cotización aceptada.
+                $isLegacyEdit  = $isEdit && $service->customer_id && !$service->from_quote_id;
             @endphp
 
-            {{-- Cotización de origen --}}
+            {{-- Cliente --}}
             <div class="ts-field">
-                <label class="ts-label">Cotización de origen (opcional)</label>
-                <div class="client-select-wrap" id="ts-quote-picker" style="{{ $linkedQuote ? 'display:none' : '' }}">
-                    <input type="text" id="tsQuoteSearchInput" class="ts-input"
-                           placeholder="Buscar por folio, cliente o empresa..." autocomplete="off">
-                    <div id="tsQuoteDropdown" class="client-dropdown" style="display:none">
-                        @foreach($acceptedQuotes as $quote)
-                            @php
-                                $qCustomerLabel = $quote->customer->company
-                                    ?: trim("{$quote->customer->first_name} {$quote->customer->last_name}");
-                            @endphp
-                            <div class="client-dropdown__item"
-                                 data-id="{{ $quote->id }}"
-                                 data-quote-number="{{ $quote->quote_number }}"
-                                 data-customer-id="{{ $quote->customer_id }}"
-                                 data-customer-label="{{ $qCustomerLabel }}">
-                                <span class="client-dropdown__name">{{ $quote->quote_number }}</span>
-                                <span class="client-dropdown__company">{{ $qCustomerLabel }}</span>
-                            </div>
-                        @endforeach
-                        <div class="client-dropdown__empty" style="display:none">Sin cotizaciones aceptadas disponibles</div>
-                    </div>
-                </div>
-                <div id="ts-quote-linked" class="ts-quote-banner" style="{{ $linkedQuote ? '' : 'display:none' }}">
-                    <span>Servicio ligado a la cotización <strong id="ts-quote-linked-number">{{ $linkedQuote?->quote_number }}</strong>
-                    (<span id="ts-quote-linked-customer">{{ $linkedQuote ? ($linkedQuote->customer->company ?: trim("{$linkedQuote->customer->first_name} {$linkedQuote->customer->last_name}")) : '' }}</span>)</span>
-                    <button type="button" id="ts-quote-unlink" class="ts-btn ts-btn--ghost" style="padding:2px 10px">Quitar vínculo</button>
-                </div>
-                <input type="hidden" name="from_quote_id" id="tsFromQuoteId" value="{{ $linkedQuoteId }}">
-            </div>
-
-            {{-- Cliente (manual — solo si no hay cotización de origen ligada) --}}
-            <div class="ts-field" id="ts-manual-client-block" style="{{ $linkedQuote ? 'display:none' : '' }}">
                 <label class="ts-label">Cliente <span class="ts-label__req">*</span></label>
                 <div class="ts-field-select-wrap">
                     <select name="customer_id" id="tsCustomerSelect" class="ts-select-field" required>
@@ -114,6 +86,46 @@ window.__tsConfig = {
                         <path d="m6 9 6 6 6-6"/>
                     </svg>
                 </div>
+                <span class="ts-field-error"></span>
+            </div>
+
+            {{-- Cotización de origen — filtrada por el cliente elegido arriba --}}
+            <div class="ts-field">
+                <label class="ts-label">
+                    Cotización de origen
+                    @if($isLegacyEdit)
+                        (opcional)
+                    @else
+                        <span class="ts-label__req">*</span>
+                    @endif
+                </label>
+                <div class="client-select-wrap" id="ts-quote-picker" style="{{ $linkedQuote ? 'display:none' : '' }}">
+                    <input type="text" id="tsQuoteSearchInput" class="ts-input"
+                           placeholder="Selecciona un cliente primero..." autocomplete="off" disabled>
+                    <div id="tsQuoteDropdown" class="client-dropdown" style="display:none">
+                        @foreach($acceptedQuotes as $quote)
+                            @php
+                                $qCustomerLabel = $quote->customer->company
+                                    ?: trim("{$quote->customer->first_name} {$quote->customer->last_name}");
+                            @endphp
+                            <div class="client-dropdown__item"
+                                 data-id="{{ $quote->id }}"
+                                 data-quote-number="{{ $quote->quote_number }}"
+                                 data-customer-id="{{ $quote->customer_id }}"
+                                 data-customer-label="{{ $qCustomerLabel }}">
+                                <span class="client-dropdown__name">{{ $quote->quote_number }}</span>
+                                <span class="client-dropdown__company">{{ $qCustomerLabel }}</span>
+                            </div>
+                        @endforeach
+                        <div class="client-dropdown__empty" style="display:none">Sin cotizaciones aceptadas para este cliente</div>
+                    </div>
+                </div>
+                <div id="ts-quote-linked" class="ts-quote-banner" style="{{ $linkedQuote ? '' : 'display:none' }}">
+                    <span>Servicio ligado a la cotización <strong id="ts-quote-linked-number">{{ $linkedQuote?->quote_number }}</strong>
+                    (<span id="ts-quote-linked-customer">{{ $linkedQuote ? ($linkedQuote->customer->company ?: trim("{$linkedQuote->customer->first_name} {$linkedQuote->customer->last_name}")) : '' }}</span>)</span>
+                    <button type="button" id="ts-quote-unlink" class="ts-btn ts-btn--ghost" style="padding:2px 10px">Quitar vínculo</button>
+                </div>
+                <input type="hidden" name="from_quote_id" id="tsFromQuoteId" value="{{ $linkedQuoteId }}" {{ $isLegacyEdit ? '' : 'required' }}>
                 <span class="ts-field-error"></span>
             </div>
 
@@ -238,25 +250,47 @@ window.__tsConfig = {
     const picker      = document.getElementById('ts-quote-picker');
     const searchInput = document.getElementById('tsQuoteSearchInput');
     const dropdown    = document.getElementById('tsQuoteDropdown');
+    const customerSelect = document.getElementById('tsCustomerSelect');
     if (!picker || !searchInput || !dropdown) return;
 
     const items          = Array.from(dropdown.querySelectorAll('.client-dropdown__item'));
     const emptyMsg        = dropdown.querySelector('.client-dropdown__empty');
     const fromQuoteInput = document.getElementById('tsFromQuoteId');
-    const customerSelect = document.getElementById('tsCustomerSelect');
-    const manualBlock    = document.getElementById('ts-manual-client-block');
     const linkedBanner   = document.getElementById('ts-quote-linked');
     const linkedNumber   = document.getElementById('ts-quote-linked-number');
     const linkedCustomer = document.getElementById('ts-quote-linked-customer');
     const unlinkBtn      = document.getElementById('ts-quote-unlink');
 
+    function currentCustomerId() {
+        return customerSelect ? customerSelect.value : '';
+    }
+
+    // Sin cliente elegido, el buscador de cotizaciones permanece deshabilitado.
+    function updateQuoteAvailability() {
+        const custId = currentCustomerId();
+        if (!custId) {
+            searchInput.disabled    = true;
+            searchInput.placeholder = 'Selecciona un cliente primero...';
+            searchInput.value       = '';
+            dropdown.style.display  = 'none';
+        } else {
+            searchInput.disabled    = false;
+            searchInput.placeholder = 'Buscar por folio, cliente o empresa...';
+        }
+    }
+
+    // Filtra por texto Y por el cliente seleccionado — solo se listan
+    // cotizaciones aceptadas del cliente elegido arriba.
     function filterItems(q) {
         q = q.toLowerCase().trim();
+        const custId = currentCustomerId();
         let visible = 0;
         items.forEach(item => {
-            const number   = item.dataset.quoteNumber.toLowerCase();
-            const customer = item.dataset.customerLabel.toLowerCase();
-            const match    = !q || number.includes(q) || customer.includes(q);
+            const number          = item.dataset.quoteNumber.toLowerCase();
+            const customer        = item.dataset.customerLabel.toLowerCase();
+            const matchesCustomer = custId !== '' && item.dataset.customerId === custId;
+            const matchesText     = !q || number.includes(q) || customer.includes(q);
+            const match           = matchesCustomer && matchesText;
             item.style.display = match ? '' : 'none';
             if (match) visible++;
         });
@@ -265,24 +299,43 @@ window.__tsConfig = {
 
     function linkQuote(item) {
         fromQuoteInput.value = item.dataset.id;
-        if (customerSelect) {
-            // El cliente puede no estar en la lista de "activos" del select
-            // (p.ej. si su estado cambió) — el servidor lo deriva de la
-            // cotización de todos modos, así que el select deja de ser
-            // obligatorio mientras haya una cotización ligada.
-            customerSelect.value = item.dataset.customerId;
-            customerSelect.removeAttribute('required');
-        }
 
         linkedNumber.textContent   = item.dataset.quoteNumber;
         linkedCustomer.textContent = item.dataset.customerLabel;
 
         picker.style.display       = 'none';
-        manualBlock.style.display  = 'none';
         linkedBanner.style.display = '';
     }
 
+    function unlinkQuote() {
+        fromQuoteInput.value       = '';
+        linkedBanner.style.display = 'none';
+        picker.style.display       = '';
+        searchInput.value          = '';
+        updateQuoteAvailability();
+        filterItems('');
+    }
+
+    if (customerSelect) {
+        customerSelect.addEventListener('change', () => {
+            updateQuoteAvailability();
+
+            // Si la cotización ligada ya no pertenece al cliente recién
+            // elegido, se desvincula para no dejar datos inconsistentes.
+            const linkedId = fromQuoteInput.value;
+            if (linkedId) {
+                const linkedItem = items.find(i => i.dataset.id === linkedId);
+                if (!linkedItem || linkedItem.dataset.customerId !== currentCustomerId()) {
+                    unlinkQuote();
+                }
+            }
+
+            filterItems(searchInput.value);
+        });
+    }
+
     searchInput.addEventListener('focus', () => {
+        if (searchInput.disabled) return;
         filterItems(searchInput.value);
         dropdown.style.display = 'block';
     });
@@ -307,19 +360,9 @@ window.__tsConfig = {
     });
 
     if (unlinkBtn) {
-        unlinkBtn.addEventListener('click', () => {
-            fromQuoteInput.value      = '';
-            linkedBanner.style.display = 'none';
-            picker.style.display       = '';
-            manualBlock.style.display  = '';
-            if (customerSelect) customerSelect.setAttribute('required', 'required');
-        });
+        unlinkBtn.addEventListener('click', unlinkQuote);
     }
 
-    // Si la página cargó con una cotización ya ligada (banner visible desde
-    // el servidor), el select manual tampoco debe ser obligatorio.
-    if (fromQuoteInput && fromQuoteInput.value && customerSelect) {
-        customerSelect.removeAttribute('required');
-    }
+    updateQuoteAvailability();
 })();
 </script>

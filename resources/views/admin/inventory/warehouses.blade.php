@@ -22,9 +22,11 @@
                     <a href="{{ route('admin.inventory.index') }}" class="prod-btn-outline">
                         ← Volver a Movimientos
                     </a>
+                    @permiso('inventory', 'create')
                     <button type="button" class="button-primary size-adjustment" id="btnNewWarehouse">
                         + Nuevo Almacén
                     </button>
+                    @endpermiso
                 </div>
             </header>
 
@@ -54,6 +56,7 @@
                                     </td>
                                     <td>
                                         <div class="actions-container">
+                                            @permiso('inventory', 'edit')
                                             <button type="button" class="action-btn btn-edit-warehouse"
                                                 data-id="{{ $warehouse->id }}" data-name="{{ $warehouse->name }}"
                                                 data-location="{{ $warehouse->location }}"
@@ -64,6 +67,8 @@
                                                     <path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z" />
                                                 </svg>
                                             </button>
+                                            @endpermiso
+                                            @permiso('inventory', 'delete')
                                             <button type="button" class="action-btn btn-delete-warehouse"
                                                 data-id="{{ $warehouse->id }}" data-name="{{ $warehouse->name }}"
                                                 data-blocked="{{ $warehouse->movements_count > 0 ? '1' : '0' }}" title="Eliminar">
@@ -77,6 +82,7 @@
                                                     <line x1="14" x2="14" y1="11" y2="17" />
                                                 </svg>
                                             </button>
+                                            @endpermiso
                                         </div>
                                     </td>
                                 </tr>

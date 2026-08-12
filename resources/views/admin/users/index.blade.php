@@ -22,9 +22,11 @@
                         'tableKey' => 'users.index',
                         'columnDefs' => ['email' => 'Email', 'rol' => 'Rol', 'estado' => 'Estado'],
                     ])
+                    @permiso('users', 'create')
                     <button class="button-primary size-adjustment" id="btnNewUser">
                         + Nuevo Usuario
                     </button>
+                    @endpermiso
                 </div>
             </header>
             <!-- TABLE -->
@@ -104,6 +106,7 @@
                                             </button>
 
                                             {{-- Edit --}}
+                                            @permiso('users', 'edit')
                                             <button type="button" class="table-users-manager-action-btn edit btn-edit-user"
                                                 data-id="{{ $user->id }}">
                                                 {{-- edit svg --}}
@@ -116,7 +119,9 @@
                                                     </path>
                                                 </svg>
                                             </button>
+                                            @endpermiso
                                             {{-- delete --}}
+                                            @permiso('users', 'delete')
                                             <button type="button"
                                                 class="table-users-manager-action-btn delete btn-delete-user"
                                                 data-id="{{ $user->id }}"
@@ -137,6 +142,7 @@
                                                     </line>
                                                 </svg>
                                             </button>
+                                            @endpermiso
                                         </div>
                                     </td>
                                 </tr>

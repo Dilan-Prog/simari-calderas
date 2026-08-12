@@ -1,0 +1,312 @@
+/* Pipelines — el shell de tabla/modal es 100% reutilizado de ui-kit.css
+   (.clients-manager-table, .action-btn, .brand-status-badge,
+   .del-confirm-overlay/.del-confirm-box, .is-invalid/.field-error-msg) y de
+   las clases "ap-modal-"/"ap-field-"/"ap-primary-toggle"/"pm-section" ya
+   usadas en payment-methods.css. Como cada página del admin sólo carga su
+   propio CSS (@push('styles')), se redefinen aquí también — mismo criterio
+   ya seguido por ese archivo. */
+
+/* ============================================================
+   Tarjetas de pipeline (lista principal)
+   ============================================================ */
+.pipeline-card {
+    background: var(--background--white, #fff);
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    margin-bottom: 16px;
+    overflow: hidden;
+}
+
+.pipeline-card-header {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 16px 20px;
+}
+
+.pipeline-card-heading {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    min-width: 200px;
+}
+
+.pipeline-card-title {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--text-black, #111);
+    margin: 0;
+}
+
+.pipeline-card-badges {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.pipeline-card-meta {
+    display: flex;
+    gap: 16px;
+    color: var(--text-description-color, #6b7280);
+    font-size: 0.85rem;
+}
+
+.pipeline-card-meta-item {
+    white-space: nowrap;
+}
+
+.pipeline-card-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btn-toggle-stages svg {
+    transition: transform 0.15s ease;
+}
+
+.btn-toggle-stages.is-open svg {
+    transform: rotate(180deg);
+}
+
+/* ============================================================
+   Panel expandible de etapas
+   ============================================================ */
+.pipeline-stages-panel {
+    border-top: 1px solid #e5e7eb;
+    padding: 14px 20px 18px;
+    background: var(--background-primary-white, #f8f9fa);
+}
+
+.pipeline-stages-table th,
+.pipeline-stages-table td {
+    font-size: 0.85rem;
+}
+
+.pipeline-stage-type-normal {
+    color: var(--text-description-color, #6b7280);
+}
+
+.pipeline-no-stages {
+    color: var(--text-description-color, #6b7280);
+    font-size: 0.85rem;
+    margin: 0;
+}
+
+/* ============================================================
+   Modal shell — mismo criterio que .ap-modal-box en payment-methods.css
+   ============================================================ */
+.ap-modal-box {
+    max-width: 640px;
+    width: 94%;
+    text-align: left;
+}
+
+.pipeline-modal-box {
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.ap-modal-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    margin-bottom: 20px;
+}
+
+.ap-modal-icon-wrap {
+    flex-shrink: 0;
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: #fff3ea;
+    color: var(--button-primary-color, #ff6213);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ap-modal-header-text {
+    flex: 1;
+}
+
+.ap-modal-header-text .del-confirm-title {
+    margin-bottom: 4px;
+    text-align: left;
+}
+
+.ap-modal-header-text .del-confirm-desc {
+    margin-bottom: 0;
+    text-align: left;
+}
+
+.ap-modal-header > button {
+    flex-shrink: 0;
+}
+
+.ap-modal-errors {
+    display: none;
+    background: #fee2e2;
+    color: #991b1b;
+    border: 1px solid #fecaca;
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 13px;
+    margin-bottom: 16px;
+}
+
+.ap-modal-errors p {
+    margin: 2px 0;
+}
+
+.ap-modal-body {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.ap-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid #e5e7eb;
+}
+
+.ap-field-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.ap-primary-toggle {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    cursor: pointer;
+    padding: 10px 12px;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+}
+
+.ap-primary-toggle input[type="checkbox"] {
+    margin-top: 3px;
+}
+
+.ap-primary-toggle strong {
+    display: block;
+    font-size: 0.9rem;
+    color: var(--text-black, #111);
+}
+
+.ap-primary-toggle span {
+    display: block;
+    font-size: 0.78rem;
+    color: var(--text-description-color, #6b7280);
+}
+
+.ap-readonly-note {
+    font-size: 0.78rem;
+    color: var(--text-description-color, #6b7280);
+    margin: 8px 0 0;
+}
+
+.pm-section {
+    padding: 14px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.pm-section:last-of-type {
+    border-bottom: none;
+}
+
+.pm-section-title {
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--text-description-color, #6b7280);
+    margin: 0 0 10px;
+}
+
+/* ============================================================
+   Builder de etapas iniciales (inputs repetibles en JS vanilla)
+   ============================================================ */
+.pipeline-stage-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 10px;
+    padding: 10px;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    margin-bottom: 10px;
+}
+
+.pipeline-stage-row-name {
+    flex: 2;
+}
+
+.pipeline-stage-row-prob {
+    flex: 1;
+    min-width: 90px;
+}
+
+.pipeline-stage-row-flags {
+    flex: 1;
+    min-width: 140px;
+}
+
+.pipeline-stage-flags-inline {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    height: 40px;
+}
+
+.pipeline-stage-flag-label {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.8rem;
+    color: var(--text-description-color, #6b7280);
+    white-space: nowrap;
+}
+
+.btn-remove-pipeline-stage {
+    flex-shrink: 0;
+}
+
+/* ============================================================
+   Inputs — mismo look que .users-manager-input / .users-manager-select
+   ============================================================ */
+.users-manager-input,
+.users-manager-select {
+    width: 100%;
+    padding: 9px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 0.88rem;
+    font-family: var(--font-family, 'Inter', sans-serif);
+    color: var(--text-black, #111);
+    background: #fff;
+}
+
+.users-manager-input.is-invalid,
+.users-manager-select.is-invalid {
+    border-color: #ef4444;
+}
+
+.field-error-msg {
+    color: #ef4444;
+    font-size: 0.75rem;
+    margin-top: 2px;
+}
+
+.supliers-manager-slider-label {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--text-black, #111);
+}

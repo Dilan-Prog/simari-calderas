@@ -29,10 +29,12 @@
                     'estado' => 'Estado',
                 ],
             ])
+            @permiso('categories','create')
             <button type="button" class="button-primary size-adjustment" id="btnNewCategory"
                 style="background:#ff6213;border-color:#ff6213;white-space:nowrap;">
                 + Nueva Categoría
             </button>
+            @endpermiso
         </div>
     </div>
 
@@ -174,6 +176,14 @@
                         ->orderBy('sort_order')->orderBy('name')
                         ->get();
 
+                    // Nota: esta tabla se renderiza con PHP crudo (echo) dentro de un
+                    // bloque Blade "php" en linea siguiente, por lo que la directiva
+                    // Blade "permiso" no se puede usar aqui (Blade no reprocesa
+                    // directivas dentro de ese bloque de PHP crudo; ver
+                    // AuthServiceProvider::boot()). Se replica la misma condicion que
+                    // usa la directiva "permiso('modulo','accion')" llamando a auth()
+                    // directamente, que si esta disponible como helper global dentro
+                    // de la funcion.
                     function renderCategoryRow($cat, $level = 1) {
                         $indent     = ($level - 1) * 28;
                         $levelLabel = match($level) { 1 => 'Principal', 2 => 'Subcategoría', default => 'Categoría hija' };
@@ -223,12 +233,17 @@
                         echo '</td>';
                         echo '<td style="padding:12px 16px;">';
                         echo '<div class="header-right-user-manager">';
-                        echo '<button type="button" class="table-users-manager-action-btn edit btn-edit-category" data-id="'.$cat->id.'">';
-                        echo '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg>';
-                        echo '</button>';
-                        echo '<button type="button" class="table-users-manager-action-btn delete btn-delete-category" data-id="'.$cat->id.'" data-name="'.e($cat->name).'" data-slug="'.e($cat->slug).'">';
-                        echo '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>';
-                        echo '</button>';
+                        $user = auth()->user();
+                        if ($user && $user->hasPermission('categories', 'edit')) {
+                            echo '<button type="button" class="table-users-manager-action-btn edit btn-edit-category" data-id="'.$cat->id.'">';
+                            echo '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg>';
+                            echo '</button>';
+                        }
+                        if ($user && $user->hasPermission('categories', 'delete')) {
+                            echo '<button type="button" class="table-users-manager-action-btn delete btn-delete-category" data-id="'.$cat->id.'" data-name="'.e($cat->name).'" data-slug="'.e($cat->slug).'">';
+                            echo '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>';
+                            echo '</button>';
+                        }
                         echo '</div></td>';
                         echo '</tr>';
                         if ($hasChildren) {

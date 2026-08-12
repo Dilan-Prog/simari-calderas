@@ -71,7 +71,7 @@ class User extends Authenticatable
         return $this->hasMany(ContactEmergency::class, 'user_id');
     }
 
-    public function hasPermission(string $module): bool
+    public function hasPermission(string $module, string $action = 'view'): bool
     {
         // Admin siempre tiene acceso a todo
         if ($this->isAdmin()) {
@@ -79,15 +79,18 @@ class User extends Authenticatable
         }
 
         // Cache por 60 minutos para evitar queries repetidas
+        // Estructura: ['module' => ['view', 'create', ...], ...]
         $permissions = cache()->remember(
             "user_{$this->id}_permissions",
             now()->addMinutes(60),
             fn() => $this->role?->permissions()
-                        ->pluck('module')
-                        ->toArray() ?? []
+                        ->get(['module', 'action'])
+                        ->groupBy('module')
+                        ->map(fn($rows) => $rows->pluck('action')->all())
+                        ->all() ?? []
         );
 
-        return in_array($module, $permissions);
+        return in_array($action, $permissions[$module] ?? [], true);
     }
 
     public function isAdmin(): bool

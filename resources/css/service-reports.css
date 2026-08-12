@@ -521,7 +521,7 @@
 .sr-wrapper .sr-btn-filter:hover { background-color: #FFF7ED; }
 
 .sr-wrapper .sr-table-card { background-color: var(--background--white); border-radius: 8px; box-shadow: var(--shadow-sm); overflow: hidden; }
-.sr-wrapper .sr-table-scroll { overflow-x: auto; }
+.sr-wrapper .sr-table-scroll { overflow-x: auto; max-height: 60vh; overflow-y: auto; }
 .sr-wrapper .sr-table { width: 100%; border-collapse: collapse; }
 .sr-wrapper .sr-table thead tr { background-color: var(--header-footer-color); height: 44px; }
 .sr-wrapper .sr-table thead th { padding: 0 20px; text-align: left; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-subwhite-color); white-space: nowrap; }

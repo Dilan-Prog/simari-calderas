@@ -240,6 +240,7 @@
                     <span class="ts-detail-value">{{ $service->reference ?? '—' }}</span>
                 </div>
                 @if(isset($service->fromQuote) && $service->fromQuote)
+                @permiso('quotes', 'view')
                 <div class="ts-detail-field" style="grid-column:1/-1">
                     <span class="ts-detail-label">Cotización</span>
                     <a href="{{ route('admin.quotes.show', $service->fromQuote) }}"
@@ -247,6 +248,7 @@
                         {{ $service->fromQuote->quote_number }}
                     </a>
                 </div>
+                @endpermiso
                 @endif
             </div>
 
@@ -321,6 +323,7 @@
         </div>
 
         {{-- ── Bitácora ──────────────────────────────── --}}
+        @permiso('technical-services', 'log')
         <div class="ts-card">
             <div class="ts-card__title">Bitácora</div>
             <div class="ts-card__divider"></div>
@@ -345,6 +348,7 @@
             </div>
             @endif
         </div>
+        @endpermiso
 
     </div>
 

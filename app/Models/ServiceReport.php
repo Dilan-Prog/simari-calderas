@@ -131,17 +131,7 @@ class ServiceReport extends Model
 
     public function getServiceTypeLabelAttribute(): string
     {
-        return match($this->service_type) {
-            'chemical_analysis'      => 'Análisis Químico',
-            'maintenance_preventive' => 'Mantenimiento Preventivo',
-            'maintenance_corrective' => 'Mantenimiento Correctivo',
-            'inspection'             => 'Inspección',
-            'cleaning'               => 'Limpieza',
-            'calibration'            => 'Calibración',
-            'activity_report'        => 'Reporte de Actividades',
-            'custom'                 => $this->custom_service_type ?? 'Personalizado',
-            default                  => $this->service_type,
-        };
+        return ServiceReportType::where('key', $this->service_type)->value('label') ?? $this->service_type;
     }
 
     public function getStatusLabelAttribute(): string
@@ -178,26 +168,35 @@ class ServiceReport extends Model
         return $this->status === 'draft';
     }
 
+    /**
+     * Memoiza el form_behavior del service_type actual para no repetir la
+     * consulta cuando usesActivityForm()/usesMeasurementsForm()/usesCustomForm()
+     * se llaman varias veces en la misma request.
+     */
+    protected ?string $cachedFormBehavior = null;
+
+    protected function formBehavior(): ?string
+    {
+        if ($this->cachedFormBehavior === null) {
+            $this->cachedFormBehavior = ServiceReportType::where('key', $this->service_type)->value('form_behavior') ?? '';
+        }
+
+        return $this->cachedFormBehavior;
+    }
+
     public function usesActivityForm(): bool
     {
-        return in_array($this->service_type, [
-            'maintenance_preventive',
-            'maintenance_corrective',
-            'activity_report',
-            'inspection',
-            'cleaning',
-            'calibration',
-        ]);
+        return $this->formBehavior() === 'activity';
     }
 
     public function usesMeasurementsForm(): bool
     {
-        return $this->service_type === 'chemical_analysis';
+        return $this->formBehavior() === 'measurements';
     }
 
     public function usesCustomForm(): bool
     {
-        return $this->service_type === 'custom';
+        return $this->formBehavior() === 'custom';
     }
 
     public function getAssignedUserNameAttribute(): string

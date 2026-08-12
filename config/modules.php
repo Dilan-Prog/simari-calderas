@@ -142,13 +142,13 @@ return [
     'email-marketing' => [
         'name'  => 'Email Marketing',
         'icon'  => 'mail',
-        'route' => 'admin.email-marketing.index',
+        'route' => 'admin.email-templates.index',
         'order' => 17,
     ],
-    'analytics' => [
+    'crm-reports' => [
         'name'  => 'Analíticas',
         'icon'  => 'bar-chart',
-        'route' => 'admin.analytics.index',
+        'route' => 'admin.dashboards.index',
         'order' => 18,
     ],
     'audit' => [
@@ -187,6 +187,12 @@ return [
         'route' => 'admin.settings.index',
         'order' => 24,
     ],
+    'erp-settings' => [
+        'name'  => 'Configuración ERP',
+        'icon'  => 'settings-2',
+        'route' => 'admin.erp-settings.index',
+        'order' => 9,
+    ],
     'users' => [
         'name'  => 'Usuarios',
         'icon'  => 'user',
@@ -198,5 +204,23 @@ return [
         'icon'  => 'shield',
         'route' => 'admin.roles.index',
         'order' => 26,
+    ],
+    'pipeline' => [
+        'name'  => 'Pipelines',
+        'icon'  => 'git-branch',
+        'route' => 'admin.pipelines.index',
+        'order' => 27,
+    ],
+    'deals' => [
+        'name'  => 'Negocios',
+        'icon'  => 'briefcase',
+        'route' => 'admin.deals.index',
+        'order' => 28,
+    ],
+    'automations' => [
+        'name'  => 'Automatizaciones',
+        'icon'  => 'zap',
+        'route' => 'admin.workflows.index',
+        'order' => 29,
     ],
 ];

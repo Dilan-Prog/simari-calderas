@@ -95,12 +95,7 @@
         {{-- Traffic chart --}}
         <div class="dash-panel">
             <div class="dash-chart-header">
-                <h3 class="dash-panel-title">Tráfico del Sitio</h3>
-                <select class="dash-chart-select" id="dashChartRange">
-                    <option value="7">Últimos 7 días</option>
-                    <option value="30">Último mes</option>
-                    <option value="365">Este año</option>
-                </select>
+                <h3 class="dash-panel-title">Negocios por Mes</h3>
             </div>
             <div class="dash-chart-wrapper">
                 <canvas id="dashTrafficChart"></canvas>
@@ -194,19 +189,12 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <script>
 (function () {
-    const datasets = {
-        7:   [1200, 1800, 1500, 2200, 2800, 3100, 2600],
-        30:  [800, 1200, 1000, 1400, 1100, 1600, 2000, 1800, 2100, 1900,
-              2300, 2500, 2200, 2700, 2400, 2800, 2600, 3000, 2900, 3200,
-              3100, 2800, 3300, 3500, 3200, 3600, 3400, 3700, 3500, 3900],
-        365: [1800, 2200, 2800, 3200, 3600, 4000, 3800],
-    };
-
-    const labels = {
-        7:   ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'],
-        30:  Array.from({ length: 30 }, (_, i) => `Día ${i + 1}`),
-        365: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul'],
-    };
+    // Datos reales: negocios (deals) creados, agrupados por mes (YYYY-MM),
+    // calculados en AdminController::dashboard() vía ReportBuilderService
+    // (mismo servicio que usan Reportes/Dashboards). Ya no hay datasets
+    // hardcodeados ni selector de rango — el reporte no soporta granularidad
+    // diaria, solo mensual.
+    const dealsByMonth = @json($dealsByMonth);
 
     const ctx = document.getElementById('dashTrafficChart').getContext('2d');
 
@@ -217,9 +205,9 @@
     const chart = new Chart(ctx, {
         type: 'line',
         data: {
-            labels: labels[365],
+            labels: dealsByMonth.labels || [],
             datasets: [{
-                data: datasets[365],
+                data: (dealsByMonth.datasets && dealsByMonth.datasets[0]) ? dealsByMonth.datasets[0].data : [],
                 borderColor: '#ff6213',
                 borderWidth: 2,
                 backgroundColor: gradient,
@@ -246,7 +234,7 @@
                     bodyColor: '#6b7280',
                     padding: 10,
                     callbacks: {
-                        label: ctx => ' ' + ctx.parsed.y.toLocaleString() + ' visitas',
+                        label: ctx => ' ' + ctx.parsed.y.toLocaleString() + ' negocios',
                     },
                 },
             },
@@ -271,13 +259,6 @@
                 },
             },
         },
-    });
-
-    document.getElementById('dashChartRange').addEventListener('change', function () {
-        const range = this.value;
-        chart.data.labels = labels[range];
-        chart.data.datasets[0].data = datasets[range];
-        chart.update();
     });
 })();
 </script>

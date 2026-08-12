@@ -13,6 +13,14 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule): void
     {
         // $schedule->command('inspire')->hourly();
+
+        // CRM: procesa la cola de jobs. Aquí se agregarán más adelante los
+        // comandos de tick de automatizaciones (Fase 2) y de secuencias de
+        // email (Fase 3).
+        $schedule->command('queue:work --stop-when-empty')->everyMinute();
+        $schedule->command('workflows:tick')->everyMinute();
+        $schedule->command('email-sequences:tick')->everyMinute();
+        $schedule->command('email-campaigns:send-scheduled')->everyMinute();
     }
 
     /**

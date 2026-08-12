@@ -30,9 +30,11 @@
                         'tableKey' => 'clients.index',
                         'columnDefs' => ['cliente' => 'Cliente', 'contacto' => 'Contacto', 'rfc' => 'RFC', 'estado' => 'Estado'],
                     ])
+                    @permiso('clients','create')
                     <button class="button-primary size-adjustment clients">
                         + Nuevo Cliente
                     </button>
+                    @endpermiso
                 </div>
             </header>
 
@@ -196,6 +198,7 @@
                                                         <circle cx="12" cy="12" r="3"></circle>
                                                     </svg>
                                                 </button>
+                                                @permiso('clients','edit')
                                                 <button type="button"
                                                     class="table-users-manager-action-btn edit btn-edit-client"
                                                     data-id="{{ $customer->id }}">
@@ -208,6 +211,8 @@
                                                         </path>
                                                     </svg>
                                                 </button>
+                                                @endpermiso
+                                                @permiso('clients','delete')
                                                 <button type="button"
                                                     class="table-users-manager-action-btn delete btn-delete-client"
                                                     data-id="{{ $customer->id }}"
@@ -229,6 +234,7 @@
                                                         </line>
                                                     </svg>
                                                 </button>
+                                                @endpermiso
                                             </div>
                                         </td>
                                     </tr>

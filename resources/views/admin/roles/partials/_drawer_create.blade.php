@@ -68,12 +68,27 @@
                     <button type="button" class="roles-btn-link" onclick="clearAllModules('roles-create-form')">Limpiar</button>
                 </div>
             </div>
-            <div class="roles-modules-grid" id="create-modules-grid">
-                @foreach($modules as $key => $module)
-                <div class="roles-module-card" data-module="{{ $key }}" onclick="toggleModule(this)">
-                    <span class="roles-module-name">{{ $module['name'] }}</span>
-                    <div class="roles-toggle"></div>
-                </div>
+            <div class="roles-modules-container" id="create-modules-grid">
+                @foreach($moduleGroups as $groupLabel => $groupModuleKeys)
+                    @php $groupModules = collect($groupModuleKeys)->filter(fn ($key) => isset($modules[$key])); @endphp
+                    @continue($groupModules->isEmpty())
+                    <div class="roles-module-group">
+                        <div class="roles-module-group-title">{{ $groupLabel }}</div>
+                        <div class="roles-modules-grid">
+                            @foreach($groupModules as $key)
+                            <div class="roles-module-card" data-module="{{ $key }}">
+                                <span class="roles-module-name">{{ $modules[$key]['name'] }}</span>
+                                <div class="roles-module-actions">
+                                    <label class="roles-action-check"><input type="checkbox" class="roles-action-view"  data-action="view"   data-module="{{ $key }}"> Lectura</label>
+                                    <label class="roles-action-check"><input type="checkbox" class="roles-action-other" data-action="create" data-module="{{ $key }}"> Crear</label>
+                                    <label class="roles-action-check"><input type="checkbox" class="roles-action-other" data-action="edit"   data-module="{{ $key }}"> Editar</label>
+                                    <label class="roles-action-check"><input type="checkbox" class="roles-action-other" data-action="delete" data-module="{{ $key }}"> Eliminar</label>
+                                    <label class="roles-action-check"><input type="checkbox" class="roles-action-other" data-action="log"    data-module="{{ $key }}"> Bitácora</label>
+                                </div>
+                            </div>
+                            @endforeach
+                        </div>
+                    </div>
                 @endforeach
             </div>
             <div id="roles-create-permissions-container"></div>

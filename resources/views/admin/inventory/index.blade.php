@@ -35,6 +35,7 @@
                         </svg>
                         Almacenes
                     </a>
+                    @permiso('inventory', 'edit')
                     <a href="{{ route('admin.inventory.bulk-edit') }}" class="prod-btn-outline">
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -43,9 +44,12 @@
                         </svg>
                         Edición masiva de stock
                     </a>
+                    @endpermiso
+                    @permiso('inventory', 'create')
                     <button type="button" class="button-primary size-adjustment" id="btnNewMovement">
                         + Registrar movimiento
                     </button>
+                    @endpermiso
                 </div>
             </header>
 

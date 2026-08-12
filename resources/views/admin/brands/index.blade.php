@@ -27,6 +27,7 @@
                             'estado' => 'Estado',
                         ],
                     ])
+                    @permiso('brands','edit')
                     <a href="{{ route('admin.brands.bulk-edit') }}" class="prod-btn-outline">
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -35,9 +36,12 @@
                         </svg>
                         Editar en lote
                     </a>
+                    @endpermiso
+                    @permiso('brands','create')
                     <button type="button" class="button-primary size-adjustment" id="btnNewBrand">
                         + Nueva Marca
                     </button>
+                    @endpermiso
                 </div>
             </header>
 
@@ -130,6 +134,7 @@
 
                                     <td>
                                         <div class="actions-container">
+                                            @permiso('brands','edit')
                                             <button type="button" class="action-btn btn-edit-brand"
                                                 data-id="{{ $brand->id }}" title="Editar">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
@@ -139,6 +144,8 @@
                                                         d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z" />
                                                 </svg>
                                             </button>
+                                            @endpermiso
+                                            @permiso('brands','delete')
                                             <button type="button" class="action-btn btn-delete-brand"
                                                 data-id="{{ $brand->id }}" data-name="{{ $brand->name }}"
                                                 data-slug="{{ $brand->slug }}" title="Eliminar">
@@ -152,6 +159,7 @@
                                                     <line x1="14" x2="14" y1="11" y2="17" />
                                                 </svg>
                                             </button>
+                                            @endpermiso
                                         </div>
                                     </td>
                                 </tr>

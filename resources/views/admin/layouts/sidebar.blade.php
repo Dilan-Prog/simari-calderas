@@ -47,6 +47,7 @@
             request()->routeIs('admin.sales-orders.*') => 'pedidos',
             request()->routeIs('admin.material-delivery-reports.*') => 'entrega-material',
             request()->routeIs('admin.chemical-planning.*') => 'planeacion-quimicos',
+            request()->routeIs('admin.erp-settings.*') => 'erp-configuracion',
             request()->routeIs('admin.home-sections.*') => 'inicio-secciones',
             request()->routeIs('admin.collections.*') => 'colecciones',
             request()->routeIs('admin.service-pages.*') => 'paginas-servicio',
@@ -57,6 +58,13 @@
             request()->routeIs('admin.integrations.*') => 'integraciones',
             request()->routeIs('admin.audit.*') => 'audit',
             request()->routeIs('admin.payment-methods.*') => 'metodos-de-pago',
+            request()->routeIs('admin.pipelines.*') => 'pipelines',
+            request()->routeIs('admin.deals.*') => 'negocios',
+            request()->routeIs('admin.workflows.*') => 'automatizaciones',
+            request()->routeIs('admin.email-templates.*', 'admin.email-lists.*', 'admin.email-campaigns.*', 'admin.email-sequences.*') => 'email-marketing',
+            request()->routeIs('admin.dashboards.*') => 'dashboards',
+            request()->routeIs('admin.reports.*') => 'reportes',
+            request()->routeIs('admin.goals.*') => 'metas',
             default => '',
         };
 
@@ -65,8 +73,8 @@
         $groupSections = [
             'ecommerce' => ['productos', 'categorias', 'marcas', 'colecciones', 'paginas-servicio', 'galeria', 'inicio-secciones', 'inventory', 'menus', 'configuracion-sitio', 'integraciones', 'metodos-de-pago'],
             'servicios' => ['reportes-servicio', 'servicios-tecnicos'],
-            'erp' => ['cotizaciones', 'proveedores', 'ordenes-compra', 'pedidos', 'entrega-material', 'planeacion-quimicos', 'clientes'],
-            'administracion' => ['roles', 'usuarios', 'google-ads', 'devops', 'audit'],
+            'erp' => ['cotizaciones', 'proveedores', 'ordenes-compra', 'pedidos', 'entrega-material', 'planeacion-quimicos', 'erp-configuracion', 'clientes', 'pipelines', 'negocios', 'automatizaciones'],
+            'administracion' => ['roles', 'usuarios', 'google-ads', 'devops', 'audit', 'email-marketing', 'dashboards', 'reportes', 'metas'],
         ];
         $activeGroup = collect($groupSections)->search(fn ($sections) => in_array($activeSection, $sections));
 
@@ -94,12 +102,16 @@
             || $authUser->hasPermission('sales-orders')
             || $authUser->hasPermission('material-delivery-reports')
             || $authUser->hasPermission('chemical-planning')
-            || $authUser->hasPermission('clients');
+            || $authUser->hasPermission('erp-settings')
+            || $authUser->hasPermission('clients')
+            || $authUser->hasPermission('pipeline')
+            || $authUser->hasPermission('deals')
+            || $authUser->hasPermission('automations');
 
         $administracionVisible = $authUser->isAdmin()
             || $authUser->hasPermission('google-ads')
             || $authUser->hasPermission('email-marketing')
-            || $authUser->hasPermission('analytics')
+            || $authUser->hasPermission('crm-reports')
             || $authUser->hasPermission('audit')
             || $authUser->hasPermission('blog')
             || $authUser->hasPermission('seo')
@@ -482,6 +494,55 @@
                     </a>
                 @endif
 
+                {{-- Pipelines --}}
+                @if ($authUser->hasPermission('pipeline'))
+                    <a class="sidebar-nav-item {{ $activeSection === 'pipelines' ? 'active' : '' }}"
+                        href="{{ route('admin.pipelines.index') }}" data-section="pipelines" data-label="Pipelines">
+                        <div class="sidebar-nav-item-left">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <line x1="6" x2="6" y1="3" y2="15" />
+                                <circle cx="18" cy="6" r="3" />
+                                <circle cx="6" cy="18" r="3" />
+                                <path d="M18 9a9 9 0 0 1-9 9" />
+                            </svg>
+                            <span class="sidebar-nav-item-label">Pipelines</span>
+                        </div>
+                    </a>
+                @endif
+
+                {{-- Negocios (Deals) --}}
+                @if ($authUser->hasPermission('deals'))
+                    <a class="sidebar-nav-item {{ $activeSection === 'negocios' ? 'active' : '' }}"
+                        href="{{ route('admin.deals.index') }}" data-section="negocios" data-label="Negocios">
+                        <div class="sidebar-nav-item-left">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path d="M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+                                <rect width="20" height="14" x="2" y="6" rx="2" />
+                            </svg>
+                            <span class="sidebar-nav-item-label">Negocios</span>
+                        </div>
+                    </a>
+                @endif
+
+                {{-- Automatizaciones --}}
+                @if ($authUser->hasPermission('automations'))
+                    <a class="sidebar-nav-item {{ $activeSection === 'automatizaciones' ? 'active' : '' }}"
+                        href="{{ route('admin.workflows.index') }}" data-section="automatizaciones" data-label="Automatizaciones">
+                        <div class="sidebar-nav-item-left">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+                            </svg>
+                            <span class="sidebar-nav-item-label">Automatizaciones</span>
+                        </div>
+                    </a>
+                @endif
+
                 {{-- Clientes --}}
                 @if ($authUser->hasPermission('clients'))
                     <a class="sidebar-nav-item {{ $activeSection === 'clientes' ? 'active' : '' }}" data-section="clientes"
@@ -602,18 +663,21 @@
                     </a>
                 @endif
 
-                {{-- Órdenes de Compra (placeholder deshabilitado, ya existía duplicado antes de este cambio) --}}
-                @if ($authUser->hasPermission('purchase-orders'))
-                    <a class="sidebar-nav-item disabled" data-section="coming-soon" data-label="Órdenes de Compra">
+                {{-- Configuración ERP --}}
+                @if ($authUser->hasPermission('erp-settings'))
+                    <a class="sidebar-nav-item {{ $activeSection === 'erp-configuracion' ? 'active' : '' }}"
+                        href="{{ route('admin.erp-settings.index') }}" data-section="erp-configuracion"
+                        data-label="Configuración ERP">
                         <div class="sidebar-nav-item-left">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                 stroke-linejoin="round">
-                                <circle cx="8" cy="21" r="1" />
-                                <circle cx="19" cy="21" r="1" />
-                                <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12" />
+                                <path d="M20 7h-9" />
+                                <path d="M14 17H5" />
+                                <circle cx="17" cy="17" r="3" />
+                                <circle cx="7" cy="7" r="3" />
                             </svg>
-                            <span class="sidebar-nav-item-label">Órdenes de Compra</span>
+                            <span class="sidebar-nav-item-label">Configuración ERP</span>
                         </div>
                     </a>
                 @endif
@@ -721,7 +785,8 @@
 
                 {{-- Email Marketing --}}
                 @if ($authUser->hasPermission('email-marketing'))
-                    <a class="sidebar-nav-item disabled" data-section="coming-soon" data-label="Email Marketing">
+                    <a class="sidebar-nav-item {{ $activeSection === 'email-marketing' ? 'active' : '' }}"
+                        href="{{ route('admin.email-templates.index') }}" data-section="email-marketing" data-label="Email Marketing">
                         <div class="sidebar-nav-item-left">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -734,9 +799,10 @@
                     </a>
                 @endif
 
-                {{-- Analíticas --}}
-                @if ($authUser->hasPermission('analytics'))
-                    <a class="sidebar-nav-item disabled" data-section="coming-soon" data-label="Analíticas">
+                {{-- Dashboards (CRM) --}}
+                @if ($authUser->hasPermission('crm-reports'))
+                    <a class="sidebar-nav-item {{ $activeSection === 'dashboards' ? 'active' : '' }}"
+                        href="{{ route('admin.dashboards.index') }}" data-section="dashboards" data-label="Dashboards">
                         <div class="sidebar-nav-item-left">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -746,7 +812,42 @@
                                 <path d="M13 17V5" />
                                 <path d="M8 17v-3" />
                             </svg>
-                            <span class="sidebar-nav-item-label">Analíticas</span>
+                            <span class="sidebar-nav-item-label">Dashboards</span>
+                        </div>
+                    </a>
+                @endif
+
+                {{-- Reportes (CRM) --}}
+                @if ($authUser->hasPermission('crm-reports'))
+                    <a class="sidebar-nav-item {{ $activeSection === 'reportes' ? 'active' : '' }}"
+                        href="{{ route('admin.reports.index') }}" data-section="reportes" data-label="Reportes">
+                        <div class="sidebar-nav-item-left">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z" />
+                                <path d="M14 2v6h6" />
+                                <path d="M8 13h8" />
+                                <path d="M8 17h5" />
+                            </svg>
+                            <span class="sidebar-nav-item-label">Reportes</span>
+                        </div>
+                    </a>
+                @endif
+
+                {{-- Metas (CRM) --}}
+                @if ($authUser->hasPermission('crm-reports'))
+                    <a class="sidebar-nav-item {{ $activeSection === 'metas' ? 'active' : '' }}"
+                        href="{{ route('admin.goals.index') }}" data-section="metas" data-label="Metas">
+                        <div class="sidebar-nav-item-left">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10" />
+                                <circle cx="12" cy="12" r="6" />
+                                <circle cx="12" cy="12" r="2" />
+                            </svg>
+                            <span class="sidebar-nav-item-label">Metas</span>
                         </div>
                     </a>
                 @endif

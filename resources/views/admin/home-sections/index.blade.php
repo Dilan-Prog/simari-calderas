@@ -43,10 +43,12 @@
                 'tableKey' => 'home-sections.index',
                 'columnDefs' => ['tipo' => 'Tipo', 'orden' => 'Orden', 'estado' => 'Estado'],
             ])
+            @permiso('home-sections','create')
             <button type="button" class="button-primary size-adjustment" id="btnNewHomeSection"
                 style="background:#ff6213;border-color:#ff6213;white-space:nowrap;">
                 + Nueva Sección
             </button>
+            @endpermiso
         </div>
     </div>
 
@@ -113,12 +115,16 @@
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
                                     </a>
                                 @endif
+                                @permiso('home-sections','edit')
                                 <button type="button" class="table-users-manager-action-btn edit btn-edit-home-section" data-id="{{ $section->id }}">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg>
                                 </button>
+                                @endpermiso
+                                @permiso('home-sections','delete')
                                 <button type="button" class="table-users-manager-action-btn delete btn-delete-home-section" data-id="{{ $section->id }}" data-title="{{ e($section->title ?? ($typeLabels[$section->type] ?? $section->type)) }}">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
                                 </button>
+                                @endpermiso
                             </div>
                         </td>
                     </tr>

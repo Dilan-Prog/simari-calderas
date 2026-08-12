@@ -34,7 +34,9 @@
         if (noOtherOpen()) hideOverlay();
     };
 
-    window.openEditDrawer = function (id, name, description, activeModules) {
+    window.openEditDrawer = function (id, name, description, permissionsByModule) {
+        permissionsByModule = permissionsByModule || {};
+
         document.getElementById('edit-name').value = name;
         document.getElementById('edit-desc').value = description;
         document.getElementById('roles-edit-form').action = urlUpdate + '/' + id;
@@ -45,14 +47,15 @@
         document.getElementById('edit-role-id').value = id;
 
         document.getElementById('edit-modules-grid')
-            .querySelectorAll('.roles-module-card')
-            .forEach(function (card) {
-                if (activeModules.indexOf(card.getAttribute('data-module')) !== -1) {
-                    card.classList.add('is-active');
-                } else {
-                    card.classList.remove('is-active');
-                }
+            .querySelectorAll('input[type="checkbox"]')
+            .forEach(function (cb) {
+                var actions = permissionsByModule[cb.dataset.module] || [];
+                cb.checked = actions.indexOf(cb.dataset.action) !== -1;
             });
+
+        document.getElementById('edit-modules-grid')
+            .querySelectorAll('.roles-module-card')
+            .forEach(applyViewCascade);
 
         drawerEdit.classList.add('is-open');
         showOverlay();
@@ -77,12 +80,19 @@
             var perms   = data.permissions || [];
             var isAdmin = data.isAdmin || false;
 
+            var moduleKeys = Object.keys(perms);
             var chipsHtml = '';
             if (isAdmin) {
                 chipsHtml = '<span class="roles-module-chip" style="background:#fff3ed;color:var(--secondary-color)">Todos los módulos</span>';
-            } else if (perms.length > 0) {
-                chipsHtml = perms.map(function (p) {
-                    return '<span class="roles-module-chip">' + escHtml(p) + '</span>';
+            } else if (moduleKeys.length > 0) {
+                chipsHtml = moduleKeys.map(function (moduleKey) {
+                    var actionLabels = (perms[moduleKey] || []).map(function (action) {
+                        return ACTION_LABELS[action] || action;
+                    });
+                    return '<span class="roles-module-chip">' +
+                        escHtml(moduleDisplayName(moduleKey)) +
+                        (actionLabels.length ? ': ' + escHtml(actionLabels.join(', ')) : '') +
+                        '</span>';
                 }).join('');
             } else {
                 chipsHtml = '<span style="color:#9ca3af;font-size:0.8rem">Sin permisos asignados</span>';
@@ -120,31 +130,85 @@
         if (noOtherOpen()) hideOverlay();
     };
 
-    window.toggleModule = function (card) {
-        card.classList.toggle('is-active');
+    var ACTION_LABELS = {
+        view:   'Lectura',
+        create: 'Crear',
+        edit:   'Editar',
+        delete: 'Eliminar',
+        log:    'Bitácora'
     };
+
+    function moduleDisplayName(key) {
+        var card = document.querySelector('.roles-module-card[data-module="' + key + '"]');
+        var nameEl = card && card.querySelector('.roles-module-name');
+        return nameEl ? nameEl.textContent : key;
+    }
+
+    // Cascada Lectura -> resto: sin "view" marcado, los otros 4 checkboxes
+    // de acción del módulo se deshabilitan (y se desmarcan) porque no tiene
+    // sentido otorgar crear/editar/eliminar/bitácora sin lectura.
+    function applyViewCascade(card) {
+        var viewCb = card.querySelector('.roles-action-view');
+        var otherCbs = card.querySelectorAll('.roles-action-other');
+        var enabled = !!(viewCb && viewCb.checked);
+        otherCbs.forEach(function (cb) {
+            cb.disabled = !enabled;
+            if (!enabled) cb.checked = false;
+        });
+        card.classList.toggle('is-active', enabled || Array.prototype.some.call(otherCbs, function (cb) { return cb.checked; }));
+    }
+
+    document.addEventListener('change', function (e) {
+        var target = e.target;
+        if (!target.matches('.roles-module-actions input[type="checkbox"]')) return;
+        var card = target.closest('.roles-module-card');
+        if (!card) return;
+        if (target.classList.contains('roles-action-view')) {
+            applyViewCascade(card);
+        } else {
+            card.classList.toggle('is-active', card.querySelector('.roles-action-view').checked ||
+                Array.prototype.some.call(card.querySelectorAll('.roles-action-other'), function (cb) { return cb.checked; }));
+        }
+    });
+
+    // Aplica la cascada Lectura->resto a todas las tarjetas de ambos grids al
+    // cargar la página, para que un formulario "Nuevo Rol" recién abierto (sin
+    // ningún checkbox marcado) ya muestre los 4 checkboxes secundarios
+    // deshabilitados en vez de habilitados-pero-sin-marcar.
+    document.querySelectorAll('.roles-module-card').forEach(applyViewCascade);
 
     window.selectAllModules = function (formId) {
         document.getElementById(formId)
             .querySelectorAll('.roles-module-card')
-            .forEach(function (c) { c.classList.add('is-active'); });
+            .forEach(function (card) {
+                card.querySelectorAll('input[type="checkbox"]').forEach(function (cb) {
+                    cb.disabled = false;
+                    cb.checked = true;
+                });
+                card.classList.add('is-active');
+            });
     };
 
     window.clearAllModules = function (formId) {
         document.getElementById(formId)
             .querySelectorAll('.roles-module-card')
-            .forEach(function (c) { c.classList.remove('is-active'); });
+            .forEach(function (card) {
+                card.querySelectorAll('input[type="checkbox"]').forEach(function (cb) {
+                    cb.checked = false;
+                });
+                applyViewCascade(card);
+            });
     };
 
     window.serializePermissions = function (formId) {
         var form      = document.getElementById(formId);
         var container = form.querySelector('[id$="-permissions-container"]');
         container.innerHTML = '';
-        form.querySelectorAll('.roles-module-card.is-active').forEach(function (card) {
+        form.querySelectorAll('.roles-module-actions input[type="checkbox"]:checked').forEach(function (cb) {
             var input   = document.createElement('input');
             input.type  = 'hidden';
             input.name  = 'permissions[]';
-            input.value = card.getAttribute('data-module');
+            input.value = cb.dataset.module + ':' + cb.dataset.action;
             container.appendChild(input);
         });
     };

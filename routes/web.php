@@ -8,6 +8,7 @@ use App\Http\Controllers\Frontend\Shop\CollectionController as ShopCollectionCon
 use App\Http\Controllers\Frontend\Shop\LegalController;
 use App\Http\Controllers\Frontend\Shop\ProductController as ShopProductController;
 use App\Http\Controllers\Frontend\Shop\ServicePageController as ShopServicePageController;
+use App\Http\Controllers\Frontend\EmailTrackingController;
 use App\Http\Controllers\Frontend\SitemapController;
 use App\Http\Controllers\MediaServeController;
 use App\Http\Controllers\ProfileController;
@@ -24,6 +25,13 @@ use Illuminate\Support\Facades\Route;
 |
 */
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
+
+// Tracking público de correos (sin auth): pixel de apertura, click-through y baja.
+Route::get('/email/track/open/{token}', [EmailTrackingController::class, 'open'])->name('email.track.open');
+Route::get('/email/track/click/{token}', [EmailTrackingController::class, 'click'])->name('email.track.click');
+Route::get('/e/open/{token}.png', [EmailTrackingController::class, 'open'])->name('email.open');
+Route::get('/e/click/{token}', [EmailTrackingController::class, 'click'])->name('email.click');
+Route::get('/e/unsubscribe/{token}', [EmailTrackingController::class, 'unsubscribe'])->name('email.unsubscribe');
 
 // Serves uploaded product/service-report/document files from UploadPath::base(),
 // which may live outside public_html in production (see App\Support\UploadPath).

@@ -22,10 +22,12 @@
                 — arrastra los elementos para reordenarlos
             </p>
         </div>
+        @permiso('menu', 'create')
         <button type="button" class="button-primary size-adjustment" id="btnNewRootItem"
             style="background:#ff6213;border-color:#ff6213;white-space:nowrap;">
             + Agregar elemento raíz
         </button>
+        @endpermiso
     </div>
 
     <ul class="menu-tree" id="menuRootList" data-menu-id="{{ $menu->id }}">
@@ -46,11 +48,14 @@
                         <span class="users-manager-badge status-inactive" data-status="inactive">Inactivo</span>
                     @endif
                     <div class="header-right-user-manager menu-tree-actions">
+                        @permiso('menu', 'create')
                         <button type="button" class="table-users-manager-action-btn add btn-add-child"
                             data-parent-id="{{ $root->id }}" data-parent-title="{{ $root->title }}"
                             title="Agregar elemento hijo">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" x2="12" y1="5" y2="19"/><line x1="5" x2="19" y1="12" y2="12"/></svg>
                         </button>
+                        @endpermiso
+                        @permiso('menu', 'edit')
                         <button type="button" class="table-users-manager-action-btn edit btn-edit-item"
                             data-id="{{ $root->id }}"
                             data-title="{{ $root->title }}"
@@ -62,11 +67,14 @@
                             title="Editar elemento">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg>
                         </button>
+                        @endpermiso
+                        @permiso('menu', 'delete')
                         <button type="button" class="table-users-manager-action-btn delete btn-delete-item"
                             data-id="{{ $root->id }}" data-title="{{ $root->title }}"
                             title="Eliminar elemento">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
                         </button>
+                        @endpermiso
                     </div>
                 </div>
                 <ul class="menu-tree-children" data-parent-id="{{ $root->id }}">
@@ -87,6 +95,7 @@
                                     <span class="users-manager-badge status-inactive" data-status="inactive">Inactivo</span>
                                 @endif
                                 <div class="header-right-user-manager menu-tree-actions">
+                                    @permiso('menu', 'edit')
                                     <button type="button" class="table-users-manager-action-btn edit btn-edit-item"
                                         data-id="{{ $child->id }}"
                                         data-title="{{ $child->title }}"
@@ -98,11 +107,14 @@
                                         title="Editar elemento">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg>
                                     </button>
+                                    @endpermiso
+                                    @permiso('menu', 'delete')
                                     <button type="button" class="table-users-manager-action-btn delete btn-delete-item"
                                         data-id="{{ $child->id }}" data-title="{{ $child->title }}"
                                         title="Eliminar elemento">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
                                     </button>
+                                    @endpermiso
                                 </div>
                             </div>
                         </li>

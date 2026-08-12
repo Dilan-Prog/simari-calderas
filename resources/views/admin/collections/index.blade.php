@@ -25,10 +25,12 @@
                 'tableKey' => 'collections.index',
                 'columnDefs' => ['tipo' => 'Tipo', 'productos' => 'Productos', 'orden' => 'Orden', 'estado' => 'Estado'],
             ])
+            @permiso('collections','create')
             <button type="button" class="button-primary size-adjustment" id="btnNewCollection"
                 style="background:#ff6213;border-color:#ff6213;white-space:nowrap;">
                 + Nueva Colección
             </button>
+            @endpermiso
         </div>
     </div>
 
@@ -151,12 +153,16 @@
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
                                     </a>
                                 @endif
+                                @permiso('collections','edit')
                                 <button type="button" class="table-users-manager-action-btn edit btn-edit-collection" data-id="{{ $collection->id }}">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg>
                                 </button>
+                                @endpermiso
+                                @permiso('collections','delete')
                                 <button type="button" class="table-users-manager-action-btn delete btn-delete-collection" data-id="{{ $collection->id }}" data-name="{{ $collection->name }}" data-slug="{{ $collection->slug }}">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
                                 </button>
+                                @endpermiso
                             </div>
                         </td>
                     </tr>

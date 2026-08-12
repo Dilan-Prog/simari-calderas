@@ -17,9 +17,11 @@
     const mobileToggle   = document.getElementById('sidebarMobileToggle');
     const backdrop       = document.getElementById('sidebarBackdrop');
     const overlay        = document.getElementById('adminNavOverlay');
+    const navEl          = document.getElementById('sidebarNav');
     const navItems       = document.querySelectorAll('.sidebar-nav-item[data-section]');
     const groupHeaders   = document.querySelectorAll('.sidebar-nav-group-header[data-group-toggle]');
     const GROUP_STORAGE_PREFIX = 'admin_sidebar_group_';
+    const SCROLL_STORAGE_KEY = 'admin_sidebar_scroll';
 
     function isMobile() {
         return window.innerWidth < BREAKPOINT;
@@ -100,9 +102,60 @@
         });
     }
 
+    /* ── Posición de scroll del nav ── */
+    // El sidebar entero se re-renderiza en cada navegación (los links son
+    // <a href> normales, no SPA), así que su scroll interno vuelve a 0 por
+    // defecto cada vez que se hace click en un módulo — aunque el grupo
+    // correcto quede expandido, el usuario "salta" visualmente hasta
+    // Inicio. Se guarda scrollTop en sessionStorage (por pestaña, no debe
+    // sobrevivir entre sesiones de navegación distintas) y se restaura
+    // apenas carga la página siguiente, antes de que el usuario la vea.
+    function saveScroll() {
+        if (navEl) sessionStorage.setItem(SCROLL_STORAGE_KEY, String(navEl.scrollTop));
+    }
+
+    function restoreScroll() {
+        if (!navEl) return;
+        const stored = sessionStorage.getItem(SCROLL_STORAGE_KEY);
+        if (stored !== null) navEl.scrollTop = parseInt(stored, 10) || 0;
+    }
+
+    function initScrollPersistence() {
+        if (!navEl) return;
+        // Restaurar después de que initGroups() ya expandió/colapsó grupos,
+        // porque eso cambia la altura total del nav y por lo tanto el
+        // scrollTop máximo válido.
+        restoreScroll();
+
+        // NOTA: se guarda con setTimeout, no requestAnimationFrame — un rAF
+        // agendado justo antes de que el navegador empiece a descargar la
+        // página (por el click de un link) puede no llegar a ejecutarse
+        // nunca, perdiendo la posición silenciosamente. setTimeout(fn, 0)
+        // sigue corriendo en ese margen porque no depende del pintado.
+        let saveScheduled = null;
+        navEl.addEventListener('scroll', function () {
+            if (saveScheduled) return;
+            saveScheduled = setTimeout(function () {
+                saveScroll();
+                saveScheduled = null;
+            }, 100);
+        }, { passive: true });
+
+        // Respaldo principal: guarda en el instante exacto del click que
+        // dispara la navegación — no depende de ningún timer.
+        navItems.forEach(function (item) {
+            item.addEventListener('click', saveScroll);
+        });
+        groupHeaders.forEach(function (header) {
+            header.addEventListener('click', saveScroll);
+        });
+        window.addEventListener('beforeunload', saveScroll);
+    }
+
     /* ── Init ── */
     function init() {
         initGroups();
+        initScrollPersistence();
         if (!isMobile()) {
             applyCollapsed(getDesiredCollapsed());
         } else {

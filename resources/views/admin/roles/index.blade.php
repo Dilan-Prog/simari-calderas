@@ -145,7 +145,7 @@
                         @if($role->isAdmin())
                             <span class="roles-badge roles-badge--admin">Todos los módulos</span>
                         @else
-                            <span class="roles-badge roles-badge--default">{{ $role->permissions_count }} módulos</span>
+                            <span class="roles-badge roles-badge--default">{{ $role->modules_count }} módulos</span>
                         @endif
                     </td>
                     <td class="roles-cell-date" data-col="creado">
@@ -162,7 +162,7 @@
                                 </svg>
                             </button>
                             <button class="roles-action-btn" type="button" title="Editar"
-                                onclick="openEditDrawer({{ $role->id }}, '{{ addslashes($role->name_role) }}', '{{ addslashes($role->description_role) }}', {{ json_encode($role->permissions->pluck('module')->toArray()) }})">
+                                onclick="openEditDrawer({{ $role->id }}, '{{ addslashes($role->name_role) }}', '{{ addslashes($role->description_role) }}', {{ json_encode($role->permissions->groupBy('module')->map(fn($p) => $p->pluck('action')->values())) }})">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
                                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/>

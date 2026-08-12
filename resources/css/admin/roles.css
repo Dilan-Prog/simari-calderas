@@ -334,20 +334,33 @@
 }
 .roles-btn-link:hover { opacity: 0.7; }
 
+.roles-modules-container { margin-bottom: 1rem; }
+
+.roles-module-group + .roles-module-group { margin-top: 1.1rem; }
+.roles-module-group-title {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #9ca3af;
+    margin-bottom: 0.5rem;
+    padding-bottom: 0.35rem;
+    border-bottom: 1px solid #f3f4f6;
+}
+
 .roles-modules-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 0.5rem;
-    margin-bottom: 1rem;
 }
 .roles-module-card {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.45rem;
     padding: 0.65rem 0.875rem;
     border: 1.5px solid #e5e7eb;
     border-radius: 8px;
-    cursor: pointer;
     transition: border-color 0.15s, background 0.15s;
     user-select: none;
 }
@@ -357,6 +370,37 @@
     background: #fff8f5;
 }
 .roles-module-name { font-size: 0.8rem; font-weight: 500; color: #374151; }
+
+.roles-module-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 0.65rem;
+}
+.roles-action-check {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.72rem;
+    font-weight: 500;
+    color: #6b7280;
+    cursor: pointer;
+    user-select: none;
+}
+.roles-action-check input[type="checkbox"] {
+    width: 13px;
+    height: 13px;
+    accent-color: var(--secondary-color);
+    cursor: pointer;
+    margin: 0;
+    flex-shrink: 0;
+}
+.roles-action-check input[type="checkbox"]:disabled {
+    cursor: not-allowed;
+    opacity: 0.4;
+}
+.roles-action-check:has(input:disabled) { color: #d1d5db; }
+.roles-action-check:has(input:checked) { color: var(--header-footer-color); }
 
 .roles-toggle {
     width: 32px;

@@ -3,8 +3,19 @@
     "file": "assets/alpine-init-tYkrgErl.js",
     "name": "alpine-init"
   },
+  "_charts-BFPyHK5v.js": {
+    "file": "assets/charts-BFPyHK5v.js",
+    "name": "charts",
+    "imports": [
+      "resources/js/admin/charts.js"
+    ]
+  },
+  "_sortable.esm-D-EvzYhP.js": {
+    "file": "assets/sortable.esm-D-EvzYhP.js",
+    "name": "sortable.esm"
+  },
   "resources/css/admin-quotes.css": {
-    "file": "assets/admin-quotes-uzCElqHU.css",
+    "file": "assets/admin-quotes-9qvIeIKG.css",
     "src": "resources/css/admin-quotes.css",
     "isEntry": true
   },
@@ -16,6 +27,11 @@
   "resources/css/admin/pages/audit.css": {
     "file": "assets/audit-Btdm9tzx.css",
     "src": "resources/css/admin/pages/audit.css",
+    "isEntry": true
+  },
+  "resources/css/admin/pages/automations.css": {
+    "file": "assets/automations-BUQTABA6.css",
+    "src": "resources/css/admin/pages/automations.css",
     "isEntry": true
   },
   "resources/css/admin/pages/brands.css": {
@@ -38,6 +54,11 @@
     "src": "resources/css/admin/pages/collections.css",
     "isEntry": true
   },
+  "resources/css/admin/pages/crm-reports.css": {
+    "file": "assets/crm-reports-RW1aN-m7.css",
+    "src": "resources/css/admin/pages/crm-reports.css",
+    "isEntry": true
+  },
   "resources/css/admin/pages/delivery.css": {
     "file": "assets/delivery-fveut9fJ.css",
     "src": "resources/css/admin/pages/delivery.css",
@@ -46,6 +67,11 @@
   "resources/css/admin/pages/devops.css": {
     "file": "assets/devops-CBXkbcNs.css",
     "src": "resources/css/admin/pages/devops.css",
+    "isEntry": true
+  },
+  "resources/css/admin/pages/email-marketing.css": {
+    "file": "assets/email-marketing-Ch0LjF54.css",
+    "src": "resources/css/admin/pages/email-marketing.css",
     "isEntry": true
   },
   "resources/css/admin/pages/gallery.css": {
@@ -73,6 +99,16 @@
     "src": "resources/css/admin/pages/payment-methods.css",
     "isEntry": true
   },
+  "resources/css/admin/pages/pipeline.css": {
+    "file": "assets/pipeline-AOyTxLvm.css",
+    "src": "resources/css/admin/pages/pipeline.css",
+    "isEntry": true
+  },
+  "resources/css/admin/pages/pipelines.css": {
+    "file": "assets/pipelines-CENPUw23.css",
+    "src": "resources/css/admin/pages/pipelines.css",
+    "isEntry": true
+  },
   "resources/css/admin/pages/proveedores.css": {
     "file": "assets/proveedores-DRlcs75J.css",
     "src": "resources/css/admin/pages/proveedores.css",
@@ -89,7 +125,7 @@
     "isEntry": true
   },
   "resources/css/admin/roles.css": {
-    "file": "assets/roles-BZkU3jKy.css",
+    "file": "assets/roles-Dc3BnG5l.css",
     "src": "resources/css/admin/roles.css",
     "isEntry": true
   },
@@ -144,7 +180,7 @@
     "isEntry": true
   },
   "resources/css/service-reports.css": {
-    "file": "assets/service-reports-DsJp3BpD.css",
+    "file": "assets/service-reports-Db8tD0C-.css",
     "src": "resources/css/service-reports.css",
     "isEntry": true
   },
@@ -152,6 +188,38 @@
     "file": "assets/admin-quotes-D102Nu4-.js",
     "name": "admin-quotes",
     "src": "resources/js/admin-quotes.js",
+    "isEntry": true
+  },
+  "resources/js/admin/charts.js": {
+    "file": "assets/charts-CFNrZGOd.js",
+    "name": "charts",
+    "src": "resources/js/admin/charts.js",
+    "isEntry": true
+  },
+  "resources/js/admin/dashboard-editor.js": {
+    "file": "assets/dashboard-editor-C1h97Npf.js",
+    "name": "dashboard-editor",
+    "src": "resources/js/admin/dashboard-editor.js",
+    "isEntry": true,
+    "imports": [
+      "_sortable.esm-D-EvzYhP.js"
+    ]
+  },
+  "resources/js/admin/dashboard-grid.js": {
+    "file": "assets/dashboard-grid-TmVHkEPs.js",
+    "name": "dashboard-grid",
+    "src": "resources/js/admin/dashboard-grid.js",
+    "isEntry": true,
+    "imports": [
+      "_sortable.esm-D-EvzYhP.js",
+      "_charts-BFPyHK5v.js",
+      "resources/js/admin/charts.js"
+    ]
+  },
+  "resources/js/admin/email-template-editor.js": {
+    "file": "assets/email-template-editor-BRzKB56o.js",
+    "name": "email-template-editor",
+    "src": "resources/js/admin/email-template-editor.js",
     "isEntry": true
   },
   "resources/js/admin/google-ads.js": {
@@ -166,6 +234,15 @@
     "src": "resources/js/admin/image-picker.js",
     "isEntry": true
   },
+  "resources/js/admin/pipeline-board.js": {
+    "file": "assets/pipeline-board-XC5WAfU1.js",
+    "name": "pipeline-board",
+    "src": "resources/js/admin/pipeline-board.js",
+    "isEntry": true,
+    "imports": [
+      "_sortable.esm-D-EvzYhP.js"
+    ]
+  },
   "resources/js/admin/po-wizard.js": {
     "file": "assets/po-wizard-BDWtInoR.js",
     "name": "po-wizard",
@@ -178,14 +255,24 @@
     "src": "resources/js/admin/quote-wizard.js",
     "isEntry": true
   },
+  "resources/js/admin/report-builder.js": {
+    "file": "assets/report-builder-BimP46x8.js",
+    "name": "report-builder",
+    "src": "resources/js/admin/report-builder.js",
+    "isEntry": true,
+    "imports": [
+      "_charts-BFPyHK5v.js",
+      "resources/js/admin/charts.js"
+    ]
+  },
   "resources/js/admin/roles.js": {
-    "file": "assets/roles-B272y_yQ.js",
+    "file": "assets/roles-BCQOyqrL.js",
     "name": "roles",
     "src": "resources/js/admin/roles.js",
     "isEntry": true
   },
   "resources/js/admin/sidebar.js": {
-    "file": "assets/sidebar-DfSWxLJ3.js",
+    "file": "assets/sidebar-D05dtYfl.js",
     "name": "sidebar",
     "src": "resources/js/admin/sidebar.js",
     "isEntry": true
@@ -213,6 +300,15 @@
     "name": "wizard-core",
     "src": "resources/js/admin/wizard-core.js",
     "isEntry": true
+  },
+  "resources/js/admin/workflow-builder.js": {
+    "file": "assets/workflow-builder-BbNCPDzg.js",
+    "name": "workflow-builder",
+    "src": "resources/js/admin/workflow-builder.js",
+    "isEntry": true,
+    "imports": [
+      "_sortable.esm-D-EvzYhP.js"
+    ]
   },
   "resources/js/app.js": {
     "file": "assets/app-Br5zntOM.js",

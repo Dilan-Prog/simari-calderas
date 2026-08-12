@@ -84,7 +84,9 @@
             </svg>
             Servicio generado desde Cotización
             <strong>{{ $fromQuote->quote_number }}</strong>
+            @permiso('quotes', 'view')
             <a href="{{ route('admin.quotes.show', $fromQuote) }}">Ver cotización →</a>
+            @endpermiso
         </div>
         @endif
 

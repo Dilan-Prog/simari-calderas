@@ -89,4 +89,14 @@ class Customer extends Authenticatable
     {
         return $this->hasOne(CustomerPortalRequest::class);
     }
+
+    public function deals()
+    {
+        return $this->hasMany(\App\Models\Deal::class);
+    }
+
+    public function quotes()
+    {
+        return $this->hasMany(\App\Models\Quote::class);
+    }
 }

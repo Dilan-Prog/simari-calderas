@@ -22,12 +22,14 @@
         </div>
 
         <div style="display:flex;align-items:center;gap:10px;">
+            @permiso('material-delivery-reports', 'create')
             <a href="{{ route('admin.material-delivery-reports.create') }}" class="mdr-btn-new">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M5 12h14"/><path d="M12 5v14"/>
                 </svg>
                 Nuevo Reporte
             </a>
+            @endpermiso
         </div>
     </div>
 
@@ -128,12 +130,14 @@
                                         <polyline points="10 9 9 9 8 9"/>
                                     </svg>
                                     <p>No hay reportes registrados</p>
+                                    @permiso('material-delivery-reports', 'create')
                                     <a href="{{ route('admin.material-delivery-reports.create') }}" class="mdr-btn-new" style="margin-top:4px;">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                             <path d="M5 12h14"/><path d="M12 5v14"/>
                                         </svg>
                                         Crear primer reporte
                                     </a>
+                                    @endpermiso
                                 </div>
                             </td>
                         </tr>
@@ -198,6 +202,7 @@
                                         </a>
 
                                         {{-- Eliminar --}}
+                                        @permiso('material-delivery-reports', 'delete')
                                         @if($report->isDeletable())
                                             <form
                                                 method="POST"
@@ -214,6 +219,7 @@
                                                 </button>
                                             </form>
                                         @endif
+                                        @endpermiso
 
                                     </div>
                                 </td>
@@ -342,6 +348,7 @@
     </div>
 
     {{-- Botón nuevo reporte flotante en mobile --}}
+    @permiso('material-delivery-reports', 'create')
     <a href="{{ route('admin.material-delivery-reports.create') }}" class="mdr-mobile-new-btn">
         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -349,6 +356,7 @@
         </svg>
         Nuevo Reporte
     </a>
+    @endpermiso
 
 </div>{{-- /mdr-wrapper --}}
 

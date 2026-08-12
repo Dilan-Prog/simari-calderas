@@ -12,7 +12,7 @@ class CheckPermission
      *
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
-    public function handle(Request $request, Closure $next, string $module): mixed
+    public function handle(Request $request, Closure $next, string $module, string $action = 'view'): mixed
     {
         /** @var User|null $user */
         $user = auth()->user();
@@ -37,7 +37,7 @@ class CheckPermission
                 ->route('admin.dashboard')
                 ->with('error', 'No tienes un rol asignado. Contacta al administrador.');
             }
-        if (!$user->hasPermission($module)) {
+        if (!$user->hasPermission($module, $action)) {
                 if ($request->expectsJson()) {
                     return response()->json([
                         'message' => 'No tienes permiso para acceder a este módulo.'
