@@ -53,6 +53,15 @@ class BrandController extends Controller
 
     public function store(Request $request)
     {
+        // FIX: sluggificar ANTES de validar — si no, 'unique:brands,slug'
+        // compara el texto crudo del usuario contra la columna slug (que
+        // guarda la versión ya sluggificada), así que dos entradas distintas
+        // que sluggifican igual pasaban la validación y luego reventaban con
+        // un error de integridad real (brands.slug es UNIQUE en la BD).
+        if ($request->filled('slug')) {
+            $request->merge(['slug' => Str::slug($request->slug)]);
+        }
+
         $request->validate([
             'name'        => 'required|string|max:120|unique:brands,name',
             'slug'        => 'required|string|max:150|unique:brands,slug',
@@ -63,7 +72,7 @@ class BrandController extends Controller
 
         $brand = new Brand();
         $brand->name        = $request->name;
-        $brand->slug        = Str::slug($request->slug);
+        $brand->slug        = $request->slug;
         $brand->description = $request->description ?? null;
         $brand->logo_url    = $request->logo_url    ?? null;
         $brand->is_active   = $request->boolean('is_active', true);
@@ -85,6 +94,10 @@ class BrandController extends Controller
     {
         $brand = Brand::findOrFail($id);
 
+        if ($request->filled('slug')) {
+            $request->merge(['slug' => Str::slug($request->slug)]);
+        }
+
         $request->validate([
             'name'        => 'required|string|max:120|unique:brands,name,' . $id,
             'slug'        => 'required|string|max:150|unique:brands,slug,' . $id,
@@ -94,7 +107,7 @@ class BrandController extends Controller
         ]);
 
         $brand->name        = $request->name;
-        $brand->slug        = Str::slug($request->slug);
+        $brand->slug        = $request->slug;
         $brand->description = $request->description ?? null;
         $brand->logo_url    = $request->logo_url    ?? null;
         $brand->is_active   = $request->boolean('is_active', true);

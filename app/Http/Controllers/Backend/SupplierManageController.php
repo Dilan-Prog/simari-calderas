@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Products;
 use App\Models\Supplier;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class SupplierManageController extends Controller
 {
@@ -155,6 +156,19 @@ class SupplierManageController extends Controller
     public function destroy(string $id)
     {
         $supplier = Supplier::findOrFail($id);
+
+        // FIX: purchase_orders.supplier_id tiene restrictOnDelete() a nivel
+        // BD — sin esta guardia, borrar un proveedor con órdenes de compra
+        // asociadas no fallaba con un mensaje claro, sino con un
+        // QueryException (500) sin manejar. Mismo patrón que el guard de
+        // productDeleteBlockers() en ProductController.
+        if (DB::table('purchase_orders')->where('supplier_id', $supplier->id)->exists()) {
+            return response()->json([
+                'success' => false,
+                'message' => "No se puede eliminar \"{$supplier->company_name}\" porque tiene órdenes de compra asociadas.",
+            ], 422);
+        }
+
         $supplier->products()->detach();
         $supplier->delete();
 
