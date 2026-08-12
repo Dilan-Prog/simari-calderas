@@ -319,6 +319,17 @@
                                                  style="display:none">
                                                 Sin resultados para "<span id="inlineProductEmptyQuery"></span>"
                                             </div>
+                                            {{-- FIX: /admin/* wraps every route (incl. este buscador AJAX) con el
+                                                 middleware 'auth' de Laravel además del 'permission' propio — si la
+                                                 sesión expira, 'auth' responde 401 real (no 419) porque fetch()
+                                                 cuenta como petición AJAX. Antes ese 401 se tragaba en el catch()
+                                                 de fetchProducts() y esta caja mostraba "Sin resultados", ocultando
+                                                 la causa real. --}}
+                                            <div class="inline-product-search__empty"
+                                                 id="inlineProductAuthError"
+                                                 style="display:none">
+                                                Tu sesión expiró. Recarga la página para seguir buscando productos.
+                                            </div>
                                             <ul class="inline-product-search__list" id="inlineProductList"></ul>
                                         </div>
                                     </div>
@@ -356,6 +367,11 @@
                                                  id="inlineServiceEmpty"
                                                  style="display:none">
                                                 Sin resultados para "<span id="inlineServiceEmptyQuery"></span>"
+                                            </div>
+                                            <div class="inline-product-search__empty"
+                                                 id="inlineServiceAuthError"
+                                                 style="display:none">
+                                                Tu sesión expiró. Recarga la página para seguir buscando servicios.
                                             </div>
                                             <ul class="inline-product-search__list" id="inlineServiceList"></ul>
                                         </div>
@@ -645,6 +661,7 @@ window.ADMIN_QUOTES_CONFIG = {
     const loading  = document.getElementById('inlineProductLoading');
     const empty    = document.getElementById('inlineProductEmpty');
     const emptyQ   = document.getElementById('inlineProductEmptyQuery');
+    const authError = document.getElementById('inlineProductAuthError');
     const clearBtn = document.getElementById('inlineProductClear');
     const SEARCH_URL = window.ADMIN_QUOTES_CONFIG.searchUrl;
 
@@ -652,14 +669,16 @@ window.ADMIN_QUOTES_CONFIG = {
     let currentQuery  = '';
 
     function showLoading() {
-        loading.style.display  = 'flex';
-        empty.style.display    = 'none';
-        list.style.display     = 'none';
-        dropdown.style.display = 'block';
+        loading.style.display   = 'flex';
+        empty.style.display     = 'none';
+        authError.style.display = 'none';
+        list.style.display      = 'none';
+        dropdown.style.display  = 'block';
     }
 
     function showResults(items) {
-        loading.style.display = 'none';
+        loading.style.display   = 'none';
+        authError.style.display = 'none';
         if (items.length === 0) {
             empty.style.display    = 'flex';
             emptyQ.textContent     = currentQuery;
@@ -669,6 +688,19 @@ window.ADMIN_QUOTES_CONFIG = {
             list.style.display     = 'block';
             renderItems(items);
         }
+    }
+
+    // FIX: /admin/* wraps every route (incl. este buscador AJAX) con el
+    // middleware 'auth' de Laravel además del 'permission' propio — si la
+    // sesión expira, 'auth' responde 401 real (no 419) porque fetch()
+    // cuenta como petición AJAX. Antes ese 401 se tragaba en el catch()
+    // de fetchProducts() y esto caía en showResults([]), mostrando
+    // "Sin resultados" (falso).
+    function showAuthExpired() {
+        loading.style.display   = 'none';
+        empty.style.display     = 'none';
+        list.style.display      = 'none';
+        authError.style.display = 'flex';
     }
 
     function hideDropdown() {
@@ -751,6 +783,7 @@ window.ADMIN_QUOTES_CONFIG = {
             const res  = await fetch(url.toString(), {
                 headers: { 'X-Requested-With': 'XMLHttpRequest' }
             });
+            if (res.status === 401) return 'AUTH_EXPIRED';
             if (!res.ok) throw new Error('Server error');
             const data = await res.json();
             return Array.isArray(data) ? data : (data.data ?? []);
@@ -768,7 +801,9 @@ window.ADMIN_QUOTES_CONFIG = {
         showLoading();
         debounceTimer = setTimeout(async () => {
             const products = await fetchProducts(q);
-            if (currentQuery === q) showResults(products);
+            if (currentQuery !== q) return;
+            if (products === 'AUTH_EXPIRED') showAuthExpired();
+            else showResults(products);
         }, 300);
     });
 
@@ -795,6 +830,7 @@ window.ADMIN_QUOTES_CONFIG = {
     const list     = document.getElementById('inlineServiceList');
     const empty    = document.getElementById('inlineServiceEmpty');
     const emptyQ   = document.getElementById('inlineServiceEmptyQuery');
+    const authError = document.getElementById('inlineServiceAuthError');
     const clearBtn = document.getElementById('inlineServiceClear');
     const SEARCH_URL = window.ADMIN_QUOTES_CONFIG.searchServicesUrl;
 
@@ -802,6 +838,7 @@ window.ADMIN_QUOTES_CONFIG = {
     let currentQuery  = '';
 
     function showResults(items) {
+        authError.style.display = 'none';
         if (items.length === 0) {
             empty.style.display = 'flex';
             emptyQ.textContent  = currentQuery;
@@ -812,6 +849,16 @@ window.ADMIN_QUOTES_CONFIG = {
             renderItems(items);
         }
         dropdown.style.display = 'block';
+    }
+
+    // FIX: mismo caso que en el buscador de productos — 'auth' devuelve
+    // 401 real cuando la sesión expira, antes se ocultaba como "Sin
+    // resultados".
+    function showAuthExpired() {
+        empty.style.display     = 'none';
+        list.style.display      = 'none';
+        authError.style.display = 'flex';
+        dropdown.style.display  = 'block';
     }
 
     function hideDropdown() {
@@ -881,6 +928,7 @@ window.ADMIN_QUOTES_CONFIG = {
             const res  = await fetch(url.toString(), {
                 headers: { 'X-Requested-With': 'XMLHttpRequest' }
             });
+            if (res.status === 401) return 'AUTH_EXPIRED';
             if (!res.ok) throw new Error('Server error');
             const data = await res.json();
             return Array.isArray(data) ? data : (data.data ?? []);
@@ -897,7 +945,9 @@ window.ADMIN_QUOTES_CONFIG = {
         currentQuery = q;
         debounceTimer = setTimeout(async () => {
             const services = await fetchServices(q);
-            if (currentQuery === q) showResults(services);
+            if (currentQuery !== q) return;
+            if (services === 'AUTH_EXPIRED') showAuthExpired();
+            else showResults(services);
         }, 300);
     });
 
