@@ -1,6 +1,6 @@
 {
-  "_alpine-init-BoumMx1Z.js": {
-    "file": "assets/alpine-init-BoumMx1Z.js",
+  "_alpine-init-tYkrgErl.js": {
+    "file": "assets/alpine-init-tYkrgErl.js",
     "name": "alpine-init"
   },
   "resources/css/admin-quotes.css": {
@@ -104,37 +104,37 @@
     "isEntry": true
   },
   "resources/css/frontend/shop/account.css": {
-    "file": "assets/account-kcr8-ct_.css",
+    "file": "assets/account-PUY55a_s.css",
     "src": "resources/css/frontend/shop/account.css",
     "isEntry": true
   },
   "resources/css/frontend/shop/catalog.css": {
-    "file": "assets/catalog-BzQWoTeZ.css",
+    "file": "assets/catalog-CNBKZZug.css",
     "src": "resources/css/frontend/shop/catalog.css",
     "isEntry": true
   },
   "resources/css/frontend/shop/checkout.css": {
-    "file": "assets/checkout-S663IBTR.css",
+    "file": "assets/checkout-BXUHRdjw.css",
     "src": "resources/css/frontend/shop/checkout.css",
     "isEntry": true
   },
   "resources/css/frontend/shop/collection.css": {
-    "file": "assets/collection-DrzqjbvR.css",
+    "file": "assets/collection-Cq6wGRua.css",
     "src": "resources/css/frontend/shop/collection.css",
     "isEntry": true
   },
   "resources/css/frontend/shop/home.css": {
-    "file": "assets/home-BH5E30oo.css",
+    "file": "assets/home-B44iWsFb.css",
     "src": "resources/css/frontend/shop/home.css",
     "isEntry": true
   },
   "resources/css/frontend/shop/legal.css": {
-    "file": "assets/legal-ELsylgju.css",
+    "file": "assets/legal-CTMxm_6Q.css",
     "src": "resources/css/frontend/shop/legal.css",
     "isEntry": true
   },
   "resources/css/frontend/shop/product-detail.css": {
-    "file": "assets/product-detail-CcAhdS_-.css",
+    "file": "assets/product-detail-D2OxXxvO.css",
     "src": "resources/css/frontend/shop/product-detail.css",
     "isEntry": true
   },
@@ -221,48 +221,48 @@
     "isEntry": true
   },
   "resources/js/frontend/shop/account.js": {
-    "file": "assets/account-BeiPf7aF.js",
+    "file": "assets/account-Xd6Y2mv5.js",
     "name": "account",
     "src": "resources/js/frontend/shop/account.js",
     "isEntry": true,
     "imports": [
-      "_alpine-init-BoumMx1Z.js"
+      "_alpine-init-tYkrgErl.js"
     ]
   },
   "resources/js/frontend/shop/catalog.js": {
-    "file": "assets/catalog-BWrQblkW.js",
+    "file": "assets/catalog-GMVgmFba.js",
     "name": "catalog",
     "src": "resources/js/frontend/shop/catalog.js",
     "isEntry": true,
     "imports": [
-      "_alpine-init-BoumMx1Z.js"
+      "_alpine-init-tYkrgErl.js"
     ]
   },
   "resources/js/frontend/shop/collection.js": {
-    "file": "assets/collection-Dk2TAD1d.js",
+    "file": "assets/collection-S8h9IDZb.js",
     "name": "collection",
     "src": "resources/js/frontend/shop/collection.js",
     "isEntry": true,
     "imports": [
-      "_alpine-init-BoumMx1Z.js"
+      "_alpine-init-tYkrgErl.js"
     ]
   },
   "resources/js/frontend/shop/home.js": {
-    "file": "assets/home-B9bMFb7r.js",
+    "file": "assets/home-Cfh8Y1Ob.js",
     "name": "home",
     "src": "resources/js/frontend/shop/home.js",
     "isEntry": true,
     "imports": [
-      "_alpine-init-BoumMx1Z.js"
+      "_alpine-init-tYkrgErl.js"
     ]
   },
   "resources/js/frontend/shop/product-detail.js": {
-    "file": "assets/product-detail-DBE_zgof.js",
+    "file": "assets/product-detail-yIz4Jzlj.js",
     "name": "product-detail",
     "src": "resources/js/frontend/shop/product-detail.js",
     "isEntry": true,
     "imports": [
-      "_alpine-init-BoumMx1Z.js"
+      "_alpine-init-tYkrgErl.js"
     ]
   }
 }

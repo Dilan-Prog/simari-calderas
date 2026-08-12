@@ -14,6 +14,8 @@
         ?? $galleryUrls->first()
         ?? asset('images/logo/equiterm-logo-blanco-color-3x.png');
     $resolvedName = $product->resolveVariables($product->name);
+    $quoteMessage = "Hola, me interesa cotizar este producto: {$resolvedName} (SKU: {$product->sku}) - " . route('product.show', $product->slug);
+    $quoteWhatsappUrl = 'https://wa.me/524494348018?text=' . urlencode($quoteMessage);
 @endphp
 <div class="product-card {{ $compact ? 'product-card--compact' : '' }}">
     @if ($product->is_new)
@@ -57,5 +59,6 @@
             Envío gratis
         </div>
     </a>
-    <button type="button" class="product-card__add-btn" disabled title="Próximamente">Agregar al carrito</button>
+    <button type="button" class="product-card__add-btn" data-product-id="{{ $product->id }}">Agregar al carrito</button>
+    <a href="{{ $quoteWhatsappUrl }}" target="_blank" rel="noopener" class="product-card__quote-btn">Solicitar Cotización</a>
 </div>

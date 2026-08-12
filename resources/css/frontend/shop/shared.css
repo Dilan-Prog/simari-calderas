@@ -460,8 +460,16 @@ img { max-width: 100%; height: auto; display: block; }
 .product-card__shipping svg { color: var(--secondary-color); }
 .product-card__add-btn {
     margin-top: 4px; background: var(--button-primary-color); color: #fff; border: none; border-radius: 6px;
-    padding: 9px; font-size: 12.5px; font-weight: 700; cursor: not-allowed; opacity: .85;
+    padding: 9px; font-size: 12.5px; font-weight: 700; cursor: pointer; transition: opacity .15s ease;
 }
+.product-card__add-btn:hover { opacity: .88; }
+.product-card__add-btn:disabled { cursor: not-allowed; opacity: .6; }
+.product-card__quote-btn {
+    margin-top: 6px; background: transparent; color: #141516; border: 1.5px solid rgba(0,0,0,0.15); border-radius: 6px;
+    padding: 8px; font-size: 12.5px; font-weight: 700; cursor: pointer; text-decoration: none; text-align: center;
+    display: block; transition: background .15s ease;
+}
+.product-card__quote-btn:hover { background: rgba(0,0,0,0.03); }
 
 /* ===== Product carousel ===== */
 .product-carousel { position: relative; padding: 32px 0; }

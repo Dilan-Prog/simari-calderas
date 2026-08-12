@@ -172,6 +172,50 @@ Alpine.data('productCardGallery', (count) => ({
     },
 }));
 
+// "Agregar al carrito" en las tarjetas de producto (catálogo, colecciones,
+// carruseles, resultados de búsqueda). Delegado a nivel documento porque
+// hay muchas tarjetas por página (a diferencia del único botón de la ficha
+// de producto en product-detail.js) — así funciona también en tarjetas
+// cargadas dinámicamente (ej. resultados de búsqueda en vivo).
+document.addEventListener('click', async (e) => {
+    const addBtn = e.target.closest('.product-card__add-btn');
+    if (!addBtn) return;
+
+    const productId = addBtn.dataset.productId;
+    if (!productId || addBtn.disabled) return;
+
+    const originalLabel = addBtn.textContent;
+    addBtn.disabled = true;
+
+    try {
+        const response = await fetch('/carrito/agregar', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                Accept: 'application/json',
+            },
+            body: JSON.stringify({ product_id: productId, quantity: 1 }),
+        });
+
+        if (!response.ok) throw new Error('add-to-cart failed');
+
+        await Alpine.store('shop').refreshCartCount();
+
+        addBtn.textContent = 'Agregado ✓';
+        setTimeout(() => {
+            addBtn.textContent = originalLabel;
+            addBtn.disabled = false;
+        }, 1500);
+    } catch (err) {
+        addBtn.textContent = 'Error, intenta de nuevo';
+        setTimeout(() => {
+            addBtn.textContent = originalLabel;
+            addBtn.disabled = false;
+        }, 1500);
+    }
+});
+
 Alpine.data('carouselTrack', () => ({
     scrollBy(amount) {
         this.$refs.track.scrollBy({ left: amount, behavior: 'smooth' });

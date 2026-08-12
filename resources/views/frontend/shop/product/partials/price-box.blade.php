@@ -6,6 +6,8 @@
     $discountPct = $hasDiscount ? round((1 - ($product->price / $product->compare_price)) * 100) : null;
     // Fijo a MXN: final_price/compare_price_in_mxn ya vienen convertidos.
     $currency = 'MXN';
+    $quoteMessage = "Hola, me interesa cotizar este producto: {$product->resolveVariables($product->name)} (SKU: {$product->sku}) - " . route('product.show', $product->slug);
+    $quoteWhatsappUrl = 'https://wa.me/524494348018?text=' . urlencode($quoteMessage);
 @endphp
 <div class="product-price-box">
     <div class="product-price-box__eyebrow">{{ $product->availability === 'available' ? 'Disponible' : 'Sobre pedido' }} &nbsp;|&nbsp; SKU {{ $product->sku }}</div>
@@ -33,11 +35,7 @@
 
     <div class="product-price-box__actions">
         <button type="button" class="product-price-box__add-btn" data-product-id="{{ $product->id }}">Agregar al carrito</button>
-        {{-- Solicitar cotización: fuera de alcance de este cambio (era un modal
-             maqueta sin backend, eliminado junto con quote-modal.blade.php).
-             Deshabilitado con el mismo criterio que usaba "Agregar al carrito"
-             antes de tener backend real, para no dejar un @click roto. --}}
-        <button type="button" class="product-price-box__quote-btn" disabled title="Próximamente">Solicitar cotización</button>
+        <a href="{{ $quoteWhatsappUrl }}" target="_blank" rel="noopener" class="product-price-box__quote-btn">Solicitar cotización</a>
     </div>
 
     @if ($product->short_description)
