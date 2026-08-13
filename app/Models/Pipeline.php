@@ -63,4 +63,9 @@ class Pipeline extends Model
     {
         return $this->hasManyThrough(Deal::class, PipelineStage::class);
     }
+
+    public function whatsappConversations(): HasManyThrough
+    {
+        return $this->hasManyThrough(WhatsappConversation::class, PipelineStage::class);
+    }
 }

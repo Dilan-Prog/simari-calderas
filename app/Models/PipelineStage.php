@@ -44,4 +44,9 @@ class PipelineStage extends Model
     {
         return $this->hasMany(\App\Models\Deal::class);
     }
+
+    public function whatsappConversations(): HasMany
+    {
+        return $this->hasMany(\App\Models\WhatsappConversation::class, 'pipeline_stage_id');
+    }
 }

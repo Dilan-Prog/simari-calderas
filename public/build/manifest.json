@@ -119,7 +119,7 @@
     "isEntry": true
   },
   "resources/css/admin/pages/pipelines.css": {
-    "file": "assets/pipelines-CENPUw23.css",
+    "file": "assets/pipelines-CETqj1Oe.css",
     "src": "resources/css/admin/pages/pipelines.css",
     "isEntry": true
   },
@@ -299,6 +299,12 @@
     "imports": [
       "_sortable.esm-D-EvzYhP.js"
     ]
+  },
+  "resources/js/admin/pipelines-index.js": {
+    "file": "assets/pipelines-index-D4OCVX3t.js",
+    "name": "pipelines-index",
+    "src": "resources/js/admin/pipelines-index.js",
+    "isEntry": true
   },
   "resources/js/admin/po-wizard.js": {
     "file": "assets/po-wizard-BDWtInoR.js",

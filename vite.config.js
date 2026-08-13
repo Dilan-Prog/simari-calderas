@@ -55,6 +55,7 @@ export default defineConfig({
                 'resources/js/admin/po-wizard.js',
                 'resources/css/admin/pages/pipeline.css',
                 'resources/css/admin/pages/pipelines.css',
+                'resources/js/admin/pipelines-index.js',
                 'resources/js/admin/pipeline-board.js',
                 'resources/css/admin/pages/automations.css',
                 'resources/css/admin/pages/workflow-canvas.css',

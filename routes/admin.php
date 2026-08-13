@@ -322,6 +322,7 @@ Route::controller(PipelineController::class)
         Route::delete('/{pipeline}', 'destroy')->name('destroy')->middleware('permission:pipeline,delete');
         Route::post('/{pipeline}/reorder-stages', 'reorderStages')->name('reorder-stages')->middleware('permission:pipeline,edit');
         Route::delete('/stages/{stage}', 'deleteStage')->name('delete-stage')->middleware('permission:pipeline,delete');
+        Route::post('/{pipeline}/duplicar', 'duplicate')->name('duplicate')->middleware('permission:pipeline,create');
     });
 
 // ============================================================
