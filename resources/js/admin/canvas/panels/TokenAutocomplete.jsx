@@ -20,6 +20,13 @@ import { useEffect, useMemo, useRef, useState } from 'react';
  */
 
 const TRIGGER_REGEX = /\{\{\s*([a-zA-Z0-9_.]*)$/;
+const EVENT_KEY_REGEX = /"event"\s*:\s*"([a-zA-Z_]*)$/;
+const FIELD_KEY_REGEX = /"field"\s*:\s*"([a-zA-Z0-9_]*)$/;
+const EVENT_VALUES = [
+    { value: 'created', hint: 'al crear el registro' },
+    { value: 'updated', hint: 'al actualizar el registro' },
+    { value: 'stale', hint: 'sin actividad en N horas' },
+];
 
 function toSnakeCase(str) {
     return String(str || '')
@@ -67,10 +74,37 @@ export function buildTokenSuggestions(moduleType, modules) {
     return suggestions;
 }
 
-function filterSuggestions(suggestions, term) {
+/**
+ * Sugerencias de valor real para la clave "field" del Trigger (Fase 21):
+ * solo columnas planas del módulo activo (nunca relaciones anidadas --
+ * "field" alimenta Model::wasChanged($field)/$model->{$field}, que exigen
+ * una columna literal, no un path con punto).
+ */
+export function buildFieldKeySuggestions(moduleType, modules) {
+    const list = Array.isArray(modules) ? modules : [];
+    const entry = list.find((m) => m.type === moduleType);
+    if (!entry) return [];
+    return (entry.fields || []).map((field) => ({ value: field, hint: entry.label || moduleType }));
+}
+
+/**
+ * Sugerencias de valor real para la clave "event" del Trigger (Fase 21):
+ * lista fija created/updated, más stale solo si el módulo activo soporta
+ * ese trigger (catalog.modules[type].supports_stale, ya cargado sin fetch
+ * nuevo -- mismo dato que ya usa AutomatableModuleRegistry en el backend).
+ */
+export function buildEventKeySuggestions(moduleType, modules) {
+    const list = Array.isArray(modules) ? modules : [];
+    const entry = list.find((m) => m.type === moduleType);
+    const supportsStale = !!(entry && entry.supports_stale);
+    return EVENT_VALUES.filter((e) => e.value !== 'stale' || supportsStale);
+}
+
+function filterSuggestions(suggestions, term, key) {
+    const field = key || 'path';
     if (!term) return suggestions.slice(0, 30);
     const t = term.toLowerCase();
-    return suggestions.filter((s) => s.path.toLowerCase().includes(t)).slice(0, 30);
+    return suggestions.filter((s) => String(s[field]).toLowerCase().includes(t)).slice(0, 30);
 }
 
 const MIRROR_PROPS = [
@@ -121,7 +155,10 @@ function getCaretCoordinates(textarea, position) {
  * controlado, con dropdown de sugerencias de variables `{{ }}`.
  *
  * Props: id, className, rows, value, onValueChange(newValue), placeholder,
- * spellCheck, moduleType (workflow.type actual), modules (catalog.modules).
+ * spellCheck, moduleType (workflow.type actual), modules (catalog.modules),
+ * schemaAware (Fase 21 -- solo el textarea del Trigger lo activa: además del
+ * `{{ }}` de siempre, sugiere valores reales para las claves JSON "event" y
+ * "field" del propio esquema del trigger).
  */
 export default function TokenAutocompleteTextarea({
     id,
@@ -133,15 +170,18 @@ export default function TokenAutocompleteTextarea({
     spellCheck,
     moduleType,
     modules,
+    schemaAware,
 }) {
     const textareaRef = useRef(null);
     const [open, setOpen] = useState(false);
     const [items, setItems] = useState([]);
     const [activeIndex, setActiveIndex] = useState(-1);
     const [coords, setCoords] = useState({ top: 0, left: 0 });
-    const matchRef = useRef({ start: 0, length: 0 });
+    const matchRef = useRef({ start: 0, length: 0, mode: 'token' });
 
-    const suggestions = useMemo(() => buildTokenSuggestions(moduleType, modules), [moduleType, modules]);
+    const tokenSuggestions = useMemo(() => buildTokenSuggestions(moduleType, modules), [moduleType, modules]);
+    const eventSuggestions = useMemo(() => buildEventKeySuggestions(moduleType, modules), [moduleType, modules]);
+    const fieldSuggestions = useMemo(() => buildFieldKeySuggestions(moduleType, modules), [moduleType, modules]);
 
     function closeMenu() {
         setOpen(false);
@@ -149,24 +189,8 @@ export default function TokenAutocompleteTextarea({
         setActiveIndex(-1);
     }
 
-    function evaluateTrigger(text, cursor) {
-        const before = text.slice(0, cursor);
-        const match = before.match(TRIGGER_REGEX);
-
-        if (!match || !suggestions.length) {
-            closeMenu();
-            return;
-        }
-
-        const term = match[1] || '';
-        const filtered = filterSuggestions(suggestions, term);
-
-        if (!filtered.length) {
-            closeMenu();
-            return;
-        }
-
-        matchRef.current = { start: cursor - match[0].length, length: match[0].length };
+    function openMenu(mode, replaceLength, filtered, cursor) {
+        matchRef.current = { start: cursor - replaceLength, length: replaceLength, mode };
         setItems(filtered);
         setActiveIndex(0);
         setOpen(true);
@@ -175,20 +199,67 @@ export default function TokenAutocompleteTextarea({
         }
     }
 
+    function evaluateTrigger(text, cursor) {
+        const before = text.slice(0, cursor);
+
+        if (schemaAware) {
+            // Modo event/field: solo se reemplaza el término parcial ya
+            // escrito (grupo capturado), NUNCA el match completo -- este
+            // incluye la clave "event"/"field", los dos puntos y la comilla
+            // de apertura, que el usuario ya escribió a mano y deben quedar
+            // intactos (sustituirlos borraba el prefijo del JSON, bug real
+            // detectado en QA manual).
+            const eventMatch = before.match(EVENT_KEY_REGEX);
+            if (eventMatch) {
+                const term = eventMatch[1] || '';
+                const filtered = filterSuggestions(eventSuggestions, term, 'value');
+                if (filtered.length) return openMenu('event', term.length, filtered, cursor);
+                return closeMenu();
+            }
+
+            const fieldMatch = before.match(FIELD_KEY_REGEX);
+            if (fieldMatch) {
+                const term = fieldMatch[1] || '';
+                const filtered = filterSuggestions(fieldSuggestions, term, 'value');
+                if (filtered.length) return openMenu('field', term.length, filtered, cursor);
+                return closeMenu();
+            }
+        }
+
+        const match = before.match(TRIGGER_REGEX);
+        if (!match || !tokenSuggestions.length) {
+            closeMenu();
+            return;
+        }
+
+        const filtered = filterSuggestions(tokenSuggestions, match[1] || '', 'path');
+        if (!filtered.length) {
+            closeMenu();
+            return;
+        }
+
+        // Modo token: sí se reemplaza el match completo ("{{parcial"), porque
+        // el resultado debe quedar envuelto en "{{ }}" (ver applySelection).
+        openMenu('token', match[0].length, filtered, cursor);
+    }
+
     function handleChange(e) {
         const newValue = e.target.value;
         onValueChange(newValue);
         evaluateTrigger(newValue, e.target.selectionStart);
     }
 
-    function applySelection(path) {
+    function applySelection(item) {
         const el = textareaRef.current;
         if (!el) return;
-        const { start, length } = matchRef.current;
+        const { start, length, mode } = matchRef.current;
         const before = value.slice(0, start);
         const after = value.slice(start + length);
-        const token = `{{ ${path} }}`;
-        const newValue = before + token + after;
+        // Modo token: envuelve en "{{ }}" (interpolación de texto libre).
+        // Modo event/field: inserta el valor plano -- ya está dentro de las
+        // comillas que el usuario escribió a mano en el JSON del trigger.
+        const insertion = mode === 'token' ? `{{ ${item.path} }}` : item.value;
+        const newValue = before + insertion + after;
         onValueChange(newValue);
         closeMenu();
 
@@ -196,7 +267,7 @@ export default function TokenAutocompleteTextarea({
         // cursor después de que React vuelva a pintar el textarea.
         requestAnimationFrame(() => {
             if (!textareaRef.current) return;
-            const newCursor = start + token.length;
+            const newCursor = start + insertion.length;
             textareaRef.current.focus();
             textareaRef.current.setSelectionRange(newCursor, newCursor);
         });
@@ -216,7 +287,7 @@ export default function TokenAutocompleteTextarea({
             closeMenu();
         } else if (e.key === 'Enter' && activeIndex >= 0 && items[activeIndex]) {
             e.preventDefault();
-            applySelection(items[activeIndex].path);
+            applySelection(items[activeIndex]);
         }
     }
 
@@ -258,15 +329,17 @@ export default function TokenAutocompleteTextarea({
                 >
                     {items.map((item, i) => (
                         <li
-                            key={item.path}
+                            key={item.path || item.value}
                             className={`wf-token-menu-item ${i === activeIndex ? 'is-active' : ''}`}
                             onMouseDown={(e) => {
                                 e.preventDefault();
-                                applySelection(item.path);
+                                applySelection(item);
                             }}
                             onMouseEnter={() => setActiveIndex(i)}
                         >
-                            <span className="wf-token-menu-item-path">{'{{ ' + item.path + ' }}'}</span>
+                            <span className="wf-token-menu-item-path">
+                                {matchRef.current.mode === 'token' ? '{{ ' + item.path + ' }}' : item.value}
+                            </span>
                             <span className="wf-token-menu-item-hint">{item.hint}</span>
                         </li>
                     ))}

@@ -575,6 +575,7 @@ export default function NodeInspector({ step, catalog, workflowType, onSave, onS
                             spellCheck={false}
                             moduleType={activeModuleType}
                             modules={modules}
+                            schemaAware
                         />
                     </>
                 )}
