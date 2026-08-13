@@ -872,6 +872,7 @@ class ProductController extends Controller
             // Cargo de envío adicional fijo (equipo pesado/voluminoso).
             // nullable/vacío = envío estándar, sin cargo especial.
             'shipping_cost'     => 'nullable|numeric|min:0',
+            'reorder_point'     => 'nullable|integer|min:0',
             'compare_price'     => 'nullable|numeric|min:0',
             'price_includes_tax' => 'nullable|boolean',
             'stock'             => 'nullable|integer|min:0',
@@ -932,6 +933,7 @@ class ProductController extends Controller
         // cost, aquí NO se normaliza a 0, porque null y 0 son ambos
         // "estándar" pero null deja claro que el admin no capturó nada.
         $product->shipping_cost     = $request->filled('shipping_cost') ? $request->shipping_cost : null;
+        $product->reorder_point     = $request->filled('reorder_point') ? $request->reorder_point : null;
         $product->compare_price     = $request->compare_price  ?? null;
         $product->price_includes_tax = $request->boolean('price_includes_tax', false);
         $product->stock             = $request->stock          ?? 0;
@@ -1070,6 +1072,7 @@ class ProductController extends Controller
             // Cargo de envío adicional fijo (equipo pesado/voluminoso).
             // nullable/vacío = envío estándar, sin cargo especial.
             'shipping_cost'     => 'nullable|numeric|min:0',
+            'reorder_point'     => 'nullable|integer|min:0',
             'compare_price'     => 'nullable|numeric|min:0',
             'price_includes_tax' => 'nullable|boolean',
             'stock'             => 'nullable|integer|min:0',
@@ -1125,6 +1128,7 @@ class ProductController extends Controller
         // Vacío = envío estándar (sin cargo especial) — mismo criterio que
         // store(): a diferencia de cost, NO se normaliza a 0.
         $product->shipping_cost     = $request->filled('shipping_cost') ? $request->shipping_cost : null;
+        $product->reorder_point     = $request->filled('reorder_point') ? $request->reorder_point : null;
         $product->compare_price     = $request->compare_price  ?? null;
         $product->price_includes_tax = $request->boolean('price_includes_tax', false);
         $product->stock             = $request->stock          ?? 0;

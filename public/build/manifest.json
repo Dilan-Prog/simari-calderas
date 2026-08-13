@@ -128,6 +128,11 @@
     "src": "resources/css/admin/pages/purchase-orders.css",
     "isEntry": true
   },
+  "resources/css/admin/pages/statistics.css": {
+    "file": "assets/statistics-JkyYKDTR.css",
+    "src": "resources/css/admin/pages/statistics.css",
+    "isEntry": true
+  },
   "resources/css/admin/pages/usuarios.css": {
     "file": "assets/usuarios-DZrUzb5x.css",
     "src": "resources/css/admin/pages/usuarios.css",
@@ -319,6 +324,15 @@
     "src": "resources/js/admin/spec-name-autocomplete.js",
     "isEntry": true
   },
+  "resources/js/admin/statistics-panel.js": {
+    "file": "assets/statistics-panel-DjgqLhOG.js",
+    "name": "statistics-panel",
+    "src": "resources/js/admin/statistics-panel.js",
+    "isEntry": true,
+    "imports": [
+      "resources/js/admin/charts.js"
+    ]
+  },
   "resources/js/admin/technical-services.js": {
     "file": "assets/technical-services-CwcSFza2.js",
     "name": "technical-services",
@@ -347,7 +361,7 @@
     "isEntry": true
   },
   "resources/js/admin/workflow-canvas.jsx": {
-    "file": "assets/workflow-canvas-DM1VfuKc.js",
+    "file": "assets/workflow-canvas-DwmfpDFR.js",
     "name": "workflow-canvas",
     "src": "resources/js/admin/workflow-canvas.jsx",
     "isEntry": true,

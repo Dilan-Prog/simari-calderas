@@ -13,6 +13,7 @@ class WorkflowEnrollment extends Model
         'workflow_id',
         'enrollable_type',
         'enrollable_id',
+        'trigger_context',
         'current_step_id',
         'status',
         'resume_at',
@@ -21,9 +22,10 @@ class WorkflowEnrollment extends Model
     ];
 
     protected $casts = [
-        'resume_at'    => 'datetime',
-        'enrolled_at'  => 'datetime',
-        'completed_at' => 'datetime',
+        'trigger_context' => 'array',
+        'resume_at'        => 'datetime',
+        'enrolled_at'      => 'datetime',
+        'completed_at'     => 'datetime',
     ];
 
     public function workflow()

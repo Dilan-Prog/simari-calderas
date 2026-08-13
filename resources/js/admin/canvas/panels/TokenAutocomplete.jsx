@@ -22,10 +22,47 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 const TRIGGER_REGEX = /\{\{\s*([a-zA-Z0-9_.]*)$/;
 const EVENT_KEY_REGEX = /"event"\s*:\s*"([a-zA-Z_]*)$/;
 const FIELD_KEY_REGEX = /"field"\s*:\s*"([a-zA-Z0-9_]*)$/;
+const OPERATOR_KEY_REGEX = /"operator"\s*:\s*"([a-zA-Z_]*)$/;
+// Valor objetivo de "value"/"to_stage_id" (alias legado) -- se sugiere solo
+// cuando el campo vigilado por el trigger tiene una fuente de datos real
+// registrada en catalog.field_value_sources (ej. "pipeline_stage_id" -> lista
+// de PipelineStage reales), para no tener que adivinar el id a mano. Cubre
+// tanto el caso con comilla de apertura ya escrita (flujo normal: se llega
+// aquí después de elegir "value" en el modo trigger-key, que sí abre comilla)
+// como el caso sin comillas (alguien escribe el número directo a mano).
+const VALUE_TARGET_KEY_REGEX = /"(?:value|to_stage_id)"\s*:\s*"([a-zA-Z0-9_]*)$/;
+const VALUE_TARGET_KEY_UNQUOTED_REGEX = /"(?:value|to_stage_id)"\s*:\s*([0-9]*)$/;
+// Fase 22: detecta que se está escribiendo una CLAVE nueva (no un valor) justo
+// después de "{" o "," -- ej. `{"` o `, "`. Por construcción no coincide con
+// los regex de valor de arriba (ahí la comilla viene después de ": ", no de
+// "{"/",").
+const TRIGGER_KEY_REGEX = /[{,]\s*"([a-zA-Z_]*)$/;
+
 const EVENT_VALUES = [
     { value: 'created', hint: 'al crear el registro' },
     { value: 'updated', hint: 'al actualizar el registro' },
+    { value: 'deleted', hint: 'al borrar el registro' },
     { value: 'stale', hint: 'sin actividad en N horas' },
+];
+
+const OPERATOR_VALUES = [
+    { value: 'eq', hint: 'igual a (default)' },
+    { value: 'neq', hint: 'distinto de' },
+    { value: 'gt', hint: 'mayor que' },
+    { value: 'gte', hint: 'mayor o igual que' },
+    { value: 'lt', hint: 'menor que' },
+    { value: 'lte', hint: 'menor o igual que' },
+];
+
+// Fase 22: las 6 claves reales del esquema del Trigger (ampliado por la Fase
+// 23). `to_stage_id` es alias legado y nunca se sugiere como clave nueva.
+const TRIGGER_KEYS = [
+    { value: 'event', hint: 'evento que dispara (created/updated/deleted/stale)' },
+    { value: 'field', hint: 'columna a vigilar (solo con event=updated)' },
+    { value: 'operator', hint: 'comparador (eq/neq/gt/gte/lt/lte)' },
+    { value: 'value', hint: 'valor objetivo de la comparación' },
+    { value: 'from_value', hint: 'valor anterior exigido (transición A→B)' },
+    { value: 'hours', hint: 'horas sin actividad (solo con event=stale)', numeric: true },
 ];
 
 function toSnakeCase(str) {
@@ -42,10 +79,9 @@ function singularize(str) {
  * Construye la lista de sugerencias { path, hint } para un módulo dado,
  * a partir de catalog.modules (array de { type, label, group, fields, relations }).
  */
-export function buildTokenSuggestions(moduleType, modules) {
+export function buildTokenSuggestions(moduleType, modules, workflowVariables) {
     const list = Array.isArray(modules) ? modules : [];
     const entry = list.find((m) => m.type === moduleType);
-    if (!entry) return [];
 
     const suggestions = [];
     const seen = new Set();
@@ -56,20 +92,46 @@ export function buildTokenSuggestions(moduleType, modules) {
         suggestions.push({ path, hint });
     }
 
-    (entry.fields || []).forEach((field) => push(field, entry.label || moduleType));
+    // Fase 24: variables globales/de contexto de ejecución -- siempre
+    // presentes, sin importar el módulo activo del workflow.
+    push('hoy', 'fecha actual (YYYY-MM-DD)');
+    push('ahora', 'fecha y hora actual');
+    push('empresa.nombre', 'nombre de la empresa (config app.name)');
+    push('actor.nombre', 'usuario que disparó el evento (o vacío)');
+    push('actor.email', 'email del usuario que disparó el evento (o vacío)');
 
-    (entry.relations || []).forEach((relation) => {
-        const snake = toSnakeCase(relation);
-        push(snake, 'relación');
-
-        const candidateTypes = [snake, singularize(snake)];
-        const relatedEntry = list.find((m) => candidateTypes.includes(m.type));
-        if (relatedEntry) {
-            (relatedEntry.fields || []).forEach((field) => {
-                push(`${snake}.${field}`, relatedEntry.label || relatedEntry.type);
-            });
-        }
+    // Variables nombradas por el usuario en el panel "Variables" del
+    // workflow (WorkflowVariable) -- sin punto, se resuelven vía
+    // WorkflowVariable::resolveValue() en el backend. Incluye tanto las
+    // propias de este workflow como las de scope Global (workflow_id null,
+    // ya vienen mezcladas en el mismo array desde WorkflowController::canvas()).
+    (Array.isArray(workflowVariables) ? workflowVariables : []).forEach((v) => {
+        if (!v || !v.name) return;
+        push(v.name, v.workflow_id == null ? 'variable global' : 'variable del workflow');
     });
+
+    if (entry) {
+        (entry.fields || []).forEach((field) => push(field, entry.label || moduleType));
+
+        // Fase 24: valor ANTERIOR de cada campo plano del módulo activo
+        // (disponible solo cuando el trigger capturó `from_value`/`field`).
+        (entry.fields || []).forEach((field) =>
+            push(`_previous.${field}`, `valor anterior de ${entry.label || moduleType}`)
+        );
+
+        (entry.relations || []).forEach((relation) => {
+            const snake = toSnakeCase(relation);
+            push(snake, 'relación');
+
+            const candidateTypes = [snake, singularize(snake)];
+            const relatedEntry = list.find((m) => candidateTypes.includes(m.type));
+            if (relatedEntry) {
+                (relatedEntry.fields || []).forEach((field) => {
+                    push(`${snake}.${field}`, relatedEntry.label || relatedEntry.type);
+                });
+            }
+        });
+    }
 
     return suggestions;
 }
@@ -98,6 +160,41 @@ export function buildEventKeySuggestions(moduleType, modules) {
     const entry = list.find((m) => m.type === moduleType);
     const supportsStale = !!(entry && entry.supports_stale);
     return EVENT_VALUES.filter((e) => e.value !== 'stale' || supportsStale);
+}
+
+/**
+ * Sugerencias de valor real para la clave "operator" del Trigger (Fase 23):
+ * lista fija, no depende del módulo activo.
+ */
+export function buildOperatorKeySuggestions() {
+    return OPERATOR_VALUES;
+}
+
+/**
+ * Sugerencias de valor real para "value"/"to_stage_id" cuando el campo
+ * vigilado por el trigger (su clave "field", ya escrita en el mismo JSON)
+ * tiene una fuente de datos registrada en catalog.field_value_sources (Fase
+ * ad-hoc post-24 -- ej. "pipeline_stage_id" -> etapas reales de Pipeline).
+ * Sin esto había que adivinar a mano a qué etapa corresponde un id como 4.
+ */
+export function buildValueTargetSuggestions(currentText, fieldValueSources) {
+    const text = String(currentText || '');
+    const fieldMatch = text.match(/"field"\s*:\s*"([a-zA-Z0-9_]+)"/);
+    const field = fieldMatch ? fieldMatch[1] : null;
+    if (!field) return [];
+    const list = fieldValueSources && fieldValueSources[field];
+    return Array.isArray(list) ? list : [];
+}
+
+/**
+ * Sugerencias de CLAVE nueva del JSON del Trigger (Fase 22): las 6 claves
+ * reales del esquema, siempre, sin exigir orden -- salvo las que ya aparecen
+ * en el texto (evita duplicados), detectado con una regex simple por clave,
+ * no un parseo JSON estricto (el usuario todavía puede estar escribiendo).
+ */
+export function buildTriggerKeySuggestions(currentText) {
+    const text = String(currentText || '');
+    return TRIGGER_KEYS.filter((k) => !new RegExp(`"${k.value}"\\s*:`).test(text));
 }
 
 function filterSuggestions(suggestions, term, key) {
@@ -156,6 +253,8 @@ function getCaretCoordinates(textarea, position) {
  *
  * Props: id, className, rows, value, onValueChange(newValue), placeholder,
  * spellCheck, moduleType (workflow.type actual), modules (catalog.modules),
+ * workflowVariables (WorkflowVariable[] del workflow + globales, ya cargadas
+ * en WorkflowCanvasApp -- se sugieren sin punto, ej. {{ mi_variable }}),
  * schemaAware (Fase 21 -- solo el textarea del Trigger lo activa: además del
  * `{{ }}` de siempre, sugiere valores reales para las claves JSON "event" y
  * "field" del propio esquema del trigger).
@@ -170,6 +269,8 @@ export default function TokenAutocompleteTextarea({
     spellCheck,
     moduleType,
     modules,
+    workflowVariables,
+    fieldValueSources,
     schemaAware,
 }) {
     const textareaRef = useRef(null);
@@ -179,9 +280,13 @@ export default function TokenAutocompleteTextarea({
     const [coords, setCoords] = useState({ top: 0, left: 0 });
     const matchRef = useRef({ start: 0, length: 0, mode: 'token' });
 
-    const tokenSuggestions = useMemo(() => buildTokenSuggestions(moduleType, modules), [moduleType, modules]);
+    const tokenSuggestions = useMemo(
+        () => buildTokenSuggestions(moduleType, modules, workflowVariables),
+        [moduleType, modules, workflowVariables]
+    );
     const eventSuggestions = useMemo(() => buildEventKeySuggestions(moduleType, modules), [moduleType, modules]);
     const fieldSuggestions = useMemo(() => buildFieldKeySuggestions(moduleType, modules), [moduleType, modules]);
+    const operatorSuggestions = useMemo(() => buildOperatorKeySuggestions(), []);
 
     function closeMenu() {
         setOpen(false);
@@ -224,6 +329,35 @@ export default function TokenAutocompleteTextarea({
                 if (filtered.length) return openMenu('field', term.length, filtered, cursor);
                 return closeMenu();
             }
+
+            const operatorMatch = before.match(OPERATOR_KEY_REGEX);
+            if (operatorMatch) {
+                const term = operatorMatch[1] || '';
+                const filtered = filterSuggestions(operatorSuggestions, term, 'value');
+                if (filtered.length) return openMenu('operator', term.length, filtered, cursor);
+                return closeMenu();
+            }
+
+            const valueTargetMatch = before.match(VALUE_TARGET_KEY_REGEX) || before.match(VALUE_TARGET_KEY_UNQUOTED_REGEX);
+            if (valueTargetMatch) {
+                const term = valueTargetMatch[1] || '';
+                const valueTargetSuggestions = buildValueTargetSuggestions(text, fieldValueSources);
+                const filtered = filterSuggestions(valueTargetSuggestions, term, 'value');
+                if (filtered.length) return openMenu('value-target', term.length, filtered, cursor);
+                return closeMenu();
+            }
+
+            // Modo trigger-key (Fase 22): se está escribiendo una clave nueva
+            // justo después de "{" o ",". Solo se reemplaza el término
+            // parcial ya escrito (grupo capturado) -- el "{"/","/comilla de
+            // apertura los escribió el usuario y deben quedar intactos.
+            const keyMatch = before.match(TRIGGER_KEY_REGEX);
+            if (keyMatch) {
+                const term = keyMatch[1] || '';
+                const filtered = filterSuggestions(buildTriggerKeySuggestions(text), term, 'value');
+                if (filtered.length) return openMenu('trigger-key', term.length, filtered, cursor);
+                return closeMenu();
+            }
         }
 
         const match = before.match(TRIGGER_REGEX);
@@ -256,9 +390,20 @@ export default function TokenAutocompleteTextarea({
         const before = value.slice(0, start);
         const after = value.slice(start + length);
         // Modo token: envuelve en "{{ }}" (interpolación de texto libre).
-        // Modo event/field: inserta el valor plano -- ya está dentro de las
-        // comillas que el usuario escribió a mano en el JSON del trigger.
-        const insertion = mode === 'token' ? `{{ ${item.path} }}` : item.value;
+        // Modo event/field/operator: inserta el valor plano -- ya está dentro
+        // de las comillas que el usuario escribió a mano en el JSON.
+        // Modo trigger-key: inserta la clave + "": " " (cursor listo para
+        // que el modo event/field/operator tome el relevo) -- salvo `hours`,
+        // que se inserta sin comillas (siempre numérico, `(int)` en
+        // handleModelStale()).
+        let insertion;
+        if (mode === 'token') {
+            insertion = `{{ ${item.path} }}`;
+        } else if (mode === 'trigger-key') {
+            insertion = item.numeric ? `${item.value}": ` : `${item.value}": "`;
+        } else {
+            insertion = item.value;
+        }
         const newValue = before + insertion + after;
         onValueChange(newValue);
         closeMenu();

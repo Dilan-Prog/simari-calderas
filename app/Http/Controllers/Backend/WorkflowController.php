@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Backend;
 
 use App\Http\Controllers\Controller;
+use App\Models\PipelineStage;
 use App\Models\Workflow;
 use App\Models\WorkflowEnrollment;
 use App\Models\WorkflowStep;
@@ -176,7 +177,9 @@ class WorkflowController extends Controller
                 'position_x', 'position_y',
             ]),
             'notes' => WorkflowCanvasNote::where('workflow_id', $workflow->id)->get(),
-            'variables' => WorkflowVariable::where('workflow_id', $workflow->id)->get(),
+            'variables' => WorkflowVariable::where('workflow_id', $workflow->id)
+                ->orWhereNull('workflow_id')
+                ->get(),
             'can_undo' => $this->workflowSnapshotService->canUndo($workflow),
             'can_redo' => $this->workflowSnapshotService->canRedo($workflow),
             'catalog' => [
@@ -196,8 +199,27 @@ class WorkflowController extends Controller
                         'group' => $entry['group'] ?? 'Otro',
                         'fields' => $this->automatableModuleRegistry->fieldsFor($type),
                         'relations' => $entry['relations'] ?? [],
+                        'supports_stale' => $entry['supports_stale'] ?? false,
                     ];
                 })->values(),
+                // Sugerencias de VALOR real para campos que referencian un id de
+                // catálogo (ej. "pipeline_stage_id") -- sin esto, escribir
+                // "value": 4 en el trigger obliga a adivinar a qué etapa
+                // corresponde ese id. Mapa por nombre de campo (compartido por
+                // Deal/WhatsappConversation, ambos usan pipeline_stage_id), no
+                // por módulo -- se extiende agregando más claves aquí conforme
+                // aparezcan otros campos de id que lo justifiquen.
+                'field_value_sources' => [
+                    'pipeline_stage_id' => PipelineStage::with('pipeline')
+                        ->orderBy('pipeline_id')
+                        ->orderBy('order')
+                        ->get()
+                        ->map(fn (PipelineStage $stage) => [
+                            'value' => $stage->id,
+                            'hint' => ($stage->pipeline->name ?? '?') . ' → ' . $stage->name,
+                        ])
+                        ->values(),
+                ],
             ],
         ]);
     }

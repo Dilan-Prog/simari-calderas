@@ -316,6 +316,7 @@ export default function NodeInspector({ step, catalog, workflowType, onSave, onS
     const conditionOperators = catalog?.condition_operators || {};
     const waitUnits = catalog?.wait_units || {};
     const modules = catalog?.modules || [];
+    const fieldValueSources = catalog?.field_value_sources || {};
     const groupedModules = groupModules(modules);
     // Módulo activo para filtrar sugerencias de autocompletado en los
     // textareas JSON: mientras se está eligiendo módulo en el propio Trigger
@@ -575,6 +576,8 @@ export default function NodeInspector({ step, catalog, workflowType, onSave, onS
                             spellCheck={false}
                             moduleType={activeModuleType}
                             modules={modules}
+                            workflowVariables={variableList}
+                            fieldValueSources={fieldValueSources}
                             schemaAware
                         />
                     </>
@@ -620,6 +623,7 @@ export default function NodeInspector({ step, catalog, workflowType, onSave, onS
                                         spellCheck={false}
                                         moduleType={activeModuleType}
                                         modules={modules}
+                                        workflowVariables={variableList}
                                     />
                                 ) : (
                                     <>
@@ -880,6 +884,7 @@ export default function NodeInspector({ step, catalog, workflowType, onSave, onS
                                     spellCheck={false}
                                     moduleType={activeModuleType}
                                     modules={modules}
+                                    workflowVariables={variableList}
                                 />
                             </>
                         )}

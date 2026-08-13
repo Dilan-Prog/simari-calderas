@@ -29,6 +29,9 @@
     </style>
     @php
         $authUser = auth()->user();
+        // Solo tiene valor real dentro de admin.statistics.show ({section} en
+        // la ruta); en cualquier otra página vale null y no se usa.
+        $statisticsSection = request()->route('section') ?? 'resumen';
         $activeSection = match (true) {
             request()->routeIs('admin.dashboard') => 'dashboard',
             request()->routeIs('admin.roles.*') => 'roles',
@@ -67,6 +70,7 @@
             request()->routeIs('admin.dashboards.*') => 'dashboards',
             request()->routeIs('admin.reports.*') => 'reportes',
             request()->routeIs('admin.goals.*') => 'metas',
+            request()->routeIs('admin.statistics.*') => 'estadisticas-' . $statisticsSection,
             default => '',
         };
 
@@ -77,6 +81,7 @@
             'servicios' => ['reportes-servicio', 'servicios-tecnicos'],
             'erp' => ['cotizaciones', 'proveedores', 'ordenes-compra', 'pedidos', 'entrega-material', 'planeacion-quimicos', 'erp-configuracion', 'clientes', 'pipelines', 'embudo-de-venta', 'negocios', 'automatizaciones'],
             'administracion' => ['roles', 'usuarios', 'google-ads', 'devops', 'audit', 'whatsapp', 'email-marketing', 'dashboards', 'reportes', 'metas'],
+            'estadisticas' => ['estadisticas-resumen', 'estadisticas-ventas', 'estadisticas-embudo', 'estadisticas-compras', 'estadisticas-servicios', 'estadisticas-reportes', 'estadisticas-inventario', 'estadisticas-tienda'],
         ];
         $activeGroup = collect($groupSections)->search(fn ($sections) => in_array($activeSection, $sections));
 
@@ -119,6 +124,12 @@
             || $authUser->hasPermission('blog')
             || $authUser->hasPermission('seo')
             || $authUser->hasPermission('whatsapp');
+
+        // Módulo aparte a propósito: Estadísticas cruza Ecommerce, Servicios,
+        // ERP y Administración (Ventas, Compras, Servicios Técnicos, Reportes
+        // de Servicio, Inventario, Tienda pública y Embudo de ventas) — no se
+        // anida en ninguno de esos grupos, va en el suyo propio.
+        $statisticsVisible = $authUser->hasPermission('statistics');
     @endphp
     <nav class="sidebar-nav" id="sidebarNav">
 
@@ -924,6 +935,48 @@
                     </a>
                 @endif
 
+            </div>
+        </div>
+        @endif
+
+        {{-- ══════════════ GRUPO: ESTADÍSTICAS ══════════════ --}}
+        @if ($statisticsVisible)
+        <div class="sidebar-nav-group {{ $activeGroup === 'estadisticas' ? 'has-active' : '' }}" data-group="estadisticas">
+            <button type="button" class="sidebar-nav-group-header" data-group-toggle="estadisticas">
+                <div class="sidebar-nav-item-left">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="12" x2="12" y1="20" y2="10" /><line x1="18" x2="18" y1="20" y2="4" /><line x1="6" x2="6" y1="20" y2="16" />
+                    </svg>
+                    <span class="sidebar-nav-item-label">Estadísticas</span>
+                </div>
+                <svg class="sidebar-nav-group-chevron" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="m9 18 6-6-6-6" />
+                </svg>
+            </button>
+            <div class="sidebar-nav-group-body" data-group-body="estadisticas">
+                @php
+                    $statisticsItems = [
+                        'resumen'    => ['label' => 'Resumen', 'route' => route('admin.statistics.index'), 'icon' => '<rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/>'],
+                        'ventas'     => ['label' => 'Ventas', 'route' => route('admin.statistics.show', 'ventas'), 'icon' => '<polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/>'],
+                        'embudo'     => ['label' => 'Embudo de ventas', 'route' => route('admin.statistics.show', 'embudo'), 'icon' => '<polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>'],
+                        'compras'    => ['label' => 'Compras y proveedores', 'route' => route('admin.statistics.show', 'compras'), 'icon' => '<circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/>'],
+                        'servicios'  => ['label' => 'Servicios técnicos', 'route' => route('admin.statistics.show', 'servicios'), 'icon' => '<path d="m14.7 6.3 1.6-1.6a1 1 0 0 1 1.4 0l1.6 1.6a1 1 0 0 1 0 1.4l-1.6 1.6a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94Z"/>'],
+                        'reportes'   => ['label' => 'Reportes de servicio', 'route' => route('admin.statistics.show', 'reportes'), 'icon' => '<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/>'],
+                        'inventario' => ['label' => 'Inventario', 'route' => route('admin.statistics.show', 'inventario'), 'icon' => '<path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4a2 2 0 0 0 1-1.73Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/>'],
+                        'tienda'     => ['label' => 'Tienda pública', 'route' => route('admin.statistics.show', 'tienda'), 'icon' => '<path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7"/><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4"/><path d="M2 7h20"/>'],
+                    ];
+                @endphp
+                @foreach ($statisticsItems as $key => $item)
+                    <a class="sidebar-nav-item {{ $activeSection === 'estadisticas-' . $key ? 'active' : '' }}"
+                        data-section="estadisticas-{{ $key }}" data-label="{{ $item['label'] }}" href="{{ $item['route'] }}">
+                        <div class="sidebar-nav-item-left">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                {!! $item['icon'] !!}
+                            </svg>
+                            <span class="sidebar-nav-item-label">{{ $item['label'] }}</span>
+                        </div>
+                    </a>
+                @endforeach
             </div>
         </div>
         @endif

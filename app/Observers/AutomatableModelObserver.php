@@ -40,6 +40,20 @@ class AutomatableModelObserver
         $this->dispatch($model, 'updated');
     }
 
+    /**
+     * Fase 23: delega igual que created()/updated(). Laravel invoca este
+     * método automáticamente en cualquier borrado (soft o hard) de un
+     * modelo con este Observer registrado -- no hace falta tocar el bucle
+     * de registro en AppServiceProvider::boot(). En modelos con
+     * SoftDeletes (ej. Deal), el evento 'deleted' de Eloquent dispara igual
+     * con un borrado suave -- comportamiento esperado (ver
+     * WorkflowTriggerService::triggerMatches()).
+     */
+    public function deleted(Model $model): void
+    {
+        $this->dispatch($model, 'deleted');
+    }
+
     protected function dispatch(Model $model, string $eventType): void
     {
         $type = $this->registry->typeForModel($model);

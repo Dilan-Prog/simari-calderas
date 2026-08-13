@@ -114,8 +114,8 @@ class WorkflowActionExecutor
         $resolver = app(WorkflowTokenResolver::class);
 
         $task = new \App\Models\Task([
-            'title'                   => $resolver->resolveTokens($config['title'] ?? null, $enrollment->enrollable, $enrollment->workflow_id),
-            'description'             => $resolver->resolveTokens($config['description'] ?? null, $enrollment->enrollable, $enrollment->workflow_id),
+            'title'                   => $resolver->resolveTokens($config['title'] ?? null, $enrollment),
+            'description'             => $resolver->resolveTokens($config['description'] ?? null, $enrollment),
             'due_at'                  => $config['due_at'] ?? null,
             'assigned_to'             => $config['assigned_to'] ?? null,
             'created_by_workflow_id'  => $enrollment->workflow_id,
@@ -167,7 +167,7 @@ class WorkflowActionExecutor
         }
 
         $resolvedValue = is_string($value)
-            ? app(WorkflowTokenResolver::class)->resolveTokens($value, $enrollable, $enrollment->workflow_id)
+            ? app(WorkflowTokenResolver::class)->resolveTokens($value, $enrollment)
             : $value;
 
         $enrollable->update([$field => $resolvedValue]);
@@ -273,7 +273,7 @@ class WorkflowActionExecutor
 
         $config = $step->action_config ?? [];
         $whatsapp = app(WhatsappService::class);
-        $resolvedText = app(WorkflowTokenResolver::class)->resolveTokens($config['text'] ?? null, $enrollment->enrollable, $enrollment->workflow_id);
+        $resolvedText = app(WorkflowTokenResolver::class)->resolveTokens($config['text'] ?? null, $enrollment);
 
         try {
             if (filled($resolvedText) && $whatsapp->isWithin24hWindow($conversation)) {

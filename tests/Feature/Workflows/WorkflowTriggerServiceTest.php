@@ -6,6 +6,7 @@ use App\Models\Customer;
 use App\Models\Deal;
 use App\Models\Pipeline;
 use App\Models\PipelineStage;
+use App\Models\User;
 use App\Models\WhatsappAccount;
 use App\Models\WhatsappConversation;
 use App\Models\Workflow;
@@ -327,5 +328,223 @@ class WorkflowTriggerServiceTest extends TestCase
         app(WorkflowTriggerService::class)->handleModelStale('no_registrado', 'updated_at', 24);
 
         $this->assertTrue(true);
+    }
+
+    // --- Fase 23: operadores de comparación ---------------------------------
+
+    public function test_operator_lt_enrolls_only_when_new_value_is_below_target(): void
+    {
+        $workflow = $this->makeDealWorkflow(['event' => 'updated', 'field' => 'amount', 'operator' => 'lt', 'value' => 10]);
+        $deal = $this->makeDeal(['amount' => 100]);
+
+        // Baja pero no por debajo del target (10) -> no matchea.
+        $deal->update(['amount' => 50]);
+        $this->assertFalse($this->enrolled($workflow, $deal));
+
+        // Baja por debajo del target -> matchea.
+        $deal->update(['amount' => 5]);
+        $this->assertTrue($this->enrolled($workflow, $deal));
+    }
+
+    public function test_operator_gte_enrolls_when_new_value_meets_or_exceeds_target(): void
+    {
+        $workflow = $this->makeDealWorkflow(['event' => 'updated', 'field' => 'amount', 'operator' => 'gte', 'value' => 100]);
+        $deal = $this->makeDeal(['amount' => 10]);
+
+        $deal->update(['amount' => 50]);
+        $this->assertFalse($this->enrolled($workflow, $deal));
+
+        $deal->update(['amount' => 100]);
+        $this->assertTrue($this->enrolled($workflow, $deal));
+    }
+
+    public function test_operator_neq_enrolls_when_new_value_differs_from_target(): void
+    {
+        $workflow = $this->makeDealWorkflow(['event' => 'updated', 'field' => 'status', 'operator' => 'neq', 'value' => 'lost']);
+        $deal = $this->makeDeal(['status' => 'open']);
+
+        // Cambia al valor prohibido ('lost') -> neq falla, no matchea.
+        $deal->update(['status' => 'lost']);
+        $this->assertFalse($this->enrolled($workflow, $deal));
+
+        $otherWorkflow = $this->makeDealWorkflow(
+            ['event' => 'updated', 'field' => 'status', 'operator' => 'neq', 'value' => 'lost'],
+            ['name' => 'Otro workflow neq']
+        );
+        $deal2 = $this->makeDeal(['status' => 'open']);
+
+        // Cambia a un valor distinto de 'lost' -> neq se cumple, matchea.
+        $deal2->update(['status' => 'won']);
+        $this->assertTrue($this->enrolled($otherWorkflow, $deal2));
+    }
+
+    public function test_operator_defaults_to_eq_when_omitted(): void
+    {
+        $workflow = $this->makeDealWorkflow(['event' => 'updated', 'field' => 'status', 'value' => 'won']);
+        $deal = $this->makeDeal(['status' => 'open']);
+
+        $deal->update(['status' => 'lost']);
+        $this->assertFalse($this->enrolled($workflow, $deal));
+
+        $deal->update(['status' => 'won']);
+        $this->assertTrue($this->enrolled($workflow, $deal));
+    }
+
+    public function test_non_numeric_comparison_with_numeric_operator_never_matches(): void
+    {
+        $workflow = $this->makeDealWorkflow(['event' => 'updated', 'field' => 'status', 'operator' => 'gt', 'value' => 'lost']);
+        $deal = $this->makeDeal(['status' => 'open']);
+
+        $deal->update(['status' => 'won']);
+
+        $this->assertFalse($this->enrolled($workflow, $deal));
+    }
+
+    // --- Fase 23: alias legado to_stage_id -----------------------------------
+
+    public function test_legacy_to_stage_id_alias_still_works_as_value(): void
+    {
+        $stage = $this->makePipelineStage();
+        $targetStage = PipelineStage::create([
+            'pipeline_id'     => $stage->pipeline_id,
+            'name'            => 'Ganado',
+            'slug'            => 'ganado-alias',
+            'order'           => 3,
+            'probability'     => 100,
+            'is_won'          => true,
+            'is_lost'         => false,
+            'required_fields' => null,
+        ]);
+
+        $workflow = $this->makeDealWorkflow([
+            'event'       => 'updated',
+            'field'       => 'pipeline_stage_id',
+            'to_stage_id' => $targetStage->id,
+        ]);
+
+        $deal = Deal::create([
+            'pipeline_id'       => $stage->pipeline_id,
+            'pipeline_stage_id' => $stage->id,
+            'name'              => 'Deal alias legado',
+            'amount'            => 1000,
+            'currency'          => 'MXN',
+            'status'            => 'open',
+        ]);
+
+        $deal->update(['pipeline_stage_id' => $targetStage->id]);
+
+        $this->assertTrue($this->enrolled($workflow, $deal));
+    }
+
+    // --- Fase 23: from_value (transición A->B) -------------------------------
+
+    public function test_from_value_requires_original_value_to_match_in_addition_to_new_value(): void
+    {
+        $workflow = $this->makeDealWorkflow([
+            'event'      => 'updated',
+            'field'      => 'status',
+            'from_value' => 'pending',
+            'value'      => 'won',
+        ]);
+        $deal = $this->makeDeal(['status' => 'open']);
+
+        // Cambia al valor destino pero NO desde el valor de origen esperado.
+        $deal->update(['status' => 'won']);
+        $this->assertFalse($this->enrolled($workflow, $deal));
+    }
+
+    public function test_from_value_matches_when_transition_is_exact(): void
+    {
+        $workflow = $this->makeDealWorkflow([
+            'event'      => 'updated',
+            'field'      => 'status',
+            'from_value' => 'open',
+            'value'      => 'won',
+        ]);
+        $deal = $this->makeDeal(['status' => 'open']);
+
+        $deal->update(['status' => 'won']);
+        $this->assertTrue($this->enrolled($workflow, $deal));
+    }
+
+    // --- Fase 23: evento 'deleted' -------------------------------------------
+
+    public function test_deleted_event_enrolls_on_soft_delete_without_checking_field(): void
+    {
+        $workflow = $this->makeDealWorkflow(['event' => 'deleted']);
+        $deal = $this->makeDeal();
+
+        $deal->delete();
+
+        $this->assertTrue($this->enrolled($workflow, $deal));
+    }
+
+    public function test_deleted_event_does_not_enroll_created_or_updated_triggers(): void
+    {
+        $createdWorkflow = $this->makeDealWorkflow(['event' => 'created']);
+        $updatedWorkflow = $this->makeDealWorkflow(
+            ['event' => 'updated', 'field' => 'status'],
+            ['name' => 'Workflow updated distinto']
+        );
+
+        $deal = $this->makeDeal();
+        $deal->delete();
+
+        // 'created' ya se disparó al crear -- lo relevante es que 'updated'
+        // (que también matchea 'event' si no se distinguiera 'deleted') NO
+        // se dispare por el borrado.
+        $this->assertFalse($this->enrolled($updatedWorkflow, $deal));
+        $this->assertTrue($this->enrolled($createdWorkflow, $deal));
+    }
+
+    // --- Fase 24: trigger_context (previous / actor_user_id) ----------------
+
+    public function test_updated_event_persists_previous_value_in_trigger_context(): void
+    {
+        $workflow = $this->makeDealWorkflow(['event' => 'updated', 'field' => 'status']);
+        $deal = $this->makeDeal(['status' => 'open']);
+
+        $deal->update(['status' => 'won']);
+
+        $enrollment = WorkflowEnrollment::where('workflow_id', $workflow->id)
+            ->where('enrollable_type', $deal->getMorphClass())
+            ->where('enrollable_id', $deal->getKey())
+            ->first();
+
+        $this->assertNotNull($enrollment);
+        $this->assertEquals(['status' => 'open'], $enrollment->trigger_context['previous'] ?? null);
+    }
+
+    public function test_created_event_does_not_persist_previous_but_captures_actor(): void
+    {
+        $user = User::factory()->create();
+        $this->actingAs($user);
+
+        $workflow = $this->makeDealWorkflow(['event' => 'created']);
+        $deal = $this->makeDeal();
+
+        $enrollment = WorkflowEnrollment::where('workflow_id', $workflow->id)
+            ->where('enrollable_type', $deal->getMorphClass())
+            ->where('enrollable_id', $deal->getKey())
+            ->first();
+
+        $this->assertNotNull($enrollment);
+        $this->assertArrayNotHasKey('previous', $enrollment->trigger_context ?? []);
+        $this->assertEquals($user->id, $enrollment->trigger_context['actor_user_id'] ?? null);
+    }
+
+    public function test_actor_user_id_is_null_without_authenticated_user(): void
+    {
+        $workflow = $this->makeDealWorkflow(['event' => 'created']);
+        $deal = $this->makeDeal();
+
+        $enrollment = WorkflowEnrollment::where('workflow_id', $workflow->id)
+            ->where('enrollable_type', $deal->getMorphClass())
+            ->where('enrollable_id', $deal->getKey())
+            ->first();
+
+        $this->assertNotNull($enrollment);
+        $this->assertArrayHasKey('actor_user_id', $enrollment->trigger_context ?? []);
+        $this->assertNull($enrollment->trigger_context['actor_user_id']);
     }
 }

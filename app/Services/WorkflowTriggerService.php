@@ -30,11 +30,14 @@ class WorkflowTriggerService
      *
      * Formas soportadas de enrollment_trigger (json):
      *   {"event": "created"}
+     *   {"event": "deleted"}
      *   {"event": "updated", "field": "pipeline_stage_id"}
      *   {"event": "updated", "field": "pipeline_stage_id", "to_stage_id": 5}
+     *   {"event": "updated", "field": "stock", "operator": "lt", "value": 10}
+     *   {"event": "updated", "field": "status", "from_value": "pending", "value": "shipped"}
      *
      * @param  \Illuminate\Database\Eloquent\Model $model
-     * @param  string $eventType 'created' | 'updated'
+     * @param  string $eventType 'created' | 'updated' | 'deleted'
      * @param  string $workflowType  valor de Workflow.type a evaluar (ej. 'deal', 'store_order')
      */
     public function handleModelEvent(Model $model, string $eventType, string $workflowType): void
@@ -46,9 +49,38 @@ class WorkflowTriggerService
 
         foreach ($workflows as $workflow) {
             if ($this->triggerMatches($workflow, $model, $eventType)) {
-                app(WorkflowEngineService::class)->enroll($workflow, $model);
+                $context = $this->buildTriggerContext($workflow, $model, $eventType);
+                app(WorkflowEngineService::class)->enroll($workflow, $model, $context);
             }
         }
+    }
+
+    /**
+     * Arma el $context (Fase 24) que se persiste en
+     * WorkflowEnrollment::trigger_context al inscribir: el valor ANTERIOR
+     * del campo vigilado por el trigger (solo aplica para 'updated' con
+     * 'field' configurado -- se captura AQUÍ, en el momento del evento,
+     * porque para cuando una acción se ejecuta (posiblemente tras un 'wait',
+     * en un job en cola) $model->getOriginal() ya no refleja este cambio) y
+     * el usuario autenticado en el momento del evento (auth()->id(), que
+     * naturalmente es null fuera de un ciclo de request -- ej. cuando este
+     * método se invoca desde un comando de scheduler -- sin necesidad de
+     * distinguir el caso a mano).
+     */
+    private function buildTriggerContext(Workflow $workflow, Model $model, string $eventType): array
+    {
+        $context = ['actor_user_id' => auth()->id()];
+
+        if ($eventType === 'updated') {
+            $trigger = $workflow->enrollment_trigger;
+            $field = is_array($trigger) ? ($trigger['field'] ?? null) : null;
+
+            if ($field !== null) {
+                $context['previous'] = [$field => $model->getOriginal($field)];
+            }
+        }
+
+        return $context;
     }
 
     /**
@@ -71,6 +103,13 @@ class WorkflowTriggerService
             return false;
         }
 
+        // Fase 23: el evento 'deleted' matchea con solo comparar 'event' --
+        // no tiene sentido revisar 'field'/wasChanged() sobre un modelo que
+        // se está borrando (wasChanged() tampoco sería confiable aquí).
+        if ($eventType === 'deleted') {
+            return true;
+        }
+
         if ($eventType === 'updated' && isset($trigger['field'])) {
             $field = $trigger['field'];
 
@@ -78,12 +117,68 @@ class WorkflowTriggerService
                 return false;
             }
 
-            if (isset($trigger['to_stage_id']) && (string) $model->{$field} !== (string) $trigger['to_stage_id']) {
-                return false;
+            // 'value' es el nombre genérico (Fase 23); 'to_stage_id' se
+            // conserva como alias legado retrocompatible permanente -- los
+            // triggers ya guardados en producción con solo 'to_stage_id'
+            // deben seguir funcionando exactamente igual.
+            $target = $trigger['value'] ?? $trigger['to_stage_id'] ?? null;
+
+            if ($target !== null) {
+                $operator = $trigger['operator'] ?? 'eq';
+
+                if (!$this->compareValues($model->{$field}, $operator, $target)) {
+                    return false;
+                }
+            }
+
+            // 'from_value' (opcional, Fase 23): exige que el valor ANTERIOR
+            // del campo coincida, además de que el valor nuevo cumpla
+            // operator/value -- permite expresar una transición A->B
+            // explícita, siempre por igualdad exacta (no tiene operador
+            // propio).
+            if (array_key_exists('from_value', $trigger)) {
+                if ((string) $model->getOriginal($field) !== (string) $trigger['from_value']) {
+                    return false;
+                }
             }
         }
 
         return true;
+    }
+
+    /**
+     * Compara $current contra $target según $operator (Fase 23).
+     * gt/gte/lt/lte: cast numérico -- si alguno de los dos valores no es
+     * numérico, no se puede comparar y se resuelve a false (nunca lanza,
+     * nunca hace un cast forzado que rompa la semántica). eq/neq (y
+     * cualquier operador desconocido, que cae al mismo default que 'eq'):
+     * comparación de string, mismo comportamiento `(string) === (string)`
+     * que ya existía antes de esta fase.
+     */
+    private function compareValues($current, string $operator, $target): bool
+    {
+        if (in_array($operator, ['gt', 'gte', 'lt', 'lte'], true)) {
+            if (!is_numeric($current) || !is_numeric($target)) {
+                return false;
+            }
+
+            $current = (float) $current;
+            $target = (float) $target;
+
+            return match ($operator) {
+                'gt'    => $current > $target,
+                'gte'   => $current >= $target,
+                'lt'    => $current < $target,
+                default => $current <= $target, // 'lte'
+            };
+        }
+
+        if ($operator === 'neq') {
+            return (string) $current !== (string) $target;
+        }
+
+        // 'eq' (default) y cualquier operador desconocido.
+        return (string) $current === (string) $target;
     }
 
     /**

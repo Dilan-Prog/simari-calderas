@@ -12,14 +12,22 @@ use Illuminate\Support\Facades\DB;
 class WorkflowEngineService
 {
     /**
-     * Inscribe un modelo (Deal o Customer) en un workflow. Si el workflow no
-     * permite reinscripción, retorna la inscripción activa/waiting existente
-     * en lugar de crear una duplicada. Arranca el procesamiento del primer
-     * step inmediatamente después de crear la inscripción.
+     * Inscribe un modelo (Deal, Customer, o cualquier otro modelo
+     * automatizable) en un workflow. Si el workflow no permite reinscripción,
+     * retorna la inscripción activa/waiting existente en lugar de crear una
+     * duplicada. Arranca el procesamiento del primer step inmediatamente
+     * después de crear la inscripción.
+     *
+     * $context (Fase 24, opcional y retrocompatible -- todos los call-sites
+     * previos a esta fase siguen funcionando sin pasarlo): datos de contexto
+     * de ejecución capturados en el momento del EVENTO que originó la
+     * inscripción (no en el momento en que una acción se ejecuta más tarde,
+     * posiblemente en un job en cola), ej. {"previous": {...}, "actor_user_id": ...}.
+     * Se persiste tal cual en WorkflowEnrollment::trigger_context.
      */
-    public function enroll(Workflow $workflow, $target): WorkflowEnrollment
+    public function enroll(Workflow $workflow, $target, array $context = []): WorkflowEnrollment
     {
-        return DB::transaction(function () use ($workflow, $target) {
+        return DB::transaction(function () use ($workflow, $target, $context) {
             if (!$workflow->reenrollment_allowed) {
                 $existing = WorkflowEnrollment::where('workflow_id', $workflow->id)
                     ->where('enrollable_type', $target->getMorphClass())
@@ -41,6 +49,7 @@ class WorkflowEngineService
                 'workflow_id'      => $workflow->id,
                 'enrollable_type'  => $target->getMorphClass(),
                 'enrollable_id'    => $target->getKey(),
+                'trigger_context'  => $context ?: null,
                 'current_step_id'  => $firstStep?->id,
                 'status'           => 'active',
                 'enrolled_at'      => now(),

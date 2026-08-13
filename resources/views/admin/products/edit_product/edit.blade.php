@@ -590,6 +590,17 @@
                                     </div>
                                 </div>
 
+                                <div class="pform-field">
+                                    <label class="pform-label">Punto de Reorden (opcional)</label>
+                                    <input type="number" id="pformReorderPoint" name="reorder_point"
+                                        class="pform-input @error('reorder_point') pform-field-error @enderror" placeholder="Ej. 10"
+                                        min="0" step="1" value="{{ old('reorder_point', $product->reorder_point) }}">
+                                    @error('reorder_point')
+                                        <p class="pform-error-msg">{{ $message }}</p>
+                                    @enderror
+                                    <p class="pform-hint">Déjalo vacío si no quieres alertas de stock bajo para este producto. Se usa en Estadísticas &gt; Inventario.</p>
+                                </div>
+
                                 <div class="pform-field" style="margin-bottom:0">
                                     <label class="pform-label">Estado de Disponibilidad</label>
                                     <input type="hidden" name="availability" id="pformAvailability" value="{{ old('availability', $product->availability ?? 'available') }}">

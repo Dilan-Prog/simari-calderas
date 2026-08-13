@@ -72,6 +72,8 @@ export default defineConfig({
                 'resources/js/admin/deals-board.js',
                 'resources/css/admin/pages/whatsapp-funnel.css',
                 'resources/js/admin/whatsapp-funnel-board.js',
+                'resources/css/admin/pages/statistics.css',
+                'resources/js/admin/statistics-panel.js',
             ],
             refresh: true,
         }),

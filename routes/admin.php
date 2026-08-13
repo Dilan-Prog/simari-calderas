@@ -46,6 +46,7 @@ use App\Http\Controllers\Backend\WorkflowVariableController;
 use App\Http\Controllers\Backend\WorkflowCanvasNoteController;
 use App\Http\Controllers\Backend\ExternalDatabaseController;
 use App\Http\Controllers\Backend\ErpSettingController;
+use App\Http\Controllers\Backend\StatisticsController;
 use App\Http\Controllers\Backend\EmailCampaignController;
 use App\Http\Controllers\Backend\EmailSequenceController;
 use App\Http\Controllers\Backend\EmailTemplateController;
@@ -674,6 +675,23 @@ Route::controller(\App\Http\Controllers\Backend\ErpSettingController::class)
         Route::post('/tipos-reporte', 'storeServiceReportType')->name('report-types.store')->middleware('permission:erp-settings,create');
         Route::put('/tipos-reporte/{serviceReportType}', 'updateServiceReportType')->name('report-types.update')->middleware('permission:erp-settings,edit');
         Route::delete('/tipos-reporte/{serviceReportType}', 'destroyServiceReportType')->name('report-types.destroy')->middleware('permission:erp-settings,delete');
+    });
+
+// ============================================================
+// Estadísticas — módulo de BI cruzando Ventas, Compras, Servicios
+// Técnicos, Reportes de Servicio, Inventario, Tienda pública y
+// Embudo de ventas (Pipeline/Deals). Módulo independiente, permiso
+// propio 'statistics', sin acciones de escritura (solo lectura de
+// datos ya existentes en otros módulos) — nunca necesita
+// create/edit/delete, solo 'view'.
+// ============================================================
+Route::controller(StatisticsController::class)
+    ->middleware('permission:statistics')
+    ->prefix('estadisticas')
+    ->name('statistics.')
+    ->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::get('/{section}', 'show')->name('show')->where('section', 'ventas|embudo|compras|servicios|reportes|inventario|tienda');
     });
 
 // ============================================================

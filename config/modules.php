@@ -229,4 +229,10 @@ return [
         'route' => 'admin.credentials.index',
         'order' => 30,
     ],
+    'statistics' => [
+        'name'  => 'Estadísticas',
+        'icon'  => 'bar-chart-3',
+        'route' => 'admin.statistics.index',
+        'order' => 31,
+    ],
 ];

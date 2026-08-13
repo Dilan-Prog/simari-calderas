@@ -59,6 +59,7 @@ class Products extends Model
         // Cargo de envío adicional fijo para productos pesados/voluminosos.
         // null o 0 = envío estándar (comportamiento actual, sin cargo extra).
         'shipping_cost',
+        'reorder_point',
         'stock',
         'weight',
         'height',
