@@ -103,15 +103,29 @@
         el.querySelectorAll('.stats-dp-day-btn[data-date]').forEach(function (btn) {
             btn.addEventListener('click', function () { handleClick(parseISO(this.dataset.date)); });
             btn.addEventListener('mouseenter', function () { handleHover(parseISO(this.dataset.date)); });
-            btn.addEventListener('mouseleave', function () { state.hoverDate = null; renderCalendars(); updateFooter(); });
+            btn.addEventListener('mouseleave', function () { state.hoverDate = null; restyleCalendars(); updateFooter(); });
         });
     }
 
-    function buildCell(d, other, r) {
-        var num = d.getDate(), iso = fmtISO(d);
-
+    // FIX: seleccionar la 2da fecha de un rango que cruza de un mes al
+    // siguiente (p. ej. 08 ago -> 30 sep, como en el bug reportado) fallaba
+    // de forma intermitente. Causa: mientras el mouse viaja hacia la 2da
+    // fecha, cada celda que se sobrevuela disparaba handleHover() ->
+    // renderCalendars() -> innerHTML de AMBOS calendarios completo (destruye
+    // y recrea cada <button>, con sus listeners). En un recorrido largo
+    // (cruzando de un calendario al otro) eso ocurre docenas de veces antes
+    // del click final, y existe una ventana real donde el click puede
+    // resolverse contra un botón que el navegador ya está reemplazando —
+    // el clic no llega a ningún listener vivo y la selección se pierde en
+    // silencio (el botón "Aplicar rango" se queda deshabilitado).
+    // Fix: el día a día que se muestra nunca cambia por un hover/click de
+    // selección (solo cambia al navegar de mes) — así que hover/click ahora
+    // solo REESTILIZAN las celdas ya existentes (mismos nodos, mismos
+    // listeners), sin volver a construir el DOM. renderCal()/innerHTML solo
+    // se usa para abrir el modal o cambiar de mes, donde los días sí cambian.
+    function cellClasses(d, other, r) {
         if (other) {
-            return '<div class="stats-dp-day-cell"><button class="stats-dp-day-btn stats-dp-day-other" disabled tabindex="-1" aria-hidden="true">' + num + '</button></div>';
+            return { cellCls: 'stats-dp-day-cell', btnCls: 'stats-dp-day-btn stats-dp-day-other' };
         }
 
         var nd = norm(d);
@@ -131,7 +145,39 @@
         else if (inRange) btnCls += ' stats-dp-day-in-range';
         if (isToday(d)) btnCls += ' stats-dp-day-today';
 
-        return '<div class="' + cellCls + '"><button class="' + btnCls + '" data-date="' + iso + '" aria-label="' + iso + '">' + num + '</button></div>';
+        return { cellCls: cellCls, btnCls: btnCls };
+    }
+
+    function buildCell(d, other, r) {
+        var num = d.getDate(), iso = fmtISO(d);
+        var cls = cellClasses(d, other, r);
+
+        if (other) {
+            return '<div class="' + cls.cellCls + '"><button type="button" class="' + cls.btnCls + '" disabled tabindex="-1" aria-hidden="true">' + num + '</button></div>';
+        }
+
+        return '<div class="' + cls.cellCls + '"><button type="button" class="' + cls.btnCls + '" data-date="' + iso + '" aria-label="' + iso + '">' + num + '</button></div>';
+    }
+
+    function restyleCal(id) {
+        var el = document.getElementById(id);
+        if (!el) return;
+        var r = effectiveRange();
+
+        el.querySelectorAll('.stats-dp-day-cell').forEach(function (cellEl) {
+            var btn = cellEl.querySelector('.stats-dp-day-btn');
+            if (!btn) return;
+            if (btn.classList.contains('stats-dp-day-other')) return; // días del mes adyacente: nunca cambian de estilo
+            var d = parseISO(btn.dataset.date);
+            var cls = cellClasses(d, false, r);
+            cellEl.className = cls.cellCls;
+            btn.className = cls.btnCls;
+        });
+    }
+
+    function restyleCalendars() {
+        restyleCal('statsDpCalLeft');
+        restyleCal('statsDpCalRight');
     }
 
     function handleClick(d) {
@@ -143,13 +189,13 @@
             if (nd < ns) { state.startDate = nd; state.endDate = null; }
             else { state.endDate = nd; }
         }
-        renderCalendars(); updateFooter(); updateApplyBtn();
+        restyleCalendars(); updateFooter(); updateApplyBtn();
     }
 
     function handleHover(d) {
         if (state.startDate && !state.endDate) {
             state.hoverDate = norm(d);
-            renderCalendars(); updateFooter();
+            restyleCalendars(); updateFooter();
         }
     }
 

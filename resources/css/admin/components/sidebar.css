@@ -225,6 +225,17 @@
     margin-top: 2px;
 }
 
+/* ── Líneas separadoras entre ítems y entre grupos ── */
+.sidebar-nav-group-body .sidebar-nav-item:not(:last-child) {
+    border-bottom: 1px solid #374151;
+}
+
+.sidebar-nav-group:not(:last-child) {
+    border-bottom: 1px solid #374151;
+    padding-bottom: 8px;
+    margin-bottom: 6px;
+}
+
 .sidebar-nav-group.is-expanded .sidebar-nav-group-body {
     display: flex;
 }
@@ -348,6 +359,13 @@
     padding: 9px;
     justify-content: center;
     width: 44px;
+    border-bottom: none;
+}
+
+.admin-sidebar.collapsed .sidebar-nav-group {
+    border-bottom: none;
+    padding-bottom: 0;
+    margin-bottom: 0;
 }
 
 .admin-sidebar.collapsed .sidebar-nav-item-left {
