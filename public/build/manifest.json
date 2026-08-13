@@ -129,7 +129,7 @@
     "isEntry": true
   },
   "resources/css/admin/pages/statistics.css": {
-    "file": "assets/statistics-JkyYKDTR.css",
+    "file": "assets/statistics-BCYhmlaK.css",
     "src": "resources/css/admin/pages/statistics.css",
     "isEntry": true
   },
@@ -322,6 +322,12 @@
     "file": "assets/spec-name-autocomplete-DX1ok9JF.js",
     "name": "spec-name-autocomplete",
     "src": "resources/js/admin/spec-name-autocomplete.js",
+    "isEntry": true
+  },
+  "resources/js/admin/statistics-datepicker.js": {
+    "file": "assets/statistics-datepicker-BjHEPxfq.js",
+    "name": "statistics-datepicker",
+    "src": "resources/js/admin/statistics-datepicker.js",
     "isEntry": true
   },
   "resources/js/admin/statistics-panel.js": {

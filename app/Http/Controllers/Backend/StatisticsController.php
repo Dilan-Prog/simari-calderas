@@ -60,7 +60,9 @@ class StatisticsController extends Controller
     {
         $period = StatisticsPeriodResolver::resolve(
             $request->query('period'),
-            $request->boolean('compare', true)
+            $request->boolean('compare', true),
+            $request->query('date_from'),
+            $request->query('date_to')
         );
 
         $data = match ($section) {

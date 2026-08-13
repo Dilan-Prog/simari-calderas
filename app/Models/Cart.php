@@ -11,11 +11,31 @@ class Cart extends Model
     protected $fillable = [
         'session_id',
         'customer_id',
+        'last_activity_at',
+        'checkout_started_at',
+        'contact_name',
+        'contact_email',
+        'contact_phone',
+        'converted_to_store_order_id',
+        'dismissed_at',
+    ];
+
+    // Sin estos casts, last_activity_at/checkout_started_at llegan como string
+    // desde la BD y ->diffForHumans() en la vista de Carritos Abandonados falla.
+    protected $casts = [
+        'last_activity_at' => 'datetime',
+        'checkout_started_at' => 'datetime',
+        'dismissed_at' => 'datetime',
     ];
 
     public function customer(): BelongsTo
     {
         return $this->belongsTo(Customer::class);
+    }
+
+    public function convertedToStoreOrder(): BelongsTo
+    {
+        return $this->belongsTo(StoreOrder::class, 'converted_to_store_order_id');
     }
 
     public function items(): HasMany

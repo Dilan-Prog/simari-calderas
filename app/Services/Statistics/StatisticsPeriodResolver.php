@@ -36,8 +36,17 @@ class StatisticsPeriodResolver
         return self::LABELS;
     }
 
-    public static function resolve(?string $period, bool $compare = false): array
+    /**
+     * $dateFrom/$dateTo (formato Y-m-d, del selector de rango personalizado)
+     * tienen prioridad sobre $period cuando ambos son fechas válidas — el
+     * usuario eligió un rango explícito, no un preset.
+     */
+    public static function resolve(?string $period, bool $compare = false, ?string $dateFrom = null, ?string $dateTo = null): array
     {
+        if ($custom = self::resolveCustomRange($dateFrom, $dateTo, $compare)) {
+            return $custom;
+        }
+
         $period = array_key_exists($period ?? '', self::LABELS) ? $period : self::DEFAULT_PERIOD;
 
         [$from, $to] = self::range($period, 0);
@@ -61,6 +70,50 @@ class StatisticsPeriodResolver
         }
 
         return $result;
+    }
+
+    private static function resolveCustomRange(?string $dateFrom, ?string $dateTo, bool $compare): ?array
+    {
+        if (!self::isValidDate($dateFrom) || !self::isValidDate($dateTo)) {
+            return null;
+        }
+
+        $from = Carbon::createFromFormat('Y-m-d', $dateFrom)->startOfDay();
+        $to = Carbon::createFromFormat('Y-m-d', $dateTo)->endOfDay();
+
+        if ($from->gt($to)) {
+            [$from, $to] = [$to->copy()->startOfDay(), $from->copy()->endOfDay()];
+        }
+
+        $result = [
+            'period'       => 'custom',
+            'label'        => 'Personalizado',
+            'from'         => $from,
+            'to'           => $to,
+            'rangeLabel'   => self::formatRange($from, $to),
+            'compare'      => $compare,
+            'compareFrom'  => null,
+            'compareTo'    => null,
+            'compareLabel' => 'periodo anterior equivalente',
+        ];
+
+        if ($compare) {
+            // Mismo número de días, justo antes del rango elegido.
+            $days = $from->diffInDays($to) + 1;
+            $result['compareTo'] = $from->copy()->subDay()->endOfDay();
+            $result['compareFrom'] = $from->copy()->subDays($days)->startOfDay();
+        }
+
+        return $result;
+    }
+
+    private static function isValidDate(?string $date): bool
+    {
+        if (!$date || !preg_match('/^(\d{4})-(\d{2})-(\d{2})$/', $date, $m)) {
+            return false;
+        }
+
+        return checkdate((int) $m[2], (int) $m[3], (int) $m[1]);
     }
 
     /**

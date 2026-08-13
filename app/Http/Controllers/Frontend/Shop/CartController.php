@@ -50,6 +50,8 @@ class CartController extends Controller
             ['quantity' => $newQuantity, 'unit_price_snapshot' => $product->final_price]
         );
 
+        $cart->update(['last_activity_at' => now()]);
+
         $cart->load('items');
 
         return response()->json([
@@ -78,6 +80,8 @@ class CartController extends Controller
 
         $item->update(['quantity' => $data['quantity']]);
 
+        $cart->update(['last_activity_at' => now()]);
+
         $cart->load('items');
 
         // La página de checkout (index.blade.php) es server-rendered sin
@@ -105,6 +109,9 @@ class CartController extends Controller
         CartItem::where('cart_id', $cart->id)->where('product_id', $data['product_id'])->delete();
 
         $cart->load('items');
+
+        // Carrito vaciado a mano ya no cuenta como "abandonado".
+        $cart->update(['last_activity_at' => $cart->items->isEmpty() ? null : now()]);
 
         if (! $request->wantsJson()) {
             return back();

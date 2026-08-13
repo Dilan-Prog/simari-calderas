@@ -151,6 +151,17 @@ class CheckoutController extends Controller
             $data['rfc'] = $data['uso_cfdi'] = $data['razon_social'] = $data['regimen_fiscal'] = $data['cp_fiscal'] = null;
         }
 
+        // checkout_started_at solo se fija la primera vez: si el cliente
+        // reintenta este paso varias veces, el reloj de "carrito abandonado"
+        // debe leer desde el primer intento, no reiniciarse en cada reintento.
+        $cart->update([
+            'contact_name'        => $data['contact_name'],
+            'contact_email'       => $data['contact_email'],
+            'contact_phone'       => $data['contact_phone'],
+            'checkout_started_at' => $cart->checkout_started_at ?? now(),
+            'last_activity_at'    => now(),
+        ]);
+
         session()->put('checkout.shipping', $data);
 
         return redirect()->route('checkout.payment');
@@ -264,6 +275,15 @@ class CheckoutController extends Controller
             }
 
             $cart->items()->delete();
+
+            // Marca el carrito como convertido; last_activity_at se limpia
+            // para que salga de la query de "carritos abandonados" del
+            // módulo de automatización. checkout_started_at y contact_* NO
+            // se nulean: quedan como registro histórico del checkout.
+            $cart->update([
+                'converted_to_store_order_id' => $storeOrder->id,
+                'last_activity_at'            => null,
+            ]);
 
             return $storeOrder;
         });

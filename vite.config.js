@@ -74,6 +74,7 @@ export default defineConfig({
                 'resources/js/admin/whatsapp-funnel-board.js',
                 'resources/css/admin/pages/statistics.css',
                 'resources/js/admin/statistics-panel.js',
+                'resources/js/admin/statistics-datepicker.js',
             ],
             refresh: true,
         }),

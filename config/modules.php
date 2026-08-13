@@ -235,4 +235,10 @@ return [
         'route' => 'admin.statistics.index',
         'order' => 31,
     ],
+    'abandoned-carts' => [
+        'name'  => 'Carritos Abandonados',
+        'icon'  => 'shopping-cart',
+        'route' => 'admin.abandoned-carts.index',
+        'order' => 8,
+    ],
 ];

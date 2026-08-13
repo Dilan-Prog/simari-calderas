@@ -56,6 +56,7 @@
             request()->routeIs('admin.service-pages.*') => 'paginas-servicio',
             request()->routeIs('admin.gallery.*') => 'galeria',
             request()->routeIs('admin.inventory.*') => 'inventory',
+            request()->routeIs('admin.abandoned-carts.*') => 'carritos-abandonados',
             request()->routeIs('admin.menus.*') => 'menus',
             request()->routeIs('admin.settings.*') => 'configuracion-sitio',
             request()->routeIs('admin.integrations.*') => 'integraciones',
@@ -77,7 +78,7 @@
         // Agrupación puramente visual del sidebar — no afecta rutas, permisos
         // ni estructura de carpetas, solo cómo se muestran los módulos.
         $groupSections = [
-            'ecommerce' => ['productos', 'categorias', 'marcas', 'colecciones', 'paginas-servicio', 'galeria', 'inicio-secciones', 'inventory', 'menus', 'configuracion-sitio', 'integraciones', 'metodos-de-pago'],
+            'ecommerce' => ['productos', 'categorias', 'marcas', 'colecciones', 'paginas-servicio', 'galeria', 'inicio-secciones', 'inventory', 'menus', 'configuracion-sitio', 'integraciones', 'metodos-de-pago', 'carritos-abandonados'],
             'servicios' => ['reportes-servicio', 'servicios-tecnicos'],
             'erp' => ['cotizaciones', 'proveedores', 'ordenes-compra', 'pedidos', 'entrega-material', 'planeacion-quimicos', 'erp-configuracion', 'clientes', 'pipelines', 'embudo-de-venta', 'negocios', 'automatizaciones'],
             'administracion' => ['roles', 'usuarios', 'google-ads', 'devops', 'audit', 'whatsapp', 'email-marketing', 'dashboards', 'reportes', 'metas'],
@@ -98,7 +99,8 @@
             || $authUser->hasPermission('carriers')
             || $authUser->hasPermission('payment-methods')
             || $authUser->hasPermission('menu')
-            || $authUser->hasPermission('settings');
+            || $authUser->hasPermission('settings')
+            || $authUser->hasPermission('abandoned-carts');
 
         $serviciosVisible = $authUser->hasPermission('service-reports')
             || $authUser->hasPermission('technical-services');
@@ -304,6 +306,23 @@
                                 <path d="M10 12h4" />
                             </svg>
                             <span class="sidebar-nav-item-label">Inventario</span>
+                        </div>
+                    </a>
+                @endif
+
+                {{-- Carritos Abandonados --}}
+                @if ($authUser->hasPermission('abandoned-carts'))
+                    <a class="sidebar-nav-item {{ $activeSection === 'carritos-abandonados' ? 'active' : '' }}" data-section="carritos-abandonados"
+                        href="{{ route('admin.abandoned-carts.index') }}" data-label="Carritos Abandonados">
+                        <div class="sidebar-nav-item-left">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <circle cx="8" cy="21" r="1" /><circle cx="19" cy="21" r="1" />
+                                <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12" />
+                                <path d="m9 9 6 6M15 9l-6 6" />
+                            </svg>
+                            <span class="sidebar-nav-item-label">Carritos Abandonados</span>
                         </div>
                     </a>
                 @endif

@@ -5,6 +5,7 @@ use App\Http\Controllers\Backend\AdminController;
 use App\Http\Controllers\Backend\CategoryController;
 use App\Http\Controllers\Backend\ClientManageController;
 use App\Http\Controllers\Backend\AuditController;
+use App\Http\Controllers\Backend\AbandonedCartController;
 use App\Http\Controllers\Backend\DevOpsController;
 use App\Http\Controllers\Backend\ProductController;
 use App\Http\Controllers\Backend\ProductImportExportController;
@@ -953,6 +954,15 @@ Route::controller(AuditController::class)
     ->name('audit.')
     ->group(function () {
         Route::get('/', 'index')->name('index');
+    });
+
+Route::controller(AbandonedCartController::class)
+    ->middleware('permission:abandoned-carts')
+    ->prefix('carritos-abandonados')
+    ->name('abandoned-carts.')
+    ->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::post('/{cart}/descartar', 'dismiss')->name('dismiss')->middleware('permission:abandoned-carts,edit');
     });
 
 // ============================================================
