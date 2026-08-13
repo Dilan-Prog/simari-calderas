@@ -16,6 +16,10 @@ class DeliveryController extends Controller
                 'id',
                 'name',
                 'code',
+                'initials',
+                'bg_color',
+                'text_color',
+                'meta_line',
                 'tracking_url_template',
                 'phone',
                 'website',
@@ -46,6 +50,10 @@ class DeliveryController extends Controller
         'tracking_url_template' => 'nullable|string|max:255',
         'phone'                 => 'nullable|string|max:30',
         'website'               => 'nullable|string|max:255',
+        'initials'              => 'nullable|string|max:4',
+        'bg_color'              => 'nullable|string|max:7|regex:/^#[0-9a-fA-F]{6}$/',
+        'text_color'            => 'nullable|string|max:7|regex:/^#[0-9a-fA-F]{6}$/',
+        'meta_line'             => 'nullable|string|max:120',
     ]);
 
     $delivery = new Delivery;
@@ -55,6 +63,10 @@ class DeliveryController extends Controller
     $delivery->phone = $request->phone;
     $delivery->website = $request->website;
     $delivery->is_active = $request->is_active;
+    $delivery->initials = $request->initials;
+    $delivery->bg_color = $request->bg_color;
+    $delivery->text_color = $request->text_color;
+    $delivery->meta_line = $request->meta_line;
     $delivery->save();
     return redirect()->route('admin.deliveries.index')
                      ->with('success', 'Paquetería creada correctamente.');
@@ -92,6 +104,10 @@ class DeliveryController extends Controller
         'phone'                 => 'nullable|string|max:30',
         'website'               => 'nullable|string|max:255',
         'is_active'             => 'required|in:1,0',
+        'initials'              => 'nullable|string|max:4',
+        'bg_color'              => 'nullable|string|max:7|regex:/^#[0-9a-fA-F]{6}$/',
+        'text_color'            => 'nullable|string|max:7|regex:/^#[0-9a-fA-F]{6}$/',
+        'meta_line'             => 'nullable|string|max:120',
     ]);
 
 
@@ -101,6 +117,10 @@ class DeliveryController extends Controller
     $delivery->phone = $request->phone;
     $delivery->website = $request->website;
     $delivery->is_active = $request->is_active;
+    $delivery->initials = $request->initials;
+    $delivery->bg_color = $request->bg_color;
+    $delivery->text_color = $request->text_color;
+    $delivery->meta_line = $request->meta_line;
 
 
     $delivery->save();

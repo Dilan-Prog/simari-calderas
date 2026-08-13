@@ -49,6 +49,47 @@
                 </div>
 
                 <div style="margin-bottom: 16px;">
+                    <label style="display: block; font-size: 13px; font-weight: 600; color: var(--text-body); margin-bottom: 6px;">Iniciales</label>
+                    <input type="text" name="initials" class="users-manager-input {{ $isThisDeliveryError && $errors->has('initials') ? 'is-invalid' : '' }}" value="{{ $isThisDeliveryError ? old('initials', $delivery->initials) : $delivery->initials }}" maxlength="4" placeholder="ES">
+                    @if ($isThisDeliveryError)
+                        @error('initials')
+                            <span class="field-error-msg">{{ $message }}</span>
+                        @enderror
+                    @endif
+                </div>
+
+                <div style="margin-bottom: 16px; display: flex; gap: 16px;">
+                    <div style="flex: 1;">
+                        <label style="display: block; font-size: 13px; font-weight: 600; color: var(--text-body); margin-bottom: 6px;">Color de fondo</label>
+                        <input type="color" name="bg_color" class="users-manager-input {{ $isThisDeliveryError && $errors->has('bg_color') ? 'is-invalid' : '' }}" value="{{ $isThisDeliveryError ? old('bg_color', $delivery->bg_color ?? '#c81e1e') : ($delivery->bg_color ?? '#c81e1e') }}">
+                        @if ($isThisDeliveryError)
+                            @error('bg_color')
+                                <span class="field-error-msg">{{ $message }}</span>
+                            @enderror
+                        @endif
+                    </div>
+                    <div style="flex: 1;">
+                        <label style="display: block; font-size: 13px; font-weight: 600; color: var(--text-body); margin-bottom: 6px;">Color de texto</label>
+                        <input type="color" name="text_color" class="users-manager-input {{ $isThisDeliveryError && $errors->has('text_color') ? 'is-invalid' : '' }}" value="{{ $isThisDeliveryError ? old('text_color', $delivery->text_color ?? '#ffffff') : ($delivery->text_color ?? '#ffffff') }}">
+                        @if ($isThisDeliveryError)
+                            @error('text_color')
+                                <span class="field-error-msg">{{ $message }}</span>
+                            @enderror
+                        @endif
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 16px;">
+                    <label style="display: block; font-size: 13px; font-weight: 600; color: var(--text-body); margin-bottom: 6px;">Línea descriptiva</label>
+                    <input type="text" name="meta_line" class="users-manager-input {{ $isThisDeliveryError && $errors->has('meta_line') ? 'is-invalid' : '' }}" value="{{ $isThisDeliveryError ? old('meta_line', $delivery->meta_line) : $delivery->meta_line }}" placeholder="Terrestre · 55 5270 8300">
+                    @if ($isThisDeliveryError)
+                        @error('meta_line')
+                            <span class="field-error-msg">{{ $message }}</span>
+                        @enderror
+                    @endif
+                </div>
+
+                <div style="margin-bottom: 16px;">
                     <label style="display: block; font-size: 13px; font-weight: 600; color: var(--text-body); margin-bottom: 6px;">URL de Rastreo</label>
                     <input type="url" name="tracking_url_template" class="users-manager-input {{ $isThisDeliveryError && $errors->has('tracking_url_template') ? 'is-invalid' : '' }}" value="{{ $isThisDeliveryError ? old('tracking_url_template', $delivery->tracking_url_template) : $delivery->tracking_url_template }}">
                     @if ($isThisDeliveryError)

@@ -133,6 +133,11 @@
     "src": "resources/css/admin/pages/purchase-orders.css",
     "isEntry": true
   },
+  "resources/css/admin/pages/shipments.css": {
+    "file": "assets/shipments-6GVMbXd7.css",
+    "src": "resources/css/admin/pages/shipments.css",
+    "isEntry": true
+  },
   "resources/css/admin/pages/statistics.css": {
     "file": "assets/statistics-BCYhmlaK.css",
     "src": "resources/css/admin/pages/statistics.css",
@@ -321,6 +326,12 @@
     "file": "assets/roles-BCQOyqrL.js",
     "name": "roles",
     "src": "resources/js/admin/roles.js",
+    "isEntry": true
+  },
+  "resources/js/admin/shipments.js": {
+    "file": "assets/shipments-C-1OpR-1.js",
+    "name": "shipments",
+    "src": "resources/js/admin/shipments.js",
     "isEntry": true
   },
   "resources/js/admin/sidebar.js": {

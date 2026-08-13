@@ -6,6 +6,7 @@ use App\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
  * Pedido generado por el checkout de la tienda pública (carrito ->
@@ -82,6 +83,11 @@ class StoreOrder extends Model
     public function statusLogs(): HasMany
     {
         return $this->hasMany(StoreOrderStatusLog::class)->orderByDesc('created_at');
+    }
+
+    public function shipment(): HasOne
+    {
+        return $this->hasOne(Shipment::class);
     }
 
     // Folio "PW-YYYY-XXXX" ("Pedido Web") — mismo patrón que

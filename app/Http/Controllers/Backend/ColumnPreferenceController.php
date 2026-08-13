@@ -12,8 +12,8 @@ class ColumnPreferenceController extends Controller
 {
     /**
      * Claves válidas de table_key — contrato fijo con el cableado que se
-     * hace por módulo (19 tablas de listado del admin). No agregar ni
-     * quitar claves aquí sin actualizar también los 19 index() que las usan.
+     * hace por módulo (21 tablas de listado del admin). No agregar ni
+     * quitar claves aquí sin actualizar también los 21 index() que las usan.
      */
     private const VALID_TABLE_KEYS = [
         'clients.index',
@@ -36,6 +36,7 @@ class ColumnPreferenceController extends Controller
         'chemical-planning.index',
         'google-ads.index',
         'inventory-movements.index',
+        'shipments.index',
     ];
 
     public function update(Request $request): JsonResponse

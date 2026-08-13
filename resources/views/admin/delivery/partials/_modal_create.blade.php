@@ -45,6 +45,47 @@
                 </div>
 
                 <div style="margin-bottom: 16px;">
+                    <label style="display: block; font-size: 13px; font-weight: 600; color: var(--text-body); margin-bottom: 6px;">Iniciales</label>
+                    <input type="text" name="initials" class="users-manager-input {{ $isCreateFormError && $errors->has('initials') ? 'is-invalid' : '' }}" maxlength="4" placeholder="ES" value="{{ $isCreateFormError ? old('initials') : '' }}">
+                    @if ($isCreateFormError)
+                        @error('initials')
+                            <span class="field-error-msg">{{ $message }}</span>
+                        @enderror
+                    @endif
+                </div>
+
+                <div style="margin-bottom: 16px; display: flex; gap: 16px;">
+                    <div style="flex: 1;">
+                        <label style="display: block; font-size: 13px; font-weight: 600; color: var(--text-body); margin-bottom: 6px;">Color de fondo</label>
+                        <input type="color" name="bg_color" class="users-manager-input {{ $isCreateFormError && $errors->has('bg_color') ? 'is-invalid' : '' }}" value="{{ $isCreateFormError ? old('bg_color', '#c81e1e') : '#c81e1e' }}">
+                        @if ($isCreateFormError)
+                            @error('bg_color')
+                                <span class="field-error-msg">{{ $message }}</span>
+                            @enderror
+                        @endif
+                    </div>
+                    <div style="flex: 1;">
+                        <label style="display: block; font-size: 13px; font-weight: 600; color: var(--text-body); margin-bottom: 6px;">Color de texto</label>
+                        <input type="color" name="text_color" class="users-manager-input {{ $isCreateFormError && $errors->has('text_color') ? 'is-invalid' : '' }}" value="{{ $isCreateFormError ? old('text_color', '#ffffff') : '#ffffff' }}">
+                        @if ($isCreateFormError)
+                            @error('text_color')
+                                <span class="field-error-msg">{{ $message }}</span>
+                            @enderror
+                        @endif
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 16px;">
+                    <label style="display: block; font-size: 13px; font-weight: 600; color: var(--text-body); margin-bottom: 6px;">Línea descriptiva</label>
+                    <input type="text" name="meta_line" class="users-manager-input {{ $isCreateFormError && $errors->has('meta_line') ? 'is-invalid' : '' }}" placeholder="Terrestre · 55 5270 8300" value="{{ $isCreateFormError ? old('meta_line') : '' }}">
+                    @if ($isCreateFormError)
+                        @error('meta_line')
+                            <span class="field-error-msg">{{ $message }}</span>
+                        @enderror
+                    @endif
+                </div>
+
+                <div style="margin-bottom: 16px;">
                     <label style="display: block; font-size: 13px; font-weight: 600; color: var(--text-body); margin-bottom: 6px;">URL de Rastreo</label>
                     <input type="url" name="tracking_url_template" class="users-manager-input {{ $isCreateFormError && $errors->has('tracking_url_template') ? 'is-invalid' : '' }}" placeholder="Ej: https://rastreo.com/?guia=" value="{{ $isCreateFormError ? old('tracking_url_template') : '' }}">
                     @if ($isCreateFormError)

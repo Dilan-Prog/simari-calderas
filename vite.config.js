@@ -77,6 +77,8 @@ export default defineConfig({
                 'resources/js/admin/statistics-datepicker.js',
                 'resources/css/admin/pages/orders.css',
                 'resources/js/admin/orders.js',
+                'resources/css/admin/pages/shipments.css',
+                'resources/js/admin/shipments.js',
             ],
             refresh: true,
         }),

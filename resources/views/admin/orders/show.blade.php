@@ -13,6 +13,14 @@
         $meta = \App\Support\StoreOrderStatus::meta($order->status);
         $isCancelledBranch = in_array($order->status, ['cancelado', 'reembolsado'], true);
         $currentFlowIndex = array_search($order->status, \App\Support\StoreOrderStatus::FLOW, true);
+        // StoreOrderController::show() no pasa una variable $shipment
+        // separada al view — carga "shipment.carrier" / "shipment.statusLogs.
+        // changedBy" como relación eager-loaded sobre $order (ver
+        // $order->load([...]) en el controller) y no la incluye en el
+        // compact(). Se deriva aquí para que _shipment_card.blade.php y
+        // _shipment_status_modal.blade.php reciban $shipment como
+        // contemplaba el contrato original.
+        $shipment = $order->shipment;
     @endphp
 
     {{-- Header --}}
@@ -128,11 +136,18 @@
                         <span class="orders-card-row-label">Teléfono</span>
                         <span class="orders-card-row-value">{{ $order->contact_phone }}</span>
                     </div>
-                    <p class="orders-legend-desc" style="margin-top:10px;">
-                        El seguimiento con paquetería se enlazará más adelante con el módulo de Envíos.
-                    </p>
                 </div>
             </div>
+
+            @include('admin.orders.partials._shipment_card', [
+                'order' => $order,
+                'shipment' => $shipment,
+                'shipmentCarriers' => $shipmentCarriers,
+                'shipmentUsers' => $shipmentUsers,
+                'shipmentAllowedTransitions' => $shipmentAllowedTransitions,
+                'shipmentStatusMeta' => $shipmentStatusMeta,
+                'shipmentMotivos' => $shipmentMotivos,
+            ])
 
             @if ($order->requires_invoice)
                 <div class="orders-card">
@@ -280,13 +295,21 @@
     </div>
 
     @include('admin.orders.partials._status_modal')
+    @include('admin.orders.partials._shipment_status_modal', [
+        'shipment' => $shipment,
+        'shipmentAllowedTransitions' => $shipmentAllowedTransitions,
+        'shipmentStatusMeta' => $shipmentStatusMeta,
+        'shipmentMotivos' => $shipmentMotivos,
+    ])
 </div>
 @endsection
 
 @push('styles')
     @vite(['resources/css/admin/pages/orders.css'])
+    @vite(['resources/css/admin/pages/shipments.css'])
 @endpush
 
 @push('scripts')
     @vite(['resources/js/admin/orders.js'])
+    @vite(['resources/js/admin/shipments.js'])
 @endpush

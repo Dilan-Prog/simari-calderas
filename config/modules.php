@@ -124,7 +124,7 @@ return [
     'carriers' => [
         'name'  => 'Paqueterías',
         'icon'  => 'box',
-        'route' => 'admin.carriers.index',
+        'route' => 'admin.deliveries.index',
         'order' => 14,
     ],
     'payment-methods' => [

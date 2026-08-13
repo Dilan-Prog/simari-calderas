@@ -4,9 +4,12 @@ namespace App\Http\Controllers\Backend;
 
 use App\Exports\ReportExport;
 use App\Http\Controllers\Controller;
+use App\Models\Delivery;
 use App\Models\StoreOrder;
 use App\Models\StoreOrderStatusLog;
+use App\Models\User;
 use App\Models\UserColumnPreference;
+use App\Support\ShipmentStatus;
 use App\Support\StoreOrderStatus;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
@@ -79,11 +82,34 @@ class StoreOrderController extends Controller
 
     public function show(StoreOrder $order): View
     {
-        $order->load(['items.product', 'paymentMethod', 'customer', 'statusLogs.changedBy']);
+        $order->load([
+            'items.product',
+            'paymentMethod',
+            'customer',
+            'statusLogs.changedBy',
+            'shipment.carrier',
+            'shipment.statusLogs.changedBy',
+        ]);
 
         $allowedTransitions = StoreOrderStatus::allowedTransitions($order->status);
 
-        return view('admin.orders.show', compact('order', 'allowedTransitions'));
+        $shipmentCarriers = Delivery::where('is_active', true)->orderBy('name')->get();
+        $shipmentUsers = User::orderBy('first_name')->orderBy('last_name')->get();
+        $shipmentAllowedTransitions = $order->shipment
+            ? ShipmentStatus::allowedTransitions($order->shipment->status)
+            : [];
+        $shipmentStatusMeta = ShipmentStatus::META;
+        $shipmentMotivos = ShipmentStatus::MOTIVOS;
+
+        return view('admin.orders.show', compact(
+            'order',
+            'allowedTransitions',
+            'shipmentCarriers',
+            'shipmentUsers',
+            'shipmentAllowedTransitions',
+            'shipmentStatusMeta',
+            'shipmentMotivos'
+        ));
     }
 
     public function updateStatus(Request $request, StoreOrder $order)

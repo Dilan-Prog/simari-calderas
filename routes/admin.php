@@ -27,6 +27,7 @@ use App\Http\Controllers\Backend\CollectionController;
 use App\Http\Controllers\Backend\ChemicalPlanningController;
 use App\Http\Controllers\Backend\SalesOrderController;
 use App\Http\Controllers\Backend\StoreOrderController;
+use App\Http\Controllers\Backend\ShipmentController;
 use App\Http\Controllers\Backend\ServicePageController;
 use App\Http\Controllers\Backend\GalleryController;
 use App\Http\Controllers\Backend\DuplicateImageController;
@@ -634,6 +635,23 @@ Route::controller(StoreOrderController::class)
         Route::get('/{order}', 'show')->name('show');
         Route::patch('/{order}/estatus', 'updateStatus')->name('update-status')->middleware('permission:orders,edit');
         Route::get('/{order}/constancia-fiscal', 'downloadTaxCertificate')->name('tax-certificate');
+    });
+
+// ============================================================
+// Envíos — 1:1 con StoreOrder (checkout público). Los avances de estatus
+// pueden empujar automáticamente el estatus de la orden (ver
+// App\Actions\AdvanceStoreOrderStatus).
+// ============================================================
+Route::controller(ShipmentController::class)
+    ->middleware('permission:shipments')
+    ->prefix('envios')
+    ->name('shipments.')
+    ->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::get('/exportar', 'export')->name('export');
+        Route::post('/ordenes/{order}', 'store')->name('store')->middleware('permission:shipments,create');
+        Route::patch('/{shipment}/estatus', 'updateStatus')->name('update-status')->middleware('permission:shipments,edit');
+        Route::delete('/{shipment}', 'destroy')->name('destroy')->middleware('permission:shipments,delete');
     });
 
 // ============================================================

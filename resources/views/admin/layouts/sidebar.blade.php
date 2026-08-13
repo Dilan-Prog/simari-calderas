@@ -58,6 +58,8 @@
             request()->routeIs('admin.inventory.*') => 'inventory',
             request()->routeIs('admin.abandoned-carts.*') => 'carritos-abandonados',
             request()->routeIs('admin.orders.*') => 'ordenes',
+            request()->routeIs('admin.shipments.*') => 'envios',
+            request()->routeIs('admin.deliveries.*') => 'deliveries',
             request()->routeIs('admin.menus.*') => 'menus',
             request()->routeIs('admin.settings.*') => 'configuracion-sitio',
             request()->routeIs('admin.integrations.*') => 'integraciones',
@@ -79,7 +81,7 @@
         // Agrupación puramente visual del sidebar — no afecta rutas, permisos
         // ni estructura de carpetas, solo cómo se muestran los módulos.
         $groupSections = [
-            'ecommerce' => ['productos', 'categorias', 'marcas', 'colecciones', 'paginas-servicio', 'galeria', 'inicio-secciones', 'inventory', 'menus', 'configuracion-sitio', 'integraciones', 'metodos-de-pago', 'carritos-abandonados', 'ordenes'],
+            'ecommerce' => ['productos', 'categorias', 'marcas', 'colecciones', 'paginas-servicio', 'galeria', 'inicio-secciones', 'inventory', 'menus', 'configuracion-sitio', 'integraciones', 'metodos-de-pago', 'carritos-abandonados', 'ordenes', 'envios', 'deliveries'],
             'servicios' => ['reportes-servicio', 'servicios-tecnicos'],
             'erp' => ['cotizaciones', 'proveedores', 'ordenes-compra', 'pedidos', 'entrega-material', 'planeacion-quimicos', 'erp-configuracion', 'clientes', 'pipelines', 'embudo-de-venta', 'negocios', 'automatizaciones'],
             'administracion' => ['roles', 'usuarios', 'google-ads', 'devops', 'audit', 'whatsapp', 'email-marketing', 'dashboards', 'reportes', 'metas'],
@@ -331,7 +333,7 @@
 
                 {{-- Envíos --}}
                 @if ($authUser->hasPermission('shipments'))
-                    <a class="sidebar-nav-item disabled" data-section="coming-soon" data-label="Envíos">
+                    <a href="{{ route('admin.shipments.index') }}" class="sidebar-nav-item {{ $activeSection === 'envios' ? 'active' : '' }}" data-section="envios" data-label="Envíos">
                         <div class="sidebar-nav-item-left">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -349,7 +351,7 @@
 
                 {{-- Paqueterías --}}
                 @if($authUser->hasPermission('carriers'))
-                <a href="{{ route('admin.deliveries.index') }}" class="sidebar-nav-item {{ $activeSection === 'deliveries' ? 'active' : '' }}"   data-section="coming-soon" data-label="Paqueterías">
+                <a href="{{ route('admin.deliveries.index') }}" class="sidebar-nav-item {{ $activeSection === 'deliveries' ? 'active' : '' }}"   data-section="deliveries" data-label="Paqueterías">
                     <div class="sidebar-nav-item-left">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"

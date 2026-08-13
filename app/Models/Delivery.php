@@ -20,6 +20,10 @@ class Delivery extends Model
     protected $fillable = [
     'name',
     'code',
+    'initials',
+    'bg_color',
+    'text_color',
+    'meta_line',
     'tracking_url_template',
     'phone',
     'website',
