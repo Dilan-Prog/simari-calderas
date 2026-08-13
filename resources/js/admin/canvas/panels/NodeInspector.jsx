@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { listDatabaseCredentials, listDatabaseTables, listDatabaseColumns } from '../api/stepsApi.js';
 import TokenAutocompleteTextarea from './TokenAutocomplete.jsx';
+import FieldAutocompleteInput from './FieldAutocompleteInput.jsx';
+import { TRIGGER_SCHEMA, ACTION_CONFIG_SCHEMAS, EXTERNAL_DB_SCHEMA } from './nodeConfigSchemas.js';
 
 /**
  * Agrupa catalog.modules (Fase 18) por su `group` (Ecommerce/Servicios/ERP/CRM)
@@ -317,6 +319,7 @@ export default function NodeInspector({ step, catalog, workflowType, onSave, onS
     const waitUnits = catalog?.wait_units || {};
     const modules = catalog?.modules || [];
     const fieldValueSources = catalog?.field_value_sources || {};
+    const actionValueSources = catalog?.action_value_sources || {};
     const groupedModules = groupModules(modules);
     // Módulo activo para filtrar sugerencias de autocompletado en los
     // textareas JSON: mientras se está eligiendo módulo en el propio Trigger
@@ -578,7 +581,8 @@ export default function NodeInspector({ step, catalog, workflowType, onSave, onS
                             modules={modules}
                             workflowVariables={variableList}
                             fieldValueSources={fieldValueSources}
-                            schemaAware
+                            actionValueSources={actionValueSources}
+                            nodeSchema={TRIGGER_SCHEMA}
                         />
                     </>
                 )}
@@ -624,6 +628,10 @@ export default function NodeInspector({ step, catalog, workflowType, onSave, onS
                                         moduleType={activeModuleType}
                                         modules={modules}
                                         workflowVariables={variableList}
+                                        fieldValueSources={fieldValueSources}
+                                        actionValueSources={actionValueSources}
+                                        localValueSources={{ db_credentials: dbCredentials }}
+                                        nodeSchema={EXTERNAL_DB_SCHEMA}
                                     />
                                 ) : (
                                     <>
@@ -885,6 +893,9 @@ export default function NodeInspector({ step, catalog, workflowType, onSave, onS
                                     moduleType={activeModuleType}
                                     modules={modules}
                                     workflowVariables={variableList}
+                                    fieldValueSources={fieldValueSources}
+                                    actionValueSources={actionValueSources}
+                                    nodeSchema={ACTION_CONFIG_SCHEMAS[actionType]}
                                 />
                             </>
                         )}
@@ -896,12 +907,16 @@ export default function NodeInspector({ step, catalog, workflowType, onSave, onS
                         <label className="wf-field-label" htmlFor="wf-cond-field">
                             Campo
                         </label>
-                        <input
+                        <FieldAutocompleteInput
                             id="wf-cond-field"
-                            type="text"
-                            className="wf-field-input"
                             value={conditionField}
-                            onChange={(e) => setConditionField(e.target.value)}
+                            onChange={setConditionField}
+                            source="module_fields"
+                            moduleType={activeModuleType}
+                            modules={modules}
+                            fieldValueSources={fieldValueSources}
+                            actionValueSources={actionValueSources}
+                            className="wf-field-input"
                             placeholder="p. ej. deal.stage"
                         />
 
@@ -925,12 +940,17 @@ export default function NodeInspector({ step, catalog, workflowType, onSave, onS
                         <label className="wf-field-label" htmlFor="wf-cond-value">
                             Valor
                         </label>
-                        <input
+                        <FieldAutocompleteInput
                             id="wf-cond-value"
-                            type="text"
-                            className="wf-field-input"
                             value={conditionValue}
-                            onChange={(e) => setConditionValue(e.target.value)}
+                            onChange={setConditionValue}
+                            source="field_value:dynamic"
+                            dynamicFieldText={conditionField}
+                            moduleType={activeModuleType}
+                            modules={modules}
+                            fieldValueSources={fieldValueSources}
+                            actionValueSources={actionValueSources}
+                            className="wf-field-input"
                         />
                     </>
                 )}

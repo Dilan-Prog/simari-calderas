@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Backend;
 
 use App\Http\Controllers\Controller;
+use App\Models\EmailTemplate;
 use App\Models\PipelineStage;
 use App\Models\Workflow;
 use App\Models\WorkflowEnrollment;
@@ -218,6 +219,18 @@ class WorkflowController extends Controller
                             'value' => $stage->id,
                             'hint' => ($stage->pipeline->name ?? '?') . ' → ' . $stage->name,
                         ])
+                        ->values(),
+                ],
+                'action_value_sources' => [
+                    'workflows' => Workflow::where('is_template', false)
+                        ->where('id', '!=', $workflow->id) // exclude the current workflow (avoid suggesting self-enrollment)
+                        ->orderBy('name')
+                        ->get(['id', 'name'])
+                        ->map(fn ($w) => ['value' => $w->id, 'hint' => $w->name])
+                        ->values(),
+                    'email_templates' => EmailTemplate::orderBy('name')
+                        ->get(['id', 'name'])
+                        ->map(fn ($t) => ['value' => $t->id, 'hint' => $t->name])
                         ->values(),
                 ],
             ],
