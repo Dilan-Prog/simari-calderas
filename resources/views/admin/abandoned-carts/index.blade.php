@@ -69,8 +69,8 @@
                             <td>
                                 @if ($cart->customer)
                                     {{ trim($cart->customer->first_name . ' ' . $cart->customer->last_name) }}
-                                @elseif ($cart->contact_name)
-                                    {{ $cart->contact_name }}
+                                @elseif ($cart->contact_name || $cart->contact_email || $cart->contact_phone)
+                                    {{ $cart->contact_name ?: 'Sin nombre aún' }}
                                     <br><small style="color:#6b7280;">{{ $cart->contact_email }} {{ $cart->contact_phone }}</small>
                                 @else
                                     Invitado (sin datos)

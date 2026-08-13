@@ -167,6 +167,43 @@ class CheckoutController extends Controller
         return redirect()->route('checkout.payment');
     }
 
+    /**
+     * Captura progresiva de contacto: se llama por fetch() al perder el foco
+     * el correo/teléfono del paso de envío, ANTES de que el cliente envíe el
+     * formulario completo — así un carrito de invitado sigue siendo
+     * recuperable aunque abandone a media captura y nunca llegue a
+     * storeShipping(). Silenciosa a propósito (JSON simple, sin redirect):
+     * el checkout nunca debe interrumpirse por esto.
+     */
+    public function captureContact(Request $request)
+    {
+        $data = $request->validate([
+            'contact_name'  => ['nullable', 'string', 'max:150'],
+            'contact_email' => ['nullable', 'email', 'max:150'],
+            'contact_phone' => ['nullable', 'string', 'max:30'],
+        ]);
+
+        if (empty($data['contact_email']) && empty($data['contact_phone'])) {
+            return response()->json(['saved' => false], 422);
+        }
+
+        $cart = $this->currentCart()->load('items');
+
+        if ($cart->items->isEmpty()) {
+            return response()->json(['saved' => false], 422);
+        }
+
+        $cart->update([
+            'contact_name'        => $data['contact_name'] ?: $cart->contact_name,
+            'contact_email'       => $data['contact_email'] ?: $cart->contact_email,
+            'contact_phone'       => $data['contact_phone'] ?: $cart->contact_phone,
+            'checkout_started_at' => $cart->checkout_started_at ?? now(),
+            'last_activity_at'    => now(),
+        ]);
+
+        return response()->json(['saved' => true]);
+    }
+
     public function payment()
     {
         if (! session()->has('checkout.shipping')) {

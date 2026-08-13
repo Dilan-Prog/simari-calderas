@@ -64,6 +64,7 @@ Route::controller(CheckoutController::class)->prefix('finalizar-pedido')->name('
     Route::get('/', 'index')->name('index');
     Route::get('/envio', 'shipping')->name('shipping');
     Route::post('/envio', 'storeShipping')->name('shipping.store');
+    Route::post('/contacto', 'captureContact')->name('capture-contact')->middleware('throttle:20,1');
     Route::get('/pago', 'payment')->name('payment');
     Route::post('/confirmar', 'confirm')->name('confirm');
 });

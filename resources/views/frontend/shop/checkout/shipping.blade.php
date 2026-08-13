@@ -205,5 +205,43 @@
         });
     });
 })();
+
+(function () {
+    // Captura progresiva de contacto para "checkout abandonado": al perder
+    // el foco el correo o el teléfono, guarda lo ya escrito en el carrito —
+    // así hay algo que recuperar aunque el cliente nunca llegue a dar clic
+    // en "Continuar a pago". Solo en blur (no en cada tecla) y nunca repite
+    // el mismo payload dos veces seguidas. Silenciosa: si falla, no debe
+    // interrumpir el checkout.
+    var nameInput = document.querySelector('input[name="contact_name"]');
+    var emailInput = document.querySelector('input[name="contact_email"]');
+    var phoneInput = document.querySelector('input[name="contact_phone"]');
+    var tokenInput = document.querySelector('#shippingForm input[name="_token"]');
+    if (!emailInput || !phoneInput || !tokenInput) return;
+
+    var lastSent = null;
+
+    function captureContact() {
+        var payload = {
+            contact_name: nameInput ? nameInput.value.trim() : '',
+            contact_email: emailInput.value.trim(),
+            contact_phone: phoneInput.value.trim(),
+        };
+        if (!payload.contact_email && !payload.contact_phone) return;
+
+        var key = JSON.stringify(payload);
+        if (key === lastSent) return;
+        lastSent = key;
+
+        fetch('{{ route('checkout.capture-contact') }}', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': tokenInput.value },
+            body: JSON.stringify(payload),
+        }).catch(function () { /* silencioso a propósito */ });
+    }
+
+    emailInput.addEventListener('blur', captureContact);
+    phoneInput.addEventListener('blur', captureContact);
+})();
 </script>
 @endsection
