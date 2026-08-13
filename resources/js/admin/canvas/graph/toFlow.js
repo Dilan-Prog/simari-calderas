@@ -97,6 +97,10 @@ function buildPredecessorMap(steps) {
 export function toFlow(steps, workflow, catalog) {
     const layoutPositions = autoLayoutPositions(steps);
     const actionTypes = catalog?.action_types || {};
+    const modules = catalog?.modules || [];
+    const moduleEntry = Array.isArray(modules)
+        ? modules.find((m) => m.type === workflow.type)
+        : null;
 
     // --- Nodo trigger ---
     // Posición fija en X (-280, una columna a la izquierda de la primera
@@ -110,6 +114,7 @@ export function toFlow(steps, workflow, catalog) {
         data: {
             enrollment_trigger: workflow.enrollment_trigger,
             workflowType: workflow.type,
+            moduleLabel: moduleEntry?.label || null,
         },
         deletable: false,
     };

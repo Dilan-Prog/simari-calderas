@@ -11,6 +11,14 @@
         const pipelineStagesBuilder = document.getElementById('pipelineStagesBuilder');
         const pipelineStagesBuilderSection = document.getElementById('pipelineStagesBuilderSection');
         const pipelineStageRowTemplate = document.getElementById('pipelineStageRowTemplate');
+        const pipelineChannelField = document.getElementById('pipelineChannelField');
+        const pipelineChannelReadonly = document.getElementById('pipelineChannelReadonly');
+        const pipelineChannelReadonlyValue = document.getElementById('pipelineChannelReadonlyValue');
+        const pipelineChannelSelect = document.getElementById('pipelineChannel');
+        const pipelineChannelLabels = {
+            deals: 'Negocios',
+            whatsapp: 'Embudo de Venta de WhatsApp',
+        };
         let currentPipelineId = null;
         let isPipelineEditMode = false;
 
@@ -69,6 +77,9 @@
             document.getElementById('pipelineSubmitBtn').textContent = 'Crear Pipeline';
             pipelineStagesBuilderSection.style.display = 'block';
             resetPipelineStagesBuilder();
+            pipelineChannelSelect.value = 'deals';
+            pipelineChannelField.style.display = 'block';
+            pipelineChannelReadonly.style.display = 'none';
         };
 
         // Open create
@@ -116,6 +127,7 @@
             };
 
             if (!isPipelineEditMode) {
+                payload.channel = pipelineChannelSelect.value;
                 payload.stages = collectPipelineStagesFromBuilder();
             }
 
@@ -178,6 +190,12 @@
                 document.getElementById('pipelineName').value = btn.dataset.name ?? '';
                 document.getElementById('pipelineIsDefault').checked = btn.dataset.isDefault === '1';
                 document.getElementById('pipelineIsActive').checked = btn.dataset.isActive === '1';
+
+                // El tipo de pipeline es inmutable: se muestra como texto de
+                // solo lectura en vez del <select>, y nunca se manda en el payload.
+                pipelineChannelField.style.display = 'none';
+                pipelineChannelReadonly.style.display = 'block';
+                pipelineChannelReadonlyValue.textContent = pipelineChannelLabels[btn.dataset.channel] ?? btn.dataset.channel ?? '—';
 
                 pipelineModal.classList.add('active');
             });

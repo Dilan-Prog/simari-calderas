@@ -14,6 +14,7 @@ use App\Models\WorkflowEnrollment;
 use App\Models\WorkflowEnrollmentLog;
 use App\Models\WorkflowStep;
 use App\Models\WorkflowVariable;
+use App\Models\WhatsappConversation;
 use Illuminate\Validation\ValidationException;
 use Throwable;
 
@@ -33,6 +34,7 @@ class WorkflowActionExecutor
             'move_deal_stage'   => $this->moveDealStage($enrollment, $step),
             'enroll_in_workflow' => $this->enrollInWorkflow($enrollment, $step),
             'send_email'        => $this->sendEmail($enrollment, $step),
+            'send_whatsapp_message' => $this->sendWhatsappMessage($enrollment, $step),
             'external_db_query' => $this->externalDbQuery($enrollment, $step),
             default             => $this->logResult($enrollment, $step, $step->action_type, 'skipped', "Tipo de acción desconocido: {$step->action_type}"),
         };
@@ -78,6 +80,10 @@ class WorkflowActionExecutor
                 'label' => 'Enviar correo',
                 'example_config' => ['template_id' => null],
             ],
+            'send_whatsapp_message' => [
+                'label' => 'Enviar mensaje de WhatsApp',
+                'example_config' => ['template_name' => null, 'params' => [], 'text' => null],
+            ],
             'external_db_query' => [
                 'label' => 'Base de datos externa (MySQL/MariaDB)',
                 'example_config' => [
@@ -105,10 +111,11 @@ class WorkflowActionExecutor
         }
 
         $config = $step->action_config ?? [];
+        $resolver = app(WorkflowTokenResolver::class);
 
         $task = new \App\Models\Task([
-            'title'                   => $config['title'] ?? null,
-            'description'             => $config['description'] ?? null,
+            'title'                   => $resolver->resolveTokens($config['title'] ?? null, $enrollment->enrollable, $enrollment->workflow_id),
+            'description'             => $resolver->resolveTokens($config['description'] ?? null, $enrollment->enrollable, $enrollment->workflow_id),
             'due_at'                  => $config['due_at'] ?? null,
             'assigned_to'             => $config['assigned_to'] ?? null,
             'created_by_workflow_id'  => $enrollment->workflow_id,
@@ -132,23 +139,38 @@ class WorkflowActionExecutor
         );
     }
 
+    /**
+     * De-hardcodeada en Fase 17: ya no exige `instanceof Deal` -- actualiza
+     * genéricamente el `enrollable` de cualquier módulo automatizable vía
+     * update() de Eloquent. isFillable() reemplaza al chequeo de tipo fijo:
+     * si el campo configurado no es mass-assignable en el modelo real
+     * (fillable no lo declara), se registra 'skipped' con mensaje claro en
+     * vez de que Eloquent lo descarte en silencio (el proyecto no tiene
+     * preventSilentlyDiscardingAttributes() activado).
+     */
     private function updateProperty(WorkflowEnrollment $enrollment, WorkflowStep $step): void
     {
         $config = $step->action_config ?? [];
         $field  = $config['field'] ?? null;
         $value  = $config['value'] ?? null;
 
-        if (!$enrollment->enrollable instanceof Deal) {
-            $this->logResult($enrollment, $step, 'update_property', 'skipped', 'El enrollable no es un Deal.');
-            return;
-        }
-
         if (empty($field)) {
             $this->logResult($enrollment, $step, 'update_property', 'skipped', 'No se especificó el campo a actualizar.');
             return;
         }
 
-        $enrollment->enrollable->update([$field => $value]);
+        $enrollable = $enrollment->enrollable;
+
+        if (!$enrollable || !$enrollable->isFillable($field)) {
+            $this->logResult($enrollment, $step, 'update_property', 'skipped', "El campo '{$field}' no es editable en este módulo.");
+            return;
+        }
+
+        $resolvedValue = is_string($value)
+            ? app(WorkflowTokenResolver::class)->resolveTokens($value, $enrollable, $enrollment->workflow_id)
+            : $value;
+
+        $enrollable->update([$field => $resolvedValue]);
 
         $this->logResult($enrollment, $step, 'update_property', 'success', "Campo '{$field}' actualizado.");
     }
@@ -194,6 +216,13 @@ class WorkflowActionExecutor
         $this->logResult($enrollment, $step, 'enroll_in_workflow', 'success', "Inscrito en el workflow '{$targetWorkflow->name}'.");
     }
 
+    /**
+     * Generalizada en Fase 17: el if/elseif fijo a Deal/Customer se
+     * reemplaza por lectura de `customer_relation` desde
+     * AutomatableModuleRegistry -- cualquier módulo que declare esa
+     * relación en config/automatable_modules.php puede enviar email
+     * genéricamente, sin código nuevo por modelo.
+     */
     private function sendEmail(WorkflowEnrollment $enrollment, WorkflowStep $step): void
     {
         $config = $step->action_config ?? [];
@@ -206,18 +235,7 @@ class WorkflowActionExecutor
             return;
         }
 
-        $customer = null;
-
-        if ($enrollment->enrollable instanceof Deal) {
-            $customer = $enrollment->enrollable->customer;
-
-            if (!$customer) {
-                $this->logResult($enrollment, $step, 'send_email', 'skipped', 'Deal sin Customer, no se puede enviar email');
-                return;
-            }
-        } elseif ($enrollment->enrollable instanceof Customer) {
-            $customer = $enrollment->enrollable;
-        }
+        $customer = $this->resolveEmailRecipient($enrollment->enrollable);
 
         if (!$customer) {
             $this->logResult($enrollment, $step, 'send_email', 'skipped', 'El enrollable no tiene un Customer asociado, no se puede enviar email');
@@ -232,6 +250,104 @@ class WorkflowActionExecutor
         SendMarketingEmailJob::dispatch($send);
 
         $this->logResult($enrollment, $step, 'send_email', 'success', "Email \"{$template->name}\" encolado para {$customer->email}.");
+    }
+
+    /**
+     * Envía un mensaje de WhatsApp (Fase 15). `action_config` acepta
+     * `{text}` (texto libre, solo válido dentro de la ventana de 24h desde
+     * el último mensaje del contacto) y/o `{template_name, params}`
+     * (plantilla aprobada, obligatoria fuera de la ventana). Si hay `text`
+     * configurado y la ventana está abierta, se prefiere texto libre; si no,
+     * cae a la plantilla configurada. Reutiliza
+     * WhatsappService::isWithin24hWindow()/sendTextMessage()/sendTemplateMessage()
+     * de la Fase 11 tal cual, sin reimplementar la regla de la ventana aquí.
+     */
+    private function sendWhatsappMessage(WorkflowEnrollment $enrollment, WorkflowStep $step): void
+    {
+        $conversation = $this->resolveWhatsappConversation($enrollment->enrollable);
+
+        if (!$conversation) {
+            $this->logResult($enrollment, $step, 'send_whatsapp_message', 'skipped', 'El enrollable no tiene una conversación de WhatsApp asociada.');
+            return;
+        }
+
+        $config = $step->action_config ?? [];
+        $whatsapp = app(WhatsappService::class);
+        $resolvedText = app(WorkflowTokenResolver::class)->resolveTokens($config['text'] ?? null, $enrollment->enrollable, $enrollment->workflow_id);
+
+        try {
+            if (filled($resolvedText) && $whatsapp->isWithin24hWindow($conversation)) {
+                $whatsapp->sendTextMessage($conversation, (string) $resolvedText);
+                $this->logResult($enrollment, $step, 'send_whatsapp_message', 'success', 'Mensaje de texto libre enviado.');
+                return;
+            }
+
+            $templateName = $config['template_name'] ?? null;
+
+            if (!$templateName) {
+                $this->logResult($enrollment, $step, 'send_whatsapp_message', 'failed', 'La conversación está fuera de la ventana de 24h y no se configuró una plantilla aprobada (template_name).');
+                return;
+            }
+
+            $whatsapp->sendTemplateMessage($conversation, $templateName, $config['params'] ?? []);
+
+            $this->logResult($enrollment, $step, 'send_whatsapp_message', 'success', "Plantilla \"{$templateName}\" enviada.");
+        } catch (Throwable $e) {
+            $this->logResult($enrollment, $step, 'send_whatsapp_message', 'failed', $e->getMessage());
+        }
+    }
+
+    /**
+     * Resuelve la WhatsappConversation sobre la que operar según el tipo de
+     * enrollable: directa si el workflow es tipo 'whatsapp_conversation', o
+     * la conversación vinculada (deal_id) si es un Deal con chat asociado
+     * (botón "WhatsApp" de la tarjeta de Deal, Fase 14) — cualquier otro
+     * tipo de enrollable no tiene conversación posible.
+     */
+    /**
+     * Resuelve el Customer destinatario de send_email para cualquier
+     * enrollable: directo si ya es un Customer, o vía la relación declarada
+     * en `customer_relation` del registro (AutomatableModuleRegistry) para
+     * cualquier otro módulo. Retorna null si el enrollable es un Customer
+     * pero no tiene relación declarada o la relación no resuelve nada
+     * (p. ej. Deal sin customer_id) -- la única acción posible del llamador
+     * en ambos casos es 'skipped', así que no hace falta distinguir el
+     * motivo aquí.
+     */
+    private function resolveEmailRecipient($enrollable): ?Customer
+    {
+        if ($enrollable instanceof Customer) {
+            return $enrollable;
+        }
+
+        if (!$enrollable) {
+            return null;
+        }
+
+        $registry = app(AutomatableModuleRegistry::class);
+        $type = $registry->typeForModel($enrollable);
+        $relation = $type ? ($registry->entry($type)['customer_relation'] ?? null) : null;
+
+        if (!$relation || !method_exists($enrollable, $relation)) {
+            return null;
+        }
+
+        $related = $enrollable->{$relation};
+
+        return $related instanceof Customer ? $related : null;
+    }
+
+    private function resolveWhatsappConversation($enrollable): ?WhatsappConversation
+    {
+        if ($enrollable instanceof WhatsappConversation) {
+            return $enrollable;
+        }
+
+        if ($enrollable instanceof Deal) {
+            return WhatsappConversation::where('deal_id', $enrollable->getKey())->latest('id')->first();
+        }
+
+        return null;
     }
 
     /**

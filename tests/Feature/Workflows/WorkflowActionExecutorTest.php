@@ -10,12 +10,16 @@ use App\Models\EmailTemplate;
 use App\Models\Pipeline;
 use App\Models\PipelineStage;
 use App\Models\Task;
+use App\Models\WhatsappAccount;
+use App\Models\WhatsappConversation;
+use App\Models\WhatsappMessage;
 use App\Models\Workflow;
 use App\Models\WorkflowEnrollment;
 use App\Models\WorkflowEnrollmentLog;
 use App\Models\WorkflowStep;
 use App\Services\WorkflowActionExecutor;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Queue;
 use Tests\TestCase;
 
@@ -142,6 +146,31 @@ class WorkflowActionExecutorTest extends TestCase
         $this->assertEquals('success', $log->result);
     }
 
+    /**
+     * Fase 17: create_task resuelve tokens {{ }} en title/description antes
+     * de guardar la tarea -- prueba tanto un campo plano ('first_name') como
+     * uno con dot-notation vía relación ('customer.company' sobre un Deal).
+     */
+    public function test_create_task_resolves_tokens_in_title_and_description(): void
+    {
+        $workflow = $this->makeWorkflow(['type' => 'deal']);
+        $customer = $this->makeCustomer(['first_name' => 'Ana', 'company' => 'Industrias ACME']);
+        $deal = $this->makeDeal(['customer_id' => $customer->id, 'name' => 'Caldera 500L']);
+        $step = $this->makeStep($workflow, 'create_task', [
+            'title'       => 'Seguimiento a {{ customer.first_name }}',
+            'description' => 'Negocio: {{ name }} / Empresa: {{ customer.company }}',
+            'due_at'      => null,
+            'assigned_to' => null,
+        ]);
+        $enrollment = $this->makeEnrollment($workflow, $deal, $step);
+
+        app(WorkflowActionExecutor::class)->execute($enrollment, $step);
+
+        $task = Task::where('created_by_workflow_id', $workflow->id)->first();
+        $this->assertEquals('Seguimiento a Ana', $task->title);
+        $this->assertEquals('Negocio: Caldera 500L / Empresa: Industrias ACME', $task->description);
+    }
+
     // --- notify_rep (siempre no-op) -------------------------------------
 
     public function test_notify_rep_is_always_skipped(): void
@@ -176,18 +205,65 @@ class WorkflowActionExecutorTest extends TestCase
         $this->assertEquals('success', $log->result);
     }
 
-    public function test_update_property_skipped_when_enrollable_is_not_a_deal(): void
+    /**
+     * Fase 17: update_property se de-hardcodeó de `instanceof Deal` a
+     * genérico vía isFillable() -- un Customer con un campo realmente
+     * fillable ('notes' también es fillable en Customer) ahora SÍ se
+     * actualiza, a diferencia del comportamiento previo a la generalización
+     * (que rechazaba cualquier enrollable que no fuera Deal).
+     */
+    public function test_update_property_success_updates_any_module_when_field_is_fillable(): void
+    {
+        $workflow = $this->makeWorkflow();
+        $customer = $this->makeCustomer(['company' => 'ACME']);
+        $step = $this->makeStep($workflow, 'update_property', ['field' => 'company', 'value' => 'Otra Empresa']);
+        $enrollment = $this->makeEnrollment($workflow, $customer, $step);
+
+        app(WorkflowActionExecutor::class)->execute($enrollment, $step);
+
+        $customer->refresh();
+        $this->assertEquals('Otra Empresa', $customer->company);
+
+        $log = $this->logFor($enrollment, $step);
+        $this->assertEquals('success', $log->result);
+    }
+
+    /**
+     * Reemplaza al viejo test "skipped_when_enrollable_is_not_a_deal": el
+     * chequeo de tipo fijo se quitó, lo que queda como guarda real es
+     * isFillable() -- un campo que no está en $fillable del modelo real se
+     * omite en vez de actualizarse en silencio.
+     */
+    public function test_update_property_skipped_when_field_is_not_fillable(): void
     {
         $workflow = $this->makeWorkflow();
         $customer = $this->makeCustomer();
-        $step = $this->makeStep($workflow, 'update_property', ['field' => 'notes', 'value' => 'x']);
+        $step = $this->makeStep($workflow, 'update_property', ['field' => 'id', 'value' => '999']);
         $enrollment = $this->makeEnrollment($workflow, $customer, $step);
 
         app(WorkflowActionExecutor::class)->execute($enrollment, $step);
 
         $log = $this->logFor($enrollment, $step);
         $this->assertEquals('skipped', $log->result);
-        $this->assertStringContainsString('no es un Deal', $log->message);
+        $this->assertStringContainsString('no es editable', $log->message);
+    }
+
+    /**
+     * update_property también resuelve tokens {{ }} en `value` (Fase 17)
+     * antes de guardar -- confirma que WorkflowTokenResolver se aplica
+     * dentro de la acción, no solo se prueba de forma aislada.
+     */
+    public function test_update_property_resolves_tokens_in_value(): void
+    {
+        $workflow = $this->makeWorkflow();
+        $deal = $this->makeDeal(['name' => 'Caldera industrial']);
+        $step = $this->makeStep($workflow, 'update_property', ['field' => 'notes', 'value' => 'Seguimiento a {{ name }}']);
+        $enrollment = $this->makeEnrollment($workflow, $deal, $step);
+
+        app(WorkflowActionExecutor::class)->execute($enrollment, $step);
+
+        $deal->refresh();
+        $this->assertEquals('Seguimiento a Caldera industrial', $deal->notes);
     }
 
     public function test_update_property_skipped_when_field_missing(): void
@@ -395,8 +471,50 @@ class WorkflowActionExecutorTest extends TestCase
 
         $log = $this->logFor($enrollment, $step);
         $this->assertEquals('skipped', $log->result);
+        // Fase 17: send_email se generalizó a leer `customer_relation` desde
+        // AutomatableModuleRegistry en vez del if/elseif fijo a Deal -- el
+        // mensaje ya no es específico de Deal, pero el resultado (skip) es
+        // idéntico al comportamiento previo.
+        $this->assertStringContainsString('no tiene un Customer asociado', $log->message);
 
         Queue::assertNothingPushed();
+    }
+
+    /**
+     * Fase 17: prueba el camino realmente genérico de resolveEmailRecipient()
+     * -- un enrollable que NO es Deal ni Customer (WhatsappConversation) pero
+     * cuyo `type` en el registro declara `customer_relation => 'customer'`
+     * resuelve el destinatario igual que Deal, sin ningún código dedicado a
+     * WhatsappConversation en sendEmail().
+     */
+    public function test_send_email_success_via_generic_customer_relation_from_registry(): void
+    {
+        Queue::fake();
+
+        $workflow = $this->makeWorkflow(['type' => 'whatsapp_conversation']);
+        $customer = $this->makeCustomer();
+        $account = $this->makeWhatsappAccount();
+        $conversation = $this->makeWhatsappConversation($account, ['customer_id' => $customer->id]);
+        $template = EmailTemplate::create([
+            'name'      => 'Bienvenida',
+            'subject'   => 'Hola',
+            'html_body' => '<p>Hola</p>',
+            'type'      => 'workflow',
+        ]);
+
+        $step = $this->makeStep($workflow, 'send_email', ['template_id' => $template->id]);
+        $enrollment = $this->makeEnrollment($workflow, $conversation, $step);
+
+        app(WorkflowActionExecutor::class)->execute($enrollment, $step);
+
+        $send = EmailSend::where('workflow_step_id', $step->id)->first();
+        $this->assertNotNull($send);
+        $this->assertEquals($customer->id, $send->customer_id);
+
+        $log = $this->logFor($enrollment, $step);
+        $this->assertEquals('success', $log->result);
+
+        Queue::assertPushed(SendMarketingEmailJob::class);
     }
 
     public function test_send_email_skipped_when_enrollable_has_no_associated_customer(): void
@@ -422,5 +540,191 @@ class WorkflowActionExecutorTest extends TestCase
         $this->assertEquals('skipped', $log->result);
 
         Queue::assertNothingPushed();
+    }
+
+    // --- send_whatsapp_message (Fase 15) --------------------------------
+    //
+    // Nunca se llama a la API real de Meta -- Http::fake() en todos los
+    // casos, mismo patrón que tests/Feature/Whatsapp/WhatsappServiceTest.php.
+
+    private function makeWhatsappAccount(): WhatsappAccount
+    {
+        return WhatsappAccount::create([
+            'name'                    => 'Cuenta de prueba',
+            'phone_number'            => '+52 55 1234 5678',
+            'phone_number_id'         => '1234567890',
+            'provider'                => 'meta_cloud_api',
+            'is_active'               => true,
+            'encrypted_access_token'  => WhatsappAccount::encryptAccessToken('fake-token'),
+        ]);
+    }
+
+    private function makeWhatsappConversation(WhatsappAccount $account, array $overrides = []): WhatsappConversation
+    {
+        return WhatsappConversation::create(array_merge([
+            'account_id'    => $account->id,
+            'contact_phone' => '5215512345678',
+            'status'        => 'open',
+            'started_at'    => now(),
+            'unread_count'  => 0,
+        ], $overrides));
+    }
+
+    public function test_send_whatsapp_message_success_sends_free_text_within_24h_window(): void
+    {
+        Http::fake([
+            'graph.facebook.com/*' => Http::response(['messages' => [['id' => 'wamid.TEXT']]], 200),
+        ]);
+
+        $workflow = $this->makeWorkflow(['type' => 'whatsapp_conversation']);
+        $account = $this->makeWhatsappAccount();
+        $conversation = $this->makeWhatsappConversation($account);
+
+        WhatsappMessage::create([
+            'conversation_id' => $conversation->id,
+            'sender_type'     => WhatsappMessage::SENDER_CONTACT,
+            'message_type'    => 'text',
+            'content'         => 'Hola',
+            'sent_at'         => now()->subHours(1),
+        ]);
+
+        $step = $this->makeStep($workflow, 'send_whatsapp_message', ['text' => 'Gracias por tu mensaje']);
+        $enrollment = $this->makeEnrollment($workflow, $conversation->fresh(), $step);
+
+        app(WorkflowActionExecutor::class)->execute($enrollment, $step);
+
+        Http::assertSent(function ($request) {
+            return $request['type'] === 'text' && $request['text']['body'] === 'Gracias por tu mensaje';
+        });
+
+        $log = $this->logFor($enrollment, $step);
+        $this->assertEquals('success', $log->result);
+    }
+
+    /**
+     * Fase 17: el texto libre de send_whatsapp_message también pasa por
+     * WorkflowTokenResolver antes de enviarse.
+     */
+    public function test_send_whatsapp_message_resolves_tokens_in_free_text(): void
+    {
+        Http::fake([
+            'graph.facebook.com/*' => Http::response(['messages' => [['id' => 'wamid.TOKEN']]], 200),
+        ]);
+
+        $workflow = $this->makeWorkflow(['type' => 'whatsapp_conversation']);
+        $account = $this->makeWhatsappAccount();
+        $conversation = $this->makeWhatsappConversation($account, ['contact_phone' => '5215500011122']);
+
+        WhatsappMessage::create([
+            'conversation_id' => $conversation->id,
+            'sender_type'     => WhatsappMessage::SENDER_CONTACT,
+            'message_type'    => 'text',
+            'content'         => 'Hola',
+            'sent_at'         => now()->subHours(1),
+        ]);
+
+        $step = $this->makeStep($workflow, 'send_whatsapp_message', ['text' => 'Hola {{ contact_phone }}, gracias']);
+        $enrollment = $this->makeEnrollment($workflow, $conversation->fresh(), $step);
+
+        app(WorkflowActionExecutor::class)->execute($enrollment, $step);
+
+        Http::assertSent(function ($request) {
+            return $request['type'] === 'text' && $request['text']['body'] === 'Hola 5215500011122, gracias';
+        });
+    }
+
+    public function test_send_whatsapp_message_falls_back_to_template_outside_24h_window(): void
+    {
+        Http::fake([
+            'graph.facebook.com/*' => Http::response(['messages' => [['id' => 'wamid.TPL']]], 200),
+        ]);
+
+        $workflow = $this->makeWorkflow(['type' => 'whatsapp_conversation']);
+        $account = $this->makeWhatsappAccount();
+        // Sin mensaje entrante -> ventana de 24h cerrada.
+        $conversation = $this->makeWhatsappConversation($account);
+
+        $step = $this->makeStep($workflow, 'send_whatsapp_message', [
+            'text' => 'Este texto libre no debería enviarse',
+            'template_name' => 'seguimiento',
+            'params' => ['Juan'],
+        ]);
+        $enrollment = $this->makeEnrollment($workflow, $conversation, $step);
+
+        app(WorkflowActionExecutor::class)->execute($enrollment, $step);
+
+        Http::assertSent(function ($request) {
+            return $request['type'] === 'template' && $request['template']['name'] === 'seguimiento';
+        });
+
+        $log = $this->logFor($enrollment, $step);
+        $this->assertEquals('success', $log->result);
+    }
+
+    public function test_send_whatsapp_message_failed_when_outside_window_and_no_template_configured(): void
+    {
+        Http::fake([
+            'graph.facebook.com/*' => Http::response(['messages' => [['id' => 'wamid.X']]], 200),
+        ]);
+
+        $workflow = $this->makeWorkflow(['type' => 'whatsapp_conversation']);
+        $account = $this->makeWhatsappAccount();
+        $conversation = $this->makeWhatsappConversation($account);
+
+        $step = $this->makeStep($workflow, 'send_whatsapp_message', ['text' => 'Solo texto libre']);
+        $enrollment = $this->makeEnrollment($workflow, $conversation, $step);
+
+        app(WorkflowActionExecutor::class)->execute($enrollment, $step);
+
+        $log = $this->logFor($enrollment, $step);
+        $this->assertEquals('failed', $log->result);
+
+        Http::assertNothingSent();
+    }
+
+    public function test_send_whatsapp_message_skipped_when_enrollable_has_no_conversation(): void
+    {
+        Http::fake();
+
+        $workflow = $this->makeWorkflow(['type' => 'whatsapp_conversation']);
+        $customer = $this->makeCustomer();
+
+        $step = $this->makeStep($workflow, 'send_whatsapp_message', ['text' => 'Hola']);
+        $enrollment = $this->makeEnrollment($workflow, $customer, $step);
+
+        app(WorkflowActionExecutor::class)->execute($enrollment, $step);
+
+        $log = $this->logFor($enrollment, $step);
+        $this->assertEquals('skipped', $log->result);
+
+        Http::assertNothingSent();
+    }
+
+    public function test_send_whatsapp_message_resolves_conversation_linked_to_deal(): void
+    {
+        Http::fake([
+            'graph.facebook.com/*' => Http::response(['messages' => [['id' => 'wamid.DEAL']]], 200),
+        ]);
+
+        $workflow = $this->makeWorkflow();
+        $deal = $this->makeDeal();
+        $account = $this->makeWhatsappAccount();
+        $conversation = $this->makeWhatsappConversation($account, ['deal_id' => $deal->id]);
+
+        $step = $this->makeStep($workflow, 'send_whatsapp_message', [
+            'template_name' => 'bienvenida',
+            'params' => [],
+        ]);
+        $enrollment = $this->makeEnrollment($workflow, $deal, $step);
+
+        app(WorkflowActionExecutor::class)->execute($enrollment, $step);
+
+        $this->assertDatabaseHas('whatsapp_messages', [
+            'conversation_id' => $conversation->id,
+            'template_name'   => 'bienvenida',
+        ]);
+
+        $log = $this->logFor($enrollment, $step);
+        $this->assertEquals('success', $log->result);
     }
 }

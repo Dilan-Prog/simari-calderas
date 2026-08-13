@@ -8,6 +8,7 @@ use App\Models\WorkflowEnrollment;
 use App\Models\WorkflowStep;
 use App\Models\WorkflowCanvasNote;
 use App\Models\WorkflowVariable;
+use App\Services\AutomatableModuleRegistry;
 use App\Services\WorkflowEngineService;
 use App\Services\WorkflowSnapshotService;
 use App\Services\WorkflowStatsService;
@@ -18,7 +19,8 @@ class WorkflowController extends Controller
 {
     public function __construct(
         private WorkflowEngineService $workflowEngineService,
-        private WorkflowSnapshotService $workflowSnapshotService
+        private WorkflowSnapshotService $workflowSnapshotService,
+        private AutomatableModuleRegistry $automatableModuleRegistry
     ) {}
 
     /**
@@ -187,6 +189,15 @@ class WorkflowController extends Controller
                     'less_than' => 'Menor que',
                     'contains' => 'Contiene',
                 ],
+                'modules' => collect($this->automatableModuleRegistry->all())->map(function ($entry, $type) {
+                    return [
+                        'type' => $type,
+                        'label' => $entry['label'] ?? $type,
+                        'group' => $entry['group'] ?? 'Otro',
+                        'fields' => $this->automatableModuleRegistry->fieldsFor($type),
+                        'relations' => $entry['relations'] ?? [],
+                    ];
+                })->values(),
             ],
         ]);
     }

@@ -6,8 +6,9 @@ import { useState } from 'react';
  * Catálogo de nodos que se pueden agregar al canvas, organizado en
  * categorías colapsables (<details>/<summary> nativos). "Acciones CRM" y
  * "Lógica y flujo" son funcionales hoy; "Datos y HTTP" tiene un único ítem
- * funcional ("Base de datos (MySQL)", Fase 8) mientras el resto de esa
- * categoría y las demás categorías se muestran deshabilitadas
+ * funcional ("Base de datos (MySQL)", Fase 8) e "Integraciones" tiene un
+ * único ítem funcional ("WhatsApp", Fase 15) mientras el resto de esas
+ * categorías y las demás categorías se muestran deshabilitadas
  * ("Próximamente") para comunicar el roadmap sin prometer funcionalidad que
  * todavía no existe.
  *
@@ -35,12 +36,21 @@ const LOGIC_ITEMS = [
 ];
 
 const INTEGRATIONS_ITEMS = [
-    { label: 'Slack', subtitle: 'Envía un mensaje a un canal de Slack', icon: 'chat' },
-    { label: 'Google Sheets', subtitle: 'Agrega o actualiza una fila en una hoja de cálculo', icon: 'sheet' },
-    { label: 'Notion', subtitle: 'Crea o actualiza una página en Notion', icon: 'page' },
-    { label: 'Stripe', subtitle: 'Crea un cargo o consulta un cliente en Stripe', icon: 'card' },
-    { label: 'HubSpot', subtitle: 'Sincroniza el registro con HubSpot', icon: 'sync' },
-    { label: 'WhatsApp', subtitle: 'Envía un mensaje de WhatsApp Business', icon: 'bubble' },
+    // Fase 15: primer ítem funcional de esta categoría -- mismo patrón
+    // quirúrgico que "Base de datos (MySQL)" en Datos y HTTP (Fase 8): un
+    // actionType real habilita el botón, el resto de la categoría sigue
+    // "Próximamente" hasta tener su propio backend.
+    {
+        actionType: 'send_whatsapp_message',
+        label: 'WhatsApp',
+        subtitle: 'Envía un mensaje de WhatsApp Business',
+        icon: 'bubble',
+    },
+    { label: 'Slack', subtitle: 'Envía un mensaje a un canal de Slack', disabled: true, icon: 'chat' },
+    { label: 'Google Sheets', subtitle: 'Agrega o actualiza una fila en una hoja de cálculo', disabled: true, icon: 'sheet' },
+    { label: 'Notion', subtitle: 'Crea o actualiza una página en Notion', disabled: true, icon: 'page' },
+    { label: 'Stripe', subtitle: 'Crea un cargo o consulta un cliente en Stripe', disabled: true, icon: 'card' },
+    { label: 'HubSpot', subtitle: 'Sincroniza el registro con HubSpot', disabled: true, icon: 'sync' },
 ];
 
 const AI_ITEMS = [
@@ -376,17 +386,31 @@ export default function AddNodeMenu({ onAddNode }) {
                         <ul className="wf-add-node-list">
                             {integrationsMatches.map((item) => (
                                 <li key={item.label}>
-                                    <span
-                                        className="wf-add-node-item wf-add-node-item-disabled"
-                                        title="Próximamente"
-                                    >
-                                        <span className="wf-add-node-icon wf-add-node-icon-disabled"><ItemIcon name={item.icon} fallbackLabel={item.label} /></span>
-                                        <span className="wf-add-node-texts">
-                                            <span className="wf-add-node-label">{item.label}</span>
-                                            <span className="wf-add-node-subtitle">{item.subtitle}</span>
+                                    {item.disabled ? (
+                                        <span
+                                            className="wf-add-node-item wf-add-node-item-disabled"
+                                            title="Próximamente"
+                                        >
+                                            <span className="wf-add-node-icon wf-add-node-icon-disabled"><ItemIcon name={item.icon} fallbackLabel={item.label} /></span>
+                                            <span className="wf-add-node-texts">
+                                                <span className="wf-add-node-label">{item.label}</span>
+                                                <span className="wf-add-node-subtitle">{item.subtitle}</span>
+                                            </span>
+                                            <span className="wf-add-node-badge">Próximamente</span>
                                         </span>
-                                        <span className="wf-add-node-badge">Próximamente</span>
-                                    </span>
+                                    ) : (
+                                        <button
+                                            type="button"
+                                            className="wf-add-node-item"
+                                            onClick={() => onAddNode('action', item.actionType)}
+                                        >
+                                            <span className="wf-add-node-icon wf-add-node-icon-crm"><ItemIcon name={item.icon} fallbackLabel={item.label} /></span>
+                                            <span className="wf-add-node-texts">
+                                                <span className="wf-add-node-label">{item.label}</span>
+                                                <span className="wf-add-node-subtitle">{item.subtitle}</span>
+                                            </span>
+                                        </button>
+                                    )}
                                 </li>
                             ))}
                         </ul>

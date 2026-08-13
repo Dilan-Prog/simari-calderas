@@ -7,6 +7,7 @@ use App\Models\Pipeline;
 use App\Models\PipelineStage;
 use App\Services\PipelineService;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 /**
  * CRUD de Pipelines de ventas (admin). Sigue el mismo patrón modal-based
@@ -31,6 +32,7 @@ class PipelineController extends Controller
     {
         $data = $request->validate([
             'name' => 'required|string|max:150',
+            'channel' => ['nullable', 'string', Rule::in([Pipeline::CHANNEL_DEALS, Pipeline::CHANNEL_WHATSAPP])],
             'is_default' => 'nullable|boolean',
             'is_active' => 'nullable|boolean',
             'stages' => 'nullable|array',
@@ -49,6 +51,9 @@ class PipelineController extends Controller
         ]);
     }
 
+    // Nota: update() deliberadamente NO acepta "channel" — el tipo de
+    // pipeline (Negocios / Embudo de Venta WhatsApp) es inmutable una vez
+    // creado (Fase 12 del plan de Pipeline de Negocios).
     public function update(Request $request, Pipeline $pipeline)
     {
         $data = $request->validate([

@@ -37,6 +37,10 @@
                             <div class="pipeline-card-heading">
                                 <h2 class="pipeline-card-title">{{ $pipeline->name }}</h2>
                                 <div class="pipeline-card-badges">
+                                    <span
+                                        class="brand-status-badge {{ $pipeline->channel === \App\Models\Pipeline::CHANNEL_WHATSAPP ? 'status-active' : 'status-inactive' }}">
+                                        {{ $pipeline->channel === \App\Models\Pipeline::CHANNEL_WHATSAPP ? 'Embudo de Venta (WhatsApp)' : 'Negocios' }}
+                                    </span>
                                     @if ($pipeline->is_default)
                                         <span class="brand-status-badge status-active">Predeterminado</span>
                                     @endif
@@ -61,7 +65,8 @@
                                 </button>
                                 <button type="button" class="action-btn btn-edit-pipeline" data-id="{{ $pipeline->id }}"
                                     data-name="{{ $pipeline->name }}" data-is-default="{{ $pipeline->is_default ? 1 : 0 }}"
-                                    data-is-active="{{ $pipeline->is_active ? 1 : 0 }}" title="Editar">
+                                    data-is-active="{{ $pipeline->is_active ? 1 : 0 }}" data-channel="{{ $pipeline->channel }}"
+                                    title="Editar">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
                                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                         stroke-linejoin="round">

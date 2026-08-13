@@ -23,6 +23,7 @@ class PipelineStage extends Model
         'slug',
         'order',
         'probability',
+        'wip_limit',
         'is_won',
         'is_lost',
         'required_fields',

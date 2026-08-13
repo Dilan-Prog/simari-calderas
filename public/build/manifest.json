@@ -63,6 +63,11 @@
     "src": "resources/css/admin/pages/crm-reports.css",
     "isEntry": true
   },
+  "resources/css/admin/pages/deals.css": {
+    "file": "assets/deals-CNY8a3dQ.css",
+    "src": "resources/css/admin/pages/deals.css",
+    "isEntry": true
+  },
   "resources/css/admin/pages/delivery.css": {
     "file": "assets/delivery-fveut9fJ.css",
     "src": "resources/css/admin/pages/delivery.css",
@@ -128,8 +133,13 @@
     "src": "resources/css/admin/pages/usuarios.css",
     "isEntry": true
   },
+  "resources/css/admin/pages/whatsapp-funnel.css": {
+    "file": "assets/whatsapp-funnel-l1Czemv_.css",
+    "src": "resources/css/admin/pages/whatsapp-funnel.css",
+    "isEntry": true
+  },
   "resources/css/admin/pages/workflow-canvas.css": {
-    "file": "assets/workflow-canvas-C_9JSJMN.css",
+    "file": "assets/workflow-canvas-agQUvRe0.css",
     "src": "resources/css/admin/pages/workflow-canvas.css",
     "isEntry": true
   },
@@ -230,6 +240,15 @@
       "resources/js/admin/charts.js"
     ]
   },
+  "resources/js/admin/deals-board.js": {
+    "file": "assets/deals-board-B4Gkprkp.js",
+    "name": "deals-board",
+    "src": "resources/js/admin/deals-board.js",
+    "isEntry": true,
+    "imports": [
+      "_sortable.esm-D-EvzYhP.js"
+    ]
+  },
   "resources/js/admin/email-template-editor.js": {
     "file": "assets/email-template-editor-BRzKB56o.js",
     "name": "email-template-editor",
@@ -312,6 +331,15 @@
     "src": "resources/js/admin/variable-picker.js",
     "isEntry": true
   },
+  "resources/js/admin/whatsapp-funnel-board.js": {
+    "file": "assets/whatsapp-funnel-board-spIkQHHU.js",
+    "name": "whatsapp-funnel-board",
+    "src": "resources/js/admin/whatsapp-funnel-board.js",
+    "isEntry": true,
+    "imports": [
+      "_sortable.esm-D-EvzYhP.js"
+    ]
+  },
   "resources/js/admin/wizard-core.js": {
     "file": "assets/wizard-core-Ddspc9c0.js",
     "name": "wizard-core",
@@ -319,7 +347,7 @@
     "isEntry": true
   },
   "resources/js/admin/workflow-canvas.jsx": {
-    "file": "assets/workflow-canvas-DWQhQdTm.js",
+    "file": "assets/workflow-canvas-CDdJE52D.js",
     "name": "workflow-canvas",
     "src": "resources/js/admin/workflow-canvas.jsx",
     "isEntry": true,

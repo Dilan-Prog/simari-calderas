@@ -14,6 +14,7 @@ class PipelineService
         return DB::transaction(function () use ($data) {
             $pipeline = Pipeline::create([
                 'name'       => $data['name'],
+                'channel'    => $data['channel'] ?? Pipeline::CHANNEL_DEALS,
                 'is_default' => $data['is_default'] ?? false,
                 'is_active'  => $data['is_active'] ?? true,
             ]);

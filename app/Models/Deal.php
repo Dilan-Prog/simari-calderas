@@ -85,6 +85,12 @@ class Deal extends Model
             ->withTimestamps();
     }
 
+    public function tags()
+    {
+        return $this->belongsToMany(Tag::class, 'deal_tag')
+            ->withTimestamps();
+    }
+
     public function stageHistory()
     {
         return $this->hasMany(DealStageHistory::class)->orderByDesc('moved_at');
@@ -104,10 +110,19 @@ class Deal extends Model
     }
 
     // Auto-generate folio: NEG-YYYY-XXXX
+    //
+    // Hallazgo de QA (integración Fase 11-15): Deal usa SoftDeletes, así que
+    // el scope global excluye por defecto los negocios eliminados de esta
+    // consulta. Sin withTrashed(), max('folio') "olvida" el folio más alto
+    // ya usado por un Deal borrado (soft delete) y genera el mismo folio de
+    // nuevo — la UNIQUE de la columna lo rechaza con un 500 real en cuanto
+    // se borra y luego se crea otro negocio dentro del mismo año. Con
+    // withTrashed() la secuencia sigue avanzando sin reutilizar folios ya
+    // emitidos, igual que se espera de un consecutivo tipo folio/PO.
     public static function generateFolio(): string
     {
         $year = date('Y');
-        $last = static::whereYear('created_at', $year)->max('folio');
+        $last = static::withTrashed()->whereYear('created_at', $year)->max('folio');
         $seq  = $last ? (intval(substr($last, -4)) + 1) : 1;
         return 'NEG-' . $year . '-' . str_pad($seq, 4, '0', STR_PAD_LEFT);
     }

@@ -12,6 +12,7 @@ use App\Http\Controllers\Frontend\EmailTrackingController;
 use App\Http\Controllers\Frontend\SitemapController;
 use App\Http\Controllers\MediaServeController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Public\WhatsappWebhookController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -32,6 +33,11 @@ Route::get('/email/track/click/{token}', [EmailTrackingController::class, 'click
 Route::get('/e/open/{token}.png', [EmailTrackingController::class, 'open'])->name('email.open');
 Route::get('/e/click/{token}', [EmailTrackingController::class, 'click'])->name('email.click');
 Route::get('/e/unsubscribe/{token}', [EmailTrackingController::class, 'unsubscribe'])->name('email.unsubscribe');
+
+// Webhook público de Meta Cloud API (WhatsApp), sin auth: GET de
+// verificación (hub.challenge) + POST de recepción de mensajes/estados.
+Route::get('/whatsapp/webhook', [WhatsappWebhookController::class, 'verify'])->name('whatsapp.webhook.verify');
+Route::post('/whatsapp/webhook', [WhatsappWebhookController::class, 'receive'])->name('whatsapp.webhook.receive');
 
 // Serves uploaded product/service-report/document files from UploadPath::base(),
 // which may live outside public_html in production (see App\Support\UploadPath).

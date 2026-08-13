@@ -1,12 +1,31 @@
 import { useEffect, useState } from 'react';
 import { listDatabaseCredentials, listDatabaseTables, listDatabaseColumns } from '../api/stepsApi.js';
+import TokenAutocompleteTextarea from './TokenAutocomplete.jsx';
 
-const TRIGGER_TYPE_OPTIONS = {
-    deal: 'Negociación',
-    contact: 'Contacto',
-    company: 'Empresa',
-    date_based: 'Basado en fecha',
-};
+/**
+ * Agrupa catalog.modules (Fase 18) por su `group` (Ecommerce/Servicios/ERP/CRM)
+ * en el orden fijo de abajo, para pintar <optgroup> en el selector de módulo
+ * del Trigger.
+ */
+const MODULE_GROUP_ORDER = ['Ecommerce', 'Servicios', 'ERP', 'CRM'];
+
+function groupModules(modules) {
+    const list = Array.isArray(modules) ? modules : [];
+    const groups = new Map();
+
+    list.forEach((m) => {
+        const key = m.group || 'Otro';
+        if (!groups.has(key)) groups.set(key, []);
+        groups.get(key).push(m);
+    });
+
+    const orderedKeys = [
+        ...MODULE_GROUP_ORDER.filter((g) => groups.has(g)),
+        ...[...groups.keys()].filter((g) => !MODULE_GROUP_ORDER.includes(g)),
+    ];
+
+    return orderedKeys.map((key) => ({ group: key, modules: groups.get(key) }));
+}
 
 // Fase 8 -- nodo de acción 'external_db_query' (Base de datos externa MySQL).
 const DB_OPERATIONS = {
@@ -80,8 +99,10 @@ function initialsForStepType(stepType) {
     return '--';
 }
 
-export default function NodeInspector({ step, catalog, onSave, onSaveTrigger, onDelete, onClose, variables }) {
+export default function NodeInspector({ step, catalog, workflowType, onSave, onSaveTrigger, onSelectModule, onDelete, onClose, variables }) {
     const [inspectorTab, setInspectorTab] = useState('params');
+    const [moduleSaving, setModuleSaving] = useState(false);
+    const [moduleError, setModuleError] = useState('');
     const [actionType, setActionType] = useState('');
     const [actionConfigText, setActionConfigText] = useState('');
     const [conditionField, setConditionField] = useState('');
@@ -294,6 +315,24 @@ export default function NodeInspector({ step, catalog, onSave, onSaveTrigger, on
     const actionTypes = catalog?.action_types || {};
     const conditionOperators = catalog?.condition_operators || {};
     const waitUnits = catalog?.wait_units || {};
+    const modules = catalog?.modules || [];
+    const groupedModules = groupModules(modules);
+    // Módulo activo para filtrar sugerencias de autocompletado en los
+    // textareas JSON: mientras se está eligiendo módulo en el propio Trigger
+    // se usa el select en vivo (triggerType); en cualquier otro paso se usa
+    // el módulo ya guardado del workflow (workflowType).
+    const activeModuleType = step.step_type === 'trigger' ? triggerType : workflowType;
+
+    function handleModuleChange(e) {
+        const newType = e.target.value;
+        setTriggerType(newType);
+        if (!onSelectModule) return;
+        setModuleSaving(true);
+        setModuleError('');
+        Promise.resolve(onSelectModule(newType))
+            .catch((err) => setModuleError(err?.message || 'Error guardando el módulo.'))
+            .finally(() => setModuleSaving(false));
+    }
 
     function handleActionTypeChange(e) {
         const selected = e.target.value;
@@ -499,33 +538,43 @@ export default function NodeInspector({ step, catalog, onSave, onSaveTrigger, on
 
                 {inspectorTab === 'params' && step.step_type === 'trigger' && (
                     <>
-                        <label className="wf-field-label" htmlFor="wf-trigger-type">
-                            Tipo
-                        </label>
+                        <div className="wf-field-row-header">
+                            <label className="wf-field-label" htmlFor="wf-trigger-module">
+                                Módulo a automatizar
+                            </label>
+                            {moduleSaving && <span className="wf-inspector-subtitle">Guardando…</span>}
+                        </div>
                         <select
-                            id="wf-trigger-type"
+                            id="wf-trigger-module"
                             className="wf-field-input"
                             value={triggerType}
-                            onChange={(e) => setTriggerType(e.target.value)}
+                            onChange={handleModuleChange}
                         >
-                            <option value="">-- Selecciona --</option>
-                            {Object.entries(TRIGGER_TYPE_OPTIONS).map(([key, label]) => (
-                                <option key={key} value={key}>
-                                    {label}
-                                </option>
+                            <option value="">-- Sin configurar --</option>
+                            {groupedModules.map(({ group, modules: groupModulesList }) => (
+                                <optgroup key={group} label={group}>
+                                    {groupModulesList.map((m) => (
+                                        <option key={m.type} value={m.type}>
+                                            {m.label}
+                                        </option>
+                                    ))}
+                                </optgroup>
                             ))}
                         </select>
+                        {moduleError && <div className="wf-inspector-error">{moduleError}</div>}
 
                         <label className="wf-field-label" htmlFor="wf-trigger-config">
                             Trigger de inscripción (JSON)
                         </label>
-                        <textarea
+                        <TokenAutocompleteTextarea
                             id="wf-trigger-config"
                             className="wf-field-input wf-field-textarea"
                             rows={10}
                             value={triggerConfigText}
-                            onChange={(e) => setTriggerConfigText(e.target.value)}
+                            onValueChange={setTriggerConfigText}
                             spellCheck={false}
+                            moduleType={activeModuleType}
+                            modules={modules}
                         />
                     </>
                 )}
@@ -561,13 +610,15 @@ export default function NodeInspector({ step, catalog, onSave, onSaveTrigger, on
                                 {dbMetaError && <div className="wf-inspector-error">{dbMetaError}</div>}
 
                                 {dbJsonMode ? (
-                                    <textarea
+                                    <TokenAutocompleteTextarea
                                         id="wf-action-config"
                                         className="wf-field-input wf-field-textarea"
                                         rows={12}
                                         value={actionConfigText}
-                                        onChange={(e) => setActionConfigText(e.target.value)}
+                                        onValueChange={setActionConfigText}
                                         spellCheck={false}
+                                        moduleType={activeModuleType}
+                                        modules={modules}
                                     />
                                 ) : (
                                     <>
@@ -819,13 +870,15 @@ export default function NodeInspector({ step, catalog, onSave, onSaveTrigger, on
                                         Ver ejemplo
                                     </button>
                                 </div>
-                                <textarea
+                                <TokenAutocompleteTextarea
                                     id="wf-action-config"
                                     className="wf-field-input wf-field-textarea"
                                     rows={10}
                                     value={actionConfigText}
-                                    onChange={(e) => setActionConfigText(e.target.value)}
+                                    onValueChange={setActionConfigText}
                                     spellCheck={false}
+                                    moduleType={activeModuleType}
+                                    modules={modules}
                                 />
                             </>
                         )}

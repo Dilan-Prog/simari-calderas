@@ -57,6 +57,8 @@
             request()->routeIs('admin.settings.*') => 'configuracion-sitio',
             request()->routeIs('admin.integrations.*') => 'integraciones',
             request()->routeIs('admin.audit.*') => 'audit',
+            request()->routeIs('admin.whatsapp-accounts.*') => 'whatsapp',
+            request()->routeIs('admin.whatsapp-funnel.*') => 'embudo-de-venta',
             request()->routeIs('admin.payment-methods.*') => 'metodos-de-pago',
             request()->routeIs('admin.pipelines.*') => 'pipelines',
             request()->routeIs('admin.deals.*') => 'negocios',
@@ -73,8 +75,8 @@
         $groupSections = [
             'ecommerce' => ['productos', 'categorias', 'marcas', 'colecciones', 'paginas-servicio', 'galeria', 'inicio-secciones', 'inventory', 'menus', 'configuracion-sitio', 'integraciones', 'metodos-de-pago'],
             'servicios' => ['reportes-servicio', 'servicios-tecnicos'],
-            'erp' => ['cotizaciones', 'proveedores', 'ordenes-compra', 'pedidos', 'entrega-material', 'planeacion-quimicos', 'erp-configuracion', 'clientes', 'pipelines', 'negocios', 'automatizaciones'],
-            'administracion' => ['roles', 'usuarios', 'google-ads', 'devops', 'audit', 'email-marketing', 'dashboards', 'reportes', 'metas'],
+            'erp' => ['cotizaciones', 'proveedores', 'ordenes-compra', 'pedidos', 'entrega-material', 'planeacion-quimicos', 'erp-configuracion', 'clientes', 'pipelines', 'embudo-de-venta', 'negocios', 'automatizaciones'],
+            'administracion' => ['roles', 'usuarios', 'google-ads', 'devops', 'audit', 'whatsapp', 'email-marketing', 'dashboards', 'reportes', 'metas'],
         ];
         $activeGroup = collect($groupSections)->search(fn ($sections) => in_array($activeSection, $sections));
 
@@ -105,6 +107,7 @@
             || $authUser->hasPermission('erp-settings')
             || $authUser->hasPermission('clients')
             || $authUser->hasPermission('pipeline')
+            || $authUser->hasPermission('whatsapp')
             || $authUser->hasPermission('deals')
             || $authUser->hasPermission('automations');
 
@@ -512,6 +515,23 @@
                     </a>
                 @endif
 
+                {{-- Embudo de Venta (kanban de conversaciones de WhatsApp) --}}
+                @if ($authUser->hasPermission('whatsapp'))
+                    <a class="sidebar-nav-item {{ $activeSection === 'embudo-de-venta' ? 'active' : '' }}"
+                        data-section="embudo-de-venta" data-label="Embudo de Venta"
+                        href="{{ route('admin.whatsapp-funnel.index') }}">
+                        <div class="sidebar-nav-item-left">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path d="M3 3v18h18" />
+                                <path d="m19 9-5 5-4-4-3 3" />
+                            </svg>
+                            <span class="sidebar-nav-item-label">Embudo de Venta</span>
+                        </div>
+                    </a>
+                @endif
+
                 {{-- Negocios (Deals) --}}
                 @if ($authUser->hasPermission('deals'))
                     <a class="sidebar-nav-item {{ $activeSection === 'negocios' ? 'active' : '' }}"
@@ -904,7 +924,9 @@
 
                 {{-- WhatsApp --}}
                 @if ($authUser->hasPermission('whatsapp'))
-                    <a class="sidebar-nav-item disabled" data-section="coming-soon" data-label="WhatsApp">
+                    <a class="sidebar-nav-item {{ $activeSection === 'whatsapp' ? 'active' : '' }}"
+                        data-section="whatsapp" data-label="WhatsApp"
+                        href="{{ route('admin.whatsapp-accounts.index') }}">
                         <div class="sidebar-nav-item-left">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"

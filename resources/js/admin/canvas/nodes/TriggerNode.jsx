@@ -41,7 +41,7 @@ function isTriggerUnconfigured(trigger) {
 
 export default function TriggerNode({ data, selected }) {
     const workflowType = data?.workflowType;
-    const typeLabel = WORKFLOW_TYPE_LABELS[workflowType] || workflowType || 'Sin tipo';
+    const typeLabel = data?.moduleLabel || WORKFLOW_TYPE_LABELS[workflowType] || workflowType || 'Sin módulo';
     const summary = summarizeTrigger(data?.enrollment_trigger);
     const unconfigured = isTriggerUnconfigured(data?.enrollment_trigger);
 

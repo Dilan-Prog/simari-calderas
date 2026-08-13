@@ -37,6 +37,23 @@
                         placeholder="Ej: Ventas directas">
                 </div>
 
+                {{-- Tipo de pipeline — solo se puede elegir al crear. Es inmutable
+                     después: el controlador ignora "channel" en update(). En modo
+                     edición este campo se oculta y se muestra un badge de solo
+                     lectura en su lugar (ver #pipelineChannelReadonly). --}}
+                <div class="ap-field-group" id="pipelineChannelField" style="margin-top:12px;">
+                    <label class="supliers-manager-slider-label">Tipo de pipeline</label>
+                    <select class="users-manager-input" name="channel" id="pipelineChannel">
+                        <option value="deals">Negocios</option>
+                        <option value="whatsapp">Embudo de Venta de WhatsApp</option>
+                    </select>
+                    <p class="ap-readonly-note">No se puede cambiar después de creado el pipeline.</p>
+                </div>
+                <div class="ap-field-group" id="pipelineChannelReadonly" style="margin-top:12px; display:none;">
+                    <label class="supliers-manager-slider-label">Tipo de pipeline</label>
+                    <p class="ap-readonly-note" id="pipelineChannelReadonlyValue">—</p>
+                </div>
+
                 <label class="ap-primary-toggle" for="pipelineIsDefault" style="margin-top:12px;">
                     <input type="checkbox" id="pipelineIsDefault" name="is_default">
                     <div>

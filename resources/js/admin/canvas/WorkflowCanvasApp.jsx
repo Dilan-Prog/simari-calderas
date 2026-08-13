@@ -379,6 +379,24 @@ export default function WorkflowCanvasApp({
     [updateUrl]
   );
 
+  const handleSelectModule = useCallback(
+    (newType) => {
+      // Guardado inmediato de workflow.type (PUT parcial), mismo patrón que
+      // handleRename() -- se dispara al elegir el módulo en el <select> del
+      // Trigger, no al presionar "Guardar" (Fase 18).
+      return api
+        .updateWorkflow(updateUrl, { type: newType })
+        .then(() => {
+          setData((prev) => (prev ? { ...prev, workflow: { ...prev.workflow, type: newType } } : prev));
+        })
+        .catch((err) => {
+          setError(err.message || 'Error guardando el módulo del workflow');
+          throw err;
+        });
+    },
+    [updateUrl]
+  );
+
   const handleDeleteStep = useCallback(() => {
     if (!selectedStepId) return;
     if (!window.confirm('¿Eliminar este paso del workflow?')) return;
@@ -612,11 +630,13 @@ export default function WorkflowCanvasApp({
             <NodeInspector
               step={selectedStep}
               catalog={data ? data.catalog : []}
+              workflowType={data?.workflow?.type}
               workflowId={workflowId}
               testUrl={testUrl}
               variables={data?.variables || []}
               onSave={handleSaveStep}
               onSaveTrigger={handleSaveTrigger}
+              onSelectModule={handleSelectModule}
               onDelete={handleDeleteStep}
               onClose={() => setSelectedStepId(null)}
             />

@@ -67,6 +67,32 @@ class Kernel extends ConsoleKernel
             ->everyMinute()
             ->withoutOverlapping()
             ->runInBackground();
+        // Fase 15: trigger "conversación de WhatsApp sin responder > N horas".
+        // Mismo patrón que workflows:tick (withoutOverlapping desde el día uno,
+        // runInBackground para no bloquear a los demás ticks del minuto).
+        //
+        // Fase 16: reemplazado por el comando genérico
+        // automatable-modules:tick (abajo), que cubre whatsapp_conversation
+        // como una entrada más del registro central. Se deja comentado en
+        // vez de borrado, y NO se registra en paralelo con el genérico, para
+        // no disparar el mismo trigger "stale" dos veces sobre las mismas
+        // conversaciones (doble inscripción). Retirar definitivamente una
+        // vez confirmado por tests de regresión que el genérico reproduce
+        // el comportamiento exacto de este comando (ver Fase 20).
+        // $schedule->command('whatsapp-conversations:tick')
+        //     ->everyMinute()
+        //     ->withoutOverlapping()
+        //     ->runInBackground();
+
+        // Fase 16: comando de scheduler genérico que reemplaza al de arriba
+        // -- itera config/automatable_modules.php y dispara el trigger
+        // "stale" de cada módulo con supports_stale=true (hoy solo
+        // whatsapp_conversation; Fase 20 agrega más módulos al registro sin
+        // tocar este comando).
+        $schedule->command('automatable-modules:tick')
+            ->everyMinute()
+            ->withoutOverlapping()
+            ->runInBackground();
     }
 
     /**

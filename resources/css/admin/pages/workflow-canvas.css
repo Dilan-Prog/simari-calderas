@@ -1409,6 +1409,64 @@ button.wf-add-node-item:hover {
     border-bottom: 1px solid var(--wf-border);
 }
 
+/* ============================================================
+   Autocompletado de variables {{ campo.path }} (Fase 19)
+   Dropdown flotante posicionado en coordenadas de pantalla
+   (position: fixed) vía TokenAutocomplete.jsx -- mismo patrón visual
+   que .pform-variable-menu de variable-picker.js, adaptado a los
+   tokens --wf-* de esta página.
+   ============================================================ */
+
+.wf-token-autocomplete-wrap {
+    position: relative;
+}
+
+.wf-token-menu {
+    position: fixed;
+    z-index: 4000;
+    min-width: 220px;
+    max-width: 340px;
+    max-height: 260px;
+    overflow-y: auto;
+    margin: 0;
+    padding: 4px;
+    list-style: none;
+    background: var(--wf-bg-panel);
+    border: 1px solid var(--wf-border-strong);
+    border-radius: 8px;
+    box-shadow: var(--wf-shadow-lg);
+}
+
+.wf-token-menu-item {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 6px 8px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.wf-token-menu-item.is-active,
+.wf-token-menu-item:hover {
+    background: var(--wf-accent-soft);
+}
+
+.wf-token-menu-item-path {
+    font-family: 'SFMono-Regular', Consolas, Menlo, monospace;
+    font-size: 11.5px;
+    color: var(--wf-text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.wf-token-menu-item-hint {
+    font-size: 10.5px;
+    color: var(--wf-muted);
+    white-space: nowrap;
+}
+
 .wf-var-name {
     font-family: 'SFMono-Regular', Consolas, Menlo, monospace;
     font-size: 12px;

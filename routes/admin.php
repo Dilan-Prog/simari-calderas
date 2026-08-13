@@ -53,6 +53,9 @@ use App\Http\Controllers\Backend\EmailListController;
 use App\Http\Controllers\Backend\ReportController;
 use App\Http\Controllers\Backend\DashboardController;
 use App\Http\Controllers\Backend\GoalController;
+use App\Http\Controllers\Backend\WhatsappAccountController;
+use App\Http\Controllers\Backend\WhatsappFunnelController;
+use App\Http\Controllers\Backend\TagController;
 
 // ============================================================
 // Dashboard — sin permiso, todos los usuarios autenticados
@@ -318,6 +321,39 @@ Route::controller(PipelineController::class)
     });
 
 // ============================================================
+// Negocios (Deals) — Fase 14: acciones masivas y exportación. Se
+// declaran en un bloque NUEVO e independiente, ANTES del grupo ya
+// existente de "negocios" de abajo (que no se toca), para que
+// /negocios/exportar y /negocios/accion-masiva no sean interpretadas
+// por Laravel como el wildcard /{deal} de ese grupo (el primer match
+// gana; un GET/POST sobre esos paths declarados después del wildcard
+// nunca llegaría aquí).
+// ============================================================
+Route::controller(DealController::class)
+    ->middleware('permission:deals')
+    ->prefix('negocios')
+    ->name('deals.')
+    ->group(function () {
+        Route::get('/exportar', 'exportCsv')->name('export-csv');
+        Route::post('/accion-masiva', 'bulkAction')->name('bulk-action')->middleware('permission:deals,edit');
+    });
+
+// ============================================================
+// Etiquetas de Negocios (Tags) — CRUD modal-based, Fase 14 del plan CRM.
+// ============================================================
+Route::controller(TagController::class)
+    ->middleware('permission:deals')
+    ->prefix('etiquetas-negocio')
+    ->name('deal-tags.')
+    ->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::post('/', 'store')->name('store')->middleware('permission:deals,create');
+        Route::get('/{tag}', 'edit')->name('edit')->middleware('permission:deals,edit');
+        Route::put('/{tag}', 'update')->name('update')->middleware('permission:deals,edit');
+        Route::delete('/{tag}', 'destroy')->name('destroy')->middleware('permission:deals,delete');
+    });
+
+// ============================================================
 // Negocios (Deals) — kanban por pipeline/etapa, con vista de tabla
 // alterna. Nota: /crear y /tabla se declaran ANTES de /{deal} para que
 // Laravel no las interprete como el wildcard {deal}.
@@ -465,6 +501,52 @@ Route::controller(CredentialController::class)
         Route::get('/{credential}/editar', 'edit')->name('edit');
         Route::put('/{credential}', 'update')->name('update');
         Route::delete('/{credential}', 'destroy')->name('destroy');
+    });
+
+// ============================================================
+// Cuentas de WhatsApp (Meta Cloud API) — catálogo de cuentas usadas por
+// el Embudo de Venta (Fase 13) y el webhook público. CRUD modal-based,
+// mismo patrón que Credenciales.
+// ============================================================
+Route::controller(WhatsappAccountController::class)
+    ->middleware('permission:whatsapp')
+    ->prefix('cuentas-whatsapp')
+    ->name('whatsapp-accounts.')
+    ->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::post('/', 'store')->name('store')->middleware('permission:whatsapp,create');
+        Route::get('/{whatsappAccount}/editar', 'edit')->name('edit')->middleware('permission:whatsapp,edit');
+        Route::put('/{whatsappAccount}', 'update')->name('update')->middleware('permission:whatsapp,edit');
+        Route::delete('/{whatsappAccount}', 'destroy')->name('destroy')->middleware('permission:whatsapp,delete');
+    });
+
+// ============================================================
+// Embudo de Venta (Fase 13) — kanban de conversaciones de WhatsApp por
+// etapa de un Pipeline channel='whatsapp'. Grupo nuevo e independiente,
+// insertado deliberadamente aquí (justo después de Cuentas de WhatsApp)
+// para no colisionar con las rutas nuevas que el módulo de Negocios agrega
+// en paralelo en otra zona de este archivo.
+// ============================================================
+Route::controller(WhatsappFunnelController::class)
+    ->middleware('permission:whatsapp')
+    ->prefix('embudo-de-venta')
+    ->name('whatsapp-funnel.')
+    ->group(function () {
+        Route::get('/', 'index')->name('index');
+        // Fase 14 (quick action "WhatsApp" de la tarjeta de Deal): busca o
+        // crea la WhatsappConversation vinculada a ese deal_id (vía su
+        // customer_id) y devuelve a dónde redirigir para abrir el modal de
+        // chat ya existente de esta misma página — no se duplica el modal.
+        // Declarada antes de '/nuevo-chat' por si algún día 'desde-negocio'
+        // colisionara con un segmento futuro, aunque hoy no hay wildcard
+        // aquí que lo capture.
+        Route::post('/desde-negocio/{deal}', 'fromDeal')->name('from-deal');
+        Route::post('/nuevo-chat', 'newChat')->name('new-chat');
+        Route::post('/{conversation}/mover-etapa', 'moveStage')->name('move-stage');
+        Route::get('/{conversation}/mensajes', 'messages')->name('messages');
+        Route::post('/{conversation}/mensajes', 'sendMessage')->name('send-message');
+        Route::post('/{conversation}/crear-negocio', 'createDeal')->name('create-deal');
+        Route::post('/{conversation}/reasignar-agente', 'reassignAgent')->name('reassign-agent');
     });
 
 Route::controller(WorkflowStepController::class)

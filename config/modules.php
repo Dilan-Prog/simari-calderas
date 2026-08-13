@@ -178,7 +178,7 @@ return [
     'whatsapp' => [
         'name'  => 'WhatsApp',
         'icon'  => 'message-circle',
-        'route' => 'admin.whatsapp.index',
+        'route' => 'admin.whatsapp-accounts.index',
         'order' => 23,
     ],
     'settings' => [

@@ -12,6 +12,9 @@ class VerifyCsrfToken extends Middleware
      * @var array<int, string>
      */
     protected $except = [
-        //
+        // Webhook público de Meta (WhatsApp Cloud API) — Meta llama esto
+        // directamente sin sesión ni token CSRF, la verificación de
+        // identidad la hace WhatsappWebhookController vía webhook_verify_token.
+        'whatsapp/webhook',
     ];
 }
