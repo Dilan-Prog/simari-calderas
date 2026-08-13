@@ -63,4 +63,26 @@ class Setting extends Model
             'updated_by_user_id'  => $updatedByUserId,
         ]);
     }
+
+    /**
+     * Dirección de la empresa compuesta en una sola línea legible, a partir
+     * de las claves footer.address_* (Configuración del Sitio > Footer) —
+     * fuente única de verdad usada por el footer público y los PDFs. Omite
+     * en silencio cualquier parte vacía (ej. si todavía no se llena la
+     * colonia) en vez de dejar comas sueltas.
+     */
+    public static function companyAddressLine(): string
+    {
+        $postalCode = static::get('footer.address_postal_code');
+
+        $parts = array_filter([
+            static::get('footer.address_street'),
+            static::get('footer.address_colony'),
+            $postalCode ? 'C.P. ' . $postalCode : null,
+            static::get('footer.address_city'),
+            static::get('footer.address_state'),
+        ], fn ($part) => !empty($part));
+
+        return implode(', ', $parts);
+    }
 }

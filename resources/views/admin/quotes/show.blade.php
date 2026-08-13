@@ -79,7 +79,7 @@
                              alt="Equiterm Industries" style="height:28px;width:auto;display:block;">
                         <div class="quote-preview__company-meta">
                             <p>administracion@equitermindustries.com.mx</p>
-                            <p>México, Aguascalientes</p>
+                            <p>{{ \App\Models\Setting::companyAddressLine() }}</p>
                         </div>
                     </div>
                     <div class="quote-preview__header-right">

@@ -5,7 +5,11 @@
 @section('content')
     @php
         $labels = [
-            'footer.address' => 'Dirección del footer',
+            'footer.address_street' => 'Dirección — Calle y número',
+            'footer.address_colony' => 'Dirección — Colonia',
+            'footer.address_postal_code' => 'Dirección — Código Postal',
+            'footer.address_city' => 'Dirección — Ciudad',
+            'footer.address_state' => 'Dirección — Estado',
             'footer.phone' => 'Teléfono del footer',
             'footer.email' => 'Correo del footer',
             'footer.facebook_url' => 'URL de Facebook (footer)',

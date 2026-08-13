@@ -11,7 +11,11 @@ class SettingsSeeder extends Seeder
     {
         $settings = [
             'footer.description' => 'Líderes en soluciones térmicas industriales y residenciales. Innovación, eficiencia y confianza técnica desde 1995.',
-            'footer.address'     => 'Ciudad de México, CDMX',
+            'footer.address_street'       => 'Lic. Benito Juárez 118A',
+            'footer.address_colony'       => 'Col. Pocitos',
+            'footer.address_postal_code'  => '20328',
+            'footer.address_city'         => 'Aguascalientes',
+            'footer.address_state'        => 'Aguascalientes',
             'footer.phone'       => '+52 449 434 8018',
             'footer.phone_link'  => '+524494348018',
             'footer.email'       => 'administracion@equitermindustries.com.mx',

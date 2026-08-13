@@ -39,6 +39,21 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" media="print" onload="this.media='all'">
+@php
+  $localBusinessStreetParts = array_filter([
+      \App\Models\Setting::get('footer.address_street'),
+      \App\Models\Setting::get('footer.address_colony'),
+  ], fn ($v) => !empty($v));
+
+  $localBusinessAddress = array_filter([
+      '@type' => 'PostalAddress',
+      'streetAddress' => implode(', ', $localBusinessStreetParts),
+      'addressLocality' => \App\Models\Setting::get('footer.address_city'),
+      'addressRegion' => \App\Models\Setting::get('footer.address_state'),
+      'postalCode' => \App\Models\Setting::get('footer.address_postal_code'),
+      'addressCountry' => 'MX',
+  ], fn ($v) => !empty($v));
+@endphp
 <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -50,6 +65,7 @@
     "telephone": "+52-449-434-8018",
     "email": "administracion@equitermindustries.com.mx",
     "description": "Diseñamos, instalamos y mantenemos sistemas de calderas, calentadores y tratamiento de agua para los sectores industrial, alimentario, hotelero y metalmecánico. Soporte técnico especializado disponible 24/7",
+    "address": {!! json_encode($localBusinessAddress, JSON_UNESCAPED_UNICODE) !!},
     "areaServed": "MX",
     "sameAs": [
       "https://www.facebook.com/simaricalderas"
