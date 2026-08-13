@@ -211,7 +211,7 @@
     "isEntry": true
   },
   "resources/js/admin/dashboard-editor.js": {
-    "file": "assets/dashboard-editor-C1h97Npf.js",
+    "file": "assets/dashboard-editor-D3t_FZVu.js",
     "name": "dashboard-editor",
     "src": "resources/js/admin/dashboard-editor.js",
     "isEntry": true,
@@ -319,7 +319,7 @@
     "isEntry": true
   },
   "resources/js/admin/workflow-canvas.jsx": {
-    "file": "assets/workflow-canvas-BWuzJzOp.js",
+    "file": "assets/workflow-canvas-DWQhQdTm.js",
     "name": "workflow-canvas",
     "src": "resources/js/admin/workflow-canvas.jsx",
     "isEntry": true,
@@ -331,7 +331,7 @@
     ]
   },
   "resources/js/admin/workflows-index.js": {
-    "file": "assets/workflows-index-CLzu8Upp.js",
+    "file": "assets/workflows-index-C-gIUUmx.js",
     "name": "workflows-index",
     "src": "resources/js/admin/workflows-index.js",
     "isEntry": true

@@ -14,6 +14,17 @@ function baseHeaders() {
   };
 }
 
+// Algunos hostings compartidos (proxies/WAF delante de Apache/LiteSpeed)
+// bloquean o corrompen las peticiones PUT/DELETE nativas y responden 405
+// antes de que lleguen a Laravel. En vez de depender de que el verbo HTTP
+// real sobreviva todo el camino, mandamos siempre POST con el header
+// X-HTTP-METHOD-OVERRIDE -- Symfony/Laravel lo reconocen igual que un
+// PUT/DELETE real (Request::getMethod() lo lee explícitamente), sin
+// requerir ningún cambio de configuración del servidor.
+function overrideHeaders(realMethod) {
+  return { ...baseHeaders(), 'X-HTTP-METHOD-OVERRIDE': realMethod };
+}
+
 async function handleResponse(response) {
   if (response.ok) {
     if (response.status === 204) return null;
@@ -72,8 +83,8 @@ export async function createStep(url, payload) {
 export async function updateStep(baseUrl, id, payload) {
   const url = `${baseUrl.replace(/\/$/, '')}/${id}`;
   const response = await fetch(url, {
-    method: 'PUT',
-    headers: baseHeaders(),
+    method: 'POST',
+    headers: overrideHeaders('PUT'),
     credentials: 'same-origin',
     body: JSON.stringify(payload),
   });
@@ -83,8 +94,8 @@ export async function updateStep(baseUrl, id, payload) {
 export async function deleteStep(baseUrl, id) {
   const url = `${baseUrl.replace(/\/$/, '')}/${id}`;
   const response = await fetch(url, {
-    method: 'DELETE',
-    headers: baseHeaders(),
+    method: 'POST',
+    headers: overrideHeaders('DELETE'),
     credentials: 'same-origin',
   });
   return handleResponse(response);
@@ -134,8 +145,8 @@ export async function createVariable(url, payload) {
 export async function deleteVariable(baseUrl, id) {
   const url = `${baseUrl.replace(/\/$/, '')}/${id}`;
   const response = await fetch(url, {
-    method: 'DELETE',
-    headers: baseHeaders(),
+    method: 'POST',
+    headers: overrideHeaders('DELETE'),
     credentials: 'same-origin',
   });
   return handleResponse(response);
@@ -201,8 +212,8 @@ export async function createNote(url, payload) {
 export async function updateNote(baseUrl, id, payload) {
   const url = `${baseUrl.replace(/\/$/, '')}/${id}`;
   const response = await fetch(url, {
-    method: 'PUT',
-    headers: baseHeaders(),
+    method: 'POST',
+    headers: overrideHeaders('PUT'),
     credentials: 'same-origin',
     body: JSON.stringify(payload),
   });
@@ -212,8 +223,8 @@ export async function updateNote(baseUrl, id, payload) {
 export async function deleteNote(baseUrl, id) {
   const url = `${baseUrl.replace(/\/$/, '')}/${id}`;
   const response = await fetch(url, {
-    method: 'DELETE',
-    headers: baseHeaders(),
+    method: 'POST',
+    headers: overrideHeaders('DELETE'),
     credentials: 'same-origin',
   });
   return handleResponse(response);
@@ -223,8 +234,8 @@ export async function deleteNote(baseUrl, id) {
 
 export async function updateWorkflow(updateUrl, payload) {
   const response = await fetch(updateUrl, {
-    method: 'PUT',
-    headers: baseHeaders(),
+    method: 'POST',
+    headers: overrideHeaders('PUT'),
     credentials: 'same-origin',
     body: JSON.stringify(payload),
   });

@@ -132,10 +132,14 @@ export default function BottomPanel({ variablesUrl, executionsUrl, initialVariab
 
         try {
             const url = `${variablesUrl.replace(/\/$/, '')}/${id}`;
+            // POST + X-HTTP-METHOD-OVERRIDE en vez de DELETE nativo: algunos
+            // hostings compartidos bloquean el verbo DELETE real y devuelven
+            // 405 antes de que la petición llegue a Laravel (ver stepsApi.js).
             const response = await fetch(url, {
-                method: 'DELETE',
+                method: 'POST',
                 headers: {
                     'X-CSRF-TOKEN': getCsrfToken(),
+                    'X-HTTP-METHOD-OVERRIDE': 'DELETE',
                     Accept: 'application/json',
                 },
                 credentials: 'same-origin',

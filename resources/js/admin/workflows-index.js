@@ -282,10 +282,14 @@
             var id = pendingDeleteId;
             delConfirmBtn.disabled = true;
 
+            // POST + X-HTTP-METHOD-OVERRIDE en vez de DELETE nativo: algunos
+            // hostings compartidos bloquean el verbo DELETE real (405) antes
+            // de que la petición llegue a Laravel.
             fetch('/admin/automatizaciones/' + id, {
-                method: 'DELETE',
+                method: 'POST',
                 headers: {
                     'X-CSRF-TOKEN': csrfToken,
+                    'X-HTTP-METHOD-OVERRIDE': 'DELETE',
                     'X-Requested-With': 'XMLHttpRequest',
                     'Accept': 'application/json',
                 },

@@ -76,7 +76,10 @@ import Sortable from 'sortablejs';
 
             var url = removeUrlTemplate.replace('__REPORT_ID__', reportId);
 
-            jsonFetch(url, { method: 'DELETE' })
+            // POST + X-HTTP-METHOD-OVERRIDE en vez de DELETE nativo: algunos
+            // hostings compartidos bloquean el verbo DELETE real (405) antes
+            // de que la petición llegue a Laravel.
+            jsonFetch(url, { method: 'POST', headers: { 'X-HTTP-METHOD-OVERRIDE': 'DELETE' } })
                 .then(function () {
                     var widget = grid.querySelector('.dashboard-widget[data-report-id="' + reportId + '"]');
                     if (widget) widget.remove();
