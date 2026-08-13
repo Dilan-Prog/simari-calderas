@@ -339,10 +339,20 @@ export default function WorkflowCanvasApp({
   }, []);
 
   const handleSaveStep = useCallback(
-    (payload) => {
-      if (!selectedStepId) return Promise.resolve();
+    // FIX: NodeInspector llama a onSave(step.id, payload) — documentado en su
+    // propio JSDoc como el contrato ("onSave: (stepId, payload) => void") —
+    // pero esta función solo declaraba (payload). El primer argumento
+    // (step.id, un número) quedaba pegado al parámetro payload, y el objeto
+    // real de configuración (el segundo argumento) se descartaba en
+    // silencio. api.updateStep() terminaba haciendo JSON.stringify(63) y
+    // mandando "63" como body — JSON válido mínimo, así que el backend
+    // respondía 200 sin ningún dato reconocible que actualizar: el guardado
+    // parecía exitoso pero action_config/branch_condition nunca cambiaban.
+    (stepId, payload) => {
+      const targetId = stepId ?? selectedStepId;
+      if (!targetId) return Promise.resolve();
       return api
-        .updateStep(stepsUrl, selectedStepId, payload)
+        .updateStep(stepsUrl, targetId, payload)
         .then(() => fetchCanvas())
         .catch((err) => {
           setError(err.message || 'Error guardando el paso');
