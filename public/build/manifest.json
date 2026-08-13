@@ -103,6 +103,11 @@
     "src": "resources/css/admin/pages/menus.css",
     "isEntry": true
   },
+  "resources/css/admin/pages/orders.css": {
+    "file": "assets/orders-vo644LIn.css",
+    "src": "resources/css/admin/pages/orders.css",
+    "isEntry": true
+  },
   "resources/css/admin/pages/payment-methods.css": {
     "file": "assets/payment-methods-C8FF1m7k.css",
     "src": "resources/css/admin/pages/payment-methods.css",
@@ -273,6 +278,12 @@
     "file": "assets/image-picker-hSUTRu36.js",
     "name": "image-picker",
     "src": "resources/js/admin/image-picker.js",
+    "isEntry": true
+  },
+  "resources/js/admin/orders.js": {
+    "file": "assets/orders--TxPSz-L.js",
+    "name": "orders",
+    "src": "resources/js/admin/orders.js",
     "isEntry": true
   },
   "resources/js/admin/pipeline-board.js": {

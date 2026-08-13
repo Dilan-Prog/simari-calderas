@@ -79,6 +79,11 @@ class StoreOrder extends Model
         return $this->belongsTo(Customer::class);
     }
 
+    public function statusLogs(): HasMany
+    {
+        return $this->hasMany(StoreOrderStatusLog::class)->orderByDesc('created_at');
+    }
+
     // Folio "PW-YYYY-XXXX" ("Pedido Web") — mismo patrón que
     // SalesOrder::generateOrderNumber() (PED-YYYY-XXXX), prefijo distinto
     // para no confundir pedidos web con pedidos capturados por el admin.

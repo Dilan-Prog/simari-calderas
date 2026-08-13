@@ -12,8 +12,8 @@ class ColumnPreferenceController extends Controller
 {
     /**
      * Claves válidas de table_key — contrato fijo con el cableado que se
-     * hace por módulo (18 tablas de listado del admin). No agregar ni
-     * quitar claves aquí sin actualizar también los 18 index() que las usan.
+     * hace por módulo (19 tablas de listado del admin). No agregar ni
+     * quitar claves aquí sin actualizar también los 19 index() que las usan.
      */
     private const VALID_TABLE_KEYS = [
         'clients.index',
@@ -32,6 +32,7 @@ class ColumnPreferenceController extends Controller
         'suppliers.index',
         'service-pages.index',
         'sales-orders.index',
+        'orders.index',
         'chemical-planning.index',
         'google-ads.index',
         'inventory-movements.index',

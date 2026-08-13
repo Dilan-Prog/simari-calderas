@@ -26,6 +26,7 @@ use App\Http\Controllers\Backend\MenuController;
 use App\Http\Controllers\Backend\CollectionController;
 use App\Http\Controllers\Backend\ChemicalPlanningController;
 use App\Http\Controllers\Backend\SalesOrderController;
+use App\Http\Controllers\Backend\StoreOrderController;
 use App\Http\Controllers\Backend\ServicePageController;
 use App\Http\Controllers\Backend\GalleryController;
 use App\Http\Controllers\Backend\DuplicateImageController;
@@ -617,6 +618,22 @@ Route::controller(SalesOrderController::class)
         Route::get('/{salesOrder}', 'show')->name('show');
         Route::patch('/{salesOrder}/estado', 'updateStatus')->name('update-status')->middleware('permission:sales-orders,edit');
         Route::patch('/{salesOrder}/items/{item}/entrega', 'registerDelivery')->name('register-delivery')->middleware('permission:sales-orders,edit');
+    });
+
+// ============================================================
+// Órdenes (checkout público de la tienda) — distinto de "Pedidos"
+// (sales-orders, generados desde Cotizaciones B2B aceptadas).
+// ============================================================
+Route::controller(StoreOrderController::class)
+    ->middleware('permission:orders')
+    ->prefix('ordenes')
+    ->name('orders.')
+    ->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::get('/exportar', 'export')->name('export');
+        Route::get('/{order}', 'show')->name('show');
+        Route::patch('/{order}/estatus', 'updateStatus')->name('update-status')->middleware('permission:orders,edit');
+        Route::get('/{order}/constancia-fiscal', 'downloadTaxCertificate')->name('tax-certificate');
     });
 
 // ============================================================

@@ -57,6 +57,7 @@
             request()->routeIs('admin.gallery.*') => 'galeria',
             request()->routeIs('admin.inventory.*') => 'inventory',
             request()->routeIs('admin.abandoned-carts.*') => 'carritos-abandonados',
+            request()->routeIs('admin.orders.*') => 'ordenes',
             request()->routeIs('admin.menus.*') => 'menus',
             request()->routeIs('admin.settings.*') => 'configuracion-sitio',
             request()->routeIs('admin.integrations.*') => 'integraciones',
@@ -78,7 +79,7 @@
         // Agrupación puramente visual del sidebar — no afecta rutas, permisos
         // ni estructura de carpetas, solo cómo se muestran los módulos.
         $groupSections = [
-            'ecommerce' => ['productos', 'categorias', 'marcas', 'colecciones', 'paginas-servicio', 'galeria', 'inicio-secciones', 'inventory', 'menus', 'configuracion-sitio', 'integraciones', 'metodos-de-pago', 'carritos-abandonados'],
+            'ecommerce' => ['productos', 'categorias', 'marcas', 'colecciones', 'paginas-servicio', 'galeria', 'inicio-secciones', 'inventory', 'menus', 'configuracion-sitio', 'integraciones', 'metodos-de-pago', 'carritos-abandonados', 'ordenes'],
             'servicios' => ['reportes-servicio', 'servicios-tecnicos'],
             'erp' => ['cotizaciones', 'proveedores', 'ordenes-compra', 'pedidos', 'entrega-material', 'planeacion-quimicos', 'erp-configuracion', 'clientes', 'pipelines', 'embudo-de-venta', 'negocios', 'automatizaciones'],
             'administracion' => ['roles', 'usuarios', 'google-ads', 'devops', 'audit', 'whatsapp', 'email-marketing', 'dashboards', 'reportes', 'metas'],
@@ -279,7 +280,8 @@
 
                 {{-- Órdenes --}}
                 @if ($authUser->hasPermission('orders'))
-                    <a class="sidebar-nav-item disabled" data-section="coming-soon" data-label="Órdenes">
+                    <a class="sidebar-nav-item {{ $activeSection === 'ordenes' ? 'active' : '' }}" data-section="ordenes"
+                        href="{{ route('admin.orders.index') }}" data-label="Órdenes">
                         <div class="sidebar-nav-item-left">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
