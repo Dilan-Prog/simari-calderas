@@ -34,7 +34,7 @@
 
     <div class="product-price-box__actions">
         <button type="button" class="product-price-box__add-btn" data-product-id="{{ $product->id }}">Agregar al carrito</button>
-        <a href="{{ $quoteWhatsappUrl }}" target="_blank" rel="noopener" class="product-price-box__quote-btn">Solicitar cotización</a>
+        <a href="{{ $quoteWhatsappUrl }}" target="_blank" rel="noopener nofollow" class="product-price-box__quote-btn">Solicitar cotización</a>
     </div>
 
     @if ($product->short_description)
