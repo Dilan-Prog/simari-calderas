@@ -20,6 +20,7 @@ class WorkflowStep extends Model
         'action_type',
         'action_config',
         'branch_key',
+        'joins_into_step_id',
         'position_x',
         'position_y',
     ];

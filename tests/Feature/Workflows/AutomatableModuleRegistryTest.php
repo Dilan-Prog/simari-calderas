@@ -44,7 +44,8 @@ class AutomatableModuleRegistryTest extends TestCase
         $this->assertSame('CRM', $all['deal']['group']);
         $this->assertSame('CRM', $all['whatsapp_conversation']['group']);
 
-        $this->assertFalse($all['deal']['supports_stale']);
+        $this->assertTrue($all['deal']['supports_stale']);
+        $this->assertSame('updated_at', $all['deal']['stale_field']);
         $this->assertTrue($all['whatsapp_conversation']['supports_stale']);
         $this->assertSame('last_message_at', $all['whatsapp_conversation']['stale_field']);
     }

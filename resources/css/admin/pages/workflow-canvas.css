@@ -386,6 +386,69 @@
     color: #C4B5FD;
 }
 
+/* ── Nodos de flujo avanzado (End/Switch/Parallel/Join/Loop) ─── */
+
+.wf-node-end {
+    border-left-color: var(--wf-faint);
+}
+
+.wf-node-end .wf-node-badge {
+    background: var(--wf-bg-subtle);
+    color: var(--wf-muted);
+}
+
+.wf-node-switch {
+    border-left-color: var(--wf-warn);
+}
+
+.wf-node-switch .wf-node-badge {
+    background: var(--wf-warn-soft);
+    color: var(--wf-warn);
+}
+
+.wf-node-parallel {
+    border-left-color: #0E7490;
+}
+
+.wf-node-parallel .wf-node-badge {
+    background: #CFFAFE;
+    color: #0E7490;
+}
+
+[data-theme="dark"] .wf-node-parallel .wf-node-badge {
+    background: rgba(34, 211, 238, 0.18);
+    color: #67E8F9;
+}
+
+.wf-node-join {
+    border-left-color: #0E7490;
+}
+
+.wf-node-join .wf-node-badge {
+    background: #CFFAFE;
+    color: #0E7490;
+}
+
+[data-theme="dark"] .wf-node-join .wf-node-badge {
+    background: rgba(34, 211, 238, 0.18);
+    color: #67E8F9;
+}
+
+.wf-node-loop {
+    border-left-color: #6D28D9;
+}
+
+.wf-node-loop .wf-node-badge {
+    background: #EDE9FE;
+    color: #6D28D9;
+    font-size: 13px;
+}
+
+[data-theme="dark"] .wf-node-loop .wf-node-badge {
+    background: rgba(139, 92, 246, 0.18);
+    color: #C4B5FD;
+}
+
 /* ── Etiquetas de rama (ConditionNode) ──────────────────────── */
 
 .wf-node-branch-label {
@@ -406,6 +469,24 @@
 .wf-node-branch-no {
     top: 56%;
     color: var(--wf-err);
+}
+
+/* Etiquetas genéricas de rama (Switch/Parallel): posición inline vía
+   `style.top` calculada en JS (handleTop()), no clase top-N fija como
+   yes/no arriba porque el número de ramas es dinámico. */
+.wf-node-branch-generic {
+    color: var(--wf-muted);
+    transform: translateY(-50%);
+    max-width: 70px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.wf-node-branch-default {
+    color: var(--wf-faint);
+    font-style: italic;
+    transform: translateY(-50%);
 }
 
 /* ── Nota adhesiva (StickyNote) ─────────────────────────────── */

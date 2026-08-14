@@ -14,6 +14,8 @@
             ['key' => 'model', 'label' => 'Modelo', 'group' => 'Básicos', 'type' => 'text', 'maxlength' => 100],
             ['key' => 'short_description', 'label' => 'Descripción Corta', 'group' => 'Básicos', 'type' => 'textarea', 'maxlength' => 500],
             ['key' => 'description', 'label' => 'Descripción Completa', 'group' => 'Básicos', 'type' => 'textarea'],
+            ['key' => 'slug', 'label' => 'URL Slug', 'group' => 'Básicos', 'type' => 'text', 'maxlength' => 255],
+            ['key' => 'redirect_old_slug', 'label' => 'Redirigir URL anterior (al cambiar el Slug)', 'group' => 'Básicos', 'type' => 'checkbox'],
 
             ['key' => 'price', 'label' => 'Precio', 'group' => 'Precios / Inventario', 'type' => 'text'],
             ['key' => 'price_includes_tax', 'label' => '¿Precio incluye IVA?', 'group' => 'Precios / Inventario', 'type' => 'checkbox'],
@@ -47,7 +49,8 @@
             ['key' => 'og_title', 'label' => 'Título Social', 'group' => 'SEO / Social', 'type' => 'text', 'maxlength' => 255],
             ['key' => 'og_description', 'label' => 'Descripción Social', 'group' => 'SEO / Social', 'type' => 'textarea'],
             ['key' => 'og_image', 'label' => 'Imagen Social (URL)', 'group' => 'SEO / Social', 'type' => 'text', 'maxlength' => 255],
-            ['key' => 'canonical_url', 'label' => 'URL Canónica', 'group' => 'SEO / Social', 'type' => 'text', 'maxlength' => 255],
+            ['key' => 'is_canonical', 'label' => '¿Es la URL Canónica?', 'group' => 'SEO / Social', 'type' => 'checkbox'],
+            ['key' => 'canonical_url', 'label' => 'URL Canónica (si "¿Es la URL Canónica?" está desmarcado)', 'group' => 'SEO / Social', 'type' => 'text', 'maxlength' => 255],
             ['key' => 'faqs', 'label' => 'FAQ', 'group' => 'SEO / Social', 'type' => 'faq'],
         ];
         // Columnas visibles por defecto la primera vez (antes de que exista

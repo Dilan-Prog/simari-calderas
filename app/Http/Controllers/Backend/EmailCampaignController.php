@@ -4,8 +4,6 @@ namespace App\Http\Controllers\Backend;
 
 use App\Http\Controllers\Controller;
 use App\Models\EmailCampaign;
-use App\Models\EmailList;
-use App\Models\EmailTemplate;
 use App\Services\EmailCampaignService;
 use Illuminate\Http\Request;
 
@@ -21,15 +19,7 @@ class EmailCampaignController extends Controller
             ->latest()
             ->paginate(15);
 
-        return view('admin.email-campaigns.index', compact('emailCampaigns'));
-    }
-
-    public function create()
-    {
-        $templates = EmailTemplate::orderBy('name')->get();
-        $lists = EmailList::orderBy('name')->get();
-
-        return view('admin.email-campaigns.create', compact('templates', 'lists'));
+        return response()->json(['data' => $emailCampaigns]);
     }
 
     public function store(Request $request)
@@ -44,15 +34,14 @@ class EmailCampaignController extends Controller
 
         $emailCampaign = EmailCampaign::create($data);
 
-        return redirect()->route('admin.email-campaigns.show', $emailCampaign)
-            ->with('success', "Campaña \"{$emailCampaign->name}\" creada exitosamente.");
+        return response()->json($emailCampaign, 201);
     }
 
     public function show(EmailCampaign $emailCampaign)
     {
         $emailCampaign->load(['template', 'list']);
 
-        $sends = $emailCampaign->sends()->with('clicks')->get();
+        $sends = $emailCampaign->sends()->with(['customer', 'clicks'])->get();
 
         $metrics = [
             'total'         => $sends->count(),
@@ -73,7 +62,12 @@ class EmailCampaignController extends Controller
             ->sortByDesc('count')
             ->values();
 
-        return view('admin.email-campaigns.show', compact('emailCampaign', 'metrics', 'clickMap'));
+        return response()->json([
+            'campaign'  => $emailCampaign,
+            'metrics'   => $metrics,
+            'click_map' => $clickMap,
+            'sends'     => $sends,
+        ]);
     }
 
     /**
@@ -84,8 +78,7 @@ class EmailCampaignController extends Controller
     {
         app(EmailCampaignService::class)->send($emailCampaign);
 
-        return redirect()->route('admin.email-campaigns.show', $emailCampaign)
-            ->with('success', "Campaña \"{$emailCampaign->name}\" enviada.");
+        return response()->json(['success' => true, 'campaign' => $emailCampaign->fresh()]);
     }
 
     /**
@@ -105,15 +98,13 @@ class EmailCampaignController extends Controller
         $emailCampaign->scheduled_at = $data['scheduled_at'];
         $emailCampaign->save();
 
-        return redirect()->route('admin.email-campaigns.show', $emailCampaign)
-            ->with('success', "Campaña \"{$emailCampaign->name}\" programada para {$emailCampaign->scheduled_at}.");
+        return response()->json(['success' => true, 'campaign' => $emailCampaign]);
     }
 
     public function destroy(EmailCampaign $emailCampaign)
     {
         $emailCampaign->delete();
 
-        return redirect()->route('admin.email-campaigns.index')
-            ->with('success', 'Campaña eliminada.');
+        return response()->json(null, 204);
     }
 }

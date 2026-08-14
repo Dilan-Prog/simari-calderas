@@ -91,6 +91,11 @@ const STEP_TYPE_LABELS = {
     action: 'Acción',
     condition: 'Condición',
     wait: 'Espera',
+    switch: 'Switch',
+    parallel: 'Paralelo',
+    join: 'Unir ramas',
+    loop: 'Bucle',
+    end: 'Fin',
 };
 
 function initialsForStepType(stepType) {
@@ -98,7 +103,89 @@ function initialsForStepType(stepType) {
     if (stepType === 'action') return 'AC';
     if (stepType === 'condition') return 'CO';
     if (stepType === 'wait') return 'ES';
+    if (stepType === 'switch') return 'SW';
+    if (stepType === 'parallel') return 'PA';
+    if (stepType === 'join') return 'JN';
+    if (stepType === 'loop') return '🔁';
+    if (stepType === 'end') return 'FIN';
     return '--';
+}
+
+// Fase de nodos de flujo avanzado -- presets amigables del selector de
+// "tipo de trigger" (capa de conveniencia sobre el textarea JSON crudo, que
+// sigue siendo la fuente de verdad editable directamente para cualquier
+// caso no cubierto por esta lista). `needs` indica qué sub-selector mostrar
+// ('stage' | 'days' | null). `requiresModule`/`requiresSupportsStale`
+// filtran la visibilidad según el módulo activo del workflow.
+const TRIGGER_PRESETS = [
+    {
+        key: 'stage_enter',
+        label: 'Lead entra a etapa',
+        needs: 'stage',
+        build: (stageId) => ({ event: 'updated', field: 'pipeline_stage_id', value: Number(stageId) }),
+    },
+    {
+        key: 'stage_exit',
+        label: 'Lead sale de etapa',
+        needs: 'stage',
+        build: (stageId) => ({ event: 'updated', field: 'pipeline_stage_id', from_value: Number(stageId) }),
+    },
+    {
+        key: 'owner_assigned',
+        label: 'Lead asignado',
+        needs: null,
+        build: () => ({ event: 'updated', field: 'owner_id' }),
+    },
+    {
+        key: 'stale',
+        label: 'Sin actividad por N días',
+        needs: 'days',
+        requiresSupportsStale: true,
+        build: (days) => ({ event: 'stale', hours: Number(days) * 24 }),
+    },
+    {
+        key: 'stage_stagnant',
+        label: 'X días sin avanzar',
+        needs: 'days',
+        requiresModule: 'deal',
+        build: (days) => ({ event: 'stage_stagnant', days: Number(days) }),
+    },
+    {
+        key: 'upcoming_close',
+        label: 'Fecha de cierre próxima',
+        needs: 'days',
+        requiresModule: 'deal',
+        build: (days) => ({ event: 'upcoming', field: 'expected_close_date', days: Number(days) }),
+    },
+    {
+        key: 'wa_received',
+        label: 'Mensaje WA recibido',
+        needs: null,
+        requiresModule: 'whatsapp_message',
+        build: () => ({ event: 'created', field: 'sender_type', value: 'contact' }),
+    },
+    {
+        key: 'score_threshold',
+        label: 'Score supera umbral',
+        needs: null,
+        disabled: true,
+        build: () => ({}),
+    },
+];
+
+function visibleTriggerPresets(moduleType, moduleEntry) {
+    return TRIGGER_PRESETS.filter((preset) => {
+        if (preset.requiresModule && preset.requiresModule !== moduleType) return false;
+        if (preset.requiresSupportsStale && !moduleEntry?.supports_stale) return false;
+        return true;
+    });
+}
+
+function nextBranchKey(rows, prefix) {
+    let n = 0;
+    const used = new Set(rows.map((r) => r.branch_key));
+    while (used.has(`${prefix}_${n}`)) n += 1;
+    return `${prefix}_${n}`;
 }
 
 export default function NodeInspector({ step, catalog, workflowType, onSave, onSaveTrigger, onSelectModule, onDelete, onClose, variables }) {
@@ -115,6 +202,23 @@ export default function NodeInspector({ step, catalog, workflowType, onSave, onS
     const [triggerType, setTriggerType] = useState('');
     const [triggerConfigText, setTriggerConfigText] = useState('');
     const [error, setError] = useState('');
+
+    // Fase de nodos de flujo avanzado -- estado del selector amigable de
+    // trigger (además del textarea JSON, no en su lugar).
+    const [triggerPresetKey, setTriggerPresetKey] = useState('');
+    const [triggerPresetStageId, setTriggerPresetStageId] = useState('');
+    const [triggerPresetDays, setTriggerPresetDays] = useState('');
+
+    // Estado del editor de reglas de 'switch' (persiste como
+    // step.branch_condition = {"rules": [...]}).
+    const [switchRules, setSwitchRules] = useState([]);
+
+    // Estado del editor de ramas de 'parallel' (persiste como
+    // step.action_config = {"branches": [...]}).
+    const [parallelBranches, setParallelBranches] = useState([]);
+
+    // Estado de 'loop' (persiste como step.action_config = {"max_iterations": N}).
+    const [loopMaxIterations, setLoopMaxIterations] = useState('');
 
     // Fase 8 -- estado del formulario estructurado de 'external_db_query'.
     const [dbJsonMode, setDbJsonMode] = useState(false);
@@ -183,6 +287,65 @@ export default function NodeInspector({ step, catalog, workflowType, onSave, onS
 
     function removeDbColumnRow(index) {
         setDbColumnsRows((rows) => rows.filter((_, i) => i !== index));
+    }
+
+    // Fase de nodos de flujo avanzado -- editor de reglas de 'switch'.
+    function addSwitchRule() {
+        setSwitchRules((rows) => [
+            ...rows,
+            { branch_key: nextBranchKey(rows, 'case'), field: '', operator: 'equals', value: '', label: '' },
+        ]);
+    }
+
+    function updateSwitchRule(index, patch) {
+        setSwitchRules((rows) => rows.map((row, i) => (i === index ? { ...row, ...patch } : row)));
+    }
+
+    function removeSwitchRule(index) {
+        setSwitchRules((rows) => rows.filter((_, i) => i !== index));
+    }
+
+    function moveSwitchRule(index, direction) {
+        setSwitchRules((rows) => {
+            const target = index + direction;
+            if (target < 0 || target >= rows.length) return rows;
+            const next = [...rows];
+            [next[index], next[target]] = [next[target], next[index]];
+            return next;
+        });
+    }
+
+    // Fase de nodos de flujo avanzado -- editor de ramas de 'parallel'.
+    function addParallelBranch() {
+        setParallelBranches((rows) => [...rows, { branch_key: nextBranchKey(rows, 'branch'), label: '' }]);
+    }
+
+    function updateParallelBranch(index, patch) {
+        setParallelBranches((rows) => rows.map((row, i) => (i === index ? { ...row, ...patch } : row)));
+    }
+
+    function removeParallelBranch(index) {
+        setParallelBranches((rows) => rows.filter((_, i) => i !== index));
+    }
+
+    // Fase de nodos de flujo avanzado -- aplica un preset del selector
+    // amigable de trigger, escribiendo el JSON resultante en el mismo
+    // textarea (setTriggerConfigText) que ya usa el editor de respaldo.
+    function applyTriggerPreset() {
+        const preset = TRIGGER_PRESETS.find((p) => p.key === triggerPresetKey);
+        if (!preset || preset.disabled) return;
+        if (preset.needs === 'stage' && !triggerPresetStageId) {
+            setError('Selecciona una etapa.');
+            return;
+        }
+        if (preset.needs === 'days' && (triggerPresetDays === '' || Number.isNaN(Number(triggerPresetDays)))) {
+            setError('Indica un número de días válido.');
+            return;
+        }
+        const arg = preset.needs === 'stage' ? triggerPresetStageId : preset.needs === 'days' ? triggerPresetDays : undefined;
+        const built = preset.build(arg);
+        setTriggerConfigText(JSON.stringify(built, null, 2));
+        setError('');
     }
 
     function addDbWhereRow() {
@@ -304,11 +467,32 @@ export default function NodeInspector({ step, catalog, workflowType, onSave, onS
             const cfg = step.action_config || {};
             setWaitAmount(cfg.amount ?? '');
             setWaitUnit(cfg.unit ?? '');
+        } else if (step.step_type === 'switch') {
+            const rules = Array.isArray(step.branch_condition?.rules) ? step.branch_condition.rules : [];
+            setSwitchRules(rules.map((r, i) => ({
+                branch_key: r.branch_key || `case_${i}`,
+                field: r.field || '',
+                operator: r.operator || 'equals',
+                value: r.value ?? '',
+                label: r.label || '',
+            })));
+        } else if (step.step_type === 'parallel') {
+            const branches = Array.isArray(step.action_config?.branches) ? step.action_config.branches : [];
+            setParallelBranches(branches.map((b, i) => ({
+                branch_key: b.branch_key || `branch_${i}`,
+                label: b.label || '',
+            })));
+        } else if (step.step_type === 'loop') {
+            const cfg = step.action_config || {};
+            setLoopMaxIterations(cfg.max_iterations ?? '');
         } else if (step.step_type === 'trigger') {
             setTriggerType(step.type || step.workflowType || '');
             setTriggerConfigText(
                 step.enrollment_trigger != null ? JSON.stringify(step.enrollment_trigger, null, 2) : ''
             );
+            setTriggerPresetKey('');
+            setTriggerPresetStageId('');
+            setTriggerPresetDays('');
         }
     }, [step]);
 
@@ -470,6 +654,57 @@ export default function NodeInspector({ step, catalog, workflowType, onSave, onS
             });
             return;
         }
+
+        if (step.step_type === 'switch') {
+            const cleanRules = switchRules.filter((r) => r.field.trim());
+            if (cleanRules.length === 0) {
+                setError('Agrega al menos una regla con un campo configurado.');
+                return;
+            }
+            onSave(step.id, {
+                branch_condition: {
+                    rules: cleanRules.map((r) => ({
+                        branch_key: r.branch_key,
+                        field: r.field,
+                        operator: r.operator,
+                        value: r.value,
+                        label: r.label,
+                    })),
+                },
+            });
+            return;
+        }
+
+        if (step.step_type === 'parallel') {
+            const cleanBranches = parallelBranches.filter((b) => b.branch_key);
+            if (cleanBranches.length === 0) {
+                setError('Agrega al menos una rama.');
+                return;
+            }
+            onSave(step.id, {
+                action_config: {
+                    branches: cleanBranches.map((b) => ({ branch_key: b.branch_key, label: b.label })),
+                },
+            });
+            return;
+        }
+
+        if (step.step_type === 'loop') {
+            const n = Number(loopMaxIterations);
+            if (loopMaxIterations === '' || Number.isNaN(n) || n < 1 || n > 50) {
+                setError('El número máximo de iteraciones debe ser entre 1 y 50.');
+                return;
+            }
+            onSave(step.id, {
+                action_config: { max_iterations: Math.min(50, Math.max(1, Math.round(n))) },
+            });
+            return;
+        }
+
+        if (step.step_type === 'join' || step.step_type === 'end') {
+            onSave(step.id, { action_config: {} });
+            return;
+        }
     }
 
     function handleDelete() {
@@ -566,6 +801,71 @@ export default function NodeInspector({ step, catalog, workflowType, onSave, onS
                             ))}
                         </select>
                         {moduleError && <div className="wf-inspector-error">{moduleError}</div>}
+
+                        {(() => {
+                            const moduleEntry = modules.find((m) => m.type === triggerType) || null;
+                            const presets = visibleTriggerPresets(triggerType, moduleEntry);
+                            const selectedPreset = TRIGGER_PRESETS.find((p) => p.key === triggerPresetKey);
+                            const pipelineStageOptions = fieldValueSources.pipeline_stage_id || [];
+
+                            return (
+                                <>
+                                    <label className="wf-field-label" htmlFor="wf-trigger-preset">
+                                        Tipo de trigger (rápido)
+                                    </label>
+                                    <select
+                                        id="wf-trigger-preset"
+                                        className="wf-field-input"
+                                        value={triggerPresetKey}
+                                        onChange={(e) => {
+                                            setTriggerPresetKey(e.target.value);
+                                            setTriggerPresetStageId('');
+                                            setTriggerPresetDays('');
+                                            setError('');
+                                        }}
+                                    >
+                                        <option value="">-- Elegir un tipo de trigger --</option>
+                                        {presets.map((preset) => (
+                                            <option key={preset.key} value={preset.key} disabled={preset.disabled}>
+                                                {preset.label}{preset.disabled ? ' (Próximamente)' : ''}
+                                            </option>
+                                        ))}
+                                    </select>
+
+                                    {selectedPreset && !selectedPreset.disabled && selectedPreset.needs === 'stage' && (
+                                        <select
+                                            className="wf-field-input"
+                                            value={triggerPresetStageId}
+                                            onChange={(e) => setTriggerPresetStageId(e.target.value)}
+                                        >
+                                            <option value="">-- Selecciona una etapa --</option>
+                                            {pipelineStageOptions.map((opt) => (
+                                                <option key={opt.value} value={opt.value}>
+                                                    {opt.hint}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    )}
+
+                                    {selectedPreset && !selectedPreset.disabled && selectedPreset.needs === 'days' && (
+                                        <input
+                                            type="number"
+                                            className="wf-field-input"
+                                            min="1"
+                                            placeholder="Número de días"
+                                            value={triggerPresetDays}
+                                            onChange={(e) => setTriggerPresetDays(e.target.value)}
+                                        />
+                                    )}
+
+                                    {selectedPreset && !selectedPreset.disabled && (
+                                        <button type="button" className="wf-btn-link" onClick={applyTriggerPreset}>
+                                            Usar esta opción
+                                        </button>
+                                    )}
+                                </>
+                            );
+                        })()}
 
                         <label className="wf-field-label" htmlFor="wf-trigger-config">
                             Trigger de inscripción (JSON)
@@ -986,6 +1286,135 @@ export default function NodeInspector({ step, catalog, workflowType, onSave, onS
                             ))}
                         </select>
                     </>
+                )}
+
+                {inspectorTab === 'params' && step.step_type === 'switch' && (
+                    <>
+                        <div className="wf-field-row-header">
+                            <label className="wf-field-label">Reglas (se evalúan en orden)</label>
+                            <button type="button" className="wf-btn-link" onClick={addSwitchRule}>
+                                + Agregar regla
+                            </button>
+                        </div>
+                        {switchRules.length === 0 && (
+                            <div className="wf-inspector-empty-tab">Sin reglas configuradas. La rama "Otro caso" se usa cuando ninguna regla coincide.</div>
+                        )}
+                        {switchRules.map((rule, index) => (
+                            <div className="wf-field-row" key={rule.branch_key}>
+                                <FieldAutocompleteInput
+                                    value={rule.field}
+                                    onChange={(v) => updateSwitchRule(index, { field: v })}
+                                    source="module_fields"
+                                    moduleType={activeModuleType}
+                                    modules={modules}
+                                    fieldValueSources={fieldValueSources}
+                                    actionValueSources={actionValueSources}
+                                    className="wf-field-input"
+                                    placeholder="Campo"
+                                />
+                                <select
+                                    className="wf-field-input"
+                                    value={rule.operator}
+                                    onChange={(e) => updateSwitchRule(index, { operator: e.target.value })}
+                                >
+                                    {Object.entries(conditionOperators).map(([key, label]) => (
+                                        <option key={key} value={key}>
+                                            {label}
+                                        </option>
+                                    ))}
+                                </select>
+                                <input
+                                    type="text"
+                                    className="wf-field-input"
+                                    placeholder="Valor"
+                                    value={rule.value}
+                                    onChange={(e) => updateSwitchRule(index, { value: e.target.value })}
+                                />
+                                <input
+                                    type="text"
+                                    className="wf-field-input"
+                                    placeholder="Etiqueta"
+                                    value={rule.label}
+                                    onChange={(e) => updateSwitchRule(index, { label: e.target.value })}
+                                />
+                                <button type="button" className="wf-btn-link" onClick={() => moveSwitchRule(index, -1)} disabled={index === 0}>
+                                    ↑
+                                </button>
+                                <button type="button" className="wf-btn-link" onClick={() => moveSwitchRule(index, 1)} disabled={index === switchRules.length - 1}>
+                                    ↓
+                                </button>
+                                <button type="button" className="wf-btn-link" onClick={() => removeSwitchRule(index)}>
+                                    Quitar
+                                </button>
+                            </div>
+                        ))}
+                    </>
+                )}
+
+                {inspectorTab === 'params' && step.step_type === 'parallel' && (
+                    <>
+                        <div className="wf-field-row-header">
+                            <label className="wf-field-label">Ramas (todas se disparan siempre)</label>
+                            <button type="button" className="wf-btn-link" onClick={addParallelBranch}>
+                                + Agregar rama
+                            </button>
+                        </div>
+                        {parallelBranches.length === 0 && (
+                            <div className="wf-inspector-empty-tab">Sin ramas configuradas.</div>
+                        )}
+                        {parallelBranches.map((branch, index) => (
+                            <div className="wf-field-row" key={branch.branch_key}>
+                                <span className="wf-node-subtitle">{branch.branch_key}</span>
+                                <input
+                                    type="text"
+                                    className="wf-field-input"
+                                    placeholder="Etiqueta"
+                                    value={branch.label}
+                                    onChange={(e) => updateParallelBranch(index, { label: e.target.value })}
+                                />
+                                <button type="button" className="wf-btn-link" onClick={() => removeParallelBranch(index)}>
+                                    Quitar
+                                </button>
+                            </div>
+                        ))}
+                    </>
+                )}
+
+                {inspectorTab === 'params' && step.step_type === 'loop' && (
+                    <>
+                        <label className="wf-field-label" htmlFor="wf-loop-max-iterations">
+                            Máximo de iteraciones (1-50)
+                        </label>
+                        <input
+                            id="wf-loop-max-iterations"
+                            type="number"
+                            className="wf-field-input"
+                            min="1"
+                            max="50"
+                            value={loopMaxIterations}
+                            onChange={(e) => {
+                                const raw = e.target.value;
+                                if (raw === '') {
+                                    setLoopMaxIterations('');
+                                    return;
+                                }
+                                const n = Number(raw);
+                                setLoopMaxIterations(Number.isNaN(n) ? raw : Math.min(50, Math.max(1, n)));
+                            }}
+                        />
+                    </>
+                )}
+
+                {inspectorTab === 'params' && step.step_type === 'join' && (
+                    <div className="wf-inspector-empty-tab">
+                        Este paso reúne todas las ramas del Paralelo anterior. El flujo continúa cuando TODAS las ramas terminan aquí.
+                    </div>
+                )}
+
+                {inspectorTab === 'params' && step.step_type === 'end' && (
+                    <div className="wf-inspector-empty-tab">
+                        El flujo termina en este punto.
+                    </div>
                 )}
 
                 {error && <div className="wf-inspector-error">{error}</div>}

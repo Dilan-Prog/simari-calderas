@@ -123,7 +123,11 @@ class PipelineChannelTest extends TestCase
         $response = $this->actingAs($admin)->get('/admin/pipelines');
 
         $response->assertOk();
-        $response->assertSee('Embudo de Venta (WhatsApp)');
+        // Nota: el rediseño de la vista de Pipelines (mockup "Pipelines
+        // Admin.dc.html") usa "Chats" como etiqueta del canal whatsapp, no
+        // "Embudo de Venta (WhatsApp)" — este assert se actualizó para
+        // reflejar el copy real e intencional de la nueva vista.
+        $response->assertSee('Chats');
         $response->assertSee('Negocios');
 
         // Nota: se invoca vía Pipeline::query() y no Pipeline::deals() a

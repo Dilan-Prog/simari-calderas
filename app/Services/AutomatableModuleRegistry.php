@@ -79,6 +79,9 @@ class AutomatableModuleRegistry
 
         $fields = method_exists($instance, 'getFillable') ? $instance->getFillable() : [];
 
+        $extra  = $entry['extra_fields'] ?? [];
+        $fields = array_values(array_unique(array_merge($fields, $extra)));
+
         return $this->fieldsCache[$type] = $fields;
     }
 

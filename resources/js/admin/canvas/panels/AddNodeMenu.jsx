@@ -33,6 +33,11 @@ const CRM_ACTIONS = [
 const LOGIC_ITEMS = [
     { stepType: 'condition', label: 'Condición Sí/No', subtitle: 'Ramifica el flujo según una condición', icon: 'branch' },
     { stepType: 'wait', label: 'Esperar', subtitle: 'Pausa el flujo un tiempo antes de continuar', icon: 'clock' },
+    { stepType: 'switch', label: 'Switch', subtitle: 'Ramifica el flujo en varias rutas según reglas', icon: 'switch' },
+    { stepType: 'parallel', label: 'Paralelo', subtitle: 'Dispara varias ramas al mismo tiempo', icon: 'parallel' },
+    { stepType: 'join', label: 'Unir ramas', subtitle: 'Reúne las ramas de un Paralelo anterior', icon: 'join' },
+    { stepType: 'loop', label: 'Bucle', subtitle: 'Repite un tramo del flujo N veces', icon: 'loop' },
+    { stepType: 'end', label: 'Fin', subtitle: 'Termina el flujo en este punto', icon: 'end' },
 ];
 
 const INTEGRATIONS_ITEMS = [
@@ -265,6 +270,47 @@ const ITEM_ICON_PATHS = {
         <>
             <rect x="7" y="7" width="10" height="10" rx="1.5" stroke="currentColor" strokeWidth="1.7" />
             <path d="M12 2v3.5M12 18.5V22M2 12h3.5M18.5 12H22M4.6 4.6l2.5 2.5M16.9 16.9l2.5 2.5M4.6 19.4l2.5-2.5M16.9 7.1l2.5-2.5" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
+        </>
+    ),
+    // Fase de nodos de flujo avanzado: switch (multi-rama), parallel
+    // (bifurcación simultánea), join (reunión de ramas), loop (repetición),
+    // end (fin del flujo). Mismo trazo/estilo que los íconos anteriores.
+    switch: (
+        <>
+            <circle cx="5" cy="5" r="2" stroke="currentColor" strokeWidth="1.7" />
+            <circle cx="5" cy="12" r="2" stroke="currentColor" strokeWidth="1.7" />
+            <circle cx="5" cy="19" r="2" stroke="currentColor" strokeWidth="1.7" />
+            <path d="M7 5h4a3 3 0 013 3M7 12h10M7 19h4a3 3 0 003-3" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
+            <circle cx="20" cy="8" r="1.6" stroke="currentColor" strokeWidth="1.5" />
+            <circle cx="20" cy="16" r="1.6" stroke="currentColor" strokeWidth="1.5" />
+        </>
+    ),
+    parallel: (
+        <>
+            <path d="M4 5v5c0 3.5 8 3.5 8 0V5M12 10v5c0 3.5 8 3.5 8 0v-5" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
+            <circle cx="4" cy="4" r="1.6" stroke="currentColor" strokeWidth="1.5" />
+            <circle cx="12" cy="4" r="1.6" stroke="currentColor" strokeWidth="1.5" />
+        </>
+    ),
+    join: (
+        <>
+            <path d="M5 4v6c0 3.5 5 5 7 5s7-1.5 7-5V4" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M19 15l0 5" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
+            <path d="M16.5 17.5L19 20l2.5-2.5" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
+        </>
+    ),
+    loop: (
+        <>
+            <path d="M4 12a8 8 0 0114-5.3" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
+            <path d="M20 12a8 8 0 01-14 5.3" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
+            <path d="M14.5 3.5L18 6.7l-4 1" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M9.5 20.5L6 17.3l4-1" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
+        </>
+    ),
+    end: (
+        <>
+            <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.7" />
+            <rect x="8.5" y="8.5" width="7" height="7" rx="1" stroke="currentColor" strokeWidth="1.7" />
         </>
     ),
 };

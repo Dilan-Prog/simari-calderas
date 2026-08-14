@@ -19,6 +19,11 @@ import ActionNode from './nodes/ActionNode.jsx';
 import ConditionNode from './nodes/ConditionNode.jsx';
 import WaitNode from './nodes/WaitNode.jsx';
 import StickyNote from './nodes/StickyNote.jsx';
+import EndNode from './nodes/EndNode.jsx';
+import SwitchNode from './nodes/SwitchNode.jsx';
+import ParallelNode from './nodes/ParallelNode.jsx';
+import JoinNode from './nodes/JoinNode.jsx';
+import LoopNode from './nodes/LoopNode.jsx';
 import NodeInspector from './panels/NodeInspector.jsx';
 import AddNodeMenu from './panels/AddNodeMenu.jsx';
 import TopBar from './TopBar.jsx';
@@ -32,6 +37,11 @@ const nodeTypes = {
   condition: ConditionNode,
   wait: WaitNode,
   sticky: StickyNote,
+  end: EndNode,
+  switch: SwitchNode,
+  parallel: ParallelNode,
+  join: JoinNode,
+  loop: LoopNode,
 };
 
 // Clave propia de esta página para persistir el tema claro/oscuro elegido.

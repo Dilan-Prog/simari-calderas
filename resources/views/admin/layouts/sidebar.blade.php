@@ -70,7 +70,7 @@
             request()->routeIs('admin.pipelines.*') => 'pipelines',
             request()->routeIs('admin.deals.*') => 'negocios',
             request()->routeIs('admin.workflows.*') => 'automatizaciones',
-            request()->routeIs('admin.email-templates.*', 'admin.email-lists.*', 'admin.email-campaigns.*', 'admin.email-sequences.*') => 'email-marketing',
+            request()->routeIs('admin.email-marketing.*', 'admin.email-templates.*', 'admin.email-lists.*', 'admin.email-campaigns.*', 'admin.email-sequences.*') => 'email-marketing',
             request()->routeIs('admin.dashboards.*') => 'dashboards',
             request()->routeIs('admin.reports.*') => 'reportes',
             request()->routeIs('admin.goals.*') => 'metas',
@@ -825,7 +825,7 @@
                 {{-- Email Marketing --}}
                 @if ($authUser->hasPermission('email-marketing'))
                     <a class="sidebar-nav-item {{ $activeSection === 'email-marketing' ? 'active' : '' }}"
-                        href="{{ route('admin.email-templates.index') }}" data-section="email-marketing" data-label="Email Marketing">
+                        href="{{ route('admin.email-marketing.index') }}" data-section="email-marketing" data-label="Email Marketing">
                         <div class="sidebar-nav-item-left">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"

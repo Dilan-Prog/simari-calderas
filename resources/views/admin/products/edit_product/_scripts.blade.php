@@ -19,6 +19,23 @@
                 });
             });
 
+            /* ── Toggle "¿Es la URL Canónica?" — muestra/oculta el campo de
+               URL Canónica según el checkbox. Al volver a marcarlo, limpia
+               el campo para que no quede un valor viejo oculto en el envío
+               (el backend igual lo ignora si el checkbox está marcado, esto
+               es solo para que la UI no muestre texto obsoleto). */
+            const isCanonicalCheckbox = document.getElementById('pformIsCanonical');
+            const canonicalUrlWrap = document.getElementById('pformCanonicalUrlWrap');
+            const canonicalUrlInput = document.getElementById('pformCanonicalUrl');
+            if (isCanonicalCheckbox && canonicalUrlWrap) {
+                isCanonicalCheckbox.addEventListener('change', () => {
+                    canonicalUrlWrap.style.display = isCanonicalCheckbox.checked ? 'none' : '';
+                    if (isCanonicalCheckbox.checked && canonicalUrlInput) {
+                        canonicalUrlInput.value = '';
+                    }
+                });
+            }
+
             /* ── Character counter (short desc) ── */
             const shortDesc = document.getElementById('pformShortDesc');
             const charCount = document.getElementById('pformCharCount');

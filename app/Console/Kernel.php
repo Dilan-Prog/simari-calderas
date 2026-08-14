@@ -93,6 +93,19 @@ class Kernel extends ConsoleKernel
             ->everyMinute()
             ->withoutOverlapping()
             ->runInBackground();
+
+        // Triggers de Negocio (Deal): "estancado en etapa N días" y "fecha
+        // de cierre esperada próxima". Mismo patrón que los demás comandos
+        // de tick (withoutOverlapping() + runInBackground() para no
+        // bloquear al resto del minuto).
+        $schedule->command('deals:tick-stagnant')
+            ->everyMinute()
+            ->withoutOverlapping()
+            ->runInBackground();
+        $schedule->command('deals:tick-upcoming-close')
+            ->everyMinute()
+            ->withoutOverlapping()
+            ->runInBackground();
     }
 
     /**

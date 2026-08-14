@@ -143,6 +143,27 @@ class WorkflowTriggerService
             }
         }
 
+        // Mismo filtrado de field/operator/value que 'updated', pero para
+        // 'created': aquí NO tiene sentido wasChanged() (todo campo es
+        // "nuevo" por definición en un registro recién creado) ni
+        // 'from_value' (implica "valor anterior", que no existe en un
+        // created). Se compara directamente el valor actual del campo
+        // contra operator/value reusando compareValues(). Necesario para
+        // triggers como "Mensaje de WhatsApp recibido":
+        // {"event": "created", "field": "sender_type", "value": "contact"}.
+        if ($eventType === 'created' && isset($trigger['field'])) {
+            $field = $trigger['field'];
+            $target = $trigger['value'] ?? $trigger['to_stage_id'] ?? null;
+
+            if ($target !== null) {
+                $operator = $trigger['operator'] ?? 'eq';
+
+                if (!$this->compareValues($model->{$field}, $operator, $target)) {
+                    return false;
+                }
+            }
+        }
+
         return true;
     }
 
@@ -218,6 +239,77 @@ class WorkflowTriggerService
             $hours = $hours > 0 ? $hours : $defaultHours;
 
             $modelClass::where($staleField, '<', now()->subHours($hours))
+                ->get()
+                ->each(function (Model $model) use ($workflow) {
+                    app(WorkflowEngineService::class)->enroll($workflow, $model);
+                });
+        }
+    }
+
+    /**
+     * Trigger "Negocio estancado en su etapa actual N días" -- reusa tal
+     * cual Deal::scopeStalled() (que ya filtra deals abiertos cuya última
+     * fila de deal_stage_history es más vieja que N días), no reimplementa
+     * su lógica SQL. Patrón de invocación idéntico a handleModelStale():
+     * busca workflows activos del $workflowType con enrollment_trigger.event
+     * === 'stage_stagnant', lee 'days' (default $defaultDays) e inscribe
+     * cada Deal encontrado.
+     */
+    public function handleModelStageStagnant(string $workflowType, int $defaultDays = 3): void
+    {
+        $workflows = Workflow::query()
+            ->where('is_active', true)
+            ->where('type', $workflowType)
+            ->get()
+            ->filter(function (Workflow $workflow) {
+                $trigger = $workflow->enrollment_trigger;
+
+                return is_array($trigger) && ($trigger['event'] ?? null) === 'stage_stagnant';
+            });
+
+        foreach ($workflows as $workflow) {
+            $days = (int) ($workflow->enrollment_trigger['days'] ?? $defaultDays);
+            $days = $days > 0 ? $days : $defaultDays;
+
+            Deal::stalled($days)->get()->each(function (Deal $deal) use ($workflow) {
+                app(WorkflowEngineService::class)->enroll($workflow, $deal);
+            });
+        }
+    }
+
+    /**
+     * Trigger "fecha de $dateField próxima en los siguientes N días" --
+     * patrón inverso a handleModelStale(): en vez de buscar registros cuya
+     * fecha ya pasó hace más de N horas, busca registros cuya fecha caiga
+     * en la ventana [ahora, ahora + N días]. Resuelve $modelClass vía
+     * AutomatableModuleRegistry (mismo patrón que handleModelStale usa para
+     * resolver el modelo). Busca workflows activos del $workflowType con
+     * enrollment_trigger.event === 'upcoming'.
+     */
+    public function handleModelUpcoming(string $workflowType, string $dateField, int $defaultDays = 7): void
+    {
+        $entry = app(AutomatableModuleRegistry::class)->entry($workflowType);
+        $modelClass = is_array($entry) ? ($entry['model'] ?? null) : null;
+
+        if (!$modelClass || !class_exists($modelClass)) {
+            return;
+        }
+
+        $workflows = Workflow::query()
+            ->where('is_active', true)
+            ->where('type', $workflowType)
+            ->get()
+            ->filter(function (Workflow $workflow) {
+                $trigger = $workflow->enrollment_trigger;
+
+                return is_array($trigger) && ($trigger['event'] ?? null) === 'upcoming';
+            });
+
+        foreach ($workflows as $workflow) {
+            $days = (int) ($workflow->enrollment_trigger['days'] ?? $defaultDays);
+            $days = $days > 0 ? $days : $defaultDays;
+
+            $modelClass::whereBetween($dateField, [now(), now()->addDays($days)])
                 ->get()
                 ->each(function (Model $model) use ($workflow) {
                     app(WorkflowEngineService::class)->enroll($workflow, $model);

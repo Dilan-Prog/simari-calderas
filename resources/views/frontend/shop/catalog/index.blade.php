@@ -11,17 +11,32 @@
     }
 @endphp
 
-@section('title', ($category->name ?? 'Catálogo') . ' — Equiterm Industries')
-@section('description', $category?->seo_description
-    ?: \Illuminate\Support\Str::limit(strip_tags($category?->description ?? ''), 160)
-    ?: ('Explora el catálogo de ' . ($category->name ?? 'productos') . ' de Equiterm Industries.'))
+@php
+    // Canonical siempre apunta a la URL limpia de la categoría/catálogo
+    // (sin querystring de filtros/orden/paginación) — así todas las
+    // variantes con ?categoria=&marca=&orden=&q=&precio_min=&precio_max=
+    // consolidan en una sola página canónica en vez de que Google las
+    // trate como páginas separadas.
+    $catalogUrl = $category ? route('catalog.category', $category->slug) : route('catalog.index');
+    $catalogTitle = ($category->name ?? 'Catálogo') . ' — Equiterm Industries';
+    $catalogDescription = $category?->seo_description
+        ?: \Illuminate\Support\Str::limit(strip_tags($category?->description ?? ''), 160)
+        ?: ('Explora el catálogo de ' . ($category->name ?? 'productos') . ' de Equiterm Industries.');
+@endphp
+
+@section('title', $catalogTitle)
+@section('description', $catalogDescription)
+@section('canonical', $catalogUrl)
+@section('og_title', $catalogTitle)
+@section('og_description', $catalogDescription)
+@section('og_url', $catalogUrl)
+@if ($category?->image_url)
+    @section('og_image', $category->image_url)
+@endif
 
 @php
     // JSON-LD BreadcrumbList: reusa $categoryChain (misma jerarquía que el
-    // breadcrumb visual de abajo). No se toca el canonical/OG de esta
-    // vista (bug conocido, se corrige aparte); esto solo agrega structured
-    // data adicional.
-    $catalogUrl = $category ? route('catalog.category', $category->slug) : route('catalog.index');
+    // breadcrumb visual de abajo).
 
     $breadcrumbSchema = [
         '@context' => 'https://schema.org',

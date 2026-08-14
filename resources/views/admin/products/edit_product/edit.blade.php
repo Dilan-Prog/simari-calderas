@@ -1094,6 +1094,18 @@
                         </div>
 
                         <div class="pform-field">
+                            <label style="display:flex;align-items:center;gap:8px;font-size:14px;font-weight:500;color:#374151;cursor:pointer">
+                                <input type="checkbox" id="pformIsCanonical" name="is_canonical" value="1" style="width:auto"
+                                    {{ old('is_canonical', $product->canonical_url ? '0' : '1') == '1' ? 'checked' : '' }}
+                                    form="productEditForm">
+                                Es la URL Canónica de este producto
+                            </label>
+                            <p class="pform-hint">Marcado (normal): Google usa la URL de este mismo producto.
+                                Desmárcalo solo si este producto es muy parecido a otro que ya existe y quieres que
+                                Google indexe ese otro producto en su lugar.</p>
+                        </div>
+
+                        <div class="pform-field" id="pformCanonicalUrlWrap" style="{{ $product->canonical_url ? '' : 'display:none' }}">
                             <label class="pform-label" for="pformCanonicalUrl">URL Canónica</label>
                             <input type="url" id="pformCanonicalUrl" name="canonical_url" class="pform-input @error('canonical_url') pform-field-error @enderror"
                                 maxlength="255" placeholder="https://equitermindustries.com.mx/producto/otro-producto-similar"
@@ -1101,9 +1113,7 @@
                             @error('canonical_url')
                                 <p class="pform-error-msg">{{ $message }}</p>
                             @enderror
-                            <p class="pform-hint">Opcional. Solo llénalo si este producto es muy parecido a otro que ya
-                                existe y quieres que Google indexe ese otro producto como el original. Déjalo vacío en
-                                el 99% de los casos.</p>
+                            <p class="pform-hint">A qué producto debe apuntar la señal de Google.</p>
                         </div>
 
                         <div class="pform-field">
@@ -1121,6 +1131,11 @@
                             <p class="pform-hint">URL: <span style="color:#1d4ed8">simari.com/productos/<span
                                         id="pformSeoSlugPreview">{{ old('slug', $product->slug ?? 'producto-ejemplo') }}</span></span>
                             </p>
+                            <label style="display:flex;align-items:center;gap:8px;font-size:14px;font-weight:500;color:#374151;cursor:pointer;margin-top:8px">
+                                <input type="checkbox" id="pformRedirectOldSlug" name="redirect_old_slug" value="1" style="width:auto"
+                                    {{ old('redirect_old_slug', '1') == '1' ? 'checked' : '' }} form="productEditForm">
+                                Redirigir la URL anterior a la nueva (recomendado para SEO)
+                            </label>
                         </div>
 
                         <div class="pform-field">

@@ -257,11 +257,12 @@ class ProductController extends Controller
     }
 
     private const BULK_EDIT_FIELDS = [
-        'name', 'model', 'short_description', 'description',
+        'name', 'model', 'short_description', 'description', 'slug',
         'price', 'compare_price', 'price_includes_tax', 'cost', 'shipping_cost', 'free_shipping_threshold', 'stock', 'stock_unit', 'currency', 'availability',
         'category_id', 'brand_id', 'is_active', 'publish_on_website', 'is_featured', 'is_new', 'is_recommended',
         'tags', 'specifications', 'faqs',
         'seo_title', 'seo_description', 'seo_keywords', 'og_title', 'og_description', 'og_image', 'canonical_url',
+        'is_canonical', 'redirect_old_slug',
     ];
 
     private const BULK_EDIT_STOCK_UNITS = ['pieza', 'juego', 'kit', 'metro', 'kg', 'litro'];
@@ -275,11 +276,12 @@ class ProductController extends Controller
     // porque Nombre va fijo/siempre visible, no es una columna que se pueda
     // ocultar dentro de una vista guardada.
     private const BULK_EDIT_VIEW_COLUMNS = [
-        'model', 'short_description', 'description',
+        'model', 'short_description', 'description', 'slug',
         'price', 'compare_price', 'price_includes_tax', 'cost', 'shipping_cost', 'free_shipping_threshold', 'stock', 'stock_unit', 'currency', 'availability',
         'category_id', 'category_sub', 'category_child', 'brand_id', 'is_active', 'publish_on_website', 'is_featured', 'is_new', 'is_recommended',
         'tags', 'specifications', 'faqs',
         'seo_title', 'seo_description', 'seo_keywords', 'og_title', 'og_description', 'og_image', 'canonical_url',
+        'is_canonical', 'redirect_old_slug',
     ];
     private const BULK_EDIT_VIEWS_MAX_PER_USER = 10;
     // Columnas fijas/pegadas de la tabla (nunca ocultables, por eso no
@@ -554,7 +556,20 @@ class ProductController extends Controller
             case 'is_new':
             case 'is_recommended':
             case 'price_includes_tax':
+            case 'is_canonical':
+            case 'redirect_old_slug':
                 return [true, (bool) $value, null];
+
+            case 'slug':
+                $v = \Illuminate\Support\Str::slug(trim((string) $value));
+                if ($v === '') {
+                    return [false, null, 'El slug no puede quedar vacío.'];
+                }
+                if (Products::where('slug', $v)->where('id', '!=', $productId)->exists()) {
+                    return [false, null, 'Ese slug ya lo usa otro producto.'];
+                }
+
+                return [true, $v, null];
 
             case 'tags':
                 // Llega como JSON string armado por el popover de tags
@@ -659,6 +674,22 @@ class ProductController extends Controller
                     if (!$product) {
                         continue;
                     }
+
+                    // 'is_canonical' y 'redirect_old_slug' no son columnas
+                    // reales — igual que en store()/update(), controlan
+                    // canonical_url y el redirect automático de slug en vez
+                    // de guardarse tal cual.
+                    if (array_key_exists('is_canonical', $fields)) {
+                        if ($fields['is_canonical']) {
+                            $fields['canonical_url'] = null;
+                        }
+                        unset($fields['is_canonical']);
+                    }
+                    if (array_key_exists('redirect_old_slug', $fields)) {
+                        $product->redirectOldSlug = (bool) $fields['redirect_old_slug'];
+                        unset($fields['redirect_old_slug']);
+                    }
+
                     foreach ($fields as $field => $value) {
                         $product->{$field} = $value;
                     }
@@ -971,7 +1002,12 @@ class ProductController extends Controller
         $product->og_title          = $request->og_title       ?? null;
         $product->og_description    = $request->og_description ?? null;
         $product->og_image          = $request->og_image       ?? null;
-        $product->canonical_url     = $request->canonical_url  ?? null;
+        // Checkbox "¿Es la URL Canónica?" — marcado (o ausente, default true)
+        // = el producto usa su propia URL, se ignora lo que haya en el
+        // campo de texto. Desmarcado = se respeta canonical_url tal cual.
+        $product->canonical_url     = $request->boolean('is_canonical', true)
+            ? null
+            : ($request->canonical_url ?: null);
         // FIX BUG 9: currency + stock_unit now have a real column and a
         // name= attribute in the view.
         $product->currency          = $request->currency       ?? 'MXN';
@@ -1172,7 +1208,12 @@ class ProductController extends Controller
         $product->og_title          = $request->og_title       ?? null;
         $product->og_description    = $request->og_description ?? null;
         $product->og_image          = $request->og_image       ?? null;
-        $product->canonical_url     = $request->canonical_url  ?? null;
+        // Checkbox "¿Es la URL Canónica?" — marcado (o ausente, default true)
+        // = el producto usa su propia URL, se ignora lo que haya en el
+        // campo de texto. Desmarcado = se respeta canonical_url tal cual.
+        $product->canonical_url     = $request->boolean('is_canonical', true)
+            ? null
+            : ($request->canonical_url ?: null);
         // FIX BUG 9: currency + stock_unit now have a real column and a
         // name= attribute in the view.
         $product->currency          = $request->currency       ?? 'MXN';
@@ -1227,6 +1268,10 @@ class ProductController extends Controller
         $product->slug = $request->slug
             ? Str::slug($request->slug)
             : Str::slug($product->resolveVariables($request->name));
+
+        // Checkbox "Redirigir la URL anterior a la nueva" — por defecto
+        // (ausente) se mantiene el comportamiento de siempre (sí redirige).
+        $product->redirectOldSlug = $request->boolean('redirect_old_slug', true);
 
         $product->save();
 

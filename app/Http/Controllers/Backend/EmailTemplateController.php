@@ -12,59 +12,50 @@ class EmailTemplateController extends Controller
 {
     public function index()
     {
-        $emailTemplates = EmailTemplate::with('creator')->latest()->paginate(15);
-
-        return view('admin.email-templates.index', compact('emailTemplates'));
-    }
-
-    public function create()
-    {
-        return view('admin.email-templates.create');
+        return response()->json([
+            'data' => EmailTemplate::with('creator')->latest()->paginate(15),
+        ]);
     }
 
     public function store(Request $request)
     {
         $data = $request->validate([
-            'name'      => 'required|string|max:255',
-            'subject'   => 'required|string|max:255',
-            'html_body' => 'required|string',
-            'type'      => 'required|string|max:100',
+            'name'         => 'required|string|max:255',
+            'subject'      => 'required|string|max:255',
+            'html_body'    => 'required|string',
+            'type'         => 'required|string|max:100',
+            'blocks_json'  => 'nullable|array',
+            'builder_mode' => 'nullable|in:code,blocks',
         ]);
 
         $data['created_by'] = auth()->id();
 
         $emailTemplate = EmailTemplate::create($data);
 
-        return redirect()->route('admin.email-templates.index')
-            ->with('success', "Plantilla \"{$emailTemplate->name}\" creada exitosamente.");
-    }
-
-    public function edit(EmailTemplate $emailTemplate)
-    {
-        return view('admin.email-templates.edit', compact('emailTemplate'));
+        return response()->json($emailTemplate, 201);
     }
 
     public function update(Request $request, EmailTemplate $emailTemplate)
     {
         $data = $request->validate([
-            'name'      => 'required|string|max:255',
-            'subject'   => 'required|string|max:255',
-            'html_body' => 'required|string',
-            'type'      => 'required|string|max:100',
+            'name'         => 'required|string|max:255',
+            'subject'      => 'required|string|max:255',
+            'html_body'    => 'required|string',
+            'type'         => 'required|string|max:100',
+            'blocks_json'  => 'nullable|array',
+            'builder_mode' => 'nullable|in:code,blocks',
         ]);
 
         $emailTemplate->update($data);
 
-        return redirect()->route('admin.email-templates.index')
-            ->with('success', "Plantilla \"{$emailTemplate->name}\" actualizada exitosamente.");
+        return response()->json($emailTemplate);
     }
 
     public function destroy(EmailTemplate $emailTemplate)
     {
         $emailTemplate->delete();
 
-        return redirect()->route('admin.email-templates.index')
-            ->with('success', "Plantilla \"{$emailTemplate->name}\" eliminada.");
+        return response()->json(null, 204);
     }
 
     /**
@@ -84,5 +75,13 @@ class EmailTemplateController extends Controller
         $rendered = app(EmailTemplateService::class)->render($emailTemplate, $sampleCustomer);
 
         return response()->json($rendered);
+    }
+
+    /**
+     * Lista mínima {id,name} para poblar <select> en Campañas/Secuencias.
+     */
+    public function options()
+    {
+        return response()->json(EmailTemplate::orderBy('name')->get(['id', 'name']));
     }
 }

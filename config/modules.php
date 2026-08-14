@@ -142,7 +142,7 @@ return [
     'email-marketing' => [
         'name'  => 'Email Marketing',
         'icon'  => 'mail',
-        'route' => 'admin.email-templates.index',
+        'route' => 'admin.email-marketing.index',
         'order' => 17,
     ],
     'crm-reports' => [

@@ -2,8 +2,10 @@
 
 namespace App\Console\Commands;
 
+use App\Jobs\ProcessWorkflowEnrollmentBranchJob;
 use App\Jobs\ProcessWorkflowEnrollmentJob;
 use App\Models\WorkflowEnrollment;
+use App\Models\WorkflowEnrollmentBranch;
 use Illuminate\Console\Command;
 
 class TickWaitingWorkflows extends Command
@@ -33,6 +35,14 @@ class TickWaitingWorkflows extends Command
 
         foreach ($enrollments as $enrollment) {
             ProcessWorkflowEnrollmentJob::dispatch($enrollment);
+        }
+
+        $branches = WorkflowEnrollmentBranch::where('status', 'waiting')
+            ->where('resume_at', '<=', now())
+            ->get();
+
+        foreach ($branches as $branch) {
+            ProcessWorkflowEnrollmentBranchJob::dispatch($branch);
         }
 
         return self::SUCCESS;

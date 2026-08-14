@@ -51,6 +51,7 @@ use App\Http\Controllers\Backend\ExternalDatabaseController;
 use App\Http\Controllers\Backend\ErpSettingController;
 use App\Http\Controllers\Backend\StatisticsController;
 use App\Http\Controllers\Backend\EmailCampaignController;
+use App\Http\Controllers\Backend\EmailMarketingController;
 use App\Http\Controllers\Backend\EmailSequenceController;
 use App\Http\Controllers\Backend\EmailTemplateController;
 use App\Http\Controllers\Backend\EmailListController;
@@ -380,17 +381,21 @@ Route::controller(DealController::class)
     });
 
 // ============================================================
-// Email Marketing (plantillas, listas, campañas y secuencias)
+// Email Marketing (página única con pestañas: plantillas, listas,
+// campañas y secuencias)
 // ============================================================
+Route::get('/marketing-por-correo', [EmailMarketingController::class, 'index'])
+    ->name('email-marketing.index')
+    ->middleware('permission:email-marketing');
+
 Route::controller(EmailTemplateController::class)
     ->middleware('permission:email-marketing')
     ->prefix('marketing-por-correo/plantillas')
     ->name('email-templates.')
     ->group(function () {
         Route::get('/', 'index')->name('index');
-        Route::get('/crear', 'create')->name('create')->middleware('permission:email-marketing,create');
+        Route::get('/opciones', 'options')->name('options');
         Route::post('/', 'store')->name('store')->middleware('permission:email-marketing,create');
-        Route::get('/{emailTemplate}/editar', 'edit')->name('edit')->middleware('permission:email-marketing,edit');
         Route::put('/{emailTemplate}', 'update')->name('update')->middleware('permission:email-marketing,edit');
         Route::delete('/{emailTemplate}', 'destroy')->name('destroy')->middleware('permission:email-marketing,delete');
         Route::get('/{emailTemplate}/preview', 'preview')->name('preview');
@@ -402,9 +407,11 @@ Route::controller(EmailListController::class)
     ->name('email-lists.')
     ->group(function () {
         Route::get('/', 'index')->name('index');
-        Route::get('/crear', 'create')->name('create')->middleware('permission:email-marketing,create');
+        Route::get('/clientes-disponibles', 'customersForPicker')->name('customers-picker');
+        Route::post('/estimar-destinatarios', 'estimateRecipients')->name('estimate-recipients');
+        Route::get('/opciones', 'options')->name('options');
         Route::post('/', 'store')->name('store')->middleware('permission:email-marketing,create');
-        Route::get('/{emailList}/editar', 'edit')->name('edit')->middleware('permission:email-marketing,edit');
+        Route::get('/{emailList}', 'show')->name('show');
         Route::put('/{emailList}', 'update')->name('update')->middleware('permission:email-marketing,edit');
         Route::delete('/{emailList}', 'destroy')->name('destroy')->middleware('permission:email-marketing,delete');
         Route::post('/{emailList}/miembros', 'addMembers')->name('add-members')->middleware('permission:email-marketing,edit');
@@ -417,7 +424,6 @@ Route::controller(EmailCampaignController::class)
     ->name('email-campaigns.')
     ->group(function () {
         Route::get('/', 'index')->name('index');
-        Route::get('/crear', 'create')->name('create')->middleware('permission:email-marketing,create');
         Route::post('/', 'store')->name('store')->middleware('permission:email-marketing,create');
         Route::get('/{emailCampaign}', 'show')->name('show');
         Route::post('/{emailCampaign}/enviar', 'send')->name('send')->middleware('permission:email-marketing,edit');
@@ -431,9 +437,8 @@ Route::controller(EmailSequenceController::class)
     ->name('email-sequences.')
     ->group(function () {
         Route::get('/', 'index')->name('index');
-        Route::get('/crear', 'create')->name('create')->middleware('permission:email-marketing,create');
         Route::post('/', 'store')->name('store')->middleware('permission:email-marketing,create');
-        Route::get('/{emailSequence}/editar', 'edit')->name('edit')->middleware('permission:email-marketing,edit');
+        Route::get('/{emailSequence}', 'show')->name('show');
         Route::put('/{emailSequence}', 'update')->name('update')->middleware('permission:email-marketing,edit');
         Route::delete('/{emailSequence}', 'destroy')->name('destroy')->middleware('permission:email-marketing,delete');
         Route::post('/{emailSequence}/pasos', 'addStep')->name('add-step')->middleware('permission:email-marketing,edit');

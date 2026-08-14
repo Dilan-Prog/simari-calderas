@@ -36,10 +36,20 @@ return [
         'model'             => \App\Models\Deal::class,
         'label'             => 'Negocio',
         'group'             => 'CRM',
-        'supports_stale'    => false,
-        'stale_field'       => null,
+        'supports_stale'    => true,
+        'stale_field'       => 'updated_at',
         'customer_relation' => 'customer',
         'relations'         => ['customer', 'pipeline', 'stage'],
+    ],
+
+    'whatsapp_message' => [
+        'model'             => \App\Models\WhatsappMessage::class,
+        'label'             => 'Mensaje de WhatsApp',
+        'group'             => 'CRM',
+        'supports_stale'    => false,
+        'stale_field'       => null,
+        'customer_relation' => null,
+        'relations'         => ['conversation'],
     ],
 
     'whatsapp_conversation' => [
@@ -192,6 +202,7 @@ return [
         'stale_field'       => null,
         'customer_relation' => 'customer',
         'relations'         => ['customer', 'items', 'salesOrders'],
+        'extra_fields'      => ['is_expired', 'has_service_items', 'has_product_items'],
     ],
 
     'quote_item' => [

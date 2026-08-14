@@ -14,7 +14,11 @@ class EmailSend extends Model
         'email_campaign_id',
         'email_sequence_step_id',
         'workflow_step_id',
+        'workflow_enrollment_id',
         'customer_id',
+        'guest_email',
+        'guest_name',
+        'attach_source',
         'tracking_token',
         'sent_at',
         'opened_at',
@@ -55,6 +59,11 @@ class EmailSend extends Model
         return $this->belongsTo(\App\Models\WorkflowStep::class, 'workflow_step_id');
     }
 
+    public function enrollment()
+    {
+        return $this->belongsTo(\App\Models\WorkflowEnrollment::class, 'workflow_enrollment_id');
+    }
+
     public function customer()
     {
         return $this->belongsTo(Customer::class);
@@ -63,5 +72,23 @@ class EmailSend extends Model
     public function clicks()
     {
         return $this->hasMany(EmailLinkClick::class);
+    }
+
+    /**
+     * Email real del destinatario: el del Customer si lo hay, o el
+     * guest_email guardado (cotizaciones de invitado, sin Customer).
+     */
+    public function recipientEmail(): ?string
+    {
+        return $this->customer?->email ?? $this->guest_email;
+    }
+
+    /**
+     * Nombre real del destinatario: el first_name del Customer si lo hay,
+     * o el guest_name guardado.
+     */
+    public function recipientName(): ?string
+    {
+        return $this->customer?->first_name ?? $this->guest_name;
     }
 }

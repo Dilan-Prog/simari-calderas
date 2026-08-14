@@ -14,6 +14,13 @@
       "resources/js/admin/charts.js"
     ]
   },
+  "_client-wKI0Igq7.js": {
+    "file": "assets/client-wKI0Igq7.js",
+    "name": "client",
+    "imports": [
+      "__commonjsHelpers-Cpj98o6Y.js"
+    ]
+  },
   "_sortable.esm-D-EvzYhP.js": {
     "file": "assets/sortable.esm-D-EvzYhP.js",
     "name": "sortable.esm"
@@ -78,8 +85,13 @@
     "src": "resources/css/admin/pages/devops.css",
     "isEntry": true
   },
+  "resources/css/admin/pages/email-marketing-builder.css": {
+    "file": "assets/email-marketing-builder-DAFQ9juY.css",
+    "src": "resources/css/admin/pages/email-marketing-builder.css",
+    "isEntry": true
+  },
   "resources/css/admin/pages/email-marketing.css": {
-    "file": "assets/email-marketing-Ch0LjF54.css",
+    "file": "assets/email-marketing-Bd6raEpZ.css",
     "src": "resources/css/admin/pages/email-marketing.css",
     "isEntry": true
   },
@@ -154,7 +166,7 @@
     "isEntry": true
   },
   "resources/css/admin/pages/workflow-canvas.css": {
-    "file": "assets/workflow-canvas-agQUvRe0.css",
+    "file": "assets/workflow-canvas-DN_GqaWu.css",
     "src": "resources/css/admin/pages/workflow-canvas.css",
     "isEntry": true
   },
@@ -179,37 +191,37 @@
     "isEntry": true
   },
   "resources/css/frontend/shop/account.css": {
-    "file": "assets/account-BA58WBBk.css",
+    "file": "assets/account-DI5WwG8q.css",
     "src": "resources/css/frontend/shop/account.css",
     "isEntry": true
   },
   "resources/css/frontend/shop/catalog.css": {
-    "file": "assets/catalog-Ewa60QuI.css",
+    "file": "assets/catalog-7bKp4AN2.css",
     "src": "resources/css/frontend/shop/catalog.css",
     "isEntry": true
   },
   "resources/css/frontend/shop/checkout.css": {
-    "file": "assets/checkout-CFq-GMHz.css",
+    "file": "assets/checkout-Comz6Ueo.css",
     "src": "resources/css/frontend/shop/checkout.css",
     "isEntry": true
   },
   "resources/css/frontend/shop/collection.css": {
-    "file": "assets/collection-WNtDYmUG.css",
+    "file": "assets/collection-BqiNj8j1.css",
     "src": "resources/css/frontend/shop/collection.css",
     "isEntry": true
   },
   "resources/css/frontend/shop/home.css": {
-    "file": "assets/home-CGVRH0YA.css",
+    "file": "assets/home-BO2NKINh.css",
     "src": "resources/css/frontend/shop/home.css",
     "isEntry": true
   },
   "resources/css/frontend/shop/legal.css": {
-    "file": "assets/legal-CrWN4Y5x.css",
+    "file": "assets/legal-C5ytBfAA.css",
     "src": "resources/css/frontend/shop/legal.css",
     "isEntry": true
   },
   "resources/css/frontend/shop/product-detail.css": {
-    "file": "assets/product-detail-BaK58a3B.css",
+    "file": "assets/product-detail-Bxy7uLEo.css",
     "src": "resources/css/frontend/shop/product-detail.css",
     "isEntry": true
   },
@@ -264,11 +276,15 @@
       "_sortable.esm-D-EvzYhP.js"
     ]
   },
-  "resources/js/admin/email-template-editor.js": {
-    "file": "assets/email-template-editor-BRzKB56o.js",
-    "name": "email-template-editor",
-    "src": "resources/js/admin/email-template-editor.js",
-    "isEntry": true
+  "resources/js/admin/email-marketing.jsx": {
+    "file": "assets/email-marketing-BBhy_9kf.js",
+    "name": "email-marketing",
+    "src": "resources/js/admin/email-marketing.jsx",
+    "isEntry": true,
+    "imports": [
+      "_client-wKI0Igq7.js",
+      "__commonjsHelpers-Cpj98o6Y.js"
+    ]
   },
   "resources/js/admin/google-ads.js": {
     "file": "assets/google-ads-DL_7ORDf.js",
@@ -395,11 +411,12 @@
     "isEntry": true
   },
   "resources/js/admin/workflow-canvas.jsx": {
-    "file": "assets/workflow-canvas-DCZn74ez.js",
+    "file": "assets/workflow-canvas-C94Y8VHo.js",
     "name": "workflow-canvas",
     "src": "resources/js/admin/workflow-canvas.jsx",
     "isEntry": true,
     "imports": [
+      "_client-wKI0Igq7.js",
       "__commonjsHelpers-Cpj98o6Y.js"
     ],
     "css": [

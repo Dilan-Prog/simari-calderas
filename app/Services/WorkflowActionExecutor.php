@@ -227,6 +227,7 @@ class WorkflowActionExecutor
     {
         $config = $step->action_config ?? [];
         $templateId = $config['template_id'] ?? null;
+        $attachSource = $config['attach_source'] ?? null;
 
         $template = $templateId ? EmailTemplate::find($templateId) : null;
 
@@ -235,21 +236,38 @@ class WorkflowActionExecutor
             return;
         }
 
-        $customer = $this->resolveEmailRecipient($enrollment->enrollable);
+        $enrollable = $enrollment->enrollable;
+        $customer = $this->resolveEmailRecipient($enrollable);
 
-        if (!$customer) {
+        $customerId = null;
+        $guestEmail = null;
+        $guestName  = null;
+        $recipientEmail = null;
+
+        if ($customer) {
+            $customerId     = $customer->id;
+            $recipientEmail = $customer->email;
+        } elseif ($enrollable && !empty($enrollable->guest_email)) {
+            $guestEmail     = $enrollable->guest_email;
+            $guestName      = $enrollable->guest_name ?? null;
+            $recipientEmail = $guestEmail;
+        } else {
             $this->logResult($enrollment, $step, 'send_email', 'skipped', 'El enrollable no tiene un Customer asociado, no se puede enviar email');
             return;
         }
 
         $send = EmailSend::create([
-            'workflow_step_id' => $step->id,
-            'customer_id'      => $customer->id,
+            'workflow_step_id'        => $step->id,
+            'workflow_enrollment_id'  => $enrollment->id,
+            'customer_id'             => $customerId,
+            'guest_email'             => $guestEmail,
+            'guest_name'              => $guestName,
+            'attach_source'           => $attachSource,
         ]);
 
         SendMarketingEmailJob::dispatch($send);
 
-        $this->logResult($enrollment, $step, 'send_email', 'success', "Email \"{$template->name}\" encolado para {$customer->email}.");
+        $this->logResult($enrollment, $step, 'send_email', 'success', "Email \"{$template->name}\" encolado para {$recipientEmail}.");
     }
 
     /**

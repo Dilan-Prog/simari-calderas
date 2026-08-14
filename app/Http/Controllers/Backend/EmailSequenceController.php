@@ -6,8 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\Customer;
 use App\Models\EmailSequence;
 use App\Models\EmailSequenceStep;
-use App\Models\EmailTemplate;
-use App\Models\User;
 use App\Services\EmailSequenceService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -20,17 +18,17 @@ class EmailSequenceController extends Controller
 
     public function index()
     {
-        $emailSequences = EmailSequence::with(['owner', 'steps'])->latest()->get();
-
-        return view('admin.email-sequences.index', compact('emailSequences'));
+        return response()->json([
+            'data' => EmailSequence::with(['owner', 'steps.template'])
+                ->withCount('enrollments')
+                ->latest()
+                ->get(),
+        ]);
     }
 
-    public function create()
+    public function show(EmailSequence $emailSequence)
     {
-        $templates = EmailTemplate::orderBy('name')->get();
-        $users = User::orderBy('name')->get();
-
-        return view('admin.email-sequences.create', compact('templates', 'users'));
+        return response()->json($emailSequence->load('steps.template')->loadCount('enrollments'));
     }
 
     /**
@@ -68,18 +66,7 @@ class EmailSequenceController extends Controller
             return $sequence;
         });
 
-        return redirect()->route('admin.email-sequences.edit', $emailSequence)
-            ->with('success', "Secuencia \"{$emailSequence->name}\" creada exitosamente.");
-    }
-
-    public function edit(EmailSequence $emailSequence)
-    {
-        $emailSequence->load('steps.template');
-        $templates = EmailTemplate::orderBy('name')->get();
-        $users = User::orderBy('name')->get();
-        $customers = Customer::where('status', 'active')->orderBy('first_name')->get();
-
-        return view('admin.email-sequences.edit', compact('emailSequence', 'templates', 'users', 'customers'));
+        return response()->json($emailSequence->load('steps'), 201);
     }
 
     public function update(Request $request, EmailSequence $emailSequence)
@@ -96,16 +83,14 @@ class EmailSequenceController extends Controller
             'is_active' => $data['is_active'] ?? false,
         ]);
 
-        return redirect()->route('admin.email-sequences.edit', $emailSequence)
-            ->with('success', "Secuencia \"{$emailSequence->name}\" actualizada exitosamente.");
+        return response()->json($emailSequence);
     }
 
     public function destroy(EmailSequence $emailSequence)
     {
         $emailSequence->delete();
 
-        return redirect()->route('admin.email-sequences.index')
-            ->with('success', 'Secuencia eliminada.');
+        return response()->json(null, 204);
     }
 
     /**
@@ -128,8 +113,7 @@ class EmailSequenceController extends Controller
             'delay_days'  => $data['delay_days'] ?? 0,
         ]);
 
-        return redirect()->route('admin.email-sequences.edit', $emailSequence)
-            ->with('success', 'Paso agregado a la secuencia.');
+        return response()->json($emailSequence->load('steps.template'), 201);
     }
 
     public function removeStep(EmailSequenceStep $step)
@@ -138,8 +122,7 @@ class EmailSequenceController extends Controller
 
         $step->delete();
 
-        return redirect()->route('admin.email-sequences.edit', $emailSequence)
-            ->with('success', 'Paso eliminado de la secuencia.');
+        return response()->json($emailSequence->load('steps.template'));
     }
 
     /**
@@ -156,7 +139,6 @@ class EmailSequenceController extends Controller
 
         app(EmailSequenceService::class)->enroll($emailSequence, $customer);
 
-        return redirect()->route('admin.email-sequences.edit', $emailSequence)
-            ->with('success', "{$customer->first_name} inscrito en la secuencia \"{$emailSequence->name}\".");
+        return response()->json(['success' => true]);
     }
 }

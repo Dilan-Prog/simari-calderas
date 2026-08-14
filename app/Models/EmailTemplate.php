@@ -15,6 +15,12 @@ class EmailTemplate extends Model
         'html_body',
         'type',
         'created_by',
+        'blocks_json',
+        'builder_mode',
+    ];
+
+    protected $casts = [
+        'blocks_json' => 'array',
     ];
 
     public function creator()

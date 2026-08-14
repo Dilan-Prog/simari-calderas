@@ -4,8 +4,10 @@ namespace App\Jobs;
 
 use App\Mail\MarketingEmailMailable;
 use App\Models\EmailSend;
+use App\Models\Quote;
 use App\Services\EmailCampaignService;
 use App\Services\EmailTemplateService;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -47,7 +49,7 @@ class SendMarketingEmailJob implements ShouldQueue
             $trackingPixel   = '<img src="' . $openTrackingUrl . '" width="1" height="1" style="display:none;" alt="" />';
             $rendered['html'] .= $trackingPixel;
         } elseif ($this->send->workflow_step_id !== null) {
-            $this->send->loadMissing('workflowStep', 'customer');
+            $this->send->loadMissing('workflowStep', 'customer', 'enrollment.enrollable');
 
             $templateId = $this->send->workflowStep->action_config['template_id'] ?? null;
             $template   = $templateId ? \App\Models\EmailTemplate::find($templateId) : null;
@@ -56,7 +58,17 @@ class SendMarketingEmailJob implements ShouldQueue
                 return;
             }
 
-            $rendered = app(EmailTemplateService::class)->render($template, $this->send->customer);
+            $enrollable = $this->send->enrollment?->enrollable;
+            $quote      = $enrollable instanceof Quote ? $enrollable : null;
+
+            $rendered = app(EmailTemplateService::class)->render(
+                $template,
+                $this->send->customer,
+                null,
+                $quote,
+                $this->send->customer_id === null ? $this->send->guest_name : null,
+                $this->send->customer_id === null ? $this->send->guest_email : null
+            );
 
             // Mismo reemplazo de token de unsubscribe y pixel de tracking que
             // en las ramas de campaña/secuencia arriba.
@@ -66,11 +78,32 @@ class SendMarketingEmailJob implements ShouldQueue
             $openTrackingUrl = route('email.open', ['token' => $this->send->tracking_token]);
             $trackingPixel   = '<img src="' . $openTrackingUrl . '" width="1" height="1" style="display:none;" alt="" />';
             $rendered['html'] .= $trackingPixel;
+
+            // Adjunta el PDF de la Quote cuando el paso lo pide vía
+            // action_config.attach_source = 'quote_pdf'. Mismo mecanismo que
+            // QuoteMail::attachments() (misma vista, mismos datos), pero
+            // generando el contenido crudo para pasarlo a
+            // MarketingEmailMailable en vez de usar ->attach() directo.
+            if ($this->send->attach_source === 'quote_pdf' && $quote !== null) {
+                $pdf = Pdf::loadView('admin.quotes.pdf', ['quote' => $quote])->setPaper('a4', 'portrait');
+
+                $pdfAttachment = [
+                    'content'  => $pdf->output(),
+                    'filename' => "{$quote->quote_number}.pdf",
+                    'mime'     => 'application/pdf',
+                ];
+            }
         } else {
             return;
         }
 
-        Mail::to($this->send->customer->email)->send(new MarketingEmailMailable($rendered));
+        $recipientEmail = $this->send->recipientEmail();
+
+        if (!$recipientEmail) {
+            return;
+        }
+
+        Mail::to($recipientEmail)->send(new MarketingEmailMailable($rendered, $pdfAttachment ?? null));
 
         $this->send->sent_at = now();
         $this->send->save();

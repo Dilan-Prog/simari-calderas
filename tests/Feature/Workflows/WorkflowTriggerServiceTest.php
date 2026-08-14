@@ -547,4 +547,67 @@ class WorkflowTriggerServiceTest extends TestCase
         $this->assertArrayHasKey('actor_user_id', $enrollment->trigger_context ?? []);
         $this->assertNull($enrollment->trigger_context['actor_user_id']);
     }
+
+    // --- created event: filtrado field/operator/value (nuevo) ---------------
+
+    public function test_created_event_with_field_filter_only_enrolls_when_value_matches(): void
+    {
+        $workflow = $this->makeDealWorkflow(['event' => 'created', 'field' => 'status', 'value' => 'open']);
+        $otherWorkflow = $this->makeDealWorkflow(
+            ['event' => 'created', 'field' => 'status', 'value' => 'lost'],
+            ['name' => 'Workflow created no matchea']
+        );
+
+        $deal = $this->makeDeal(['status' => 'open']);
+
+        $this->assertTrue($this->enrolled($workflow, $deal));
+        $this->assertFalse($this->enrolled($otherWorkflow, $deal));
+    }
+
+    // --- handleModelStageStagnant() ------------------------------------------
+
+    public function test_handle_model_stage_stagnant_enrolls_deal_stalled_in_current_stage(): void
+    {
+        $stage = $this->makePipelineStage();
+
+        $workflow = $this->makeDealWorkflow(['event' => 'stage_stagnant', 'days' => 3]);
+
+        $stalledDeal = $this->makeDeal(['pipeline_stage_id' => $stage->id]);
+        \App\Models\DealStageHistory::create([
+            'deal_id'      => $stalledDeal->id,
+            'from_stage_id' => null,
+            'to_stage_id'  => $stage->id,
+            'moved_at'     => now()->subDays(10),
+        ]);
+
+        $freshDeal = $this->makeDeal(['pipeline_stage_id' => $stage->id]);
+        \App\Models\DealStageHistory::create([
+            'deal_id'      => $freshDeal->id,
+            'from_stage_id' => null,
+            'to_stage_id'  => $stage->id,
+            'moved_at'     => now()->subHours(2),
+        ]);
+
+        app(WorkflowTriggerService::class)->handleModelStageStagnant('deal');
+
+        $this->assertTrue($this->enrolled($workflow, $stalledDeal));
+        $this->assertFalse($this->enrolled($workflow, $freshDeal));
+    }
+
+    // --- handleModelUpcoming() -----------------------------------------------
+
+    public function test_handle_model_upcoming_enrolls_deal_with_close_date_within_window(): void
+    {
+        $workflow = $this->makeDealWorkflow(['event' => 'upcoming', 'field' => 'expected_close_date', 'days' => 7]);
+
+        $soonDeal = $this->makeDeal(['expected_close_date' => now()->addDays(3)]);
+        $farDeal = $this->makeDeal(['expected_close_date' => now()->addDays(30)]);
+        $pastDeal = $this->makeDeal(['expected_close_date' => now()->subDays(1)]);
+
+        app(WorkflowTriggerService::class)->handleModelUpcoming('deal', 'expected_close_date');
+
+        $this->assertTrue($this->enrolled($workflow, $soonDeal));
+        $this->assertFalse($this->enrolled($workflow, $farDeal));
+        $this->assertFalse($this->enrolled($workflow, $pastDeal));
+    }
 }

@@ -17,18 +17,55 @@ class Products extends Model
     }
 
     /**
-     * FIX (SEO redirects): a product's slug can change (edit, or the
-     * {marca}/{modelo}-in-name slug bug being corrected) — sin esto la URL
-     * vieja simplemente 404 sin avisar. Mismo patrón que
+     * Control transitorio (no se guarda en BD, ni está en $fillable) que
+     * decide si el próximo save() registra el redirect 301 automático al
+     * cambiar el slug — lo setea el controlador desde el checkbox
+     * "Redirigir la URL anterior" antes de guardar. Al ser una propiedad
+     * declarada, PHP la resuelve directo y no pasa por el __set() mágico de
+     * Eloquent (que intentaría guardarla como columna real). Default null =
+     * "no se especificó", se trata como true (comportamiento de siempre).
+     */
+    public ?bool $redirectOldSlug = null;
+
+    /**
+     * Accessor virtual (no hay columna real) para que los checkboxes "¿Es
+     * la URL Canónica?" y "Redirigir URL anterior" del editor individual y
+     * en lote muestren el estado real al cargar la fila/formulario, aunque
+     * no exista una columna `is_canonical` en la BD — se deriva de si
+     * canonical_url está vacío.
+     */
+    public function getIsCanonicalAttribute(): bool
+    {
+        return empty($this->canonical_url);
+    }
+
+    /**
+     * Igual que arriba, pero para el checkbox de redirect: siempre se
+     * muestra marcado por defecto, porque así es como se comporta si el
+     * usuario no lo toca (ver booted() más abajo).
+     */
+    public function getRedirectOldSlugAttribute(): bool
+    {
+        return $this->redirectOldSlug ?? true;
+    }
+
+    /**
+     * FIX (SEO redirects): a product's slug can change (edit, o el bug de
+     * slug {marca}/{modelo} en el nombre siendo corregido) — sin esto la
+     * URL vieja simplemente 404 sin avisar. Mismo patrón que
      * Category::booted()/cascadeSlugToDescendants(): al guardar, si el
      * slug cambió en un producto YA existente (no uno recién creado, que
-     * no tiene "URL vieja" que redirigir), registra un 301 de la ruta
-     * anterior a la nueva.
+     * no tiene "URL vieja" que redirigir) Y no se pidió explícitamente
+     * omitir el redirect, registra un 301 de la ruta anterior a la nueva.
      */
     protected static function booted(): void
     {
         static::saved(function (Products $product) {
             if ($product->wasRecentlyCreated || !$product->wasChanged('slug')) {
+                return;
+            }
+
+            if ($product->redirectOldSlug === false) {
                 return;
             }
 

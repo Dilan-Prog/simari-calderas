@@ -19,6 +19,20 @@
                 });
             });
 
+            /* ── Toggle "¿Es la URL Canónica?" — muestra/oculta el campo de
+               URL Canónica según el checkbox (misma lógica que edit.blade.php). */
+            const isCanonicalCheckbox = document.getElementById('pformIsCanonical');
+            const canonicalUrlWrap = document.getElementById('pformCanonicalUrlWrap');
+            const canonicalUrlInput = document.getElementById('pformCanonicalUrl');
+            if (isCanonicalCheckbox && canonicalUrlWrap) {
+                isCanonicalCheckbox.addEventListener('change', () => {
+                    canonicalUrlWrap.style.display = isCanonicalCheckbox.checked ? 'none' : '';
+                    if (isCanonicalCheckbox.checked && canonicalUrlInput) {
+                        canonicalUrlInput.value = '';
+                    }
+                });
+            }
+
             /* ── Character counter (short desc) ── */
             const shortDesc = document.getElementById('pformShortDesc');
             const charCount = document.getElementById('pformCharCount');

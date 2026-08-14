@@ -51,6 +51,45 @@ function sameBranchKey(a, b) {
 }
 
 /**
+ * Etiqueta de arista para un step ramificado, según el step_type de su
+ * "dueño de rama" (el step en step.parent_step_id -- el mismo para todos
+ * los steps de una rama, sea el primero de la rama o uno más profundo,
+ * porque sameBranchKey() los agrupa por parent_step_id + branch_key).
+ *
+ * NO cambia el comportamiento existente para 'condition' (yes/no -> Sí/No):
+ * sólo se agregan ramas nuevas al lado vía un switch sobre step_type en vez
+ * de asumir que todo el árbol es 'condition'.
+ */
+function branchLabelFor(step, parentStep) {
+    if (!parentStep || step.branch_key == null) return undefined;
+
+    switch (parentStep.step_type) {
+        case 'condition':
+            return step.branch_key === 'yes'
+                ? 'Sí'
+                : step.branch_key === 'no'
+                    ? 'No'
+                    : undefined;
+
+        case 'switch': {
+            if (step.branch_key === 'default') return 'Otro caso';
+            const rules = Array.isArray(parentStep.action_config?.rules) ? parentStep.action_config.rules : [];
+            const rule = rules.find((r) => r.branch_key === step.branch_key);
+            return rule ? (rule.label || rule.branch_key) : undefined;
+        }
+
+        case 'parallel': {
+            const branches = Array.isArray(parentStep.action_config?.branches) ? parentStep.action_config.branches : [];
+            const branch = branches.find((b) => b.branch_key === step.branch_key);
+            return branch ? (branch.label || branch.branch_key) : undefined;
+        }
+
+        default:
+            return undefined;
+    }
+}
+
+/**
  * Para cada step, encuentra su predecesor inmediato: el step con mismo
  * parent_step_id y mismo branch_key, con el mayor 'order' que sea menor
  * al 'order' de este step. Debe mantenerse en espejo con nextSiblingOf()
@@ -140,6 +179,7 @@ export function toFlow(steps, workflow, catalog) {
 
     // --- Edges ---
     const predecessorByStepId = buildPredecessorMap(steps);
+    const stepById = new Map(steps.map((s) => [s.id, s]));
 
     const edges = steps.map((step) => {
         const predecessor = predecessorByStepId.get(step.id);
@@ -160,11 +200,8 @@ export function toFlow(steps, workflow, catalog) {
 
         const target = String(step.id);
 
-        const label = step.branch_key === 'yes'
-            ? 'Sí'
-            : step.branch_key === 'no'
-                ? 'No'
-                : undefined;
+        const parentStep = step.parent_step_id != null ? stepById.get(step.parent_step_id) : null;
+        const label = branchLabelFor(step, parentStep);
 
         return {
             id: `e-${source}-${target}`,
@@ -176,5 +213,21 @@ export function toFlow(steps, workflow, catalog) {
         };
     });
 
-    return { nodes, edges };
+    // Aristas de Join (aditivas): además de su arista normal dentro de su
+    // propia rama (ya incluida arriba), cada step con joins_into_step_id
+    // apuntando a un 'join' agrega una arista extra simple hacia ese join.
+    const joinEdges = steps
+        .filter((step) => step.joins_into_step_id != null)
+        .map((step) => {
+            const source = String(step.id);
+            const target = String(step.joins_into_step_id);
+            return {
+                id: `e-join-${source}-${target}`,
+                source,
+                target,
+                type: 'smoothstep',
+            };
+        });
+
+    return { nodes, edges: [...edges, ...joinEdges] };
 }

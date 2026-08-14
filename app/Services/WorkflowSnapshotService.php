@@ -35,7 +35,7 @@ class WorkflowSnapshotService
     private function buildSnapshotPayload(Workflow $workflow): array
     {
         $stepsSnapshot = $workflow->allSteps()->get([
-            'id', 'parent_step_id', 'branch_key', 'order', 'step_type',
+            'id', 'parent_step_id', 'branch_key', 'joins_into_step_id', 'order', 'step_type',
             'action_type', 'action_config', 'branch_condition',
             'position_x', 'position_y',
         ])->toArray();
@@ -222,6 +222,15 @@ class WorkflowSnapshotService
 
             // 5. Aplica cada fila: actualiza si el id sigue vivo, re-inserta si
             // fue borrado por una acción posterior a este snapshot.
+            //
+            // joins_into_step_id es una FK a workflow_steps.id que puede
+            // apuntar "hacia adelante" (el último step de una rama de
+            // 'parallel' apunta a su 'join', que es HERMANO suyo -- no un
+            // ancestro -- así que el orden topológico por parent_step_id no
+            // garantiza que el join ya exista cuando se inserta/actualiza la
+            // rama). Para no violar la FK, esta columna se aplica siempre en
+            // null durante este primer pase y se parchea en un segundo pase
+            // (paso 6) una vez que todas las filas del snapshot existen.
             $existingIds = WorkflowStep::where('workflow_id', $workflow->id)->pluck('id')->flip();
 
             foreach ($ordered as $row) {
@@ -230,6 +239,7 @@ class WorkflowSnapshotService
                 $fields = [
                     'parent_step_id'   => $row['parent_step_id'] ?? null,
                     'branch_key'       => $row['branch_key'] ?? null,
+                    'joins_into_step_id' => null,
                     'order'            => $row['order'],
                     'step_type'        => $row['step_type'],
                     'action_type'      => $row['action_type'] ?? null,
@@ -255,6 +265,19 @@ class WorkflowSnapshotService
                         'updated_at'       => now(),
                     ]));
                     $existingIds->put($id, true);
+                }
+            }
+
+            // 6. Segundo pase: ahora que todas las filas del snapshot existen,
+            // aplica joins_into_step_id (puede referenciar a cualquier otra
+            // fila del mismo snapshot sin importar el orden de inserción).
+            foreach ($ordered as $row) {
+                $joinsInto = $row['joins_into_step_id'] ?? null;
+
+                if ($joinsInto !== null) {
+                    WorkflowStep::where('id', (int) $row['id'])->update([
+                        'joins_into_step_id' => (int) $joinsInto,
+                    ]);
                 }
             }
         });

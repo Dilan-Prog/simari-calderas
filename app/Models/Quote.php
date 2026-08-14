@@ -86,6 +86,21 @@ class Quote extends Model
         return in_array($this->status, ['draft', 'sent']);
     }
 
+    public function getIsExpiredAttribute(): bool
+    {
+        return $this->valid_until !== null && $this->valid_until->lt(now()->startOfDay());
+    }
+
+    public function getHasServiceItemsAttribute(): bool
+    {
+        return $this->items->contains(fn (QuoteItem $item) => $item->isService());
+    }
+
+    public function getHasProductItemsAttribute(): bool
+    {
+        return $this->items->contains(fn (QuoteItem $item) => $item->isProduct());
+    }
+
     public static function statusLabel(string $status): string
     {
         return match($status) {

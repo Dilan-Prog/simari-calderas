@@ -334,4 +334,115 @@ class WorkflowEngineTest extends TestCase
                 ->count()
         );
     }
+
+    /**
+     * Un step 'end' debe completar la inscripción exactamente igual que
+     * llegar al final del árbol sin hijos (caso "!$step" ya existente):
+     * mismo status, completed_at seteado, current_step_id en null.
+     */
+    public function test_end_step_completes_enrollment_same_as_no_next_step(): void
+    {
+        $workflow = $this->makeWorkflow();
+        $customer = $this->makeCustomer();
+
+        $actionStep = WorkflowStep::create([
+            'workflow_id'    => $workflow->id,
+            'parent_step_id' => null,
+            'order'          => 0,
+            'step_type'      => 'action',
+            'action_type'    => 'notify_rep',
+            'action_config'  => [],
+        ]);
+
+        $endStep = WorkflowStep::create([
+            'workflow_id'    => $workflow->id,
+            'parent_step_id' => null,
+            'order'          => 1,
+            'step_type'      => 'end',
+            'action_type'    => null,
+            'action_config'  => [],
+        ]);
+
+        // Step "muerto" después del end -- nunca debe ejecutarse, porque
+        // 'end' completa la inscripción de inmediato sin seguir avanzando.
+        $unreachableStep = WorkflowStep::create([
+            'workflow_id'    => $workflow->id,
+            'parent_step_id' => null,
+            'order'          => 2,
+            'step_type'      => 'action',
+            'action_type'    => 'notify_rep',
+            'action_config'  => [],
+        ]);
+
+        $enrollment = app(WorkflowEngineService::class)->enroll($workflow, $customer);
+        $enrollment->refresh();
+
+        $this->assertEquals('completed', $enrollment->status);
+        $this->assertNotNull($enrollment->completed_at);
+        // 'end' completa igual que el caso "!$step": no toca current_step_id,
+        // se queda apuntando al propio step 'end' que gatilló la completitud.
+        $this->assertEquals($endStep->id, $enrollment->current_step_id);
+
+        $this->assertTrue(
+            WorkflowEnrollmentLog::where('enrollment_id', $enrollment->id)->where('step_id', $actionStep->id)->exists()
+        );
+        $this->assertFalse(
+            WorkflowEnrollmentLog::where('enrollment_id', $enrollment->id)->where('step_id', $unreachableStep->id)->exists()
+        );
+    }
+
+    /**
+     * Un 'loop' con max_iterations=2 debe ejecutar el cuerpo exactamente 2
+     * veces (1 vuelta inicial + 1 repetición) y luego continuar hacia el
+     * siguiente hermano del loop, sin dar una tercera vuelta.
+     */
+    public function test_loop_with_max_iterations_two_stops_after_exactly_two_iterations(): void
+    {
+        $workflow = $this->makeWorkflow();
+        $customer = $this->makeCustomer();
+
+        $loopStep = WorkflowStep::create([
+            'workflow_id'    => $workflow->id,
+            'parent_step_id' => null,
+            'order'          => 0,
+            'step_type'      => 'loop',
+            'action_type'    => null,
+            'action_config'  => ['max_iterations' => 2],
+        ]);
+
+        $bodyStep = WorkflowStep::create([
+            'workflow_id'    => $workflow->id,
+            'parent_step_id' => $loopStep->id,
+            'order'          => 0,
+            'step_type'      => 'action',
+            'action_type'    => 'notify_rep',
+            'action_config'  => [],
+        ]);
+
+        $afterLoopStep = WorkflowStep::create([
+            'workflow_id'    => $workflow->id,
+            'parent_step_id' => null,
+            'order'          => 1,
+            'step_type'      => 'action',
+            'action_type'    => 'notify_rep',
+            'action_config'  => [],
+        ]);
+
+        $enrollment = app(WorkflowEngineService::class)->enroll($workflow, $customer);
+        $enrollment->refresh();
+
+        $this->assertEquals('completed', $enrollment->status);
+        $this->assertNull($enrollment->current_step_id);
+
+        $bodyRuns = WorkflowEnrollmentLog::where('enrollment_id', $enrollment->id)
+            ->where('step_id', $bodyStep->id)
+            ->count();
+        $this->assertEquals(2, $bodyRuns);
+
+        $this->assertTrue(
+            WorkflowEnrollmentLog::where('enrollment_id', $enrollment->id)->where('step_id', $afterLoopStep->id)->exists()
+        );
+
+        $this->assertEquals(1, $enrollment->trigger_context['loop_iterations'][$loopStep->id] ?? null);
+    }
 }

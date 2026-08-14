@@ -24,12 +24,13 @@ class UpdateWorkflowStepRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'step_type' => 'nullable|sometimes|in:action,condition,wait',
+            'step_type' => 'nullable|sometimes|in:action,condition,wait,end,switch,parallel,join,loop',
             'parent_step_id' => 'nullable|sometimes|integer|exists:workflow_steps,id',
             'action_type' => 'nullable|sometimes|string|max:150',
             'action_config' => 'nullable|sometimes|array',
+            'action_config.max_iterations' => 'required_if:step_type,loop|integer|min:1|max:50',
             'branch_condition' => 'nullable|sometimes|array',
-            'branch_key' => 'nullable|sometimes|string|in:yes,no',
+            'branch_key' => 'nullable|sometimes|string|max:20|regex:/^[a-z0-9_]+$/i',
             'position_x' => 'nullable|sometimes|integer',
             'position_y' => 'nullable|sometimes|integer',
         ];

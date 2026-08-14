@@ -32,6 +32,52 @@ class WorkflowConditionEvaluator
             return true;
         }
 
+        return self::matchesRule($model, $field, $operator, $expected);
+    }
+
+    /**
+     * Evalúa un step 'switch': recorre $switchConfig['rules'] EN ORDEN y
+     * retorna el branch_key de la primera regla que matchea. Si ninguna
+     * matchea (o no hay reglas), retorna la cadena literal 'default'.
+     *
+     * Forma esperada de $switchConfig:
+     * ["rules" => [
+     *     ["branch_key" => "case_0", "field" => "status", "operator" => "equals", "value" => "accepted"],
+     *     ...
+     * ]]
+     *
+     * @param Model|array $model
+     */
+    public static function evaluateSwitch(Model|array $model, array $switchConfig): string
+    {
+        $rules = $switchConfig['rules'] ?? [];
+
+        foreach ($rules as $rule) {
+            $branchKey = $rule['branch_key'] ?? null;
+            $field     = $rule['field'] ?? null;
+            $operator  = $rule['operator'] ?? null;
+            $expected  = $rule['value'] ?? null;
+
+            // Regla incompleta (sin branch_key, field u operator) -> no matchea.
+            if (empty($branchKey) || empty($field) || empty($operator)) {
+                continue;
+            }
+
+            if (self::matchesRule($model, $field, $operator, $expected)) {
+                return $branchKey;
+            }
+        }
+
+        return 'default';
+    }
+
+    /**
+     * Lógica de operadores compartida entre evaluate() y evaluateSwitch().
+     *
+     * @param Model|array $model
+     */
+    private static function matchesRule(Model|array $model, string $field, string $operator, mixed $expected): bool
+    {
         // data_get soporta dot-notation para uso futuro; hoy los campos son planos.
         $actual = data_get($model, $field);
 
