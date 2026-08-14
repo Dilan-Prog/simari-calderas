@@ -1,12 +1,11 @@
 @props(['product', 'compact' => false])
 
 @php
-    // NOTA: compare_price no tiene su propia bandera de IVA — el % de
-    // descuento aquí sigue comparando contra el precio crudo, no contra
-    // final_price. Fuera de alcance por ahora (no pedido por el usuario).
-    $hasDiscount = $product->compare_price && $product->compare_price > $product->price;
-    $discountPct = $hasDiscount ? round((1 - ($product->price / $product->compare_price)) * 100) : null;
-    // Fijo a MXN: final_price/compare_price_in_mxn ya vienen convertidos.
+    // Comparación en unidades consistentes: base_price/compare_base_price ya
+    // vienen convertidos a MXN y sin IVA, igual que lo que se muestra abajo.
+    $hasDiscount = $product->compare_base_price && $product->compare_base_price > $product->base_price;
+    $discountPct = $hasDiscount ? round((1 - ($product->base_price / $product->compare_base_price)) * 100) : null;
+    // Fijo a MXN: base_price/compare_base_price ya vienen convertidos.
     $currency = 'MXN';
     $galleryUrls = $product->images->pluck('url')->filter()->values();
     $hasGallery = $galleryUrls->count() > 1;
@@ -46,10 +45,11 @@
         <div class="product-card__name">{{ $resolvedName }}</div>
         <div class="product-card__sku">{{ $product->sku }}</div>
         @if ($hasDiscount)
-            <div class="product-card__original">${{ number_format($product->compare_price_in_mxn, 2) }} {{ $currency }}</div>
+            <div class="product-card__original">${{ number_format($product->compare_base_price, 2) }} {{ $currency }}</div>
         @endif
         <div class="product-card__price-row">
-            <span class="product-card__price">${{ number_format($product->final_price, 2) }} {{ $currency }}</span>
+            <span class="product-card__price">${{ number_format($product->base_price, 2) }} {{ $currency }}</span>
+            <span class="product-card__iva-note">+ IVA</span>
             @if ($hasDiscount)
                 <span class="product-card__discount">{{ $discountPct }}% OFF</span>
             @endif

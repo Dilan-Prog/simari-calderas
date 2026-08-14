@@ -86,7 +86,7 @@
             'url' => $canonicalUrl,
             'offers' => [
                 '@type' => 'Offer',
-                'price' => number_format($product->final_price, 2, '.', ''),
+                'price' => number_format($product->base_price, 2, '.', ''),
                 'priceCurrency' => 'MXN',
                 'availability' => $availabilitySchema,
                 'url' => $canonicalUrl,

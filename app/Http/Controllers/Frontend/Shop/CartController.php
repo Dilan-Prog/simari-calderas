@@ -43,11 +43,13 @@ class CartController extends Controller
         $newQuantity = ($existing->quantity ?? 0) + $data['quantity'];
 
         // Nunca confiar en un precio mandado por el cliente: siempre se
-        // recalcula desde el accessor final_price del producto (ya incluye
-        // IVA/conversión a MXN).
+        // recalcula desde el accessor base_price del producto (precio de
+        // venta sin IVA, ya convertido a MXN si el producto es USD). El IVA
+        // se agrega aparte en el carrito/checkout (Cart::taxTotal()), no se
+        // hornea en el snapshot de cada línea.
         CartItem::updateOrCreate(
             ['cart_id' => $cart->id, 'product_id' => $product->id],
-            ['quantity' => $newQuantity, 'unit_price_snapshot' => $product->final_price]
+            ['quantity' => $newQuantity, 'unit_price_snapshot' => $product->base_price]
         );
 
         $cart->update(['last_activity_at' => now()]);

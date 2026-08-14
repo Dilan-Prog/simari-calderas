@@ -81,9 +81,10 @@ class CheckoutController extends Controller
         $cart = $this->currentCart()->load('items.product.images');
 
         $subtotal = $cart->subtotal();
+        $taxTotal = $cart->taxTotal();
         $shippingTotal = $cart->shippingTotal();
 
-        return view('frontend.shop.checkout.index', compact('cart', 'subtotal', 'shippingTotal'));
+        return view('frontend.shop.checkout.index', compact('cart', 'subtotal', 'taxTotal', 'shippingTotal'));
     }
 
     public function shipping()
@@ -219,11 +220,13 @@ class CheckoutController extends Controller
         $paymentMethods = PaymentMethod::where('is_active', true)->orderBy('sort_order')->get();
 
         $subtotal = $cart->subtotal();
+        $taxTotal = $cart->taxTotal();
         $shippingTotal = $cart->shippingTotal();
         $summary = [
             'subtotal'      => $subtotal,
+            'taxTotal'      => $taxTotal,
             'shippingTotal' => $shippingTotal,
-            'total'         => round($subtotal + $shippingTotal, 2),
+            'total'         => round($subtotal + $taxTotal + $shippingTotal, 2),
         ];
 
         return view('frontend.shop.checkout.payment', compact('paymentMethods', 'summary'));
@@ -249,23 +252,15 @@ class CheckoutController extends Controller
 
         // Recalcula todo server-side a partir de los items actuales del
         // carrito: nunca confiar en totales viejos de sesión ni en el
-        // cliente. final_price (usado como unit_price_snapshot al agregar
-        // al carrito) ya incluye IVA, así que subtotal/total del pedido ya
-        // vienen con impuesto incluido; tax_total aquí es SOLO informativo
-        // (desglose de cuánto de ese total es IVA), calculado comparando
-        // final_price vs base_price actuales de cada producto — no se suma
-        // aparte al total para evitar contar el IVA dos veces.
+        // cliente. unit_price_snapshot (fijado en CartController::add())
+        // guarda el precio SIN IVA, así que el IVA sí se suma aparte aquí
+        // (Cart::taxTotal(), misma tasa plana sobre el subtotal ya agregado
+        // que usa el checkout en index()/payment() — una sola fuente de
+        // verdad para el cálculo, no una copia local del mismo cómputo).
         $subtotal = $cart->subtotal();
+        $taxTotal = $cart->taxTotal();
         $shippingTotal = $cart->shippingTotal();
-        $total = round($subtotal + $shippingTotal, 2);
-
-        $taxTotal = round($cart->items->sum(function ($item) {
-            if (! $item->product) {
-                return 0;
-            }
-
-            return ($item->product->final_price - $item->product->base_price) * $item->quantity;
-        }), 2);
+        $total = round($subtotal + $taxTotal + $shippingTotal, 2);
 
         $storeOrder = DB::transaction(function () use ($cart, $shipping, $data, $subtotal, $shippingTotal, $total, $taxTotal) {
             $storeOrder = StoreOrder::create([

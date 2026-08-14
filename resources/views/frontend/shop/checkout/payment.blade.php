@@ -193,6 +193,10 @@
                 <span>${{ number_format($summary['subtotal'], 2) }} MXN</span>
             </div>
             <div class="checkout-summary__row">
+                <span>IVA ({{ number_format(\App\Models\Products::ivaRate(), 0) }}%)</span>
+                <span>${{ number_format($summary['taxTotal'], 2) }} MXN</span>
+            </div>
+            <div class="checkout-summary__row">
                 <span>Envío</span>
                 <span>{{ $summary['shippingTotal'] > 0 ? '$' . number_format($summary['shippingTotal'], 2) . ' MXN' : 'Gratis' }}</span>
             </div>

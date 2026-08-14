@@ -1,10 +1,9 @@
 @php
-    // NOTA: compare_price no tiene su propia bandera de IVA — el % de
-    // descuento aquí sigue comparando contra el precio crudo, no contra
-    // final_price. Fuera de alcance por ahora (no pedido por el usuario).
-    $hasDiscount = $product->compare_price && $product->compare_price > $product->price;
-    $discountPct = $hasDiscount ? round((1 - ($product->price / $product->compare_price)) * 100) : null;
-    // Fijo a MXN: final_price/compare_price_in_mxn ya vienen convertidos.
+    // Comparación en unidades consistentes: base_price/compare_base_price ya
+    // vienen convertidos a MXN y sin IVA, igual que lo que se muestra abajo.
+    $hasDiscount = $product->compare_base_price && $product->compare_base_price > $product->base_price;
+    $discountPct = $hasDiscount ? round((1 - ($product->base_price / $product->compare_base_price)) * 100) : null;
+    // Fijo a MXN: base_price/compare_base_price ya vienen convertidos.
     $currency = 'MXN';
     $quoteMessage = "Hola, me interesa cotizar este producto: {$product->resolveVariables($product->name)} (SKU: {$product->sku}) - " . route('product.show', $product->slug);
     $quoteWhatsappUrl = 'https://wa.me/524494348018?text=' . urlencode($quoteMessage);
@@ -16,11 +15,11 @@
     @if ($hasDiscount)
         <div class="product-price-box__discount-row">
             <span class="product-price-box__discount-badge">{{ $discountPct }}% OFF</span>
-            <span class="product-price-box__original">${{ number_format($product->compare_price_in_mxn, 2) }}</span>
+            <span class="product-price-box__original">${{ number_format($product->compare_base_price, 2) }}</span>
         </div>
     @endif
-    <div class="product-price-box__price">${{ number_format($product->final_price, 2) }} {{ $currency }}</div>
-    <div class="product-price-box__iva">IVA incluido</div>
+    <div class="product-price-box__price">${{ number_format($product->base_price, 2) }} {{ $currency }}</div>
+    <div class="product-price-box__iva">+ IVA</div>
     <div class="product-price-box__shipping">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7h11l4 4v6h-2M3 7v10h2M3 7l2-3h7l2 3M7 21a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM17 21a2 2 0 1 0 0-4 2 2 0 0 0 0 4z"/></svg>
         Envío gratis a toda la República Mexicana

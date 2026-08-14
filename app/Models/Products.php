@@ -271,8 +271,7 @@ class Products extends Model
             : round($price, 2);
     }
 
-    // Precio final con IVA, ya en MXN — el único precio que debe
-    // mostrarse/venderse al cliente.
+    // Precio final con IVA, ya en MXN.
     public function getFinalPriceAttribute(): float
     {
         $price = $this->price_in_mxn;
@@ -280,6 +279,29 @@ class Products extends Model
         return $this->price_includes_tax
             ? round($price, 2)
             : round($price + $this->iva_amount, 2);
+    }
+
+    // Precio "antes" (compare_price) sin IVA, ya en MXN — mismo criterio de
+    // normalización que base_price: compare_price no tiene su propia bandera
+    // de impuesto, así que se asume el mismo price_includes_tax del precio
+    // principal. Usado por la tarjeta/ficha de producto para mostrar el
+    // precio tachado consistente con el precio de venta (ambos sin IVA).
+    public function getCompareBasePriceAttribute(): ?float
+    {
+        if ($this->compare_price === null) {
+            return null;
+        }
+
+        $price = $this->compare_price_in_mxn;
+
+        if (!$this->price_includes_tax) {
+            return round($price, 2);
+        }
+
+        $rate = static::ivaRate();
+        $ivaOnCompare = round($price - ($price / (1 + $rate / 100)), 2);
+
+        return round($price - $ivaOnCompare, 2);
     }
 
     public function images()

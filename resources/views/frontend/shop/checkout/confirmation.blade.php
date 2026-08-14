@@ -18,6 +18,26 @@
             Hemos recibido tu pedido por un total de <strong>${{ number_format($storeOrder->total, 2) }} {{ $storeOrder->currency }}</strong>.
             Te contactaremos a <strong>{{ $storeOrder->contact_email }}</strong> con los siguientes pasos para tu pago y envío.
         </p>
+
+        <div style="text-align:left; max-width:320px; margin:0 auto 28px;">
+            <div class="checkout-summary__row">
+                <span>Subtotal</span>
+                <span>${{ number_format($storeOrder->subtotal, 2) }} MXN</span>
+            </div>
+            <div class="checkout-summary__row">
+                <span>IVA</span>
+                <span>${{ number_format($storeOrder->tax_total, 2) }} MXN</span>
+            </div>
+            <div class="checkout-summary__row">
+                <span>Envío</span>
+                <span>{{ $storeOrder->shipping_total > 0 ? '$' . number_format($storeOrder->shipping_total, 2) . ' MXN' : 'Gratis' }}</span>
+            </div>
+            <div class="checkout-summary__row checkout-summary__row--total" style="margin-bottom:0;">
+                <span>Total</span>
+                <span>${{ number_format($storeOrder->total, 2) }} {{ $storeOrder->currency }}</span>
+            </div>
+        </div>
+
         <a href="{{ route('catalog.index') }}" class="checkout-confirmation__link">Volver al catálogo</a>
     </div>
 </div>

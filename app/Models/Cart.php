@@ -43,9 +43,24 @@ class Cart extends Model
         return $this->hasMany(CartItem::class);
     }
 
+    // unit_price_snapshot guarda el precio SIN IVA (ver CartController::add())
+    // desde que el precio mostrado en tienda dejó de incluir impuesto — este
+    // subtotal es, a propósito, el monto antes de IVA.
     public function subtotal(): float
     {
         return round($this->items->sum(fn (CartItem $item) => $item->quantity * $item->unit_price_snapshot), 2);
+    }
+
+    /**
+     * IVA sobre el subtotal, a la tasa global vigente (Products::ivaRate()).
+     * unit_price_snapshot ya normaliza cada línea a "sin IVA" al momento de
+     * agregarla al carrito (independiente de cómo cada producto tenga
+     * price_includes_tax) — así que basta aplicar una sola tasa plana sobre
+     * el subtotal ya agregado, sin tener que revisar producto por producto.
+     */
+    public function taxTotal(): float
+    {
+        return round($this->subtotal() * (Products::ivaRate() / 100), 2);
     }
 
     /**

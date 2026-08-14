@@ -107,12 +107,16 @@
                     <span>${{ number_format($subtotal, 2) }} MXN</span>
                 </div>
                 <div class="checkout-summary__row">
+                    <span>IVA ({{ number_format(\App\Models\Products::ivaRate(), 0) }}%)</span>
+                    <span>${{ number_format($taxTotal, 2) }} MXN</span>
+                </div>
+                <div class="checkout-summary__row">
                     <span>Envío</span>
                     <span>{{ $shippingTotal > 0 ? '$' . number_format($shippingTotal, 2) . ' MXN' : 'Gratis' }}</span>
                 </div>
                 <div class="checkout-summary__row checkout-summary__row--total">
                     <span>Total</span>
-                    <span>${{ number_format($subtotal + $shippingTotal, 2) }} MXN</span>
+                    <span>${{ number_format($subtotal + $taxTotal + $shippingTotal, 2) }} MXN</span>
                 </div>
                 <a href="{{ route('checkout.shipping') }}" class="checkout-summary__continue">Continuar a envío</a>
                 <a href="{{ route('catalog.index') }}" class="checkout-summary__back">
