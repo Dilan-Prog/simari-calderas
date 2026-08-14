@@ -151,7 +151,27 @@ return [
         'supports_stale'    => false,
         'stale_field'       => null,
         'customer_relation' => 'customer',
-        'relations'         => ['customer', 'items', 'paymentMethod'],
+        'relations'         => ['customer', 'items', 'paymentMethod', 'shipment'],
+    ],
+
+    'shipment' => [
+        'model'             => \App\Models\Shipment::class,
+        'label'             => 'Envío',
+        'group'             => 'Ecommerce',
+        'supports_stale'    => false,
+        'stale_field'       => null,
+        'customer_relation' => null,
+        'relations'         => ['storeOrder', 'carrier'],
+    ],
+
+    'carrier' => [
+        'model'             => \App\Models\Delivery::class,
+        'label'             => 'Transportista',
+        'group'             => 'Ecommerce',
+        'supports_stale'    => false,
+        'stale_field'       => null,
+        'customer_relation' => null,
+        'relations'         => [],
     ],
 
     'store_order_item' => [
