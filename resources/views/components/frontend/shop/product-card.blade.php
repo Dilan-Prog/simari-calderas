@@ -49,7 +49,7 @@
         @endif
         <div class="product-card__price-row">
             <span class="product-card__price">${{ number_format($product->base_price, 2) }} {{ $currency }}</span>
-            <span class="product-card__iva-note">+ IVA</span>
+            <span class="product-card__iva-note">Precio + IVA</span>
             @if ($hasDiscount)
                 <span class="product-card__discount">{{ $discountPct }}% OFF</span>
             @endif

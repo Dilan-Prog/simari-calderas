@@ -19,7 +19,7 @@
         </div>
     @endif
     <div class="product-price-box__price">${{ number_format($product->base_price, 2) }} {{ $currency }}</div>
-    <div class="product-price-box__iva">+ IVA</div>
+    <div class="product-price-box__iva">Precio+ IVA</div>
     <div class="product-price-box__shipping">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7h11l4 4v6h-2M3 7v10h2M3 7l2-3h7l2 3M7 21a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM17 21a2 2 0 1 0 0-4 2 2 0 0 0 0 4z"/></svg>
         Envío gratis a toda la República Mexicana
