@@ -20,6 +20,7 @@
             ['key' => 'compare_price', 'label' => 'Precio Comp.', 'group' => 'Precios / Inventario', 'type' => 'text'],
             ['key' => 'cost', 'label' => 'Costo', 'group' => 'Precios / Inventario', 'type' => 'text'],
             ['key' => 'shipping_cost', 'label' => 'Costo de Envío', 'group' => 'Precios / Inventario', 'type' => 'text'],
+            ['key' => 'free_shipping_threshold', 'label' => 'Envío Gratis Desde', 'group' => 'Precios / Inventario', 'type' => 'text'],
             ['key' => 'stock', 'label' => 'Stock', 'group' => 'Precios / Inventario', 'type' => 'number'],
             ['key' => 'stock_unit', 'label' => 'Unidad Stock', 'group' => 'Precios / Inventario', 'type' => 'select',
                 'options' => ['pieza' => 'Pieza', 'juego' => 'Juego', 'kit' => 'Kit', 'metro' => 'Metro', 'kg' => 'Kg', 'litro' => 'Litro']],

@@ -258,7 +258,7 @@ class ProductController extends Controller
 
     private const BULK_EDIT_FIELDS = [
         'name', 'model', 'short_description', 'description',
-        'price', 'compare_price', 'price_includes_tax', 'cost', 'shipping_cost', 'stock', 'stock_unit', 'currency', 'availability',
+        'price', 'compare_price', 'price_includes_tax', 'cost', 'shipping_cost', 'free_shipping_threshold', 'stock', 'stock_unit', 'currency', 'availability',
         'category_id', 'brand_id', 'is_active', 'publish_on_website', 'is_featured', 'is_new', 'is_recommended',
         'tags', 'specifications', 'faqs',
         'seo_title', 'seo_description', 'seo_keywords', 'og_title', 'og_description', 'og_image', 'canonical_url',
@@ -276,7 +276,7 @@ class ProductController extends Controller
     // ocultar dentro de una vista guardada.
     private const BULK_EDIT_VIEW_COLUMNS = [
         'model', 'short_description', 'description',
-        'price', 'compare_price', 'price_includes_tax', 'cost', 'shipping_cost', 'stock', 'stock_unit', 'currency', 'availability',
+        'price', 'compare_price', 'price_includes_tax', 'cost', 'shipping_cost', 'free_shipping_threshold', 'stock', 'stock_unit', 'currency', 'availability',
         'category_id', 'category_sub', 'category_child', 'brand_id', 'is_active', 'publish_on_website', 'is_featured', 'is_new', 'is_recommended',
         'tags', 'specifications', 'faqs',
         'seo_title', 'seo_description', 'seo_keywords', 'og_title', 'og_description', 'og_image', 'canonical_url',
@@ -329,7 +329,7 @@ class ProductController extends Controller
     {
         $query = $this->filteredProductsQuery($request, [
             'id', 'name', 'sku', 'model', 'supplier_sku', 'short_description', 'description',
-            'price', 'compare_price', 'price_includes_tax', 'cost', 'shipping_cost', 'stock', 'stock_unit', 'currency', 'availability',
+            'price', 'compare_price', 'price_includes_tax', 'cost', 'shipping_cost', 'free_shipping_threshold', 'stock', 'stock_unit', 'currency', 'availability',
             'category_id', 'brand_id', 'is_active', 'publish_on_website', 'is_featured', 'is_new', 'is_recommended',
             'tags', 'specifications', 'faqs',
             'seo_title', 'seo_description', 'seo_keywords', 'og_title', 'og_description', 'og_image',
@@ -476,6 +476,16 @@ class ProductController extends Controller
                 // A diferencia de price/cost, aquí un valor vacío SÍ es
                 // válido: significa "envío estándar" (sin cargo especial),
                 // no un error de captura.
+                $clean = $this->sanitizePrice($value);
+                if ($value !== null && trim((string) $value) !== '' && ($clean === null || $clean < 0)) {
+                    return [false, null, 'No es un número válido.'];
+                }
+
+                return [true, $clean, null];
+
+            case 'free_shipping_threshold':
+                // Mismo criterio que shipping_cost: vacío es válido, significa
+                // "sin umbral de envío gratis" (null), no un error de captura.
                 $clean = $this->sanitizePrice($value);
                 if ($value !== null && trim((string) $value) !== '' && ($clean === null || $clean < 0)) {
                     return [false, null, 'No es un número válido.'];
@@ -872,6 +882,10 @@ class ProductController extends Controller
             // Cargo de envío adicional fijo (equipo pesado/voluminoso).
             // nullable/vacío = envío estándar, sin cargo especial.
             'shipping_cost'     => 'nullable|numeric|min:0',
+            // Monto de subtotal (antes de IVA) a partir del cual el
+            // shipping_cost de este producto se vuelve gratis. nullable/vacío
+            // = sin umbral (el comportamiento de shipping_cost no cambia).
+            'free_shipping_threshold' => 'nullable|numeric|min:0',
             'reorder_point'     => 'nullable|integer|min:0',
             'compare_price'     => 'nullable|numeric|min:0',
             'price_includes_tax' => 'nullable|boolean',
@@ -933,6 +947,9 @@ class ProductController extends Controller
         // cost, aquí NO se normaliza a 0, porque null y 0 son ambos
         // "estándar" pero null deja claro que el admin no capturó nada.
         $product->shipping_cost     = $request->filled('shipping_cost') ? $request->shipping_cost : null;
+        // null = sin umbral de envío gratis (shipping_cost se comporta como
+        // antes). Mismo criterio que shipping_cost: no se normaliza a 0.
+        $product->free_shipping_threshold = $request->filled('free_shipping_threshold') ? $request->free_shipping_threshold : null;
         $product->reorder_point     = $request->filled('reorder_point') ? $request->reorder_point : null;
         $product->compare_price     = $request->compare_price  ?? null;
         $product->price_includes_tax = $request->boolean('price_includes_tax', false);
@@ -1072,6 +1089,10 @@ class ProductController extends Controller
             // Cargo de envío adicional fijo (equipo pesado/voluminoso).
             // nullable/vacío = envío estándar, sin cargo especial.
             'shipping_cost'     => 'nullable|numeric|min:0',
+            // Monto de subtotal (antes de IVA) a partir del cual el
+            // shipping_cost de este producto se vuelve gratis. nullable/vacío
+            // = sin umbral (el comportamiento de shipping_cost no cambia).
+            'free_shipping_threshold' => 'nullable|numeric|min:0',
             'reorder_point'     => 'nullable|integer|min:0',
             'compare_price'     => 'nullable|numeric|min:0',
             'price_includes_tax' => 'nullable|boolean',
@@ -1128,6 +1149,9 @@ class ProductController extends Controller
         // Vacío = envío estándar (sin cargo especial) — mismo criterio que
         // store(): a diferencia de cost, NO se normaliza a 0.
         $product->shipping_cost     = $request->filled('shipping_cost') ? $request->shipping_cost : null;
+        // null = sin umbral de envío gratis (shipping_cost se comporta como
+        // antes) — mismo criterio que store().
+        $product->free_shipping_threshold = $request->filled('free_shipping_threshold') ? $request->free_shipping_threshold : null;
         $product->reorder_point     = $request->filled('reorder_point') ? $request->reorder_point : null;
         $product->compare_price     = $request->compare_price  ?? null;
         $product->price_includes_tax = $request->boolean('price_includes_tax', false);

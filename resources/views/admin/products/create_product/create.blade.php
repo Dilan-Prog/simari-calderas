@@ -420,6 +420,20 @@
                                     <p class="pform-hint">Déjalo vacío para envío estándar. Solo llénalo si este producto tiene un cargo de flete especial.</p>
                                 </div>
 
+                                <div class="pform-field">
+                                    <label class="pform-label">Envío gratis a partir de (opcional)</label>
+                                    <div class="pform-price-wrap">
+                                        <span class="pform-price-prefix">$</span>
+                                        <input type="number" id="pformFreeShippingThreshold" name="free_shipping_threshold"
+                                            class="pform-input pform-input-prefixed @error('free_shipping_threshold') pform-field-error @enderror" placeholder="0.00"
+                                            step="0.01" min="0" value="{{ old('free_shipping_threshold') }}">
+                                    </div>
+                                    @error('free_shipping_threshold')
+                                        <p class="pform-error-msg">{{ $message }}</p>
+                                    @enderror
+                                    <p class="pform-hint">Si el producto ya tiene costo de envío, se vuelve gratis cuando el carrito alcance este monto. Déjalo vacío si no aplica.</p>
+                                </div>
+
                                 <div class="pform-grid-2">
                                     <div class="pform-field">
                                         <label class="pform-label">Precio de Oferta</label>

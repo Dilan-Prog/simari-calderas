@@ -20,15 +20,20 @@
     @endif
     <div class="product-price-box__price">${{ number_format($product->base_price, 2) }} {{ $currency }}</div>
     <div class="product-price-box__iva">Precio+ IVA</div>
-    <div class="product-price-box__shipping">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7h11l4 4v6h-2M3 7v10h2M3 7l2-3h7l2 3M7 21a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM17 21a2 2 0 1 0 0-4 2 2 0 0 0 0 4z"/></svg>
-        Envío gratis a toda la República Mexicana
-    </div>
-
-    @if ($product->shipping_cost > 0)
+    @if (!$product->shipping_cost || $product->shipping_cost <= 0)
+        <div class="product-price-box__shipping">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7h11l4 4v6h-2M3 7v10h2M3 7l2-3h7l2 3M7 21a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM17 21a2 2 0 1 0 0-4 2 2 0 0 0 0 4z"/></svg>
+            Envío gratis a toda la República Mexicana
+        </div>
+    @elseif (!$product->free_shipping_threshold)
         <div class="product-price-box__shipping-note">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7h11l4 4v6h-2M3 7v10h2M3 7l2-3h7l2 3M7 21a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM17 21a2 2 0 1 0 0-4 2 2 0 0 0 0 4z"/></svg>
             Recíbelo por ${{ number_format($product->shipping_cost, 2) }} de envío
+        </div>
+    @else
+        <div class="product-price-box__shipping-note">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7h11l4 4v6h-2M3 7v10h2M3 7l2-3h7l2 3M7 21a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM17 21a2 2 0 1 0 0-4 2 2 0 0 0 0 4z"/></svg>
+            Envío gratis en compras desde ${{ number_format($product->free_shipping_threshold, 2) }} MXN. Antes de eso, el envío tiene un costo de ${{ number_format($product->shipping_cost, 2) }}.
         </div>
     @endif
 

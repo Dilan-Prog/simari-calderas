@@ -68,13 +68,30 @@ class Cart extends Model
      * shipping_cost > 0 (no se multiplica por quantity). Un producto con
      * shipping_cost nulo/0 = envío estándar gratis; con shipping_cost > 0,
      * ese cargo fijo aplica una sola vez sin importar cuántas unidades se
-     * pidan de ese producto.
+     * pidan de ese producto — EXCEPTO si el producto tiene
+     * free_shipping_threshold y el subtotal del carrito (sin IVA, mismo
+     * criterio que subtotal()) ya lo alcanza, en cuyo caso esa línea
+     * tampoco cobra envío.
      */
     public function shippingTotal(): float
     {
+        $subtotal = $this->subtotal();
+
         return round(
             $this->items
-                ->filter(fn (CartItem $item) => $item->product && $item->product->shipping_cost > 0)
+                ->filter(function (CartItem $item) use ($subtotal) {
+                    $product = $item->product;
+
+                    if (!$product || !($product->shipping_cost > 0)) {
+                        return false;
+                    }
+
+                    if ($product->free_shipping_threshold !== null && $subtotal >= $product->free_shipping_threshold) {
+                        return false;
+                    }
+
+                    return true;
+                })
                 ->sum(fn (CartItem $item) => $item->product->shipping_cost),
             2
         );

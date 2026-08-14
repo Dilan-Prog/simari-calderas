@@ -59,6 +59,10 @@ class Products extends Model
         // Cargo de envío adicional fijo para productos pesados/voluminosos.
         // null o 0 = envío estándar (comportamiento actual, sin cargo extra).
         'shipping_cost',
+        // Monto de subtotal de carrito (sin IVA) a partir del cual este
+        // producto deja de cobrar shipping_cost. null = sin umbral (el
+        // envío de este producto nunca se vuelve gratis por monto).
+        'free_shipping_threshold',
         'reorder_point',
         'stock',
         'weight',
@@ -103,6 +107,7 @@ class Products extends Model
         'price'       => 'decimal:2',
         'cost'        => 'decimal:2',
         'shipping_cost' => 'decimal:2',
+        'free_shipping_threshold' => 'decimal:2',
         'compare_price' => 'decimal:2',
         // FIX BUG 3: cast tags to a PHP array automatically so the edit
         // view can read $product->tags directly without manual json_decode.
