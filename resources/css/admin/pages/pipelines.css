@@ -39,8 +39,6 @@
 
     font-family: 'Inter Tight', var(--font-family, 'Inter'), system-ui, sans-serif;
     color: var(--pp-text);
-    max-width: 1320px;
-    margin: 0 auto;
     padding: 28px 24px 70px;
     display: flex;
     flex-direction: column;

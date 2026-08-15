@@ -34,10 +34,8 @@
 .wf-btn-secondary:hover { background: #F9FAFB; color: #111827; }
 
 /* ── Tabs ───────────────────────────────── */
-.wf-tabs { display: flex; align-items: center; gap: 24px; border-bottom: 1px solid #E5E7EB; }
-.wf-tab { display: inline-flex; align-items: center; height: 44px; padding: 0 2px; font-size: 14px; font-weight: 500; color: var(--text-description-color); text-decoration: none; border-bottom: 2px solid transparent; margin-bottom: -1px; transition: color .15s, border-color .15s; }
-.wf-tab:hover { color: #111827; }
-.wf-tab-active, .wf-tab-active:hover { color: var(--secondary-color); border-bottom-color: var(--secondary-color); }
+/* .wf-tabs / .wf-tab CSS vive en admin.workflows.partials._tabs para que
+   viaje con el partial en las 4 páginas que lo incluyen. */
 
 /* ── KPI cards ──────────────────────────── */
 .wf-kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
