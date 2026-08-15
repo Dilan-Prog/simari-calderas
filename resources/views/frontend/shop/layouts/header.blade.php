@@ -1,6 +1,6 @@
 <header class="eq-header" x-data="megaMenu()">
   <div class="eq-header__topbar">
-    <span>Envío gratis a partir de $1,000 MXN toda la República Mexicana</span>
+    <span>Envío a toda la República Mexicana</span>
   </div>
 
   <div class="eq-header__row">
