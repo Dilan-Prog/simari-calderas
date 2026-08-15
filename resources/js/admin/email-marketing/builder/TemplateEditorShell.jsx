@@ -15,13 +15,22 @@ const TIPO_OPTIONS = [
 
 function seedFrom(template, starter) {
   if (template) {
+    const blocks = Array.isArray(template.blocks_json) ? template.blocks_json : [];
+    // Si builder_mode dice "blocks" pero blocks_json vino vacío/null (dato
+    // legado de antes de que existiera el armador, o una fila inconsistente),
+    // mostrar la vista sencilla igual dejaría un lienzo vacío mientras el
+    // contenido real vive en html_body -- exactamente el bug reportado
+    // ("no aparece la plantilla en vista sencilla, en avanzada sí"). Cae a
+    // "avanzada" en ese caso para no esconder contenido real que sí existe.
+    const hasRealBlocks = blocks.length > 0;
+    const hasHtmlOnly = !hasRealBlocks && Boolean(template.html_body);
     return {
       name: template.name || '',
       subject: template.subject || '',
       tplTipo: template.type || 'campana',
-      blocks: Array.isArray(template.blocks_json) ? template.blocks_json : [],
+      blocks,
       codeHtml: template.html_body || '',
-      mode: template.builder_mode === 'code' ? 'avanzada' : 'sencilla',
+      mode: template.builder_mode === 'code' || hasHtmlOnly ? 'avanzada' : 'sencilla',
       templateId: template.id ?? null,
     };
   }

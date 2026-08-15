@@ -105,7 +105,12 @@ export default function TemplatesTab({ createSignal, onChanged, userInitials }) 
   const openEditForRow = (template) => {
     setEditingTemplate(template);
     setPickedStarter(null);
-    setPickedMode(template.builder_mode === 'blocks' ? 'sencilla' : 'avanzada');
+    // Sin mode explícito aquí a propósito: TemplateEditorShell decide el
+    // modo inicial a partir de la plantilla real (seedFrom), incluyendo el
+    // fallback a "avanzada" cuando builder_mode dice "blocks" pero
+    // blocks_json vino vacío/null. Si aquí se forzara 'sencilla' por
+    // builder_mode, pisaría ese fallback (initialMode gana sobre seed.mode).
+    setPickedMode(null);
     setSub('editor');
   };
 
