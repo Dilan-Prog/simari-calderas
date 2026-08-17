@@ -20,6 +20,14 @@
     padding: 4px 0 40px;
     font-family: var(--font-family);
     color: var(--text-black);
+    /* .admin-main tiene overflow:hidden (layout.css) -- este módulo debe
+       proveer su propio contenedor con scroll interno, o el contenido bajo
+       el primer viewport (el armador de plantillas en particular) queda
+       inalcanzable. Mismo patrón ya usado en dashboard.css/statistics.css. */
+    height: calc(100vh - 64px);
+    overflow-y: auto;
+    overflow-x: hidden;
+    box-sizing: border-box;
 }
 
 .em-breadcrumb {

@@ -142,6 +142,7 @@ return [
         'stale_field'       => 'last_activity_at',
         'customer_relation' => 'customer',
         'relations'         => ['customer', 'items'],
+        'extra_fields'      => ['has_email'],
     ],
 
     'cart_item' => [
@@ -198,11 +199,11 @@ return [
         'model'             => \App\Models\Quote::class,
         'label'             => 'Cotización',
         'group'             => 'Ecommerce',
-        'supports_stale'    => false,
-        'stale_field'       => null,
+        'supports_stale'    => true,
+        'stale_field'       => 'sent_at',
         'customer_relation' => 'customer',
         'relations'         => ['customer', 'items', 'salesOrders'],
-        'extra_fields'      => ['is_expired', 'has_service_items', 'has_product_items'],
+        'extra_fields'      => ['is_expired', 'has_service_items', 'has_product_items', 'has_email', 'has_whatsapp'],
     ],
 
     'quote_item' => [

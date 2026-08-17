@@ -494,7 +494,19 @@ export default function NodeInspector({ step, catalog, workflowType, onSave, onS
             setTriggerPresetStageId('');
             setTriggerPresetDays('');
         }
-    }, [step]);
+        // OJO: depende de step?.id (no del objeto `step` completo) a propósito.
+        // `selectedStep` en WorkflowCanvasApp.jsx se recalcula vía useMemo cada
+        // vez que `data` cambia de referencia (p. ej. un refetch en segundo
+        // plano mientras el usuario está escribiendo), produciendo un objeto
+        // `step` NUEVO aunque su contenido sea idéntico. Si este efecto
+        // dependiera de `step` completo, ese refetch de fondo reiniciaba
+        // silenciosamente actionConfigText/triggerConfigText/etc. a como
+        // estaban en el servidor, borrando lo que el usuario acababa de
+        // teclear justo antes de guardar -- bug real detectado en vivo:
+        // "Enviar correo" guardaba action_config=null pese a que el textarea
+        // mostraba el JSON correcto al momento del clic en "Guardar".
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [step?.id]);
 
     if (!step) return null;
 

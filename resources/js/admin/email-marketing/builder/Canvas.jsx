@@ -51,14 +51,22 @@ function BlockBody({ block }) {
   if (kind === 'img') {
     return (
       <div style={{ background: bg, padding, textAlign: align }}>
-        <div className="emb-block-img-placeholder" style={{ width: (p.ancho || 100) + '%' }}>
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="1.8">
-            <rect x="3" y="4.5" width="18" height="15" rx="2" />
-            <circle cx="8.5" cy="10" r="1.6" />
-            <path d="M4 17l5-4.5 4 3.5 3-2.5 4 3.5" strokeLinecap="round" />
-          </svg>
-          <div className="emb-block-img-caption">{p.texto}</div>
-        </div>
+        {p.url ? (
+          <img
+            src={p.url}
+            alt={p.texto || ''}
+            style={{ width: (p.ancho || 100) + '%', maxWidth: '100%', height: 'auto', display: 'inline-block' }}
+          />
+        ) : (
+          <div className="emb-block-img-placeholder" style={{ width: (p.ancho || 100) + '%' }}>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="1.8">
+              <rect x="3" y="4.5" width="18" height="15" rx="2" />
+              <circle cx="8.5" cy="10" r="1.6" />
+              <path d="M4 17l5-4.5 4 3.5 3-2.5 4 3.5" strokeLinecap="round" />
+            </svg>
+            <div className="emb-block-img-caption">{p.texto}</div>
+          </div>
+        )}
       </div>
     );
   }

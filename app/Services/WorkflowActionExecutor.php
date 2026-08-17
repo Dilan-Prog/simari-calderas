@@ -9,6 +9,7 @@ use App\Models\Deal;
 use App\Models\EmailSend;
 use App\Models\EmailTemplate;
 use App\Models\PipelineStage;
+use App\Models\Task;
 use App\Models\Workflow;
 use App\Models\WorkflowEnrollment;
 use App\Models\WorkflowEnrollmentLog;
@@ -35,6 +36,7 @@ class WorkflowActionExecutor
             'enroll_in_workflow' => $this->enrollInWorkflow($enrollment, $step),
             'send_email'        => $this->sendEmail($enrollment, $step),
             'send_whatsapp_message' => $this->sendWhatsappMessage($enrollment, $step),
+            'flag_missing_contact' => $this->flagMissingContact($enrollment, $step),
             'external_db_query' => $this->externalDbQuery($enrollment, $step),
             default             => $this->logResult($enrollment, $step, $step->action_type, 'skipped', "Tipo de acción desconocido: {$step->action_type}"),
         };
@@ -84,6 +86,10 @@ class WorkflowActionExecutor
                 'label' => 'Enviar mensaje de WhatsApp',
                 'example_config' => ['template_name' => null, 'params' => [], 'text' => null],
             ],
+            'flag_missing_contact' => [
+                'label' => 'Avisar si falta contacto',
+                'example_config' => ['channel' => 'email'],
+            ],
             'external_db_query' => [
                 'label' => 'Base de datos externa (MySQL/MariaDB)',
                 'example_config' => [
@@ -125,6 +131,86 @@ class WorkflowActionExecutor
         $task->save();
 
         $this->logResult($enrollment, $step, 'create_task', 'success', "Tarea #{$task->id} creada.");
+    }
+
+    /**
+     * Acción explícita y visible en el lienzo (catálogo: "Avisar si falta
+     * contacto"). Antes esto se disparaba automáticamente y en silencio
+     * desde dentro de sendEmail()/sendWhatsappMessage() cuando se omitían
+     * por falta de dato de contacto; a partir de aquí es opt-in: cada
+     * workflow decide si le importa este aviso agregando (o no) este nodo
+     * después de su paso de envío correspondiente.
+     *
+     * `action_config.channel` ('email'|'whatsapp') determina qué se checa:
+     * mismo criterio exacto que usan sendEmail()/sendWhatsappMessage() para
+     * decidir si omiten el envío (resolveEmailRecipient()/guest_email/
+     * contact_email para email; resolveWhatsappConversation() para
+     * whatsapp), así que este step siempre coincide con lo que de verdad
+     * pasó en el paso de envío anterior.
+     */
+    private function flagMissingContact(WorkflowEnrollment $enrollment, WorkflowStep $step): void
+    {
+        $config = $step->action_config ?? [];
+        $channel = $config['channel'] ?? 'email';
+        $enrollable = $enrollment->enrollable;
+
+        if (!$enrollable) {
+            $this->logResult($enrollment, $step, 'flag_missing_contact', 'skipped', 'No hay enrollable.');
+            return;
+        }
+
+        $hasContact = $channel === 'whatsapp'
+            ? (bool) $this->resolveWhatsappConversation($enrollable)
+            : (bool) ($this->resolveEmailRecipient($enrollable) || !empty($enrollable->guest_email) || !empty($enrollable->contact_email));
+
+        if ($hasContact) {
+            $this->logResult($enrollment, $step, 'flag_missing_contact', 'skipped', 'Sí tiene ese dato de contacto, no hace falta avisar.');
+            return;
+        }
+
+        $label = $channel === 'whatsapp' ? 'WhatsApp' : 'correo';
+        $identifier = $enrollable->quote_number ?? $enrollable->name ?? ('#' . $enrollable->getKey());
+        $title = "Sin {$label}: {$identifier}";
+        $description = "El seguimiento automático no pudo enviarse por {$label}: falta ese dato de contacto. Revisa los datos del cliente o contáctalo manualmente.";
+
+        // Para WhatsApp, distingue "no tiene teléfono" de "tiene teléfono
+        // pero no hay conversación real" (típicamente porque todavía no se
+        // conectan las credenciales de Meta/WhatsApp Business) -- son dos
+        // causas distintas y le ahorran a la persona que revisa la tarea
+        // tener que adivinar cuál aplica.
+        if ($channel === 'whatsapp') {
+            $hasPhone = method_exists($enrollable, 'getAttribute') ? (bool) $enrollable->has_whatsapp : false;
+
+            if ($hasPhone) {
+                $title = "WhatsApp no enviado: {$identifier}";
+                $description = 'El cliente sí tiene un número registrado, pero no hay una conversación de WhatsApp activa -- probablemente porque todavía no se conectan las credenciales de Meta/WhatsApp Business en el sistema. Envía el mensaje manualmente mientras tanto.';
+            } else {
+                $description = 'El seguimiento automático no pudo enviarse por WhatsApp: el cliente no tiene ningún número registrado. Revisa sus datos o contáctalo por otro medio.';
+            }
+        }
+
+        $alreadyOpen = Task::query()
+            ->where('taskable_type', $enrollable->getMorphClass())
+            ->where('taskable_id', $enrollable->getKey())
+            ->where('title', $title)
+            ->where('status', 'open')
+            ->exists();
+
+        if ($alreadyOpen) {
+            $this->logResult($enrollment, $step, 'flag_missing_contact', 'skipped', "Ya existe una tarea abierta \"{$title}\".");
+            return;
+        }
+
+        $task = new Task([
+            'title'                  => $title,
+            'description'            => $description,
+            'created_by_workflow_id' => $enrollment->workflow_id,
+        ]);
+
+        $task->taskable()->associate($enrollable);
+        $task->save();
+
+        $this->logResult($enrollment, $step, 'flag_missing_contact', 'success', "Tarea #{$task->id} creada: \"{$title}\".");
     }
 
     private function notifyRep(WorkflowEnrollment $enrollment, WorkflowStep $step): void
@@ -251,6 +337,15 @@ class WorkflowActionExecutor
             $guestEmail     = $enrollable->guest_email;
             $guestName      = $enrollable->guest_name ?? null;
             $recipientEmail = $guestEmail;
+        } elseif ($enrollable && !empty($enrollable->contact_email)) {
+            // Fallback de invitado con otro nombre de campo: Cart (carrito
+            // abandonado) no usa guest_email/guest_name como Quote, usa
+            // contact_email/contact_name (mismo patrón de invitado, campos
+            // distintos) -- se acepta genéricamente aquí para no tener que
+            // repetir esta rama por cada modelo con su propia convención.
+            $guestEmail     = $enrollable->contact_email;
+            $guestName      = $enrollable->contact_name ?? null;
+            $recipientEmail = $guestEmail;
         } else {
             $this->logResult($enrollment, $step, 'send_email', 'skipped', 'El enrollable no tiene un Customer asociado, no se puede enviar email');
             return;
@@ -363,6 +458,17 @@ class WorkflowActionExecutor
 
         if ($enrollable instanceof Deal) {
             return WhatsappConversation::where('deal_id', $enrollable->getKey())->latest('id')->first();
+        }
+
+        // Fallback genérico para cualquier otro enrollable (p. ej. Quote) que
+        // resuelva a un Customer real: si ese cliente ya tiene una
+        // conversación de WhatsApp (abierta por cualquier vía, no solo por un
+        // Deal), se usa esa. Si no tiene ninguna, se sigue quedando en null
+        // (logResult 'skipped', no falla el step ni el workflow).
+        $customer = $this->resolveEmailRecipient($enrollable);
+
+        if ($customer !== null) {
+            return WhatsappConversation::where('customer_id', $customer->getKey())->latest('id')->first();
         }
 
         return null;

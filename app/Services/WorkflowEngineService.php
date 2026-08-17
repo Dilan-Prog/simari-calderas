@@ -15,6 +15,28 @@ use Illuminate\Support\Facades\DB;
 class WorkflowEngineService
 {
     /**
+     * Borra las inscripciones YA COMPLETADAS de $enrollable en workflows
+     * activos de $workflowType, para que el próximo tick del trigger 'stale'
+     * pueda volver a inscribirlo. Pensado para el caso "se reenvió
+     * manualmente" (ej. botón "Enviar por correo" de una Quote): ese reenvío
+     * actualiza el campo de staleness (sent_at) a "ahora", así que el ciclo
+     * de seguimiento automático debería poder repetirse a partir de ese
+     * nuevo envío -- pero el guard de reenrollment_allowed=false en enroll()
+     * (ver comentario ahí) bloquearía permanentemente cualquier reinscripción
+     * mientras exista una fila 'completed' vieja. Solo toca 'completed': una
+     * inscripción 'active'/'waiting' representa una cascada en curso, que no
+     * se interrumpe por un reenvío manual.
+     */
+    public function resetCompletedFollowUps(Model $enrollable, string $workflowType): void
+    {
+        WorkflowEnrollment::where('enrollable_type', $enrollable->getMorphClass())
+            ->where('enrollable_id', $enrollable->getKey())
+            ->where('status', 'completed')
+            ->whereHas('workflow', fn ($q) => $q->where('type', $workflowType)->where('is_active', true))
+            ->delete();
+    }
+
+    /**
      * Inscribe un modelo (Deal, Customer, o cualquier otro modelo
      * automatizable) en un workflow. Si el workflow no permite reinscripción,
      * retorna la inscripción activa/waiting existente en lugar de crear una
@@ -34,10 +56,18 @@ class WorkflowEngineService
     {
         return DB::transaction(function () use ($workflow, $target, $context) {
             if (!$workflow->reenrollment_allowed) {
+                // Incluye 'completed' a propósito, no solo 'active'/'waiting':
+                // reenrollment_allowed=false significa "inscribir esta entidad
+                // en este workflow una sola vez, para siempre" -- si solo se
+                // bloqueara mientras está activa/esperando, un trigger 'stale'
+                // (que sigue viendo el campo viejo después de que la cascada
+                // termina, p. ej. una cotización que nunca se aceptó/rechazó)
+                // volvería a inscribirla en el siguiente tick y repetiría toda
+                // la cascada de recordatorios desde cero, indefinidamente.
                 $existing = WorkflowEnrollment::where('workflow_id', $workflow->id)
                     ->where('enrollable_type', $target->getMorphClass())
                     ->where('enrollable_id', $target->getKey())
-                    ->whereIn('status', ['active', 'waiting'])
+                    ->whereIn('status', ['active', 'waiting', 'completed'])
                     ->first();
 
                 if ($existing) {
@@ -249,18 +279,56 @@ class WorkflowEngineService
 
         $enrollment->save();
 
-        $parentStep = $groupStep->parent_step_id
-            ? WorkflowStep::find($groupStep->parent_step_id)
-            : null;
+        $enclosingLoop = $this->findEnclosingLoop($groupStep);
 
-        if ($parentStep && $parentStep->step_type === 'loop') {
-            $this->advanceLoop($enrollment, $parentStep);
+        if ($enclosingLoop) {
+            $this->advanceLoop($enrollment, $enclosingLoop);
             return;
         }
 
         $enrollment->status = 'completed';
         $enrollment->completed_at = now();
         $enrollment->save();
+    }
+
+    /**
+     * Encuentra el 'loop' más cercano que contiene a $step, subiendo por
+     * parent_step_id las veces que haga falta (NO solo el padre directo).
+     *
+     * Necesario para bucles con una Condición dentro: cuando la rama "Sí" de
+     * la condición termina en una acción (ej. Enviar correo), el padre
+     * DIRECTO de esa acción es la Condición, no el Loop -- sin subir varios
+     * niveles, el motor nunca detecta que debe dar la vuelta. Tope de 50
+     * saltos (mismo límite duro que max_iterations) solo como guarda contra
+     * datos corruptos con parent_step_id cíclico, nunca debería alcanzarse
+     * en un árbol real.
+     *
+     * IMPORTANTE -- esto es lo que le da a un step_type='end' semántica de
+     * "romper el bucle": 'end' completa la inscripción directamente en
+     * processStep() SIN pasar por advanceOrComplete()/este método, así que
+     * una rama de Condición que termina en un Fin explícito NUNCA vuelve a
+     * dar la vuelta, a diferencia de una rama que termina "sola" (sin Fin),
+     * que sí es interpretada como "continuar el bucle".
+     */
+    private function findEnclosingLoop(WorkflowStep $step): ?WorkflowStep
+    {
+        $current = $step;
+        $hops = 0;
+
+        while ($current->parent_step_id && $hops < 50) {
+            $current = WorkflowStep::find($current->parent_step_id);
+            $hops++;
+
+            if (!$current) {
+                return null;
+            }
+
+            if ($current->step_type === 'loop') {
+                return $current;
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -545,12 +613,38 @@ class WorkflowEngineService
             return;
         }
 
-        $parentStep = $step->parent_step_id
-            ? WorkflowStep::find($step->parent_step_id)
-            : null;
+        $enclosingLoop = $this->findEnclosingLoop($step);
 
-        if ($parentStep && $parentStep->step_type === 'loop') {
-            $this->advanceLoopForBranch($enrollment, $branch, $parentStep);
+        if ($enclosingLoop) {
+            $this->advanceLoopForBranch($enrollment, $branch, $enclosingLoop);
+            return;
+        }
+
+        // Callejón sin salida en la rama (ej. el "No" de una condición
+        // interna que no lleva a ninguna acción más) SIN joins_into_step_id
+        // explícito en esta hoja. Bug real detectado: si se trataba siempre
+        // como "rama suelta" (ver onBranchCompleted() más abajo) y esta
+        // resultaba ser la última rama en terminar, la inscripción completa
+        // se daba por terminada de golpe, saltándose el Join y todo lo que
+        // sigue -- sin ningún aviso, y sin que hiciera falta que TODAS las
+        // hojas de TODAS las ramas tuvieran joins_into_step_id puesto a mano
+        // para evitarlo (un solo olvido en una sola hoja bastaba).
+        //
+        // Fix: si el 'parallel' de esta rama SÍ tiene un step 'join' como
+        // hermano (mismo parent_step_id), un callejón sin salida converge
+        // ahí automáticamente, como si joins_into_step_id hubiera apuntado
+        // a ese join desde el principio -- ya no depende de que cada hoja
+        // lo declare explícitamente. Solo se trata como "rama suelta" de
+        // verdad (onBranchCompleted(), sin Join) cuando el Paralelo
+        // genuinamente no tiene ningún Join asociado.
+        $impliedJoin = WorkflowStep::where('parent_step_id', $branch->parallel_step_id)
+            ->where('step_type', 'join')
+            ->first();
+
+        if ($impliedJoin) {
+            $branch->status = 'completed';
+            $branch->save();
+            $this->checkJoinCompletion($enrollment, $branch->parallel_step_id, $impliedJoin->id);
             return;
         }
 

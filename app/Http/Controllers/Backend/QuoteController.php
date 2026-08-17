@@ -118,7 +118,137 @@ class QuoteController extends Controller
             ->orderBy('first_name')
             ->get();
 
-        return view('admin.quotes.show', compact('quote', 'customers'));
+        $activities = $this->quoteActivities($quote);
+
+        return view('admin.quotes.show', compact('quote', 'customers', 'activities'));
+    }
+
+    /**
+     * Línea de tiempo de envíos de esta cotización, combinando dos fuentes
+     * que no se tocan entre sí en el resto del código:
+     *  - Envíos MANUALES (botón "Enviar por correo" o el selector "Cambiar
+     *    Estado" -> Enviada): ambos terminan en el mismo $quote->update(...),
+     *    que LogsActivity ya registra genéricamente en SystemLog como un
+     *    'updated' -- se filtra por la presencia de 'sent_at' en new_value
+     *    (la señal confiable de "aquí hubo un (re)envío", a diferencia de
+     *    'status' que puede no cambiar si ya estaba en 'sent').
+     *  - Recordatorios AUTOMÁTICOS (workflow tipo 'quote'): WorkflowEnrollment
+     *    de esta cotización -> WorkflowEnrollmentLog con action_taken
+     *    send_email/send_whatsapp_message.
+     * No unifica en una sola tabla a propósito -- son dos mecanismos ya
+     * existentes en el sistema, esto solo los combina para mostrarlos.
+     */
+    private function quoteActivities(Quote $quote): \Illuminate\Support\Collection
+    {
+        $manual = \App\Models\SystemLog::where('entity_type', 'quote')
+            ->where('entity_id', $quote->id)
+            ->where('action', 'updated')
+            ->with('performedBy')
+            ->get()
+            ->filter(fn ($log) => array_key_exists('sent_at', $log->new_value ?? []))
+            ->map(fn ($log) => [
+                'type'      => 'manual',
+                'label'     => 'Cotización enviada manualmente',
+                'detail'    => $log->performedBy ? "por {$log->performedBy->full_name}" : null,
+                'at'        => $log->performed_at,
+                'preview'    => 'email',
+                'preview_id' => null,
+            ]);
+
+        $enrollmentIds = \App\Models\WorkflowEnrollment::where('enrollable_type', Quote::class)
+            ->where('enrollable_id', $quote->id)
+            ->pluck('workflow_id', 'id');
+
+        $automated = \App\Models\WorkflowEnrollmentLog::whereIn('enrollment_id', $enrollmentIds->keys())
+            ->whereIn('action_taken', ['send_email', 'send_whatsapp_message'])
+            ->with('enrollment.workflow')
+            ->get()
+            ->map(function ($log) {
+                $channel = $log->action_taken === 'send_email' ? 'correo' : 'WhatsApp';
+                $workflowName = $log->enrollment?->workflow?->name ?? 'Automatización';
+                $resultLabel = match ($log->result) {
+                    'success' => 'enviado',
+                    'skipped' => 'omitido',
+                    'failed'  => 'falló',
+                    default   => $log->result,
+                };
+
+                return [
+                    'type'       => 'automated',
+                    'label'      => "Recordatorio automático por {$channel} — {$resultLabel}",
+                    'detail'     => "{$workflowName}" . ($log->message ? " · {$log->message}" : ''),
+                    'at'         => $log->logged_at,
+                    'preview'    => $log->result === 'success' ? ($log->action_taken === 'send_email' ? 'email' : 'whatsapp') : null,
+                    'preview_id' => $log->id,
+                ];
+            });
+
+        return $manual->concat($automated)->sortByDesc('at')->values();
+    }
+
+    /**
+     * Vista previa del correo ENVIADO MANUALMENTE (botón "Enviar por correo"
+     * / "Marcar como Enviada"). QuoteMail no varía entre envíos -- siempre
+     * renderiza con los datos ACTUALES de la cotización, así que no hace
+     * falta un id de log específico, solo re-renderiza el mismo Mailable
+     * que ya se usó para enviar.
+     */
+    public function previewManualEmail(Quote $quote)
+    {
+        $quote->load('items', 'createdBy');
+
+        return (new QuoteMail($quote))->render();
+    }
+
+    /**
+     * Vista previa del correo de un recordatorio AUTOMÁTICO específico,
+     * reconstruido con el mismo mecanismo que SendMarketingEmailJob (mismo
+     * template + mismos datos de destinatario), a partir del step que
+     * generó el WorkflowEnrollmentLog indicado.
+     */
+    public function previewAutomatedEmail(Quote $quote, int $log)
+    {
+        $enrollmentLog = \App\Models\WorkflowEnrollmentLog::with('step', 'enrollment.enrollable')->findOrFail($log);
+        $step = $enrollmentLog->step;
+        $templateId = $step?->action_config['template_id'] ?? null;
+        $template = $templateId ? \App\Models\EmailTemplate::find($templateId) : null;
+
+        if (!$template) {
+            abort(404, 'No se encontró la plantilla usada en este envío.');
+        }
+
+        $enrollable = $enrollmentLog->enrollment?->enrollable;
+        $customer = $quote->customer;
+        $isGuest = !$customer;
+
+        $rendered = app(\App\Services\EmailTemplateService::class)->render(
+            $template,
+            $customer,
+            null,
+            $enrollable instanceof Quote ? $enrollable : $quote,
+            $isGuest ? $quote->guest_name : null,
+            $isGuest ? $quote->guest_email : null,
+        );
+
+        return $rendered['html'];
+    }
+
+    /**
+     * Vista previa del texto de WhatsApp de un recordatorio automático
+     * específico, con los mismos tokens ya resueltos (mismo resolver que
+     * usa el motor al enviarlo de verdad).
+     */
+    public function previewAutomatedWhatsapp(Quote $quote, int $log)
+    {
+        $enrollmentLog = \App\Models\WorkflowEnrollmentLog::with('step', 'enrollment')->findOrFail($log);
+        $step = $enrollmentLog->step;
+        $text = $step?->action_config['text'] ?? null;
+
+        $resolved = $enrollmentLog->enrollment
+            ? app(\App\Services\WorkflowTokenResolver::class)->resolveTokens($text, $enrollmentLog->enrollment)
+            : $text;
+
+        return response()->json(['text' => $resolved]);
     }
 
     public function edit(Quote $quote)
@@ -307,11 +437,19 @@ class QuoteController extends Controller
 
     public function sendEmail(Quote $quote)
     {
-        $quote->load('items', 'createdBy');
+        $quote->load('items', 'createdBy', 'customer');
 
-        Mail::to($quote->guest_email)->send(new QuoteMail($quote));
+        $recipient = $quote->customer?->email ?: $quote->guest_email;
 
-        $quote->update(['status' => 'sent']);
+        Mail::to($recipient)->send(new QuoteMail($quote));
+
+        // sent_at SIEMPRE se actualiza a "ahora" (no solo la primera vez):
+        // un reenvío manual reinicia el reloj de 24h del recordatorio
+        // automático de seguimiento (Workflow tipo 'quote', trigger stale),
+        // igual que si la cotización se acabara de enviar por primera vez.
+        $quote->update(['status' => 'sent', 'sent_at' => now()]);
+
+        app(\App\Services\WorkflowEngineService::class)->resetCompletedFollowUps($quote, 'quote');
 
         return redirect()->route('admin.quotes.show', $quote)
             ->with('success', 'Cotización enviada por correo exitosamente.');
@@ -320,7 +458,7 @@ class QuoteController extends Controller
     public function updateStatus(Request $request, Quote $quote)
     {
         $request->validate([
-            'status' => 'required|in:accepted,rejected,expired',
+            'status' => 'required|in:sent,accepted,rejected,expired',
         ]);
 
         // Guard de idempotencia: si ya estaba aceptada, un reenvío del mismo
@@ -332,7 +470,20 @@ class QuoteController extends Controller
         $wasAccepted = $quote->status === 'accepted';
 
         DB::transaction(function () use ($quote, $request, $wasAccepted) {
-            $quote->update(['status' => $request->status]);
+            $attributes = ['status' => $request->status];
+
+            // Igual que sendEmail(): marcar manualmente "Enviada" reinicia el
+            // reloj de 24h del seguimiento automático, como si se acabara de
+            // enviar. No aplica al resto de estados.
+            if ($request->status === 'sent') {
+                $attributes['sent_at'] = now();
+            }
+
+            $quote->update($attributes);
+
+            if ($request->status === 'sent') {
+                app(\App\Services\WorkflowEngineService::class)->resetCompletedFollowUps($quote, 'quote');
+            }
 
             if ($request->status === 'accepted' && !$wasAccepted) {
                 $this->quoteService->processAcceptance($quote);

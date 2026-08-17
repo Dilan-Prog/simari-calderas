@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Mail\MarketingEmailMailable;
+use App\Models\Cart;
 use App\Models\EmailSend;
 use App\Models\Quote;
 use App\Services\EmailCampaignService;
@@ -60,6 +61,7 @@ class SendMarketingEmailJob implements ShouldQueue
 
             $enrollable = $this->send->enrollment?->enrollable;
             $quote      = $enrollable instanceof Quote ? $enrollable : null;
+            $cart       = $enrollable instanceof Cart ? $enrollable : null;
 
             $rendered = app(EmailTemplateService::class)->render(
                 $template,
@@ -67,7 +69,8 @@ class SendMarketingEmailJob implements ShouldQueue
                 null,
                 $quote,
                 $this->send->customer_id === null ? $this->send->guest_name : null,
-                $this->send->customer_id === null ? $this->send->guest_email : null
+                $this->send->customer_id === null ? $this->send->guest_email : null,
+                $cart
             );
 
             // Mismo reemplazo de token de unsubscribe y pixel de tracking que

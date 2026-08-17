@@ -2,10 +2,12 @@
 
 namespace App\Services;
 
+use App\Models\Cart;
 use App\Models\Customer;
 use App\Models\Deal;
 use App\Models\EmailTemplate;
 use App\Models\Quote;
+use Illuminate\Support\Facades\View;
 
 class EmailTemplateService
 {
@@ -31,7 +33,8 @@ class EmailTemplateService
         ?Deal $deal = null,
         ?Quote $quote = null,
         ?string $guestName = null,
-        ?string $guestEmail = null
+        ?string $guestEmail = null,
+        ?Cart $cart = null
     ): array {
         $replacements = [
             '{{contact.name}}'    => $recipient !== null ? trim("{$recipient->first_name} {$recipient->last_name}") : (string) $guestName,
@@ -53,6 +56,15 @@ class EmailTemplateService
             $replacements['{{quote.valid_until}}']  = $quote->valid_until ? $quote->valid_until->format('d/m/Y') : '';
         }
 
+        // {{cart.*}} solo se resuelven si hay un carrito (recordatorio de
+        // carrito abandonado). {{cart.items_table}} es HTML ya renderizado
+        // (tabla con imagen/nombre/precio unitario/importe por línea + total
+        // final), no un escalar -- se inyecta tal cual en el html_body.
+        if ($cart !== null) {
+            $replacements['{{cart.total}}']        = '$' . number_format($cart->total(), 2);
+            $replacements['{{cart.items_table}}']  = $this->renderCartItemsTable($cart);
+        }
+
         $subject = str_replace(array_keys($replacements), array_values($replacements), (string) $template->subject);
         $html    = str_replace(array_keys($replacements), array_values($replacements), (string) $template->html_body);
 
@@ -60,5 +72,20 @@ class EmailTemplateService
             'subject' => $subject,
             'html'    => $html,
         ];
+    }
+
+    /**
+     * Tabla HTML (con tablas anidadas, sin CSS externo) de las líneas de un
+     * Cart: imagen, nombre, precio unitario, importe de línea, más una fila
+     * de total final -- pensada para incrustarse dentro de un email ya
+     * compatible con Outlook/Gmail (mismo criterio que las plantillas del
+     * armador de bloques, que también usan tablas anidadas con estilos
+     * inline en vez de CSS de clase).
+     */
+    private function renderCartItemsTable(Cart $cart): string
+    {
+        $cart->loadMissing('items.product');
+
+        return View::make('emails.partials.cart-items-table', ['cart' => $cart])->render();
     }
 }

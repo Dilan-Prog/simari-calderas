@@ -61,6 +61,7 @@ use App\Http\Controllers\Backend\GoalController;
 use App\Http\Controllers\Backend\WhatsappAccountController;
 use App\Http\Controllers\Backend\WhatsappFunnelController;
 use App\Http\Controllers\Backend\TagController;
+use App\Http\Controllers\Backend\TaskController;
 
 // ============================================================
 // Dashboard — sin permiso, todos los usuarios autenticados
@@ -307,6 +308,9 @@ Route::controller(QuoteController::class)
         Route::post('/{quote}/enviar-correo', 'sendEmail')->name('send-email')->middleware('permission:quotes,edit');
         Route::patch('/{quote}/estado', 'updateStatus')->name('update-status')->middleware('permission:quotes,edit');
         Route::patch('/{quote}/cliente', 'attachCustomer')->name('attach-customer')->middleware('permission:quotes,edit');
+        Route::get('/{quote}/actividad/correo', 'previewManualEmail')->name('activity.preview-manual-email');
+        Route::get('/{quote}/actividad/{log}/correo', 'previewAutomatedEmail')->name('activity.preview-automated-email');
+        Route::get('/{quote}/actividad/{log}/whatsapp', 'previewAutomatedWhatsapp')->name('activity.preview-automated-whatsapp');
     });
 
 // ============================================================
@@ -381,6 +385,11 @@ Route::controller(DealController::class)
     });
 
 // ============================================================
+// Tareas (generadas por automatizaciones, ej. "sin correo"/"sin WhatsApp")
+// ============================================================
+Route::get('/tareas', [TaskController::class, 'index'])->name('tasks.index');
+
+// ============================================================
 // Email Marketing (página única con pestañas: plantillas, listas,
 // campañas y secuencias)
 // ============================================================
@@ -395,6 +404,7 @@ Route::controller(EmailTemplateController::class)
     ->group(function () {
         Route::get('/', 'index')->name('index');
         Route::get('/opciones', 'options')->name('options');
+        Route::get('/logos', 'logos')->name('logos');
         Route::post('/', 'store')->name('store')->middleware('permission:email-marketing,create');
         Route::put('/{emailTemplate}', 'update')->name('update')->middleware('permission:email-marketing,edit');
         Route::delete('/{emailTemplate}', 'destroy')->name('destroy')->middleware('permission:email-marketing,delete');

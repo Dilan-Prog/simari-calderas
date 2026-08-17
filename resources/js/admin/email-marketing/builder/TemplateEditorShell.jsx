@@ -81,6 +81,7 @@ export default function TemplateEditorShell({ template, starter, initialMode, on
   const [templateId, setTemplateId] = useState(seed.templateId);
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState(null);
+  const [showModeWarning, setShowModeWarning] = useState(false);
 
   const { blocks, mutate, undo, redo, canUndo, canRedo } = useBlockHistory(seed.blocks);
 
@@ -145,7 +146,17 @@ export default function TemplateEditorShell({ template, starter, initialMode, on
     }
   };
 
-  const autosaveLabel = templateId ? autosave.status || 'Los cambios se guardan automáticamente' : 'Sin guardar todavía';
+  // autosave.status es un código interno en inglés ('idle'|'saving'|'saved',
+  // ver useDebouncedAutosave.js) -- nunca se muestra tal cual, siempre se
+  // traduce aquí antes de pasarlo al toolbar.
+  const AUTOSAVE_LABELS = {
+    saving: 'Guardando…',
+    saved: 'Guardado',
+    idle: 'Los cambios se guardan automáticamente',
+  };
+  const autosaveLabel = templateId
+    ? (AUTOSAVE_LABELS[autosave.status] || 'Los cambios se guardan automáticamente')
+    : 'Sin guardar todavía';
 
   return (
     <div className="emb-shell">
@@ -179,7 +190,21 @@ export default function TemplateEditorShell({ template, starter, initialMode, on
             <button
               type="button"
               className={'emb-shell-mode-btn' + (mode === 'sencilla' ? ' emb-shell-mode-btn--active' : '')}
-              onClick={() => setMode('sencilla')}
+              onClick={() => {
+                // Bug real detectado en producción (2026-08-15): si la
+                // plantilla se diseñó/editó en Vista avanzada (HTML crudo)
+                // y por eso `blocks` sigue vacío, cambiar a Vista sencilla
+                // arranca el lienzo en blanco -- y el autoguardado (1.5s
+                // después, sin que el usuario haga nada más) persiste ese
+                // lienzo vacío, BORRANDO el HTML real en silencio. Se avisa
+                // explícitamente antes de permitir el cambio en ese caso,
+                // en vez de perder datos sin decir nada.
+                if (mode === 'avanzada' && blocks.length === 0 && codeHtml.trim() !== '') {
+                  setShowModeWarning(true);
+                  return;
+                }
+                setMode('sencilla');
+              }}
             >
               Vista sencilla
             </button>
@@ -217,6 +242,39 @@ export default function TemplateEditorShell({ template, starter, initialMode, on
         />
       ) : (
         <CodeEditorMode html={codeHtml} subject={subject} onChangeHtml={setCodeHtml} onChangeSubject={setSubject} templateId={templateId} />
+      )}
+
+      {showModeWarning && (
+        <div className="emb-confirm-overlay active" onClick={() => setShowModeWarning(false)}>
+          <div className="emb-confirm-box" onClick={(e) => e.stopPropagation()}>
+            <div className="emb-confirm-icon-wrap">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#dc2626" strokeWidth="2">
+                <path d="M12 9v4M12 17h.01M10.29 3.86l-8.18 14.18A2 2 0 0 0 3.82 21h16.36a2 2 0 0 0 1.71-2.96L13.71 3.86a2 2 0 0 0-3.42 0z" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </div>
+            <div className="emb-confirm-title">¿Cambiar a Vista sencilla?</div>
+            <div className="emb-confirm-desc">
+              Esta plantilla se armó en Vista avanzada (HTML) y no tiene bloques equivalentes en Vista sencilla.
+              Cambiar ahora mostrará un lienzo <strong>vacío</strong>, y en cuanto autoguarde (unos segundos) se{' '}
+              <strong>borrará el HTML actual</strong> sin poder deshacerlo.
+            </div>
+            <div className="emb-confirm-actions">
+              <button type="button" className="emb-confirm-btn-cancel" onClick={() => setShowModeWarning(false)}>
+                Cancelar
+              </button>
+              <button
+                type="button"
+                className="emb-confirm-btn-danger"
+                onClick={() => {
+                  setShowModeWarning(false);
+                  setMode('sencilla');
+                }}
+              >
+                Sí, continuar
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

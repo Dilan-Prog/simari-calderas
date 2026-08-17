@@ -33,4 +33,8 @@ export function preview(id) {
   return apiFetch(url(`${id}/preview`));
 }
 
-export default { list, create, update, destroy, options, preview };
+export function logos() {
+  return apiFetch(url('logos'));
+}
+
+export default { list, create, update, destroy, options, preview, logos };

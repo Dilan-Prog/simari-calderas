@@ -84,4 +84,51 @@ class EmailTemplateController extends Controller
     {
         return response()->json(EmailTemplate::orderBy('name')->get(['id', 'name']));
     }
+
+    /**
+     * Lista los logos reales disponibles en public/images/logo/ (y sus
+     * subcarpetas de variante Blanco/Blanco-color/Negro/Negro-color) para
+     * el selector de logo del bloque "Logo" del armador de plantillas.
+     * Excluye favicon/icon-web (son íconos, no logos para email) y
+     * desktop.ini. Solo lee del disco, sin tabla nueva -- el picker
+     * necesita ver los archivos que el usuario ya subió directamente a esa
+     * carpeta.
+     */
+    public function logos()
+    {
+        $base = public_path('images/logo');
+        $variantFolders = ['', 'Blanco', 'Blanco-color', 'Negro', 'Negro-color'];
+        $extensions = ['png', 'svg', 'jpg', 'jpeg'];
+
+        $logos = [];
+
+        foreach ($variantFolders as $folder) {
+            $dir = $folder === '' ? $base : $base . DIRECTORY_SEPARATOR . $folder;
+
+            if (!is_dir($dir)) {
+                continue;
+            }
+
+            foreach (scandir($dir) as $file) {
+                $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
+
+                if (!in_array($ext, $extensions, true)) {
+                    continue;
+                }
+
+                // rawurlencode por segmento -- varios archivos reales tienen
+                // espacios en el nombre ("Recurso 1equiterm-logo-blanco.png"),
+                // que deben ir codificados en la URL aunque el navegador
+                // suela tolerar el espacio literal dentro de src="".
+                $encodedSegments = array_map('rawurlencode', $folder === '' ? [$file] : [$folder, $file]);
+
+                $logos[] = [
+                    'url'   => asset('images/logo/' . implode('/', $encodedSegments)),
+                    'label' => ($folder !== '' ? $folder . ' / ' : '') . $file,
+                ];
+            }
+        }
+
+        return response()->json(['data' => $logos]);
+    }
 }

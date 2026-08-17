@@ -86,12 +86,12 @@
     "isEntry": true
   },
   "resources/css/admin/pages/email-marketing-builder.css": {
-    "file": "assets/email-marketing-builder-DAFQ9juY.css",
+    "file": "assets/email-marketing-builder-7OU52aA1.css",
     "src": "resources/css/admin/pages/email-marketing-builder.css",
     "isEntry": true
   },
   "resources/css/admin/pages/email-marketing.css": {
-    "file": "assets/email-marketing-Bd6raEpZ.css",
+    "file": "assets/email-marketing-CPsTHMR6.css",
     "src": "resources/css/admin/pages/email-marketing.css",
     "isEntry": true
   },
@@ -131,7 +131,7 @@
     "isEntry": true
   },
   "resources/css/admin/pages/pipelines.css": {
-    "file": "assets/pipelines-CETqj1Oe.css",
+    "file": "assets/pipelines-BpwHTbOz.css",
     "src": "resources/css/admin/pages/pipelines.css",
     "isEntry": true
   },
@@ -277,7 +277,7 @@
     ]
   },
   "resources/js/admin/email-marketing.jsx": {
-    "file": "assets/email-marketing-BBhy_9kf.js",
+    "file": "assets/email-marketing-Bcw1O5xw.js",
     "name": "email-marketing",
     "src": "resources/js/admin/email-marketing.jsx",
     "isEntry": true,
@@ -411,7 +411,7 @@
     "isEntry": true
   },
   "resources/js/admin/workflow-canvas.jsx": {
-    "file": "assets/workflow-canvas-C94Y8VHo.js",
+    "file": "assets/workflow-canvas-BUjfpbQU.js",
     "name": "workflow-canvas",
     "src": "resources/js/admin/workflow-canvas.jsx",
     "isEntry": true,

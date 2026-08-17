@@ -36,6 +36,7 @@ class Quote extends Model
         'isr_retention_total',
         'total',
         'valid_until',
+        'sent_at',
         'notes',
         'terms_conditions',
         'converted_to_order_id',
@@ -51,6 +52,7 @@ class Quote extends Model
         'isr_retention_total'  => 'decimal:2',
         'total'                => 'decimal:2',
         'valid_until'          => 'date',
+        'sent_at'              => 'datetime',
     ];
 
     public function createdBy(): BelongsTo
@@ -99,6 +101,16 @@ class Quote extends Model
     public function getHasProductItemsAttribute(): bool
     {
         return $this->items->contains(fn (QuoteItem $item) => $item->isProduct());
+    }
+
+    public function getHasEmailAttribute(): bool
+    {
+        return filled($this->customer?->email) || filled($this->guest_email);
+    }
+
+    public function getHasWhatsappAttribute(): bool
+    {
+        return filled($this->customer?->phone) || filled($this->guest_phone);
     }
 
     public static function statusLabel(string $status): string

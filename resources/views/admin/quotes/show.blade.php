@@ -54,11 +54,11 @@
             </a>
             @endforeach
 
-            @if($quote->guest_email)
-            <form method="POST" id="quotes-send-email" action="{{ route('admin.quotes.send-email', $quote) }}"
-                  onsubmit="return confirm('¿Enviar cotización por correo a {{ $quote->guest_email }}?')">
+            @php $sendRecipient = $quote->customer?->email ?: $quote->guest_email; @endphp
+            @if($sendRecipient)
+            <form method="POST" id="quotes-send-email" action="{{ route('admin.quotes.send-email', $quote) }}">
                 @csrf
-                <button type="submit" class="btn-action btn-action--primary">
+                <button type="button" class="btn-action btn-action--primary" onclick="openSendEmailModal()">
                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
                     Enviar por correo
                 </button>
@@ -294,6 +294,22 @@
 
             </div>
 
+            {{-- Actividad: historial de envíos manuales + recordatorios automáticos --}}
+            <div class="quotes-card">
+                <h2 class="quotes-card__header">Actividad</h2>
+                @if($activities->isEmpty())
+                    <div style="font-size:12.5px;color:#9CA3AF;padding:4px 0;">Todavía no se ha enviado esta cotización.</div>
+                @else
+                    <div style="display:flex;flex-direction:column;gap:0;max-height:260px;overflow-y:auto;">
+                        @include('admin.quotes.partials._activity_items', ['activities' => $activities])
+                    </div>
+                    <button type="button" onclick="openActivityModal()"
+                            style="margin-top:12px;width:100%;border:1px solid rgba(0,0,0,.14);background:#fff;border-radius:7px;padding:9px;font-size:12.5px;font-weight:700;color:#4b5563;cursor:pointer;">
+                        Ver detalles
+                    </button>
+                @endif
+            </div>
+
             {{-- Vincular cliente (solo admin, solo si falta el vínculo) --}}
             @if(!$quote->customer_id && auth()->user()->isAdmin())
             <div class="quotes-card">
@@ -326,6 +342,7 @@
                     @csrf
                     @method('PATCH')
                     <select name="status" class="status-select">
+                        <option value="sent">Marcar como Enviada</option>
                         <option value="accepted">Marcar como Aceptada</option>
                         <option value="rejected">Marcar como Rechazada</option>
                         <option value="expired">Marcar como Vencida</option>
@@ -371,9 +388,148 @@
     </div>
 </div>
 
+{{-- ── Modal "Vista previa" de un envío (correo o WhatsApp) ── --}}
+<div id="activity-preview-modal" style="display:none;position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,.65);align-items:center;justify-content:center;">
+    <div style="background:#fff;border-radius:8px;width:90vw;max-width:640px;height:80vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.4);">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 18px;background:#1a1a1a;border-bottom:2px solid #ff6213;flex-shrink:0;">
+            <span style="color:#fff;font-size:14px;font-weight:600;">Vista previa del envío</span>
+            <button onclick="closeActivityPreview()" style="background:transparent;border:none;cursor:pointer;color:#9CA3AF;font-size:20px;line-height:1;padding:4px 8px;" title="Cerrar">&times;</button>
+        </div>
+        <iframe id="activity-preview-frame" src="" style="flex:1;border:none;background:#fff;display:none;" title="Vista previa"></iframe>
+        <div id="activity-preview-text" style="flex:1;overflow-y:auto;padding:24px;display:none;">
+            <div style="background:#dcf8c6;border-radius:10px;padding:12px 16px;max-width:80%;font-size:13.5px;color:#141516;line-height:1.5;white-space:pre-wrap;"></div>
+        </div>
+        <div id="activity-preview-loading" style="flex:1;display:flex;align-items:center;justify-content:center;font-size:13px;color:#9CA3AF;">Cargando…</div>
+    </div>
+</div>
+
+{{-- ── Modal "Actividad" completa (80% de pantalla) ───────── --}}
+<div id="activity-modal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.65);align-items:center;justify-content:center;">
+    <div style="background:#fff;border-radius:12px;width:80vw;height:80vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.4);">
+
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 22px;border-bottom:1px solid #F3F4F6;flex-shrink:0;">
+            <span style="font-size:15px;font-weight:700;color:#141516;">
+                Actividad — {{ $quote->quote_number }}
+            </span>
+            <button onclick="closeActivityModal()" style="background:transparent;border:none;cursor:pointer;color:#9CA3AF;font-size:22px;line-height:1;padding:4px 8px;" title="Cerrar">&times;</button>
+        </div>
+
+        <div style="flex:1;overflow-y:auto;padding:8px 22px 22px;">
+            @if($activities->isEmpty())
+                <div style="font-size:13px;color:#9CA3AF;padding:20px 0;">Todavía no se ha enviado esta cotización.</div>
+            @else
+                @include('admin.quotes.partials._activity_items', ['activities' => $activities])
+            @endif
+        </div>
+    </div>
+</div>
+
+{{-- ── Modal de confirmación "Enviar por correo" ─────────── --}}
+<div id="send-email-modal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.65);align-items:center;justify-content:center;">
+    <div style="background:#fff;border-radius:12px;width:90vw;max-width:420px;padding:28px 26px 22px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.4);">
+        <div style="width:56px;height:56px;border-radius:50%;background:#fff2eb;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#ff6213" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+        </div>
+        <div style="font-size:16px;font-weight:700;color:#141516;margin-bottom:6px;">¿Enviar cotización por correo?</div>
+        <div style="font-size:13.5px;color:#6b7280;margin-bottom:22px;">
+            Se enviará <strong>{{ $quote->quote_number }}</strong> a
+            <strong>{{ $sendRecipient ?? '' }}</strong>.
+        </div>
+        <div style="display:flex;gap:10px;justify-content:center;">
+            <button type="button" onclick="closeSendEmailModal()"
+                    style="border:1px solid rgba(0,0,0,.14);background:#fff;border-radius:7px;padding:10px 18px;font-size:13px;font-weight:700;color:#4b5563;cursor:pointer;">
+                Cancelar
+            </button>
+            <button type="button" onclick="document.getElementById('quotes-send-email').submit()"
+                    style="border:none;background:#ff6213;border-radius:7px;padding:10px 18px;font-size:13px;font-weight:700;color:#fff;cursor:pointer;">
+                Sí, enviar
+            </button>
+        </div>
+    </div>
+</div>
+
 @push('scripts')
 @vite(['resources/js/admin-quotes.js'])
 <script>
+const quoteActivityUrls = {
+    manualEmail: '{{ route('admin.quotes.activity.preview-manual-email', $quote) }}',
+    automatedEmail: (id) => '{{ route('admin.quotes.activity.preview-automated-email', [$quote, '__ID__']) }}'.replace('__ID__', id),
+    automatedWhatsapp: (id) => '{{ route('admin.quotes.activity.preview-automated-whatsapp', [$quote, '__ID__']) }}'.replace('__ID__', id),
+};
+
+function openActivityPreview(type, id) {
+    const modal = document.getElementById('activity-preview-modal');
+    const frame = document.getElementById('activity-preview-frame');
+    const textBox = document.getElementById('activity-preview-text');
+    const loading = document.getElementById('activity-preview-loading');
+
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    frame.style.display = 'none';
+    textBox.style.display = 'none';
+    loading.style.display = 'flex';
+    frame.src = '';
+
+    if (type === 'whatsapp') {
+        fetch(quoteActivityUrls.automatedWhatsapp(id))
+            .then(r => r.json())
+            .then(data => {
+                loading.style.display = 'none';
+                textBox.style.display = 'block';
+                textBox.querySelector('div').textContent = data.text || '(sin texto)';
+            })
+            .catch(() => {
+                loading.textContent = 'No se pudo cargar la vista previa.';
+            });
+        return;
+    }
+
+    const url = id ? quoteActivityUrls.automatedEmail(id) : quoteActivityUrls.manualEmail;
+    frame.onload = () => {
+        loading.style.display = 'none';
+        frame.style.display = 'block';
+    };
+    frame.src = url;
+}
+function closeActivityPreview() {
+    document.getElementById('activity-preview-modal').style.display = 'none';
+    document.getElementById('activity-preview-frame').src = '';
+    document.body.style.overflow = '';
+}
+document.getElementById('activity-preview-modal')?.addEventListener('click', function(e) {
+    if (e.target === this) closeActivityPreview();
+});
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeActivityPreview();
+});
+function openActivityModal() {
+    document.getElementById('activity-modal').style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+}
+function closeActivityModal() {
+    document.getElementById('activity-modal').style.display = 'none';
+    document.body.style.overflow = '';
+}
+document.getElementById('activity-modal')?.addEventListener('click', function(e) {
+    if (e.target === this) closeActivityModal();
+});
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeActivityModal();
+});
+function openSendEmailModal() {
+    document.getElementById('send-email-modal').style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+}
+function closeSendEmailModal() {
+    document.getElementById('send-email-modal').style.display = 'none';
+    document.body.style.overflow = '';
+}
+document.getElementById('send-email-modal')?.addEventListener('click', function(e) {
+    if (e.target === this) closeSendEmailModal();
+});
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeSendEmailModal();
+});
 function openPdfModal() {
     const modal = document.getElementById('pdf-modal');
     const frame = document.getElementById('pdf-frame');

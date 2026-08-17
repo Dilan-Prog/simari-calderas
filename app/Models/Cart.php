@@ -73,6 +73,21 @@ class Cart extends Model
      * criterio que subtotal()) ya lo alcanza, en cuyo caso esa línea
      * tampoco cobra envío.
      */
+    /**
+     * Monto final del carrito (subtotal + IVA + envío) -- el total real que
+     * pagaría el cliente, usado por el correo de recordatorio de carrito
+     * abandonado (EmailTemplateService::render()).
+     */
+    public function total(): float
+    {
+        return round($this->subtotal() + $this->taxTotal() + $this->shippingTotal(), 2);
+    }
+
+    public function getHasEmailAttribute(): bool
+    {
+        return filled($this->customer?->email) || filled($this->contact_email);
+    }
+
     public function shippingTotal(): float
     {
         $subtotal = $this->subtotal();
