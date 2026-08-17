@@ -59,6 +59,7 @@ Route::controller(CartController::class)->prefix('carrito')->name('cart.')->grou
     Route::patch('/actualizar', 'update')->name('update');
     Route::delete('/eliminar', 'remove')->name('remove');
     Route::get('/mini', 'mini')->name('mini');
+    Route::get('/recuperar/{token}', 'recover')->name('recover');
 });
 Route::controller(CheckoutController::class)->prefix('finalizar-pedido')->name('checkout.')->group(function () {
     Route::get('/', 'index')->name('index');

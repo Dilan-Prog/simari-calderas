@@ -142,7 +142,7 @@ return [
         'stale_field'       => 'last_activity_at',
         'customer_relation' => 'customer',
         'relations'         => ['customer', 'items'],
-        'extra_fields'      => ['has_email'],
+        'extra_fields'      => ['has_email', 'is_still_pending'],
     ],
 
     'cart_item' => [

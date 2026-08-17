@@ -61,8 +61,12 @@ class EmailTemplateService
         // (tabla con imagen/nombre/precio unitario/importe por línea + total
         // final), no un escalar -- se inyecta tal cual en el html_body.
         if ($cart !== null) {
-            $replacements['{{cart.total}}']        = '$' . number_format($cart->total(), 2);
-            $replacements['{{cart.items_table}}']  = $this->renderCartItemsTable($cart);
+            $replacements['{{cart.total}}']         = '$' . number_format($cart->total(), 2);
+            $replacements['{{cart.items_table}}']   = $this->renderCartItemsTable($cart);
+            // Link real de recuperación (App\Services\CartRecoveryService):
+            // quien lo abra hereda estos productos en su carrito actual, sin
+            // necesitar cuenta ni la sesión original en la que se abandonó.
+            $replacements['{{cart.recovery_url}}']  = route('cart.recover', $cart->recovery_token);
         }
 
         $subject = str_replace(array_keys($replacements), array_values($replacements), (string) $template->subject);

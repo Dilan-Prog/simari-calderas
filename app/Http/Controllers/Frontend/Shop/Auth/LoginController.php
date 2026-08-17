@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Frontend\Shop\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\Cart;
+use App\Services\CartRecoveryService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
@@ -59,7 +61,22 @@ class LoginController extends Controller
         }
 
         RateLimiter::clear($throttleKey);
+        // IMPORTANTE: regenerate() rota session()->getId() -- el merge de
+        // carrito abandonado debe resolver "el carrito actual" DESPUÉS de
+        // esto (con el id de sesión nuevo), nunca antes, o el carrito que
+        // acabamos de fusionar quedaría ligado a un session_id que el
+        // navegador ya no trae en su cookie.
         $request->session()->regenerate();
+
+        $currentCart = Cart::firstOrCreate(
+            ['session_id' => session()->getId()],
+            ['customer_id' => $customer->id]
+        );
+        $recovered = app(CartRecoveryService::class)->recoverForCustomer($customer, $currentCart);
+
+        if ($recovered) {
+            session()->flash('success', '¡Recuperamos los productos que habías dejado en tu carrito!');
+        }
 
         // Clientes con portal activado por el admin van directo al portal de
         // servicios; el resto, a su cuenta de la tienda.

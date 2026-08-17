@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Cart;
 use App\Models\CartItem;
 use App\Models\Products;
+use App\Services\CartRecoveryService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -123,6 +124,27 @@ class CartController extends Controller
             'cartCount' => (int) $cart->items->sum('quantity'),
             'subtotal'  => $cart->subtotal(),
         ]);
+    }
+
+    /**
+     * Link de recuperación real de un carrito abandonado (botón del correo
+     * de seguimiento): fusiona los productos del carrito viejo en el
+     * carrito actual de quien haga clic -- funciona sin cuenta ni sesión
+     * previa, cualquier visitante que abra el link "hereda" esos productos.
+     * Token inválido/ya recuperado cae silenciosamente al carrito vacío
+     * normal, sin 404 -- un link viejo no debe verse roto para el cliente.
+     */
+    public function recover(string $token, CartRecoveryService $recovery)
+    {
+        $target = $this->currentCart();
+        $source = $recovery->recoverByToken($token, $target);
+
+        if ($source) {
+            return redirect()->route('checkout.index')
+                ->with('success', '¡Recuperamos tu carrito! Revisa que todo esté correcto antes de continuar.');
+        }
+
+        return redirect()->route('checkout.index');
     }
 
     public function mini()

@@ -5,11 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Str;
 
 class Cart extends Model
 {
     protected $fillable = [
         'session_id',
+        'recovery_token',
         'customer_id',
         'last_activity_at',
         'checkout_started_at',
@@ -19,6 +21,15 @@ class Cart extends Model
         'converted_to_store_order_id',
         'dismissed_at',
     ];
+
+    protected static function booted(): void
+    {
+        static::creating(function (Cart $cart) {
+            if (empty($cart->recovery_token)) {
+                $cart->recovery_token = Str::random(40);
+            }
+        });
+    }
 
     // Sin estos casts, last_activity_at/checkout_started_at llegan como string
     // desde la BD y ->diffForHumans() en la vista de Carritos Abandonados falla.
@@ -86,6 +97,22 @@ class Cart extends Model
     public function getHasEmailAttribute(): bool
     {
         return filled($this->customer?->email) || filled($this->contact_email);
+    }
+
+    /**
+     * Único campo que la automatización de seguimiento debe revisar para
+     * decidir si sigue insistiendo. No basta con converted_to_store_order_id
+     * -- un carrito también deja de estar "pendiente" cuando se recuperó
+     * (CartRecoveryService::mergeInto(), que marca dismissed_at) SIN que ese
+     * carrito en particular sea el que se convirtió a pedido (la compra
+     * puede terminar en OTRO carrito, el de la sesión donde el cliente
+     * inició sesión). Sin este accessor, la condición de la automatización
+     * solo veía converted_to_store_order_id y seguía mandando recordatorios
+     * de un carrito que el cliente ya recuperó por otro camino.
+     */
+    public function getIsStillPendingAttribute(): bool
+    {
+        return $this->converted_to_store_order_id === null && $this->dismissed_at === null;
     }
 
     public function shippingTotal(): float
