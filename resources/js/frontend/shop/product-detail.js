@@ -14,11 +14,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const productId = addBtn.dataset.productId;
         if (!productId || addBtn.disabled) return;
 
-        const quantity = 1; // sin selector de cantidad en esta página; siempre se agrega 1 unidad
-
         addBtn.disabled = true;
 
         try {
+            const rightCol = addBtn.closest('.product-main__right');
+            const quantity = rightCol ? (Alpine.$data(rightCol).qty ?? 1) : 1;
+
             const response = await fetch('/carrito/agregar', {
                 method: 'POST',
                 headers: {
@@ -34,6 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
             await Alpine.store('shop').refreshCartCount();
 
             addBtn.textContent = 'Agregado ✓';
+            if (rightCol) Alpine.$data(rightCol).qty = 1;
             setTimeout(() => {
                 addBtn.textContent = originalLabel;
                 addBtn.disabled = false;
@@ -81,6 +83,17 @@ Alpine.data('productGallery', (images, labels = []) => ({
 
     closeLightbox() {
         this.lightboxOpen = false;
+    },
+}));
+
+Alpine.data('productQty', (stock, availability) => ({
+    qty: 1,
+    max: availability === 'on_order' ? 99 : Math.max(1, stock),
+    inc() {
+        if (this.qty < this.max) this.qty++;
+    },
+    dec() {
+        if (this.qty > 1) this.qty--;
     },
 }));
 

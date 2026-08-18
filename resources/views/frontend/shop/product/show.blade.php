@@ -23,6 +23,12 @@
         array_unshift($categoryChain, $chainCat);
         $chainCat = $chainCat->parent;
     }
+
+    // Elevado desde price-box.blade.php: gallery.blade.php también lo
+    // necesita (badge de descuento sobre la imagen principal en móvil), y
+    // @include comparte este scope con ambos partials.
+    $hasDiscount = $product->compare_base_price && $product->compare_base_price > $product->base_price;
+    $discountPct = $hasDiscount ? round((1 - ($product->base_price / $product->compare_base_price)) * 100) : null;
 @endphp
 
 @section('title', $metaTitle)
@@ -167,10 +173,84 @@
                     <p>{{ $product->resolveVariables($product->description) }}</p>
                 @endif
             </div>
-            @include('frontend.shop.product.partials.specs-table')
+
+            {{-- Tablet/desktop: specs siempre expandida, sin acordeón (oculta en móvil por CSS) --}}
+            <div class="product-main__specs-standalone">
+                @include('frontend.shop.product.partials.specs-table')
+            </div>
+
+            {{-- Móvil: mismo contenido + envío/garantía/FAQ dentro de un acordeón
+                 (oculto en tablet/desktop por CSS). Mismo patrón que
+                 home/sections/faq.blade.php (.home-faq__*), con clases propias
+                 (.product-accordion__*) para no compartir el x-data de ese
+                 partial -- evita dos estados de acordeón independientes sobre
+                 las mismas preguntas. --}}
+            <div class="product-accordion" x-data="{ open: null }">
+                <div class="product-accordion__item">
+                    <button type="button" class="product-accordion__question" @click="open = open === 0 ? null : 0">
+                        <span>Ficha técnica</span>
+                        <span x-text="open === 0 ? '−' : '+'">+</span>
+                    </button>
+                    <div class="product-accordion__answer" x-show="open === 0" x-cloak>
+                        @include('frontend.shop.product.partials.specs-table')
+                    </div>
+                </div>
+
+                <div class="product-accordion__item">
+                    <button type="button" class="product-accordion__question" @click="open = open === 1 ? null : 1">
+                        <span>Envío e instalación</span>
+                        <span x-text="open === 1 ? '−' : '+'">+</span>
+                    </button>
+                    <div class="product-accordion__answer" x-show="open === 1" x-cloak>
+                        @if (!$product->shipping_cost || $product->shipping_cost <= 0)
+                            <p>Envío gratis a toda la República Mexicana.</p>
+                        @else
+                            <p>Costo de envío: ${{ number_format($product->shipping_cost, 2) }} MXN.
+                                @if ($product->free_shipping_threshold)
+                                    Gratis en compras desde ${{ number_format($product->free_shipping_threshold, 2) }} MXN.
+                                @endif
+                            </p>
+                        @endif
+                        @if ($product->documents->where('type', 'manual')->isNotEmpty())
+                            <p>Este producto incluye manual de instalación descargable más abajo, en la sección de documentos.</p>
+                        @endif
+                    </div>
+                </div>
+
+                <div class="product-accordion__item">
+                    <button type="button" class="product-accordion__question" @click="open = open === 2 ? null : 2">
+                        <span>Garantía y servicio</span>
+                        <span x-text="open === 2 ? '−' : '+'">+</span>
+                    </button>
+                    <div class="product-accordion__answer" x-show="open === 2" x-cloak>
+                        <p>Este equipo cuenta con garantía de fábrica. Nuestro equipo técnico está disponible para dar seguimiento a cualquier solicitud de servicio.</p>
+                        @if ($product->documents->where('type', 'garantia')->isNotEmpty())
+                            <p>Consulta el documento de garantía descargable más abajo, en la sección de documentos.</p>
+                        @endif
+                    </div>
+                </div>
+
+                @if ($schemaFaqs->isNotEmpty())
+                    <div class="product-accordion__item">
+                        <button type="button" class="product-accordion__question" @click="open = open === 3 ? null : 3">
+                            <span>Preguntas y respuestas</span>
+                            <span x-text="open === 3 ? '−' : '+'">+</span>
+                        </button>
+                        <div class="product-accordion__answer" x-show="open === 3" x-cloak>
+                            @foreach ($schemaFaqs as $item)
+                                <p>
+                                    <strong>{{ $product->resolveVariables($item['question']) }}</strong><br>
+                                    {!! \App\Support\TextLinks::render($product->resolveVariables($item['answer'])) !!}
+                                </p>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
+            </div>
+
             @include('frontend.shop.product.partials.documents-grid')
         </div>
-        <div class="product-main__right" x-data>
+        <div class="product-main__right" x-data="productQty({{ $product->stock ?? 0 }}, '{{ $product->availability }}')">
             @include('frontend.shop.product.partials.price-box')
         </div>
     </section>

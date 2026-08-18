@@ -221,7 +221,7 @@
     "isEntry": true
   },
   "resources/css/frontend/shop/product-detail.css": {
-    "file": "assets/product-detail-JfMI0vbE.css",
+    "file": "assets/product-detail-CNgaelvU.css",
     "src": "resources/css/frontend/shop/product-detail.css",
     "isEntry": true
   },
@@ -472,7 +472,7 @@
     ]
   },
   "resources/js/frontend/shop/product-detail.js": {
-    "file": "assets/product-detail-BekWf2GI.js",
+    "file": "assets/product-detail-bzgDBB7I.js",
     "name": "product-detail",
     "src": "resources/js/frontend/shop/product-detail.js",
     "isEntry": true,

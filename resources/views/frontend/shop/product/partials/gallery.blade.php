@@ -23,11 +23,20 @@
             @endforelse
         </div>
         <div class="product-gallery__main" @mousemove="onZoomMove($event)" @mouseenter="isZooming = true" @mouseleave="isZooming = false" @click="openLightbox()">
+            @if ($hasDiscount)
+                <div class="product-gallery__discount-badge">{{ $discountPct }}% OFF</div>
+            @endif
             <template x-if="images.length">
                 <img :src="images[active]" :alt="'{{ addslashes($resolvedName) }}'" class="product-gallery__main-img">
             </template>
             <div class="product-gallery__zoom-lens" x-show="isZooming" x-cloak :style="lensStyle"></div>
         </div>
+    </div>
+
+    <div class="product-gallery__dots" x-show="images.length > 1">
+        <template x-for="(img, i) in images" :key="i">
+            <button type="button" class="product-gallery__dot" :class="{ 'is-active': active === i }" @click="select(i)" :aria-label="'Ver imagen ' + (i+1)"></button>
+        </template>
     </div>
 
     <div class="product-gallery__lightbox" x-show="lightboxOpen" x-cloak @click.self="closeLightbox()" @keydown.escape.window="closeLightbox()" @keydown.arrow-left.window="prev()" @keydown.arrow-right.window="next()">

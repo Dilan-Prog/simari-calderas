@@ -1,8 +1,7 @@
 @php
-    // Comparación en unidades consistentes: base_price/compare_base_price ya
-    // vienen convertidos a MXN y sin IVA, igual que lo que se muestra abajo.
-    $hasDiscount = $product->compare_base_price && $product->compare_base_price > $product->base_price;
-    $discountPct = $hasDiscount ? round((1 - ($product->base_price / $product->compare_base_price)) * 100) : null;
+    // $hasDiscount/$discountPct ya vienen calculados por show.blade.php
+    // (@include comparte su scope) -- gallery.blade.php también los usa
+    // (badge de descuento sobre la imagen), por eso viven ahí y no aquí.
     // Fijo a MXN: base_price/compare_base_price ya vienen convertidos.
     $currency = 'MXN';
     // $resolvedName ya viene calculado por show.blade.php (@include comparte
@@ -38,6 +37,17 @@
             Envío gratis en compras desde ${{ number_format($product->free_shipping_threshold, 2) }} MXN. Antes de eso, el envío tiene un costo de ${{ number_format($product->shipping_cost, 2) }}.
         </div>
     @endif
+
+    <div class="product-qty-row">
+        <div class="product-qty-stepper">
+            <button type="button" @click="dec()" :disabled="qty <= 1" aria-label="Disminuir cantidad">−</button>
+            <span class="product-qty-stepper__value" x-text="qty"></span>
+            <button type="button" @click="inc()" :disabled="qty >= max" aria-label="Aumentar cantidad">+</button>
+        </div>
+        @if ($product->availability !== 'on_order')
+            <span class="product-qty-available">{{ $product->stock }} disponibles</span>
+        @endif
+    </div>
 
     <div class="product-price-box__actions">
         <button type="button" class="product-price-box__add-btn" data-product-id="{{ $product->id }}" @if(!$product->is_purchasable) disabled @endif>
