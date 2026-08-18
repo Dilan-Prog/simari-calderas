@@ -1,0 +1,1 @@
+import{m as t}from"./alpine-init-CdVww5Ut.js";t.data("heroCarousel",i=>({active:0,slideCount:i,timer:null,init(){this.timer=setInterval(()=>this.next(),6e3)},goTo(e){this.active=e},next(){this.active=(this.active+1)%this.slideCount},prev(){this.active=(this.active-1+this.slideCount)%this.slideCount}}));t.start();

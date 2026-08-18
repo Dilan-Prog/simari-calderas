@@ -342,9 +342,9 @@
                                 </svg>
 
                                 <div class="simari-privacy-contact__body">
-                                    <p class="simari-privacy-contact__label">Teléfono</p>
+                                    <p class="simari-privacy-contact__label">WhatsApp</p>
                                     <p class="simari-privacy-contact__value">
-                                        <a class="simari-privacy-link" href="tel:+524494348018">+52 (449) 434-8018</a>
+                                        <a class="simari-privacy-link" href="https://wa.me/{{ \App\Models\Setting::get('footer.phone_link', '5214494577320') }}" target="_blank" rel="noopener nofollow">{{ \App\Models\Setting::get('footer.phone', '+52 1 449 457 7320') }}</a>
                                     </p>
                                 </div>
                             </div>

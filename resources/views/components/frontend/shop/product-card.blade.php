@@ -14,7 +14,7 @@
         ?? asset('images/logo/equiterm-logo-blanco-color-3x.png');
     $resolvedName = $product->resolveVariables($product->name);
     $quoteMessage = "Hola, me interesa cotizar este producto: {$resolvedName} (SKU: {$product->sku}) - " . route('product.show', $product->slug);
-    $quoteWhatsappUrl = 'https://wa.me/524494348018?text=' . urlencode($quoteMessage);
+    $quoteWhatsappUrl = 'https://wa.me/' . \App\Models\Setting::get('footer.phone_link', '5214494577320') . '?text=' . urlencode($quoteMessage);
 @endphp
 <div class="product-card {{ $compact ? 'product-card--compact' : '' }}">
     @if ($product->is_new)

@@ -20,8 +20,7 @@
       <div>
         <div class="eq-footer__col-title">Contacto</div>
         <div class="eq-footer__contact">
-          {{ \App\Models\Setting::companyAddressLine() }}<br>
-          <a href="tel:{{ \App\Models\Setting::get('footer.phone_link', '+524494348018') }}">{{ \App\Models\Setting::get('footer.phone', '+52 449 434 8018') }}</a><br>
+          <a href="https://wa.me/{{ \App\Models\Setting::get('footer.phone_link', '5214494577320') }}" target="_blank" rel="noopener nofollow">WhatsApp: {{ \App\Models\Setting::get('footer.phone', '+52 1 449 457 7320') }}</a><br>
           <a href="mailto:{{ \App\Models\Setting::get('footer.email', 'administracion@equitermindustries.com.mx') }}">{{ \App\Models\Setting::get('footer.email', 'administracion@equitermindustries.com.mx') }}</a>
         </div>
       </div>

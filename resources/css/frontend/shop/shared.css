@@ -75,7 +75,7 @@ img { max-width: 100%; height: auto; display: block; }
     display: flex;
     align-items: flex-start;
     justify-content: center;
-    padding: 90px 24px 40px;
+    padding: calc(var(--eq-header-height, 152px) + 20px) 24px 40px;
     overflow-y: auto;
 }
 .eq-search-overlay__panel {
@@ -203,7 +203,7 @@ img { max-width: 100%; height: auto; display: block; }
 }
 
 @media (max-width: 720px) {
-    .eq-search-overlay { padding: 70px 12px 20px; }
+    .eq-search-overlay { padding: calc(var(--eq-header-height, 130px) + 12px) 12px 20px; }
     .eq-search-overlay__panel { flex-direction: column; max-height: 88vh; }
     .eq-search-overlay__sidebar {
         flex: 0 0 auto;

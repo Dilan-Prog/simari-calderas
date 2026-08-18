@@ -38,6 +38,20 @@ Alpine.data('searchOverlay', () => ({
     debounceTimer: null,
     requestId: 0,
 
+    // El overlay usa --eq-header-height (ver shared.css) para no quedar
+    // pegado al header en vez de un padding-top fijo, que se desincroniza
+    // cada vez que el header gana/pierde una franja (topbar, nav, etc).
+    init() {
+        this.syncHeaderHeight();
+        window.addEventListener('resize', () => this.syncHeaderHeight());
+    },
+
+    syncHeaderHeight() {
+        const header = document.querySelector('.eq-header');
+        if (!header) return;
+        document.documentElement.style.setProperty('--eq-header-height', header.getBoundingClientRect().height + 'px');
+    },
+
     get viewAllUrl() {
         const params = new URLSearchParams();
         if (this.query.trim()) params.set('q', this.query.trim());
