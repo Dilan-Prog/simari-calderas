@@ -83,6 +83,7 @@ Route::get('/servicio/{slug}', [ShopServicePageController::class, 'show'])->name
 Route::controller(LegalController::class)->group(function () {
     Route::get('/aviso-privacidad', 'privacyNotice')->name('privacy-notice');
     Route::get('/terminos-condiciones', 'termsOfService')->name('terms-of-service');
+    Route::get('/politica-de-devoluciones', 'returnPolicy')->name('return-policy');
 });
 
 

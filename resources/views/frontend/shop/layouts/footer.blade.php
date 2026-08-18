@@ -47,6 +47,7 @@
                     </li>
                     <li><a href="{{ route('privacy-notice') }}">Aviso de privacidad</a></li>
                     <li><a href="{{ route('terms-of-service') }}">Términos y condiciones</a></li>
+                    <li><a href="{{ route('return-policy') }}">Política de devoluciones</a></li>
                 </ul>
             </nav>
       <span>Distribuidor autorizado Masstercal Rinnai · Aquaplus</span>

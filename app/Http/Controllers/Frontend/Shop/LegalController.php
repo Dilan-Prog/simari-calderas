@@ -21,4 +21,9 @@ class LegalController extends Controller
     {
         return view('frontend.shop.legal.terms-of-service');
     }
+
+    public function returnPolicy()
+    {
+        return view('frontend.shop.legal.return-policy');
+    }
 }
