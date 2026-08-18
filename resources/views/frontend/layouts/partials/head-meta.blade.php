@@ -40,23 +40,25 @@
 <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" media="print" onload="this.media='all'">
 {{--
-  Sin telephone/address: a petición del negocio, por seguridad (llamadas de
-  extorsión al número público) no se publica dirección ni teléfono en
-  ningún punto del sitio, incluido este bloque leído por buscadores — dejar
-  el número aquí aunque se quitara del footer visible seguiría exponiéndolo
-  a cualquier scraper/bot que lea datos estructurados.
+  Organization, no LocalBusiness: a petición del negocio, por seguridad
+  (llamadas de extorsión al número público) no se publica dirección ni
+  teléfono en ningún punto del sitio, incluido este bloque leído por
+  buscadores. Google exige "address" como campo obligatorio para el tipo
+  LocalBusiness (confirmado vía Search Console — sin él, marca el bloque
+  como estructurado inválido) — Organization no tiene ese requisito y
+  conserva el resto de la información (nombre, logo, sitio, redes) sin
+  necesidad de publicar el domicilio.
 --}}
 <script type="application/ld+json">
   {
     "@context": "https://schema.org",
-    "@type": "LocalBusiness",
+    "@type": "Organization",
     "name": "Equiterm Industries",
     "legalName": "Equiterm Industries S.A. de C.V.",
     "url": "https://equitermindustries.com.mx",
     "logo": "{{ asset('images/logo/equiterm-logo-blanco-color-3x.png') }}",
     "email": "administracion@equitermindustries.com.mx",
     "description": "Diseñamos, instalamos y mantenemos sistemas de calderas, calentadores y tratamiento de agua para los sectores industrial, alimentario, hotelero y metalmecánico. Soporte técnico especializado disponible 24/7",
-    "areaServed": "MX",
     "sameAs": [
       "https://www.facebook.com/simaricalderas"
     ]
