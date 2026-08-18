@@ -38,6 +38,10 @@ class CartController extends Controller
             return response()->json(['message' => 'Producto no disponible.'], 422);
         }
 
+        if (! $product->is_purchasable) {
+            return response()->json(['message' => 'Este producto no está disponible actualmente.'], 422);
+        }
+
         $cart = $this->currentCart();
 
         $existing = CartItem::where('cart_id', $cart->id)->where('product_id', $product->id)->first();

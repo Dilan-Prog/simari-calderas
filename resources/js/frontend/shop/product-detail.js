@@ -14,8 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const productId = addBtn.dataset.productId;
         if (!productId || addBtn.disabled) return;
 
-        const quantityInput = document.querySelector('[name="quantity"], .product-price-box__quantity-input');
-        const quantity = quantityInput ? Math.max(1, parseInt(quantityInput.value, 10) || 1) : 1;
+        const quantity = 1; // sin selector de cantidad en esta página; siempre se agrega 1 unidad
 
         addBtn.disabled = true;
 

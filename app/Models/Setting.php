@@ -39,21 +39,30 @@ class Setting extends Model
         return $this->belongsTo(User::class, 'updated_by_user_id');
     }
 
+    // Sentinel para memoización: distingue "key no encontrada -> usar
+    // $default" de "key encontrada con valor null/falsy" en $cache.
+    private const CACHE_MISS = '__setting_cache_miss__';
+
+    // Memoización por request: get() se llama muchas veces por carga de
+    // página (ej. exchangeRate()/ivaRate() de Products vía cada accessor de
+    // precio) -- sin esto, cada llamada era una query nueva a la misma fila.
+    protected static array $cache = [];
+
     public static function get(string $key, $default = null)
     {
-        $row = static::where('key', $key)->first();
+        if (!array_key_exists($key, static::$cache)) {
+            $row = static::where('key', $key)->first();
 
-        if (!$row) {
-            return $default;
+            static::$cache[$key] = $row ? match ($row->type) {
+                'boolean' => (bool) $row->value,
+                'integer' => (int) $row->value,
+                'decimal' => (float) $row->value,
+                'json'    => json_decode($row->value, true),
+                default   => $row->value,
+            } : self::CACHE_MISS;
         }
 
-        return match ($row->type) {
-            'boolean' => (bool) $row->value,
-            'integer' => (int) $row->value,
-            'decimal' => (float) $row->value,
-            'json'    => json_decode($row->value, true),
-            default   => $row->value,
-        };
+        return static::$cache[$key] === self::CACHE_MISS ? $default : static::$cache[$key];
     }
 
     public static function set(string $key, $value, ?int $updatedByUserId = null): void
@@ -62,6 +71,8 @@ class Setting extends Model
             'value'               => is_array($value) ? json_encode($value) : $value,
             'updated_by_user_id'  => $updatedByUserId,
         ]);
+
+        unset(static::$cache[$key]);
     }
 
     /**

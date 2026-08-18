@@ -178,7 +178,7 @@ class Products extends Model
     // evita que esa llamada anidada intente resolver el nombre otra vez.
     private bool $resolvingName = false;
 
-    protected function variableValues(): array
+    protected function variableValues(?string $text = null): array
     {
         $hasDiscount = $this->compare_price && $this->compare_price > $this->price;
         $discountPct = $hasDiscount ? round((1 - ((float) $this->price / (float) $this->compare_price)) * 100) : null;
@@ -193,6 +193,11 @@ class Products extends Model
             $this->resolvingName = false;
         }
 
+        // primarySupplierSku() dispara una query (o usa la relación ya
+        // cargada) -- solo vale la pena pagarla si el texto en verdad trae
+        // el token; si no, ni se llama.
+        $needsSupplierSku = $text !== null && str_contains($text, '{proveedor_sku}');
+
         return [
             '{nombre_producto}'      => $resolvedName,
             '{marca}'                => $this->brand?->name ?? '',
@@ -204,7 +209,7 @@ class Products extends Model
             '{precio_comparacion}'   => $this->compare_price ? number_format($this->compare_price_in_mxn, 2) . ' ' . $currency : '',
             '{descuento_porcentaje}' => $discountPct !== null ? (string) $discountPct : '',
             '{moneda}'               => $currency,
-            '{proveedor_sku}'        => $this->primarySupplierSku() ?? '',
+            '{proveedor_sku}'        => $needsSupplierSku ? ($this->primarySupplierSku() ?? '') : '',
             '{existencias}'          => $this->stock !== null ? (string) $this->stock : '',
             '{anio_actual}'          => (string) now()->year,
         ];
@@ -221,7 +226,7 @@ class Products extends Model
             return $text;
         }
 
-        $resolved = strtr($text, $this->variableValues());
+        $resolved = strtr($text, $this->variableValues($text));
         $resolved = preg_replace('/\s{2,}/', ' ', $resolved);
 
         return trim($resolved);
@@ -373,9 +378,61 @@ class Products extends Model
          ->using(SupplierProduct::class);
     }
 
+    private ?string $primarySupplierSkuCache = null;
+    private bool $primarySupplierSkuResolved = false;
+
     public function primarySupplierSku(): ?string
     {
-        return $this->suppliers()->wherePivot('is_primary', true)->first()?->pivot->sku;
+        if ($this->primarySupplierSkuResolved) {
+            return $this->primarySupplierSkuCache;
+        }
+        $this->primarySupplierSkuResolved = true;
+
+        // Usa la relación ya cargada en memoria si algún caller la
+        // eager-loadeó; si no, cae a la query directa (sin forzar un
+        // eager-load nuevo aquí -- la mayoría de las páginas no necesitan
+        // este dato en absoluto, ver variableValues()).
+        $this->primarySupplierSkuCache = $this->relationLoaded('suppliers')
+            ? $this->suppliers->first(fn ($s) => (bool) $s->pivot->is_primary)?->pivot->sku
+            : $this->suppliers()->wherePivot('is_primary', true)->first()?->pivot->sku;
+
+        return $this->primarySupplierSkuCache;
+    }
+
+    /**
+     * Fuente única de verdad para "¿se puede comprar este producto ahora
+     * mismo?" -- usada por el badge visible, el schema JSON-LD, y el guard
+     * de CartController::add(), para que nunca puedan divergir entre sí
+     * (antes cada uno tenía su propia regla, y podían contradecirse).
+     * 'on_order' se vende aunque stock=0 (es su propósito: pedido especial).
+     * 'out_of_stock' nunca se vende, sin importar el número de stock.
+     * 'available' (o cualquier valor inesperado) confía en stock > 0.
+     */
+    public function getIsPurchasableAttribute(): bool
+    {
+        return match ($this->availability) {
+            'out_of_stock' => false,
+            'on_order'     => true,
+            default        => $this->stock > 0,
+        };
+    }
+
+    public function getAvailabilityLabelAttribute(): string
+    {
+        if ($this->availability === 'on_order') {
+            return 'Sobre pedido';
+        }
+
+        return $this->is_purchasable ? 'Disponible' : 'Agotado';
+    }
+
+    public function getSchemaAvailabilityAttribute(): string
+    {
+        if ($this->availability === 'on_order') {
+            return 'https://schema.org/PreOrder';
+        }
+
+        return $this->is_purchasable ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock';
     }
 
     // FIX BUG 2: Added so destroy() can check for blocking purchase order

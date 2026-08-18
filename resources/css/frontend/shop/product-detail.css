@@ -148,4 +148,29 @@
 .eq-shop-product .product-price-box__quote-btn:hover { background: rgba(0,0,0,0.03); }
 .eq-shop-product .product-price-box__highlights-title { font-size: 15px; font-weight: 800; margin-bottom: 10px; }
 .eq-shop-product .product-price-box__highlights p { font-size: 14px; color: #4b5563; line-height: 1.5; }
+.eq-shop-product .product-price-box__highlights {
+    border: 1px solid rgba(0,0,0,0.08);
+    border-radius: 8px;
+    padding: 14px 16px;
+    background: #f9fafb;
+    margin-bottom: 16px;
+}
+.eq-shop-product .product-price-box__facts {
+    border: 1px solid rgba(0,0,0,0.08);
+    border-radius: 8px;
+    padding: 4px 16px;
+    margin: 0;
+}
+.eq-shop-product .product-price-box__facts-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+    padding: 10px 0;
+    font-size: 13.5px;
+    border-top: 1px solid rgba(0,0,0,0.06);
+}
+.eq-shop-product .product-price-box__facts-row:first-child { border-top: none; }
+.eq-shop-product .product-price-box__facts-row dt { color: #4b5563; font-weight: 600; margin: 0; }
+.eq-shop-product .product-price-box__facts-row dd { color: #141516; font-weight: 700; margin: 0; text-align: right; }
 

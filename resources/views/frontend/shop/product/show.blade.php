@@ -70,14 +70,6 @@
     // un precio de $0.00).
     $productSchema = null;
     if ($product->price > 0) {
-        if ($product->stock <= 0) {
-            $availabilitySchema = 'https://schema.org/OutOfStock';
-        } elseif ($product->availability !== 'available') {
-            $availabilitySchema = 'https://schema.org/PreOrder';
-        } else {
-            $availabilitySchema = 'https://schema.org/InStock';
-        }
-
         $productSchema = [
             '@context' => 'https://schema.org',
             '@type' => 'Product',
@@ -88,8 +80,17 @@
                 '@type' => 'Offer',
                 'price' => number_format($product->base_price, 2, '.', ''),
                 'priceCurrency' => 'MXN',
-                'availability' => $availabilitySchema,
+                'availability' => $product->schema_availability,
                 'url' => $canonicalUrl,
+                // El precio mostrado en la página (base_price) no incluye
+                // IVA -- se señala explícitamente para que Merchant Center
+                // no lo interprete como precio final.
+                'priceSpecification' => [
+                    '@type' => 'PriceSpecification',
+                    'price' => number_format($product->base_price, 2, '.', ''),
+                    'priceCurrency' => 'MXN',
+                    'valueAddedTaxIncluded' => false,
+                ],
             ],
         ];
 
@@ -176,7 +177,11 @@
 
     {{-- Secciones administrables desde Admin > Secciones del Sitio > Página de Producto --}}
     @foreach ($sections as $section)
-        @include('frontend.shop.home.sections.' . str_replace('_', '-', $section->type), ['section' => $section])
+        @php $sectionView = 'frontend.shop.home.sections.' . str_replace('_', '-', $section->type); @endphp
+        @unless (\Illuminate\Support\Facades\View::exists($sectionView))
+            @php \Illuminate\Support\Facades\Log::warning("HomeSection #{$section->id} referencia una vista inexistente: {$sectionView}"); @endphp
+        @endunless
+        @includeIf($sectionView, ['section' => $section])
     @endforeach
 </div>
 @endsection

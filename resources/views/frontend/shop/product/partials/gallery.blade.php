@@ -1,6 +1,8 @@
 @php
+    // $resolvedName ya viene calculado por show.blade.php (@include comparte
+    // su scope) -- no se recalcula aquí para no pagar resolveVariables() de
+    // nuevo por cada vista que incluya este partial.
     $galleryImages = $product->images;
-    $resolvedName = $product->resolveVariables($product->name);
     $coverFallback = $product->cover_image_url ?? asset('images/logo/equiterm-logo-blanco-color-3x.png');
     $imageUrls = $galleryImages->count() > 0 ? $galleryImages->pluck('url')->values() : collect([$coverFallback]);
     $imageLabels = $galleryImages->count() > 0
@@ -40,14 +42,14 @@
                 <div class="product-gallery__lightbox-thumbs" x-show="images.length > 1">
                     <template x-for="(img, i) in images" :key="i">
                         <button type="button" :class="{ 'is-active': active === i }" @click="select(i)">
-                            <span class="product-gallery__lightbox-thumb-img"><img :src="img" :alt="labels[i] || ''"></span>
+                            <span class="product-gallery__lightbox-thumb-img"><img :src="img" :alt="labels[i] || ''" loading="lazy"></span>
                             <span class="product-gallery__lightbox-thumb-label" x-show="labels[i]" x-text="labels[i]"></span>
                         </button>
                     </template>
                 </div>
                 <div class="product-gallery__lightbox-stage">
                     <button type="button" class="product-gallery__lightbox-nav product-gallery__lightbox-nav--prev" @click="prev()" x-show="images.length > 1" aria-label="Anterior">‹</button>
-                    <img :src="images[active]" :alt="labels[active] || '{{ addslashes($resolvedName) }}'">
+                    <img :src="images[active]" :alt="labels[active] || '{{ addslashes($resolvedName) }}'" loading="lazy">
                     <button type="button" class="product-gallery__lightbox-nav product-gallery__lightbox-nav--next" @click="next()" x-show="images.length > 1" aria-label="Siguiente">›</button>
                 </div>
             </div>
