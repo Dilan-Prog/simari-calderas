@@ -41,4 +41,40 @@
         <a href="{{ route('catalog.index') }}" class="checkout-confirmation__link">Volver al catálogo</a>
     </div>
 </div>
+
+@php
+    // Mismo plazo ya publicado en Términos y Condiciones para equipo en
+    // existencia ("5-10 días hábiles") — se usa el límite superior (10)
+    // como estimado, sin prometer de más. Cuenta días hábiles reales
+    // (salta sábados/domingos) desde hoy.
+    $reviewDeliveryDate = now();
+    $businessDaysAdded = 0;
+    while ($businessDaysAdded < 10) {
+        $reviewDeliveryDate = $reviewDeliveryDate->addDay();
+        if (! $reviewDeliveryDate->isWeekend()) {
+            $businessDaysAdded++;
+        }
+    }
+@endphp
+{{--
+  Integración de la aceptación — Reseñas de Clientes en Google. Paso
+  obligatorio de Merchant Center: le permite a Google mostrar, tras esta
+  compra, la encuesta de opt-in para que el cliente puntúe al negocio.
+  No se manda el arreglo opcional "products" (GTIN) porque el catálogo no
+  registra GTIN por producto.
+--}}
+<script src="https://apis.google.com/js/platform.js?onload=renderOptIn" async defer></script>
+<script>
+  window.renderOptIn = function() {
+    window.gapi.load('surveyoptin', function() {
+      window.gapi.surveyoptin.render({
+        "merchant_id": 5841352274,
+        "order_id": @json($storeOrder->order_number),
+        "email": @json($storeOrder->contact_email),
+        "delivery_country": @json($storeOrder->shipping_country),
+        "estimated_delivery_date": @json($reviewDeliveryDate->format('Y-m-d'))
+      });
+    });
+  }
+</script>
 @endsection

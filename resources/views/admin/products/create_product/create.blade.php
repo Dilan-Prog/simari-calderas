@@ -178,6 +178,7 @@
                 <input type="hidden" name="is_new" id="pformIsNew" value="{{ old('is_new', '0') }}">
                 <input type="hidden" name="is_recommended" id="pformIsRecommended" value="{{ old('is_recommended', '0') }}">
                 <input type="hidden" name="publish_on_website" id="pformPublishOnWebsite" value="{{ old('publish_on_website', '0') }}">
+                <input type="hidden" name="show_in_merchant_center" id="pformShowInMerchantCenter" value="{{ old('show_in_merchant_center', '1') }}">
                 <div class="pform-panel-wrap">
 
                     {{-- Panel 0: Información Básica --}}
@@ -790,6 +791,24 @@
                                             </div>
                                         </div>
                                         <p class="pform-badge-sub">Se mostrará en el catálogo público del sitio web</p>
+                                    </button>
+
+                                    <button type="button" class="pform-badge-card {{ old('show_in_merchant_center', true) ? 'active' : '' }}" id="badgeMerchantCenter">
+                                        <div class="pform-badge-card-header">
+                                            <div class="pform-badge-icon">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                                                    viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                    <path d="M3 3v18h18" />
+                                                    <path d="m19 9-5 5-4-4-3 3" />
+                                                </svg>
+                                            </div>
+                                            <div>
+                                                <div class="pform-badge-name">Mostrar en Google Merchant Center</div>
+                                                <div class="pform-toggle"></div>
+                                            </div>
+                                        </div>
+                                        <p class="pform-badge-sub">Incluye este producto en el feed de anuncios de Google Shopping</p>
                                     </button>
 
                                 </div>

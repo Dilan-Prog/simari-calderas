@@ -942,6 +942,7 @@ class ProductController extends Controller
             'is_new'            => 'nullable|boolean',
             'is_recommended'    => 'nullable|boolean',
             'publish_on_website' => 'nullable|boolean',
+            'show_in_merchant_center' => 'nullable|boolean',
             'availability'      => 'nullable|in:available,on_order,out_of_stock',
             'images'            => 'nullable|array',
             'images.*'          => 'image|mimes:jpeg,jpg,png|max:2048',
@@ -1019,6 +1020,7 @@ class ProductController extends Controller
         $product->is_new            = $request->boolean('is_new', false);
         $product->is_recommended    = $request->boolean('is_recommended', false);
         $product->publish_on_website = $request->boolean('publish_on_website', false);
+        $product->show_in_merchant_center = $request->boolean('show_in_merchant_center', true);
         $product->availability      = $request->availability ?? 'available';
         // Save specifications
         if ($request->filled('spec_key')) {
@@ -1154,6 +1156,7 @@ class ProductController extends Controller
             'is_new'            => 'nullable|boolean',
             'is_recommended'    => 'nullable|boolean',
             'publish_on_website' => 'nullable|boolean',
+            'show_in_merchant_center' => 'nullable|boolean',
             'availability'      => 'nullable|in:available,on_order,out_of_stock',
             'images'            => 'nullable|array',
             'images.*'          => 'image|mimes:jpeg,jpg,png|max:2048',
@@ -1225,6 +1228,7 @@ class ProductController extends Controller
         $product->is_new            = $request->boolean('is_new', false);
         $product->is_recommended    = $request->boolean('is_recommended', false);
         $product->publish_on_website = $request->boolean('publish_on_website', false);
+        $product->show_in_merchant_center = $request->boolean('show_in_merchant_center', true);
         $product->availability      = $request->availability ?? 'available';
 
         // Save specifications

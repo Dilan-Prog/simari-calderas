@@ -114,6 +114,10 @@ class Products extends Model
         // Independiente de is_active: controla si el producto se muestra en
         // el futuro catálogo público del sitio web (aún no conectado).
         'publish_on_website',
+        // Independiente de publish_on_website: permite excluir un producto
+        // ya público del feed XML de Google Merchant Center (ej. servicios,
+        // fichas incompletas) sin ocultarlo del catálogo del sitio.
+        'show_in_merchant_center',
         'seo_title',
         'seo_description',
         // FIX BUG 3: tags column added via
@@ -140,6 +144,7 @@ class Products extends Model
         'is_new'          => 'boolean',
         'is_recommended'  => 'boolean',
         'publish_on_website' => 'boolean',
+        'show_in_merchant_center' => 'boolean',
         'price_includes_tax' => 'boolean',
         'price'       => 'decimal:2',
         'cost'        => 'decimal:2',
@@ -433,6 +438,19 @@ class Products extends Model
         }
 
         return $this->is_purchasable ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock';
+    }
+
+    // Mismo criterio que schema_availability, pero con el enum propio de
+    // Google Merchant Center (in_stock|out_of_stock|preorder|backorder) en
+    // vez de las URLs de schema.org. "on_order" (sobre pedido) se traduce a
+    // backorder: se puede comprar aunque hoy no haya existencias físicas.
+    public function getGoogleMerchantAvailabilityAttribute(): string
+    {
+        if ($this->availability === 'on_order') {
+            return 'backorder';
+        }
+
+        return $this->is_purchasable ? 'in_stock' : 'out_of_stock';
     }
 
     // FIX BUG 2: Added so destroy() can check for blocking purchase order

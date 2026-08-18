@@ -9,6 +9,7 @@ use App\Http\Controllers\Frontend\Shop\LegalController;
 use App\Http\Controllers\Frontend\Shop\ProductController as ShopProductController;
 use App\Http\Controllers\Frontend\Shop\ServicePageController as ShopServicePageController;
 use App\Http\Controllers\Frontend\EmailTrackingController;
+use App\Http\Controllers\Frontend\GoogleMerchantFeedController;
 use App\Http\Controllers\Frontend\SitemapController;
 use App\Http\Controllers\MediaServeController;
 use App\Http\Controllers\ProfileController;
@@ -26,6 +27,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
+Route::get('/feed/google-merchant.xml', [GoogleMerchantFeedController::class, 'index'])->name('feed.google-merchant');
 
 // Tracking público de correos (sin auth): pixel de apertura, click-through y baja.
 Route::get('/email/track/open/{token}', [EmailTrackingController::class, 'open'])->name('email.track.open');

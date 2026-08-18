@@ -315,7 +315,7 @@
             });
 
             /* ── Badge toggle cards ── */
-            document.querySelectorAll('.pform-badge-card:not(#badgeFeatured):not(#badgeNew):not(#badgeRecommended):not(#badgePublishOnWebsite)')
+            document.querySelectorAll('.pform-badge-card:not(#badgeFeatured):not(#badgeNew):not(#badgeRecommended):not(#badgePublishOnWebsite):not(#badgeMerchantCenter)')
                 .forEach(function(card) {
                     card.addEventListener('click', function() {
                         this.classList.toggle('active');
@@ -895,6 +895,14 @@
             badgePublishOnWebsite.addEventListener('click', function() {
                 this.classList.toggle('active');
                 document.getElementById('pformPublishOnWebsite').value = this.classList.contains('active') ? 1 : 0;
+            });
+        }
+
+        const badgeMerchantCenter = document.getElementById('badgeMerchantCenter');
+        if (badgeMerchantCenter) {
+            badgeMerchantCenter.addEventListener('click', function() {
+                this.classList.toggle('active');
+                document.getElementById('pformShowInMerchantCenter').value = this.classList.contains('active') ? 1 : 0;
             });
         }
 
