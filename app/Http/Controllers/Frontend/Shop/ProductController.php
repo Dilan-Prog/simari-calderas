@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Frontend\Shop;
 
 use App\Http\Controllers\Controller;
 use App\Models\HomeSection;
+use App\Models\PaymentMethod;
 use App\Models\Products;
 use App\Models\Redirect;
 use Illuminate\Http\Request;
@@ -39,6 +40,11 @@ class ProductController extends Controller
             ->orderBy('sort_order')
             ->get();
 
-        return view('frontend.shop.product.show', compact('product', 'specifications', 'sections'));
+        $paymentMethods = PaymentMethod::where('is_active', true)
+            ->orderBy('sort_order')
+            ->orderBy('name')
+            ->get();
+
+        return view('frontend.shop.product.show', compact('product', 'specifications', 'sections', 'paymentMethods'));
     }
 }

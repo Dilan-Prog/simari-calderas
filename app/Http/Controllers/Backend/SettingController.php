@@ -46,6 +46,13 @@ class SettingController extends Controller
                 continue;
             }
 
+            // Multiplicador de precio de contado en product-detail -- un
+            // valor fuera de 0-100 o no numérico rompería/mentiría en el
+            // badge "Ahorras X%".
+            if ($key === 'ecommerce.cash_discount_percent' && (!is_numeric($value) || (float) $value < 0 || (float) $value > 100)) {
+                continue;
+            }
+
             Setting::set($key, $value, auth()->id());
         }
 

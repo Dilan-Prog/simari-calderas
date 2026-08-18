@@ -73,4 +73,124 @@
             @endforeach
         </dl>
     @endif
+
+    @php
+        // Descuento de contado sobre base_price (sin IVA) -- misma
+        // convención de toda la página (precio mostrado siempre sin IVA +
+        // nota aparte). 0/sin configurar = "sin descuento", el panel se
+        // degrada mostrando precio normal sin badge ni tachado.
+        $cashDiscountPercent = (float) \App\Models\Setting::get('ecommerce.cash_discount_percent', 0);
+        $hasCashDiscount = $cashDiscountPercent > 0;
+        $cashPrice = $hasCashDiscount
+            ? round($product->base_price * (1 - $cashDiscountPercent / 100), 2)
+            : $product->base_price;
+
+        // Tier 1 (contado) = todo método activo excepto crédito (línea de
+        // crédito no es "pago de contado"). Tier 2 (MSI) = subconjunto de
+        // tier 1 con pasarela/digital que además tenga meses configurados
+        // de verdad (details.msi, dato ya real desde el admin).
+        $tier1Methods = $paymentMethods->where('type', '!=', 'credito')->values();
+        $tier2Methods = $tier1Methods
+            ->whereIn('type', ['pasarela', 'digital'])
+            ->filter(fn ($m) => !empty($m->details['msi'] ?? null))
+            ->values();
+        // Unión de todos los meses distintos entre los métodos elegibles --
+        // cada logo mostrado ya aclara qué procesador es, así que no hace
+        // falta que todos soporten exactamente los mismos meses.
+        $msiMonths = $tier2Methods
+            ->flatMap(fn ($m) => $m->details['msi'] ?? [])
+            ->map(fn ($m) => (int) $m)
+            ->unique()
+            ->sort()
+            ->values();
+        $showsInvoicing = $tier1Methods->contains(fn ($m) => $m->allows_invoicing);
+    @endphp
+
+    {{-- Compra protegida --}}
+    <div class="product-price-box__trust">
+        <svg class="product-price-box__trust-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ff6213" stroke-width="2">
+            <path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6z"></path>
+        </svg>
+        <span class="product-price-box__trust-label">Compra 100% protegida</span>
+    </div>
+
+    {{-- Medios de pago --}}
+    @if ($tier1Methods->isNotEmpty())
+        <div class="product-price-box__payments">
+            <div class="product-price-box__payments-header">
+                <div>
+                    <div class="product-price-box__payments-eyebrow">MEDIOS DE PAGO</div>
+                    <div class="product-price-box__payments-title">Tu comodidad, tu pago.</div>
+                </div>
+                @if ($showsInvoicing)
+                    <div class="product-price-box__payments-badge">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#ff6213" stroke-width="2.5"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                        <span>Factura CFDI 4.0</span>
+                    </div>
+                @endif
+            </div>
+
+            <div class="product-price-box__payments-body">
+                {{-- Tier 1: contado --}}
+                <div class="product-price-box__tier">
+                    <div class="product-price-box__tier-header">
+                        <div class="product-price-box__tier-title">1 · Pago de contado</div>
+                        @if ($hasCashDiscount)
+                            <span class="product-price-box__tier-badge">Ahorras {{ rtrim(rtrim(number_format($cashDiscountPercent, 2), '0'), '.') }}%</span>
+                        @endif
+                    </div>
+
+                    <div class="product-price-box__tier-price-row">
+                        <span class="product-price-box__tier-price">${{ number_format($cashPrice, 2) }}</span>
+                        @if ($hasCashDiscount)
+                            <span class="product-price-box__tier-price-original">${{ number_format($product->base_price, 2) }}</span>
+                        @endif
+                    </div>
+                    <div class="product-price-box__tier-note">
+                        {{ $hasCashDiscount ? 'Precio con descuento pagando de contado, más IVA.' : 'Precio de contado, más IVA.' }} Métodos disponibles abajo.
+                    </div>
+
+                    <div class="product-price-box__tier-methods">
+                        @foreach ($tier1Methods as $method)
+                            <div class="product-price-box__method">
+                                @if ($method->logo_url)
+                                    <img class="product-price-box__method-logo" src="{{ $method->logo_url }}" alt="{{ $method->name }}">
+                                @else
+                                    <div class="product-price-box__method-logo product-price-box__method-logo--placeholder">{{ mb_strtoupper(mb_substr($method->name, 0, 2)) }}</div>
+                                @endif
+                                <span class="product-price-box__method-name">{{ $method->name }}</span>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+
+                {{-- Tier 2: MSI --}}
+                @if ($tier2Methods->isNotEmpty())
+                    <div class="product-price-box__tier">
+                        <div class="product-price-box__tier-title">2 · Meses sin intereses</div>
+                        <div class="product-price-box__tier-note">Con Visa, Mastercard, American Express o Carnet participantes. Monto por mes calculado sobre el precio del producto (no incluye envío).</div>
+
+                        <div class="product-price-box__msi-grid">
+                            @foreach ($msiMonths as $months)
+                                <div class="product-price-box__msi-plan">
+                                    <span class="product-price-box__msi-plan-months">{{ $months }} meses</span>
+                                    <span class="product-price-box__msi-plan-amount">${{ number_format($product->final_price / $months, 2) }}</span>
+                                </div>
+                            @endforeach
+                        </div>
+
+                        <div class="product-price-box__tier-logos">
+                            @foreach ($tier2Methods as $method)
+                                @if ($method->logo_url)
+                                    <img class="product-price-box__method-logo-sm" src="{{ $method->logo_url }}" alt="{{ $method->name }}" title="{{ $method->name }}">
+                                @else
+                                    <div class="product-price-box__method-logo-sm product-price-box__method-logo-sm--placeholder" title="{{ $method->name }}">{{ mb_strtoupper(mb_substr($method->name, 0, 2)) }}</div>
+                                @endif
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
+            </div>
+        </div>
+    @endif
 </div>

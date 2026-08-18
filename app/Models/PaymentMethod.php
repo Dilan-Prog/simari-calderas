@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\UploadPath;
 use App\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -23,6 +24,7 @@ class PaymentMethod extends Model
         'type',
         'name',
         'description',
+        'logo_url',
         'is_active',
         'bank_name',
         'clabe',
@@ -42,5 +44,10 @@ class PaymentMethod extends Model
     protected static function logEntityType(): string
     {
         return 'payment_method';
+    }
+
+    public function getLogoUrlAttribute(?string $value): ?string
+    {
+        return UploadPath::url($value);
     }
 }

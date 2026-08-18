@@ -35,5 +35,12 @@ class SettingsSeeder extends Seeder
             ['key' => 'ecommerce.iva_rate'],
             ['value' => '16', 'type' => 'decimal', 'group_name' => 'ecommerce', 'is_public' => true]
         );
+
+        // Misma lógica: la fila real la garantiza la migración
+        // seed_ecommerce_cash_discount_percent_setting.
+        Setting::firstOrCreate(
+            ['key' => 'ecommerce.cash_discount_percent'],
+            ['value' => '0', 'type' => 'decimal', 'group_name' => 'ecommerce', 'is_public' => true]
+        );
     }
 }

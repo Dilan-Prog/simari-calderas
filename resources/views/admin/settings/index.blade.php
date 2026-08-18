@@ -10,11 +10,13 @@
             'footer.address_postal_code' => 'Dirección — Código Postal',
             'footer.address_city' => 'Dirección — Ciudad',
             'footer.address_state' => 'Dirección — Estado',
-            'footer.phone' => 'Teléfono del footer',
+            'footer.phone' => 'WhatsApp de contacto (texto mostrado)',
+            'footer.phone_link' => 'WhatsApp de contacto (solo dígitos, para el enlace wa.me — sin +, espacios ni guiones, ej. 5214494577320)',
             'footer.email' => 'Correo del footer',
             'footer.facebook_url' => 'URL de Facebook (footer)',
             'ecommerce.iva_rate' => 'Tasa de IVA (%)',
             'ecommerce.usd_to_mxn_rate' => 'Tipo de cambio USD → MXN (valor por defecto)',
+            'ecommerce.cash_discount_percent' => 'Descuento por pago de contado (%)',
         ];
 
         $groupTitles = [

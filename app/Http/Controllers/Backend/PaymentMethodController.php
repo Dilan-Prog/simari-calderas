@@ -46,6 +46,7 @@ class PaymentMethodController extends Controller
             'type' => 'required|string|in:' . implode(',', self::TYPES),
             'name' => 'required|string|max:100',
             'description' => 'nullable|string|max:140',
+            'logo_url' => 'nullable|string|max:255',
             'is_active' => 'nullable|boolean',
             'bank_name' => 'nullable|string|max:100',
             'clabe' => 'nullable|string|max:18',
@@ -169,6 +170,7 @@ class PaymentMethodController extends Controller
         $paymentMethod->type = $data['type'];
         $paymentMethod->name = $data['name'];
         $paymentMethod->description = $data['description'] ?? null;
+        $paymentMethod->logo_url = $data['logo_url'] ?? null;
         $paymentMethod->is_active = $request->boolean('is_active', true);
         $paymentMethod->bank_name = $data['bank_name'] ?? null;
         $paymentMethod->clabe = $data['clabe'] ?? null;
@@ -204,6 +206,7 @@ class PaymentMethodController extends Controller
         $paymentMethod->type = $data['type'];
         $paymentMethod->name = $data['name'];
         $paymentMethod->description = $data['description'] ?? null;
+        $paymentMethod->logo_url = $data['logo_url'] ?? null;
         $paymentMethod->is_active = $request->boolean('is_active', true);
         $paymentMethod->bank_name = $data['bank_name'] ?? null;
         $paymentMethod->clabe = $data['clabe'] ?? null;

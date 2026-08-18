@@ -243,6 +243,7 @@
             name: 'pmName',
             sort_order: 'pmSortOrder',
             description: 'pmDescription',
+            logo_url: 'pmLogoUrl',
             bank_name: 'pmBankName',
             clabe: 'pmClabe',
             account_number: 'pmAccountNumber',
@@ -351,6 +352,7 @@
                         document.getElementById('pmName').value = pm.name ?? '';
                         document.getElementById('pmSortOrder').value = pm.sort_order ?? 0;
                         document.getElementById('pmDescription').value = pm.description ?? '';
+                        document.getElementById('pmLogoUrl').value = pm.logo_url ?? '';
                         document.getElementById('pmBankName').value = pm.bank_name ?? '';
                         document.getElementById('pmClabe').value = pm.clabe ?? '';
                         document.getElementById('pmAccountNumber').value = pm.account_number ?? '';
