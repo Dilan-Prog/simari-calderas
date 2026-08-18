@@ -5,6 +5,7 @@
 <meta name="robots" content="index,follow" />
 <meta name="author" content="Equiterm Industries" />
 <meta name="theme-color" content="#1a2940" />
+<meta name="google-site-verification" content="B_dbp2j3sqJ2DiovD6PaWCMgvrD_dh-GRtEW3pILS78" />
 <link rel="canonical" href="@yield('canonical', 'https://equitermindustries.com.mx/')" />
 <link rel="shortcut icon"        type="image/x-icon"  href="{{ asset('images/logo/icon-web/favicon.ico') }}" />
 <link rel="icon" type="image/png" sizes="16x16"  href="{{ asset('images/logo/icon-web/favicon-16x16.png') }}" />
