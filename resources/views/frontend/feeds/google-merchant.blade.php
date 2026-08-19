@@ -5,15 +5,22 @@
     <link>{{ url('/') }}</link>
     <description>Feed de productos de Equiterm Industries para Google Merchant Center.</description>
 @foreach ($products as $product)
+    @php
+        // cover_image_url casi nunca se captura en el alta normal de un
+        // producto (solo lo fija el consolidador de duplicados de la
+        // Galería) — la portada real de la mayoría de los productos es la
+        // primera imagen de su galería, mismo criterio ya usado en
+        // admin/products/index.blade.php y en el correo de carrito.
+        $mainImageUrl = $product->cover_image_url ?? $product->images->first()?->url;
+        $extraImages = $product->images->where('url', '!=', $mainImageUrl)->take(10);
+    @endphp
     <item>
       <g:id>{{ $product->id }}</g:id>
       <title>{{ \Illuminate\Support\Str::limit($product->resolveVariables($product->name), 150, '') }}</title>
       <description>{{ \Illuminate\Support\Str::limit($product->resolveVariables($product->description ?: $product->short_description) ?: $product->resolveVariables($product->name), 5000, '') }}</description>
       <link>{{ route('product.show', $product->slug) }}</link>
-@if ($product->cover_image_url)
-      <g:image_link>{{ $product->cover_image_url }}</g:image_link>
-@endif
-@foreach ($product->images->where('url', '!=', $product->cover_image_url)->take(10) as $image)
+      <g:image_link>{{ $mainImageUrl }}</g:image_link>
+@foreach ($extraImages as $image)
       <g:additional_image_link>{{ $image->url }}</g:additional_image_link>
 @endforeach
       <g:availability>{{ $product->google_merchant_availability }}</g:availability>
