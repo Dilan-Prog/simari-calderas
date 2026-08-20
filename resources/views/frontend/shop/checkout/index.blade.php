@@ -102,6 +102,18 @@
                         </div>
                     @endforeach
                 </div>
+
+                @if (!empty($freeShippingProgress))
+                    <div class="checkout-shipping-progress">
+                        @foreach ($freeShippingProgress as $progress)
+                            <div class="checkout-shipping-progress__item">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7h11l4 4v6h-2M3 7v10h2M3 7l2-3h7l2 3M7 21a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM17 21a2 2 0 1 0 0-4 2 2 0 0 0 0 4z"/></svg>
+                                <span>Te faltan <strong>${{ number_format($progress['remaining'], 2) }} MXN</strong> para envío gratis en <strong>{{ $progress['label'] }}</strong></span>
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
+
                 <div class="checkout-summary__row">
                     <span>Subtotal ({{ $cart->items->sum('quantity') }} artículos)</span>
                     <span>${{ number_format($subtotal, 2) }} MXN</span>

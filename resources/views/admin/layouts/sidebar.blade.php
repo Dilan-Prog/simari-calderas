@@ -67,6 +67,7 @@
             request()->routeIs('admin.whatsapp-accounts.*') => 'whatsapp',
             request()->routeIs('admin.whatsapp-funnel.*') => 'embudo-de-venta',
             request()->routeIs('admin.payment-methods.*') => 'metodos-de-pago',
+            request()->routeIs('admin.shipping-rules.*') => 'reglas-de-envio',
             request()->routeIs('admin.pipelines.*') => 'pipelines',
             request()->routeIs('admin.deals.*') => 'negocios',
             request()->routeIs('admin.tasks.*') => 'tareas',
@@ -82,7 +83,7 @@
         // Agrupación puramente visual del sidebar — no afecta rutas, permisos
         // ni estructura de carpetas, solo cómo se muestran los módulos.
         $groupSections = [
-            'ecommerce' => ['productos', 'categorias', 'marcas', 'colecciones', 'paginas-servicio', 'galeria', 'inicio-secciones', 'inventory', 'menus', 'configuracion-sitio', 'integraciones', 'metodos-de-pago', 'carritos-abandonados', 'ordenes', 'envios', 'deliveries'],
+            'ecommerce' => ['productos', 'categorias', 'marcas', 'colecciones', 'paginas-servicio', 'galeria', 'inicio-secciones', 'inventory', 'menus', 'configuracion-sitio', 'integraciones', 'metodos-de-pago', 'reglas-de-envio', 'carritos-abandonados', 'ordenes', 'envios', 'deliveries'],
             'servicios' => ['reportes-servicio', 'servicios-tecnicos'],
             'erp' => ['cotizaciones', 'proveedores', 'ordenes-compra', 'pedidos', 'entrega-material', 'planeacion-quimicos', 'erp-configuracion', 'clientes', 'pipelines', 'embudo-de-venta', 'negocios', 'automatizaciones'],
             'administracion' => ['roles', 'usuarios', 'google-ads', 'devops', 'audit', 'whatsapp', 'email-marketing', 'dashboards', 'reportes', 'metas'],
@@ -102,6 +103,7 @@
             || $authUser->hasPermission('shipments')
             || $authUser->hasPermission('carriers')
             || $authUser->hasPermission('payment-methods')
+            || $authUser->hasPermission('shipping-rules')
             || $authUser->hasPermission('menu')
             || $authUser->hasPermission('settings')
             || $authUser->hasPermission('abandoned-carts');
@@ -379,6 +381,24 @@
                                 <line x1="2" x2="22" y1="10" y2="10" />
                             </svg>
                             <span class="sidebar-nav-item-label">Métodos de Pago</span>
+                        </div>
+                    </a>
+                @endif
+
+                {{-- Reglas de Envío --}}
+                @if ($authUser->hasPermission('shipping-rules'))
+                    <a href="{{ route('admin.shipping-rules.index') }}" class="sidebar-nav-item {{ $activeSection === 'reglas-de-envio' ? 'active' : '' }}" data-section="reglas-de-envio" data-label="Reglas de Envío">
+                        <div class="sidebar-nav-item-left">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2" />
+                                <path d="M15 18H9" />
+                                <path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14" />
+                                <circle cx="17" cy="18" r="2" />
+                                <circle cx="7" cy="18" r="2" />
+                            </svg>
+                            <span class="sidebar-nav-item-label">Reglas de Envío</span>
                         </div>
                     </a>
                 @endif

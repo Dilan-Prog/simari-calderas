@@ -35,6 +35,7 @@ export default defineConfig({
                 'resources/css/admin/pages/devops.css',
                 'resources/css/admin/pages/audit.css',
                 'resources/css/admin/pages/payment-methods.css',
+                'resources/css/admin/pages/shipping-rules.css',
                 'resources/css/admin/pages/inventory.css',
                 'resources/css/frontend/shop/home.css',
                 'resources/js/frontend/shop/home.js',

@@ -127,6 +127,10 @@ class ProductsImport implements ToModel, WithHeadingRow, WithValidation, WithBat
             'is_new' => $this->normalizeProductBool($row['nuevo'] ?? false, false),
             'is_recommended' => $this->normalizeProductBool($row['recomendado'] ?? false, false),
             'publish_on_website' => $this->normalizeProductBool($row['publicar_web'] ?? false, false),
+            'shipping_cost' => $this->sanitizePrice($row['costo_envio'] ?? null),
+            'free_shipping_threshold' => $this->sanitizePrice($row['envio_gratis_desde'] ?? null),
+            'reorder_point' => $this->present($row['punto_reorden'] ?? null) ? (int) $row['punto_reorden'] : null,
+            'show_in_merchant_center' => $this->normalizeProductBool($row['mostrar_merchant_center'] ?? true, true),
         ]);
         $product->slug = Str::slug($row['nombre']) . '-' . Str::random(6);
         // availability no está en $fillable del modelo (igual que en
@@ -210,6 +214,19 @@ class ProductsImport implements ToModel, WithHeadingRow, WithValidation, WithBat
             }],
             'stock' => 'nullable|integer|min:0',
             'imagen_url' => 'nullable|url|max:2048',
+            'costo_envio' => ['nullable', function ($attribute, $value, $fail) {
+                $clean = $this->sanitizePrice($value);
+                if ($this->present($value) && ($clean === null || $clean < 0)) {
+                    $fail('El costo de envío no es un número válido.');
+                }
+            }],
+            'envio_gratis_desde' => ['nullable', function ($attribute, $value, $fail) {
+                $clean = $this->sanitizePrice($value);
+                if ($this->present($value) && ($clean === null || $clean < 0)) {
+                    $fail('"Envío Gratis Desde" no es un número válido.');
+                }
+            }],
+            'punto_reorden' => 'nullable|integer|min:0',
         ];
     }
 

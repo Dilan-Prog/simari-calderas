@@ -150,6 +150,11 @@
     "src": "resources/css/admin/pages/shipments.css",
     "isEntry": true
   },
+  "resources/css/admin/pages/shipping-rules.css": {
+    "file": "assets/shipping-rules-B9Rzv8Aj.css",
+    "src": "resources/css/admin/pages/shipping-rules.css",
+    "isEntry": true
+  },
   "resources/css/admin/pages/statistics.css": {
     "file": "assets/statistics-BCYhmlaK.css",
     "src": "resources/css/admin/pages/statistics.css",
@@ -201,7 +206,7 @@
     "isEntry": true
   },
   "resources/css/frontend/shop/checkout.css": {
-    "file": "assets/checkout-q_1_d7lN.css",
+    "file": "assets/checkout-RDFsop-C.css",
     "src": "resources/css/frontend/shop/checkout.css",
     "isEntry": true
   },

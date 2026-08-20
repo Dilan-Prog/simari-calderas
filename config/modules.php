@@ -133,6 +133,12 @@ return [
         'route' => 'admin.payment-methods.index',
         'order' => 15,
     ],
+    'shipping-rules' => [
+        'name'  => 'Reglas de Envío',
+        'icon'  => 'truck',
+        'route' => 'admin.shipping-rules.index',
+        'order' => 15,
+    ],
     'google-ads' => [
         'name'  => 'Google Ads',
         'icon'  => 'trending-up',

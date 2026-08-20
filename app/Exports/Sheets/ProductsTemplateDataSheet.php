@@ -30,6 +30,7 @@ class ProductsTemplateDataSheet implements FromArray, WithHeadings, WithTitle, W
             'Descripción Corta', 'Descripción', 'Precio', 'Precio Comparativo',
             'Costo', 'Stock', 'Unidad Stock', 'Moneda', 'Disponibilidad',
             'Activo', 'Destacado', 'Nuevo', 'Recomendado', 'Publicar Web', 'Imagen URL',
+            'Costo Envío', 'Envío Gratis Desde', 'Punto Reorden', 'Mostrar Merchant Center',
         ];
     }
 
@@ -51,6 +52,7 @@ class ProductsTemplateDataSheet implements FromArray, WithHeadings, WithTitle, W
                 'Caldera de vapor industrial de 500 litros, ideal para procesos productivos continuos.',
                 45000, 52000, 32000, 8, 'pieza', 'MXN', 'Disponible',
                 'Si', 'Si', 'No', 'Si', 'Si', '',
+                1200, 100000, 3, 'Si',
             ],
             [
                 'Calentador Solar 200L', $skus[1], 'CS-200', 'PROV-CS200',
@@ -59,6 +61,7 @@ class ProductsTemplateDataSheet implements FromArray, WithHeadings, WithTitle, W
                 'Calentador solar de tubos evacuados, capacidad 200 litros, incluye kit de instalación.',
                 12500, 14000, 8900, 15, 'pieza', 'MXN', 'Disponible',
                 'Si', 'No', 'Si', 'No', 'Si', '',
+                '', '', 5, 'Si',
             ],
             [
                 'Caldereta a Gas 100L', $skus[2], 'CG-100', '',
@@ -67,6 +70,7 @@ class ProductsTemplateDataSheet implements FromArray, WithHeadings, WithTitle, W
                 'Caldereta a gas natural/LP de 100 litros, encendido electrónico, panel digital.',
                 9800, '', 6500, 20, 'pieza', 'MXN', 'Sobre Pedido',
                 'Si', 'No', 'No', 'No', 'No', '',
+                '', '', '', 'Si',
             ],
         ];
     }
@@ -122,6 +126,10 @@ class ProductsTemplateDataSheet implements FromArray, WithHeadings, WithTitle, W
         $sheet->getStyle('K2:M1000')
             ->getNumberFormat()
             ->setFormatCode('"$"#,##0');
+        // Costo Envío (X) / Envío Gratis Desde (Y) — mismos montos en pesos.
+        $sheet->getStyle('X2:Y1000')
+            ->getNumberFormat()
+            ->setFormatCode('"$"#,##0');
 
         // Dropdowns en cascada para Categoría Principal (E) / Subcategoría
         // (F) / Categoría Hija (G) — Subcategoría solo muestra las hijas de
@@ -136,12 +144,13 @@ class ProductsTemplateDataSheet implements FromArray, WithHeadings, WithTitle, W
         foreach (['R', 'S', 'T', 'U', 'V'] as $boolColumn) {
             ExcelDropdown::applyListDropdown($sheet, $boolColumn, 2, 1000, ['Si', 'No'], 'Sí / No');
         }
+        ExcelDropdown::applyListDropdown($sheet, 'AA', 2, 1000, ['Si', 'No'], 'Sí / No');
 
         // Estilo base del encabezado aplicado directamente (no vía el array
         // de retorno) para poder pintar el acento naranja de las columnas
         // con dropdown DESPUÉS, sin que se sobreescriba — el array que
         // devuelve styles() lo aplica el framework al final del método.
-        $sheet->getStyle('A1:W1')->applyFromArray([
+        $sheet->getStyle('A1:AA1')->applyFromArray([
             'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
             'fill' => [
                 'fillType' => Fill::FILL_SOLID,
@@ -149,7 +158,7 @@ class ProductsTemplateDataSheet implements FromArray, WithHeadings, WithTitle, W
             ],
         ]);
 
-        ExcelDropdown::applyDropdownColumnHeaderAccent($sheet, ['E', 'F', 'G', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V']);
+        ExcelDropdown::applyDropdownColumnHeaderAccent($sheet, ['E', 'F', 'G', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'AA']);
 
         return [];
     }
@@ -160,6 +169,7 @@ class ProductsTemplateDataSheet implements FromArray, WithHeadings, WithTitle, W
             'A' => 28, 'B' => 14, 'C' => 12, 'D' => 16, 'E' => 20, 'F' => 20, 'G' => 20, 'H' => 16,
             'I' => 30, 'J' => 45, 'K' => 12, 'L' => 14, 'M' => 12, 'N' => 10, 'O' => 14,
             'P' => 10, 'Q' => 16, 'R' => 10, 'S' => 12, 'T' => 10, 'U' => 14, 'V' => 14, 'W' => 40,
+            'X' => 14, 'Y' => 16, 'Z' => 14, 'AA' => 20,
         ];
     }
 }

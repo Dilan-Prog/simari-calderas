@@ -83,8 +83,9 @@ class CheckoutController extends Controller
         $subtotal = $cart->subtotal();
         $taxTotal = $cart->taxTotal();
         $shippingTotal = $cart->shippingTotal();
+        $freeShippingProgress = $cart->freeShippingProgress();
 
-        return view('frontend.shop.checkout.index', compact('cart', 'subtotal', 'taxTotal', 'shippingTotal'));
+        return view('frontend.shop.checkout.index', compact('cart', 'subtotal', 'taxTotal', 'shippingTotal', 'freeShippingProgress'));
     }
 
     public function shipping()
@@ -228,8 +229,9 @@ class CheckoutController extends Controller
             'shippingTotal' => $shippingTotal,
             'total'         => round($subtotal + $taxTotal + $shippingTotal, 2),
         ];
+        $freeShippingProgress = $cart->freeShippingProgress();
 
-        return view('frontend.shop.checkout.payment', compact('paymentMethods', 'summary'));
+        return view('frontend.shop.checkout.payment', compact('paymentMethods', 'summary', 'freeShippingProgress'));
     }
 
     public function confirm(Request $request)

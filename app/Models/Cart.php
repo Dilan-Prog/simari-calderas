@@ -75,14 +75,32 @@ class Cart extends Model
     }
 
     /**
-     * Convención: el envío se cobra UNA vez por línea de producto que tenga
-     * shipping_cost > 0 (no se multiplica por quantity). Un producto con
-     * shipping_cost nulo/0 = envío estándar gratis; con shipping_cost > 0,
-     * ese cargo fijo aplica una sola vez sin importar cuántas unidades se
-     * pidan de ese producto — EXCEPTO si el producto tiene
-     * free_shipping_threshold y el subtotal del carrito (sin IVA, mismo
-     * criterio que subtotal()) ya lo alcanza, en cuyo caso esa línea
-     * tampoco cobra envío.
+     * Convención: el envío se cobra UNA vez por línea de carrito que tenga
+     * cargo aplicable (no se multiplica por quantity). Cada línea cae en uno
+     * de estos casos, en este orden de prioridad:
+     *
+     *   1) Override propio del producto (products.shipping_cost > 0): gana
+     *      SIEMPRE sobre cualquier ShippingRule de su marca/categoría --
+     *      comportamiento histórico, sin cambios. Su free_shipping_threshold
+     *      (si tiene) se compara contra el SUBTOTAL TOTAL DEL CARRITO (sin
+     *      IVA, mismo criterio que subtotal()).
+     *
+     *   2) Sin override propio: se busca una ShippingRule activa que cubra
+     *      al producto -- primero por brand_id, si no hay, por category_id
+     *      exacto (sin subir a categorías padre). Si la regla tiene
+     *      shipping_cost > 0, ese es el cargo de esa línea. La diferencia
+     *      clave con el caso 1: el free_shipping_threshold de una REGLA se
+     *      compara contra el SUBTOTAL DE SOLO LAS LÍNEAS DEL CARRITO QUE
+     *      CAEN BAJO ESA MISMA REGLA (misma marca o categoría), no contra el
+     *      carrito completo -- dos productos de una marca con envío se
+     *      agrupan entre sí para ese cálculo, pero no se mezclan con otras
+     *      marcas/categorías ni con el resto del carrito.
+     *
+     *   3) Sin override y sin regla aplicable (o regla con shipping_cost
+     *      nulo/0): envío estándar gratis, sin cambios.
+     *
+     * shippingGroups() hace todo el trabajo de agrupar+decidir una sola vez;
+     * shippingTotal() y freeShippingProgress() solo leen ese resultado.
      */
     /**
      * Monto final del carrito (subtotal + IVA + envío) -- el total real que
@@ -117,25 +135,137 @@ class Cart extends Model
 
     public function shippingTotal(): float
     {
-        $subtotal = $this->subtotal();
-
         return round(
-            $this->items
-                ->filter(function (CartItem $item) use ($subtotal) {
-                    $product = $item->product;
-
-                    if (!$product || !($product->shipping_cost > 0)) {
-                        return false;
-                    }
-
-                    if ($product->free_shipping_threshold !== null && $subtotal >= $product->free_shipping_threshold) {
-                        return false;
-                    }
-
-                    return true;
-                })
-                ->sum(fn (CartItem $item) => $item->product->shipping_cost),
+            collect($this->shippingGroups())->sum(fn (array $group) => $group['charge']),
             2
         );
+    }
+
+    /**
+     * Para cada grupo (override de producto o ShippingRule de marca/
+     * categoría) que HOY está cobrando envío y todavía no alcanza su
+     * umbral, devuelve cuánto le falta al cliente para desbloquear envío
+     * gratis en esas líneas. Ordenado por "remaining" ascendente -- el
+     * umbral más cerca de desbloquearse primero. Grupos sin threshold (el
+     * envío de esa línea nunca se vuelve gratis por monto) no aparecen
+     * aquí, ni tampoco los que ya están gratis.
+     *
+     * Formato de cada entrada: ['label', 'remaining', 'threshold', 'current']
+     * -- 'current' es el subtotal (sin IVA) contra el que se compara ese
+     * grupo en particular (el carrito completo para un override de
+     * producto, o solo las líneas de esa marca/categoría para una regla).
+     */
+    public function freeShippingProgress(): array
+    {
+        return collect($this->shippingGroups())
+            ->filter(fn (array $group) => !$group['is_free'] && $group['threshold'] !== null)
+            ->map(fn (array $group) => [
+                'label'     => $group['label'],
+                'remaining' => round($group['threshold'] - $group['compare_subtotal'], 2),
+                'threshold' => $group['threshold'],
+                'current'   => $group['compare_subtotal'],
+            ])
+            ->sortBy('remaining')
+            ->values()
+            ->all();
+    }
+
+    /**
+     * Agrupa las líneas del carrito por "qué las gobierna" para el cálculo
+     * de envío -- ver el comentario largo arriba de total() para la regla de
+     * negocio completa. Precarga TODAS las ShippingRule activas en una sola
+     * query (agrupadas en memoria por brand_id/category_id) para no pagar
+     * una query por item del carrito.
+     *
+     * Devuelve un array de grupos, cada uno con:
+     *   - label: nombre de marca/categoría (regla) o nombre del producto
+     *     (override individual) -- usado por freeShippingProgress().
+     *   - shipping_cost: cargo fijo por línea de ese grupo.
+     *   - threshold: free_shipping_threshold aplicable, o null si no tiene.
+     *   - compare_subtotal: el subtotal (sin IVA) contra el que se compara
+     *     ese threshold -- el carrito completo para overrides de producto,
+     *     o solo las líneas de ese grupo para reglas de marca/categoría.
+     *   - line_count: cuántas líneas de carrito caen en este grupo (el
+     *     cargo se cobra una vez por línea, nunca por unidad).
+     *   - is_free / charge: derivados, ya resueltos.
+     */
+    private function shippingGroups(): array
+    {
+        $cartSubtotal = $this->subtotal();
+
+        $activeRules = ShippingRule::where('is_active', true)->get();
+        $rulesByBrand = $activeRules->whereNotNull('brand_id')->keyBy('brand_id');
+        $rulesByCategory = $activeRules->whereNotNull('category_id')->keyBy('category_id');
+
+        $groups = [];
+
+        foreach ($this->items as $item) {
+            $product = $item->product;
+
+            if (!$product) {
+                continue;
+            }
+
+            // Caso 1: override propio del producto -- gana siempre, un grupo
+            // por producto, comparado contra el subtotal TOTAL del carrito.
+            if ($product->shipping_cost > 0) {
+                $key = 'product:' . $product->id;
+                $groups[$key] = [
+                    'label'            => $product->name,
+                    'shipping_cost'    => (float) $product->shipping_cost,
+                    'threshold'        => $product->free_shipping_threshold !== null ? (float) $product->free_shipping_threshold : null,
+                    'compare_subtotal' => $cartSubtotal,
+                    'line_count'       => 1,
+                ];
+
+                continue;
+            }
+
+            // Caso 2: sin override propio -- busca ShippingRule aplicable,
+            // marca primero, si no hay, categoría exacta del producto.
+            $rule = null;
+            $key = null;
+            $label = null;
+
+            if ($product->brand_id && $rulesByBrand->has($product->brand_id)) {
+                $rule = $rulesByBrand->get($product->brand_id);
+                $key = 'brand:' . $product->brand_id;
+                $label = $product->brand->name ?? 'esta marca';
+            } elseif ($product->category_id && $rulesByCategory->has($product->category_id)) {
+                $rule = $rulesByCategory->get($product->category_id);
+                $key = 'category:' . $product->category_id;
+                $label = $product->category->name ?? 'esta categoría';
+            }
+
+            // Sin regla aplicable, o regla sin cargo (shipping_cost nulo/0):
+            // envío estándar gratis para esta línea (caso 3), no forma grupo.
+            if (!$rule || !($rule->shipping_cost > 0)) {
+                continue;
+            }
+
+            if (!isset($groups[$key])) {
+                $groups[$key] = [
+                    'label'            => $label,
+                    'shipping_cost'    => (float) $rule->shipping_cost,
+                    'threshold'        => $rule->free_shipping_threshold !== null ? (float) $rule->free_shipping_threshold : null,
+                    'compare_subtotal' => 0.0,
+                    'line_count'       => 0,
+                ];
+            }
+
+            // Acumula SOLO el subtotal de las líneas que caen bajo esta
+            // misma regla -- este es el punto central que distingue una
+            // regla de marca/categoría de un override de producto.
+            $groups[$key]['compare_subtotal'] += $item->quantity * $item->unit_price_snapshot;
+            $groups[$key]['line_count']++;
+        }
+
+        foreach ($groups as &$group) {
+            $group['is_free'] = $group['threshold'] !== null && $group['compare_subtotal'] >= $group['threshold'];
+            $group['charge'] = $group['is_free'] ? 0.0 : $group['line_count'] * $group['shipping_cost'];
+        }
+        unset($group);
+
+        return $groups;
     }
 }

@@ -35,6 +35,7 @@ class ProductsExport implements FromQuery, WithHeadings, WithMapping, ShouldAuto
             'Descripción Corta', 'Descripción', 'Precio', 'Precio Comparativo',
             'Costo', 'Stock', 'Unidad Stock', 'Moneda', 'Disponibilidad',
             'Activo', 'Destacado', 'Nuevo', 'Recomendado', 'Publicar Web', 'Imagen URL',
+            'Costo Envío', 'Envío Gratis Desde', 'Punto Reorden', 'Mostrar Merchant Center',
         ];
     }
 
@@ -74,6 +75,10 @@ class ProductsExport implements FromQuery, WithHeadings, WithMapping, ShouldAuto
             $product->is_recommended ? 'Si' : 'No',
             $product->publish_on_website ? 'Si' : 'No',
             $product->images->first()?->url ?? '',
+            $product->shipping_cost,
+            $product->free_shipping_threshold,
+            $product->reorder_point,
+            $product->show_in_merchant_center ? 'Si' : 'No',
         ];
     }
 
@@ -84,6 +89,10 @@ class ProductsExport implements FromQuery, WithHeadings, WithMapping, ShouldAuto
         // dinero al abrir el archivo.
         $lastRow = max(2, $sheet->getHighestRow());
         $sheet->getStyle("L2:N{$lastRow}")
+            ->getNumberFormat()
+            ->setFormatCode('"$"#,##0');
+        // Costo Envío (Y) / Envío Gratis Desde (Z) — mismos montos en pesos.
+        $sheet->getStyle("Y2:Z{$lastRow}")
             ->getNumberFormat()
             ->setFormatCode('"$"#,##0');
 
@@ -101,6 +110,7 @@ class ProductsExport implements FromQuery, WithHeadings, WithMapping, ShouldAuto
         foreach (['S', 'T', 'U', 'V', 'W'] as $boolColumn) {
             ExcelDropdown::applyListDropdown($sheet, $boolColumn, 2, $dropdownLastRow, ['Si', 'No'], 'Sí / No');
         }
+        ExcelDropdown::applyListDropdown($sheet, 'AB', 2, $dropdownLastRow, ['Si', 'No'], 'Sí / No');
 
         // Estilo base del encabezado aplicado directamente (no vía el array
         // de retorno) para poder pintar el acento naranja de las columnas
@@ -108,7 +118,7 @@ class ProductsExport implements FromQuery, WithHeadings, WithMapping, ShouldAuto
         // devuelve styles() lo aplica el framework al final del método, así
         // que cualquier estilo de fila 1 puesto ahí pisaría un acento
         // aplicado antes dentro del cuerpo del método.
-        $sheet->getStyle('A1:X1')->applyFromArray([
+        $sheet->getStyle('A1:AB1')->applyFromArray([
             'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
             'fill' => [
                 'fillType' => Fill::FILL_SOLID,
@@ -116,7 +126,7 @@ class ProductsExport implements FromQuery, WithHeadings, WithMapping, ShouldAuto
             ],
         ]);
 
-        ExcelDropdown::applyDropdownColumnHeaderAccent($sheet, ['F', 'G', 'H', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W']);
+        ExcelDropdown::applyDropdownColumnHeaderAccent($sheet, ['F', 'G', 'H', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'AB']);
 
         return [];
     }

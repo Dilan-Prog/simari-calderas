@@ -182,6 +182,24 @@ class ProductsUpdateImport implements ToModel, WithHeadingRow, WithValidation, W
         if ($this->present($row['publicar_web'] ?? null)) {
             $product->publish_on_website = $this->normalizeProductBool($row['publicar_web'], $product->publish_on_website);
         }
+        if ($this->present($row['costo_envio'] ?? null)) {
+            $clean = $this->sanitizePrice($row['costo_envio']);
+            if ($clean !== null) {
+                $product->shipping_cost = $clean;
+            }
+        }
+        if ($this->present($row['envio_gratis_desde'] ?? null)) {
+            $clean = $this->sanitizePrice($row['envio_gratis_desde']);
+            if ($clean !== null) {
+                $product->free_shipping_threshold = $clean;
+            }
+        }
+        if ($this->present($row['punto_reorden'] ?? null)) {
+            $product->reorder_point = (int) $row['punto_reorden'];
+        }
+        if ($this->present($row['mostrar_merchant_center'] ?? null)) {
+            $product->show_in_merchant_center = $this->normalizeProductBool($row['mostrar_merchant_center'], $product->show_in_merchant_center);
+        }
 
         $product->save();
         $this->updatedCount++;
@@ -269,6 +287,17 @@ class ProductsUpdateImport implements ToModel, WithHeadingRow, WithValidation, W
                 }
             }],
             'imagen_url' => 'nullable|url|max:2048',
+            'costo_envio' => ['nullable', function ($attribute, $value, $fail) {
+                if ($this->present($value) && $this->sanitizePrice($value) === null) {
+                    $fail('El costo de envío no es un número válido.');
+                }
+            }],
+            'envio_gratis_desde' => ['nullable', function ($attribute, $value, $fail) {
+                if ($this->present($value) && $this->sanitizePrice($value) === null) {
+                    $fail('"Envío Gratis Desde" no es un número válido.');
+                }
+            }],
+            'punto_reorden' => 'nullable|integer|min:0',
         ];
     }
 

@@ -51,6 +51,10 @@ class ProductsTemplateInstructionsSheet implements FromArray, WithTitle, WithSty
             ['Recomendado', 'No', 'Si / No. Si se deja vacío, se considera "No".'],
             ['Publicar Web', 'No', 'Si / No. Si se deja vacío, se considera "No" (el producto no se publica en el sitio web público hasta que lo marques explícitamente).'],
             ['Imagen URL', 'No', 'Un link (https://...) a una imagen ya publicada en internet. El sistema la descarga y la guarda como la imagen principal del producto. Debe apuntar directo a un archivo de imagen (jpg, png), no a una página web.'],
+            ['Costo Envío', 'No', 'Número. Cargo fijo de envío para este producto (se cobra una sola vez, sin importar la cantidad). Vacío = envío estándar sin costo extra.'],
+            ['Envío Gratis Desde', 'No', 'Número. Monto de subtotal del carrito (sin IVA) a partir del cual este producto deja de cobrar Costo Envío. Solo aplica si Costo Envío tiene un valor.'],
+            ['Punto Reorden', 'No', 'Número entero. Nivel de stock en el que el sistema debe avisar para reabastecer. Vacío = sin alerta configurada.'],
+            ['Mostrar Merchant Center', 'No', 'Si / No. Incluye o excluye el producto del feed de Google Merchant Center. Si se deja vacío, se considera "Si".'],
             ['', '', ''],
             ['Al importar:', '', ''],
             ['- Si un SKU ya existe en el sistema (o se repite dentro del mismo archivo), esa fila se omite y se te informa cuál fue, pero el resto del archivo sí se procesa.', '', ''],
@@ -76,14 +80,14 @@ class ProductsTemplateInstructionsSheet implements FromArray, WithTitle, WithSty
         $sheet->getStyle('A4:C4')->getFont()->setBold(true)->getColor()->setRGB('FFFFFF');
         $sheet->getStyle('A4:C4')->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB(\App\Support\ExcelDropdown::HEADER_FILL_COLOR);
 
-        foreach (range(5, 27) as $row) {
+        foreach (range(5, 31) as $row) {
             $sheet->getStyle("C{$row}")->getAlignment()->setWrapText(true);
         }
 
-        $sheet->getStyle('A29')->getFont()->setBold(true);
-        $sheet->mergeCells('A29:C29');
+        $sheet->getStyle('A33')->getFont()->setBold(true);
+        $sheet->mergeCells('A33:C33');
 
-        foreach (range(30, 37) as $row) {
+        foreach (range(34, 41) as $row) {
             $sheet->mergeCells("A{$row}:C{$row}");
             $sheet->getStyle("A{$row}")->getAlignment()->setWrapText(true);
         }

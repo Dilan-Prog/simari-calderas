@@ -333,6 +333,35 @@
     margin-bottom: 20px;
 }
 
+/* "Te faltan $X para envío gratis" -- Cart::freeShippingProgress() */
+.checkout-shipping-progress {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.checkout-shipping-progress__item {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    background: #fff2e9;
+    border: 1px solid #ffd9c2;
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 12.5px;
+    line-height: 1.4;
+    color: #9a3412;
+}
+
+.checkout-shipping-progress__item svg {
+    flex-shrink: 0;
+    margin-top: 1px;
+    color: var(--secondary-color);
+}
+
+.checkout-shipping-progress__item strong { font-weight: 800; }
+
 .checkout-summary__continue {
     display: block;
     text-align: center;

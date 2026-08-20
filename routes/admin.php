@@ -38,6 +38,7 @@ use App\Http\Controllers\Backend\SupplierProductBulkEditController;
 use App\Http\Controllers\Backend\ColumnPreferenceController;
 use App\Http\Controllers\Backend\InventoryController;
 use App\Http\Controllers\Backend\PaymentMethodController;
+use App\Http\Controllers\Backend\ShippingRuleController;
 use App\Http\Controllers\Backend\MaterialDeliveryReportController;
 use App\Http\Controllers\Backend\PipelineController;
 use App\Http\Controllers\Backend\DealController;
@@ -849,6 +850,21 @@ Route::controller(PaymentMethodController::class)
         Route::get('/{id}/editar', 'edit')->name('edit')->middleware('permission:payment-methods,edit');
         Route::put('/{id}', 'update')->name('update')->middleware('permission:payment-methods,edit');
         Route::delete('/{id}', 'destroy')->name('destroy')->middleware('permission:payment-methods,delete');
+    });
+
+// ============================================================
+// Reglas de Envío
+// ============================================================
+Route::controller(ShippingRuleController::class)
+    ->middleware('permission:shipping-rules')
+    ->prefix('reglas-de-envio')
+    ->name('shipping-rules.')
+    ->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::post('/', 'store')->name('store')->middleware('permission:shipping-rules,create');
+        Route::get('/{id}/editar', 'edit')->name('edit')->middleware('permission:shipping-rules,edit');
+        Route::put('/{id}', 'update')->name('update')->middleware('permission:shipping-rules,edit');
+        Route::delete('/{id}', 'destroy')->name('destroy')->middleware('permission:shipping-rules,delete');
     });
 
 // ============================================================
