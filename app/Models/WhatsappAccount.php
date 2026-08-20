@@ -24,12 +24,14 @@ class WhatsappAccount extends Model
         'provider',
         'webhook_verify_token',
         'encrypted_access_token',
+        'encrypted_app_secret',
         'webhook_url',
         'is_active',
     ];
 
     protected $hidden = [
         'encrypted_access_token',
+        'encrypted_app_secret',
     ];
 
     protected $casts = [
@@ -61,6 +63,29 @@ class WhatsappAccount extends Model
     public static function encryptAccessToken(string $token): string
     {
         return Crypt::encryptString($token);
+    }
+
+    /**
+     * App Secret de la app de Meta, usado para verificar la firma
+     * X-Hub-Signature-256 del webhook. Mismo patrón de cifrado que el
+     * access token; nunca se serializa (ver $hidden).
+     */
+    public function getAppSecretAttribute(): ?string
+    {
+        if (empty($this->encrypted_app_secret)) {
+            return null;
+        }
+
+        try {
+            return Crypt::decryptString($this->encrypted_app_secret);
+        } catch (DecryptException $e) {
+            return null;
+        }
+    }
+
+    public static function encryptAppSecret(string $secret): string
+    {
+        return Crypt::encryptString($secret);
     }
 
     public function conversations()

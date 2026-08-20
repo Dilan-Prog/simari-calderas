@@ -44,9 +44,22 @@ class WhatsappWebhookController extends Controller
      * (delivered/read). Se encola el procesamiento real vía
      * ProcessWhatsappWebhookJob (cola database) y se responde 200
      * inmediatamente — Meta reintenta agresivamente si no recibe 200 rápido.
+     *
+     * Antes de encolar se verifica la firma del header
+     * X-Hub-Signature-256 (formato "sha256=<hex>") contra el app_secret de
+     * CUALQUIER cuenta que lo tenga configurado, con hash_equals() para
+     * comparación segura contra timing attacks — mismo criterio "matches
+     * ANY account" que verify() ya usa, porque Meta no indica a qué WABA
+     * pertenece la llamada. Si NINGUNA cuenta tiene app_secret configurado
+     * todavía, se omite la verificación por completo (no rompe instalaciones
+     * existentes a medio migrar).
      */
     public function receive(Request $request): Response
     {
+        if (!$this->hasValidSignature($request)) {
+            return response('Forbidden', 403);
+        }
+
         $payload = $request->json()->all();
 
         if (!empty($payload)) {
@@ -54,5 +67,34 @@ class WhatsappWebhookController extends Controller
         }
 
         return response('EVENT_RECEIVED', 200);
+    }
+
+    private function hasValidSignature(Request $request): bool
+    {
+        $accountsWithSecret = WhatsappAccount::whereNotNull('encrypted_app_secret')->get()
+            ->filter(fn (WhatsappAccount $account) => filled($account->app_secret));
+
+        if ($accountsWithSecret->isEmpty()) {
+            return true;
+        }
+
+        $signatureHeader = (string) $request->header('X-Hub-Signature-256', '');
+
+        if (!str_starts_with($signatureHeader, 'sha256=')) {
+            return false;
+        }
+
+        $providedSignature = substr($signatureHeader, strlen('sha256='));
+        $body = $request->getContent();
+
+        foreach ($accountsWithSecret as $account) {
+            $expectedSignature = hash_hmac('sha256', $body, $account->app_secret);
+
+            if (hash_equals($expectedSignature, $providedSignature)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

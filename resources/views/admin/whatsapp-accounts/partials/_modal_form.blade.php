@@ -76,6 +76,15 @@
                 </p>
             </div>
 
+            <div class="ap-field-group" style="margin-top:12px;">
+                <label class="supliers-manager-slider-label">App Secret</label>
+                <textarea class="users-manager-input" name="app_secret" id="waAppSecret" rows="2"
+                    placeholder="App Secret de la app de Meta, usado para verificar la firma del webhook"></textarea>
+                <p class="ap-readonly-note">
+                    Se cifra antes de guardarse. Al editar, déjalo vacío para conservar el valor actual.
+                </p>
+            </div>
+
             <div class="ap-modal-footer">
                 <button type="button" id="cancelWhatsappAccountModal"
                     class="button-secondary size-adjustment">Cancelar</button>

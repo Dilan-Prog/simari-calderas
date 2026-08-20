@@ -30,6 +30,7 @@ class WhatsappAccountController extends Controller
             'whatsapp_business_account_id'  => 'nullable|string|max:100',
             'webhook_verify_token'          => 'nullable|string|max:100',
             'access_token'                  => 'nullable|string',
+            'app_secret'                    => 'nullable|string',
             'is_active'                     => 'nullable|boolean',
         ]);
     }
@@ -49,6 +50,10 @@ class WhatsappAccountController extends Controller
 
         if (filled($data['access_token'] ?? null)) {
             $account->encrypted_access_token = WhatsappAccount::encryptAccessToken($data['access_token']);
+        }
+
+        if (filled($data['app_secret'] ?? null)) {
+            $account->encrypted_app_secret = WhatsappAccount::encryptAppSecret($data['app_secret']);
         }
 
         $account->save();
@@ -82,6 +87,10 @@ class WhatsappAccountController extends Controller
 
         if (filled($data['access_token'] ?? null)) {
             $whatsappAccount->encrypted_access_token = WhatsappAccount::encryptAccessToken($data['access_token']);
+        }
+
+        if (filled($data['app_secret'] ?? null)) {
+            $whatsappAccount->encrypted_app_secret = WhatsappAccount::encryptAppSecret($data['app_secret']);
         }
 
         $whatsappAccount->save();

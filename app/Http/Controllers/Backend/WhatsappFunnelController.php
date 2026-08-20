@@ -95,7 +95,10 @@ class WhatsappFunnelController extends Controller
 
         $agents = User::orderBy('first_name')->get();
         $accounts = WhatsappAccount::active()->orderBy('name')->get();
-        $templates = config('whatsapp.approved_templates', []);
+        $templateAccount = $accounts->first();
+        $templates = $templateAccount
+            ? $this->whatsappService->approvedTemplates($templateAccount)
+            : config('whatsapp.approved_templates', []);
         $dealPipelines = Pipeline::query()->deals()->with('stages')->orderBy('name')->get();
 
         return view('admin.whatsapp-funnel.index', compact(
@@ -149,11 +152,15 @@ class WhatsappFunnelController extends Controller
             $conversation->update(['unread_count' => 0]);
         }
 
+        $templates = $conversation->account
+            ? $this->whatsappService->approvedTemplates($conversation->account)
+            : config('whatsapp.approved_templates', []);
+
         return response()->json([
             'conversation' => $conversation,
             'messages' => $conversation->messages,
             'within_window' => $this->whatsappService->isWithin24hWindow($conversation),
-            'templates' => config('whatsapp.approved_templates', []),
+            'templates' => $templates,
         ]);
     }
 

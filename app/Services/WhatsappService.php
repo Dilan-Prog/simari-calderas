@@ -6,8 +6,10 @@ use App\Models\Customer;
 use App\Models\WhatsappAccount;
 use App\Models\WhatsappConversation;
 use App\Models\WhatsappMessage;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 /**
  * Capa que habla con Meta Cloud API (WhatsApp Business). No usa ningún SDK
@@ -91,6 +93,100 @@ class WhatsappService
             'is_template'   => true,
             'template_name' => $templateName,
         ]);
+    }
+
+    /**
+     * Catálogo de plantillas aprobadas en Meta Business Manager para esta
+     * cuenta, sincronizado en vivo contra la Graph API (reemplaza la lista
+     * fija de config('whatsapp.approved_templates')). Mismo shape que
+     * consume el Embudo de Venta (resources/js/admin/whatsapp-funnel-board.js):
+     * cada entrada trae 'name' (el nombre técnico usado al enviar),
+     * 'label' (texto legible para el selector) y 'params' (arreglo de
+     * etiquetas, una por cada {{n}} del cuerpo, renderizadas como inputs).
+     *
+     * Cachea el resultado por cuenta 15 minutos para no golpear el rate
+     * limit de Meta en cada carga del Embudo. Si la cuenta no tiene
+     * whatsapp_business_account_id, o la llamada a Meta falla por cualquier
+     * motivo (sin token, red, error de API), cae al catálogo fijo de
+     * config/whatsapp.php — nunca lanza excepción, para no romper la
+     * pantalla si Meta no responde.
+     */
+    public function approvedTemplates(WhatsappAccount $account): array
+    {
+        return Cache::remember(
+            "whatsapp_templates_{$account->id}",
+            now()->addMinutes(15),
+            function () use ($account) {
+                if (empty($account->whatsapp_business_account_id)) {
+                    Log::warning('WhatsappService: approvedTemplates sin whatsapp_business_account_id configurado', [
+                        'account_id' => $account->id,
+                    ]);
+
+                    return config('whatsapp.approved_templates', []);
+                }
+
+                try {
+                    $response = Http::withToken($account->access_token)
+                        ->get(self::GRAPH_API_BASE . '/' . self::GRAPH_API_VERSION . '/' . $account->whatsapp_business_account_id . '/message_templates', [
+                            'fields' => 'name,status,language,components',
+                            'limit'  => 100,
+                        ]);
+                } catch (\Throwable $e) {
+                    Log::warning('WhatsappService: approvedTemplates falló al llamar a Meta', [
+                        'account_id' => $account->id,
+                        'error'      => $e->getMessage(),
+                    ]);
+
+                    return config('whatsapp.approved_templates', []);
+                }
+
+                if (!$response->successful()) {
+                    Log::warning('WhatsappService: approvedTemplates respuesta no exitosa de Meta', [
+                        'account_id' => $account->id,
+                        'status'     => $response->status(),
+                        'body'       => $response->json() ?? $response->body(),
+                    ]);
+
+                    return config('whatsapp.approved_templates', []);
+                }
+
+                $data = $response->json('data') ?? [];
+
+                return collect($data)
+                    ->filter(fn ($template) => ($template['status'] ?? null) === 'APPROVED')
+                    ->map(function (array $template) {
+                        $name = $template['name'] ?? '';
+                        $paramCount = $this->countBodyParams($template['components'] ?? []);
+
+                        return [
+                            'name'   => $name,
+                            'label'  => (string) Str::of($name)->replace('_', ' ')->title(),
+                            'params' => $paramCount > 0
+                                ? array_map(fn ($n) => "Parámetro {$n}", range(1, $paramCount))
+                                : [],
+                        ];
+                    })
+                    ->values()
+                    ->all();
+            }
+        );
+    }
+
+    /**
+     * Cuenta los placeholders {{1}}, {{2}}... distintos del componente BODY
+     * de una plantilla de Meta.
+     */
+    private function countBodyParams(array $components): int
+    {
+        $body = collect($components)->firstWhere('type', 'BODY');
+
+        if (!$body || empty($body['text'])) {
+            return 0;
+        }
+
+        preg_match_all('/\{\{\d+\}\}/', $body['text'], $matches);
+
+        return count(array_unique($matches[0]));
     }
 
     private function recordOutboundMessage(WhatsappConversation $conversation, \Illuminate\Http\Client\Response $response, array $attributes): WhatsappMessage
