@@ -1,8 +1,13 @@
 import { useEffect, useState } from 'react';
-import { listDatabaseCredentials, listDatabaseTables, listDatabaseColumns } from '../api/stepsApi.js';
+import {
+    listDatabaseCredentials,
+    listDatabaseTables,
+    listDatabaseColumns,
+    listWebhookCredentials,
+} from '../api/stepsApi.js';
 import TokenAutocompleteTextarea from './TokenAutocomplete.jsx';
 import FieldAutocompleteInput from './FieldAutocompleteInput.jsx';
-import { TRIGGER_SCHEMA, ACTION_CONFIG_SCHEMAS, EXTERNAL_DB_SCHEMA } from './nodeConfigSchemas.js';
+import { TRIGGER_SCHEMA, ACTION_CONFIG_SCHEMAS, EXTERNAL_DB_SCHEMA, WEBHOOK_SCHEMA } from './nodeConfigSchemas.js';
 
 /**
  * Agrupa catalog.modules (Fase 18) por su `group` (Ecommerce/Servicios/ERP/CRM)
@@ -60,6 +65,24 @@ function normalizeDbWhereRow(row) {
         column: row?.column || '',
         operator: row?.operator && DB_WHERE_OPERATORS[row.operator] ? row.operator : '=',
         value_source: row?.value_source === 'variable' ? 'variable' : 'literal',
+        value: row?.value ?? '',
+    };
+}
+
+// Nodo de acción 'call_webhook' (HTTP Request). Mismo patrón que
+// external_db_query de arriba: métodos HTTP fijos + fila key/value
+// normalizada para los repeatable de headers/body.
+const HTTP_METHODS = {
+    GET: 'GET',
+    POST: 'POST',
+    PUT: 'PUT',
+    PATCH: 'PATCH',
+    DELETE: 'DELETE',
+};
+
+function normalizeWebKeyValueRow(row) {
+    return {
+        key: row?.key || '',
         value: row?.value ?? '',
     };
 }
@@ -236,6 +259,18 @@ export default function NodeInspector({ step, catalog, workflowType, onSave, onS
     const [dbLoadingTables, setDbLoadingTables] = useState(false);
     const [dbLoadingColumns, setDbLoadingColumns] = useState(false);
 
+    // Estado del formulario estructurado de 'call_webhook' (mismo patrón que
+    // el bloque 'external_db_query' de arriba: modo formulario + modo JSON,
+    // filas repeatable key/value para headers/body).
+    const [webJsonMode, setWebJsonMode] = useState(false);
+    const [webUrl, setWebUrl] = useState('');
+    const [webMethod, setWebMethod] = useState('POST');
+    const [webCredentialId, setWebCredentialId] = useState('');
+    const [webHeadersRows, setWebHeadersRows] = useState([]);
+    const [webBodyRows, setWebBodyRows] = useState([]);
+    const [webCredentials, setWebCredentials] = useState([]);
+    const [webMetaError, setWebMetaError] = useState('');
+
     const variableList = variables || [];
 
     function applyDbConfigToState(cfg) {
@@ -287,6 +322,69 @@ export default function NodeInspector({ step, catalog, workflowType, onSave, onS
 
     function removeDbColumnRow(index) {
         setDbColumnsRows((rows) => rows.filter((_, i) => i !== index));
+    }
+
+    // Nodo de acción 'call_webhook' -- mismo patrón que
+    // applyDbConfigToState/buildDbConfigFromState de arriba.
+    function applyWebConfigToState(cfg) {
+        const c = cfg || {};
+        setWebUrl(c.url || '');
+        setWebMethod(c.method && HTTP_METHODS[c.method] ? c.method : 'POST');
+        setWebCredentialId(c.credential_id != null ? String(c.credential_id) : '');
+        setWebHeadersRows(Array.isArray(c.headers) ? c.headers.map(normalizeWebKeyValueRow) : []);
+        setWebBodyRows(Array.isArray(c.body) ? c.body.map(normalizeWebKeyValueRow) : []);
+    }
+
+    function buildWebConfigFromState() {
+        return {
+            url: webUrl,
+            method: webMethod || 'POST',
+            headers: webHeadersRows.filter((row) => row.key).map((row) => ({ key: row.key, value: row.value })),
+            body: webBodyRows.filter((row) => row.key).map((row) => ({ key: row.key, value: row.value })),
+            credential_id: webCredentialId ? Number(webCredentialId) : null,
+        };
+    }
+
+    function addWebHeaderRow() {
+        setWebHeadersRows((rows) => [...rows, { key: '', value: '' }]);
+    }
+
+    function updateWebHeaderRow(index, patch) {
+        setWebHeadersRows((rows) => rows.map((row, i) => (i === index ? { ...row, ...patch } : row)));
+    }
+
+    function removeWebHeaderRow(index) {
+        setWebHeadersRows((rows) => rows.filter((_, i) => i !== index));
+    }
+
+    function addWebBodyRow() {
+        setWebBodyRows((rows) => [...rows, { key: '', value: '' }]);
+    }
+
+    function updateWebBodyRow(index, patch) {
+        setWebBodyRows((rows) => rows.map((row, i) => (i === index ? { ...row, ...patch } : row)));
+    }
+
+    function removeWebBodyRow(index) {
+        setWebBodyRows((rows) => rows.filter((_, i) => i !== index));
+    }
+
+    function handleToggleWebJsonMode() {
+        if (!webJsonMode) {
+            setActionConfigText(JSON.stringify(buildWebConfigFromState(), null, 2));
+            setWebJsonMode(true);
+            setError('');
+            return;
+        }
+
+        try {
+            const parsed = actionConfigText.trim() ? JSON.parse(actionConfigText) : {};
+            applyWebConfigToState(parsed);
+            setWebJsonMode(false);
+            setError('');
+        } catch (e) {
+            setError('El JSON no es válido. Corrígelo antes de volver al formulario.');
+        }
     }
 
     // Fase de nodos de flujo avanzado -- editor de reglas de 'switch'.
@@ -442,6 +540,25 @@ export default function NodeInspector({ step, catalog, workflowType, onSave, onS
         };
     }, [actionType, dbCredentialId, dbTable]);
 
+    // Fetch de metadatos de solo lectura para 'call_webhook' -- mismo patrón
+    // que el efecto de listDatabaseCredentials de arriba (nunca el secreto de
+    // la credencial, solo {id, name}).
+    useEffect(() => {
+        if (actionType !== 'call_webhook') return undefined;
+        let cancelled = false;
+        setWebMetaError('');
+        listWebhookCredentials()
+            .then((list) => {
+                if (!cancelled) setWebCredentials(Array.isArray(list) ? list : []);
+            })
+            .catch((err) => {
+                if (!cancelled) setWebMetaError(err.message || 'No se pudieron cargar las credenciales.');
+            });
+        return () => {
+            cancelled = true;
+        };
+    }, [actionType]);
+
     // Re-inicializa el formulario cada vez que cambia el step seleccionado.
     useEffect(() => {
         if (!step) return;
@@ -455,8 +572,11 @@ export default function NodeInspector({ step, catalog, workflowType, onSave, onS
                 step.action_config != null ? JSON.stringify(step.action_config, null, 2) : ''
             );
             setDbJsonMode(false);
+            setWebJsonMode(false);
             if (step.action_type === 'external_db_query') {
                 applyDbConfigToState(step.action_config || {});
+            } else if (step.action_type === 'call_webhook') {
+                applyWebConfigToState(step.action_config || {});
             }
         } else if (step.step_type === 'condition') {
             const cond = step.branch_condition || {};
@@ -539,6 +659,7 @@ export default function NodeInspector({ step, catalog, workflowType, onSave, onS
         setActionType(selected);
         setError('');
         setDbJsonMode(false);
+        setWebJsonMode(false);
 
         // Sólo autocompleta con el ejemplo si el usuario todavía no escribió nada.
         if (actionConfigText.trim() === '') {
@@ -550,6 +671,8 @@ export default function NodeInspector({ step, catalog, workflowType, onSave, onS
 
         if (selected === 'external_db_query') {
             applyDbConfigToState({});
+        } else if (selected === 'call_webhook') {
+            applyWebConfigToState({});
         }
     }
 
@@ -608,6 +731,18 @@ export default function NodeInspector({ step, catalog, workflowType, onSave, onS
                 onSave(step.id, {
                     action_type: actionType,
                     action_config: buildDbConfigFromState(),
+                });
+                return;
+            }
+
+            if (actionType === 'call_webhook' && !webJsonMode) {
+                if (!webUrl.trim()) {
+                    setError('La URL es obligatoria.');
+                    return;
+                }
+                onSave(step.id, {
+                    action_type: actionType,
+                    action_config: buildWebConfigFromState(),
                 });
                 return;
             }
@@ -775,6 +910,18 @@ export default function NodeInspector({ step, catalog, workflowType, onSave, onS
                             </>
                         ) : (
                             'Este paso todavía no tiene una credencial de base de datos seleccionada.'
+                        )}
+                    </div>
+                ) : inspectorTab === 'credentials' && step.step_type === 'action' && actionType === 'call_webhook' ? (
+                    <div className="wf-inspector-empty-tab">
+                        {webCredentialId ? (
+                            <>
+                                Credencial seleccionada:{' '}
+                                {webCredentials.find((c) => String(c.id) === String(webCredentialId))?.name || `#${webCredentialId}`}{' '}
+                                (tipo: webhook)
+                            </>
+                        ) : (
+                            'Este paso todavía no tiene una credencial de webhook seleccionada (opcional).'
                         )}
                     </div>
                 ) : (
@@ -1177,6 +1324,164 @@ export default function NodeInspector({ step, catalog, workflowType, onSave, onS
                                                 />
                                             </>
                                         )}
+                                    </>
+                                )}
+                            </>
+                        ) : actionType === 'call_webhook' ? (
+                            <>
+                                <div className="wf-field-row-header">
+                                    <label className="wf-field-label">Configuración</label>
+                                    <button type="button" className="wf-btn-link" onClick={handleToggleWebJsonMode}>
+                                        {webJsonMode ? 'Editar con formulario' : 'Editar como JSON'}
+                                    </button>
+                                </div>
+
+                                {webMetaError && <div className="wf-inspector-error">{webMetaError}</div>}
+
+                                {webJsonMode ? (
+                                    <TokenAutocompleteTextarea
+                                        id="wf-action-config"
+                                        className="wf-field-input wf-field-textarea"
+                                        rows={12}
+                                        value={actionConfigText}
+                                        onValueChange={setActionConfigText}
+                                        spellCheck={false}
+                                        moduleType={activeModuleType}
+                                        modules={modules}
+                                        workflowVariables={variableList}
+                                        fieldValueSources={fieldValueSources}
+                                        actionValueSources={actionValueSources}
+                                        localValueSources={{ webhook_credentials: webCredentials }}
+                                        nodeSchema={WEBHOOK_SCHEMA}
+                                    />
+                                ) : (
+                                    <>
+                                        <label className="wf-field-label" htmlFor="wf-webhook-url">
+                                            URL
+                                        </label>
+                                        <TokenAutocompleteTextarea
+                                            id="wf-webhook-url"
+                                            className="wf-field-input"
+                                            rows={1}
+                                            value={webUrl}
+                                            onValueChange={setWebUrl}
+                                            placeholder="https://ejemplo.com/hook"
+                                            spellCheck={false}
+                                            moduleType={activeModuleType}
+                                            modules={modules}
+                                            workflowVariables={variableList}
+                                        />
+
+                                        <label className="wf-field-label" htmlFor="wf-webhook-method">
+                                            Método
+                                        </label>
+                                        <select
+                                            id="wf-webhook-method"
+                                            className="wf-field-input"
+                                            value={webMethod}
+                                            onChange={(e) => setWebMethod(e.target.value)}
+                                        >
+                                            {Object.entries(HTTP_METHODS).map(([key, label]) => (
+                                                <option key={key} value={key}>
+                                                    {label}
+                                                </option>
+                                            ))}
+                                        </select>
+
+                                        <label className="wf-field-label" htmlFor="wf-webhook-credential">
+                                            Credencial (opcional)
+                                        </label>
+                                        <select
+                                            id="wf-webhook-credential"
+                                            className="wf-field-input"
+                                            value={webCredentialId}
+                                            onChange={(e) => setWebCredentialId(e.target.value)}
+                                        >
+                                            <option value="">-- ninguna --</option>
+                                            {webCredentials.map((cred) => (
+                                                <option key={cred.id} value={cred.id}>
+                                                    {cred.name}
+                                                </option>
+                                            ))}
+                                        </select>
+
+                                        <div className="wf-field-row-header">
+                                            <label className="wf-field-label">Headers</label>
+                                            <button type="button" className="wf-btn-link" onClick={addWebHeaderRow}>
+                                                + Agregar campo
+                                            </button>
+                                        </div>
+                                        {webHeadersRows.length === 0 && (
+                                            <div className="wf-inspector-empty-tab">Sin headers configurados.</div>
+                                        )}
+                                        {webHeadersRows.map((row, index) => (
+                                            <div className="wf-field-row" key={index}>
+                                                <input
+                                                    type="text"
+                                                    className="wf-field-input"
+                                                    placeholder="Nombre del header"
+                                                    value={row.key}
+                                                    onChange={(e) => updateWebHeaderRow(index, { key: e.target.value })}
+                                                />
+                                                <TokenAutocompleteTextarea
+                                                    className="wf-field-input"
+                                                    rows={1}
+                                                    value={row.value}
+                                                    onValueChange={(v) => updateWebHeaderRow(index, { value: v })}
+                                                    placeholder="Valor"
+                                                    spellCheck={false}
+                                                    moduleType={activeModuleType}
+                                                    modules={modules}
+                                                    workflowVariables={variableList}
+                                                />
+                                                <button
+                                                    type="button"
+                                                    className="wf-btn-link"
+                                                    onClick={() => removeWebHeaderRow(index)}
+                                                >
+                                                    Quitar
+                                                </button>
+                                            </div>
+                                        ))}
+
+                                        <div className="wf-field-row-header">
+                                            <label className="wf-field-label">Cuerpo (body)</label>
+                                            <button type="button" className="wf-btn-link" onClick={addWebBodyRow}>
+                                                + Agregar campo
+                                            </button>
+                                        </div>
+                                        {webBodyRows.length === 0 && (
+                                            <div className="wf-inspector-empty-tab">Sin campos configurados.</div>
+                                        )}
+                                        {webBodyRows.map((row, index) => (
+                                            <div className="wf-field-row" key={index}>
+                                                <input
+                                                    type="text"
+                                                    className="wf-field-input"
+                                                    placeholder="Nombre del campo"
+                                                    value={row.key}
+                                                    onChange={(e) => updateWebBodyRow(index, { key: e.target.value })}
+                                                />
+                                                <TokenAutocompleteTextarea
+                                                    className="wf-field-input"
+                                                    rows={1}
+                                                    value={row.value}
+                                                    onValueChange={(v) => updateWebBodyRow(index, { value: v })}
+                                                    placeholder="Valor"
+                                                    spellCheck={false}
+                                                    moduleType={activeModuleType}
+                                                    modules={modules}
+                                                    workflowVariables={variableList}
+                                                />
+                                                <button
+                                                    type="button"
+                                                    className="wf-btn-link"
+                                                    onClick={() => removeWebBodyRow(index)}
+                                                >
+                                                    Quitar
+                                                </button>
+                                            </div>
+                                        ))}
                                     </>
                                 )}
                             </>

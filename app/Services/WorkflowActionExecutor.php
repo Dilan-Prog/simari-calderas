@@ -16,6 +16,7 @@ use App\Models\WorkflowEnrollmentLog;
 use App\Models\WorkflowStep;
 use App\Models\WorkflowVariable;
 use App\Models\WhatsappConversation;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Validation\ValidationException;
 use Throwable;
 
@@ -38,6 +39,7 @@ class WorkflowActionExecutor
             'send_whatsapp_message' => $this->sendWhatsappMessage($enrollment, $step),
             'flag_missing_contact' => $this->flagMissingContact($enrollment, $step),
             'external_db_query' => $this->externalDbQuery($enrollment, $step),
+            'call_webhook'      => $this->callWebhook($enrollment, $step),
             default             => $this->logResult($enrollment, $step, $step->action_type, 'skipped', "Tipo de acción desconocido: {$step->action_type}"),
         };
     }
@@ -105,6 +107,10 @@ class WorkflowActionExecutor
                     'output_variable' => null,
                     'limit' => 50,
                 ],
+            ],
+            'call_webhook' => [
+                'label' => 'Llamar webhook',
+                'example_config' => ['url' => '', 'method' => 'POST', 'headers' => [], 'body' => [], 'credential_id' => null],
             ],
         ];
     }
@@ -604,6 +610,84 @@ class WorkflowActionExecutor
             $this->logResult($enrollment, $step, 'external_db_query', 'success', "Operación '{$operation}' sobre '{$table}' completada ({$affected} fila(s)).");
         } catch (Throwable $e) {
             $this->logResult($enrollment, $step, 'external_db_query', 'failed', $e->getMessage());
+        }
+    }
+
+    /**
+     * Llama un webhook externo (POST/GET/PUT/PATCH/DELETE) con headers y body
+     * configurables, ambos con soporte de tokens {{ }} resueltos vía
+     * WorkflowTokenResolver. Si se elige una credencial tipo 'webhook', su
+     * header_name/header_value se agrega (o sobreescribe) a los headers ya
+     * armados desde action_config — igual que external_db_query, solo la
+     * llamada HTTP real va envuelta en try/catch, no la validación previa.
+     */
+    private function callWebhook(WorkflowEnrollment $enrollment, WorkflowStep $step): void
+    {
+        $config = $step->action_config ?? [];
+        $url = trim((string) ($config['url'] ?? ''));
+
+        if ($url === '') {
+            $this->logResult($enrollment, $step, 'call_webhook', 'skipped', 'No se especificó la URL del webhook.');
+            return;
+        }
+
+        $resolver = app(WorkflowTokenResolver::class);
+        $url = $resolver->resolveTokens($url, $enrollment);
+
+        $method = strtoupper((string) ($config['method'] ?? 'POST'));
+
+        if (!in_array($method, ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'], true)) {
+            $method = 'POST';
+        }
+
+        $headers = [];
+
+        foreach ($config['headers'] ?? [] as $row) {
+            $key = $row['key'] ?? null;
+
+            if (blank($key)) {
+                continue;
+            }
+
+            $headers[$key] = $resolver->resolveTokens($row['value'] ?? null, $enrollment);
+        }
+
+        $body = [];
+
+        foreach ($config['body'] ?? [] as $row) {
+            $key = $row['key'] ?? null;
+
+            if (blank($key)) {
+                continue;
+            }
+
+            $body[$key] = $resolver->resolveTokens($row['value'] ?? null, $enrollment);
+        }
+
+        $credentialId = $config['credential_id'] ?? null;
+
+        if ($credentialId) {
+            $credential = Credential::find($credentialId);
+
+            if ($credential && $credential->type === 'webhook') {
+                $payload = $credential->payload;
+
+                if (is_array($payload) && filled($payload['header_name'] ?? null) && filled($payload['header_value'] ?? null)) {
+                    $headers[$payload['header_name']] = $payload['header_value'];
+                }
+            }
+        }
+
+        try {
+            $response = Http::timeout(15)->withHeaders($headers)->send($method, $url, ['json' => $body]);
+
+            if ($response->successful()) {
+                $this->logResult($enrollment, $step, 'call_webhook', 'success', "HTTP {$response->status()}");
+            } else {
+                $this->logResult($enrollment, $step, 'call_webhook', 'failed', "HTTP {$response->status()}: " . substr($response->body(), 0, 300));
+            }
+        } catch (Throwable $e) {
+            $this->logResult($enrollment, $step, 'call_webhook', 'failed', $e->getMessage());
         }
     }
 

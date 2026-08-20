@@ -76,6 +76,17 @@ const WHERE_OPERATOR_VALUES = [
     { value: 'like', hint: 'coincidencia parcial (LIKE)' },
 ];
 
+// Fase (call_webhook): métodos HTTP soportados por el ejecutor. Lista fija,
+// no depende de ningún dato cargado del backend -- mismo patrón que
+// DB_OPERATION_VALUES/WHERE_OPERATOR_VALUES de arriba.
+const HTTP_METHOD_VALUES = [
+    { value: 'GET', hint: 'leer sin cuerpo' },
+    { value: 'POST', hint: 'crear / enviar datos (default)' },
+    { value: 'PUT', hint: 'reemplazar un recurso' },
+    { value: 'PATCH', hint: 'actualizar parcialmente' },
+    { value: 'DELETE', hint: 'borrar un recurso' },
+];
+
 function toSnakeCase(str) {
     return String(str || '')
         .replace(/([a-z0-9])([A-Z])/g, '$1_$2')
@@ -200,6 +211,7 @@ export function resolveEnumSource(source, ctx, currentText) {
     if (source === 'static:db_operations') return DB_OPERATION_VALUES;
     if (source === 'static:value_sources') return VALUE_SOURCE_VALUES;
     if (source === 'static:where_operators') return WHERE_OPERATOR_VALUES;
+    if (source === 'static:http_methods') return HTTP_METHOD_VALUES;
 
     if (source.startsWith('field_value:')) {
         const target = source.slice('field_value:'.length);

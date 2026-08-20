@@ -3,13 +3,16 @@
 namespace Tests\Feature\Workflows;
 
 use App\Jobs\SendMarketingEmailJob;
+use App\Models\Credential;
 use App\Models\Customer;
 use App\Models\Deal;
 use App\Models\EmailSend;
 use App\Models\EmailTemplate;
 use App\Models\Pipeline;
 use App\Models\PipelineStage;
+use App\Models\Quote;
 use App\Models\Task;
+use App\Models\User;
 use App\Models\WhatsappAccount;
 use App\Models\WhatsappConversation;
 use App\Models\WhatsappMessage;
@@ -60,6 +63,21 @@ class WorkflowActionExecutorTest extends TestCase
             'enrollment_trigger'    => ['type' => 'manual'],
             'is_active'             => true,
             'reenrollment_allowed'  => false,
+        ], $overrides));
+    }
+
+    private function makeQuote(array $overrides = []): Quote
+    {
+        $user = User::factory()->create();
+
+        return Quote::create(array_merge([
+            'quote_number'       => 'COT-' . uniqid(),
+            'created_by_user_id' => $user->id,
+            'status'             => 'draft',
+            'guest_name'         => 'Cliente de prueba',
+            'currency'           => 'MXN',
+            'tax_rate'           => 16.00,
+            'exchange_rate'      => 1.0000,
         ], $overrides));
     }
 
@@ -726,5 +744,129 @@ class WorkflowActionExecutorTest extends TestCase
 
         $log = $this->logFor($enrollment, $step);
         $this->assertEquals('success', $log->result);
+    }
+
+    // --- call_webhook -----------------------------------------------------
+    //
+    // Nunca se llama a un endpoint real -- Http::fake() en todos los casos,
+    // mismo patrón que send_whatsapp_message. El enrollable es un Quote para
+    // ejercitar la resolución de tokens {{ }} sobre un campo propio del
+    // enrollable (quote_number), vía WorkflowTokenResolver::resolveFlatPath().
+
+    public function test_call_webhook_success_resolves_tokens_in_body(): void
+    {
+        Http::fake([
+            '*' => Http::response(['ok' => true], 200),
+        ]);
+
+        $workflow = $this->makeWorkflow(['type' => 'quote']);
+        $quote = $this->makeQuote(['quote_number' => 'COT-000123']);
+        $step = $this->makeStep($workflow, 'call_webhook', [
+            'url'     => 'https://example.com/hook',
+            'method'  => 'POST',
+            'headers' => [['key' => 'X-Custom', 'value' => '{{ quote_number }}']],
+            'body'    => [['key' => 'folio', 'value' => '{{ quote_number }}']],
+        ]);
+        $enrollment = $this->makeEnrollment($workflow, $quote, $step);
+
+        app(WorkflowActionExecutor::class)->execute($enrollment, $step);
+
+        Http::assertSent(function ($request) {
+            return $request->url() === 'https://example.com/hook'
+                && $request['folio'] === 'COT-000123'
+                && $request->hasHeader('X-Custom', 'COT-000123');
+        });
+
+        $log = $this->logFor($enrollment, $step);
+        $this->assertEquals('call_webhook', $log->action_taken);
+        $this->assertEquals('success', $log->result);
+    }
+
+    public function test_call_webhook_applies_header_from_webhook_credential(): void
+    {
+        Http::fake([
+            '*' => Http::response(['ok' => true], 200),
+        ]);
+
+        $workflow = $this->makeWorkflow(['type' => 'quote']);
+        $quote = $this->makeQuote();
+
+        $credential = Credential::create([
+            'name'              => 'Webhook de prueba',
+            'type'              => 'webhook',
+            'encrypted_payload' => Credential::storePayload([
+                'header_name'  => 'Authorization',
+                'header_value' => 'Bearer test-token-123',
+            ]),
+        ]);
+
+        $step = $this->makeStep($workflow, 'call_webhook', [
+            'url'           => 'https://example.com/hook',
+            'method'        => 'POST',
+            'credential_id' => $credential->id,
+        ]);
+        $enrollment = $this->makeEnrollment($workflow, $quote, $step);
+
+        app(WorkflowActionExecutor::class)->execute($enrollment, $step);
+
+        Http::assertSent(function ($request) {
+            return $request->hasHeader('Authorization', 'Bearer test-token-123');
+        });
+
+        $log = $this->logFor($enrollment, $step);
+        $this->assertEquals('success', $log->result);
+    }
+
+    public function test_call_webhook_skipped_when_url_is_empty(): void
+    {
+        Http::fake();
+
+        $workflow = $this->makeWorkflow(['type' => 'quote']);
+        $quote = $this->makeQuote();
+        $step = $this->makeStep($workflow, 'call_webhook', ['url' => '']);
+        $enrollment = $this->makeEnrollment($workflow, $quote, $step);
+
+        app(WorkflowActionExecutor::class)->execute($enrollment, $step);
+
+        $log = $this->logFor($enrollment, $step);
+        $this->assertEquals('call_webhook', $log->action_taken);
+        $this->assertEquals('skipped', $log->result);
+
+        Http::assertNothingSent();
+    }
+
+    public function test_call_webhook_failed_on_non_2xx_response(): void
+    {
+        Http::fake([
+            '*' => Http::response('Server error', 500),
+        ]);
+
+        $workflow = $this->makeWorkflow(['type' => 'quote']);
+        $quote = $this->makeQuote();
+        $step = $this->makeStep($workflow, 'call_webhook', ['url' => 'https://example.com/hook']);
+        $enrollment = $this->makeEnrollment($workflow, $quote, $step);
+
+        app(WorkflowActionExecutor::class)->execute($enrollment, $step);
+
+        $log = $this->logFor($enrollment, $step);
+        $this->assertEquals('failed', $log->result);
+    }
+
+    public function test_call_webhook_failed_on_thrown_exception(): void
+    {
+        Http::fake(function () {
+            throw new \Illuminate\Http\Client\ConnectionException('Connection timed out');
+        });
+
+        $workflow = $this->makeWorkflow(['type' => 'quote']);
+        $quote = $this->makeQuote();
+        $step = $this->makeStep($workflow, 'call_webhook', ['url' => 'https://example.com/hook']);
+        $enrollment = $this->makeEnrollment($workflow, $quote, $step);
+
+        app(WorkflowActionExecutor::class)->execute($enrollment, $step);
+
+        $log = $this->logFor($enrollment, $step);
+        $this->assertEquals('failed', $log->result);
+        $this->assertStringContainsString('Connection timed out', $log->message);
     }
 }

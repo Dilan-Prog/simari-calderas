@@ -49,6 +49,7 @@ use App\Http\Controllers\Backend\WorkflowStepController;
 use App\Http\Controllers\Backend\WorkflowVariableController;
 use App\Http\Controllers\Backend\WorkflowCanvasNoteController;
 use App\Http\Controllers\Backend\ExternalDatabaseController;
+use App\Http\Controllers\Backend\WorkflowWebhookCredentialController;
 use App\Http\Controllers\Backend\ErpSettingController;
 use App\Http\Controllers\Backend\StatisticsController;
 use App\Http\Controllers\Backend\EmailCampaignController;
@@ -476,6 +477,26 @@ Route::controller(ExternalDatabaseController::class)
         Route::get('/', 'index')->name('index');
         Route::get('/{credential}/tablas', 'tables')->name('tables');
         Route::get('/{credential}/tablas/{table}/columnas', 'columns')->name('columns');
+    });
+
+// Metadatos de solo-lectura (nombres de credencial tipo webhook) para poblar
+// el selector de credencial del nodo "Llamar webhook" en el inspector del
+// canvas de Automatizaciones. Mismo permiso que el resto del editor de
+// workflows: nunca expone el payload/secreto guardado en la credencial.
+// IMPORTANTE: declarada ANTES del grupo de WorkflowController de abajo, por
+// la misma razón que 'automatizaciones/credenciales-bd' arriba — su prefijo
+// 'automatizaciones/credenciales-webhook' cae bajo el mismo espacio que
+// 'automatizaciones/{workflow}' (show), y Laravel resuelve rutas en orden de
+// registro: si este grupo se registrara después, GET
+// /automatizaciones/credenciales-webhook sería capturado por el wildcard
+// {workflow} de abajo (intentaría Workflow::findOrFail('credenciales-webhook')
+// y tiraría 404) en vez de llegar a WorkflowWebhookCredentialController::index().
+Route::controller(WorkflowWebhookCredentialController::class)
+    ->middleware('permission:automations')
+    ->prefix('automatizaciones/credenciales-webhook')
+    ->name('workflow-webhook-credentials.')
+    ->group(function () {
+        Route::get('/', 'index')->name('index');
     });
 
 // ============================================================

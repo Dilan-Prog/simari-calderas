@@ -188,6 +188,22 @@ export async function listDatabaseColumns(credentialId, table) {
   return handleResponse(response);
 }
 
+// ── Credenciales de Webhook (nodo 'call_webhook') ────────────────
+// Metadatos de solo lectura para poblar el <select> del formulario
+// estructurado del inspector: nunca devuelve el payload/secreto de la
+// credencial. Mismo patrón que DB_CREDENTIALS_BASE_URL de arriba.
+
+const WEBHOOK_CREDENTIALS_BASE_URL = '/admin/automatizaciones/credenciales-webhook';
+
+export async function listWebhookCredentials() {
+  const response = await fetch(WEBHOOK_CREDENTIALS_BASE_URL, {
+    method: 'GET',
+    headers: baseHeaders(),
+    credentials: 'same-origin',
+  });
+  return handleResponse(response);
+}
+
 // ── Notas (StickyNote) ────────────────────────────────────────
 
 export async function getNotes(url) {

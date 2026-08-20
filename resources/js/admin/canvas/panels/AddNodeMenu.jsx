@@ -5,9 +5,10 @@ import { useState } from 'react';
  *
  * Catálogo de nodos que se pueden agregar al canvas, organizado en
  * categorías colapsables (<details>/<summary> nativos). "Acciones CRM" y
- * "Lógica y flujo" son funcionales hoy; "Datos y HTTP" tiene un único ítem
- * funcional ("Base de datos (MySQL)", Fase 8) e "Integraciones" tiene un
- * único ítem funcional ("WhatsApp", Fase 15) mientras el resto de esas
+ * "Lógica y flujo" son funcionales hoy; "Datos y HTTP" tiene dos ítems
+ * funcionales ("Base de datos (MySQL)", Fase 8, y "HTTP Request") e
+ * "Integraciones" tiene un único ítem funcional ("WhatsApp", Fase 15)
+ * mientras el resto de esas
  * categorías y las demás categorías se muestran deshabilitadas
  * ("Próximamente") para comunicar el roadmap sin prometer funcionalidad que
  * todavía no existe.
@@ -72,7 +73,12 @@ const DATA_HTTP_ITEMS = [
         subtitle: 'Lee o escribe filas en una base de datos MySQL/MariaDB externa',
         icon: 'database',
     },
-    { label: 'HTTP Request', subtitle: 'Llama a una URL externa y usa la respuesta', disabled: true, icon: 'globe' },
+    {
+        actionType: 'call_webhook',
+        label: 'HTTP Request',
+        subtitle: 'Llama a una URL externa y usa la respuesta',
+        icon: 'globe',
+    },
     { label: 'Webhook', subtitle: 'Recibe datos de un sistema externo', disabled: true, icon: 'webhook' },
     { label: 'Código (JS/Python)', subtitle: 'Ejecuta un fragmento de código personalizado', disabled: true, icon: 'code' },
 ];

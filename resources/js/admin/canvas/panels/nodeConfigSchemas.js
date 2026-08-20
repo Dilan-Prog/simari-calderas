@@ -124,3 +124,37 @@ export const EXTERNAL_DB_SCHEMA = {
         },
     ],
 };
+
+// Esquema del nodo de acción 'call_webhook' (HTTP Request), en el mismo
+// patrón que EXTERNAL_DB_SCHEMA -- consumido por el modo "Editar como JSON"
+// del formulario estructurado del inspector (ver NodeInspector.jsx). Fuente
+// de verdad: WorkflowActionExecutor::callWebhook() (backend, Fase paralela).
+export const WEBHOOK_SCHEMA = {
+    keys: [
+        { key: 'url', kind: 'string_token', hint: 'URL destino (soporta {{ }})' },
+        { key: 'method', kind: 'enum', source: 'static:http_methods', hint: 'GET | POST | PUT | PATCH | DELETE' },
+        { key: 'credential_id', kind: 'enum', source: 'local:webhook_credentials', hint: 'credencial de webhook (opcional)' },
+        {
+            key: 'headers',
+            kind: 'array_of_object',
+            hint: 'encabezados HTTP adicionales',
+            itemSchema: {
+                keys: [
+                    { key: 'key', kind: 'string', hint: 'nombre del header' },
+                    { key: 'value', kind: 'string_token', hint: 'valor (soporta {{ }})' },
+                ],
+            },
+        },
+        {
+            key: 'body',
+            kind: 'array_of_object',
+            hint: 'campos del cuerpo de la petición',
+            itemSchema: {
+                keys: [
+                    { key: 'key', kind: 'string', hint: 'nombre del campo' },
+                    { key: 'value', kind: 'string_token', hint: 'valor (soporta {{ }})' },
+                ],
+            },
+        },
+    ],
+};
