@@ -34,6 +34,41 @@
                 solo puedes reemplazarlo al editar.
             </p>
 
+            {{-- Datos del webhook: se necesitan al configurar el número en Meta for
+                 Developers > WhatsApp > Configuration. La URL se calcula con route(),
+                 así que siempre refleja el dominio real donde corre la app (hoy local,
+                 el real cuando el sitio esté publicado en Hostinger). El "Token de
+                 verificación" que Meta pide es el mismo que cada cuenta guarda en el
+                 campo "Token de verificación del webhook" del formulario. --}}
+            <div class="ap-info-card" style="margin-top:14px; padding:14px 16px; border:1px solid #e5e7eb; border-radius:10px; background:#f9fafb;">
+                <p style="margin:0 0 8px; font-weight:600; font-size:13px; color:#141516;">
+                    Configuración del webhook (Meta for Developers → WhatsApp → Configuration)
+                </p>
+                <div style="display:flex; flex-wrap:wrap; gap:20px;">
+                    <div style="min-width:260px;">
+                        <p style="margin:0 0 4px; font-size:12px; color:#6b7280;">Callback URL</p>
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <code id="waWebhookUrlDisplay" style="font-size:13px; background:#fff; border:1px solid #e5e7eb; border-radius:6px; padding:4px 8px;">{{ $webhookUrl }}</code>
+                            <button type="button" class="action-btn btn-copy-webhook-value" data-value="{{ $webhookUrl }}"
+                                title="Copiar">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div style="min-width:220px;">
+                        <p style="margin:0 0 4px; font-size:12px; color:#6b7280;">Verify Token</p>
+                        <p style="margin:0; font-size:13px; color:#141516;">
+                            El "Token de verificación del webhook" que guardaste en cada cuenta (abajo, en su columna Estado/Acciones — edítala para verlo).
+                        </p>
+                    </div>
+                </div>
+                @if (Str::startsWith($webhookUrl, 'http://localhost') || Str::contains($webhookUrl, '.test'))
+                    <p style="margin:8px 0 0; font-size:12px; color:#b45309;">
+                        Esta URL apunta a tu entorno local — Meta no puede alcanzarla. Configura el webhook hasta que el sitio esté publicado en un dominio real (Hostinger).
+                    </p>
+                @endif
+            </div>
+
             {{-- Table --}}
             <main class="table-container-clients-manager" style="margin-top:20px;">
                 <div class="table-scroll">

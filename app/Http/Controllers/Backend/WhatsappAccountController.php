@@ -17,8 +17,9 @@ class WhatsappAccountController extends Controller
     public function index()
     {
         $whatsappAccounts = WhatsappAccount::latest()->get();
+        $webhookUrl = route('whatsapp.webhook.receive');
 
-        return view('admin.whatsapp-accounts.index', compact('whatsappAccounts'));
+        return view('admin.whatsapp-accounts.index', compact('whatsappAccounts', 'webhookUrl'));
     }
 
     private function validateAccount(Request $request): array
@@ -71,6 +72,7 @@ class WhatsappAccountController extends Controller
             'whatsapp_business_account_id'  => $whatsappAccount->whatsapp_business_account_id,
             'webhook_verify_token'          => $whatsappAccount->webhook_verify_token,
             'is_active'                     => $whatsappAccount->is_active,
+            'webhook_url'                   => route('whatsapp.webhook.receive'),
         ]);
     }
 

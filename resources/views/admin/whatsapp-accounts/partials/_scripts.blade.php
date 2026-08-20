@@ -174,6 +174,17 @@
             });
         });
 
+        // Copiar el Callback URL del webhook (tarjeta informativa arriba de la tabla).
+        document.querySelectorAll('.btn-copy-webhook-value').forEach(btn => {
+            btn.addEventListener('click', () => {
+                navigator.clipboard.writeText(btn.dataset.value).then(() => {
+                    const original = btn.title;
+                    btn.title = 'Copiado';
+                    setTimeout(() => btn.title = original, 1500);
+                });
+            });
+        });
+
         document.getElementById('delWhatsappAccountCancel').addEventListener('click', () =>
             deleteWaAccountModal.classList.remove('active'));
         deleteWaAccountModal.addEventListener('click', (e) => {
