@@ -66,10 +66,24 @@ class IntegrationController extends Controller
 
         // MailSettingsServiceProvider ya aplicó a esta petición la config
         // guardada en BD, así que este envío prueba exactamente lo guardado.
+        // HTML (no Mail::raw, que es texto plano y no puede llevar imagen)
+        // con el mismo logo que ya usan las plantillas reales, para que la
+        // prueba también confirme que el logo carga -- no solo la conexión.
         try {
-            Mail::raw(
-                "Este es un correo de prueba enviado desde el módulo de Integraciones de Equiterm Industries.\n\n"
-                . 'Si lo estás leyendo, la configuración SMTP funciona correctamente.',
+            $logoUrl = asset('images/logo/Negro-color/Recurso%205equiterm-logo-negro-color-3x.png');
+
+            Mail::html(
+                '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#f2f3f5">'
+                . '<tr><td align="center" style="padding:24px 12px;">'
+                . '<table role="presentation" width="480" cellpadding="0" cellspacing="0" border="0" bgcolor="#ffffff" style="width:480px;max-width:100%;">'
+                . '<tr><td align="left" bgcolor="#ffffff" style="padding:22px;">'
+                . '<img src="' . $logoUrl . '" width="180" alt="Logo Equiterm" style="display:block;border:0;max-width:100%;height:auto;">'
+                . '</td></tr>'
+                . '<tr><td align="left" bgcolor="#ffffff" style="padding:0 22px 22px;font-family:Arial,sans-serif;font-size:14px;line-height:1.6;color:#141516;">'
+                . 'Este es un correo de prueba enviado desde el módulo de Integraciones de Equiterm Industries.<br><br>'
+                . 'Si lo estás leyendo (y ves el logo arriba), la configuración SMTP funciona correctamente.'
+                . '</td></tr>'
+                . '</table></td></tr></table>',
                 function ($message) use ($request) {
                     $message->to($request->input('test_email'))
                         ->subject('Correo de prueba — Equiterm Industries');
