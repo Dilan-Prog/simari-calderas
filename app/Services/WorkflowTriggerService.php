@@ -238,7 +238,14 @@ class WorkflowTriggerService
             $hours = (int) ($workflow->enrollment_trigger['hours'] ?? $defaultHours);
             $hours = $hours > 0 ? $hours : $defaultHours;
 
-            $modelClass::where($staleField, '<', now()->subHours($hours))
+            // Cada workflow puede vigilar su propia columna de fecha en vez de
+            // la que trae por default el tipo de módulo (config/automatable_
+            // modules.php) -- ej. dos workflows de tipo "quote" pueden existir
+            // a la vez, uno viendo sent_at (seguimiento) y otro valid_until
+            // (vencimiento), sin pisarse entre sí.
+            $field = $workflow->enrollment_trigger['field'] ?? $staleField;
+
+            $modelClass::where($field, '<', now()->subHours($hours))
                 ->get()
                 ->each(function (Model $model) use ($workflow) {
                     app(WorkflowEngineService::class)->enroll($workflow, $model);

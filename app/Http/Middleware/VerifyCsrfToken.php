@@ -16,5 +16,8 @@ class VerifyCsrfToken extends Middleware
         // directamente sin sesión ni token CSRF, la verificación de
         // identidad la hace WhatsappWebhookController vía webhook_verify_token.
         'whatsapp/webhook',
+        // Webhook del buzón de correo (Hostinger "Agentic Mail" / hMail) —
+        // llamado directamente por Hostinger sin sesión ni token CSRF.
+        'webhooks/email-bounce',
     ];
 }

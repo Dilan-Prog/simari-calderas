@@ -123,6 +123,16 @@ return [
             'handler' => NullHandler::class,
         ],
 
+        // Canal dedicado para el webhook del buzón de correo (Hostinger
+        // "Agentic Mail") mientras se documenta su payload real -- separado
+        // de laravel.log para poder encontrar el primer rebote real rápido.
+        'email-bounce' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/email-bounce.log'),
+            'level' => 'debug',
+            'replace_placeholders' => true,
+        ],
+
         'emergency' => [
             'path' => storage_path('logs/laravel.log'),
         ],

@@ -31,4 +31,12 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    // Token del webhook de Hostinger "Agentic Mail" (Authorization: Bearer),
+    // mostrado una sola vez al crear el webhook en su panel. Se compara en
+    // EmailBounceWebhookController::receive() para rechazar llamadas que no
+    // vengan de Hostinger.
+    'hostinger_mail' => [
+        'webhook_token' => env('HOSTINGER_MAIL_WEBHOOK_TOKEN'),
+    ],
+
 ];
