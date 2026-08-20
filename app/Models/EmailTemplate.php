@@ -17,10 +17,13 @@ class EmailTemplate extends Model
         'created_by',
         'blocks_json',
         'builder_mode',
+        'is_system',
+        'system_key',
     ];
 
     protected $casts = [
         'blocks_json' => 'array',
+        'is_system'   => 'boolean',
     ];
 
     public function creator()

@@ -53,7 +53,9 @@ class EmailTemplateService
         if ($quote !== null) {
             $replacements['{{quote.quote_number}}'] = (string) $quote->quote_number;
             $replacements['{{quote.total}}']        = number_format((float) $quote->total, 2);
+            $replacements['{{quote.currency}}']     = (string) $quote->currency;
             $replacements['{{quote.valid_until}}']  = $quote->valid_until ? $quote->valid_until->format('d/m/Y') : '';
+            $replacements['{{quote.notes}}']        = (string) ($quote->notes ?? '');
         }
 
         // {{cart.*}} solo se resuelven si hay un carrito (recordatorio de

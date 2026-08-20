@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Backend;
 
 use App\Http\Controllers\Controller;
-use App\Mail\QuoteMail;
+use App\Mail\MarketingEmailMailable;
+use App\Models\EmailTemplate;
 use App\Models\Quote;
 use App\Models\Products;
 use App\Models\ServicePage;
+use App\Services\EmailTemplateService;
 use App\Services\QuoteService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\RedirectResponse;
@@ -195,9 +197,29 @@ class QuoteController extends Controller
      */
     public function previewManualEmail(Quote $quote)
     {
-        $quote->load('items', 'createdBy');
+        $quote->load('items', 'createdBy', 'customer');
 
-        return (new QuoteMail($quote))->render();
+        return $this->renderQuoteManualEmail($quote)['html'];
+    }
+
+    /**
+     * Renderiza el correo de "Enviar cotización" a partir de la EmailTemplate
+     * del sistema (system_key='quote_manual_send', ver migración
+     * 2026_08_20_010001) -- el usuario la puede editar libremente desde
+     * Email Marketing, pero no eliminar (EmailTemplateController::destroy()).
+     */
+    private function renderQuoteManualEmail(Quote $quote): array
+    {
+        $template = EmailTemplate::where('system_key', 'quote_manual_send')->firstOrFail();
+
+        return app(EmailTemplateService::class)->render(
+            $template,
+            $quote->customer,
+            null,
+            $quote,
+            $quote->customer ? null : $quote->guest_name,
+            $quote->customer ? null : $quote->guest_email,
+        );
     }
 
     /**
@@ -441,7 +463,15 @@ class QuoteController extends Controller
 
         $recipient = $quote->customer?->email ?: $quote->guest_email;
 
-        Mail::to($recipient)->send(new QuoteMail($quote));
+        $rendered = $this->renderQuoteManualEmail($quote);
+
+        $pdf = Pdf::loadView('admin.quotes.pdf', ['quote' => $quote])->setPaper('a4', 'portrait');
+
+        Mail::to($recipient)->send(new MarketingEmailMailable($rendered, [
+            'content'  => $pdf->output(),
+            'filename' => "{$quote->quote_number}.pdf",
+            'mime'     => 'application/pdf',
+        ]));
 
         // sent_at SIEMPRE se actualiza a "ahora" (no solo la primera vez):
         // un reenvío manual reinicia el reloj de 24h del recordatorio

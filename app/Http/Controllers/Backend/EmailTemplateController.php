@@ -53,6 +53,12 @@ class EmailTemplateController extends Controller
 
     public function destroy(EmailTemplate $emailTemplate)
     {
+        if ($emailTemplate->is_system) {
+            return response()->json([
+                'message' => 'Esta plantilla la usa el sistema (envío de cotizaciones) y no se puede eliminar. Sí puedes editar su contenido.',
+            ], 422);
+        }
+
         $emailTemplate->delete();
 
         return response()->json(null, 204);

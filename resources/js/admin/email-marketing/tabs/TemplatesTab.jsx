@@ -245,6 +245,11 @@ export default function TemplatesTab({ createSignal, onChanged, userInitials }) 
                   <td className="em-td-secondary">{t.subject}</td>
                   <td>
                     <span className="em-pill">{typeLabel(t.type)}</span>
+                    {t.is_system && (
+                      <span className="em-pill" title="Plantilla del sistema: editable, no se puede eliminar" style={{ marginLeft: 6 }}>
+                        Sistema
+                      </span>
+                    )}
                   </td>
                   <td className="em-td-muted">{t.builder_mode === 'blocks' ? 'Bloques' : 'Código'}</td>
                   <td className="em-td-muted">{t.created_at ? new Date(t.created_at).toLocaleDateString('es-MX') : '—'}</td>
@@ -255,16 +260,30 @@ export default function TemplatesTab({ createSignal, onChanged, userInitials }) 
                           <path d="M12 20h9M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" strokeLinecap="round" strokeLinejoin="round" />
                         </svg>
                       </button>
-                      <button
-                        type="button"
-                        className="em-action-btn em-action-btn-delete"
-                        title="Eliminar"
-                        onClick={() => handleDelete(t)}
-                      >
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                          <path d="M4 7h16M9 7V4.5h6V7M6.5 7l1 13h9l1-13" strokeLinecap="round" strokeLinejoin="round" />
-                        </svg>
-                      </button>
+                      {t.is_system ? (
+                        <button
+                          type="button"
+                          className="em-action-btn"
+                          title="Plantilla del sistema — no se puede eliminar"
+                          disabled
+                        >
+                          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <rect x="4" y="10" width="16" height="10" rx="2" />
+                            <path d="M8 10V7a4 4 0 0 1 8 0v3" strokeLinecap="round" strokeLinejoin="round" />
+                          </svg>
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          className="em-action-btn em-action-btn-delete"
+                          title="Eliminar"
+                          onClick={() => handleDelete(t)}
+                        >
+                          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M4 7h16M9 7V4.5h6V7M6.5 7l1 13h9l1-13" strokeLinecap="round" strokeLinejoin="round" />
+                          </svg>
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>
