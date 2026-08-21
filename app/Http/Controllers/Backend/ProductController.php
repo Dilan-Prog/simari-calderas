@@ -1048,15 +1048,27 @@ class ProductController extends Controller
             ->all();
         $product->faqs = $faqs ?: null;
 
-        // FIX (reported bug): el slug se generaba con el nombre CRUDO, aún
-        // con placeholders sin resolver (ej. "Bomba de calor BCP 110
-        // {marca}") — Str::slug() no entiende esa sintaxis y la reduce a
-        // texto literal ("...-marca" en vez de "...-masstercal"). Se genera
-        // aquí, después de asignar brand_id/model/category_id/etc., para
-        // poder resolver las variables reales del producto antes de
-        // slugificar. Si el admin escribió un slug manual, se respeta tal
-        // cual (mismo comportamiento de siempre).
-        $product->slug = $request->slug
+        // FIX (reported bug, 2da parte): la corrección anterior nunca se
+        // alcanzaba en edición porque el campo "URL Slug" del form SIEMPRE
+        // llega prellenado con el slug actual (value="{{ $product->slug }}"
+        // en edit.blade.php) — si el admin guarda sin tocarlo, $request->slug
+        // de todos modos no está vacío, así que el bloque de abajo lo trataba
+        // como "el admin lo escribió a mano" y nunca regeneraba. El botón
+        // "Generar Auto" tampoco lo arregla: es JS puro, slugifica el nombre
+        // crudo sin poder resolver variables (eso solo existe en PHP).
+        //
+        // Detección precisa para autosanar sin arriesgar un slug personalizado
+        // real: solo se regenera si el slug GUARDADO ANTES de este save es
+        // exactamente igual a slugificar el nombre SIN resolver variables —
+        // esa es la huella exacta del bug (y de nada más). Si el admin alguna
+        // vez escribió un slug distinto a mano, esta condición es falsa y se
+        // respeta tal cual, sin tocarlo. En creación (store()) $product->slug
+        // aún no existe en este punto, así que esta condición simplemente da
+        // false y el comportamiento de siempre (campo vacío = auto) no cambia.
+        $isStaleUnresolvedSlug = str_contains($product->name, '{')
+            && $product->slug === Str::slug($product->name);
+
+        $product->slug = ($request->slug && !$isStaleUnresolvedSlug)
             ? Str::slug($request->slug)
             : Str::slug($product->resolveVariables($request->name));
 
@@ -1261,15 +1273,27 @@ class ProductController extends Controller
             ->all();
         $product->faqs = $faqs ?: null;
 
-        // FIX (reported bug): el slug se generaba con el nombre CRUDO, aún
-        // con placeholders sin resolver (ej. "Bomba de calor BCP 110
-        // {marca}") — Str::slug() no entiende esa sintaxis y la reduce a
-        // texto literal ("...-marca" en vez de "...-masstercal"). Se genera
-        // aquí, después de asignar brand_id/model/category_id/etc., para
-        // poder resolver las variables reales del producto antes de
-        // slugificar. Si el admin escribió un slug manual, se respeta tal
-        // cual (mismo comportamiento de siempre).
-        $product->slug = $request->slug
+        // FIX (reported bug, 2da parte): la corrección anterior nunca se
+        // alcanzaba en edición porque el campo "URL Slug" del form SIEMPRE
+        // llega prellenado con el slug actual (value="{{ $product->slug }}"
+        // en edit.blade.php) — si el admin guarda sin tocarlo, $request->slug
+        // de todos modos no está vacío, así que el bloque de abajo lo trataba
+        // como "el admin lo escribió a mano" y nunca regeneraba. El botón
+        // "Generar Auto" tampoco lo arregla: es JS puro, slugifica el nombre
+        // crudo sin poder resolver variables (eso solo existe en PHP).
+        //
+        // Detección precisa para autosanar sin arriesgar un slug personalizado
+        // real: solo se regenera si el slug GUARDADO ANTES de este save es
+        // exactamente igual a slugificar el nombre SIN resolver variables —
+        // esa es la huella exacta del bug (y de nada más). Si el admin alguna
+        // vez escribió un slug distinto a mano, esta condición es falsa y se
+        // respeta tal cual, sin tocarlo. En creación (store()) $product->slug
+        // aún no existe en este punto, así que esta condición simplemente da
+        // false y el comportamiento de siempre (campo vacío = auto) no cambia.
+        $isStaleUnresolvedSlug = str_contains($product->name, '{')
+            && $product->slug === Str::slug($product->name);
+
+        $product->slug = ($request->slug && !$isStaleUnresolvedSlug)
             ? Str::slug($request->slug)
             : Str::slug($product->resolveVariables($request->name));
 
