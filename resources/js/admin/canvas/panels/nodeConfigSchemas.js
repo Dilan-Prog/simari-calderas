@@ -134,6 +134,7 @@ export const WEBHOOK_SCHEMA = {
         { key: 'url', kind: 'string_token', hint: 'URL destino (soporta {{ }})' },
         { key: 'method', kind: 'enum', source: 'static:http_methods', hint: 'GET | POST | PUT | PATCH | DELETE' },
         { key: 'credential_id', kind: 'enum', source: 'local:webhook_credentials', hint: 'credencial de webhook (opcional)' },
+        { key: 'webhook_id', kind: 'enum', source: 'local:registered_webhooks', hint: 'webhook registrado a usar' },
         {
             key: 'headers',
             kind: 'array_of_object',

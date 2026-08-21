@@ -204,6 +204,23 @@ export async function listWebhookCredentials() {
   return handleResponse(response);
 }
 
+// ── Webhooks registrados (nodo 'call_webhook', modo "usar un webhook
+// registrado") ───────────────────────────────────────────────────
+// Metadatos de solo lectura para poblar el <select> del formulario
+// estructurado del inspector. Mismo patrón que WEBHOOK_CREDENTIALS_BASE_URL
+// de arriba.
+
+const REGISTERED_WEBHOOKS_BASE_URL = '/admin/automatizaciones/webhooks-registrados';
+
+export async function listRegisteredWebhooks() {
+  const response = await fetch(REGISTERED_WEBHOOKS_BASE_URL, {
+    method: 'GET',
+    headers: baseHeaders(),
+    credentials: 'same-origin',
+  });
+  return handleResponse(response);
+}
+
 // ── Notas (StickyNote) ────────────────────────────────────────
 
 export async function getNotes(url) {

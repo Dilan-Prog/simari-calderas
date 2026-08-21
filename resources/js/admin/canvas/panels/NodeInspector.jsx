@@ -4,6 +4,7 @@ import {
     listDatabaseTables,
     listDatabaseColumns,
     listWebhookCredentials,
+    listRegisteredWebhooks,
 } from '../api/stepsApi.js';
 import TokenAutocompleteTextarea from './TokenAutocomplete.jsx';
 import FieldAutocompleteInput from './FieldAutocompleteInput.jsx';
@@ -271,6 +272,15 @@ export default function NodeInspector({ step, catalog, workflowType, onSave, onS
     const [webCredentials, setWebCredentials] = useState([]);
     const [webMetaError, setWebMetaError] = useState('');
 
+    // Modo 'here' (definir URL/método/headers/credencial aquí mismo, como
+    // siempre) vs 'registered' (referenciar un Webhook registrado en otro
+    // módulo -- el ejecutor backend ignora url/method/headers/credential_id
+    // y los toma del registro server-side; el step solo aporta `body`).
+    const [webMode, setWebMode] = useState('here');
+    const [webWebhookId, setWebWebhookId] = useState('');
+    const [registeredWebhooks, setRegisteredWebhooks] = useState([]);
+    const [webRegisteredError, setWebRegisteredError] = useState('');
+
     const variableList = variables || [];
 
     function applyDbConfigToState(cfg) {
@@ -328,6 +338,8 @@ export default function NodeInspector({ step, catalog, workflowType, onSave, onS
     // applyDbConfigToState/buildDbConfigFromState de arriba.
     function applyWebConfigToState(cfg) {
         const c = cfg || {};
+        setWebMode(c.webhook_id != null ? 'registered' : 'here');
+        setWebWebhookId(c.webhook_id != null ? String(c.webhook_id) : '');
         setWebUrl(c.url || '');
         setWebMethod(c.method && HTTP_METHODS[c.method] ? c.method : 'POST');
         setWebCredentialId(c.credential_id != null ? String(c.credential_id) : '');
@@ -336,11 +348,20 @@ export default function NodeInspector({ step, catalog, workflowType, onSave, onS
     }
 
     function buildWebConfigFromState() {
+        const body = webBodyRows.filter((row) => row.key).map((row) => ({ key: row.key, value: row.value }));
+
+        if (webMode === 'registered') {
+            return {
+                webhook_id: webWebhookId ? Number(webWebhookId) : null,
+                body,
+            };
+        }
+
         return {
             url: webUrl,
             method: webMethod || 'POST',
             headers: webHeadersRows.filter((row) => row.key).map((row) => ({ key: row.key, value: row.value })),
-            body: webBodyRows.filter((row) => row.key).map((row) => ({ key: row.key, value: row.value })),
+            body,
             credential_id: webCredentialId ? Number(webCredentialId) : null,
         };
     }
@@ -559,6 +580,25 @@ export default function NodeInspector({ step, catalog, workflowType, onSave, onS
         };
     }, [actionType]);
 
+    // Fetch de metadatos de solo lectura para el modo "Usar un webhook
+    // registrado" de 'call_webhook' -- mismo patrón que el efecto de
+    // listWebhookCredentials de arriba.
+    useEffect(() => {
+        if (actionType !== 'call_webhook') return undefined;
+        let cancelled = false;
+        setWebRegisteredError('');
+        listRegisteredWebhooks()
+            .then((list) => {
+                if (!cancelled) setRegisteredWebhooks(Array.isArray(list) ? list : []);
+            })
+            .catch((err) => {
+                if (!cancelled) setWebRegisteredError(err.message || 'No se pudieron cargar los webhooks registrados.');
+            });
+        return () => {
+            cancelled = true;
+        };
+    }, [actionType]);
+
     // Re-inicializa el formulario cada vez que cambia el step seleccionado.
     useEffect(() => {
         if (!step) return;
@@ -736,7 +776,12 @@ export default function NodeInspector({ step, catalog, workflowType, onSave, onS
             }
 
             if (actionType === 'call_webhook' && !webJsonMode) {
-                if (!webUrl.trim()) {
+                if (webMode === 'registered') {
+                    if (!webWebhookId) {
+                        setError('Selecciona un webhook registrado.');
+                        return;
+                    }
+                } else if (!webUrl.trim()) {
                     setError('La URL es obligatoria.');
                     return;
                 }
@@ -1351,98 +1396,137 @@ export default function NodeInspector({ step, catalog, workflowType, onSave, onS
                                         workflowVariables={variableList}
                                         fieldValueSources={fieldValueSources}
                                         actionValueSources={actionValueSources}
-                                        localValueSources={{ webhook_credentials: webCredentials }}
+                                        localValueSources={{ webhook_credentials: webCredentials, registered_webhooks: registeredWebhooks }}
                                         nodeSchema={WEBHOOK_SCHEMA}
                                     />
                                 ) : (
                                     <>
-                                        <label className="wf-field-label" htmlFor="wf-webhook-url">
-                                            URL
-                                        </label>
-                                        <TokenAutocompleteTextarea
-                                            id="wf-webhook-url"
-                                            className="wf-field-input"
-                                            rows={1}
-                                            value={webUrl}
-                                            onValueChange={setWebUrl}
-                                            placeholder="https://ejemplo.com/hook"
-                                            spellCheck={false}
-                                            moduleType={activeModuleType}
-                                            modules={modules}
-                                            workflowVariables={variableList}
-                                        />
-
-                                        <label className="wf-field-label" htmlFor="wf-webhook-method">
-                                            Método
+                                        <label className="wf-field-label" htmlFor="wf-webhook-mode">
+                                            Origen del webhook
                                         </label>
                                         <select
-                                            id="wf-webhook-method"
+                                            id="wf-webhook-mode"
                                             className="wf-field-input"
-                                            value={webMethod}
-                                            onChange={(e) => setWebMethod(e.target.value)}
+                                            value={webMode}
+                                            onChange={(e) => setWebMode(e.target.value)}
                                         >
-                                            {Object.entries(HTTP_METHODS).map(([key, label]) => (
-                                                <option key={key} value={key}>
-                                                    {label}
-                                                </option>
-                                            ))}
+                                            <option value="here">Definir aquí</option>
+                                            <option value="registered">Usar un webhook registrado</option>
                                         </select>
 
-                                        <label className="wf-field-label" htmlFor="wf-webhook-credential">
-                                            Credencial (opcional)
-                                        </label>
-                                        <select
-                                            id="wf-webhook-credential"
-                                            className="wf-field-input"
-                                            value={webCredentialId}
-                                            onChange={(e) => setWebCredentialId(e.target.value)}
-                                        >
-                                            <option value="">-- ninguna --</option>
-                                            {webCredentials.map((cred) => (
-                                                <option key={cred.id} value={cred.id}>
-                                                    {cred.name}
-                                                </option>
-                                            ))}
-                                        </select>
-
-                                        <div className="wf-field-row-header">
-                                            <label className="wf-field-label">Headers</label>
-                                            <button type="button" className="wf-btn-link" onClick={addWebHeaderRow}>
-                                                + Agregar campo
-                                            </button>
-                                        </div>
-                                        {webHeadersRows.length === 0 && (
-                                            <div className="wf-inspector-empty-tab">Sin headers configurados.</div>
-                                        )}
-                                        {webHeadersRows.map((row, index) => (
-                                            <div className="wf-field-row" key={index}>
-                                                <input
-                                                    type="text"
+                                        {webMode === 'registered' ? (
+                                            <>
+                                                {webRegisteredError && (
+                                                    <div className="wf-inspector-error">{webRegisteredError}</div>
+                                                )}
+                                                <label className="wf-field-label" htmlFor="wf-webhook-registered">
+                                                    Webhook registrado
+                                                </label>
+                                                <select
+                                                    id="wf-webhook-registered"
                                                     className="wf-field-input"
-                                                    placeholder="Nombre del header"
-                                                    value={row.key}
-                                                    onChange={(e) => updateWebHeaderRow(index, { key: e.target.value })}
-                                                />
+                                                    value={webWebhookId}
+                                                    onChange={(e) => setWebWebhookId(e.target.value)}
+                                                >
+                                                    <option value="">-- selecciona --</option>
+                                                    {registeredWebhooks.map((hook) => (
+                                                        <option key={hook.id} value={hook.id}>
+                                                            {hook.name} ({hook.url})
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <label className="wf-field-label" htmlFor="wf-webhook-url">
+                                                    URL
+                                                </label>
                                                 <TokenAutocompleteTextarea
+                                                    id="wf-webhook-url"
                                                     className="wf-field-input"
                                                     rows={1}
-                                                    value={row.value}
-                                                    onValueChange={(v) => updateWebHeaderRow(index, { value: v })}
-                                                    placeholder="Valor"
+                                                    value={webUrl}
+                                                    onValueChange={setWebUrl}
+                                                    placeholder="https://ejemplo.com/hook"
                                                     spellCheck={false}
                                                     moduleType={activeModuleType}
                                                     modules={modules}
                                                     workflowVariables={variableList}
                                                 />
-                                                <button
-                                                    type="button"
-                                                    className="wf-btn-link"
-                                                    onClick={() => removeWebHeaderRow(index)}
+
+                                                <label className="wf-field-label" htmlFor="wf-webhook-method">
+                                                    Método
+                                                </label>
+                                                <select
+                                                    id="wf-webhook-method"
+                                                    className="wf-field-input"
+                                                    value={webMethod}
+                                                    onChange={(e) => setWebMethod(e.target.value)}
                                                 >
-                                                    Quitar
-                                                </button>
-                                            </div>
-                                        ))}
+                                                    {Object.entries(HTTP_METHODS).map(([key, label]) => (
+                                                        <option key={key} value={key}>
+                                                            {label}
+                                                        </option>
+                                                    ))}
+                                                </select>
+
+                                                <label className="wf-field-label" htmlFor="wf-webhook-credential">
+                                                    Credencial (opcional)
+                                                </label>
+                                                <select
+                                                    id="wf-webhook-credential"
+                                                    className="wf-field-input"
+                                                    value={webCredentialId}
+                                                    onChange={(e) => setWebCredentialId(e.target.value)}
+                                                >
+                                                    <option value="">-- ninguna --</option>
+                                                    {webCredentials.map((cred) => (
+                                                        <option key={cred.id} value={cred.id}>
+                                                            {cred.name}
+                                                        </option>
+                                                    ))}
+                                                </select>
+
+                                                <div className="wf-field-row-header">
+                                                    <label className="wf-field-label">Headers</label>
+                                                    <button type="button" className="wf-btn-link" onClick={addWebHeaderRow}>
+                                                        + Agregar campo
+                                                    </button>
+                                                </div>
+                                                {webHeadersRows.length === 0 && (
+                                                    <div className="wf-inspector-empty-tab">Sin headers configurados.</div>
+                                                )}
+                                                {webHeadersRows.map((row, index) => (
+                                                    <div className="wf-field-row" key={index}>
+                                                        <input
+                                                            type="text"
+                                                            className="wf-field-input"
+                                                            placeholder="Nombre del header"
+                                                            value={row.key}
+                                                            onChange={(e) => updateWebHeaderRow(index, { key: e.target.value })}
+                                                        />
+                                                        <TokenAutocompleteTextarea
+                                                            className="wf-field-input"
+                                                            rows={1}
+                                                            value={row.value}
+                                                            onValueChange={(v) => updateWebHeaderRow(index, { value: v })}
+                                                            placeholder="Valor"
+                                                            spellCheck={false}
+                                                            moduleType={activeModuleType}
+                                                            modules={modules}
+                                                            workflowVariables={variableList}
+                                                        />
+                                                        <button
+                                                            type="button"
+                                                            className="wf-btn-link"
+                                                            onClick={() => removeWebHeaderRow(index)}
+                                                        >
+                                                            Quitar
+                                                        </button>
+                                                    </div>
+                                                ))}
+                                            </>
+                                        )}
 
                                         <div className="wf-field-row-header">
                                             <label className="wf-field-label">Cuerpo (body)</label>

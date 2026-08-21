@@ -29,7 +29,9 @@ class IntegrationController extends Controller
 
         $hasPassword = (bool) Setting::get('mail.password');
 
-        return view('admin.integrations.index', compact('values', 'hasPassword'));
+        $webhooks = \App\Models\Webhook::with('credential')->orderBy('name')->get();
+
+        return view('admin.integrations.index', compact('values', 'hasPassword', 'webhooks'));
     }
 
     public function update(Request $request)

@@ -50,6 +50,8 @@ use App\Http\Controllers\Backend\WorkflowVariableController;
 use App\Http\Controllers\Backend\WorkflowCanvasNoteController;
 use App\Http\Controllers\Backend\ExternalDatabaseController;
 use App\Http\Controllers\Backend\WorkflowWebhookCredentialController;
+use App\Http\Controllers\Backend\WebhookController;
+use App\Http\Controllers\Backend\WorkflowRegisteredWebhookController;
 use App\Http\Controllers\Backend\ErpSettingController;
 use App\Http\Controllers\Backend\StatisticsController;
 use App\Http\Controllers\Backend\EmailCampaignController;
@@ -499,6 +501,24 @@ Route::controller(WorkflowWebhookCredentialController::class)
         Route::get('/', 'index')->name('index');
     });
 
+// Metadatos de solo-lectura (id/name/url de los Webhooks registrados en el
+// catálogo de Integraciones) para poblar el selector de "Webhook guardado"
+// del nodo "Llamar webhook" en el inspector del canvas de Automatizaciones.
+// IMPORTANTE: declarada ANTES del grupo de WorkflowController de abajo, por
+// la misma razón que 'automatizaciones/credenciales-bd' y
+// 'automatizaciones/credenciales-webhook' arriba — su prefijo
+// 'automatizaciones/webhooks-registrados' cae bajo el mismo espacio que
+// 'automatizaciones/{workflow}' (show), y Laravel resuelve rutas en orden de
+// registro: si este grupo se registrara después, GET
+// /automatizaciones/webhooks-registrados sería capturado por el wildcard
+// {workflow} de abajo (intentaría Workflow::findOrFail('webhooks-registrados')
+// y tiraría 404) en vez de llegar a WorkflowRegisteredWebhookController::index().
+Route::controller(WorkflowRegisteredWebhookController::class)
+    ->middleware('permission:automations')
+    ->prefix('automatizaciones/webhooks-registrados')
+    ->name('workflow-registered-webhooks.')
+    ->group(fn () => Route::get('/', 'index')->name('index'));
+
 // ============================================================
 // Automatizaciones (Workflows) — motor de automatización tipo
 // enrollment/steps. Nota: /crear se declara ANTES de /{workflow} para
@@ -907,6 +927,21 @@ Route::controller(IntegrationController::class)
         Route::get('/integraciones', 'index')->name('integrations.index');
         Route::put('/integraciones', 'update')->name('integrations.update')->middleware('permission:settings,edit');
         Route::post('/integraciones/probar-correo', 'sendTestMail')->name('integrations.test-mail');
+    });
+
+// CRUD del catálogo "Webhooks" (entidad reutilizable para el nodo "Llamar
+// webhook" del canvas de Automatizaciones), anidado bajo Integraciones.
+// Mismo patrón modal-based que Credenciales.
+Route::controller(WebhookController::class)
+    ->prefix('integraciones/webhooks')
+    ->name('integrations.webhooks.')
+    ->group(function () {
+        Route::post('/', 'store')->name('store')->middleware('permission:settings,edit');
+        Route::get('/{webhook}/editar', 'edit')->name('edit')->middleware('permission:settings');
+        Route::put('/{webhook}', 'update')->name('update')->middleware('permission:settings,edit');
+        Route::delete('/{webhook}', 'destroy')->name('destroy')->middleware('permission:settings,edit');
+        Route::post('/probar', 'test')->name('test')->middleware('permission:settings,edit');
+        Route::get('/credenciales', 'credentials')->name('credentials')->middleware('permission:settings');
     });
 
 // ============================================================

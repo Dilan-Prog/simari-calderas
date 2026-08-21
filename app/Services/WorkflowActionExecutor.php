@@ -10,6 +10,7 @@ use App\Models\EmailSend;
 use App\Models\EmailTemplate;
 use App\Models\PipelineStage;
 use App\Models\Task;
+use App\Models\Webhook;
 use App\Models\Workflow;
 use App\Models\WorkflowEnrollment;
 use App\Models\WorkflowEnrollmentLog;
@@ -110,7 +111,7 @@ class WorkflowActionExecutor
             ],
             'call_webhook' => [
                 'label' => 'Llamar webhook',
-                'example_config' => ['url' => '', 'method' => 'POST', 'headers' => [], 'body' => [], 'credential_id' => null],
+                'example_config' => ['url' => '', 'method' => 'POST', 'headers' => [], 'body' => [], 'credential_id' => null, 'webhook_id' => null],
             ],
         ];
     }
@@ -620,29 +621,49 @@ class WorkflowActionExecutor
      * header_name/header_value se agrega (o sobreescribe) a los headers ya
      * armados desde action_config — igual que external_db_query, solo la
      * llamada HTTP real va envuelta en try/catch, no la validación previa.
+     *
+     * `action_config.webhook_id` (opcional) referencia una entidad Webhook
+     * reutilizable (catálogo de Integraciones): cuando está presente,
+     * url/method/headers/credential_id se leen de ese registro en vez de
+     * action_config. `body` siempre viene de action_config — el modelo
+     * Webhook no tiene ese campo, es el payload específico de cada paso.
      */
     private function callWebhook(WorkflowEnrollment $enrollment, WorkflowStep $step): void
     {
         $config = $step->action_config ?? [];
-        $url = trim((string) ($config['url'] ?? ''));
+        $resolver = app(WorkflowTokenResolver::class);
+
+        $webhookId = $config['webhook_id'] ?? null;
+        $webhook = null;
+
+        if ($webhookId) {
+            $webhook = Webhook::find($webhookId);
+
+            if (!$webhook) {
+                $this->logResult($enrollment, $step, 'call_webhook', 'skipped', 'El webhook registrado ya no existe.');
+                return;
+            }
+        }
+
+        $url = trim((string) ($webhook ? $webhook->url : ($config['url'] ?? '')));
 
         if ($url === '') {
             $this->logResult($enrollment, $step, 'call_webhook', 'skipped', 'No se especificó la URL del webhook.');
             return;
         }
 
-        $resolver = app(WorkflowTokenResolver::class);
         $url = $resolver->resolveTokens($url, $enrollment);
 
-        $method = strtoupper((string) ($config['method'] ?? 'POST'));
+        $method = strtoupper((string) ($webhook ? $webhook->method : ($config['method'] ?? 'POST')));
 
         if (!in_array($method, ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'], true)) {
             $method = 'POST';
         }
 
         $headers = [];
+        $headerRows = $webhook ? ($webhook->headers ?? []) : ($config['headers'] ?? []);
 
-        foreach ($config['headers'] ?? [] as $row) {
+        foreach ($headerRows as $row) {
             $key = $row['key'] ?? null;
 
             if (blank($key)) {
@@ -664,7 +685,7 @@ class WorkflowActionExecutor
             $body[$key] = $resolver->resolveTokens($row['value'] ?? null, $enrollment);
         }
 
-        $credentialId = $config['credential_id'] ?? null;
+        $credentialId = $webhook ? $webhook->credential_id : ($config['credential_id'] ?? null);
 
         if ($credentialId) {
             $credential = Credential::find($credentialId);

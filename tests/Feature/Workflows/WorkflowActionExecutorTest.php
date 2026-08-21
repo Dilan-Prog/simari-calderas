@@ -13,6 +13,7 @@ use App\Models\PipelineStage;
 use App\Models\Quote;
 use App\Models\Task;
 use App\Models\User;
+use App\Models\Webhook;
 use App\Models\WhatsappAccount;
 use App\Models\WhatsappConversation;
 use App\Models\WhatsappMessage;
@@ -869,4 +870,115 @@ class WorkflowActionExecutorTest extends TestCase
         $this->assertEquals('failed', $log->result);
         $this->assertStringContainsString('Connection timed out', $log->message);
     }
+
+    // --- call_webhook con webhook_id (entidad Webhook reutilizable) --------
+    //
+    // Cuando action_config.webhook_id apunta a un Webhook existente, la
+    // llamada usa la url/method/headers/credential_id de ese registro (no
+    // los de action_config), pero body siempre sigue viniendo de
+    // action_config -- ver docblock de callWebhook().
+
+    public function test_call_webhook_uses_registered_webhook_url_method_headers(): void
+    {
+        Http::fake([
+            '*' => Http::response(['ok' => true], 200),
+        ]);
+
+        $workflow = $this->makeWorkflow(['type' => 'quote']);
+        $quote = $this->makeQuote(['quote_number' => 'COT-000456']);
+
+        $webhook = Webhook::create([
+            'name'    => 'CRM externo',
+            'url'     => 'https://example.com/registered-hook',
+            'method'  => 'PUT',
+            'headers' => [['key' => 'X-Registered', 'value' => 'yes']],
+        ]);
+
+        $step = $this->makeStep($workflow, 'call_webhook', [
+            'webhook_id' => $webhook->id,
+            // Estos valores directos deben ser ignorados: los reales vienen
+            // del registro Webhook de arriba.
+            'url'        => 'https://example.com/should-not-be-used',
+            'method'     => 'POST',
+            'headers'    => [['key' => 'X-Ad-Hoc', 'value' => 'no']],
+            'body'       => [['key' => 'folio', 'value' => '{{ quote_number }}']],
+        ]);
+        $enrollment = $this->makeEnrollment($workflow, $quote, $step);
+
+        app(WorkflowActionExecutor::class)->execute($enrollment, $step);
+
+        Http::assertSent(function ($request) {
+            return $request->url() === 'https://example.com/registered-hook'
+                && $request->method() === 'PUT'
+                && $request->hasHeader('X-Registered', 'yes')
+                && !$request->hasHeader('X-Ad-Hoc')
+                && $request['folio'] === 'COT-000456';
+        });
+
+        $log = $this->logFor($enrollment, $step);
+        $this->assertEquals('call_webhook', $log->action_taken);
+        $this->assertEquals('success', $log->result);
+    }
+
+    public function test_call_webhook_applies_credential_from_registered_webhook(): void
+    {
+        Http::fake([
+            '*' => Http::response(['ok' => true], 200),
+        ]);
+
+        $workflow = $this->makeWorkflow(['type' => 'quote']);
+        $quote = $this->makeQuote();
+
+        $credential = Credential::create([
+            'name'              => 'Webhook de prueba (registrado)',
+            'type'              => 'webhook',
+            'encrypted_payload' => Credential::storePayload([
+                'header_name'  => 'Authorization',
+                'header_value' => 'Bearer registered-token-456',
+            ]),
+        ]);
+
+        $webhook = Webhook::create([
+            'name'          => 'CRM externo con credencial',
+            'url'           => 'https://example.com/registered-hook-auth',
+            'method'        => 'POST',
+            'credential_id' => $credential->id,
+        ]);
+
+        $step = $this->makeStep($workflow, 'call_webhook', ['webhook_id' => $webhook->id]);
+        $enrollment = $this->makeEnrollment($workflow, $quote, $step);
+
+        app(WorkflowActionExecutor::class)->execute($enrollment, $step);
+
+        Http::assertSent(function ($request) {
+            return $request->hasHeader('Authorization', 'Bearer registered-token-456');
+        });
+
+        $log = $this->logFor($enrollment, $step);
+        $this->assertEquals('success', $log->result);
+    }
+
+    public function test_call_webhook_skipped_when_webhook_id_not_found(): void
+    {
+        Http::fake();
+
+        $workflow = $this->makeWorkflow(['type' => 'quote']);
+        $quote = $this->makeQuote();
+        $step = $this->makeStep($workflow, 'call_webhook', ['webhook_id' => 999999]);
+        $enrollment = $this->makeEnrollment($workflow, $quote, $step);
+
+        app(WorkflowActionExecutor::class)->execute($enrollment, $step);
+
+        $log = $this->logFor($enrollment, $step);
+        $this->assertEquals('call_webhook', $log->action_taken);
+        $this->assertEquals('skipped', $log->result);
+
+        Http::assertNothingSent();
+    }
+
+    // Nota: el modo "ad hoc" (sin webhook_id, url/method/headers/body
+    // directos en action_config) ya está cubierto por
+    // test_call_webhook_success_resolves_tokens_in_body() y
+    // test_call_webhook_applies_header_from_webhook_credential() arriba, sin
+    // ningún cambio de comportamiento -- no se duplica aquí.
 }
