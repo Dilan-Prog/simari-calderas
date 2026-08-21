@@ -89,4 +89,6 @@
 
   gtag('config', 'G-RVXX78K31C');
   // Analytics
+  gtag('config', 'AW-18401897625');
+  // Google Ads
 </script>
