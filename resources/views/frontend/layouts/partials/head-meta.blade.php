@@ -80,15 +80,11 @@
   }
 </script>
 @yield('schema')
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-RVXX78K31C"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-RVXX78K31C');
-  // Analytics
-  gtag('config', 'AW-18401897625');
-  // Google Ads
-</script>
+{{--
+  GA4 (G-RVXX78K31C) y Google Ads (AW-18401897625) ya no se configuran aquí
+  directo -- se disparan desde las etiquetas correspondientes dentro de
+  Google Tag Manager (contenedor GTM-MXFK4BK9, ver
+  frontend.shop.layouts.master). Tenerlos también aquí duplicaba cada
+  pageview/conversión: dataLayer recibía dos 'config' por el mismo ID, uno
+  de este script y otro del propio GTM.
+--}}
