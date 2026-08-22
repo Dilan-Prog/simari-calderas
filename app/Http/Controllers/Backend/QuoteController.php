@@ -106,9 +106,67 @@ class QuoteController extends Controller
         $data['items'] = $items;
 
         $quote = $this->quoteService->store($data, auth()->id());
+        $this->resolveVisitorUuidForQuote($quote);
 
         return redirect()->route('admin.quotes.show', $quote)
             ->with('success', "Cotización {$quote->quote_number} creada exitosamente.");
+    }
+
+    /**
+     * Resuelve y guarda visitor_uuid/visitor_uuid_confidence de una
+     * cotización recién creada/editada, para atribución de conversiones de
+     * Google Ads:
+     *  - Cliente identificado con visitor_uuid propio -> copia exacta.
+     *  - Invitado (guest_email/guest_phone) -> busca en carts un
+     *    contact_email/contact_phone que coincida (normalizado) y que ya
+     *    tenga visitor_uuid, tomando el más reciente si hay varios.
+     *  - Sin match en ninguno de los dos casos: deja ambos campos en null,
+     *    no es un error.
+     */
+    private function resolveVisitorUuidForQuote(Quote $quote): void
+    {
+        if ($quote->customer_id) {
+            $customer = \App\Models\Customer::find($quote->customer_id);
+
+            if ($customer && $customer->visitor_uuid !== null) {
+                $quote->update([
+                    'visitor_uuid'            => $customer->visitor_uuid,
+                    'visitor_uuid_confidence' => 'exact',
+                ]);
+            }
+
+            return;
+        }
+
+        $cart = null;
+
+        if ($quote->guest_email) {
+            $email = strtolower(trim($quote->guest_email));
+
+            $cart = \App\Models\Cart::whereNotNull('visitor_uuid')
+                ->whereRaw('LOWER(TRIM(contact_email)) = ?', [$email])
+                ->latest('id')
+                ->first();
+        }
+
+        if (!$cart && $quote->guest_phone) {
+            $phone = preg_replace('/\D/', '', $quote->guest_phone);
+
+            if ($phone !== '') {
+                $cart = \App\Models\Cart::whereNotNull('visitor_uuid')
+                    ->whereNotNull('contact_phone')
+                    ->latest('id')
+                    ->get()
+                    ->first(fn ($c) => preg_replace('/\D/', '', $c->contact_phone) === $phone);
+            }
+        }
+
+        if ($cart) {
+            $quote->update([
+                'visitor_uuid'            => $cart->visitor_uuid,
+                'visitor_uuid_confidence' => 'matched_by_contact',
+            ]);
+        }
     }
 
     public function show(Quote $quote)
@@ -334,6 +392,7 @@ class QuoteController extends Controller
         $data['items'] = $items;
 
         $this->quoteService->update($quote, $data);
+        $this->resolveVisitorUuidForQuote($quote->fresh());
 
         return redirect()->route('admin.quotes.show', $quote)
             ->with('success', "Cotización {$quote->quote_number} actualizada exitosamente.");
@@ -517,6 +576,32 @@ class QuoteController extends Controller
 
             if ($request->status === 'accepted' && !$wasAccepted) {
                 $this->quoteService->processAcceptance($quote);
+
+                $adVisit = $quote->visitor_uuid !== null ? $quote->adVisit : null;
+
+                // Solo si de verdad hay gclid/wbraid que reportar -- una
+                // visita solo con UTM (sin gclid/wbraid) no aporta nada útil
+                // para subir a Google Ads, y crearía ruido en la tabla.
+                if ($adVisit && ($adVisit->gclid || $adVisit->wbraid)) {
+                    try {
+                        \App\Models\GoogleConversion::create([
+                            'gclid'            => $adVisit->gclid,
+                            'wbraid'           => $adVisit->wbraid,
+                            'conversion_name'  => 'Cotizado',
+                            'conversion_value' => $quote->total,
+                            'currency_code'    => $quote->currency ?? 'MXN',
+                            'conversion_time'  => now(),
+                            // Prefijo para no chocar con el order_id de
+                            // StoreOrder en la unique constraint.
+                            'order_id'         => 'QUOTE-' . $quote->quote_number,
+                            'status'           => 'stored',
+                        ]);
+                    } catch (\Throwable $e) {
+                        // silencioso a propósito -- no debe tronar el flujo
+                        // real de aceptar la cotización (p. ej. reintento
+                        // que choca con el unique de order_id).
+                    }
+                }
             }
         });
 

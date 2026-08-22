@@ -112,14 +112,37 @@ $(function () {
         ],
     }).container().appendTo('#gaExportWrapper');
 
+    // Mantiene el href del botón "Exportar todo (rango filtrado)" (export
+    // real server-side, todas las filas del rango -- no solo la página
+    // actual) sincronizado con los filtros de fecha/búsqueda vigentes.
+    function updateServerExportLink() {
+        const btn = document.getElementById('gaExportServerBtn');
+        if (!btn) return;
+
+        const params = new URLSearchParams();
+        const from = $('#gaDateFrom').val();
+        const to = $('#gaDateTo').val();
+        const search = $('#gaSearch').val();
+        if (from) params.set('date_from', from);
+        if (to) params.set('date_to', to);
+        if (search) params.set('search', search);
+
+        const query = params.toString();
+        btn.setAttribute('href', btn.dataset.baseUrl + (query ? '?' + query : ''));
+    }
+
     let searchTimer;
     $('#gaSearch').on('input', function () {
         clearTimeout(searchTimer);
-        searchTimer = setTimeout(() => table.search($(this).val()).draw(), 400);
+        searchTimer = setTimeout(() => {
+            table.search($(this).val()).draw();
+            updateServerExportLink();
+        }, 400);
     });
 
     $('#gaDateFrom, #gaDateTo').on('change', function () {
         table.ajax.reload();
+        updateServerExportLink();
     });
 
     $('#gaClearFilters').on('click', function () {
@@ -127,5 +150,8 @@ $(function () {
         $('#gaDateFrom').val('');
         $('#gaDateTo').val('');
         table.search('').draw();
+        updateServerExportLink();
     });
+
+    updateServerExportLink();
 });

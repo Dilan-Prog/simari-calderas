@@ -31,6 +31,7 @@ class Customer extends Authenticatable
         'tipo_persona',
         'notes',
         'portal_access',
+        'visitor_uuid',
     ];
 
     protected $casts = [
@@ -98,5 +99,12 @@ class Customer extends Authenticatable
     public function quotes()
     {
         return $this->hasMany(\App\Models\Quote::class);
+    }
+
+    // Visita de anuncio (gclid/wbraid/UTM) que originó a este cliente, si se
+    // identificó (login/registro) en una sesión donde ya se había capturado.
+    public function adVisit()
+    {
+        return $this->belongsTo(\App\Models\AdVisit::class, 'visitor_uuid', 'visitor_uuid');
     }
 }

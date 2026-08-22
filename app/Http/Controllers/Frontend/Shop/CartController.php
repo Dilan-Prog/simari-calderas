@@ -28,8 +28,9 @@ class CartController extends Controller
     public function add(Request $request)
     {
         $data = $request->validate([
-            'product_id' => ['required', 'integer', 'exists:products,id'],
-            'quantity'   => ['required', 'integer', 'min:1'],
+            'product_id'   => ['required', 'integer', 'exists:products,id'],
+            'quantity'     => ['required', 'integer', 'min:1'],
+            'visitor_uuid' => ['nullable', 'uuid'],
         ]);
 
         $product = Products::where('id', $data['product_id'])->where('is_active', true)->first();
@@ -58,6 +59,20 @@ class CartController extends Controller
         );
 
         $cart->update(['last_activity_at' => now()]);
+
+        // Primer punto de captura de atribución publicitaria (no el
+        // checkout): así los carritos que nunca llegan a pagar -- la
+        // definición misma de "abandonado" -- también quedan con
+        // visitor_uuid. Nunca sobreescribe uno ya guardado; la FK a
+        // ad_visits es nullOnDelete, así que un visitor_uuid huérfano
+        // (aún sin fila en ad_visits) no rompe nada.
+        if (!empty($data['visitor_uuid']) && $cart->visitor_uuid === null) {
+            try {
+                $cart->update(['visitor_uuid' => $data['visitor_uuid']]);
+            } catch (\Throwable $e) {
+                // silencioso a propósito
+            }
+        }
 
         $cart->load('items');
 

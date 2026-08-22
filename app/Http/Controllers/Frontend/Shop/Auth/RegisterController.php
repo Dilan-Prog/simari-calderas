@@ -29,6 +29,7 @@ class RegisterController extends Controller
             'email'      => ['required', 'string', 'email', 'max:255', 'unique:customers,email'],
             'phone'      => ['required', 'string', 'max:20'],
             'password'   => ['required', 'confirmed', Password::min(8)],
+            'visitor_uuid' => ['nullable', 'uuid'],
         ], [
             'email.unique' => 'Este correo ya está registrado. Si eres cliente de Equiterm, usa "¿Olvidaste tu contraseña?" para activar tu acceso.',
         ]);
@@ -49,6 +50,17 @@ class RegisterController extends Controller
             'company'       => $data['company'] ?? '',
             'rfc'           => '',
         ]);
+
+        // Atribución publicitaria: el Customer recién creado nunca tiene
+        // visitor_uuid previo, pero igual se envuelve en try/catch para no
+        // romper el registro real por un huérfano raro contra la FK.
+        if (!empty($data['visitor_uuid'])) {
+            try {
+                $customer->update(['visitor_uuid' => $data['visitor_uuid']]);
+            } catch (\Throwable $e) {
+                // silencioso a propósito
+            }
+        }
 
         Auth::guard('customer')->login($customer);
         $request->session()->regenerate();

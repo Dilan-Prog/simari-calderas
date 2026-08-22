@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Backend;
 
 use App\Exports\ReportExport;
 use App\Http\Controllers\Controller;
+use App\Models\Cart;
 use App\Models\Delivery;
 use App\Models\StoreOrder;
 use App\Models\StoreOrderStatusLog;
@@ -26,6 +27,11 @@ use Maatwebsite\Excel\Facades\Excel;
  */
 class StoreOrderController extends Controller
 {
+    // Estatus que cuentan como "pagada" para KPIs (index()) y para disparar
+    // la conversión de Google Ads una sola vez (updateStatus()) -- una sola
+    // fuente de verdad para no desincronizar ambos usos.
+    private const PAGADAS_STATUSES = ['pagado', 'en_preparacion', 'enviado', 'entregado'];
+
     public function index(Request $request): View
     {
         // Una sola query agrupada para KPIs y contadores de tabs — evita
@@ -38,7 +44,7 @@ class StoreOrderController extends Controller
         $countFor = fn (string $status) => (int) ($byStatus[$status]->c ?? 0);
         $sumFor = fn (string $status) => (float) ($byStatus[$status]->s ?? 0);
 
-        $pagadasStatuses = ['pagado', 'en_preparacion', 'enviado', 'entregado'];
+        $pagadasStatuses = self::PAGADAS_STATUSES;
 
         $kpis = [
             'total' => [
@@ -130,7 +136,14 @@ class StoreOrderController extends Controller
             return back()->withErrors(['note' => 'Explica en una nota interna por qué se retrocede el estatus.'])->withInput();
         }
 
-        DB::transaction(function () use ($order, $validated) {
+        // Guard de idempotencia: la conversión "Compra" solo se crea la
+        // PRIMERA vez que la orden entra al conjunto de estatus "pagada" (si
+        // el estatus anterior ya estaba ahí, ej. pagado -> en_preparacion, no
+        // se duplica).
+        $enteringPagadas = !in_array($order->status, self::PAGADAS_STATUSES, true)
+            && in_array($validated['status'], self::PAGADAS_STATUSES, true);
+
+        DB::transaction(function () use ($order, $validated, $enteringPagadas) {
             StoreOrderStatusLog::create([
                 'store_order_id'     => $order->id,
                 'from_status'        => $order->status,
@@ -141,6 +154,32 @@ class StoreOrderController extends Controller
             ]);
 
             $order->update(['status' => $validated['status']]);
+
+            if ($enteringPagadas) {
+                $adVisit = Cart::where('converted_to_store_order_id', $order->id)->first()?->adVisit;
+
+                // Solo crea la fila de conversión si de verdad hay algo que
+                // reportar a Google Ads (gclid o wbraid) -- de lo contrario
+                // toda orden pagada, con o sin origen publicitario, ensuciaría
+                // google_conversions con filas sin identificador útil.
+                if ($adVisit && ($adVisit->gclid || $adVisit->wbraid)) {
+                    try {
+                        \App\Models\GoogleConversion::create([
+                            'gclid'            => $adVisit->gclid,
+                            'wbraid'           => $adVisit->wbraid,
+                            'conversion_name'  => 'Compra',
+                            'conversion_value' => $order->total,
+                            'currency_code'    => $order->currency ?? 'MXN',
+                            'conversion_time'  => now(),
+                            'order_id'         => $order->order_number,
+                            'status'           => 'stored',
+                        ]);
+                    } catch (\Throwable $e) {
+                        // silencioso a propósito -- no debe tronar el flujo
+                        // real de actualizar el estatus de la orden.
+                    }
+                }
+            }
         });
 
         return back()->with('success', 'Estatus de la orden actualizado.');

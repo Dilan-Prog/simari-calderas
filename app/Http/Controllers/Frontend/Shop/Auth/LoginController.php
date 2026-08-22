@@ -21,8 +21,9 @@ class LoginController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'email'    => ['required', 'email'],
-            'password' => ['required', 'string'],
+            'email'        => ['required', 'email'],
+            'password'     => ['required', 'string'],
+            'visitor_uuid' => ['nullable', 'uuid'],
         ]);
 
         // El admin guarda emails en minúsculas (ClientManageController).
@@ -51,6 +52,16 @@ class LoginController extends Controller
         }
 
         $customer = Auth::guard('customer')->user();
+
+        // Atribución publicitaria: nunca sobreescribe un visitor_uuid ya
+        // guardado, y nunca debe romper el flujo real de inicio de sesión.
+        if ($request->filled('visitor_uuid') && $customer->visitor_uuid === null) {
+            try {
+                $customer->update(['visitor_uuid' => $request->input('visitor_uuid')]);
+            } catch (\Throwable $e) {
+                // silencioso a propósito
+            }
+        }
 
         if ($customer->status !== 'active') {
             Auth::guard('customer')->logout();

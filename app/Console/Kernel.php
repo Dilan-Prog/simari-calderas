@@ -106,6 +106,14 @@ class Kernel extends ConsoleKernel
             ->everyMinute()
             ->withoutOverlapping()
             ->runInBackground();
+
+        // Purga visitas de anuncio (gclid/UTM) cuya ventana de 90 días para
+        // subir conversiones offline a Google Ads ya expiró. Diario basta --
+        // a diferencia de los ticks de arriba, no depende de reaccionar
+        // dentro del mismo minuto a nada.
+        $schedule->command('ad-tracking:purge-expired')
+            ->daily()
+            ->withoutOverlapping();
     }
 
     /**

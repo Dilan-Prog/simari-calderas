@@ -11,6 +11,7 @@ class Cart extends Model
 {
     protected $fillable = [
         'session_id',
+        'visitor_uuid',
         'recovery_token',
         'customer_id',
         'last_activity_at',
@@ -47,6 +48,13 @@ class Cart extends Model
     public function convertedToStoreOrder(): BelongsTo
     {
         return $this->belongsTo(StoreOrder::class, 'converted_to_store_order_id');
+    }
+
+    // Visita de anuncio (gclid/wbraid/UTM) que originó este carrito, si el
+    // visitante llegó de una campaña de Google Ads.
+    public function adVisit(): BelongsTo
+    {
+        return $this->belongsTo(AdVisit::class, 'visitor_uuid', 'visitor_uuid');
     }
 
     public function items(): HasMany

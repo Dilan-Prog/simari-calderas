@@ -129,6 +129,14 @@
                         ],
                     ])
 
+                    {{-- Export real, server-side, del rango filtrado completo (no
+                    solo la página visible) -- distinto del botón CSV client-side
+                    de DataTables de abajo, que solo exporta la página actual --}}
+                    <a id="gaExportServerBtn" class="dt-button" data-base-url="{{ route('admin.google-ads.export') }}"
+                        href="{{ route('admin.google-ads.export') }}" target="_blank" rel="noopener">
+                        Exportar todo (rango filtrado)
+                    </a>
+
                     {{-- CSV export button rendered by DataTables Buttons --}}
                     <div id="gaExportWrapper"></div>
                 </div>

@@ -247,4 +247,10 @@ return [
         'route' => 'admin.abandoned-carts.index',
         'order' => 8,
     ],
+    'ad-tracking' => [
+        'name'  => 'Rastreo de Anuncios',
+        'icon'  => 'target',
+        'route' => 'admin.ad-tracking.index',
+        'order' => 16,
+    ],
 ];

@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Exports\ReportExport;
 use App\Http\Controllers\Controller;
 use App\Models\GoogleConversion;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Excel as ExcelFormat;
+use Maatwebsite\Excel\Facades\Excel;
 
 class GoogleAdsController extends Controller
 {
@@ -136,5 +139,54 @@ HTML;
     {
         $conversion = GoogleConversion::findOrFail($id);
         return view('admin.google-ads.show', compact('conversion'));
+    }
+
+    /**
+     * Export real, server-side, del rango filtrado (no solo la página
+     * visible en el DataTable) -- reemplaza/complementa el botón CSV
+     * client-side (csvHtml5) que solo exportaba las filas ya renderizadas
+     * en la página actual. Reutiliza los mismos filtros de fecha
+     * (date_from/date_to) y la búsqueda global que ya usa datatable().
+     */
+    public function export(Request $request)
+    {
+        $query = GoogleConversion::query();
+
+        if ($request->filled('date_from')) {
+            $query->whereDate('conversion_time', '>=', $request->date_from);
+        }
+
+        if ($request->filled('date_to')) {
+            $query->whereDate('conversion_time', '<=', $request->date_to);
+        }
+
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('gclid', 'like', "%{$search}%")
+                  ->orWhere('conversion_name', 'like', "%{$search}%")
+                  ->orWhere('order_id', 'like', "%{$search}%")
+                  ->orWhere('status', 'like', "%{$search}%");
+            });
+        }
+
+        $conversions = $query->orderBy('conversion_time', 'desc')->get();
+
+        $rows = $conversions->map(fn (GoogleConversion $c) => [
+            'gclid'            => $c->gclid,
+            'wbraid'           => $c->wbraid,
+            'conversion_name'  => $c->conversion_name,
+            'conversion_time'  => $c->conversion_time?->format('Y-m-d H:i:s'),
+            'conversion_value' => $c->conversion_value,
+            'currency_code'    => $c->currency_code,
+        ]);
+
+        $headings = ['gclid', 'wbraid', 'conversion_name', 'conversion_time', 'conversion_value', 'currency_code'];
+
+        return Excel::download(
+            new ReportExport($rows, $headings),
+            'google-ads-conversiones-' . now()->format('Y-m-d') . '.csv',
+            ExcelFormat::CSV
+        );
     }
 }

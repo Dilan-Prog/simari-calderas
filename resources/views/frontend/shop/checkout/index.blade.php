@@ -145,4 +145,16 @@
         </div>
     @endif
 </div>
+
+{{--
+  ad-tracking.js se carga vía @vite() como <script type="module">, que el
+  navegador SIEMPRE difiere hasta después de terminar de parsear el
+  documento (justo antes de DOMContentLoaded) -- un <script> síncrono
+  normal en esta posición del body corre ANTES de que exista
+  window.AdTracking, así que la llamada nunca dispararía. Se espera a
+  DOMContentLoaded para garantizar el orden correcto.
+--}}
+<script>
+  document.addEventListener('DOMContentLoaded', () => window.AdTracking?.track('checkout_start'));
+</script>
 @endsection

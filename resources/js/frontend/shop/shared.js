@@ -209,12 +209,13 @@ document.addEventListener('click', async (e) => {
                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                 Accept: 'application/json',
             },
-            body: JSON.stringify({ product_id: productId, quantity: 1 }),
+            body: JSON.stringify({ product_id: productId, quantity: 1, visitor_uuid: window.__adVisitorUuid }),
         });
 
         if (!response.ok) throw new Error('add-to-cart failed');
 
         await Alpine.store('shop').refreshCartCount();
+        window.AdTracking?.track('add_to_cart', { productId });
 
         addBtn.textContent = 'Agregado ✓';
         setTimeout(() => {

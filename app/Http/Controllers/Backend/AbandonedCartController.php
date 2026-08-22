@@ -50,6 +50,21 @@ class AbandonedCartController extends Controller
     {
         $cart->update(['dismissed_at' => now(), 'last_activity_at' => null]);
 
+        // Evento de tracking publicitario: solo cuando el staff descarta
+        // manualmente un carrito abandonado (nunca un barrido automático).
+        if ($cart->visitor_uuid !== null) {
+            $adVisit = \App\Models\AdVisit::where('visitor_uuid', $cart->visitor_uuid)->first();
+
+            if ($adVisit) {
+                \App\Models\AdEvent::create([
+                    'ad_visit_id' => $adVisit->id,
+                    'event_type'  => 'cart_abandoned',
+                    'url'         => route('checkout.index'),
+                    'occurred_at' => now(),
+                ]);
+            }
+        }
+
         return back()->with('success', 'Carrito descartado.');
     }
 }

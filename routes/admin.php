@@ -854,6 +854,8 @@ Route::controller(GoogleAdsController::class)
     ->group(function () {
         Route::get('/', 'index')->name('index');
         Route::get('/datatable', 'datatable')->name('datatable');
+        // Antes de /{id} para que Laravel no lo interprete como el wildcard.
+        Route::get('/exportar', 'export')->name('export');
         Route::get('/{id}', 'show')->name('show');
     });
 
@@ -1086,6 +1088,21 @@ Route::controller(AbandonedCartController::class)
     ->group(function () {
         Route::get('/', 'index')->name('index');
         Route::post('/{cart}/descartar', 'dismiss')->name('dismiss')->middleware('permission:abandoned-carts,edit');
+    });
+
+// ============================================================
+// Rastreo de Anuncios — módulo admin mínimo de solo lectura sobre
+// ad_visits/ad_events (identidad de visitantes de anuncios + eventos de
+// interés), para diagnóstico/soporte del pipeline de conversiones offline
+// de Google Ads. Va antes de /exportar sin wildcards que colisionen.
+// ============================================================
+Route::controller(\App\Http\Controllers\Backend\AdTrackingAdminController::class)
+    ->middleware('permission:ad-tracking')
+    ->prefix('rastreo-anuncios')
+    ->name('ad-tracking.')
+    ->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::get('/exportar', 'export')->name('export');
     });
 
 // ============================================================

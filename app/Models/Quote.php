@@ -20,6 +20,8 @@ class Quote extends Model
         'quote_number',
         'created_by_user_id',
         'customer_id',
+        'visitor_uuid',
+        'visitor_uuid_confidence',
         'status',
         'guest_name',
         'guest_email',
@@ -63,6 +65,14 @@ class Quote extends Model
     public function customer(): BelongsTo
     {
         return $this->belongsTo(Customer::class);
+    }
+
+    // Visita de anuncio (gclid/wbraid/UTM) conectada a esta cotización --
+    // ver Backend\QuoteController::store()/update() para cómo se puebla
+    // (exact vía customer, o matched_by_contact vía email/teléfono).
+    public function adVisit(): BelongsTo
+    {
+        return $this->belongsTo(AdVisit::class, 'visitor_uuid', 'visitor_uuid');
     }
 
     public function items(): HasMany

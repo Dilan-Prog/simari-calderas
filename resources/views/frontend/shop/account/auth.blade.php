@@ -36,6 +36,7 @@
 
                 <form method="POST" action="{{ route('shop.login.store') }}" novalidate>
                     @csrf
+                    <input type="hidden" name="visitor_uuid" id="visitorUuidField" value="">
 
                     <div class="auth-field">
                         <label for="login_email">Correo electrónico</label>
@@ -85,6 +86,7 @@
 
                 <form method="POST" action="{{ route('shop.register.store') }}" novalidate>
                     @csrf
+                    <input type="hidden" name="visitor_uuid" id="visitorUuidField" value="">
 
                     <div class="auth-field auth-field--half">
                         <input type="text" name="first_name" value="{{ old('first_name') }}" placeholder="Nombre" required>

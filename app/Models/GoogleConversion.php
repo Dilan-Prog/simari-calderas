@@ -9,6 +9,7 @@ class GoogleConversion extends Model
 {
     protected $fillable = [
         'gclid',
+        'wbraid',
         'conversion_name',
         'conversion_value',
         'currency_code',

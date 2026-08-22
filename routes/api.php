@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\AdTrackingController;
 use App\Http\Controllers\Backend\Marketing\GoogleConversionController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -28,4 +29,13 @@ Route::prefix('v1/google-ads')->group(function () {
 Route::prefix('v1/google-ads')->middleware('auth:sanctum')->group(function () {
     Route::get('/', [GoogleConversionController::class, 'index']);
     Route::post('/retry', [GoogleConversionController::class, 'retry']);
+});
+
+// Public routes — llamadas desde el JS de tracking del frontend para
+// persistir la identidad del visitante (visitor_uuid) y sus eventos de
+// interés relacionados con anuncios de Google Ads. Throttle por IP aquí;
+// storeEvent además aplica un segundo throttle por visitor_uuid internamente.
+Route::prefix('v1/ad-tracking')->middleware('throttle:60,1')->group(function () {
+    Route::post('/visit', [AdTrackingController::class, 'storeVisit']);
+    Route::post('/event', [AdTrackingController::class, 'storeEvent']);
 });

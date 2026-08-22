@@ -3,7 +3,12 @@
   <head>
     <meta name="csrf-token" content="{{ csrf_token() }}">
     @include('frontend.layouts.partials.head-meta')
-    @vite($shopVite ?? [])
+    {{--
+      ad-tracking.js debe cargar en TODAS las páginas del shop (gclid/wbraid/UTM
+      tracking sitewide), no solo en las vistas que setean $shopVite -- por eso
+      se agrega aquí directo en vez de depender de que cada vista lo declare.
+    --}}
+    @vite(array_merge(['resources/js/frontend/shop/ad-tracking.js'], $shopVite ?? []))
   </head>
   <body>
 

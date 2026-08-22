@@ -3,8 +3,8 @@
     "file": "assets/_commonjsHelpers-Cpj98o6Y.js",
     "name": "_commonjsHelpers"
   },
-  "_alpine-init-CdVww5Ut.js": {
-    "file": "assets/alpine-init-CdVww5Ut.js",
+  "_alpine-init-ZN98Elo4.js": {
+    "file": "assets/alpine-init-ZN98Elo4.js",
     "name": "alpine-init"
   },
   "_charts-BFPyHK5v.js": {
@@ -292,7 +292,7 @@
     ]
   },
   "resources/js/admin/google-ads.js": {
-    "file": "assets/google-ads-DL_7ORDf.js",
+    "file": "assets/google-ads-fB6yucmF.js",
     "name": "google-ads",
     "src": "resources/js/admin/google-ads.js",
     "isEntry": true,
@@ -441,48 +441,54 @@
     "isEntry": true
   },
   "resources/js/frontend/shop/account.js": {
-    "file": "assets/account-CGdFtlN3.js",
+    "file": "assets/account-Dlmj6Ebh.js",
     "name": "account",
     "src": "resources/js/frontend/shop/account.js",
     "isEntry": true,
     "imports": [
-      "_alpine-init-CdVww5Ut.js"
+      "_alpine-init-ZN98Elo4.js"
     ]
   },
+  "resources/js/frontend/shop/ad-tracking.js": {
+    "file": "assets/ad-tracking-G8Y46SIu.js",
+    "name": "ad-tracking",
+    "src": "resources/js/frontend/shop/ad-tracking.js",
+    "isEntry": true
+  },
   "resources/js/frontend/shop/catalog.js": {
-    "file": "assets/catalog-IOezvuuA.js",
+    "file": "assets/catalog-D9IzHBL4.js",
     "name": "catalog",
     "src": "resources/js/frontend/shop/catalog.js",
     "isEntry": true,
     "imports": [
-      "_alpine-init-CdVww5Ut.js"
+      "_alpine-init-ZN98Elo4.js"
     ]
   },
   "resources/js/frontend/shop/collection.js": {
-    "file": "assets/collection-C2QQ9Hrc.js",
+    "file": "assets/collection-BGatTT68.js",
     "name": "collection",
     "src": "resources/js/frontend/shop/collection.js",
     "isEntry": true,
     "imports": [
-      "_alpine-init-CdVww5Ut.js"
+      "_alpine-init-ZN98Elo4.js"
     ]
   },
   "resources/js/frontend/shop/home.js": {
-    "file": "assets/home-BIMSbhoI.js",
+    "file": "assets/home-fn7T4wzp.js",
     "name": "home",
     "src": "resources/js/frontend/shop/home.js",
     "isEntry": true,
     "imports": [
-      "_alpine-init-CdVww5Ut.js"
+      "_alpine-init-ZN98Elo4.js"
     ]
   },
   "resources/js/frontend/shop/product-detail.js": {
-    "file": "assets/product-detail-bzgDBB7I.js",
+    "file": "assets/product-detail-Co8WcNIX.js",
     "name": "product-detail",
     "src": "resources/js/frontend/shop/product-detail.js",
     "isEntry": true,
     "imports": [
-      "_alpine-init-CdVww5Ut.js"
+      "_alpine-init-ZN98Elo4.js"
     ]
   }
 }

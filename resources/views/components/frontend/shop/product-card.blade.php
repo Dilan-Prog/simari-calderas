@@ -72,5 +72,5 @@
         @endif
     </a>
     <button type="button" class="product-card__add-btn" data-product-id="{{ $product->id }}">Agregar al carrito</button>
-    <a href="{{ $quoteWhatsappUrl }}" target="_blank" rel="noopener nofollow" class="product-card__quote-btn">Solicitar Cotización</a>
+    <a href="{{ $quoteWhatsappUrl }}" target="_blank" rel="noopener nofollow" class="product-card__quote-btn" data-ad-track="quote_start" data-product-id="{{ $product->id }}">Solicitar Cotización</a>
 </div>

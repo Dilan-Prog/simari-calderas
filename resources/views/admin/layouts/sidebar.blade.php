@@ -43,6 +43,7 @@
             request()->routeIs('admin.categories.*') => 'categorias',
             request()->routeIs('admin.brands.*') => 'marcas',
             request()->routeIs('admin.google-ads.*') => 'google-ads',
+            request()->routeIs('admin.ad-tracking.*') => 'ad-tracking',
             request()->routeIs('admin.quotes.*') => 'cotizaciones',
             request()->routeIs('admin.service-reports.*') => 'reportes-servicio',
             request()->routeIs('admin.technical-services.*') => 'servicios-tecnicos',
@@ -86,7 +87,7 @@
             'ecommerce' => ['productos', 'categorias', 'marcas', 'colecciones', 'paginas-servicio', 'galeria', 'inicio-secciones', 'inventory', 'menus', 'configuracion-sitio', 'integraciones', 'metodos-de-pago', 'reglas-de-envio', 'carritos-abandonados', 'ordenes', 'envios', 'deliveries'],
             'servicios' => ['reportes-servicio', 'servicios-tecnicos'],
             'erp' => ['cotizaciones', 'proveedores', 'ordenes-compra', 'pedidos', 'entrega-material', 'planeacion-quimicos', 'erp-configuracion', 'clientes', 'pipelines', 'embudo-de-venta', 'negocios', 'automatizaciones'],
-            'administracion' => ['roles', 'usuarios', 'google-ads', 'devops', 'audit', 'whatsapp', 'email-marketing', 'dashboards', 'reportes', 'metas'],
+            'administracion' => ['roles', 'usuarios', 'google-ads', 'ad-tracking', 'devops', 'audit', 'whatsapp', 'email-marketing', 'dashboards', 'reportes', 'metas'],
             'estadisticas' => ['estadisticas-resumen', 'estadisticas-ventas', 'estadisticas-embudo', 'estadisticas-compras', 'estadisticas-servicios', 'estadisticas-reportes', 'estadisticas-inventario', 'estadisticas-tienda'],
         ];
         $activeGroup = collect($groupSections)->search(fn ($sections) => in_array($activeSection, $sections));
@@ -126,6 +127,7 @@
 
         $administracionVisible = $authUser->isAdmin()
             || $authUser->hasPermission('google-ads')
+            || $authUser->hasPermission('ad-tracking')
             || $authUser->hasPermission('email-marketing')
             || $authUser->hasPermission('crm-reports')
             || $authUser->hasPermission('audit')
@@ -853,6 +855,23 @@
                                 <path d="m19 9-5 5-4-4-3 3" />
                             </svg>
                             <span class="sidebar-nav-item-label">Google Ads</span>
+                        </div>
+                    </a>
+                @endif
+
+                {{-- Rastreo de Anuncios --}}
+                @if ($authUser->hasPermission('ad-tracking'))
+                    <a class="sidebar-nav-item {{ $activeSection === 'ad-tracking' ? 'active' : '' }}"
+                        href="{{ route('admin.ad-tracking.index') }}" data-section="ad-tracking" data-label="Rastreo de Anuncios">
+                        <div class="sidebar-nav-item-left">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10" />
+                                <circle cx="12" cy="12" r="6" />
+                                <circle cx="12" cy="12" r="2" />
+                            </svg>
+                            <span class="sidebar-nav-item-label">Rastreo de Anuncios</span>
                         </div>
                     </a>
                 @endif

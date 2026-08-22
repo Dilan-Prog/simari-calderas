@@ -59,6 +59,16 @@ class CartRecoveryService
 
         $target->update(['last_activity_at' => now()]);
 
+        // Propaga la atribución publicitaria del carrito viejo al nuevo antes
+        // de marcarlo fusionado -- sin esto, un visitante que llega por
+        // anuncio y luego inicia sesión (el caso más común: LoginController
+        // llama a este merge justo después de session()->regenerate()) pierde
+        // su gclid en el momento exacto que más importa. Nunca sobreescribe
+        // un visitor_uuid que $target ya tuviera.
+        if ($target->visitor_uuid === null && $source->visitor_uuid !== null) {
+            $target->update(['visitor_uuid' => $source->visitor_uuid]);
+        }
+
         $source->update(['dismissed_at' => now()]);
 
         return true;
