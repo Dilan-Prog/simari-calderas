@@ -1,151 +1,199 @@
+{{--
+    Rastreo de Anuncios — Admin (rediseño sobre mockup "Rastreo de
+    Anuncios.dc.html", sección isList). La pantalla de DETALLE (show.blade.php)
+    se construye/mantiene aparte, en paralelo -- no se toca desde aquí.
+
+    Contrato de datos real (AdTrackingAdminController::index()):
+      - $kpis            [{label,value,delta (string|null),deltaIsPositive,hint,accent}] x4
+      - $funnel          [{label,count,pct,width (0-100),note,tone (gray|orange|green)}] x3
+      - $rangeLabel      "Últimos 30 días" o "Del 12 ago al 14 ago, 2026"
+      - $visits          LengthAwarePaginator<AdVisit> con ->events_count y ->converted
+                         anotados por fila (ver controller)
+      - $sourceOptions / $campaignOptions   Collection<string> para los <select>
+      - $filters         ['q','range','from','to','source','campaign','onlyConverted']
+      - $tableTotals     ['total','converted','interest'] -- ya sobre el conjunto filtrado
+--}}
 @extends('admin.layouts.master')
 
 @section('title', 'Rastreo de Anuncios - Admin')
 
+@push('styles')
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+@vite('resources/css/admin/pages/ad-tracking.css')
+@endpush
+
 @section('content')
-<div class="ad-tracking-page">
-    <div>
-        <p class="breadcrumb-clients-manager">Panel de Control &gt; <strong>Rastreo de Anuncios</strong></p>
-        <h1 style="margin:0 0 4px;">Rastreo de Anuncios</h1>
-        <p class="breadcrumb-clients-manager main">Visitantes identificados por gclid/wbraid/UTM, con sus eventos de interés registrados</p>
+<div class="adt-page">
+
+    {{-- Header --}}
+    <div class="adt-header">
+        <div>
+            <div class="adt-breadcrumb">
+                <span>Panel de Control</span>
+                <span class="adt-breadcrumb-sep">&rsaquo;</span>
+                <span class="adt-breadcrumb-current">Rastreo de Anuncios</span>
+            </div>
+            <h1 class="adt-title">Rastreo de Anuncios</h1>
+            <p class="adt-subtitle">Visitantes identificados por clic de anuncio (GCLID / WBRAID) y el recorrido que siguieron hasta cotizar o comprar.</p>
+        </div>
+        <div>
+            <a href="{{ route('admin.ad-tracking.export', request()->only(['from', 'to'])) }}" class="adt-btn" target="_blank" rel="noopener">Exportar</a>
+        </div>
     </div>
 
-    <div class="ad-tracking-card">
-        <form method="GET" action="{{ route('admin.ad-tracking.index') }}" class="ad-tracking-filters">
-            <input type="text" name="q" value="{{ request('q') }}" class="ad-tracking-filter-input"
-                placeholder="Buscar por GCLID o WBRAID…">
+    {{-- KPIs --}}
+    <div class="adt-kpi-grid">
+        @foreach ($kpis as $k)
+            <div class="adt-kpi-card">
+                <div class="adt-kpi-label">{{ $k['label'] }}</div>
+                <div class="adt-kpi-value-row">
+                    <span class="adt-kpi-value @if($k['accent']) is-accent @endif">{{ $k['value'] }}</span>
+                    @if ($k['delta'] !== null)
+                        <span class="adt-chip @if($k['deltaIsPositive']) is-positive @endif">{{ $k['delta'] }}</span>
+                    @endif
+                </div>
+                <div class="adt-kpi-hint">{{ $k['hint'] }}</div>
+            </div>
+        @endforeach
+    </div>
 
-            <span class="ad-tracking-filter-label">Desde:</span>
-            <input type="date" name="from" value="{{ request('from') }}" class="ad-tracking-filter-input">
+    {{-- Embudo del recorrido --}}
+    <div class="adt-funnel-card">
+        <div class="adt-funnel-head">
+            <div class="adt-funnel-title">Embudo del recorrido</div>
+            <div class="adt-funnel-sub">{{ $rangeLabel }} &middot; {{ $funnel[0]['count'] }} visitantes con clic de anuncio</div>
+        </div>
+        <div class="adt-funnel-grid">
+            @foreach ($funnel as $f)
+                <div class="adt-funnel-item adt-tone-{{ $f['tone'] }}">
+                    <div class="adt-funnel-row">
+                        <span class="adt-funnel-label">{{ $f['label'] }}</span>
+                        <span class="adt-chip adt-funnel-pct adt-tone-{{ $f['tone'] }}">{{ $f['pct'] }}</span>
+                    </div>
+                    <div class="adt-funnel-count">{{ $f['count'] }}</div>
+                    <div class="adt-funnel-bar-track">
+                        <div class="adt-funnel-bar-fill adt-tone-{{ $f['tone'] }}" style="width:{{ $f['width'] }}%;"></div>
+                    </div>
+                    <div class="adt-funnel-note">{{ $f['note'] }}</div>
+                </div>
+            @endforeach
+        </div>
+    </div>
 
-            <span class="ad-tracking-filter-label">Hasta:</span>
-            <input type="date" name="to" value="{{ request('to') }}" class="ad-tracking-filter-input">
+    {{-- Filtros + tabla + paginación --}}
+    <div class="adt-table-card">
 
-            <button type="submit" class="dt-button">Filtrar</button>
-            <a href="{{ route('admin.ad-tracking.index') }}" class="dt-button">Limpiar</a>
+        <form method="GET" action="{{ route('admin.ad-tracking.index') }}" class="adt-filters">
+            <input type="text" name="q" value="{{ $filters['q'] }}" placeholder="Buscar GCLID o WBRAID&hellip;" class="adt-filter-search">
 
-            <div class="ad-tracking-filters-spacer"></div>
+            <select name="range" onchange="this.form.submit()">
+                <option value="7" @selected($filters['range'] === '7')>Últimos 7 días</option>
+                <option value="30" @selected($filters['range'] === '30')>Últimos 30 días</option>
+                <option value="90" @selected($filters['range'] === '90')>Últimos 90 días</option>
+            </select>
 
-            <a href="{{ route('admin.ad-tracking.export', request()->only(['from', 'to'])) }}" class="dt-button"
-                target="_blank" rel="noopener">
-                Exportar eventos (detallado interno)
-            </a>
+            <div class="adt-filter-dates">
+                Desde <input type="date" name="from" value="{{ $filters['from'] }}">
+                Hasta <input type="date" name="to" value="{{ $filters['to'] }}">
+            </div>
+
+            <select name="source" onchange="this.form.submit()">
+                <option value="" @selected($filters['source'] === '')>Todas las fuentes</option>
+                @foreach ($sourceOptions as $o)
+                    <option value="{{ $o }}" @selected($filters['source'] === $o)>{{ $o }}</option>
+                @endforeach
+            </select>
+
+            <select name="campaign" class="adt-filter-campaign" onchange="this.form.submit()">
+                <option value="" @selected($filters['campaign'] === '')>Todas las campañas</option>
+                @foreach ($campaignOptions as $o)
+                    <option value="{{ $o }}" @selected($filters['campaign'] === $o)>{{ $o }}</option>
+                @endforeach
+            </select>
+
+            <label class="adt-toggle-label">
+                <input type="checkbox" name="only_converted" value="1"
+                    style="position:absolute;opacity:0;width:1px;height:1px;"
+                    @checked($filters['onlyConverted']) onchange="this.form.submit()">
+                <span class="adt-toggle-track {{ $filters['onlyConverted'] ? 'is-on' : '' }}"><span class="adt-toggle-knob"></span></span>
+                Solo convertidos
+            </label>
+
+            <button type="submit" class="adt-filter-submit">Filtrar</button>
+            <a href="{{ route('admin.ad-tracking.index') }}" class="adt-filter-clear">Limpiar</a>
         </form>
 
-        <div class="ad-tracking-table-wrap">
-            <table class="ad-tracking-table" style="width:100%;">
+        <div class="adt-scroll">
+            <table class="adt-table">
                 <thead>
                     <tr>
                         <th>Visitor UUID</th>
-                        <th>GCLID</th>
-                        <th>WBRAID</th>
-                        <th>UTM Source</th>
+                        <th>GCLID / WBRAID</th>
+                        <th>UTM Source / Campaña</th>
                         <th>Primera visita</th>
                         <th>Última visita</th>
-                        <th>Eventos</th>
+                        <th># Eventos</th>
+                        <th class="adt-th-right"></th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse ($visits as $visit)
-                        <tr>
-                            <td title="{{ $visit->visitor_uuid }}">{{ Str::limit($visit->visitor_uuid, 13, '…') }}</td>
-                            <td>{{ $visit->gclid ?? '—' }}</td>
-                            <td>{{ $visit->wbraid ?? '—' }}</td>
-                            <td>{{ $visit->utm_source ?? '—' }}</td>
-                            <td>{{ $visit->first_seen_at?->format('d/m/Y H:i') }}</td>
-                            <td>{{ $visit->last_seen_at?->format('d/m/Y H:i') }}</td>
-                            <td>{{ $visit->events_count }}</td>
+                        <tr class="adt-row" onclick="window.location='{{ route('admin.ad-tracking.show', $visit) }}'">
+                            <td>
+                                <div class="adt-uuid adt-mono" title="{{ $visit->visitor_uuid }}">{{ Str::limit($visit->visitor_uuid, 18, '…') }}</div>
+                            </td>
+                            <td>
+                                <div class="adt-clickid-cell">
+                                    <span class="adt-clickid-chip adt-mono" title="{{ $visit->primary_click_id }}">
+                                        {{ $visit->primary_click_id ? Str::limit($visit->primary_click_id, 26, '…') : '—' }}
+                                    </span>
+                                    <span class="adt-chip adt-status-chip {{ $visit->converted ? 'is-positive' : 'is-neutral' }}">
+                                        {{ $visit->converted ? 'Convertido' : 'Sin conversión' }}
+                                    </span>
+                                </div>
+                                <div class="adt-clickkind">{{ $visit->identifier_kind }}</div>
+                            </td>
+                            <td>
+                                <div class="adt-source">{{ $visit->utm_source ?: '—' }}</div>
+                                <div class="adt-campaign" title="{{ $visit->utm_campaign }}">{{ $visit->utm_campaign ?: '—' }}</div>
+                            </td>
+                            <td class="adt-date-cell">{{ $visit->first_seen_at?->locale('es')->translatedFormat('d M, H:i') ?? '—' }}</td>
+                            <td class="adt-date-cell">{{ $visit->last_seen_at?->locale('es')->translatedFormat('d M, H:i') ?? '—' }}</td>
+                            <td>
+                                <span class="adt-events-chip {{ $visit->events_count >= 10 ? 'is-hot' : '' }}">{{ $visit->events_count }} eventos</span>
+                            </td>
+                            <td class="adt-chevron-cell">&rsaquo;</td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" style="text-align:center; color:#9ca3af; padding:24px 0;">
-                                No hay visitantes registrados con estos filtros.
+                            <td colspan="7">
+                                <div class="adt-empty">Ningún visitante coincide con estos filtros.</div>
                             </td>
                         </tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
-        @if ($visits->hasPages())
-            {{ $visits->links('admin.components.pagination') }}
-        @endif
+
+        <div class="adt-footer">
+            <div class="adt-footer-info">
+                Mostrando {{ $visits->total() > 0 ? $visits->firstItem() : 0 }}&ndash;{{ $visits->total() > 0 ? $visits->lastItem() : 0 }}
+                de {{ $tableTotals['total'] }} visitantes &middot; {{ $tableTotals['converted'] }} convertidos &middot; {{ $tableTotals['interest'] }} con interés
+            </div>
+            <div class="adt-pagination">
+                @if ($visits->onFirstPage())
+                    <span class="adt-page-btn is-disabled">Anterior</span>
+                @else
+                    <a href="{{ $visits->previousPageUrl() }}" class="adt-page-btn">Anterior</a>
+                @endif
+                @if ($visits->hasMorePages())
+                    <a href="{{ $visits->nextPageUrl() }}" class="adt-page-btn">Siguiente</a>
+                @else
+                    <span class="adt-page-btn is-disabled">Siguiente</span>
+                @endif
+            </div>
+        </div>
     </div>
 </div>
 @endsection
-
-@push('styles')
-    <style>
-        .ad-tracking-page {
-            width: 95%;
-            max-width: 1300px;
-            margin: 0 auto;
-            padding: 24px 0 48px;
-            height: 100%;
-            overflow-y: auto;
-            box-sizing: border-box;
-        }
-
-        .ad-tracking-card {
-            background: #fff;
-            border: 1px solid rgba(0, 0, 0, 0.08);
-            border-radius: 12px;
-            padding: 20px;
-            margin-top: 16px;
-        }
-
-        .ad-tracking-filters {
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 16px;
-            padding-bottom: 16px;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-        }
-
-        .ad-tracking-filter-label {
-            font-size: 12.5px;
-            font-weight: 600;
-            color: #6b7280;
-        }
-
-        .ad-tracking-filter-input {
-            padding: 6px 10px;
-            border: 1px solid rgba(0, 0, 0, 0.15);
-            border-radius: 8px;
-            font-size: 12.5px;
-        }
-
-        .ad-tracking-filters-spacer {
-            flex: 1 1 auto;
-        }
-
-        .ad-tracking-table-wrap {
-            overflow-x: auto;
-            overflow-y: auto;
-            max-height: 60vh;
-            border: 1px solid rgba(0, 0, 0, 0.08);
-            border-radius: 8px;
-        }
-
-        .ad-tracking-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 12.5px;
-        }
-
-        .ad-tracking-table th, .ad-tracking-table td {
-            padding: 10px 12px;
-            text-align: left;
-            white-space: nowrap;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.06);
-        }
-
-        .ad-tracking-table th {
-            background: #f9fafb;
-            font-weight: 700;
-            position: sticky;
-            top: 0;
-        }
-    </style>
-@endpush

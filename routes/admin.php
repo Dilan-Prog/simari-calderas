@@ -1103,6 +1103,7 @@ Route::controller(\App\Http\Controllers\Backend\AdTrackingAdminController::class
     ->group(function () {
         Route::get('/', 'index')->name('index');
         Route::get('/exportar', 'export')->name('export');
+        Route::get('/{adVisit}', 'show')->name('show');
     });
 
 // ============================================================

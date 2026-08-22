@@ -39,4 +39,28 @@ class AdVisit extends Model
     {
         return $this->hasMany(AdEvent::class);
     }
+
+    // El identificador de clic real a mostrar (gclid gana sobre wbraid si
+    // por alguna razón ambos están presentes en la misma visita).
+    public function getPrimaryClickIdAttribute(): ?string
+    {
+        return $this->gclid ?: $this->wbraid;
+    }
+
+    // Etiqueta de tipo de clic + fuente real (nunca "Google Ads" fijo --
+    // utm_source puede ser bing/facebook/etc, no solo Google).
+    public function getIdentifierKindAttribute(): string
+    {
+        $source = $this->utm_source ?: 'directo';
+
+        if ($this->gclid) {
+            return 'GCLID · ' . $source;
+        }
+
+        if ($this->wbraid) {
+            return 'WBRAID (web-to-app) · ' . $source;
+        }
+
+        return 'Sin identificador de clic';
+    }
 }

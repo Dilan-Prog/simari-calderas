@@ -35,6 +35,11 @@
     "src": "resources/css/admin/app.css",
     "isEntry": true
   },
+  "resources/css/admin/pages/ad-tracking.css": {
+    "file": "assets/ad-tracking-FyYsopeM.css",
+    "src": "resources/css/admin/pages/ad-tracking.css",
+    "isEntry": true
+  },
   "resources/css/admin/pages/audit.css": {
     "file": "assets/audit-Btdm9tzx.css",
     "src": "resources/css/admin/pages/audit.css",

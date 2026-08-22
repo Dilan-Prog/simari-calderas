@@ -83,6 +83,7 @@ export default defineConfig({
                 'resources/js/admin/orders.js',
                 'resources/css/admin/pages/shipments.css',
                 'resources/js/admin/shipments.js',
+                'resources/css/admin/pages/ad-tracking.css',
             ],
             refresh: true,
         }),
