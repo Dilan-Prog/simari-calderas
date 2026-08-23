@@ -108,3 +108,142 @@
 .menu-tree-child .menu-tree-row {
     padding: 8px 12px;
 }
+
+/* ============================================================
+   Elemento — selector de destino estructurado: buscador de producto
+   + chip de seleccionado. Mismo vocabulario visual que
+   admin/pages/home-sections.css (.hs-product-search / .hs-product-chip),
+   duplicado aquí porque esta página no carga home-sections.css.
+   ============================================================ */
+.menu-dest-field {
+    margin-bottom: 8px;
+}
+
+.hs-product-search {
+    position: relative;
+}
+
+.hs-product-search__input-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    background: #f9fafb;
+    color: #9ca3af;
+}
+
+.hs-product-search__input-wrap:focus-within {
+    border-color: var(--secondary-color, #ff6213);
+    background: #fff;
+}
+
+.hs-product-search__input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    padding: 10px 0;
+    font-size: 13px;
+    font-family: var(--font-family);
+    color: #374151;
+    outline: none;
+}
+
+.hs-product-search__dropdown {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    z-index: 20;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    box-shadow: 0 10px 24px rgba(0,0,0,0.12);
+    max-height: 220px;
+    overflow-y: auto;
+}
+
+.hs-product-search__empty {
+    padding: 14px;
+    font-size: 13px;
+    color: #9ca3af;
+    text-align: center;
+}
+
+.hs-product-search__list {
+    list-style: none;
+    margin: 0;
+    padding: 4px;
+}
+
+.hs-product-search__item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 8px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+}
+
+.hs-product-search__item:hover {
+    background: #fff7f5;
+}
+
+.hs-product-search__item span {
+    color: #111827;
+    font-weight: 500;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.hs-product-search__item small {
+    flex-shrink: 0;
+    color: #9ca3af;
+    font-size: 11px;
+}
+
+.hs-product-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 8px;
+}
+
+.hs-product-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 6px 5px 10px;
+    border-radius: 999px;
+    background: #fff3ec;
+    border: 1px solid #ff621340;
+    font-size: 12px;
+    color: #374151;
+    max-width: 100%;
+}
+
+.hs-product-chip span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 220px;
+}
+
+.hs-product-chip button {
+    flex-shrink: 0;
+    border: none;
+    background: none;
+    color: #9ca3af;
+    cursor: pointer;
+    font-size: 14px;
+    line-height: 1;
+    padding: 0;
+}
+
+.hs-product-chip button:hover {
+    color: var(--secondary-color, #ff6213);
+}

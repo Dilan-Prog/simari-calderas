@@ -167,7 +167,7 @@
       </div>
 
       @foreach ($headerMainItems as $item)
-        <a href="{{ $item->url ?? '#' }}" target="{{ $item->target }}" @mouseenter="close()">{{ $item->title }}</a>
+        <a href="{{ $item->resolved_url }}" target="{{ $item->target }}" @mouseenter="close()">{{ $item->title }}</a>
       @endforeach
 
       {{-- MEGA MENU: CATEGORÍAS --}}
@@ -252,7 +252,7 @@
           <div class="eq-mega__col">
             <h4>{{ $item->title }}</h4>
             @foreach ($item->children as $child)
-              <a href="{{ $child->url ?? '#' }}" target="{{ $child->target }}">{{ $child->title }}</a>
+              <a href="{{ $child->resolved_url }}" target="{{ $child->target }}">{{ $child->title }}</a>
             @endforeach
           </div>
         @empty

@@ -32,6 +32,17 @@
         </div>
     </div>
 
+    @php
+        // Mapa de labels legibles para la ubicación fija de 3 opciones — un
+        // valor legacy que ya no esté en la lista se muestra tal cual (no se
+        // oculta información inesperada).
+        $menuLocationLabels = [
+            'header-main' => 'Encabezado — Principal',
+            'header-servicios' => 'Encabezado — Servicios',
+            'footer' => 'Pie de página',
+        ];
+    @endphp
+
     {{-- Table --}}
     <main class="table-container-clients-manager head">
         <table class="clients-manager-table brand-table">
@@ -56,7 +67,7 @@
                             </a>
                         </td>
                         <td data-col="ubicacion" style="padding:12px 16px;">
-                            <span style="display:inline-block;padding:3px 10px;background:#f1f5f9;border-radius:6px;font-size:12px;font-family:monospace;color:#475569;">{{ $menu->location }}</span>
+                            <span style="display:inline-block;padding:3px 10px;background:#f1f5f9;border-radius:6px;font-size:12px;font-family:monospace;color:#475569;">{{ $menuLocationLabels[$menu->location] ?? $menu->location }}</span>
                         </td>
                         <td data-col="elementos" style="padding:12px 16px;text-align:center;font-size:14px;color:#374151;">{{ $menu->items_count }}</td>
                         <td data-col="estado" style="padding:12px 16px;">
@@ -77,6 +88,7 @@
                                     data-id="{{ $menu->id }}"
                                     data-name="{{ $menu->name }}"
                                     data-location="{{ $menu->location }}"
+                                    data-sort-order="{{ $menu->sort_order }}"
                                     data-active="{{ $menu->is_active ? 1 : 0 }}"
                                     title="Renombrar menú">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg>

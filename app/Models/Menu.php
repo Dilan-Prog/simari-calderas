@@ -14,7 +14,7 @@ class Menu extends Model
         return 'menu';
     }
 
-    protected $fillable = ['name', 'location', 'is_active'];
+    protected $fillable = ['name', 'location', 'sort_order', 'is_active'];
 
     protected $casts = [
         'is_active' => 'boolean',

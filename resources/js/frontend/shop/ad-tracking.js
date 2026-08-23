@@ -43,18 +43,21 @@
             return { data: data, hasAny: hasAny };
         }
 
+        // Devuelve la promesa del fetch (nunca rechazada -- el .catch() ya
+        // absorbe cualquier error de red) para que quien llame pueda
+        // encadenar sobre ella cuando el orden importa. Si fetch() ni
+        // siquiera existe/lanza de forma síncrona, se resuelve igual: un
+        // fallo de red en tracking nunca debe ser visible ni bloquear nada.
         function postJson(url, body, keepalive) {
             try {
-                fetch(url, {
+                return fetch(url, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
                     body: JSON.stringify(body),
                     keepalive: !!keepalive,
-                }).catch(function () {
-                    // Silencioso: un fallo de red en tracking nunca debe ser visible.
-                });
+                }).catch(function () {});
             } catch (err) {
-                // Igual, por si el propio fetch() lanza síncronamente.
+                return Promise.resolve();
             }
         }
 
@@ -103,26 +106,39 @@
         // 4. Reportar la visita: uuid nuevo recién creado, o uuid ya existente
         // que trae parámetros de ad de nuevo (el backend decide qué hacer con
         // el last-touch, aquí solo se manda la data).
+        //
+        // IMPORTANTE: si se manda este POST, el evento page_view del punto 5
+        // debe esperar a que ESTE termine antes de dispararse. Si ambos
+        // salieran en paralelo, en un visitante nuevo la fila de AdVisit
+        // podría no existir todavía en el servidor cuando llega el POST del
+        // evento -- y como un evento huérfano se descarta en silencio (nunca
+        // debe fallar visiblemente), el page_view automático se perdería en
+        // la mayoría de las visitas nuevas. Bug real detectado en producción:
+        // visitas creadas correctamente pero siempre con "0 eventos".
+        var visitPromise = Promise.resolve();
         if (visitorUuid && (isNewVisitor || hasAdParams)) {
             var visitBody = Object.assign(
                 { visitor_uuid: visitorUuid, landing_url: window.location.href },
                 adParams
             );
-            postJson('/api/v1/ad-tracking/visit', visitBody, false);
+            visitPromise = postJson('/api/v1/ad-tracking/visit', visitBody, false);
         }
 
         // 5. page_view automático en cualquier página donde ya tengamos uuid.
+        // Encadenado sobre visitPromise -- ver nota del punto 4.
         if (visitorUuid) {
-            postJson(
-                '/api/v1/ad-tracking/event',
-                {
-                    visitor_uuid: visitorUuid,
-                    event_type: 'page_view',
-                    url: window.location.href,
-                    product_id: null,
-                },
-                false
-            );
+            visitPromise.then(function () {
+                postJson(
+                    '/api/v1/ad-tracking/event',
+                    {
+                        visitor_uuid: visitorUuid,
+                        event_type: 'page_view',
+                        url: window.location.href,
+                        product_id: null,
+                    },
+                    false
+                );
+            });
         }
 
         // 6. API pública reutilizable para el resto del sitio.

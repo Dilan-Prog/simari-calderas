@@ -10,16 +10,11 @@ class ShopFooterComposer
     public function compose(View $view): void
     {
         $view->with([
-            'footerServiceItems' => $this->items('footer-services'),
-            'footerProductItems' => $this->items('footer-products'),
-            'footerCompanyItems' => $this->items('footer-company'),
+            'footerMenus' => Menu::where('location', 'footer')
+                ->where('is_active', true)
+                ->orderBy('sort_order')
+                ->get()
+                ->map(fn (Menu $menu) => ['menu' => $menu, 'items' => $menu->rootItems()->get()]),
         ]);
-    }
-
-    protected function items(string $location)
-    {
-        $menu = Menu::where('location', $location)->where('is_active', true)->first();
-
-        return $menu ? $menu->rootItems()->get() : collect();
     }
 }

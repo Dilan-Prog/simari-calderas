@@ -5,18 +5,14 @@
         <img src="{{ asset('images/logo/equiterm-logo-blanco-color-3x.png') }}" alt="Equiterm Industries" class="eq-footer__logo">
         <p>{{ \App\Models\Setting::get('footer.description', 'Ingeniería térmica industrial: calderas, calentamiento y tratamiento de agua, con proyectos llave en mano en toda la República Mexicana.') }}</p>
       </div>
-      <div>
-        <div class="eq-footer__col-title">Servicios</div>
-        @foreach ($footerServiceItems as $item)
-          <a href="{{ $item->url ?? '#' }}" target="{{ $item->target }}">{{ $item->title }}</a>
-        @endforeach
-      </div>
-      <div>
-        <div class="eq-footer__col-title">Productos</div>
-        @foreach ($footerProductItems as $item)
-          <a href="{{ $item->url ?? '#' }}" target="{{ $item->target }}">{{ $item->title }}</a>
-        @endforeach
-      </div>
+      @foreach ($footerMenus as $footerMenu)
+        <div>
+          <div class="eq-footer__col-title">{{ $footerMenu['menu']->name }}</div>
+          @foreach ($footerMenu['items'] as $item)
+            <a href="{{ $item->resolved_url }}" target="{{ $item->target }}">{{ $item->title }}</a>
+          @endforeach
+        </div>
+      @endforeach
       <div>
         <div class="eq-footer__col-title">Contacto</div>
         <div class="eq-footer__contact">

@@ -976,6 +976,7 @@ Route::controller(MenuController::class)
         Route::get('/menus', 'index')->name('menus.index');
         Route::get('/menus/nuevo', 'create')->name('menus.create')->middleware('permission:menu,create');
         Route::post('/menus/nuevo', 'store')->name('menus.store')->middleware('permission:menu,create');
+        Route::get('/menus/buscar-productos', 'searchProducts')->name('menus.products.search');
         Route::get('/menus/{menu}/editar', 'edit')->name('menus.edit')->middleware('permission:menu,edit');
         Route::put('/menus/{menu}/editar', 'update')->name('menus.update')->middleware('permission:menu,edit');
         Route::delete('/menus/{menu}/eliminar', 'destroy')->name('menus.destroy')->middleware('permission:menu,delete');

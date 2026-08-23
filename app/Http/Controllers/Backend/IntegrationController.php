@@ -31,7 +31,9 @@ class IntegrationController extends Controller
 
         $webhooks = \App\Models\Webhook::with('credential')->orderBy('name')->get();
 
-        return view('admin.integrations.index', compact('values', 'hasPassword', 'webhooks'));
+        $whatsappActiveCount = \App\Models\WhatsappAccount::where('is_active', true)->count();
+
+        return view('admin.integrations.index', compact('values', 'hasPassword', 'webhooks', 'whatsappActiveCount'));
     }
 
     public function update(Request $request)

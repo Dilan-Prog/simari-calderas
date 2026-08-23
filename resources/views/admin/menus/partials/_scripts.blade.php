@@ -1,6 +1,7 @@
 @push('scripts')
     <script>
         const menuBaseUrl = '{{ url('/admin/menus') }}';
+        const menuProductsSearchUrl = '{{ route('admin.menus.products.search') }}';
 
         /* ============================================================
            Menú (create / rename) — solo actúa si #menuModal existe,
@@ -45,6 +46,11 @@
                 document.getElementById('menuModalTitle').textContent = 'Nuevo Menú';
                 document.getElementById('menuSubmitBtn').textContent = 'Crear Menú';
                 document.getElementById('menuIsActive').value = '1';
+                document.getElementById('menuSortOrder').value = '0';
+                // '' no calza con ninguna de las 3 <option> fijas, así que el
+                // <select> queda sin selección visible (selectedIndex = -1)
+                // — el estado "en blanco" pedido para un menú nuevo.
+                document.getElementById('menuLocation').value = '';
             };
 
             document.getElementById('btnNewMenu').addEventListener('click', () => {
@@ -135,7 +141,18 @@
                     document.getElementById('menuModalTitle').textContent = 'Editar Menú';
                     document.getElementById('menuSubmitBtn').textContent = 'Guardar Cambios';
                     document.getElementById('menuName').value = btn.dataset.name ?? '';
-                    document.getElementById('menuLocation').value = btn.dataset.location ?? '';
+
+                    // Un Menu legacy puede traer un location de texto libre
+                    // que ya no está entre las 3 opciones fijas — en ese
+                    // caso se deja el <select> en blanco en vez de inventar
+                    // una 4ª opción o reventar al asignar un value inválido.
+                    const locationSelect = document.getElementById('menuLocation');
+                    const menuLocationValue = btn.dataset.location ?? '';
+                    const hasLocationOption = Array.from(locationSelect.options)
+                        .some(opt => opt.value === menuLocationValue);
+                    locationSelect.value = hasLocationOption ? menuLocationValue : '';
+
+                    document.getElementById('menuSortOrder').value = btn.dataset.sortOrder ?? 0;
                     document.getElementById('menuIsActive').value = btn.dataset.active === '1' ? '1' : '0';
 
                     errorsContainer.style.display = 'none';
@@ -214,6 +231,235 @@
             let currentItemId = null;
             let fixedParentId = null;
 
+            /* ============================================================
+               "Tipo de destino" estructurado — muestra/oculta 1 de 6
+               bloques según el <select id="menuItemLinkType">, mismo patrón
+               show/hide-block-by-select-value que syncConfigFields() en
+               admin/home-sections/partials/_scripts.blade.php.
+               ============================================================ */
+            const linkTypeSelect = document.getElementById('menuItemLinkType');
+            const linkedEntityIdHidden = document.getElementById('menuItemLinkedEntityId');
+
+            function syncItemDestinationFields() {
+                const type = linkTypeSelect.value;
+                document.querySelectorAll('.menu-dest-field').forEach(block => {
+                    block.style.display = block.dataset.linkType === type ? '' : 'none';
+                });
+            }
+
+            linkTypeSelect.addEventListener('change', () => {
+                // Cambio manual de tipo: el destino elegido bajo el tipo
+                // anterior ya no aplica — se limpia para no enviar un
+                // linked_entity_id que no corresponde al nuevo tipo.
+                linkedEntityIdHidden.value = '';
+                syncItemDestinationFields();
+            });
+
+            /* ── Categoría: cascada de 3 niveles, mismo patrón que
+               admin/products/create_product/_scripts_create.blade.php
+               ("Category cascade") ── */
+            const categoryMain = document.getElementById('menuItemCategoryMain');
+            const categorySub = document.getElementById('menuItemCategorySub');
+            const categoryChild = document.getElementById('menuItemCategoryChild');
+
+            @php
+                $menuCategoriesForJs = collect($categories ?? [])->mapWithKeys(function($c) {
+                    return [
+                        $c->id => collect($c->children ?? [])->map(function($s) {
+                            return [
+                                'id' => $s->id,
+                                'name' => $s->name,
+                                'children' => collect($s->children ?? [])->map(function($ch) {
+                                    return ['id' => $ch->id, 'name' => $ch->name];
+                                })->values()->toArray(),
+                            ];
+                        })->values()->toArray(),
+                    ];
+                })->toArray();
+            @endphp
+            const menuCategorySubcategories = @json($menuCategoriesForJs);
+
+            function populateCategorySubOptions(mainId) {
+                const subs = menuCategorySubcategories[mainId] ?? [];
+                categorySub.innerHTML = '<option value="">Seleccionar...</option>';
+                subs.forEach(sub => {
+                    const opt = document.createElement('option');
+                    opt.value = sub.id;
+                    opt.textContent = sub.name;
+                    categorySub.appendChild(opt);
+                });
+                categorySub.disabled = subs.length === 0;
+            }
+
+            function populateCategoryChildOptions(mainId, subId) {
+                const subs = menuCategorySubcategories[mainId] ?? [];
+                const subObj = subs.find(s => String(s.id) === String(subId));
+                const children = subObj?.children ?? [];
+                categoryChild.innerHTML = '<option value="">Seleccionar...</option>';
+                children.forEach(child => {
+                    const opt = document.createElement('option');
+                    opt.value = child.id;
+                    opt.textContent = child.name;
+                    categoryChild.appendChild(opt);
+                });
+                categoryChild.disabled = children.length === 0;
+            }
+
+            function updateCategoryLinkedEntity() {
+                linkedEntityIdHidden.value = categoryChild.value || categorySub.value || categoryMain.value || '';
+            }
+
+            categoryMain.addEventListener('change', function() {
+                categorySub.innerHTML = '<option value="">Seleccionar categoría primero...</option>';
+                categoryChild.innerHTML = '<option value="">Seleccionar subcategoría primero...</option>';
+                categorySub.disabled = true;
+                categoryChild.disabled = true;
+                populateCategorySubOptions(this.value);
+                updateCategoryLinkedEntity();
+            });
+
+            categorySub.addEventListener('change', function() {
+                populateCategoryChildOptions(categoryMain.value, this.value);
+                updateCategoryLinkedEntity();
+            });
+
+            categoryChild.addEventListener('change', updateCategoryLinkedEntity);
+
+            // Busca en el mismo árbol que llena los 3 <select> la cadena
+            // main/sub/child que contiene un id dado — así basta con
+            // guardar el id final (linked_entity_id) para reconstruir los 3
+            // niveles al editar, sin necesitar 3 data-* atributos aparte
+            // por elemento (la categoría puede haber sido elegida en
+            // cualquiera de los 3 niveles, no solo el más profundo).
+            function findCategoryPath(id) {
+                if (!id) return null;
+                id = String(id);
+                const mainMatch = Array.from(categoryMain.options).find(opt => opt.value === id);
+                if (mainMatch) return { main: id, sub: '', child: '' };
+                for (const [mainId, subs] of Object.entries(menuCategorySubcategories)) {
+                    for (const sub of subs) {
+                        if (String(sub.id) === id) return { main: mainId, sub: id, child: '' };
+                        for (const child of (sub.children || [])) {
+                            if (String(child.id) === id) return { main: mainId, sub: String(sub.id), child: id };
+                        }
+                    }
+                }
+                return null;
+            }
+
+            function setCategoryCascade(entityId) {
+                categoryMain.value = '';
+                categorySub.innerHTML = '<option value="">Seleccionar categoría primero...</option>';
+                categorySub.disabled = true;
+                categoryChild.innerHTML = '<option value="">Seleccionar subcategoría primero...</option>';
+                categoryChild.disabled = true;
+
+                const path = findCategoryPath(entityId);
+                if (!path) return;
+
+                categoryMain.value = path.main;
+                populateCategorySubOptions(path.main);
+                if (path.sub) {
+                    categorySub.value = path.sub;
+                    populateCategoryChildOptions(path.main, path.sub);
+                    if (path.child) categoryChild.value = path.child;
+                }
+            }
+
+            /* ── Colección / Marca: <select> simples ── */
+            const collectionSelect = document.getElementById('menuItemCollectionSelect');
+            const brandSelect = document.getElementById('menuItemBrandSelect');
+
+            collectionSelect.addEventListener('change', function() {
+                linkedEntityIdHidden.value = this.value;
+            });
+            brandSelect.addEventListener('change', function() {
+                linkedEntityIdHidden.value = this.value;
+            });
+
+            /* ── Producto: autocompletar + chip de seleccionado (selección
+               única — variante simplificada de initManualProductPicker en
+               admin/home-sections/partials/_scripts.blade.php) ── */
+            const productSearchInput = document.getElementById('menuProductSearchInput');
+            const productSearchDropdown = document.getElementById('menuProductSearchDropdown');
+            const productSearchList = document.getElementById('menuProductSearchList');
+            const productSearchEmpty = document.getElementById('menuProductSearchEmpty');
+            const productChipWrap = document.getElementById('menuProductChipWrap');
+            const productChipName = document.getElementById('menuProductChipName');
+            const productChipClear = document.getElementById('menuProductChipClear');
+            let productSearchDebounce = null;
+
+            function escMenuHtml(s) {
+                return String(s ?? '').replace(/&/g, '&amp;').replace(/"/g, '&quot;')
+                    .replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            }
+
+            function hideProductDropdown() {
+                productSearchDropdown.style.display = 'none';
+                productSearchList.innerHTML = '';
+            }
+
+            function selectProduct(product) {
+                linkedEntityIdHidden.value = product.id;
+                productChipName.textContent = product.sku ? `${product.name} (${product.sku})` : product.name;
+                productChipWrap.style.display = '';
+                productSearchInput.value = '';
+                hideProductDropdown();
+            }
+
+            function clearSelectedProduct() {
+                linkedEntityIdHidden.value = '';
+                productChipWrap.style.display = 'none';
+                productChipName.textContent = '';
+            }
+
+            productChipClear.addEventListener('click', clearSelectedProduct);
+
+            productSearchInput.addEventListener('input', function() {
+                const q = this.value.trim();
+                clearTimeout(productSearchDebounce);
+                if (q.length < 2) { hideProductDropdown(); return; }
+                productSearchDebounce = setTimeout(async () => {
+                    try {
+                        const url = new URL(menuProductsSearchUrl, window.location.origin);
+                        url.searchParams.set('q', q);
+                        const res = await fetch(url.toString(), { headers: { Accept: 'application/json' } });
+                        // MenuController::searchProducts() responde
+                        // { success: true, products: [...] }, no un array
+                        // plano — a diferencia de home-sections, que sí
+                        // devuelve el array directo.
+                        const data = res.ok ? await res.json() : { products: [] };
+                        const products = data.products ?? [];
+                        productSearchDropdown.style.display = 'block';
+                        productSearchList.innerHTML = '';
+                        if (!products.length) {
+                            productSearchEmpty.style.display = 'block';
+                            productSearchList.style.display = 'none';
+                            return;
+                        }
+                        productSearchEmpty.style.display = 'none';
+                        productSearchList.style.display = 'block';
+                        products.forEach(p => {
+                            const li = document.createElement('li');
+                            li.className = 'hs-product-search__item';
+                            li.innerHTML = `<span>${escMenuHtml(p.name)}</span><small>SKU: ${escMenuHtml(p.sku)}</small>`;
+                            li.addEventListener('click', () => selectProduct(p));
+                            productSearchList.appendChild(li);
+                        });
+                    } catch (err) {
+                        console.error('Error searching products:', err);
+                        hideProductDropdown();
+                    }
+                }, 300);
+            });
+
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('#menuProductSearch')) hideProductDropdown();
+            });
+
+            /* ── Página estática ── */
+            const staticPageSelect = document.getElementById('menuItemStaticPageRoute');
+
             const closeItemModalWithAnim = () => {
                 const content = itemModal.querySelector('.user-manager-modal-content');
                 if (content) {
@@ -246,6 +492,22 @@
                 document.getElementById('menuItemTarget').value = '_self';
                 document.getElementById('menuItemIsActive').value = '1';
                 document.getElementById('menuItemSortOrder').value = '0';
+
+                // Destino: custom_url es el default razonable (única
+                // opción de hoy) — limpia los 6 bloques condicionales para
+                // que ninguno arrastre datos del elemento anterior.
+                linkTypeSelect.value = 'custom_url';
+                linkedEntityIdHidden.value = '';
+                categoryMain.value = '';
+                categorySub.innerHTML = '<option value="">Seleccionar categoría primero...</option>';
+                categorySub.disabled = true;
+                categoryChild.innerHTML = '<option value="">Seleccionar subcategoría primero...</option>';
+                categoryChild.disabled = true;
+                collectionSelect.value = '';
+                brandSelect.value = '';
+                staticPageSelect.value = 'privacy-notice';
+                clearSelectedProduct();
+                syncItemDestinationFields();
 
                 Array.from(parentSelect.options).forEach(opt => opt.disabled = false);
             };
@@ -289,6 +551,38 @@
                     document.getElementById('menuItemSortOrder').value = btn.dataset.sortOrder ?? 0;
                     document.getElementById('menuItemIsActive').value = btn.dataset.active === '1' ? '1' : '0';
 
+                    // Destino estructurado: un link_type desconocido (dato
+                    // legacy o mismatch) cae a custom_url en vez de dejar el
+                    // <select> en un valor inexistente.
+                    const linkType = btn.dataset.linkType || 'custom_url';
+                    const linkedEntityId = btn.dataset.linkedEntityId || '';
+                    const linkedEntityLabel = btn.dataset.linkedEntityLabel || '';
+                    const hasLinkTypeOption = Array.from(linkTypeSelect.options)
+                        .some(opt => opt.value === linkType);
+                    linkTypeSelect.value = hasLinkTypeOption ? linkType : 'custom_url';
+                    syncItemDestinationFields();
+
+                    if (linkType === 'category') {
+                        setCategoryCascade(linkedEntityId);
+                        linkedEntityIdHidden.value = linkedEntityId;
+                    } else if (linkType === 'collection') {
+                        collectionSelect.value = linkedEntityId;
+                        linkedEntityIdHidden.value = linkedEntityId;
+                    } else if (linkType === 'brand') {
+                        brandSelect.value = linkedEntityId;
+                        linkedEntityIdHidden.value = linkedEntityId;
+                    } else if (linkType === 'product') {
+                        linkedEntityIdHidden.value = linkedEntityId;
+                        if (linkedEntityId) {
+                            productChipName.textContent = linkedEntityLabel || `Producto #${linkedEntityId}`;
+                            productChipWrap.style.display = '';
+                        }
+                    } else if (linkType === 'static_page') {
+                        // El backend guarda la ruta de página estática en la
+                        // columna url, no en linked_entity_id (ver contrato).
+                        staticPageSelect.value = btn.dataset.url || 'privacy-notice';
+                    }
+
                     parentGroup.style.display = '';
                     parentSelect.value = btn.dataset.parentId || '';
 
@@ -322,6 +616,15 @@
                     errorSpan.innerText = message;
                     const container = element.closest('.users-manager-email-camp') || element.parentElement;
                     if (container) container.appendChild(errorSpan);
+
+                    // Si el campo con error vive dentro de uno de los 6
+                    // bloques de destino condicionales (porque ya no
+                    // corresponde al tipo actualmente seleccionado, p.ej.
+                    // tras cambiar de tipo después de un intento fallido),
+                    // hay que des-ocultar el bloque o el mensaje queda
+                    // invisible.
+                    const destBlock = element.closest('.menu-dest-field');
+                    if (destBlock) destBlock.style.display = '';
                 };
 
                 const titleInput = document.getElementById('menuItemTitle');
@@ -367,13 +670,35 @@
                         errorsContainer.style.display = 'block';
 
                         // Loop dinámico sobre data.errors en vez de solo revisar
-                        // 'title'/'parent_id' — así 'url' y 'sort_order' (y
-                        // cualquier otra regla que se agregue después en
+                        // 'title'/'parent_id' — así 'url', 'sort_order',
+                        // 'link_type' y 'static_page_route' (y cualquier otra
+                        // regla que se agregue después en
                         // MenuController::storeItem()/updateItem()) también
                         // marcan su campo en rojo. querySelector se limita a
                         // itemForm, así que solo puede marcar campos que existen
                         // en ESTE formulario (no cruza con el de menuForm).
+                        //
+                        // 'linked_entity_id' es un caso especial: vive en un
+                        // <input type="hidden"> fuera de cualquier
+                        // .menu-dest-field (es compartido por category/
+                        // collection/brand/product), así que showError()
+                        // no tendría dónde colgar visiblemente el mensaje —
+                        // se adjunta en cambio al bloque de destino
+                        // actualmente visible.
                         Object.keys(data.errors).forEach(field => {
+                            if (field === 'linked_entity_id') {
+                                const activeBlock = document.querySelector(
+                                    `.menu-dest-field[data-link-type="${linkTypeSelect.value}"]`
+                                );
+                                if (activeBlock) {
+                                    activeBlock.style.display = '';
+                                    const errorSpan = document.createElement('span');
+                                    errorSpan.className = 'field-error-msg';
+                                    errorSpan.innerText = data.errors[field][0];
+                                    activeBlock.appendChild(errorSpan);
+                                }
+                                return;
+                            }
                             const input = itemForm.querySelector(`[name="${field}"]`);
                             if (input) showError(input, data.errors[field][0]);
                         });

@@ -30,16 +30,42 @@
         @endpermiso
     </div>
 
+    @php
+        // Labels legibles para el resumen de destino en el árbol y para
+        // validar el tipo recibido en data-link-type antes de asignarlo al
+        // <select> (mismo mapa reutilizado en ambos lugares).
+        $menuLinkTypeLabels = [
+            'category' => 'Categoría',
+            'collection' => 'Colección',
+            'brand' => 'Marca',
+            'product' => 'Producto',
+            'static_page' => 'Página estática',
+            'custom_url' => 'URL personalizada',
+        ];
+    @endphp
+
     <ul class="menu-tree" id="menuRootList" data-menu-id="{{ $menu->id }}">
         @forelse ($rootItems as $root)
+            @php
+                $rootLinkType = $root->linked_entity_type ?? 'custom_url';
+                $rootTypeLabel = $menuLinkTypeLabels[$rootLinkType] ?? $rootLinkType;
+                if ($rootLinkType === 'custom_url') {
+                    $rootDestText = $root->url ? "{$rootTypeLabel}: {$root->url}" : $rootTypeLabel;
+                } else {
+                    // category/collection/brand/product/static_page ya
+                    // vienen resueltos a un nombre legible en
+                    // $linkedEntityNames (MenuController::edit() los arma
+                    // en batch, incluyendo el label de static_page).
+                    $rootLabel = $linkedEntityNames[$root->id] ?? null;
+                    $rootDestText = $rootLabel ? "{$rootTypeLabel}: {$rootLabel}" : $rootTypeLabel;
+                }
+            @endphp
             <li class="menu-tree-item" draggable="true" data-id="{{ $root->id }}">
                 <div class="menu-tree-row">
                     <span class="menu-tree-drag-handle" title="Arrastrar para reordenar">⠿</span>
                     <div class="menu-tree-info">
                         <span class="menu-tree-title">{{ $root->title }}</span>
-                        @if ($root->url)
-                            <span class="menu-tree-url">{{ $root->url }}</span>
-                        @endif
+                        <span class="menu-tree-url">→ {{ $rootDestText }}</span>
                     </div>
                     <span class="menu-tree-target">{{ $root->target }}</span>
                     @if ($root->is_active)
@@ -64,6 +90,9 @@
                             data-parent-id=""
                             data-sort-order="{{ $root->sort_order }}"
                             data-active="{{ $root->is_active ? 1 : 0 }}"
+                            data-link-type="{{ $root->linked_entity_type ?? 'custom_url' }}"
+                            data-linked-entity-id="{{ $root->linked_entity_id }}"
+                            data-linked-entity-label="{{ $linkedEntityNames[$root->id] ?? '' }}"
                             title="Editar elemento">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg>
                         </button>
@@ -79,14 +108,22 @@
                 </div>
                 <ul class="menu-tree-children" data-parent-id="{{ $root->id }}">
                     @foreach ($childrenByParent->get($root->id, collect()) as $child)
+                        @php
+                            $childLinkType = $child->linked_entity_type ?? 'custom_url';
+                            $childTypeLabel = $menuLinkTypeLabels[$childLinkType] ?? $childLinkType;
+                            if ($childLinkType === 'custom_url') {
+                                $childDestText = $child->url ? "{$childTypeLabel}: {$child->url}" : $childTypeLabel;
+                            } else {
+                                $childLabel = $linkedEntityNames[$child->id] ?? null;
+                                $childDestText = $childLabel ? "{$childTypeLabel}: {$childLabel}" : $childTypeLabel;
+                            }
+                        @endphp
                         <li class="menu-tree-item menu-tree-child" draggable="true" data-id="{{ $child->id }}">
                             <div class="menu-tree-row">
                                 <span class="menu-tree-drag-handle" title="Arrastrar para reordenar">⠿</span>
                                 <div class="menu-tree-info">
                                     <span class="menu-tree-title">{{ $child->title }}</span>
-                                    @if ($child->url)
-                                        <span class="menu-tree-url">{{ $child->url }}</span>
-                                    @endif
+                                    <span class="menu-tree-url">→ {{ $childDestText }}</span>
                                 </div>
                                 <span class="menu-tree-target">{{ $child->target }}</span>
                                 @if ($child->is_active)
@@ -104,6 +141,9 @@
                                         data-parent-id="{{ $child->parent_id }}"
                                         data-sort-order="{{ $child->sort_order }}"
                                         data-active="{{ $child->is_active ? 1 : 0 }}"
+                                        data-link-type="{{ $child->linked_entity_type ?? 'custom_url' }}"
+                                        data-linked-entity-id="{{ $child->linked_entity_id }}"
+                                        data-linked-entity-label="{{ $linkedEntityNames[$child->id] ?? '' }}"
                                         title="Editar elemento">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg>
                                     </button>
@@ -149,9 +189,107 @@
             </div>
 
             <div class="users-manager-email-camp">
+                <label class="supliers-manager-slider-label">Tipo de destino <span style="color:red">*</span></label>
+                <select class="users-manager-select" name="link_type" id="menuItemLinkType">
+                    <option value="custom_url">URL personalizada</option>
+                    <option value="category">Categoría</option>
+                    <option value="collection">Colección</option>
+                    <option value="brand">Marca</option>
+                    <option value="product">Producto</option>
+                    <option value="static_page">Página estática</option>
+                </select>
+            </div>
+
+            <input type="hidden" name="linked_entity_id" id="menuItemLinkedEntityId" value="">
+
+            {{-- custom_url --}}
+            <div class="users-manager-email-camp menu-dest-field" data-link-type="custom_url" id="menuDestCustomUrl">
                 <label class="supliers-manager-slider-label">URL</label>
                 <input type="text" class="users-manager-input" name="url" id="menuItemUrl"
                     placeholder="/ruta-existente o https://...">
+            </div>
+
+            {{-- category: cascada de 3 niveles, mismo patrón que
+                 admin/products/create_product/create.blade.php --}}
+            <div class="menu-dest-field" data-link-type="category" id="menuDestCategory" style="display:none;">
+                <div class="user-manager-form">
+                    <div>
+                        <label class="supliers-manager-slider-label">Categoría Principal</label>
+                        <select class="users-manager-select" id="menuItemCategoryMain">
+                            <option value="">Seleccionar...</option>
+                            @foreach ($categories ?? [] as $cat)
+                                <option value="{{ $cat->id }}">{{ $cat->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div>
+                        <label class="supliers-manager-slider-label">Subcategoría</label>
+                        <select class="users-manager-select" id="menuItemCategorySub" disabled>
+                            <option value="">Seleccionar categoría primero...</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="users-manager-email-camp">
+                    <label class="supliers-manager-slider-label">Categoría Hija</label>
+                    <select class="users-manager-select" id="menuItemCategoryChild" disabled>
+                        <option value="">Seleccionar subcategoría primero...</option>
+                    </select>
+                </div>
+            </div>
+
+            {{-- collection --}}
+            <div class="users-manager-email-camp menu-dest-field" data-link-type="collection" id="menuDestCollection" style="display:none;">
+                <label class="supliers-manager-slider-label">Colección</label>
+                <select class="users-manager-select" id="menuItemCollectionSelect">
+                    <option value="">Seleccionar...</option>
+                    @foreach ($collections ?? [] as $collection)
+                        <option value="{{ $collection->id }}">{{ $collection->name }}</option>
+                    @endforeach
+                </select>
+            </div>
+
+            {{-- brand --}}
+            <div class="users-manager-email-camp menu-dest-field" data-link-type="brand" id="menuDestBrand" style="display:none;">
+                <label class="supliers-manager-slider-label">Marca</label>
+                <select class="users-manager-select" id="menuItemBrandSelect">
+                    <option value="">Seleccionar...</option>
+                    @foreach ($brands ?? [] as $brand)
+                        <option value="{{ $brand->id }}">{{ $brand->name }}</option>
+                    @endforeach
+                </select>
+            </div>
+
+            {{-- product: autocompletar + chip de seleccionado, mismo patrón
+                 que admin/home-sections/partials/_scripts.blade.php
+                 (initManualProductPicker) pero de selección única --}}
+            <div class="users-manager-email-camp menu-dest-field" data-link-type="product" id="menuDestProduct" style="display:none;">
+                <label class="supliers-manager-slider-label">Producto</label>
+                <div class="hs-product-search" id="menuProductSearch">
+                    <div class="hs-product-search__input-wrap">
+                        <input type="text" class="hs-product-search__input" id="menuProductSearchInput"
+                            placeholder="Buscar por nombre o SKU...">
+                    </div>
+                    <div class="hs-product-search__dropdown" id="menuProductSearchDropdown" style="display:none;">
+                        <p class="hs-product-search__empty" id="menuProductSearchEmpty" style="display:none;">Sin resultados.</p>
+                        <ul class="hs-product-search__list" id="menuProductSearchList"></ul>
+                    </div>
+                </div>
+                <div class="hs-product-chips" id="menuProductChipWrap" style="display:none;">
+                    <span class="hs-product-chip">
+                        <span id="menuProductChipName"></span>
+                        <button type="button" id="menuProductChipClear" aria-label="Quitar">&times;</button>
+                    </span>
+                </div>
+            </div>
+
+            {{-- static_page --}}
+            <div class="users-manager-email-camp menu-dest-field" data-link-type="static_page" id="menuDestStaticPage" style="display:none;">
+                <label class="supliers-manager-slider-label">Página estática</label>
+                <select class="users-manager-select" name="static_page_route" id="menuItemStaticPageRoute">
+                    <option value="privacy-notice">Aviso de Privacidad</option>
+                    <option value="terms-of-service">Términos y Condiciones</option>
+                    <option value="return-policy">Política de Devoluciones</option>
+                </select>
             </div>
 
             <div class="user-manager-form">
