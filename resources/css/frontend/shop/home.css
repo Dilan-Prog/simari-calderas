@@ -9,10 +9,30 @@
 
 .eq-shop-home .eq-shop-home__empty { padding: 80px 0; text-align: center; color: #9ca3af; width: 95%; margin: 0 auto; }
 
-/* Hero slider */
-.eq-shop-home .hero-slider { position: relative; min-height: 330px; background: var(--background-primary); overflow: hidden; }
-.eq-shop-home .hero-slider__track { display: flex; height: 330px; transition: transform .6s ease; }
+/* Hero slider — aspect-ratio (no altura fija) para que el recorte de
+   background-size:cover sea el MISMO en cualquier ancho de pantalla; antes
+   la altura era un fijo 330px sin media queries, así que un monitor ancho
+   y una laptop recortaban proporciones muy distintas de la misma imagen.
+   max-height evita que en monitores ultra anchos el slider crezca tanto que
+   domine la página; min-height evita que en móvil se aplaste demasiado. */
+.eq-shop-home .hero-slider {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1920 / 660;
+    max-height: 420px;
+    min-height: 220px;
+    background: var(--background-primary);
+    overflow: hidden;
+}
+.eq-shop-home .hero-slider__track { display: flex; height: 100%; transition: transform .6s ease; }
 .eq-shop-home .hero-slider__slide { flex: 0 0 100%; display: block; background-size: cover; background-position: center; }
+
+@media (max-width: 900px) {
+    .eq-shop-home .hero-slider { min-height: 200px; }
+}
+@media (max-width: 560px) {
+    .eq-shop-home .hero-slider { min-height: 170px; }
+}
 .eq-shop-home .hero-slider__nav {
     position: absolute; top: 50%; transform: translateY(-50%); z-index: 2; background: rgba(255,255,255,0.12);
     border: 1px solid rgba(255,255,255,0.25); border-radius: 50%; width: 44px; height: 44px; color: #fff; cursor: pointer;
