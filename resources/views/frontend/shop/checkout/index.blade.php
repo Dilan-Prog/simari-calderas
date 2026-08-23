@@ -143,6 +143,31 @@
                 </div>
             </aside>
         </div>
+
+        @php
+            // GA4 e-commerce (vía GTM) -- independiente de AdTracking (más
+            // abajo en este mismo archivo), que es nuestro propio sistema de
+            // atribución y no se toca. unit_price_snapshot ya es el precio
+            // sin IVA (ver Cart::subtotal()), mismo criterio que $subtotal.
+            $ga4CartItems = $cart->items->filter(fn ($i) => $i->product)->map(fn ($i) => [
+                'item_id' => $i->product->sku,
+                'item_name' => $i->product->resolveVariables($i->product->name),
+                'price' => (float) $i->unit_price_snapshot,
+                'quantity' => $i->quantity,
+            ])->values();
+        @endphp
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            dataLayer.push({ ecommerce: null }); // limpia el ecommerce previo antes de cada push (recomendación de Google)
+            dataLayer.push({
+                event: 'begin_checkout',
+                ecommerce: {
+                    currency: 'MXN',
+                    value: {{ (float) $subtotal }},
+                    items: @json($ga4CartItems),
+                },
+            });
+        </script>
     @endif
 </div>
 

@@ -3,8 +3,8 @@
     "file": "assets/_commonjsHelpers-Cpj98o6Y.js",
     "name": "_commonjsHelpers"
   },
-  "_alpine-init-ZN98Elo4.js": {
-    "file": "assets/alpine-init-ZN98Elo4.js",
+  "_alpine-init-BIs30qDh.js": {
+    "file": "assets/alpine-init-BIs30qDh.js",
     "name": "alpine-init"
   },
   "_charts-BFPyHK5v.js": {
@@ -446,12 +446,12 @@
     "isEntry": true
   },
   "resources/js/frontend/shop/account.js": {
-    "file": "assets/account-Dlmj6Ebh.js",
+    "file": "assets/account-BEH7QBu7.js",
     "name": "account",
     "src": "resources/js/frontend/shop/account.js",
     "isEntry": true,
     "imports": [
-      "_alpine-init-ZN98Elo4.js"
+      "_alpine-init-BIs30qDh.js"
     ]
   },
   "resources/js/frontend/shop/ad-tracking.js": {
@@ -461,39 +461,39 @@
     "isEntry": true
   },
   "resources/js/frontend/shop/catalog.js": {
-    "file": "assets/catalog-D9IzHBL4.js",
+    "file": "assets/catalog-C9RIaDPt.js",
     "name": "catalog",
     "src": "resources/js/frontend/shop/catalog.js",
     "isEntry": true,
     "imports": [
-      "_alpine-init-ZN98Elo4.js"
+      "_alpine-init-BIs30qDh.js"
     ]
   },
   "resources/js/frontend/shop/collection.js": {
-    "file": "assets/collection-BGatTT68.js",
+    "file": "assets/collection-DL-D4lRd.js",
     "name": "collection",
     "src": "resources/js/frontend/shop/collection.js",
     "isEntry": true,
     "imports": [
-      "_alpine-init-ZN98Elo4.js"
+      "_alpine-init-BIs30qDh.js"
     ]
   },
   "resources/js/frontend/shop/home.js": {
-    "file": "assets/home-fn7T4wzp.js",
+    "file": "assets/home-CaFY08Bs.js",
     "name": "home",
     "src": "resources/js/frontend/shop/home.js",
     "isEntry": true,
     "imports": [
-      "_alpine-init-ZN98Elo4.js"
+      "_alpine-init-BIs30qDh.js"
     ]
   },
   "resources/js/frontend/shop/product-detail.js": {
-    "file": "assets/product-detail-Co8WcNIX.js",
+    "file": "assets/product-detail-Hrcr62X4.js",
     "name": "product-detail",
     "src": "resources/js/frontend/shop/product-detail.js",
     "isEntry": true,
     "imports": [
-      "_alpine-init-ZN98Elo4.js"
+      "_alpine-init-BIs30qDh.js"
     ]
   }
 }

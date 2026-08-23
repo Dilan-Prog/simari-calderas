@@ -43,6 +43,33 @@
 </div>
 
 @php
+    // GA4 e-commerce (vía GTM) -- independiente de AdTracking/endpoints de
+    // /api/v1/ad-tracking/*, que son nuestro propio sistema de atribución y
+    // no se tocan. order_number como transaction_id: es el folio único y
+    // estable del pedido (no se regenera si esta página se recarga), así
+    // GA4 no cuenta la misma venta dos veces.
+    $ga4OrderItems = $storeOrder->items->map(fn ($i) => [
+        'item_id' => $i->product_sku,
+        'item_name' => $i->product_name,
+        'price' => (float) $i->unit_price,
+        'quantity' => $i->quantity,
+    ])->values();
+@endphp
+<script>
+    window.dataLayer = window.dataLayer || [];
+    dataLayer.push({ ecommerce: null }); // limpia el ecommerce previo antes de cada push (recomendación de Google)
+    dataLayer.push({
+        event: 'purchase',
+        ecommerce: {
+            transaction_id: @json($storeOrder->order_number),
+            currency: @json($storeOrder->currency),
+            value: {{ (float) $storeOrder->total }},
+            items: @json($ga4OrderItems),
+        },
+    });
+</script>
+
+@php
     // Mismo plazo ya publicado en Términos y Condiciones para equipo en
     // existencia ("5-10 días hábiles") — se usa el límite superior (10)
     // como estimado, sin prometer de más. Cuenta días hábiles reales

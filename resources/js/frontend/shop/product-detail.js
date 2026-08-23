@@ -35,6 +35,24 @@ document.addEventListener('DOMContentLoaded', () => {
             await Alpine.store('shop').refreshCartCount();
             window.AdTracking?.track('add_to_cart', { productId });
 
+            // GA4 e-commerce (vía GTM) -- independiente de AdTracking de arriba,
+            // que es nuestro propio sistema de atribución y no se toca.
+            window.dataLayer = window.dataLayer || [];
+            dataLayer.push({ ecommerce: null }); // limpia el ecommerce previo antes de cada push (recomendación de Google)
+            dataLayer.push({
+                event: 'add_to_cart',
+                ecommerce: {
+                    currency: 'MXN',
+                    value: parseFloat(addBtn.dataset.price) * quantity,
+                    items: [{
+                        item_id: addBtn.dataset.sku,
+                        item_name: addBtn.dataset.name,
+                        price: parseFloat(addBtn.dataset.price),
+                        quantity,
+                    }],
+                },
+            });
+
             addBtn.textContent = 'Agregado ✓';
             if (rightCol) Alpine.$data(rightCol).qty = 1;
             setTimeout(() => {
