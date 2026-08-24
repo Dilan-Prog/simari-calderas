@@ -59,7 +59,7 @@
                             name="email"
                             class="login-input {{ $errors->has('email') ? 'error' : '' }}"
                             value="{{ old('email') }}"
-                            placeholder="admin@simari.com"
+                            placeholder="admin@equitermindustries.com.mx"
                             required
                             autofocus
                             autocomplete="username">
@@ -112,7 +112,7 @@
         {{-- Pie --}}
         <p class="login-footer-text">
             ¿No tienes acceso?
-            <a href="mailto:soporte@simari.com">Contacta al administrador</a>
+            <a href="mailto:administracion@equitermindustries.com.mx">Contacta al administrador</a>
         </p>
 
     </div>

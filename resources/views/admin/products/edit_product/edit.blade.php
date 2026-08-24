@@ -1149,7 +1149,7 @@
                             @error('slug')
                                 <p class="pform-error-msg">{{ $message }}</p>
                             @enderror
-                            <p class="pform-hint">URL: <span style="color:#1d4ed8">simari.com/productos/<span
+                            <p class="pform-hint">URL: <span style="color:#1d4ed8">equitermindustries.com.mx/producto/<span
                                         id="pformSeoSlugPreview">{{ old('slug', $product->slug ?? 'producto-ejemplo') }}</span></span>
                             </p>
                             <label style="display:flex;align-items:center;gap:8px;font-size:14px;font-weight:500;color:#374151;cursor:pointer;margin-top:8px">
@@ -1270,7 +1270,7 @@
                         <h2 class="pform-panel-title">Vista Previa en Google</h2>
                         <div class="pform-google-preview">
                             <div class="pform-google-url">
-                                simari.com › productos › <span
+                                equitermindustries.com.mx › producto › <span
                                     id="pformSeoSlugPreview2">{{ $product->slug ?? 'producto-ejemplo' }}</span>
                             </div>
                             <h3 class="pform-google-title" id="pformGoogleTitle">

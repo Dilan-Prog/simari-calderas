@@ -48,6 +48,12 @@ class ProductsImport implements ToModel, WithHeadingRow, WithValidation, WithBat
     /** @var array<string,true> SKUs ya vistos en este mismo archivo */
     private array $seenInFile = [];
 
+    /** @var array<string,true> slugs ya existentes en BD */
+    private array $existingSlugs = [];
+
+    /** @var array<string,true> slugs ya asignados en este mismo archivo (incluye los que ya llevan sufijo de desambiguación) */
+    private array $seenSlugsInFile = [];
+
     /** Filas omitidas por SKU duplicado: [['row' => n, 'sku' => x], ...] */
     public array $skippedDuplicates = [];
 
@@ -65,6 +71,10 @@ class ProductsImport implements ToModel, WithHeadingRow, WithValidation, WithBat
 
         $this->existingSkus = Products::pluck('sku')
             ->mapWithKeys(fn ($sku) => [strtolower(trim($sku)) => true])
+            ->toArray();
+
+        $this->existingSlugs = Products::pluck('slug')
+            ->mapWithKeys(fn ($slug) => [$slug => true])
             ->toArray();
     }
 
@@ -132,7 +142,23 @@ class ProductsImport implements ToModel, WithHeadingRow, WithValidation, WithBat
             'reorder_point' => $this->present($row['punto_reorden'] ?? null) ? (int) $row['punto_reorden'] : null,
             'show_in_merchant_center' => $this->normalizeProductBool($row['mostrar_merchant_center'] ?? true, true),
         ]);
-        $product->slug = Str::slug($row['nombre']) . '-' . Str::random(6);
+        // FIX (reportado por el usuario): antes se le pegaba un sufijo
+        // aleatorio de 6 caracteres (Str::random(6)) a TODOS los productos
+        // importados, sin importar si el slug ya era único — resultando en
+        // URLs feas tipo "control-de-bajo-nivel-mcdonnell-miller-QBJgiP" aun
+        // cuando el nombre no colisionaba con nada. Ahora solo se desambigua
+        // (con un sufijo numérico legible, "-2", "-3"...) cuando el slug base
+        // ya existe en BD o ya se usó en este mismo archivo — mismo patrón
+        // de deduplicación que $existingSkus/$seenInFile más arriba.
+        $baseSlug = Str::slug($row['nombre']);
+        $slug = $baseSlug;
+        $suffix = 2;
+        while (isset($this->existingSlugs[$slug]) || isset($this->seenSlugsInFile[$slug])) {
+            $slug = $baseSlug . '-' . $suffix;
+            $suffix++;
+        }
+        $this->seenSlugsInFile[$slug] = true;
+        $product->slug = $slug;
         // availability no está en $fillable del modelo (igual que en
         // ProductController), se asigna por propiedad directa.
         $product->availability = $this->normalizeProductAvailability($row['disponibilidad'] ?? null);

@@ -1178,7 +1178,7 @@
                             @error('slug')
                                 <p class="pform-error-msg">{{ $message }}</p>
                             @enderror
-                            <p class="pform-hint">URL: <span style="color:#1d4ed8">simari.com/productos/<span
+                            <p class="pform-hint">URL: <span style="color:#1d4ed8">equitermindustries.com.mx/producto/<span
                                         id="pformSeoSlugPreview">{{ old('slug', 'producto-ejemplo') }}</span></span></p>
                         </div>
 
@@ -1332,7 +1332,7 @@
                                     <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" />
                                     <path d="M2 12h20" />
                                 </svg>
-                                simari.com › productos › <span id="pformSeoSlugPreview2">producto-ejemplo</span>
+                                equitermindustries.com.mx › producto › <span id="pformSeoSlugPreview2">producto-ejemplo</span>
                             </div>
                             <h3 class="pform-google-title" id="pformGoogleTitle">Bomba de Calor Rinnai 20HP</h3>
                             <p class="pform-google-desc" id="pformGoogleDesc">Agrega una meta descripción para ver
