@@ -23,10 +23,20 @@ class MediaServeController extends Controller
             abort(404);
         }
 
-        $base = realpath(UploadPath::base());
         $full = realpath(UploadPath::full($path));
 
-        if (!$base || !$full || !str_starts_with($full, $base) || !is_file($full)) {
+        if (!$full || !is_file($full)) {
+            abort(404);
+        }
+
+        // UploadPath::full() puede resolver a la ubicación legacy
+        // (public_path()) para archivos pre-migración -- ver su docblock --
+        // así que ambas bases cuentan como válidas aquí, no solo la actual.
+        $base = realpath(UploadPath::base());
+        $legacyBase = realpath(public_path());
+        $isAllowed = ($base && str_starts_with($full, $base)) || ($legacyBase && str_starts_with($full, $legacyBase));
+
+        if (!$isAllowed) {
             abort(404);
         }
 

@@ -78,13 +78,23 @@ return [
          * direct class use like:
          * $dompdf = new DOMPDF();  $dompdf->load_html($htmldata); $dompdf->render(); $pdfdata = $dompdf->output();
          */
-        // Includes UploadPath::base() alongside base_path() so dompdf can read
-        // uploaded images (product/service-report/document files) even when
-        // that folder lives outside the app root in production — see
+        // Includes the uploads base path alongside base_path() so dompdf can
+        // read uploaded images (product/service-report/document files) even
+        // when that folder lives outside the app root in production — see
         // App\Support\UploadPath and resources/views/admin/service-reports/pdf.blade.php.
+        //
+        // FIX (bug real encontrado): esto llamaba a
+        // \App\Support\UploadPath::base(), que lee config('uploads.base_path')
+        // -- pero Laravel carga los archivos de config en orden alfabético, y
+        // "dompdf.php" se carga ANTES que "uploads.php". En el momento en que
+        // este array se evalúa, config('uploads.base_path') todavía es null,
+        // así que UploadPath::base() caía en public_path() en silencio,
+        // dejando fuera del chroot la carpeta real de subidas en producción.
+        // Se lee env() directo aquí (igual que config/uploads.php) para no
+        // depender del orden de carga entre archivos de config.
         'chroot' => array_filter([
             realpath(base_path()),
-            realpath(\App\Support\UploadPath::base()),
+            realpath(env('UPLOADS_BASE_PATH') ?: public_path()),
         ]),
 
         /**

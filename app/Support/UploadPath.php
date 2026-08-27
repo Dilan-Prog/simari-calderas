@@ -29,9 +29,30 @@ class UploadPath
         return config('uploads.base_path') ?: public_path();
     }
 
+    /**
+     * FIX (bug real encontrado): antes de la migración de almacenamiento
+     * (commit 7b2f026, "Move uploaded images/documents outside public_html
+     * to survive deploys") los archivos subidos vivían bajo public_path().
+     * Esa migración cambió dónde se BUSCAN los archivos hacia
+     * UploadPath::base(), pero nunca copió los archivos ya subidos a la
+     * nueva ubicación -- así que cualquier producto/reporte de servicio
+     * creado antes de ese cambio apunta a un archivo que solo existe en la
+     * ubicación vieja. Si no está en la ubicación actual, se revisa ahí
+     * como fallback de compatibilidad antes de rendirse.
+     */
     public static function full(string $relativePath): string
     {
-        return static::base() . '/' . ltrim($relativePath, '/');
+        $relativePath = ltrim($relativePath, '/');
+        $primary = static::base() . '/' . $relativePath;
+
+        if (!is_file($primary) && static::base() !== public_path()) {
+            $legacy = public_path($relativePath);
+            if (is_file($legacy)) {
+                return $legacy;
+            }
+        }
+
+        return $primary;
     }
 
     public static function url(?string $relativePath): ?string
