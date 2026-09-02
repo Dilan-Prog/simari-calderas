@@ -230,6 +230,11 @@
     "src": "resources/css/frontend/shop/legal.css",
     "isEntry": true
   },
+  "resources/css/frontend/shop/pool-calculator.css": {
+    "file": "assets/pool-calculator-BHrWOvC6.css",
+    "src": "resources/css/frontend/shop/pool-calculator.css",
+    "isEntry": true
+  },
   "resources/css/frontend/shop/product-detail.css": {
     "file": "assets/product-detail-D-4mNvMw.css",
     "src": "resources/css/frontend/shop/product-detail.css",
@@ -455,7 +460,7 @@
     ]
   },
   "resources/js/frontend/shop/ad-tracking.js": {
-    "file": "assets/ad-tracking-BbOgOBt6.js",
+    "file": "assets/ad-tracking-Bfr1AKS5.js",
     "name": "ad-tracking",
     "src": "resources/js/frontend/shop/ad-tracking.js",
     "isEntry": true
@@ -482,6 +487,15 @@
     "file": "assets/home-CaFY08Bs.js",
     "name": "home",
     "src": "resources/js/frontend/shop/home.js",
+    "isEntry": true,
+    "imports": [
+      "_alpine-init-BIs30qDh.js"
+    ]
+  },
+  "resources/js/frontend/shop/pool-calculator.js": {
+    "file": "assets/pool-calculator-DzW7ZVa3.js",
+    "name": "pool-calculator",
+    "src": "resources/js/frontend/shop/pool-calculator.js",
     "isEntry": true,
     "imports": [
       "_alpine-init-BIs30qDh.js"

@@ -16,6 +16,7 @@ class HomeSectionController extends Controller
     protected array $types = [
         'hero_slider', 'banner', 'dual_banner', 'product_carousel',
         'product_carousel_banner', 'category_grid', 'brand_carousel', 'html_block',
+        'pool_calculator',
     ];
 
     // La página de producto admite todos los tipos menos el slider principal.
@@ -24,10 +25,13 @@ class HomeSectionController extends Controller
         'category_grid', 'brand_carousel', 'html_block', 'faq',
     ];
 
-    // Las páginas de colección: igual que producto (sin hero_slider, con faq).
+    // Las páginas de colección: igual que producto (sin hero_slider, con faq)
+    // + pool_calculator (calculadora de dimensionamiento — su fuente de
+    // productos es la propia Colección o una lista manual, no "el producto
+    // que se está viendo", por eso solo vive aquí y no en $productPageTypes).
     protected array $collectionPageTypes = [
         'banner', 'dual_banner', 'product_carousel', 'product_carousel_banner',
-        'category_grid', 'brand_carousel', 'html_block', 'faq',
+        'category_grid', 'brand_carousel', 'html_block', 'faq', 'pool_calculator',
     ];
 
     protected array $sources = [
@@ -154,6 +158,19 @@ class HomeSectionController extends Controller
                 // sección solo aporta título y texto descriptivo.
                 return [
                     'description' => $request->input('faq_description') ?: null,
+                ];
+
+            case 'pool_calculator':
+                // Mismo shape que product_carousel: 'collection' lee los
+                // productos manuales de una Colección (Collection::resolveProducts()),
+                // 'manual' toma una lista explícita de product_ids. Sin
+                // 'featured'/'new'/etc. — esta calculadora siempre recomienda
+                // de un conjunto curado corto (2-3 modelos), nunca de todo
+                // el catálogo por categoría/marca.
+                return [
+                    'source'        => $request->input('pc_source', 'collection'),
+                    'collection_id' => $request->input('pc_collection_id') ?: null,
+                    'product_ids'   => array_values(array_filter((array) $request->input('pc_product_ids', []))),
                 ];
 
             case 'hero_slider':

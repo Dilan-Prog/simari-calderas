@@ -785,7 +785,7 @@ Route::controller(StatisticsController::class)
     ->name('statistics.')
     ->group(function () {
         Route::get('/', 'index')->name('index');
-        Route::get('/{section}', 'show')->name('show')->where('section', 'ventas|embudo|compras|servicios|reportes|inventario|tienda');
+        Route::get('/{section}', 'show')->name('show')->where('section', 'ventas|embudo|compras|servicios|reportes|inventario|tienda|marketing');
     });
 
 // ============================================================
@@ -1105,6 +1105,21 @@ Route::controller(\App\Http\Controllers\Backend\AdTrackingAdminController::class
         Route::get('/', 'index')->name('index');
         Route::get('/exportar', 'export')->name('export');
         Route::get('/{adVisit}', 'show')->name('show');
+    });
+
+// ============================================================
+// Calculadora de Alberca — módulo admin mínimo de solo lectura sobre los
+// leads generados por la calculadora pública de bombas de calor
+// (pool_calculator_leads). Única acción de escritura: vincular manualmente
+// un lead a la Cotización real que ventas generó.
+// ============================================================
+Route::controller(\App\Http\Controllers\Backend\PoolCalculatorLeadController::class)
+    ->middleware('permission:pool-calculator-leads')
+    ->prefix('calculadora-alberca')
+    ->name('pool-calculator-leads.')
+    ->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::patch('/{lead}/vincular', 'markMatched')->name('mark-matched')->middleware('permission:pool-calculator-leads,edit');
     });
 
 // ============================================================

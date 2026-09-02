@@ -44,6 +44,7 @@
             request()->routeIs('admin.brands.*') => 'marcas',
             request()->routeIs('admin.google-ads.*') => 'google-ads',
             request()->routeIs('admin.ad-tracking.*') => 'ad-tracking',
+            request()->routeIs('admin.pool-calculator-leads.*') => 'pool-calculator-leads',
             request()->routeIs('admin.quotes.*') => 'cotizaciones',
             request()->routeIs('admin.service-reports.*') => 'reportes-servicio',
             request()->routeIs('admin.technical-services.*') => 'servicios-tecnicos',
@@ -87,7 +88,7 @@
             'ecommerce' => ['productos', 'categorias', 'marcas', 'colecciones', 'paginas-servicio', 'galeria', 'inicio-secciones', 'inventory', 'menus', 'configuracion-sitio', 'integraciones', 'metodos-de-pago', 'reglas-de-envio', 'carritos-abandonados', 'ordenes', 'envios', 'deliveries'],
             'servicios' => ['reportes-servicio', 'servicios-tecnicos'],
             'erp' => ['cotizaciones', 'proveedores', 'ordenes-compra', 'pedidos', 'entrega-material', 'planeacion-quimicos', 'erp-configuracion', 'clientes', 'pipelines', 'embudo-de-venta', 'negocios', 'automatizaciones'],
-            'administracion' => ['roles', 'usuarios', 'google-ads', 'ad-tracking', 'devops', 'audit', 'whatsapp', 'email-marketing', 'dashboards', 'reportes', 'metas'],
+            'administracion' => ['roles', 'usuarios', 'google-ads', 'ad-tracking', 'pool-calculator-leads', 'devops', 'audit', 'whatsapp', 'email-marketing', 'dashboards', 'reportes', 'metas'],
             'estadisticas' => ['estadisticas-resumen', 'estadisticas-ventas', 'estadisticas-embudo', 'estadisticas-compras', 'estadisticas-servicios', 'estadisticas-reportes', 'estadisticas-inventario', 'estadisticas-tienda'],
         ];
         $activeGroup = collect($groupSections)->search(fn ($sections) => in_array($activeSection, $sections));
@@ -128,6 +129,7 @@
         $administracionVisible = $authUser->isAdmin()
             || $authUser->hasPermission('google-ads')
             || $authUser->hasPermission('ad-tracking')
+            || $authUser->hasPermission('pool-calculator-leads')
             || $authUser->hasPermission('email-marketing')
             || $authUser->hasPermission('crm-reports')
             || $authUser->hasPermission('audit')
@@ -876,6 +878,23 @@
                     </a>
                 @endif
 
+                {{-- Calculadora de Alberca --}}
+                @if ($authUser->hasPermission('pool-calculator-leads'))
+                    <a class="sidebar-nav-item {{ $activeSection === 'pool-calculator-leads' ? 'active' : '' }}"
+                        href="{{ route('admin.pool-calculator-leads.index') }}" data-section="pool-calculator-leads" data-label="Calculadora de Alberca">
+                        <div class="sidebar-nav-item-left">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.5 0 2.5 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1" />
+                                <path d="M2 12c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.5 0 2.5 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1" />
+                                <path d="M2 18c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.5 0 2.5 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1" />
+                            </svg>
+                            <span class="sidebar-nav-item-label">Calculadora de Alberca</span>
+                        </div>
+                    </a>
+                @endif
+
                 {{-- Email Marketing --}}
                 @if ($authUser->hasPermission('email-marketing'))
                     <a class="sidebar-nav-item {{ $activeSection === 'email-marketing' ? 'active' : '' }}"
@@ -1041,6 +1060,7 @@
                         'reportes'   => ['label' => 'Reportes de servicio', 'route' => route('admin.statistics.show', 'reportes'), 'icon' => '<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/>'],
                         'inventario' => ['label' => 'Inventario', 'route' => route('admin.statistics.show', 'inventario'), 'icon' => '<path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4a2 2 0 0 0 1-1.73Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/>'],
                         'tienda'     => ['label' => 'Tienda pública', 'route' => route('admin.statistics.show', 'tienda'), 'icon' => '<path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7"/><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4"/><path d="M2 7h20"/>'],
+                        'marketing'  => ['label' => 'Marketing por correo', 'route' => route('admin.statistics.show', 'marketing'), 'icon' => '<rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>'],
                     ];
                 @endphp
                 @foreach ($statisticsItems as $key => $item)

@@ -21,7 +21,7 @@ use Illuminate\Validation\Rule;
 class AdTrackingController extends Controller
 {
     private const LAST_TOUCH_FIELDS = [
-        'gclid', 'wbraid',
+        'gclid', 'wbraid', 'gbraid',
         'utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'utm_matchtype',
         'landing_url',
     ];
@@ -32,6 +32,7 @@ class AdTrackingController extends Controller
             'visitor_uuid'   => ['required', 'uuid'],
             'gclid'          => ['nullable', 'string', 'max:255'],
             'wbraid'         => ['nullable', 'string', 'max:255'],
+            'gbraid'         => ['nullable', 'string', 'max:255'],
             'utm_source'     => ['nullable', 'string', 'max:255'],
             'utm_medium'     => ['nullable', 'string', 'max:255'],
             'utm_campaign'   => ['nullable', 'string', 'max:255'],
@@ -84,6 +85,7 @@ class AdTrackingController extends Controller
 
                 'first_gclid'         => $validated['gclid'] ?? null,
                 'first_wbraid'        => $validated['wbraid'] ?? null,
+                'first_gbraid'        => $validated['gbraid'] ?? null,
                 'first_utm_source'    => $validated['utm_source'] ?? null,
                 'first_utm_medium'    => $validated['utm_medium'] ?? null,
                 'first_utm_campaign'  => $validated['utm_campaign'] ?? null,
@@ -95,6 +97,7 @@ class AdTrackingController extends Controller
 
                 'gclid'         => $validated['gclid'] ?? null,
                 'wbraid'        => $validated['wbraid'] ?? null,
+                'gbraid'        => $validated['gbraid'] ?? null,
                 'utm_source'    => $validated['utm_source'] ?? null,
                 'utm_medium'    => $validated['utm_medium'] ?? null,
                 'utm_campaign'  => $validated['utm_campaign'] ?? null,

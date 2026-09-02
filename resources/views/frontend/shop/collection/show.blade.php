@@ -3,6 +3,19 @@
 @php
     $shopVite = ['resources/css/frontend/shop/collection.css', 'resources/js/frontend/shop/collection.js'];
 
+    // pool_calculator registra Alpine.data('poolCalculator', ...) pero NO
+    // llama Alpine.start() (eso ya lo hace collection.js) -- por eso su JS
+    // debe cargar/ejecutar ANTES que collection.js dentro del array que
+    // @vite() imprime, igual que master.blade.php antepone ad-tracking.js
+    // vía array_merge (línea ~18) en vez de dejar que cada vista lo
+    // declare al final.
+    if (isset($sections) && $sections->contains('type', 'pool_calculator')) {
+        $shopVite = array_merge(
+            ['resources/css/frontend/shop/pool-calculator.css', 'resources/js/frontend/shop/pool-calculator.js'],
+            $shopVite
+        );
+    }
+
     $metaTitle = $collection->seo_title ?: ($collection->name . ' — Equiterm Industries');
     $metaDescription = $collection->seo_description
         ?: \Illuminate\Support\Str::limit(strip_tags($collection->description ?? ''), 160)

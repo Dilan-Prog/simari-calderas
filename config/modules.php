@@ -253,4 +253,10 @@ return [
         'route' => 'admin.ad-tracking.index',
         'order' => 16,
     ],
+    'pool-calculator-leads' => [
+        'name'  => 'Calculadora de Alberca',
+        'icon'  => 'waves',
+        'route' => 'admin.pool-calculator-leads.index',
+        'order' => 17,
+    ],
 ];

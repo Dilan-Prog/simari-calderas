@@ -17,11 +17,16 @@
             'ecommerce.iva_rate' => 'Tasa de IVA (%)',
             'ecommerce.usd_to_mxn_rate' => 'Tipo de cambio USD → MXN (valor por defecto)',
             'ecommerce.cash_discount_percent' => 'Descuento por pago de contado (%)',
+            'pool_calculator.tarifa_kwh' => 'Tarifa eléctrica (MXN/kWh)',
+            'pool_calculator.cop_nominal' => 'COP nominal (ficha técnica a 27°C)',
+            'pool_calculator.horas_operacion_dia' => 'Horas de operación al día',
+            'pool_calculator.ciudades_temp_ambiente' => 'Temperaturas ambiente de diseño por ciudad (JSON)',
         ];
 
         $groupTitles = [
             'footer' => 'Footer',
             'ecommerce' => 'Ecommerce',
+            'pool_calculator' => 'Calculadora de Bombas de Calor',
         ];
     @endphp
 

@@ -9,6 +9,7 @@
         var AD_PARAM_KEYS = [
             'gclid',
             'wbraid',
+            'gbraid',
             'utm_source',
             'utm_medium',
             'utm_campaign',

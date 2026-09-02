@@ -53,6 +53,26 @@ class SettingController extends Controller
                 continue;
             }
 
+            // Tarifa eléctrica que alimenta el costo operativo estimado de la
+            // calculadora de bombas de calor -- debe ser positiva (0 o
+            // negativo no tiene sentido físico y rompería el cálculo).
+            if ($key === 'pool_calculator.tarifa_kwh' && (!is_numeric($value) || (float) $value <= 0)) {
+                continue;
+            }
+
+            // COP nominal de ficha técnica -- fuera de 1-10 es un valor de
+            // catálogo imposible para una bomba de calor real, se descarta
+            // para no distorsionar el consumo estimado en toda la calculadora.
+            if ($key === 'pool_calculator.cop_nominal' && (!is_numeric($value) || (float) $value < 1 || (float) $value > 10)) {
+                continue;
+            }
+
+            // Horas de operación al día -- fuera de 1-24 no es un valor
+            // físicamente posible y rompería el cálculo de consumo diario.
+            if ($key === 'pool_calculator.horas_operacion_dia' && (!is_numeric($value) || (float) $value < 1 || (float) $value > 24)) {
+                continue;
+            }
+
             Setting::set($key, $value, auth()->id());
         }
 

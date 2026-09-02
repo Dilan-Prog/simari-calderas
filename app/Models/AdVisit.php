@@ -19,11 +19,11 @@ class AdVisit extends Model
 
     protected $fillable = [
         'visitor_uuid',
-        'first_gclid', 'first_wbraid',
+        'first_gclid', 'first_wbraid', 'first_gbraid',
         'first_utm_source', 'first_utm_medium', 'first_utm_campaign',
         'first_utm_content', 'first_utm_term', 'first_utm_matchtype',
         'first_landing_url', 'first_seen_at',
-        'gclid', 'wbraid',
+        'gclid', 'wbraid', 'gbraid',
         'utm_source', 'utm_medium', 'utm_campaign',
         'utm_content', 'utm_term', 'utm_matchtype',
         'landing_url', 'last_seen_at', 'expires_at',
@@ -40,11 +40,11 @@ class AdVisit extends Model
         return $this->hasMany(AdEvent::class);
     }
 
-    // El identificador de clic real a mostrar (gclid gana sobre wbraid si
-    // por alguna razón ambos están presentes en la misma visita).
+    // El identificador de clic real a mostrar (gclid gana sobre wbraid/gbraid
+    // si por alguna razón más de uno está presente en la misma visita).
     public function getPrimaryClickIdAttribute(): ?string
     {
-        return $this->gclid ?: $this->wbraid;
+        return $this->gclid ?: ($this->wbraid ?: $this->gbraid);
     }
 
     // Etiqueta de tipo de clic + fuente real (nunca "Google Ads" fijo --
@@ -59,6 +59,10 @@ class AdVisit extends Model
 
         if ($this->wbraid) {
             return 'WBRAID (web-to-app) · ' . $source;
+        }
+
+        if ($this->gbraid) {
+            return 'GBRAID (app-to-web) · ' . $source;
         }
 
         return 'Sin identificador de clic';

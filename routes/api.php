@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\AdTrackingController;
+use App\Http\Controllers\Api\PoolCalculatorLeadController;
 use App\Http\Controllers\Backend\Marketing\GoogleConversionController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -38,4 +39,10 @@ Route::prefix('v1/google-ads')->middleware('auth:sanctum')->group(function () {
 Route::prefix('v1/ad-tracking')->middleware('throttle:60,1')->group(function () {
     Route::post('/visit', [AdTrackingController::class, 'storeVisit']);
     Route::post('/event', [AdTrackingController::class, 'storeEvent']);
+});
+
+// Public route — llamada desde el JS de la calculadora de dimensionamiento
+// de bomba de calor para alberca al capturar un lead.
+Route::prefix('v1/pool-calculator')->middleware('throttle:60,1')->group(function () {
+    Route::post('/leads', [PoolCalculatorLeadController::class, 'store']);
 });

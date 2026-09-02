@@ -48,6 +48,8 @@ export default defineConfig({
                 'resources/js/frontend/shop/account.js',
                 'resources/css/frontend/shop/collection.css',
                 'resources/js/frontend/shop/collection.js',
+                'resources/css/frontend/shop/pool-calculator.css',
+                'resources/js/frontend/shop/pool-calculator.js',
                 'resources/css/frontend/shop/legal.css',
                 'resources/css/frontend/shop/checkout.css',
                 'resources/css/admin/pages/collections.css',
