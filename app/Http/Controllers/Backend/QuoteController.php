@@ -3,18 +3,17 @@
 namespace App\Http\Controllers\Backend;
 
 use App\Http\Controllers\Controller;
-use App\Mail\MarketingEmailMailable;
 use App\Models\EmailTemplate;
 use App\Models\Quote;
 use App\Models\Products;
 use App\Models\ServicePage;
 use App\Services\EmailTemplateService;
+use App\Services\EmailTrackingService;
 use App\Services\QuoteService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Mail;
 
 class QuoteController extends Controller
 {
@@ -526,11 +525,15 @@ class QuoteController extends Controller
 
         $pdf = Pdf::loadView('admin.quotes.pdf', ['quote' => $quote])->setPaper('a4', 'portrait');
 
-        Mail::to($recipient)->send(new MarketingEmailMailable($rendered, [
+        app(EmailTrackingService::class)->sendTracked($recipient, $rendered, [
+            'customer_id' => $quote->customer_id,
+            'guest_email' => $quote->customer ? null : $quote->guest_email,
+            'guest_name'  => $quote->customer ? null : $quote->guest_name,
+        ], [
             'content'  => $pdf->output(),
             'filename' => "{$quote->quote_number}.pdf",
             'mime'     => 'application/pdf',
-        ]));
+        ]);
 
         // sent_at SIEMPRE se actualiza a "ahora" (no solo la primera vez):
         // un reenvío manual reinicia el reloj de 24h del recordatorio

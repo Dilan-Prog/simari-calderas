@@ -8,6 +8,7 @@ use App\Models\EmailSend;
 use App\Models\Quote;
 use App\Services\EmailCampaignService;
 use App\Services\EmailTemplateService;
+use App\Services\EmailTrackingService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -46,6 +47,8 @@ class SendMarketingEmailJob implements ShouldQueue
             $unsubscribeUrl = route('email.unsubscribe', ['token' => $this->send->tracking_token]);
             $rendered['html'] = str_replace('{{unsubscribe_url}}', $unsubscribeUrl, $rendered['html']);
 
+            $rendered['html'] = app(EmailTrackingService::class)->wrapLinksForTracking($rendered['html'], $this->send->tracking_token);
+
             $openTrackingUrl = route('email.open', ['token' => $this->send->tracking_token]);
             $trackingPixel   = '<img src="' . $openTrackingUrl . '" width="1" height="1" style="display:none;" alt="" />';
             $rendered['html'] .= $trackingPixel;
@@ -77,6 +80,8 @@ class SendMarketingEmailJob implements ShouldQueue
             // en las ramas de campaña/secuencia arriba.
             $unsubscribeUrl = route('email.unsubscribe', ['token' => $this->send->tracking_token]);
             $rendered['html'] = str_replace('{{unsubscribe_url}}', $unsubscribeUrl, $rendered['html']);
+
+            $rendered['html'] = app(EmailTrackingService::class)->wrapLinksForTracking($rendered['html'], $this->send->tracking_token);
 
             $openTrackingUrl = route('email.open', ['token' => $this->send->tracking_token]);
             $trackingPixel   = '<img src="' . $openTrackingUrl . '" width="1" height="1" style="display:none;" alt="" />';

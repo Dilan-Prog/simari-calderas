@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Services\Statistics\ComprasStatsService;
 use App\Services\Statistics\EmbudoStatsService;
 use App\Services\Statistics\InventarioStatsService;
+use App\Services\Statistics\MarketingStatsService;
 use App\Services\Statistics\ReportesStatsService;
 use App\Services\Statistics\ResumenStatsService;
 use App\Services\Statistics\ServiciosStatsService;
@@ -44,6 +45,7 @@ class StatisticsController extends Controller
         'reportes'   => ['title' => 'Reportes de servicio', 'subtitle' => 'Mediciones fuera de rango y estatus de firma'],
         'inventario' => ['title' => 'Inventario', 'subtitle' => 'Movimientos por almacén, saldos y alertas de stock'],
         'tienda'     => ['title' => 'Tienda pública', 'subtitle' => 'Pedidos web PW y comparativa contra el canal B2B asistido'],
+        'marketing'  => ['title' => 'Marketing por correo', 'subtitle' => 'Apertura y clics de todos los correos enviados (manuales y automáticos)'],
     ];
 
     public function index(Request $request)
@@ -73,6 +75,7 @@ class StatisticsController extends Controller
             'reportes'   => app(ReportesStatsService::class)->summary($period),
             'inventario' => app(InventarioStatsService::class)->summary($period),
             'tienda'     => app(TiendaStatsService::class)->summary($period),
+            'marketing'  => app(MarketingStatsService::class)->summary($period),
             default      => app(ResumenStatsService::class)->summary($period),
         };
 

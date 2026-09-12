@@ -6,6 +6,7 @@ use App\Models\CustomerEmailSubscription;
 use App\Models\EmailCampaign;
 use App\Models\EmailSend;
 use Illuminate\Support\Facades\DB;
+use App\Services\EmailTrackingService;
 
 class EmailCampaignService
 {
@@ -66,6 +67,8 @@ class EmailCampaignService
         $unsubscribeUrl = route('email.unsubscribe', ['token' => $send->tracking_token]);
 
         $html = str_replace('{{unsubscribe_url}}', $unsubscribeUrl, $rendered['html']);
+
+        $html = app(EmailTrackingService::class)->wrapLinksForTracking($html, $send->tracking_token);
 
         $openTrackingUrl = route('email.open', ['token' => $send->tracking_token]);
 

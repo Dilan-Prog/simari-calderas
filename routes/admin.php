@@ -929,6 +929,7 @@ Route::controller(IntegrationController::class)
         Route::get('/integraciones', 'index')->name('integrations.index');
         Route::put('/integraciones', 'update')->name('integrations.update')->middleware('permission:settings,edit');
         Route::post('/integraciones/probar-correo', 'sendTestMail')->name('integrations.test-mail');
+        Route::post('/integraciones/probar-correo-cotizacion', 'sendTestQuoteEmail')->name('integrations.test-quote-mail');
     });
 
 // CRUD del catálogo "Webhooks" (entidad reutilizable para el nodo "Llamar

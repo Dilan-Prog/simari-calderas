@@ -222,6 +222,28 @@
                                         </div>
                                     </div>
                                 </form>
+
+                                <form method="POST" action="{{ route('admin.integrations.test-quote-mail') }}">
+                                    @csrf
+                                    <div class="pform-panel-wrap" style="margin-top:20px;">
+                                        <div class="pform-panel">
+                                            <h2 class="pform-panel-title">Probar correo de cotización (con PDF)</h2>
+                                            <p class="pform-hint" style="margin-bottom:16px;">
+                                                Diagnóstico: manda el mismo tipo de correo que usan las automatizaciones
+                                                (plantilla + PDF adjunto real) usando una cotización al azar de tu base
+                                                de datos, a la dirección que pongas — para confirmar si el adjunto
+                                                realmente llega.
+                                            </p>
+                                            <div class="pform-field">
+                                                <label class="pform-label" for="test_quote_email">Enviar prueba a</label>
+                                                <input type="email" id="test_quote_email" name="test_email" class="pform-input"
+                                                    value="{{ old('test_email', auth()->user()->email ?? '') }}"
+                                                    placeholder="tucorreo@ejemplo.com">
+                                            </div>
+                                            <button type="submit" class="pform-btn primary">Enviar correo de cotización de prueba</button>
+                                        </div>
+                                    </div>
+                                </form>
                             </div>
 
                             {{-- ---- Avanzado: webhook real de rebote (bounce) de Hostinger ---- --}}

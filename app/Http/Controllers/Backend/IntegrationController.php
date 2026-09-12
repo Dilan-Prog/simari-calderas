@@ -3,10 +3,14 @@
 namespace App\Http\Controllers\Backend;
 
 use App\Http\Controllers\Controller;
+use App\Models\EmailTemplate;
+use App\Models\Quote;
 use App\Models\Setting;
+use App\Services\EmailTemplateService;
+use App\Services\EmailTrackingService;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
-use Illuminate\Support\Facades\Mail;
 
 class IntegrationController extends Controller
 {
@@ -76,8 +80,7 @@ class IntegrationController extends Controller
         try {
             $logoUrl = asset('images/logo/Negro-color/Recurso%205equiterm-logo-negro-color-3x.png');
 
-            Mail::html(
-                '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#f2f3f5">'
+            $html = '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#f2f3f5">'
                 . '<tr><td align="center" style="padding:24px 12px;">'
                 . '<table role="presentation" width="480" cellpadding="0" cellspacing="0" border="0" bgcolor="#ffffff" style="width:480px;max-width:100%;">'
                 . '<tr><td align="left" bgcolor="#ffffff" style="padding:22px;">'
@@ -87,17 +90,68 @@ class IntegrationController extends Controller
                 . 'Este es un correo de prueba enviado desde el módulo de Integraciones de Equiterm Industries.<br><br>'
                 . 'Si lo estás leyendo (y ves el logo arriba), la configuración SMTP funciona correctamente.'
                 . '</td></tr>'
-                . '</table></td></tr></table>',
-                function ($message) use ($request) {
-                    $message->to($request->input('test_email'))
-                        ->subject('Correo de prueba — Equiterm Industries');
-                }
+                . '</table></td></tr></table>';
+
+            app(EmailTrackingService::class)->sendTracked(
+                $request->input('test_email'),
+                ['subject' => 'Correo de prueba — Equiterm Industries', 'html' => $html],
+                ['guest_email' => $request->input('test_email'), 'guest_name' => 'Prueba SMTP']
             );
         } catch (\Throwable $e) {
             return back()->with('mail_test_error', 'Falló el envío: ' . $e->getMessage());
         }
 
         return back()->with('mail_test_success', 'Correo de prueba enviado a ' . $request->input('test_email') . '. Revisa la bandeja (y spam).');
+    }
+
+    /**
+     * Diagnóstico: reproduce EXACTAMENTE el mismo camino de código que usa
+     * una automatización real al mandar "Enviar correo" con
+     * attach_source=quote_pdf (Pdf::loadView('admin.quotes.pdf') + adjunto
+     * vía MarketingEmailMailable) -- pero disparado a mano, a la direccion
+     * que se indique, contra una cotización real tomada al azar. Sirve para
+     * aislar si el PDF adjunto se genera/envía bien desde el código, sin
+     * depender de que corra el motor de workflows.
+     */
+    public function sendTestQuoteEmail(Request $request)
+    {
+        $request->validate(['test_email' => ['required', 'email']]);
+
+        $quote = Quote::with('items')->inRandomOrder()->first();
+
+        if (!$quote) {
+            return back()->with('mail_test_error', 'No hay ninguna cotización en la base de datos para usar de prueba.');
+        }
+
+        try {
+            $template = EmailTemplate::where('system_key', 'quote_manual_send')->firstOrFail();
+
+            $rendered = app(EmailTemplateService::class)->render(
+                $template,
+                $quote->customer,
+                null,
+                $quote,
+                $quote->customer ? null : $quote->guest_name,
+                $quote->customer ? null : $quote->guest_email,
+            );
+
+            $pdf = Pdf::loadView('admin.quotes.pdf', ['quote' => $quote])->setPaper('a4', 'portrait');
+
+            app(EmailTrackingService::class)->sendTracked(
+                $request->input('test_email'),
+                $rendered,
+                ['guest_email' => $request->input('test_email'), 'guest_name' => 'Prueba PDF automatización'],
+                [
+                    'content'  => $pdf->output(),
+                    'filename' => "{$quote->quote_number}.pdf",
+                    'mime'     => 'application/pdf',
+                ]
+            );
+        } catch (\Throwable $e) {
+            return back()->with('mail_test_error', 'Falló el envío: ' . $e->getMessage());
+        }
+
+        return back()->with('mail_test_success', "Correo de prueba con PDF de la cotización {$quote->quote_number} enviado a " . $request->input('test_email') . '. Revisa la bandeja (y spam).');
     }
 
     protected function saveSetting(string $key, $value, string $type = 'string'): void
