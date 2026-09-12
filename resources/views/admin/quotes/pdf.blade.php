@@ -363,6 +363,12 @@ thead { display: table-header-group; }
                 <div class="totals-lbl">IVA ({{ $quote->tax_rate }}%)</div>
                 <div class="totals-val">{{ $quote->currency }} ${{ number_format($quote->tax_total, 2) }}</div>
             </div>
+            @if($quote->isr_retention_total > 0)
+            <div class="totals-row">
+                <div class="totals-lbl">Retención ISR ({{ $quote->isr_retention_rate }}%)</div>
+                <div class="totals-val">− {{ $quote->currency }} ${{ number_format($quote->isr_retention_total, 2) }}</div>
+            </div>
+            @endif
             <div class="totals-final">
                 <div class="totals-final-lbl">Total</div>
                 <div class="totals-final-val">{{ $quote->currency }} ${{ number_format($quote->total, 2) }}</div>

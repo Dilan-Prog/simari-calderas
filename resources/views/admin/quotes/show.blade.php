@@ -200,6 +200,12 @@
                             <span>IVA ({{ $quote->tax_rate }}%)</span>
                             <span>{{ $quote->currency }} ${{ number_format($quote->tax_total, 2) }}</span>
                         </div>
+                        @if($quote->isr_retention_total > 0)
+                        <div class="totals-row">
+                            <span>Retención ISR ({{ $quote->isr_retention_rate }}%)</span>
+                            <span>− {{ $quote->currency }} ${{ number_format($quote->isr_retention_total, 2) }}</span>
+                        </div>
+                        @endif
                         <div class="totals-row totals-row--final">
                             <span>Total</span>
                             <span>{{ $quote->currency }} ${{ number_format($quote->total, 2) }}</span>
