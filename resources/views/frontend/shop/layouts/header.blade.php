@@ -247,19 +247,114 @@
       </div>
 
       {{-- MEGA MENU: SERVICIOS --}}
-      <div class="eq-mega eq-mega--servicios" x-show="activeMenu === 'servicios'" x-cloak @mouseenter="cancelClose()" @mouseleave="close()">
-        @forelse ($megaMenuServiceCategories as $category)
-          <div class="eq-mega__col">
-            <h4><a href="{{ url($category->publicPath()) }}">{{ $category->name }}</a></h4>
-            @forelse ($category->activeChildren as $child)
-              <a href="{{ url($child->publicPath()) }}">{{ $child->name }}</a>
-            @empty
-              <p class="eq-mega__empty">Próximamente</p>
-            @endforelse
-          </div>
-        @empty
-          <div class="eq-mega__col"><p>Próximamente</p></div>
-        @endforelse
+      @php
+          $firstServiceCategory = $megaMenuServiceCategories->first();
+          $firstServiceChildId = $firstServiceCategory?->activeChildren?->first()?->id;
+      @endphp
+      <div class="eq-mega eq-mega--servicios" x-show="activeMenu === 'servicios'" x-cloak
+           x-init="if (activeServiceCategoryId === null) { activeServiceCategoryId = {{ $firstServiceCategory?->id ?? 'null' }}; activeServiceId = {{ $firstServiceChildId ?? 'null' }}; }"
+           @mouseenter="cancelClose()" @mouseleave="close()">
+
+        <div class="eq-mega__col eq-mega__col--categories">
+          @forelse ($megaMenuServiceCategories as $category)
+            <a href="{{ url($category->publicPath()) }}" class="eq-mega__item" :class="{ 'is-active': activeServiceCategoryId === {{ $category->id }} }"
+               @mouseenter="setServiceCategory({{ $category->id }}, {{ optional($category->activeChildren->first())->id ?? 'null' }})">
+              {{ $category->name }}
+            </a>
+          @empty
+            <p class="eq-mega__empty">Próximamente</p>
+          @endforelse
+        </div>
+
+        <div class="eq-mega__col eq-mega__col--svc-list">
+          @foreach ($megaMenuServiceCategories as $category)
+            <template x-if="activeServiceCategoryId === {{ $category->id }}">
+              <div>
+                <div class="eq-mega__col-label">{{ $category->name }}</div>
+                <a href="{{ url($category->publicPath()) }}" class="eq-mega__see-all">Ver todos los servicios</a>
+                @forelse ($category->activeChildren as $child)
+                  <a href="{{ url($child->publicPath()) }}" class="eq-mega__item" :class="{ 'is-active': activeServiceId === {{ $child->id }} }" @mouseenter="setServiceId({{ $child->id }})">
+                    {{ $child->name }}
+                  </a>
+                @empty
+                  <p class="eq-mega__empty">Próximamente</p>
+                @endforelse
+              </div>
+            </template>
+          @endforeach
+        </div>
+
+        <div class="eq-mega__col eq-mega__col--svc-promo">
+          @forelse ($megaMenuServiceCategories as $category)
+            @foreach ($category->activeChildren as $child)
+              <template x-if="activeServiceId === {{ $child->id }}">
+                <div class="eq-mega__svc-promo">
+                  <div class="eq-mega__svc-promo-media">
+                    <div class="eq-mega__svc-promo-photo">
+                      @if ($child->promoMainImageUrl)
+                        <img src="{{ $child->promoMainImageUrl }}" alt="{{ $child->name }}">
+                      @endif
+                    </div>
+                    @if ($child->promoThumbs->isNotEmpty())
+                      <div class="eq-mega__svc-promo-thumbs">
+                        @foreach ($child->promoThumbs as $img)
+                          <img src="{{ $img->url }}" alt="{{ $img->alt_text ?? $child->name }}">
+                        @endforeach
+                      </div>
+                    @endif
+                  </div>
+
+                  <div class="eq-mega__svc-promo-body">
+                    <div class="eq-mega__col-label">{{ $category->name }}</div>
+                    <div class="eq-mega__svc-promo-title">{{ $child->short_description ?: $child->name }}</div>
+
+                    @if ($child->rating_average_displayed)
+                      <div class="eq-mega__svc-promo-rating">
+                        <span class="eq-mega__svc-promo-stars">
+                          @foreach ($child->promoStars as $filled)
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="{{ $filled ? '#ff6213' : '#e5e1de' }}"><path d="M12 2.6l2.9 5.9 6.5.95-4.7 4.6 1.1 6.45L12 17.45 6.2 20.5l1.1-6.45-4.7-4.6 6.5-.95L12 2.6z"/></svg>
+                          @endforeach
+                        </span>
+                        <strong>{{ number_format($child->rating_average_displayed, 1) }}</strong>
+                        @if ($child->rating_total_rated)
+                          <span class="eq-mega__svc-promo-reviews">({{ $child->rating_total_rated }} opiniones)</span>
+                        @endif
+                      </div>
+                    @endif
+
+                    @if ($child->promoChips->isNotEmpty())
+                      <div class="eq-mega__svc-promo-chips">
+                        @foreach ($child->promoChips as $chip)
+                          <span class="eq-mega__svc-promo-chip">{{ $chip }}</span>
+                        @endforeach
+                      </div>
+                    @endif
+
+                    @if ($child->promoQuoteText)
+                      <div class="eq-mega__svc-promo-quote">
+                        &ldquo;{{ $child->promoQuoteText }}&rdquo;
+                        <div class="eq-mega__svc-promo-quote-author">{{ $child->promoQuoteAuthor }}</div>
+                      </div>
+                    @endif
+
+                    <div class="eq-mega__svc-promo-points">
+                      <div><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ff6213" stroke-width="2.6"><path d="M20 6L9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg> Respuesta técnica en 24 h</div>
+                      <div><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ff6213" stroke-width="2.6"><path d="M20 6L9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg> Cotización sin costo</div>
+                      <div><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ff6213" stroke-width="2.6"><path d="M20 6L9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg> Reporte y garantía por escrito</div>
+                    </div>
+
+                    <div class="eq-mega__svc-promo-actions">
+                      <a href="{{ url($child->publicPath()) }}" class="eq-mega__svc-promo-btn eq-mega__svc-promo-btn--solid">Ver este servicio</a>
+                      <a href="https://wa.me/{{ \App\Models\Setting::get('footer.phone_link', '5214494577320') }}?text={{ urlencode('Hola, me interesa cotizar el servicio: ' . $child->name . ' - ' . url($child->publicPath())) }}" target="_blank" rel="noopener" class="eq-mega__svc-promo-btn eq-mega__svc-promo-btn--outline">Cotizar</a>
+                    </div>
+                  </div>
+                </div>
+              </template>
+            @endforeach
+          @empty
+            <div class="eq-mega__svc-promo-empty">Próximamente</div>
+          @endforelse
+        </div>
       </div>
     </nav>
   </div>

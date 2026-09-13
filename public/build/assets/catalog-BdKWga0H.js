@@ -1,0 +1,1 @@
+import{m as i}from"./alpine-init-Pyo8z4j8.js";i.data("priceRangeSlider",(m,s,t,a)=>({bounds:[m,s],min:t,max:a,syncMin(){this.min>this.max&&(this.min=this.max)},syncMax(){this.max<this.min&&(this.max=this.min)}}));i.start();

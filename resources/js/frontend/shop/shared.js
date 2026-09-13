@@ -136,6 +136,8 @@ Alpine.data('megaMenu', () => ({
     activeCategoryId: null,
     activeSubCategoryId: null,
     activeModelId: null,
+    activeServiceCategoryId: null,
+    activeServiceId: null,
     closeTimer: null,
 
     open(name) {
@@ -170,6 +172,19 @@ Alpine.data('megaMenu', () => ({
 
     setModel(id) {
         this.activeModelId = id;
+    },
+
+    // Al pasar a otra categoría de Servicios, el panel de promoción vuelve a
+    // mostrar el primer servicio de esa categoría (mismo criterio que el
+    // mockup: "hoverServiceSub" se reinicia a 0 en cada cambio de padre),
+    // en vez de quedar vacío hasta que el usuario mueva el mouse de nuevo.
+    setServiceCategory(id, firstChildId) {
+        this.activeServiceCategoryId = id;
+        this.activeServiceId = firstChildId;
+    },
+
+    setServiceId(id) {
+        this.activeServiceId = id;
     },
 }));
 

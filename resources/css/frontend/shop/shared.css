@@ -287,11 +287,38 @@ img { max-width: 100%; height: auto; display: block; }
     min-height: 420px;
     max-height: 74vh;
 }
-.eq-mega--servicios { padding: 24px 32px; gap: 32px; flex-wrap: wrap; }
-.eq-mega--servicios .eq-mega__col { flex: 1 1 200px; }
-.eq-mega--servicios .eq-mega__col h4 { font-size: 13px; font-weight: 800; margin-bottom: 10px; }
-.eq-mega--servicios .eq-mega__col a { display: block; padding: 6px 0; font-size: 13.5px; color: #374151; text-decoration: none; }
-.eq-mega--servicios .eq-mega__col a:hover { color: var(--secondary-color); }
+.eq-mega--servicios .eq-mega__col--categories { width: 220px; }
+.eq-mega--servicios .eq-mega__col--svc-list { width: 220px; flex-shrink: 0; padding: 20px 0; border-right: 1px solid rgba(0,0,0,0.06); }
+.eq-mega--servicios .eq-mega__col--svc-list .eq-mega__col-label { padding: 0 22px 4px; }
+.eq-mega--servicios .eq-mega__see-all { display: block; padding: 0 22px 14px; font-size: 12px; font-weight: 700; color: var(--secondary-color); text-decoration: none; }
+.eq-mega--servicios .eq-mega__see-all:hover { color: #de4a00; }
+.eq-mega--servicios .eq-mega__col--svc-promo { flex: 1; padding: 24px 28px; display: flex; align-items: flex-start; }
+.eq-mega__svc-promo { display: flex; gap: 24px; flex-wrap: wrap; width: 100%; }
+.eq-mega__svc-promo-media { flex: 1 1 210px; min-width: 180px; display: flex; flex-direction: column; gap: 10px; }
+.eq-mega__svc-promo-photo { width: 100%; height: 168px; border-radius: 8px; overflow: hidden; background: #f3f4f6; }
+.eq-mega__svc-promo-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.eq-mega__svc-promo-thumbs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.eq-mega__svc-promo-thumbs img { width: 100%; height: 64px; object-fit: cover; border-radius: 6px; display: block; }
+.eq-mega__svc-promo-body { flex: 1 1 240px; min-width: 200px; display: flex; flex-direction: column; gap: 10px; }
+.eq-mega__svc-promo-title { font-size: 18px; font-weight: 800; letter-spacing: -.3px; line-height: 1.25; color: #141516; }
+.eq-mega__svc-promo-rating { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.eq-mega__svc-promo-stars { display: flex; gap: 2px; }
+.eq-mega__svc-promo-rating strong { font-size: 13.5px; }
+.eq-mega__svc-promo-reviews { font-size: 12px; color: #6b7280; }
+.eq-mega__svc-promo-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.eq-mega__svc-promo-chip { font-size: 11px; font-weight: 700; color: #141516; background: #f7f7f8; border: 1px solid rgba(0,0,0,0.08); border-radius: 999px; padding: 4px 9px; white-space: nowrap; }
+.eq-mega__svc-promo-quote { border-left: 2px solid var(--secondary-color); padding: 2px 0 2px 12px; font-size: 12.5px; line-height: 1.5; color: #4b5563; }
+.eq-mega__svc-promo-quote-author { font-size: 11.5px; color: #9ca3af; margin-top: 4px; }
+.eq-mega__svc-promo-points { display: flex; flex-direction: column; gap: 6px; }
+.eq-mega__svc-promo-points div { display: flex; align-items: center; gap: 8px; font-size: 12.5px; font-weight: 600; color: #141516; }
+.eq-mega__svc-promo-points svg { flex-shrink: 0; }
+.eq-mega__svc-promo-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 4px; }
+.eq-mega__svc-promo-btn { font-size: 13px; font-weight: 700; padding: 10px 18px; border-radius: 6px; text-decoration: none; }
+.eq-mega__svc-promo-btn--solid { background: var(--secondary-color); color: #fff; }
+.eq-mega__svc-promo-btn--solid:hover { background: #de4a00; color: #fff; }
+.eq-mega__svc-promo-btn--outline { border: 1px solid rgba(0,0,0,0.18); color: #141516; }
+.eq-mega__svc-promo-btn--outline:hover { border-color: var(--secondary-color); color: var(--secondary-color); }
+.eq-mega__svc-promo-empty { padding: 40px; color: #9ca3af; font-size: 13px; }
 .eq-mega__col { overflow-y: auto; max-height: 74vh; }
 .eq-mega__col--categories { width: 230px; flex-shrink: 0; background: #f7f7f8; padding: 14px 0; border-right: 1px solid rgba(0,0,0,0.06); }
 .eq-mega__col--brands { width: 230px; flex-shrink: 0; padding: 20px 0; border-right: 1px solid rgba(0,0,0,0.06); }

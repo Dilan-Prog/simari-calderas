@@ -95,13 +95,21 @@ class ShopMegaMenuComposer
         // la fuente de verdad de esa misma estructura de 2 niveles.
         $serviceCategories = ServicePage::where('page_type', ServicePage::TYPE_CATEGORY)
             ->where('is_active', true)
-            ->with(['activeChildren' => fn ($q) => $q->orderBy('name')])
+            ->with(['activeChildren' => fn ($q) => $q->orderBy('name')
+                ->with([
+                    'images' => fn ($qi) => $qi->orderBy('sort_order'),
+                    'reviews' => fn ($qr) => $qr->where('is_visible', true)->orderBy('sort_order')->limit(1),
+                ]),
+            ])
             ->orderBy('sort_order')
             ->orderBy('name')
             ->get();
 
         $serviceCategories->each(function (ServicePage $category) {
-            $category->activeChildren->each(fn (ServicePage $child) => $child->setRelation('parent', $category));
+            $category->activeChildren->each(function (ServicePage $child) use ($category) {
+                $child->setRelation('parent', $category);
+                $this->attachMegaMenuPromoData($child);
+            });
         });
 
         $view->with([
@@ -110,5 +118,50 @@ class ShopMegaMenuComposer
             'headerMainItems'           => $headerMain ? $headerMain->rootItems()->get() : collect(),
             'megaMenuServiceCategories' => $serviceCategories,
         ]);
+    }
+
+    /**
+     * Precalcula, sobre el propio modelo (atributos ad-hoc, no persistidos),
+     * todo lo que el panel de promoción del mega-menú de Servicios necesita
+     * mostrar de un servicio hoja — mantiene el Blade enfocado en markup en
+     * vez de repetir esta lógica ahí. Usa solo datos ya reales del servicio
+     * (rating_*, reseñas visibles, galería); si algo no está configurado
+     * simplemente no se muestra esa parte del panel (nunca se inventa dato).
+     */
+    protected function attachMegaMenuPromoData(ServicePage $child): void
+    {
+        // cover_image_url debería estar sincronizado con la imagen
+        // sort_order=0 de la galería, pero no todo camino de escritura lo
+        // garantiza — se usa como respaldo la primera imagen de la galería
+        // si el campo está vacío, para no dejar el panel sin foto principal
+        // teniendo imágenes reales cargadas.
+        $child->setAttribute('promoMainImageUrl', $child->cover_image_url ?: $child->images->first()?->url);
+        $child->setAttribute('promoThumbs', $child->images->skip(1)->take(2)->values());
+
+        $child->setAttribute('promoStars', collect(range(1, 5))->map(
+            fn ($i) => $child->rating_average_displayed && $i <= round($child->rating_average_displayed)
+        ));
+
+        $child->setAttribute('promoChips', collect([
+            $child->rating_punctuality_average ? 'Puntualidad ' . number_format($child->rating_punctuality_average, 1) : null,
+            $child->rating_recommend_percent ? 'Recomendación ' . number_format($child->rating_recommend_percent, 0) . '%' : null,
+            $child->rating_recurring_clients ? 'Clientes recurrentes ' . number_format($child->rating_recurring_clients, 0) . '%' : null,
+        ])->filter()->take(3)->values());
+
+        $review = $child->reviews->first();
+
+        if ($review) {
+            $metaParts = collect([
+                $review->customer_role,
+                $review->customer_company,
+                trim(collect([$review->customer_city, $review->customer_state])->filter()->implode(', ')),
+            ])->filter();
+
+            $child->setAttribute('promoQuoteText', \Illuminate\Support\Str::limit($review->comment, 140));
+            $child->setAttribute('promoQuoteAuthor', $review->customer_name . ($metaParts->isNotEmpty() ? ' · ' . $metaParts->implode(' · ') : ''));
+        } else {
+            $child->setAttribute('promoQuoteText', null);
+            $child->setAttribute('promoQuoteAuthor', null);
+        }
     }
 }
