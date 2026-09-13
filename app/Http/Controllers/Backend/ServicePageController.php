@@ -299,6 +299,7 @@ class ServicePageController extends Controller
             'short_description' => 'nullable|string',
             'price'             => 'nullable|numeric|min:0',
             'currency'          => 'nullable|string|max:10',
+            'show_price'        => 'nullable|boolean',
             'seo_title'         => 'nullable|string|max:160',
             'seo_description'   => 'nullable|string|max:500',
             'is_active'         => 'nullable|boolean',
@@ -352,6 +353,7 @@ class ServicePageController extends Controller
         $servicePage->short_description = $validated['short_description'] ?: null;
         $servicePage->price = $validated['price'] !== null && $validated['price'] !== '' ? $validated['price'] : null;
         $servicePage->currency = $validated['currency'] ?: 'MXN';
+        $servicePage->show_price = $request->boolean('show_price', true);
         $servicePage->seo_title = $validated['seo_title'] ?: null;
         $servicePage->seo_description = $validated['seo_description'] ?: null;
         $servicePage->is_active = $request->boolean('is_active');
@@ -366,6 +368,7 @@ class ServicePageController extends Controller
             'short_description' => $servicePage->short_description,
             'price' => $servicePage->price,
             'currency' => $servicePage->currency,
+            'show_price' => $servicePage->show_price,
             'seo_title' => $servicePage->seo_title,
             'seo_description' => $servicePage->seo_description,
             'is_active' => $servicePage->is_active,

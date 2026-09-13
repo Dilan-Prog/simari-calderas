@@ -108,7 +108,7 @@
                 @if ($servicePage->short_description)
                     <p>{{ $servicePage->short_description }}</p>
                 @endif
-                @if ($servicePage->price)
+                @if ($servicePage->price && $servicePage->show_price)
                     <span class="collection-hero__count">Desde ${{ number_format($servicePage->price, 2) }} {{ $servicePage->currency }}</span>
                 @endif
             </div>

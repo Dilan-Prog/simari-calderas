@@ -146,7 +146,7 @@
     let viewport = 'desktop';
 
     const generalData = Object.assign({
-        name: '', slug: '', short_description: '', price: '', currency: 'MXN',
+        name: '', slug: '', short_description: '', price: '', currency: 'MXN', show_price: true,
         seo_title: '', seo_description: '', is_active: false,
     }, DATA.general || {});
 
@@ -206,6 +206,19 @@
     function escHtml(s) {
         return String(s ?? '').replace(/&/g, '&amp;').replace(/"/g, '&quot;')
             .replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    // Mismo criterio de slugify ya usado en Colecciones/Productos/Marcas/
+    // Categorías (ver _scripts.blade.php de cada uno) -- aquí como botón
+    // "Generar" explícito en vez de auto-sync al teclear el Nombre, porque
+    // este panel siempre edita un servicio ya existente y no queremos
+    // reescribir su slug (rompiendo la URL pública) sin que el usuario lo
+    // pida a propósito.
+    function slugify(value) {
+        return String(value ?? '').toLowerCase()
+            .normalize('NFD').replace(/[^\x00-\x7F]/g, '')
+            .replace(/[^a-z0-9\s-]/g, '')
+            .trim().replace(/\s+/g, '-');
     }
 
     function markDirty() {
@@ -393,7 +406,12 @@
                 </span>
             </div>
             ${field('Nombre', `<input type="text" class="users-manager-input" id="leGenName" value="${escHtml(generalData.name)}">`)}
-            ${field('Slug (URL)', `<input type="text" class="users-manager-input" id="leGenSlug" value="${escHtml(generalData.slug)}">`, '')}
+            ${field('Slug (URL)', `
+                <div style="display:flex;gap:8px;">
+                    <input type="text" class="users-manager-input" id="leGenSlug" value="${escHtml(generalData.slug)}" style="flex:1;">
+                    <button type="button" id="leGenSlugGenerate" class="live-editor-btn live-editor-btn--outline" title="Generar a partir del nombre">Generar</button>
+                </div>
+            `, '')}
             <div class="live-editor-field-row">
                 ${field('Tipo de página', `
                     <select class="users-manager-select" id="leGenPageType">
@@ -415,6 +433,12 @@
                 ${field('Precio (opcional)', `<input type="number" step="0.01" min="0" class="users-manager-input" id="leGenPrice" value="${escHtml(generalData.price)}">`)}
                 ${field('Moneda', `<input type="text" class="users-manager-input" id="leGenCurrency" value="${escHtml(generalData.currency)}" maxlength="10">`)}
             </div>
+            ${field('Visibilidad del precio', `
+                <label style="display:flex;align-items:center;gap:8px;font-weight:400;font-size:13px;color:#374151;">
+                    <input type="checkbox" id="leGenShowPrice" ${generalData.show_price ? 'checked' : ''}> Mostrar el precio en el sitio público
+                </label>
+                <p class="hs-config-note" style="margin-top:4px;">Si lo desmarcas, el servicio se sigue publicando pero sin precio visible — útil para cotizar en privado.</p>
+            `)}
             ${field('Estado', `
                 <label style="display:flex;align-items:center;gap:8px;font-weight:400;font-size:13px;color:#374151;">
                     <input type="checkbox" id="leGenIsActive" ${generalData.is_active ? 'checked' : ''}> Publicado (visible en el sitio público)
@@ -428,6 +452,12 @@
         `;
 
         editPanel.querySelector('#leGenSaveBtn').addEventListener('click', saveGeneralInfo);
+
+        editPanel.querySelector('#leGenSlugGenerate').addEventListener('click', () => {
+            const nameInput = editPanel.querySelector('#leGenName');
+            editPanel.querySelector('#leGenSlug').value = slugify(nameInput.value);
+            markDirty();
+        });
 
         const pageTypeSelect = editPanel.querySelector('#leGenPageType');
         const parentField = editPanel.querySelector('.leGenParentField');
@@ -455,6 +485,7 @@
             short_description: editPanel.querySelector('#leGenShortDesc').value,
             price: editPanel.querySelector('#leGenPrice').value,
             currency: editPanel.querySelector('#leGenCurrency').value,
+            show_price: editPanel.querySelector('#leGenShowPrice').checked,
             is_active: editPanel.querySelector('#leGenIsActive').checked,
             seo_title: editPanel.querySelector('#leGenSeoTitle').value,
             seo_description: editPanel.querySelector('#leGenSeoDesc').value,

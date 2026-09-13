@@ -718,6 +718,7 @@
                 'short_description' => $servicePage->short_description,
                 'price' => $servicePage->price,
                 'currency' => $servicePage->currency ?: 'MXN',
+                'show_price' => (bool) $servicePage->show_price,
                 'seo_title' => $servicePage->seo_title,
                 'seo_description' => $servicePage->seo_description,
                 'is_active' => (bool) $servicePage->is_active,
