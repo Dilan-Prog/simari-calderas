@@ -343,6 +343,10 @@
                     <p class="hs-config-note" style="margin-top:4px;">El CTA siempre abre WhatsApp; no existe botón de llamada.</p>
                 </div>
                 <div class="users-manager-email-camp">
+                    <label class="supliers-manager-slider-label">Precio mostrado (opcional, texto libre)</label>
+                    <input type="text" class="users-manager-input" name="rh_price_label" id="ssRhPriceLabel" placeholder="$8,500 MXN + IVA">
+                </div>
+                <div class="users-manager-email-camp">
                     <label class="supliers-manager-slider-label">Imágenes de fondo (de la galería del servicio, pestaña Multimedia)</label>
                     <select class="users-manager-select" name="rh_background_image_ids[]" id="ssRhBackgroundImageIds" multiple size="4">
                         @foreach ($servicePage->images as $img)

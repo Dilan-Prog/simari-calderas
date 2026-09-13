@@ -45,6 +45,27 @@
         cta_final: 'CTA final',
     };
 
+    // Iconos por tipo de bloque (mismo set de stroke-icons ya usado en el
+    // resto del admin) — puramente decorativo, no afecta el config guardado.
+    const ICONS = {
+        banner: '<rect width="18" height="12" x="3" y="6" rx="2"/><path d="M3 10h18"/>',
+        dual_banner: '<rect width="8" height="14" x="3" y="5" rx="1.5"/><rect width="8" height="14" x="13" y="5" rx="1.5"/>',
+        product_carousel: '<circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/>',
+        product_carousel_banner: '<rect width="18" height="12" x="3" y="6" rx="2"/><circle cx="9" cy="12" r="2"/>',
+        category_grid: '<rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/>',
+        brand_carousel: '<path d="M12 2 2 7l10 5 10-5-10-5Z"/><path d="m2 17 10 5 10-5"/><path d="m2 12 10 5 10-5"/>',
+        html_block: '<polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>',
+        faq: '<circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" x2="12.01" y1="17" y2="17"/>',
+        rich_header: '<rect width="20" height="14" x="2" y="3" rx="2"/><line x1="2" x2="22" y1="9" y2="9"/>',
+        content_tabs: '<path d="M21 15V6"/><path d="M18.5 18a2.5 2.5 0 1 0 0-5H8a2 2 0 1 0 0 4h10"/><path d="M3 3v18"/><path d="M14 6H3"/>',
+        benefits_grid: '<rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/>',
+        process_steps: '<path d="M4 17V9a2 2 0 0 1 2-2h2"/><path d="m18 8 4 4-4 4"/><path d="M4 21v-2a2 2 0 0 1 2-2h2"/><path d="M14 3h6v6"/>',
+        gallery_carousel: '<rect width="18" height="18" x="3" y="3" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>',
+        rating_reviews: '<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>',
+        cta_final: '<path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>',
+        default: '<rect width="18" height="18" x="3" y="3" rx="2"/>',
+    };
+
     const SOURCE_LABELS = {
         featured: 'Destacados',
         new: 'Nuevos',
@@ -88,7 +109,7 @@
             case 'faq':
                 return { description: '' };
             case 'rich_header':
-                return { badges: [], whatsapp_text: 'Cotizar por WhatsApp', meta_lines: [], background_image_ids: [] };
+                return { badges: [], whatsapp_text: 'Cotizar por WhatsApp', meta_lines: [], background_image_ids: [], price_label: '' };
             case 'content_tabs':
                 return { tabs: [] };
             case 'benefits_grid':
@@ -177,13 +198,18 @@
             row.draggable = true;
             row.dataset.uid = section._uid;
 
+            const iconPath = ICONS[section.type] || ICONS.default;
+
             row.innerHTML = `
                 <span class="live-editor-block-drag-handle" title="Arrastrar para reordenar">
                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="5" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="9" cy="19" r="1"/><circle cx="15" cy="5" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="19" r="1"/></svg>
                 </span>
+                <span class="live-editor-block-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${iconPath}</svg>
+                </span>
                 <span class="live-editor-block-info">
+                    <span class="live-editor-block-name">${escHtml(section.title || TYPE_LABELS[section.type] || section.type)}</span>
                     <span class="live-editor-block-type">${escHtml(TYPE_LABELS[section.type] || section.type)}</span>
-                    <span class="live-editor-block-title">${escHtml(section.title || 'Sin título')}</span>
                 </span>
                 <span class="live-editor-block-actions">
                     <button type="button" class="live-editor-toggle-active ${section.is_active ? 'is-on' : ''}" title="Activa/Inactiva"></button>
@@ -305,9 +331,19 @@
             return;
         }
 
+        const iconPath = ICONS[section.type] || ICONS.default;
+
         editPanel.innerHTML = `
             <div class="live-editor-panel-header">
-                <h3>Editando bloque: ${escHtml(TYPE_LABELS[section.type] || section.type)}</h3>
+                <span class="live-editor-panel-header-info">
+                    <span class="live-editor-block-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${iconPath}</svg>
+                    </span>
+                    <span>
+                        <strong>${escHtml(section.title || TYPE_LABELS[section.type] || section.type)}</strong>
+                        <small>Editando bloque</small>
+                    </span>
+                </span>
                 <button type="button" class="live-editor-panel-close" id="lePanelClose" title="Cerrar">&times;</button>
             </div>
             ${field('Título (opcional, puedes usar {servicio})', `<input type="text" class="users-manager-input" id="leTitle" value="${escHtml(section.title)}" placeholder="Ej: Beneficios del servicio">`)}
@@ -663,6 +699,7 @@
             ${field('Líneas de meta (una por línea)', `<textarea class="users-manager-input client-modal-textarea" id="leRhMetaLines" rows="2">${escHtml((cfg.meta_lines || []).join('\n'))}</textarea>`)}
             ${field('Texto del botón', `<input type="text" class="users-manager-input" id="leRhWhatsapp" value="${escHtml(cfg.whatsapp_text || 'Cotizar por WhatsApp')}">`)}
             <p class="hs-config-note">El CTA siempre abre WhatsApp; no existe botón de llamada.</p>
+            ${field('Precio mostrado (opcional)', `<input type="text" class="users-manager-input" id="leRhPriceLabel" value="${escHtml(cfg.price_label)}" placeholder="$8,500 MXN + IVA">`)}
             ${field('Imágenes de fondo (galería del servicio)', `<select class="users-manager-select" id="leRhBgImages" multiple size="4">${imagesOptionsHtml(cfg.background_image_ids, DATA.images)}</select>`)}
         `;
 
@@ -678,6 +715,11 @@
         });
         container.querySelector('#leRhWhatsapp').addEventListener('input', (e) => {
             cfg.whatsapp_text = e.target.value;
+            markDirty();
+            schedulePreview();
+        });
+        container.querySelector('#leRhPriceLabel').addEventListener('input', (e) => {
+            cfg.price_label = e.target.value;
             markDirty();
             schedulePreview();
         });
@@ -864,26 +906,51 @@
     }
 
     iframe.addEventListener('load', () => {
-        const section = findSection(selectedUid);
-        if (!section || !section.id) return;
         try {
             const doc = iframe.contentDocument;
             if (!doc) return;
-            const style = doc.createElement('style');
-            style.textContent = `[data-section-id="${section.id}"] { outline: 3px solid #ff6213; outline-offset: 2px; }`;
-            doc.head.appendChild(style);
+
+            const section = findSection(selectedUid);
+            if (section && section.id) {
+                const style = doc.createElement('style');
+                style.textContent = `[data-section-id="${section.id}"] { outline: 3px solid #ff6213; outline-offset: 2px; cursor: pointer; }`;
+                doc.head.appendChild(style);
+            }
+
+            // Click sobre cualquier bloque de la vista previa selecciona ese
+            // mismo bloque en el panel izquierdo/central — solo funciona para
+            // bloques ya guardados (con id real), ver nota en data-section-id
+            // de los partials públicos.
+            doc.body.addEventListener('click', (e) => {
+                const el = e.target.closest('[data-section-id]');
+                if (!el) return;
+                const sectionId = el.getAttribute('data-section-id');
+                const match = draftSections.find((s) => String(s.id) === String(sectionId));
+                if (match) {
+                    e.preventDefault();
+                    selectSection(match._uid);
+                }
+            }, true);
         } catch (err) {
             // Cross-origin u otro problema de acceso al iframe — no rompe el editor.
         }
     });
 
     // ── Toggle Escritorio / Móvil ────────────────────────────────────
+    const viewportCaption = document.getElementById('leViewportCaption');
+
+    function updateViewportCaption() {
+        if (!viewportCaption) return;
+        viewportCaption.textContent = viewport === 'mobile' ? 'Móvil · 375px' : 'Escritorio · 1440px';
+    }
+
     viewportToggle.addEventListener('click', (e) => {
         const btn = e.target.closest('button[data-viewport]');
         if (!btn) return;
         viewport = btn.dataset.viewport;
         viewportToggle.querySelectorAll('button').forEach((b) => b.classList.toggle('is-active', b === btn));
         iframe.classList.toggle('is-mobile', viewport === 'mobile');
+        updateViewportCaption();
     });
 
     // ── Guardar cambios ──────────────────────────────────────────────

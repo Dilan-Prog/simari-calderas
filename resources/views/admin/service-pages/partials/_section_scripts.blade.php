@@ -442,6 +442,7 @@
             } else if (type === 'rich_header') {
                 document.getElementById('ssRhBadges').value = (config.badges ?? []).join(' · ');
                 document.getElementById('ssRhWhatsappText').value = config.whatsapp_text ?? 'Cotizar por WhatsApp';
+                document.getElementById('ssRhPriceLabel').value = config.price_label ?? '';
                 document.getElementById('ssRhMetaLines').value = (config.meta_lines ?? []).join('\n');
                 const bgIds = (config.background_image_ids ?? []).map(String);
                 Array.from(document.getElementById('ssRhBackgroundImageIds').options).forEach(opt => {

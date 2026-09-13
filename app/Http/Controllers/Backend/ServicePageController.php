@@ -362,6 +362,9 @@ class ServicePageController extends Controller
                     'whatsapp_text'         => $request->input('rh_whatsapp_text') ?: 'Cotizar por WhatsApp',
                     'meta_lines'            => array_values(array_filter((array) $request->input('rh_meta_lines', []))),
                     'background_image_ids'  => array_values(array_filter(array_map('intval', (array) $request->input('rh_background_image_ids', [])))),
+                    // Texto libre (no numérico) para permitir formatos tipo
+                    // "$8,500 MXN + IVA" — independiente de service_pages.price.
+                    'price_label'           => $request->input('rh_price_label') ?: null,
                 ];
 
             case 'content_tabs':

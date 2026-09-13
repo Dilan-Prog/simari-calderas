@@ -20,7 +20,8 @@
 .svc-header__badges { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
 .svc-header__badge { font-size: 12px; font-weight: 600; padding: 5px 10px; border-radius: 999px; background: rgba(255,255,255,.1); color: #fff; }
 .svc-header h1 { font-size: clamp(26px, 4vw, 38px); line-height: 1.15; margin: 0 0 12px; }
-.svc-header__subtitle { font-size: 15px; line-height: 1.5; color: rgba(255,255,255,.82); margin: 0 0 20px; max-width: 560px; }
+.svc-header__subtitle { font-size: 15px; line-height: 1.5; color: rgba(255,255,255,.82); margin: 0 0 12px; max-width: 560px; }
+.svc-header__price { font-size: 15px; font-weight: 700; color: #fff; margin: 0 0 16px; }
 .svc-header__meta { display: flex; flex-direction: column; gap: 2px; font-size: 12.5px; color: rgba(255,255,255,.65); margin-top: 10px; }
 
 /* WhatsApp CTA — botón único en todo el sitio, nunca tel: */
