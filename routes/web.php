@@ -79,10 +79,15 @@ Route::controller(CheckoutController::class)->prefix('finalizar-pedido')->name('
 });
 Route::get('/producto/{slug}', [ShopProductController::class, 'show'])->name('product.show');
 Route::get('/coleccion/{slug}', [ShopCollectionController::class, 'show'])->name('collection.show');
-// Singular a propósito: /servicios/... ya tiene 9+ rutas estáticas de un
-// segmento (ver bloque "new/old services" más abajo); /servicio/{slug}
-// evita colisionar con ellas sin depender del orden de registro.
-Route::get('/servicio/{slug}', [ShopServicePageController::class, 'show'])->name('service-page.show');
+// Arquitectura de 3 niveles (hub → categoría → servicio), todas resueltas
+// por ServicePage vía page_type/parent_id — ver ShopServicePageController.
+// /servicio/{slug} (singular) se conserva para páginas "planas" legacy sin
+// padre; showLegacy() redirige 301 a la ruta anidada si el servicio ya
+// tiene categoría asignada.
+Route::get('/servicios', [ShopServicePageController::class, 'hub'])->name('service-pages.hub');
+Route::get('/servicios/{level2}/{level3}', [ShopServicePageController::class, 'showNested'])->name('service-pages.level3');
+Route::get('/servicios/{level2}', [ShopServicePageController::class, 'category'])->name('service-pages.level2');
+Route::get('/servicio/{slug}', [ShopServicePageController::class, 'showLegacy'])->name('service-page.show');
 
 // Aviso de Privacidad / Términos y Condiciones — únicas 2 páginas del sitio
 // viejo que sobreviven, migradas a shop porque el footer y el registro de

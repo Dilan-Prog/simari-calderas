@@ -271,9 +271,20 @@ class ServicePageController extends Controller
     {
         $request->merge(['slug' => Str::slug((string) $request->slug)]);
 
+        $parentId = $request->input('parent_id') ?: null;
+
         $validated = $request->validate([
             'name'              => 'required|string|max:180',
-            'slug'              => 'required|string|max:255|unique:service_pages,slug,' . $servicePage->id,
+            'slug'              => [
+                'required', 'string', 'max:255',
+                Rule::unique('service_pages', 'slug')
+                    ->where(fn ($q) => $parentId ? $q->where('parent_id', $parentId) : $q->whereNull('parent_id'))
+                    ->ignore($servicePage->id),
+            ],
+            'page_type'         => 'required|string|in:' . implode(',', [
+                ServicePage::TYPE_HUB, ServicePage::TYPE_CATEGORY, ServicePage::TYPE_SERVICE,
+            ]),
+            'parent_id'         => 'nullable|integer|exists:service_pages,id',
             'short_description' => 'nullable|string',
             'price'             => 'nullable|numeric|min:0',
             'currency'          => 'nullable|string|max:10',
@@ -282,8 +293,28 @@ class ServicePageController extends Controller
             'is_active'         => 'nullable|boolean',
         ]);
 
+        // Un hub nunca tiene padre; y una página no puede ser su propio
+        // ancestro (evita ciclos al reasignar parent_id).
+        if ($validated['page_type'] === ServicePage::TYPE_HUB) {
+            $parentId = null;
+        } elseif ($parentId) {
+            if ((int) $parentId === $servicePage->id) {
+                return response()->json(['success' => false, 'errors' => [
+                    'parent_id' => ['Una página no puede ser su propio padre.'],
+                ]], 422);
+            }
+            $ancestorIds = collect(ServicePage::find($parentId)?->ancestors() ?? [])->pluck('id')->push($parentId);
+            if ($ancestorIds->contains($servicePage->id)) {
+                return response()->json(['success' => false, 'errors' => [
+                    'parent_id' => ['No puedes elegir un descendiente de esta página como su padre.'],
+                ]], 422);
+            }
+        }
+
         $servicePage->name = $validated['name'];
         $servicePage->slug = $validated['slug'];
+        $servicePage->page_type = $validated['page_type'];
+        $servicePage->parent_id = $parentId;
         $servicePage->short_description = $validated['short_description'] ?: null;
         $servicePage->price = $validated['price'] !== null && $validated['price'] !== '' ? $validated['price'] : null;
         $servicePage->currency = $validated['currency'] ?: 'MXN';
@@ -295,6 +326,9 @@ class ServicePageController extends Controller
         return response()->json(['success' => true, 'servicePage' => [
             'name' => $servicePage->name,
             'slug' => $servicePage->slug,
+            'page_type' => $servicePage->page_type,
+            'parent_id' => $servicePage->parent_id,
+            'public_path' => $servicePage->publicPath(),
             'short_description' => $servicePage->short_description,
             'price' => $servicePage->price,
             'currency' => $servicePage->currency,
@@ -773,7 +807,19 @@ class ServicePageController extends Controller
         $brands = Brand::orderBy('name')->get(['id', 'name']);
         $collections = Collection::where('is_active', true)->orderBy('name')->get(['id', 'name']);
 
-        return view('admin.service-pages.live-editor', compact('servicePage', 'categories', 'brands', 'collections'));
+        // Padres elegibles para el selector "Página padre" del panel
+        // Información general: cualquier hub o categoría que no sea la
+        // propia página (evita auto-referencia; los ciclos más profundos
+        // los rechaza updateGeneral() en el servidor).
+        $eligibleParents = ServicePage::whereIn('page_type', [ServicePage::TYPE_HUB, ServicePage::TYPE_CATEGORY])
+            ->where('id', '!=', $servicePage->id)
+            ->orderBy('page_type')
+            ->orderBy('name')
+            ->get(['id', 'name', 'page_type']);
+
+        return view('admin.service-pages.live-editor', compact(
+            'servicePage', 'categories', 'brands', 'collections', 'eligibleParents'
+        ));
     }
 
     /**
@@ -807,10 +853,14 @@ class ServicePageController extends Controller
             return $section;
         })->filter(fn ($s) => $s->is_active)->values();
 
+        $children = $servicePage->activeChildren()->orderBy('name')->get();
+
         $html = view('frontend.shop.service-page.show', [
             'servicePage' => $servicePage,
             'sections'    => $draftSections,
             'previewMode' => true,
+            'ancestors'   => $servicePage->ancestors(),
+            'children'    => $children,
         ])->render();
 
         return response()->json(['html' => $html]);

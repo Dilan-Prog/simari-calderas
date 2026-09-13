@@ -7,7 +7,7 @@
     $metaDescription = $servicePage->seo_description
         ?: \Illuminate\Support\Str::limit(strip_tags($servicePage->short_description ?? $servicePage->description ?? ''), 160)
         ?: ('Conoce el servicio ' . $servicePage->name . ' de Equiterm Industries.');
-    $canonicalUrl = route('service-page.show', $servicePage->slug);
+    $canonicalUrl = url($servicePage->publicPath());
 
     $ogImage = $servicePage->og_image_url ?: $servicePage->cover_image_url;
     if ($ogImage && !str_starts_with($ogImage, 'http')) {
@@ -90,6 +90,12 @@
 <div class="eq-shop-service">
     <div class="collection-breadcrumb">
         <a href="{{ route('home') }}">Inicio</a>
+        @if ($servicePage->page_type !== \App\Models\ServicePage::TYPE_HUB)
+            &nbsp;›&nbsp; <a href="{{ route('service-pages.hub') }}">Servicios</a>
+        @endif
+        @foreach ($ancestors as $ancestor)
+            &nbsp;›&nbsp; <a href="{{ url($ancestor->publicPath()) }}">{{ $ancestor->name }}</a>
+        @endforeach
         &nbsp;›&nbsp; <span>{{ $servicePage->name }}</span>
     </div>
 
@@ -126,5 +132,33 @@
     @foreach ($sections as $section)
         @include('frontend.shop.home.sections.' . str_replace('_', '-', $section->type), ['section' => $section, 'servicePage' => $servicePage, 'previewMode' => $previewMode ?? false])
     @endforeach
+
+    @if ($children->isNotEmpty())
+        {{-- Grid automático hacia los hijos (hub → categorías, categoría →
+             servicios) — no es un bloque configurable, se arma solo según
+             la jerarquía real, igual que el breadcrumb. --}}
+        <section class="svc-children">
+            <h2 class="svc-children__title">
+                {{ $servicePage->page_type === \App\Models\ServicePage::TYPE_HUB ? 'Categorías de servicio' : 'Servicios en ' . $servicePage->name }}
+            </h2>
+            <div class="svc-children__grid">
+                @foreach ($children as $child)
+                    <a href="{{ url($child->publicPath()) }}" class="svc-children__card">
+                        @if ($child->cover_image_url)
+                            <div class="svc-children__card-image">
+                                <img src="{{ $child->cover_image_url }}" alt="{{ $child->name }}">
+                            </div>
+                        @endif
+                        <div class="svc-children__card-body">
+                            <p class="svc-children__card-title">{{ $child->name }}</p>
+                            @if ($child->short_description)
+                                <p class="svc-children__card-desc">{{ \Illuminate\Support\Str::limit($child->short_description, 100) }}</p>
+                            @endif
+                        </div>
+                    </a>
+                @endforeach
+            </div>
+        </section>
+    @endif
 </div>
 @endsection

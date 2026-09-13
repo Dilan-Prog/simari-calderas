@@ -394,6 +394,22 @@
             </div>
             ${field('Nombre', `<input type="text" class="users-manager-input" id="leGenName" value="${escHtml(generalData.name)}">`)}
             ${field('Slug (URL)', `<input type="text" class="users-manager-input" id="leGenSlug" value="${escHtml(generalData.slug)}">`, '')}
+            <div class="live-editor-field-row">
+                ${field('Tipo de página', `
+                    <select class="users-manager-select" id="leGenPageType">
+                        <option value="service" ${generalData.page_type === 'service' ? 'selected' : ''}>Servicio (nivel 3)</option>
+                        <option value="category" ${generalData.page_type === 'category' ? 'selected' : ''}>Categoría (nivel 2)</option>
+                        <option value="hub" ${generalData.page_type === 'hub' ? 'selected' : ''}>Hub — /servicios (nivel 1)</option>
+                    </select>
+                `)}
+                ${field('Página padre', `
+                    <select class="users-manager-select" id="leGenParentId">
+                        <option value="">Sin padre (nivel raíz)</option>
+                        ${(DATA.eligibleParents || []).map((p) => `<option value="${p.id}" ${String(generalData.parent_id) === String(p.id) ? 'selected' : ''}>${escHtml(p.name)} (${p.page_type === 'hub' ? 'Hub' : 'Categoría'})</option>`).join('')}
+                    </select>
+                `, 'leGenParentField')}
+            </div>
+            <p class="hs-config-note">/servicios → hub · /servicios/{categoría} → nivel 2 · /servicios/{categoría}/{servicio} → nivel 3. Un servicio sin padre se sirve en /servicio/{slug} (legacy).</p>
             ${field('Descripción corta', `<textarea class="users-manager-input client-modal-textarea" id="leGenShortDesc" rows="2">${escHtml(generalData.short_description)}</textarea>`)}
             <div class="live-editor-field-row">
                 ${field('Precio (opcional)', `<input type="number" step="0.01" min="0" class="users-manager-input" id="leGenPrice" value="${escHtml(generalData.price)}">`)}
@@ -412,6 +428,14 @@
         `;
 
         editPanel.querySelector('#leGenSaveBtn').addEventListener('click', saveGeneralInfo);
+
+        const pageTypeSelect = editPanel.querySelector('#leGenPageType');
+        const parentField = editPanel.querySelector('.leGenParentField');
+        const toggleParentField = () => {
+            if (parentField) parentField.style.display = pageTypeSelect.value === 'hub' ? 'none' : '';
+        };
+        pageTypeSelect.addEventListener('change', toggleParentField);
+        toggleParentField();
     }
 
     async function saveGeneralInfo() {
@@ -421,9 +445,12 @@
         errorsBox.innerHTML = '';
         document.querySelectorAll('#leEditPanel .is-invalid').forEach((el) => el.classList.remove('is-invalid'));
 
+        const pageType = editPanel.querySelector('#leGenPageType').value;
         const payload = {
             name: editPanel.querySelector('#leGenName').value,
             slug: editPanel.querySelector('#leGenSlug').value,
+            page_type: pageType,
+            parent_id: pageType === 'hub' ? '' : editPanel.querySelector('#leGenParentId').value,
             short_description: editPanel.querySelector('#leGenShortDesc').value,
             price: editPanel.querySelector('#leGenPrice').value,
             currency: editPanel.querySelector('#leGenCurrency').value,
@@ -450,9 +477,12 @@
                 document.title = 'Editor en vivo - ' + generalData.name + ' - Admin';
 
                 const browserUrlEl = document.getElementById('leBrowserUrl');
-                if (browserUrlEl) browserUrlEl.textContent = 'equitermindustries.com.mx/servicio/' + generalData.slug;
+                if (browserUrlEl) browserUrlEl.textContent = 'equitermindustries.com.mx' + generalData.public_path;
                 const viewLiveLink = document.getElementById('leViewLiveLink');
-                if (viewLiveLink) viewLiveLink.href = viewLiveLink.href.replace(/\/servicio\/[^/?#]+/, '/servicio/' + generalData.slug);
+                if (viewLiveLink) {
+                    const origin = window.location.origin;
+                    viewLiveLink.href = origin + generalData.public_path;
+                }
 
                 if (window.showCenterToast) showCenterToast('Información general guardada.');
                 schedulePreview();
@@ -460,7 +490,7 @@
                 const errors = data.errors || {};
                 errorsBox.innerHTML = Object.values(errors).flat().map((m) => `<p>${m}</p>`).join('');
                 errorsBox.style.display = 'block';
-                const fieldMap = { name: 'leGenName', slug: 'leGenSlug', short_description: 'leGenShortDesc', price: 'leGenPrice', currency: 'leGenCurrency', seo_title: 'leGenSeoTitle', seo_description: 'leGenSeoDesc' };
+                const fieldMap = { name: 'leGenName', slug: 'leGenSlug', page_type: 'leGenPageType', parent_id: 'leGenParentId', short_description: 'leGenShortDesc', price: 'leGenPrice', currency: 'leGenCurrency', seo_title: 'leGenSeoTitle', seo_description: 'leGenSeoDesc' };
                 Object.keys(errors).forEach((f) => {
                     const el = editPanel.querySelector('#' + (fieldMap[f] || ''));
                     if (el) el.classList.add('is-invalid');

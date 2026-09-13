@@ -713,13 +713,19 @@
             'general' => [
                 'name' => $servicePage->name,
                 'slug' => $servicePage->slug,
+                'page_type' => $servicePage->page_type,
+                'parent_id' => $servicePage->parent_id,
                 'short_description' => $servicePage->short_description,
                 'price' => $servicePage->price,
                 'currency' => $servicePage->currency ?: 'MXN',
                 'seo_title' => $servicePage->seo_title,
                 'seo_description' => $servicePage->seo_description,
                 'is_active' => (bool) $servicePage->is_active,
+                'public_path' => $servicePage->publicPath(),
             ],
+            'eligibleParents' => $eligibleParents->map(fn ($p) => [
+                'id' => $p->id, 'name' => $p->name, 'page_type' => $p->page_type,
+            ])->values(),
             'sections' => $servicePage->sections->map(fn ($s) => [
                 'id' => $s->id,
                 'type' => $s->type,

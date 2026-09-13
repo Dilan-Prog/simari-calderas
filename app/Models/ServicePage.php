@@ -5,11 +5,20 @@ namespace App\Models;
 use App\Support\UploadPath;
 use App\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class ServicePage extends Model
 {
     use LogsActivity;
+
+    // page_type — arquitectura de 3 niveles bajo /servicios/:
+    // hub (/servicios), category (/servicios/{slug}), service hoja
+    // (/servicios/{categoria}/{slug}, o /servicio/{slug} si no tiene padre —
+    // ver ShopServicePageController para el detalle de resolución de URL).
+    public const TYPE_HUB = 'hub';
+    public const TYPE_CATEGORY = 'category';
+    public const TYPE_SERVICE = 'service';
 
     protected static function logEntityType(): string
     {
@@ -17,7 +26,7 @@ class ServicePage extends Model
     }
 
     protected $fillable = [
-        'name', 'slug', 'short_description', 'description',
+        'name', 'slug', 'page_type', 'parent_id', 'short_description', 'description',
         'price', 'currency', 'cover_image_url', 'is_active', 'sort_order',
         'seo_title', 'seo_description', 'og_image_url', 'faqs',
         // Estadísticas de marketing editables a mano — nunca alimentan el
@@ -36,6 +45,64 @@ class ServicePage extends Model
         'rating_recommend_percent'   => 'decimal:2',
         'rating_punctuality_average' => 'decimal:2',
     ];
+
+    public function parent(): BelongsTo
+    {
+        return $this->belongsTo(ServicePage::class, 'parent_id');
+    }
+
+    public function children(): HasMany
+    {
+        return $this->hasMany(ServicePage::class, 'parent_id')->orderBy('sort_order');
+    }
+
+    public function activeChildren(): HasMany
+    {
+        return $this->children()->where('is_active', true);
+    }
+
+    /**
+     * Cadena de ancestros de raíz a hoja (sin incluir $this), para
+     * breadcrumbs y para resolver la URL pública real. Como esta jerarquía
+     * es de máximo 2 niveles de profundidad (hub → categoría → servicio),
+     * un loop simple basta — no hace falta CTE recursivo.
+     */
+    public function ancestors(): array
+    {
+        $chain = [];
+        $node = $this->parent;
+
+        while ($node && count($chain) < 5) {
+            array_unshift($chain, $node);
+            $node = $node->parent;
+        }
+
+        return $chain;
+    }
+
+    /**
+     * URL pública real según el nivel:
+     *  - hub                              → /servicios
+     *  - category (nivel 2)               → /servicios/{slug}
+     *  - service con padre category       → /servicios/{categoria}/{slug}
+     *  - service sin padre (legacy plano) → /servicio/{slug}
+     */
+    public function publicPath(): string
+    {
+        if ($this->page_type === self::TYPE_HUB) {
+            return '/servicios';
+        }
+
+        if ($this->page_type === self::TYPE_CATEGORY) {
+            return '/servicios/' . $this->slug;
+        }
+
+        if ($this->parent && $this->parent->page_type === self::TYPE_CATEGORY) {
+            return '/servicios/' . $this->parent->slug . '/' . $this->slug;
+        }
+
+        return '/servicio/' . $this->slug;
+    }
 
     public function sections(): HasMany
     {
@@ -63,20 +130,34 @@ class ServicePage extends Model
     }
 
     /**
-     * A diferencia de Category (que propaga a descendientes), ServicePage no
-     * tiene jerarquía — solo necesita redirigir su propia URL vieja cuando
-     * cambia el slug. Se usa `updated` (no `saved`) para poder leer con
-     * confianza el valor anterior vía getOriginal() antes de que se pierda.
+     * Redirige 301 la URL vieja cuando cambia el slug, el padre o el
+     * page_type (los 3 determinan la URL pública en la jerarquía de 3
+     * niveles — ej. "promover" un servicio plano a categoría cambia slug Y
+     * page_type en la misma edición). Se usa `updated` (no `saved`) para
+     * poder leer con confianza los valores anteriores vía getOriginal()
+     * antes de que se pierdan.
      */
     protected static function booted(): void
     {
         static::updated(function (ServicePage $service) {
-            if ($service->wasChanged('slug')) {
-                $old = $service->getOriginal('slug');
+            $relevant = ['slug', 'parent_id', 'page_type'];
+            if (!collect($relevant)->contains(fn ($attr) => $service->wasChanged($attr))) {
+                return;
+            }
 
-                if ($old) {
-                    Redirect::record('/servicio/' . $old, '/servicio/' . $service->slug);
-                }
+            // Reconstruye la ruta vieja con TODOS los atributos originales
+            // que afectan publicPath(), no solo el que cambió.
+            $old = $service->replicate();
+            $old->slug = $service->getOriginal('slug');
+            $old->parent_id = $service->getOriginal('parent_id');
+            $old->page_type = $service->getOriginal('page_type');
+            $old->setRelation('parent', $old->parent_id ? static::find($old->parent_id) : null);
+
+            $oldPath = $old->publicPath();
+            $newPath = $service->publicPath();
+
+            if ($oldPath !== $newPath) {
+                Redirect::record($oldPath, $newPath);
             }
         });
     }
