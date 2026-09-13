@@ -154,6 +154,47 @@
     const saveBtn = document.getElementById('leSaveBtn');
     const viewportToggle = document.getElementById('leViewportToggle');
 
+    // ── Modal de confirmación al eliminar un bloque (reemplaza confirm()) ──
+    const deleteModal = document.getElementById('leDeleteModal');
+    const deleteModalTitle = document.getElementById('leDeleteModalTitle');
+    const deleteModalAvatar = document.getElementById('leDeleteModalAvatar');
+    const deleteModalCancel = document.getElementById('leDeleteModalCancel');
+    const deleteModalConfirm = document.getElementById('leDeleteModalConfirm');
+    let pendingDeleteUid = null;
+
+    function openDeleteModal(section) {
+        pendingDeleteUid = section._uid;
+        const label = section.title || TYPE_LABELS[section.type] || section.type;
+        deleteModalTitle.textContent = label;
+        deleteModalAvatar.textContent = label.charAt(0).toUpperCase();
+        deleteModal.classList.add('active');
+    }
+
+    function closeDeleteModal() {
+        pendingDeleteUid = null;
+        deleteModal.classList.remove('active');
+    }
+
+    deleteModalCancel.addEventListener('click', closeDeleteModal);
+    deleteModal.addEventListener('click', (e) => {
+        if (e.target === deleteModal) closeDeleteModal();
+    });
+
+    deleteModalConfirm.addEventListener('click', () => {
+        if (!pendingDeleteUid) return;
+        const uid = pendingDeleteUid;
+        const idx = draftSections.findIndex((s) => s._uid === uid);
+        if (idx !== -1) draftSections.splice(idx, 1);
+        if (selectedUid === uid) {
+            selectedUid = null;
+            renderPanel();
+        }
+        closeDeleteModal();
+        markDirty();
+        renderBlocksList();
+        schedulePreview();
+    });
+
     function escHtml(s) {
         return String(s ?? '').replace(/&/g, '&amp;').replace(/"/g, '&quot;')
             .replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -234,16 +275,7 @@
 
             row.querySelector('.live-editor-block-delete').addEventListener('click', (e) => {
                 e.stopPropagation();
-                if (!confirm('¿Eliminar este bloque? Esta acción no se puede deshacer al guardar.')) return;
-                const idx = draftSections.findIndex((s) => s._uid === section._uid);
-                if (idx !== -1) draftSections.splice(idx, 1);
-                if (selectedUid === section._uid) {
-                    selectedUid = null;
-                    renderPanel();
-                }
-                markDirty();
-                renderBlocksList();
-                schedulePreview();
+                openDeleteModal(section);
             });
 
             // ── Drag & drop nativo, mismo patrón que _section_scripts.blade.php
