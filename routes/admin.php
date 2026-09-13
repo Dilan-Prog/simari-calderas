@@ -1001,6 +1001,11 @@ Route::controller(CollectionController::class)
         Route::put('/editar/{id}', 'update')->name('update')->middleware('permission:collections,edit');
         Route::delete('/eliminar/{id}', 'destroy')->name('destroy')->middleware('permission:collections,delete');
         Route::get('/buscar-productos', 'searchProducts')->name('products.search');
+        // Alias de products.tags.suggestions bajo permiso de collections: el
+        // picker de etiquetas del rule-builder vive aquí, no en Productos, y
+        // un usuario con permiso de collections pero no de products no debe
+        // depender del permiso ajeno solo para ver sugerencias de etiqueta.
+        Route::get('/etiquetas/buscar', [ProductController::class, 'tagSuggestions'])->name('tags.suggestions');
         Route::get('/{collection}/productos', 'show')->name('show');
         Route::post('/{collection}/productos', 'addProduct')->name('products.add')->middleware('permission:collections,edit');
         Route::delete('/{collection}/productos/{product}', 'removeProduct')->name('products.remove')->middleware('permission:collections,delete');

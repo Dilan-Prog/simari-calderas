@@ -100,18 +100,32 @@
                                 <option value="less_than" style="display:none;">Menor que</option>
                             </select>
                             <span class="rule-value-wrap">
-                                <input type="text" class="users-manager-input rule-value rule-value-text"
-                                    name="rule_value[]" placeholder="valor de la etiqueta">
-                                <select class="users-manager-select rule-value rule-value-category" name="rule_value[]" style="display:none;" disabled>
-                                    @foreach ($categories as $cat)
-                                        <option value="{{ $cat->id }}">{{ $cat->name }}</option>
-                                    @endforeach
-                                </select>
-                                <select class="users-manager-select rule-value rule-value-brand" name="rule_value[]" style="display:none;" disabled>
-                                    @foreach ($brands as $brand)
-                                        <option value="{{ $brand->id }}">{{ $brand->name }}</option>
-                                    @endforeach
-                                </select>
+                                <input type="text" class="users-manager-input rule-value rule-value-text rvp-input"
+                                    name="rule_value[]" placeholder="valor de la etiqueta" autocomplete="off"
+                                    data-rvp-mode="ajax" data-rvp-endpoint="{{ route('admin.collections.tags.suggestions') }}">
+
+                                <span class="rvp-combo" style="display:none;">
+                                    <input type="text" class="users-manager-input rvp-input" placeholder="Buscar categoría..." autocomplete="off" disabled
+                                        data-rvp-mode="local" data-rvp-source-selector=".rule-value-category">
+                                    <select class="users-manager-select rule-value rule-value-category rvp-source-select" name="rule_value[]" disabled>
+                                        <option value=""></option>
+                                        @foreach ($categories as $cat)
+                                            <option value="{{ $cat->id }}">{{ $cat->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </span>
+
+                                <span class="rvp-combo" style="display:none;">
+                                    <input type="text" class="users-manager-input rvp-input" placeholder="Buscar marca..." autocomplete="off" disabled
+                                        data-rvp-mode="local" data-rvp-source-selector=".rule-value-brand">
+                                    <select class="users-manager-select rule-value rule-value-brand rvp-source-select" name="rule_value[]" disabled>
+                                        <option value=""></option>
+                                        @foreach ($brands as $brand)
+                                            <option value="{{ $brand->id }}">{{ $brand->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </span>
+
                                 <input type="number" class="users-manager-input rule-value rule-value-price"
                                     name="rule_value[]" placeholder="0.00" step="0.01" style="display:none;" disabled>
                             </span>
@@ -134,12 +148,18 @@
                     <label class="supliers-manager-slider-label">Título SEO (máx. 160)</label>
                     <input type="text" class="users-manager-input" name="seo_title" id="collectionSeoTitle"
                         maxlength="160" placeholder="Ej: Calentadores Rinnai en oferta | Equiterm Industries">
+                    <div class="pform-char-row">
+                        <span class="pform-char-count" id="collectionSeoTitleCount">0/160</span>
+                    </div>
                 </div>
 
                 <div class="users-manager-email-camp">
                     <label class="supliers-manager-slider-label">Descripción SEO (máx. 500)</label>
                     <textarea class="users-manager-input client-modal-textarea" name="seo_description" id="collectionSeoDescription"
                         rows="2" maxlength="500" placeholder="Descripción que aparece en los resultados de Google."></textarea>
+                    <div class="pform-char-row">
+                        <span class="pform-char-count" id="collectionSeoDescriptionCount">0/500</span>
+                    </div>
                 </div>
 
                 <div class="users-manager-email-camp">
@@ -150,6 +170,18 @@
                             <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
                             Seleccionar
                         </button>
+                    </div>
+                </div>
+
+                <div class="users-manager-email-camp">
+                    <label class="supliers-manager-slider-label">Vista previa en Google</label>
+                    <div class="pform-google-preview">
+                        <div class="pform-google-url">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
+                            equitermindustries.com.mx › coleccion › <span id="collectionGoogleSlugPreview">coleccion-ejemplo</span>
+                        </div>
+                        <h3 class="pform-google-title" id="collectionGoogleTitle">Nombre de la colección</h3>
+                        <p class="pform-google-desc" id="collectionGoogleDesc">Agrega una descripción SEO para ver cómo se mostrará esta colección en los resultados de búsqueda de Google.</p>
                     </div>
                 </div>
 

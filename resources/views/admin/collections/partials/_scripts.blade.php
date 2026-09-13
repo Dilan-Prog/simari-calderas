@@ -50,8 +50,20 @@
 
                 Object.entries(valueInputs).forEach(([key, input]) => {
                     const active = key === field;
-                    input.style.display = active ? '' : 'none';
+                    const combo = input.closest('.rvp-combo');
+
                     input.disabled = !active;
+
+                    if (combo) {
+                        // Categoría/Marca: el <select> real (input aquí) se
+                        // queda siempre oculto por CSS -- lo que se
+                        // muestra/oculta es el buscador que lo envuelve.
+                        combo.style.display = active ? '' : 'none';
+                        const searchInput = combo.querySelector('.rvp-input');
+                        if (searchInput) searchInput.disabled = !active;
+                    } else {
+                        input.style.display = active ? '' : 'none';
+                    }
                 });
 
                 if (field === 'price') {
@@ -88,6 +100,37 @@
         }
 
         collectionTypeSelect.addEventListener('change', toggleTypeFields);
+
+        /* ── SEO: contador de caracteres + vista previa de Google ── */
+        const collectionSeoTitleInput = document.getElementById('collectionSeoTitle');
+        const collectionSeoTitleCount = document.getElementById('collectionSeoTitleCount');
+        const collectionSeoDescInput = document.getElementById('collectionSeoDescription');
+        const collectionSeoDescCount = document.getElementById('collectionSeoDescriptionCount');
+
+        function updateCollectionGooglePreview() {
+            document.getElementById('collectionGoogleTitle').textContent =
+                collectionSeoTitleInput.value || document.getElementById('collectionName').value || 'Nombre de la colección';
+            document.getElementById('collectionGoogleDesc').textContent =
+                collectionSeoDescInput.value || 'Agrega una descripción SEO para ver cómo se mostrará esta colección en los resultados de búsqueda de Google.';
+            document.getElementById('collectionGoogleSlugPreview').textContent =
+                document.getElementById('collectionSlug').value || 'coleccion-ejemplo';
+        }
+
+        function updateCollectionSeoCounters() {
+            collectionSeoTitleCount.textContent = collectionSeoTitleInput.value.length + '/160';
+            collectionSeoDescCount.textContent = collectionSeoDescInput.value.length + '/500';
+        }
+
+        collectionSeoTitleInput.addEventListener('input', () => {
+            updateCollectionSeoCounters();
+            updateCollectionGooglePreview();
+        });
+        collectionSeoDescInput.addEventListener('input', () => {
+            updateCollectionSeoCounters();
+            updateCollectionGooglePreview();
+        });
+        document.getElementById('collectionName').addEventListener('input', updateCollectionGooglePreview);
+        document.getElementById('collectionSlug').addEventListener('input', updateCollectionGooglePreview);
 
         /* ── FAQ de la colección (repeater indexado faq_items[N][...]) ── */
         const collectionFaqRows = document.getElementById('collectionFaqRows');
@@ -134,6 +177,8 @@
             collectionFaqRows.innerHTML = '';
             ruleRowsContainer.innerHTML = '';
             toggleTypeFields();
+            updateCollectionSeoCounters();
+            updateCollectionGooglePreview();
             errorsContainer.style.display = 'none';
             errorsContainer.innerHTML = '';
             currentCollectionId = null;
@@ -264,6 +309,8 @@
                         document.getElementById('collectionSeoTitle').value = col.seo_title ?? '';
                         document.getElementById('collectionSeoDescription').value = col.seo_description ?? '';
                         document.getElementById('collectionOgImageUrl').value = col.og_image_url ?? '';
+                        updateCollectionSeoCounters();
+                        updateCollectionGooglePreview();
                         collectionFaqRows.innerHTML = '';
                         (col.faqs ?? []).forEach(f => addCollectionFaqRow(f.question ?? '', f.answer ?? ''));
 
@@ -279,7 +326,21 @@
                                 row.querySelector('.rule-operator').value = rule.operator;
 
                                 const activeInput = row.querySelector(`.rule-value-${rule.field === 'category_id' ? 'category' : rule.field === 'brand_id' ? 'brand' : rule.field === 'price' ? 'price' : 'text'}`);
-                                if (activeInput) activeInput.value = rule.value;
+                                if (activeInput) {
+                                    activeInput.value = rule.value;
+
+                                    // Categoría/Marca: el valor real vive en
+                                    // el <select> oculto (arriba) -- el
+                                    // buscador visible se sincroniza aparte
+                                    // mostrando la etiqueta de esa opción,
+                                    // para no verse vacío al editar.
+                                    const combo = activeInput.closest('.rvp-combo');
+                                    if (combo) {
+                                        const opt = activeInput.querySelector(`option[value="${CSS.escape(String(rule.value))}"]`);
+                                        const searchInput = combo.querySelector('.rvp-input');
+                                        if (searchInput) searchInput.value = opt ? opt.textContent : '';
+                                    }
+                                }
                             });
                         } else if (col.type === 'automatic') {
                             addRuleRow();

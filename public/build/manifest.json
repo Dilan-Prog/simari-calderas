@@ -66,7 +66,7 @@
     "isEntry": true
   },
   "resources/css/admin/pages/collections.css": {
-    "file": "assets/collections-DjcPTaGW.css",
+    "file": "assets/collections-A7i2apd6.css",
     "src": "resources/css/admin/pages/collections.css",
     "isEntry": true
   },
@@ -363,6 +363,12 @@
     "file": "assets/roles-BCQOyqrL.js",
     "name": "roles",
     "src": "resources/js/admin/roles.js",
+    "isEntry": true
+  },
+  "resources/js/admin/rule-value-picker.js": {
+    "file": "assets/rule-value-picker-WmlQaP54.js",
+    "name": "rule-value-picker",
+    "src": "resources/js/admin/rule-value-picker.js",
     "isEntry": true
   },
   "resources/js/admin/shipments.js": {
