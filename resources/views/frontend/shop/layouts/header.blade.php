@@ -248,12 +248,14 @@
 
       {{-- MEGA MENU: SERVICIOS --}}
       <div class="eq-mega eq-mega--servicios" x-show="activeMenu === 'servicios'" x-cloak @mouseenter="cancelClose()" @mouseleave="close()">
-        @forelse ($headerServiciosItems as $item)
+        @forelse ($megaMenuServiceCategories as $category)
           <div class="eq-mega__col">
-            <h4>{{ $item->title }}</h4>
-            @foreach ($item->children as $child)
-              <a href="{{ $child->resolved_url }}" target="{{ $child->target }}">{{ $child->title }}</a>
-            @endforeach
+            <h4><a href="{{ url($category->publicPath()) }}">{{ $category->name }}</a></h4>
+            @forelse ($category->activeChildren as $child)
+              <a href="{{ url($child->publicPath()) }}">{{ $child->name }}</a>
+            @empty
+              <p class="eq-mega__empty">Próximamente</p>
+            @endforelse
           </div>
         @empty
           <div class="eq-mega__col"><p>Próximamente</p></div>

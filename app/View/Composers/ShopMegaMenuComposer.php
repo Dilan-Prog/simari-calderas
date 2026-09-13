@@ -5,6 +5,7 @@ namespace App\View\Composers;
 use App\Models\Category;
 use App\Models\Menu;
 use App\Models\Products;
+use App\Models\ServicePage;
 use Illuminate\View\View;
 
 class ShopMegaMenuComposer
@@ -86,13 +87,28 @@ class ShopMegaMenuComposer
         }
 
         $headerMain = Menu::where('location', 'header-main')->where('is_active', true)->first();
-        $headerServicios = Menu::where('location', 'header-servicios')->where('is_active', true)->first();
+
+        // El mega-menú "Servicios" se alimenta directo de la jerarquía real
+        // de ServicePage (categoría -> servicios hoja) en vez del sistema
+        // genérico de Menú (location='header-servicios') — no tiene sentido
+        // curar a mano un menú aparte cuando el catálogo de Servicios ya es
+        // la fuente de verdad de esa misma estructura de 2 niveles.
+        $serviceCategories = ServicePage::where('page_type', ServicePage::TYPE_CATEGORY)
+            ->where('is_active', true)
+            ->with(['activeChildren' => fn ($q) => $q->orderBy('name')])
+            ->orderBy('sort_order')
+            ->orderBy('name')
+            ->get();
+
+        $serviceCategories->each(function (ServicePage $category) {
+            $category->activeChildren->each(fn (ServicePage $child) => $child->setRelation('parent', $category));
+        });
 
         $view->with([
-            'megaMenuCategories'       => $categories,
-            'megaMenuCategoryProducts' => $categoryProducts,
-            'headerMainItems'          => $headerMain ? $headerMain->rootItems()->get() : collect(),
-            'headerServiciosItems'     => $headerServicios ? $headerServicios->rootItems()->get() : collect(),
+            'megaMenuCategories'        => $categories,
+            'megaMenuCategoryProducts'  => $categoryProducts,
+            'headerMainItems'           => $headerMain ? $headerMain->rootItems()->get() : collect(),
+            'megaMenuServiceCategories' => $serviceCategories,
         ]);
     }
 }
