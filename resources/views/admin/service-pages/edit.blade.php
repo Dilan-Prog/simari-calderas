@@ -16,7 +16,7 @@
             </p>
             <h1 style="margin:0 0 4px;">Editar Servicio</h1>
             <p class="breadcrumb-clients-manager main">
-                <a href="{{ route('service-page.show', $servicePage->slug) }}" target="_blank">Ver página pública ↗</a>
+                <a href="{{ url($servicePage->publicPath()) }}" target="_blank">Ver página pública ↗</a>
             </p>
         </div>
     </div>

@@ -55,7 +55,12 @@ class ServicePageController extends Controller
             return $this->redirectOrAbort($request);
         }
 
-        $children = $category->activeChildren()->orderBy('name')->get();
+        // Cada hijo ya sabe quién es su padre (es $category, la que acabamos
+        // de cargar) — se le asigna la relación directamente en vez de
+        // dejar que publicPath() la resuelva perezosamente por cada uno al
+        // renderizar la grilla de hijos (evita N+1 queries).
+        $children = $category->activeChildren()->orderBy('name')->get()
+            ->each(fn (ServicePage $child) => $child->setRelation('parent', $category));
 
         return $this->renderServicePage($category, $children);
     }

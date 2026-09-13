@@ -159,6 +159,60 @@ class ServicePage extends Model
             if ($oldPath !== $newPath) {
                 Redirect::record($oldPath, $newPath);
             }
+
+            // Si esta página es (o era) una categoría y cambió su slug o su
+            // page_type, sus hijos directos (servicios hoja) recalculan
+            // publicPath() en base al slug/tipo NUEVO del padre en cuanto se
+            // les consulte — pero como el evento `updated` de ESTE modelo no
+            // dispara el de los hijos, sus URLs viejas quedarían huérfanas
+            // (404 real, sin redirect) si no se reconstruyen aquí también.
+            $slugOrTypeChanged = $service->wasChanged('slug') || $service->wasChanged('page_type');
+            $wasOrIsCategory = $old->page_type === self::TYPE_CATEGORY || $service->page_type === self::TYPE_CATEGORY;
+
+            if ($slugOrTypeChanged && $wasOrIsCategory) {
+                static::recordChildRedirects($service, $old);
+            }
+        });
+
+        static::deleting(function (ServicePage $service) {
+            // parent_id tiene nullOnDelete() a nivel de BD: al borrar una
+            // categoría, sus hijos sobreviven pero quedan sin padre en el
+            // mismo UPDATE de la FK, sin disparar ningún evento Eloquent en
+            // ellos. Sin este hook, esas URLs anidadas quedarían huérfanas
+            // (404 real) en el momento exacto del borrado.
+            if ($service->page_type === self::TYPE_CATEGORY) {
+                static::recordChildRedirects($service, $service, forceOrphan: true);
+            }
+        });
+    }
+
+    /**
+     * Registra un Redirect por cada hijo directo (tipo service) de $category
+     * cuya URL pública cambia porque el propio $category cambió de slug o de
+     * page_type — comparando la URL que tenía cada hijo bajo $old (el estado
+     * anterior de $category) contra la que tiene ahora. Con $forceOrphan=true
+     * (caso borrado), la URL "nueva" se calcula asumiendo que el hijo se
+     * queda sin padre, ya que en ese momento $category todavía existe en BD.
+     */
+    private static function recordChildRedirects(ServicePage $category, ServicePage $old, bool $forceOrphan = false): void
+    {
+        $category->children()->where('page_type', self::TYPE_SERVICE)->get()->each(function (ServicePage $child) use ($old, $forceOrphan) {
+            $oldChildClone = $child->replicate();
+            $oldChildClone->setRelation('parent', $old);
+            $oldChildPath = $oldChildClone->publicPath();
+
+            if ($forceOrphan) {
+                $newChildClone = $child->replicate();
+                $newChildClone->parent_id = null;
+                $newChildClone->setRelation('parent', null);
+                $newChildPath = $newChildClone->publicPath();
+            } else {
+                $newChildPath = $child->publicPath();
+            }
+
+            if ($oldChildPath !== $newChildPath) {
+                Redirect::record($oldChildPath, $newChildPath);
+            }
         });
     }
 }

@@ -5,7 +5,7 @@
         ? $servicePage->images->firstWhere('id', $config['background_image_id'])?->url
         : null;
 
-    $whatsappMessage = "Hola, me interesa cotizar el servicio: {$servicePage->name} - " . route('service-page.show', $servicePage->slug);
+    $whatsappMessage = "Hola, me interesa cotizar el servicio: {$servicePage->name} - " . url($servicePage->publicPath());
     $whatsappUrl = 'https://wa.me/' . \App\Models\Setting::get('footer.phone_link', '5214494577320') . '?text=' . urlencode($whatsappMessage);
 @endphp
 

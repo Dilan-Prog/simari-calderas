@@ -56,7 +56,7 @@
                         <td style="padding:12px 16px;">
                             <div style="display:flex;flex-direction:column;">
                                 <span style="font-weight:700;font-size:14px;">{{ $servicePage->name }}</span>
-                                <span style="font-size:12px;color:#6b7280;">/servicio/{{ $servicePage->slug }}</span>
+                                <span style="font-size:12px;color:#6b7280;">{{ $servicePage->publicPath() }}</span>
                             </div>
                         </td>
                         <td data-col="precio" style="padding:12px 16px;">
@@ -72,7 +72,7 @@
                         </td>
                         <td style="padding:12px 16px;">
                             <div class="header-right-user-manager">
-                                <a href="{{ route('service-page.show', $servicePage->slug) }}" target="_blank"
+                                <a href="{{ url($servicePage->publicPath()) }}" target="_blank"
                                     class="table-users-manager-action-btn" title="Ver página pública">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/></svg>
                                 </a>

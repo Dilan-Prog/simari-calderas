@@ -284,7 +284,18 @@ class ServicePageController extends Controller
             'page_type'         => 'required|string|in:' . implode(',', [
                 ServicePage::TYPE_HUB, ServicePage::TYPE_CATEGORY, ServicePage::TYPE_SERVICE,
             ]),
-            'parent_id'         => 'nullable|integer|exists:service_pages,id',
+            // Solo una categoría puede ser padre de un servicio: publicPath()
+            // únicamente anida la URL cuando el padre es TYPE_CATEGORY (un
+            // hub nunca lo es), así que permitir el hub aquí dejaba crear un
+            // servicio con padre real pero sin ninguna ruta pública que lo
+            // sirva (showLegacy() exige parent_id NULL, y la nidificada
+            // exige un padre categoría) — página huérfana e inalcanzable.
+            'parent_id'         => [
+                'nullable', 'integer',
+                Rule::exists('service_pages', 'id')->where(
+                    fn ($q) => $q->where('page_type', ServicePage::TYPE_CATEGORY)
+                ),
+            ],
             'short_description' => 'nullable|string',
             'price'             => 'nullable|numeric|min:0',
             'currency'          => 'nullable|string|max:10',
@@ -301,7 +312,26 @@ class ServicePageController extends Controller
         // propio ancestro (ciclos al reasignar parent_id).
         if (in_array($validated['page_type'], [ServicePage::TYPE_HUB, ServicePage::TYPE_CATEGORY], true)) {
             $parentId = null;
-        } elseif ($parentId) {
+        }
+
+        // Solo puede existir un hub: la vista pública (/servicios) toma el
+        // primero que encuentra con ->first() sin ningún criterio de
+        // desempate, así que un segundo hub dejaría en ambigüedad silenciosa
+        // cuál de los dos se muestra.
+        if ($validated['page_type'] === ServicePage::TYPE_HUB) {
+            $otherHubExists = ServicePage::where('page_type', ServicePage::TYPE_HUB)
+                ->where('id', '!=', $servicePage->id)
+                ->exists();
+            if ($otherHubExists) {
+                return response()->json(['success' => false, 'errors' => [
+                    'page_type' => ['Ya existe un hub de Servicios. Solo puede haber uno — cambia el tipo de la página existente antes de crear otro.'],
+                ]], 422);
+            }
+        }
+
+        // Llegados aquí, $parentId solo puede seguir poblado si page_type es
+        // 'service' — hub/category ya lo forzaron a null arriba.
+        if ($parentId) {
             if ((int) $parentId === $servicePage->id) {
                 return response()->json(['success' => false, 'errors' => [
                     'parent_id' => ['Una página no puede ser su propio padre.'],
@@ -812,12 +842,12 @@ class ServicePageController extends Controller
         $collections = Collection::where('is_active', true)->orderBy('name')->get(['id', 'name']);
 
         // Padres elegibles para el selector "Página padre" del panel
-        // Información general: cualquier hub o categoría que no sea la
-        // propia página (evita auto-referencia; los ciclos más profundos
-        // los rechaza updateGeneral() en el servidor).
-        $eligibleParents = ServicePage::whereIn('page_type', [ServicePage::TYPE_HUB, ServicePage::TYPE_CATEGORY])
+        // Información general: solo categorías son padres válidos de un
+        // servicio (un hub nunca nidifica la URL vía publicPath(), así que
+        // ofrecerlo aquí producía páginas huérfanas — ver la validación
+        // equivalente en updateGeneral()).
+        $eligibleParents = ServicePage::where('page_type', ServicePage::TYPE_CATEGORY)
             ->where('id', '!=', $servicePage->id)
-            ->orderBy('page_type')
             ->orderBy('name')
             ->get(['id', 'name', 'page_type']);
 
@@ -873,7 +903,12 @@ class ServicePageController extends Controller
     public function liveEditorSave(Request $request, ServicePage $servicePage)
     {
         $request->validate([
-            'sections'          => 'required|array',
+            // 'present' (no 'required'): un array vacío es un estado válido
+            // — una página recién creada sin bloques, o el admin borrando el
+            // último bloque — y 'required' lo rechaza (Laravel trata [] como
+            // "vacío"), lo que antes producía un 422 silencioso resuelto con
+            // un alert() nativo que bloqueaba el navegador.
+            'sections'          => 'present|array',
             'sections.*.type'   => 'required|string|in:' . implode(',', $this->sectionTypes),
             'sections.*.title'  => 'nullable|string|max:255',
             'sections.*.config' => 'nullable|array',
