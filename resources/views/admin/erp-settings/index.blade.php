@@ -2,6 +2,11 @@
 @section('title')
     Configuración ERP - Admin
 @endsection
+
+@push('styles')
+    @vite('resources/css/admin/pages/erp-settings.css')
+@endpush
+
 @section('content')
     @php
         // Ajustes erp.* — ninguno está sembrado todavía en este pase, pero se
@@ -29,10 +34,30 @@
 
                 {{-- ── 1. Ajustes generales (group_name = 'erp') ─────────────────────── --}}
                 <div class="pform-panel">
-                    <h2 class="pform-panel-title">Ajustes Generales ERP</h2>
+                    <div class="erp-panel-header">
+                        <span class="erp-panel-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M20 7h-9" />
+                                <path d="M14 17H5" />
+                                <circle cx="17" cy="17" r="3" />
+                                <circle cx="7" cy="7" r="3" />
+                            </svg>
+                        </span>
+                        <div class="erp-panel-heading">
+                            <h2 class="pform-panel-title">Ajustes Generales ERP</h2>
+                            <p class="erp-panel-subtitle">Valores propios del módulo ERP, separados de Configuración del Sitio.</p>
+                        </div>
+                    </div>
 
                     @if ($settings->isEmpty())
-                        <p class="pform-hint">Sin ajustes configurados todavía.</p>
+                        <div class="erp-empty-state">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10" />
+                                <path d="M12 16v-4" />
+                                <path d="M12 8h.01" />
+                            </svg>
+                            <p>Sin ajustes configurados todavía. Aparecerán aquí en cuanto se agregue el primer valor <code>erp.*</code>.</p>
+                        </div>
                     @else
                         <form method="POST" action="{{ route('admin.erp-settings.update') }}">
                             @csrf
@@ -73,7 +98,15 @@
 
                 {{-- ── 2. Tipos de Servicio (Servicios Técnicos) ─────────────────────── --}}
                 <div class="pform-panel">
-                    <h2 class="pform-panel-title">Tipos de Servicio (Servicios Técnicos)</h2>
+                    <div class="erp-panel-header">
+                        <span class="erp-panel-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
+                        </span>
+                        <div class="erp-panel-heading">
+                            <h2 class="pform-panel-title">Tipos de Servicio (Servicios Técnicos)</h2>
+                            <p class="erp-panel-subtitle">Catálogo usado al capturar un servicio técnico nuevo.</p>
+                        </div>
+                    </div>
 
                     <div class="table-scroll" style="margin-bottom:20px;">
                         <table class="clients-manager-table">
@@ -155,13 +188,26 @@
 
                 {{-- ── 3. Tipos de Reporte (Reportes de Servicio) ────────────────────── --}}
                 <div class="pform-panel">
-                    <h2 class="pform-panel-title">Tipos de Reporte (Reportes de Servicio)</h2>
+                    <div class="erp-panel-header">
+                        <span class="erp-panel-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"></rect><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><path d="M12 11h4"></path><path d="M12 16h4"></path><path d="M8 11h.01"></path><path d="M8 16h.01"></path></svg>
+                        </span>
+                        <div class="erp-panel-heading">
+                            <h2 class="pform-panel-title">Tipos de Reporte (Reportes de Servicio)</h2>
+                            <p class="erp-panel-subtitle">Define qué sub-formulario del wizard se muestra al capturar un reporte de servicio.</p>
+                        </div>
+                    </div>
 
                     @if (!Schema::hasTable('service_report_types'))
-                        <p class="pform-hint">
-                            La tabla <code>service_report_types</code> todavía no está migrada. Esta sección se
-                            habilitará automáticamente una vez que se ejecute esa migración.
-                        </p>
+                        <div class="erp-empty-state">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10" />
+                                <path d="M12 16v-4" />
+                                <path d="M12 8h.01" />
+                            </svg>
+                            <p>La tabla <code>service_report_types</code> todavía no está migrada. Esta sección se
+                                habilitará automáticamente una vez que se ejecute esa migración.</p>
+                        </div>
                     @else
                         <div class="table-scroll" style="margin-bottom:20px;">
                             <table class="clients-manager-table">
@@ -195,7 +241,7 @@
                                                 {{-- Solo lectura: cambiar el comportamiento de un tipo ya en uso
                                                      podría romper reportes existentes que dependen de qué
                                                      sub-formulario del wizard se les muestra. --}}
-                                                <span class="status-active" style="text-transform:none;">{{ $reportType->form_behavior }}</span>
+                                                <span class="erp-behavior-badge {{ $reportType->form_behavior }}">{{ $reportType->form_behavior }}</span>
                                             </td>
                                             <td>
                                                 <label style="display:flex; align-items:center; gap:6px; font-size:13px; color:#374151;">

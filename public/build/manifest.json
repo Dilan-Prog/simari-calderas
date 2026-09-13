@@ -100,6 +100,11 @@
     "src": "resources/css/admin/pages/email-marketing.css",
     "isEntry": true
   },
+  "resources/css/admin/pages/erp-settings.css": {
+    "file": "assets/erp-settings-C6WBE0J3.css",
+    "src": "resources/css/admin/pages/erp-settings.css",
+    "isEntry": true
+  },
   "resources/css/admin/pages/gallery.css": {
     "file": "assets/gallery-DMzsa3nQ.css",
     "src": "resources/css/admin/pages/gallery.css",

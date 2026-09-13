@@ -1,0 +1,101 @@
+/* ============================================================
+   Configuración ERP — encabezados de panel con icono, badges de
+   comportamiento (form_behavior) y estado vacío
+   ============================================================ */
+
+/* Encabezado de cada panel: icono + título + subtítulo, mismo icono que
+   ya usa el sidebar para el módulo correspondiente (Ajustes ERP, Servicios
+   Técnicos, Reporte de Servicios) -- ancla visual reconocible en vez de
+   inventar iconografía nueva. */
+.erp-panel-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.erp-panel-icon {
+    flex: 0 0 auto;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    background: #fff7ed;
+    color: #ff6213;
+}
+
+.erp-panel-heading {
+    min-width: 0;
+}
+
+.erp-panel-heading .pform-panel-title {
+    margin: 0 0 2px;
+}
+
+.erp-panel-subtitle {
+    font-size: 12.5px;
+    color: #6b7280;
+    line-height: 1.4;
+}
+
+/* Estado vacío de "Ajustes Generales ERP" -- reemplaza el hint gris suelto
+   por un bloque con icono, mismo criterio que .collection-products-empty
+   (Colecciones), para que una sección sin datos se lea como un estado
+   intencional y no como algo roto/olvidado. */
+.erp-empty-state {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 20px;
+    text-align: left;
+    color: #6b7280;
+    background: #f9fafb;
+    border: 1px dashed #e5e7eb;
+    border-radius: 10px;
+}
+
+.erp-empty-state svg {
+    flex: 0 0 auto;
+    color: #9ca3af;
+}
+
+.erp-empty-state p {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+/* Badge de "comportamiento" (form_behavior) de un tipo de reporte -- no
+   reusa .status-active/.status-inactive a propósito: esa pareja ya
+   significa "activo/inactivo" en el resto del admin (incluida la columna
+   ESTADO de esta misma tabla) y reusarla aquí para una categoría distinta
+   (mediciones/actividad/personalizado) confundía qué pill decía qué. */
+.erp-behavior-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    border: 1px solid transparent;
+    text-transform: none;
+}
+
+.erp-behavior-badge.measurements {
+    background: #eff6ff;
+    color: #3b82f6;
+    border-color: #3b82f640;
+}
+
+.erp-behavior-badge.activity {
+    background: #f5f3ff;
+    color: #8b5cf6;
+    border-color: #8b5cf640;
+}
+
+.erp-behavior-badge.custom {
+    background: #fefce8;
+    color: #b45309;
+    border-color: #b4530940;
+}

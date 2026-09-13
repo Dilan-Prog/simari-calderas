@@ -54,6 +54,7 @@ export default defineConfig({
                 'resources/css/frontend/shop/legal.css',
                 'resources/css/frontend/shop/checkout.css',
                 'resources/css/admin/pages/collections.css',
+                'resources/css/admin/pages/erp-settings.css',
                 'resources/css/admin/pages/gallery.css',
                 'resources/js/admin/wizard-core.js',
                 'resources/js/admin/quote-wizard.js',

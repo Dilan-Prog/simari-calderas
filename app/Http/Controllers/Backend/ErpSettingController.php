@@ -98,15 +98,6 @@ class ErpSettingController extends Controller
     }
 
     // ── Tipos de Reporte (Reportes de Servicio) ─────────────────────────────
-    //
-    // NOTA: estos tres métodos quedan listos pero sin rutas asignadas todavía.
-    // El agente de rutas cerró su contrato sin estas 3 adicionales:
-    //   POST   /admin/erp/configuracion/tipos-reporte              -> storeServiceReportType
-    //   PUT    /admin/erp/configuracion/tipos-reporte/{serviceReportType} -> updateServiceReportType
-    //   DELETE /admin/erp/configuracion/tipos-reporte/{serviceReportType} -> destroyServiceReportType
-    // con nombres sugeridos admin.erp-settings.report-types.store/update/destroy
-    // y middleware permission:erp-settings(,create/,edit/,delete). Falta
-    // agregarlas a routes/admin.php.
 
     public function storeServiceReportType(Request $request): RedirectResponse
     {
