@@ -41,7 +41,7 @@
 
                 <span class="live-editor-toolbar-divider"></span>
 
-                <a href="{{ route('service-page.show', $servicePage->slug) }}" target="_blank" rel="noopener" class="live-editor-btn live-editor-btn--outline">
+                <a href="{{ route('service-page.show', $servicePage->slug) }}" target="_blank" rel="noopener" class="live-editor-btn live-editor-btn--outline" id="leViewLiveLink">
                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
                     Ver página en vivo
                 </a>
@@ -54,8 +54,22 @@
 
     <div class="live-editor-layout">
 
-        {{-- Columna izquierda: lista de bloques --}}
+        {{-- Columna izquierda: info general + lista de bloques --}}
         <aside class="live-editor-col live-editor-col--blocks">
+            <button type="button" id="leGeneralInfoBtn" class="live-editor-general-row">
+                <span class="live-editor-block-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                </span>
+                <span class="live-editor-block-info">
+                    <span class="live-editor-block-name">Información general</span>
+                    <span class="live-editor-block-type">Nombre, slug, precio, SEO</span>
+                </span>
+            </button>
+
+            <p class="live-editor-more-link">
+                <a href="{{ route('admin.service-pages.edit', $servicePage) }}">Galería, FAQ, Rating y reseñas &rarr;</a>
+            </p>
+
             <div class="live-editor-col-title">Bloques de la página</div>
             <div id="leBlocksList" class="live-editor-blocks-list"></div>
 
@@ -97,7 +111,7 @@
                 <span class="live-editor-browser-dot" style="background:#ff5f57;"></span>
                 <span class="live-editor-browser-dot" style="background:#ffbd2e;"></span>
                 <span class="live-editor-browser-dot" style="background:#28c840;"></span>
-                <span class="live-editor-browser-url">equitermindustries.com.mx/servicio/{{ $servicePage->slug }}</span>
+                <span class="live-editor-browser-url" id="leBrowserUrl">equitermindustries.com.mx/servicio/{{ $servicePage->slug }}</span>
             </div>
             <div class="live-editor-iframe-wrap">
                 <iframe id="leIframe" class="live-editor-iframe" title="Vista previa"></iframe>
@@ -346,6 +360,51 @@
             text-transform: uppercase;
             letter-spacing: 0.03em;
             margin-bottom: 10px;
+        }
+
+        .live-editor-general-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            border: 1px solid rgba(0,0,0,.09);
+            border-radius: 9px;
+            padding: 9px 10px;
+            background: #fff;
+            cursor: pointer;
+            text-align: left;
+            margin-bottom: 6px;
+            font: inherit;
+        }
+
+        .live-editor-general-row:hover {
+            border-color: #d1d5db;
+        }
+
+        .live-editor-general-row.is-selected {
+            border-color: #ff6213;
+            background: rgba(255, 98, 19, .06);
+        }
+
+        .live-editor-general-row.is-selected .live-editor-block-icon {
+            background: rgba(255, 98, 19, .14);
+            color: #ff6213;
+        }
+
+        .live-editor-more-link {
+            margin: 0 0 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .live-editor-more-link a {
+            font-size: 12px;
+            color: #6b7280;
+            text-decoration: none;
+        }
+
+        .live-editor-more-link a:hover {
+            color: #ff6213;
         }
 
         /* ── Columna de bloques ── */
@@ -648,8 +707,19 @@
         window.__LIVE_EDITOR__ = {!! \Illuminate\Support\Js::from([
             'previewUrl' => route('admin.service-pages.live-editor.preview', $servicePage),
             'saveUrl' => route('admin.service-pages.live-editor.save', $servicePage),
+            'generalUrl' => route('admin.service-pages.update-general', $servicePage),
             'editUrl' => route('admin.service-pages.edit', $servicePage),
             'productsSearchUrl' => route('admin.service-pages.products.search'),
+            'general' => [
+                'name' => $servicePage->name,
+                'slug' => $servicePage->slug,
+                'short_description' => $servicePage->short_description,
+                'price' => $servicePage->price,
+                'currency' => $servicePage->currency ?: 'MXN',
+                'seo_title' => $servicePage->seo_title,
+                'seo_description' => $servicePage->seo_description,
+                'is_active' => (bool) $servicePage->is_active,
+            ],
             'sections' => $servicePage->sections->map(fn ($s) => [
                 'id' => $s->id,
                 'type' => $s->type,

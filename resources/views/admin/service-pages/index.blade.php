@@ -21,10 +21,13 @@
                 'tableKey' => 'service-pages.index',
                 'columnDefs' => ['precio' => 'Precio', 'orden' => 'Orden', 'estado' => 'Estado'],
             ])
-            <a href="{{ route('admin.service-pages.create') }}" class="button-primary size-adjustment"
-                style="background:#ff6213;border-color:#ff6213;white-space:nowrap;">
-                + Nuevo Servicio
-            </a>
+            <form method="POST" action="{{ route('admin.service-pages.quick-create') }}" style="display:inline;">
+                @csrf
+                <button type="submit" class="button-primary size-adjustment"
+                    style="background:#ff6213;border-color:#ff6213;white-space:nowrap;">
+                    + Nuevo Servicio
+                </button>
+            </form>
         </div>
     </div>
 
@@ -73,8 +76,8 @@
                                     class="table-users-manager-action-btn" title="Ver página pública">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/></svg>
                                 </a>
-                                <a href="{{ route('admin.service-pages.edit', $servicePage) }}"
-                                    class="table-users-manager-action-btn edit" title="Editar">
+                                <a href="{{ route('admin.service-pages.live-editor', $servicePage) }}"
+                                    class="table-users-manager-action-btn edit" title="Editar en el editor en vivo">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg>
                                 </a>
                                 <button type="button" class="table-users-manager-action-btn delete btn-delete-service-page"

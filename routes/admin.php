@@ -1023,9 +1023,11 @@ Route::controller(ServicePageController::class)
         Route::get('/', 'index')->name('index');
         Route::get('/crear', 'create')->name('create')->middleware('permission:service-pages,create');
         Route::post('/', 'store')->name('store')->middleware('permission:service-pages,create');
+        Route::post('/crear-rapido', 'quickCreate')->name('quick-create')->middleware('permission:service-pages,create');
         Route::get('/productos/buscar', 'searchProducts')->name('products.search');
         Route::get('/{servicePage}/editar', 'edit')->name('edit')->middleware('permission:service-pages,edit');
         Route::put('/{servicePage}', 'update')->name('update')->middleware('permission:service-pages,edit');
+        Route::put('/{servicePage}/general', 'updateGeneral')->name('update-general')->middleware('permission:service-pages,edit');
         Route::delete('/{servicePage}', 'destroy')->name('destroy')->middleware('permission:service-pages,delete');
 
         Route::post('/{servicePage}/secciones', 'storeSection')->name('sections.store')->middleware('permission:service-pages,create');

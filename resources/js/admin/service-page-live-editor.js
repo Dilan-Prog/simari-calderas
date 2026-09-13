@@ -141,8 +141,14 @@
     }));
 
     let selectedUid = null;
+    let panelMode = 'empty'; // 'empty' | 'block' | 'general'
     let isDirty = false;
     let viewport = 'desktop';
+
+    const generalData = Object.assign({
+        name: '', slug: '', short_description: '', price: '', currency: 'MXN',
+        seo_title: '', seo_description: '', is_active: false,
+    }, DATA.general || {});
 
     // ── Elementos ────────────────────────────────────────────────────
     const blocksList = document.getElementById('leBlocksList');
@@ -153,6 +159,8 @@
     const dirtyIndicator = document.getElementById('leDirtyIndicator');
     const saveBtn = document.getElementById('leSaveBtn');
     const viewportToggle = document.getElementById('leViewportToggle');
+    const generalInfoBtn = document.getElementById('leGeneralInfoBtn');
+    const pageHeading = document.querySelector('.live-editor-heading-row__left h1');
 
     // ── Modal de confirmación al eliminar un bloque (reemplaza confirm()) ──
     const deleteModal = document.getElementById('leDeleteModal');
@@ -234,7 +242,7 @@
         draftSections.forEach((section) => {
             const row = document.createElement('div');
             row.className = 'live-editor-block-row';
-            if (section._uid === selectedUid) row.classList.add('is-selected');
+            if (panelMode === 'block' && section._uid === selectedUid) row.classList.add('is-selected');
             if (!section.is_active) row.classList.add('is-inactive');
             row.draggable = true;
             row.dataset.uid = section._uid;
@@ -320,9 +328,21 @@
 
     function selectSection(uid) {
         selectedUid = uid;
+        panelMode = 'block';
+        generalInfoBtn.classList.remove('is-selected');
         renderBlocksList();
         renderPanel();
     }
+
+    function selectGeneral() {
+        selectedUid = null;
+        panelMode = 'general';
+        generalInfoBtn.classList.add('is-selected');
+        renderBlocksList();
+        renderPanel();
+    }
+
+    generalInfoBtn.addEventListener('click', selectGeneral);
 
     addBtn.addEventListener('click', () => {
         const type = addTypeSelect.value;
@@ -355,11 +375,118 @@
         )).join('');
     }
 
+    // ── Panel "Información general" — campos propios de ServicePage
+    //    (no son una sección), se guardan aparte vía PUT a DATA.generalUrl
+    //    (ServicePageController::updateGeneral), sin tocar rating_*/faqs/
+    //    imágenes para no pisar esos datos si se guarda solo este panel. ──
+    function renderGeneralPanel() {
+        editPanel.innerHTML = `
+            <div class="live-editor-panel-header">
+                <span class="live-editor-panel-header-info">
+                    <span class="live-editor-block-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                    </span>
+                    <span>
+                        <strong>Información general</strong>
+                        <small>Nombre, slug, precio y SEO</small>
+                    </span>
+                </span>
+            </div>
+            ${field('Nombre', `<input type="text" class="users-manager-input" id="leGenName" value="${escHtml(generalData.name)}">`)}
+            ${field('Slug (URL)', `<input type="text" class="users-manager-input" id="leGenSlug" value="${escHtml(generalData.slug)}">`, '')}
+            ${field('Descripción corta', `<textarea class="users-manager-input client-modal-textarea" id="leGenShortDesc" rows="2">${escHtml(generalData.short_description)}</textarea>`)}
+            <div class="live-editor-field-row">
+                ${field('Precio (opcional)', `<input type="number" step="0.01" min="0" class="users-manager-input" id="leGenPrice" value="${escHtml(generalData.price)}">`)}
+                ${field('Moneda', `<input type="text" class="users-manager-input" id="leGenCurrency" value="${escHtml(generalData.currency)}" maxlength="10">`)}
+            </div>
+            ${field('Estado', `
+                <label style="display:flex;align-items:center;gap:8px;font-weight:400;font-size:13px;color:#374151;">
+                    <input type="checkbox" id="leGenIsActive" ${generalData.is_active ? 'checked' : ''}> Publicado (visible en el sitio público)
+                </label>
+            `)}
+            <div class="show-user-divider" style="margin:10px 0;"></div>
+            ${field('Título SEO', `<input type="text" class="users-manager-input" id="leGenSeoTitle" value="${escHtml(generalData.seo_title)}" maxlength="160">`)}
+            ${field('Descripción SEO', `<textarea class="users-manager-input client-modal-textarea" id="leGenSeoDesc" rows="2" maxlength="500">${escHtml(generalData.seo_description)}</textarea>`)}
+            <div id="leGenErrors" class="user-manager-errors" style="display:none;margin-bottom:10px;"></div>
+            <button type="button" id="leGenSaveBtn" class="live-editor-btn live-editor-btn--solid live-editor-btn--block">Guardar información general</button>
+        `;
+
+        editPanel.querySelector('#leGenSaveBtn').addEventListener('click', saveGeneralInfo);
+    }
+
+    async function saveGeneralInfo() {
+        const btn = editPanel.querySelector('#leGenSaveBtn');
+        const errorsBox = editPanel.querySelector('#leGenErrors');
+        errorsBox.style.display = 'none';
+        errorsBox.innerHTML = '';
+        document.querySelectorAll('#leEditPanel .is-invalid').forEach((el) => el.classList.remove('is-invalid'));
+
+        const payload = {
+            name: editPanel.querySelector('#leGenName').value,
+            slug: editPanel.querySelector('#leGenSlug').value,
+            short_description: editPanel.querySelector('#leGenShortDesc').value,
+            price: editPanel.querySelector('#leGenPrice').value,
+            currency: editPanel.querySelector('#leGenCurrency').value,
+            is_active: editPanel.querySelector('#leGenIsActive').checked,
+            seo_title: editPanel.querySelector('#leGenSeoTitle').value,
+            seo_description: editPanel.querySelector('#leGenSeoDesc').value,
+        };
+
+        btn.disabled = true;
+        const originalText = btn.textContent;
+        btn.textContent = 'Guardando...';
+
+        try {
+            const res = await fetch(DATA.generalUrl, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
+                body: JSON.stringify(payload),
+            });
+            const data = await res.json();
+
+            if (res.ok) {
+                Object.assign(generalData, data.servicePage);
+                if (pageHeading) pageHeading.textContent = generalData.name;
+                document.title = 'Editor en vivo - ' + generalData.name + ' - Admin';
+
+                const browserUrlEl = document.getElementById('leBrowserUrl');
+                if (browserUrlEl) browserUrlEl.textContent = 'equitermindustries.com.mx/servicio/' + generalData.slug;
+                const viewLiveLink = document.getElementById('leViewLiveLink');
+                if (viewLiveLink) viewLiveLink.href = viewLiveLink.href.replace(/\/servicio\/[^/?#]+/, '/servicio/' + generalData.slug);
+
+                if (window.showCenterToast) showCenterToast('Información general guardada.');
+                schedulePreview();
+            } else if (res.status === 422) {
+                const errors = data.errors || {};
+                errorsBox.innerHTML = Object.values(errors).flat().map((m) => `<p>${m}</p>`).join('');
+                errorsBox.style.display = 'block';
+                const fieldMap = { name: 'leGenName', slug: 'leGenSlug', short_description: 'leGenShortDesc', price: 'leGenPrice', currency: 'leGenCurrency', seo_title: 'leGenSeoTitle', seo_description: 'leGenSeoDesc' };
+                Object.keys(errors).forEach((f) => {
+                    const el = editPanel.querySelector('#' + (fieldMap[f] || ''));
+                    if (el) el.classList.add('is-invalid');
+                });
+            } else {
+                throw new Error('save-general-failed');
+            }
+        } catch (err) {
+            errorsBox.innerHTML = '<p>No se pudo guardar. Intenta de nuevo.</p>';
+            errorsBox.style.display = 'block';
+        } finally {
+            btn.disabled = false;
+            btn.textContent = originalText;
+        }
+    }
+
     function renderPanel() {
+        if (panelMode === 'general') {
+            renderGeneralPanel();
+            return;
+        }
+
         const section = findSection(selectedUid);
 
         if (!section) {
-            editPanel.innerHTML = '<div class="live-editor-panel-empty">Selecciona un bloque de la izquierda para editarlo aquí.</div>';
+            editPanel.innerHTML = '<div class="live-editor-panel-empty">Selecciona un bloque de la izquierda para editarlo aquí, o "Información general" para nombre, slug, precio y SEO.</div>';
             return;
         }
 
@@ -1018,7 +1145,14 @@
     });
 
     // ── Arranque ───────────────────────────────────────────────────
-    renderBlocksList();
-    renderPanel();
+    // Si el servicio no tiene bloques todavía (recién creado desde "+ Nuevo
+    // Servicio"), abre directo el panel de Información general — es lo
+    // primero que hace falta llenar antes de agregar bloques.
+    if (!draftSections.length) {
+        selectGeneral();
+    } else {
+        renderBlocksList();
+        renderPanel();
+    }
     renderPreview();
 })();

@@ -52,6 +52,35 @@ class ServicePageController extends Controller
         return view('admin.service-pages.create');
     }
 
+    /**
+     * "+ Nuevo Servicio" ahora crea un borrador mínimo (nombre/slug
+     * provisionales, inactivo) y manda directo al editor en vivo — ahí el
+     * admin captura nombre/slug reales en el panel "Información general"
+     * más los bloques, todo en una sola pantalla. El formulario clásico
+     * (create()/store() arriba) se conserva sin uso directo por si hace
+     * falta un alta rápida sin editor en vivo en el futuro.
+     */
+    public function quickCreate()
+    {
+        $n = ServicePage::count() + 1;
+        $slugBase = 'nuevo-servicio-' . $n;
+        $slug = $slugBase;
+        $i = 1;
+        while (ServicePage::where('slug', $slug)->exists()) {
+            $slug = $slugBase . '-' . (++$i);
+        }
+
+        $servicePage = ServicePage::create([
+            'name'       => 'Nuevo servicio ' . $n,
+            'slug'       => $slug,
+            'currency'   => 'MXN',
+            'sort_order' => 0,
+            'is_active'  => false,
+        ]);
+
+        return redirect()->route('admin.service-pages.live-editor', $servicePage);
+    }
+
     public function store(Request $request)
     {
         $request->merge(['slug' => Str::slug((string) $request->slug)]);
@@ -229,6 +258,50 @@ class ServicePageController extends Controller
             ->map(fn ($v) => (int) $v)
             ->all();
         $servicePage->rating_distribution = $distribution ?: null;
+    }
+
+    /**
+     * Guardado AJAX de los campos "Información general" (Nombre/Slug/
+     * Descripción corta/Precio/SEO) desde el editor en vivo — deliberadamente
+     * separado de update() para no arriesgar pisar las estadísticas de
+     * rating, las FAQs o las imágenes si este panel se guarda solo, sin el
+     * resto del formulario clásico.
+     */
+    public function updateGeneral(Request $request, ServicePage $servicePage)
+    {
+        $request->merge(['slug' => Str::slug((string) $request->slug)]);
+
+        $validated = $request->validate([
+            'name'              => 'required|string|max:180',
+            'slug'              => 'required|string|max:255|unique:service_pages,slug,' . $servicePage->id,
+            'short_description' => 'nullable|string',
+            'price'             => 'nullable|numeric|min:0',
+            'currency'          => 'nullable|string|max:10',
+            'seo_title'         => 'nullable|string|max:160',
+            'seo_description'   => 'nullable|string|max:500',
+            'is_active'         => 'nullable|boolean',
+        ]);
+
+        $servicePage->name = $validated['name'];
+        $servicePage->slug = $validated['slug'];
+        $servicePage->short_description = $validated['short_description'] ?: null;
+        $servicePage->price = $validated['price'] !== null && $validated['price'] !== '' ? $validated['price'] : null;
+        $servicePage->currency = $validated['currency'] ?: 'MXN';
+        $servicePage->seo_title = $validated['seo_title'] ?: null;
+        $servicePage->seo_description = $validated['seo_description'] ?: null;
+        $servicePage->is_active = $request->boolean('is_active');
+        $servicePage->save();
+
+        return response()->json(['success' => true, 'servicePage' => [
+            'name' => $servicePage->name,
+            'slug' => $servicePage->slug,
+            'short_description' => $servicePage->short_description,
+            'price' => $servicePage->price,
+            'currency' => $servicePage->currency,
+            'seo_title' => $servicePage->seo_title,
+            'seo_description' => $servicePage->seo_description,
+            'is_active' => $servicePage->is_active,
+        ]]);
     }
 
     public function destroy(ServicePage $servicePage)
