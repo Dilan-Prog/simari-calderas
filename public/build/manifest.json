@@ -111,7 +111,7 @@
     "isEntry": true
   },
   "resources/css/admin/pages/home-sections.css": {
-    "file": "assets/home-sections-CNyDEs1p.css",
+    "file": "assets/home-sections-D4qzE8XP.css",
     "src": "resources/css/admin/pages/home-sections.css",
     "isEntry": true
   },
@@ -245,6 +245,11 @@
     "src": "resources/css/frontend/shop/product-detail.css",
     "isEntry": true
   },
+  "resources/css/frontend/shop/service-page.css": {
+    "file": "assets/service-page-DJpL38S4.css",
+    "src": "resources/css/frontend/shop/service-page.css",
+    "isEntry": true
+  },
   "resources/css/material-delivery-reports.css": {
     "file": "assets/material-delivery-reports-BYtKBJQR.css",
     "src": "resources/css/material-delivery-reports.css",
@@ -374,6 +379,12 @@
     "file": "assets/rule-value-picker-WmlQaP54.js",
     "name": "rule-value-picker",
     "src": "resources/js/admin/rule-value-picker.js",
+    "isEntry": true
+  },
+  "resources/js/admin/service-page-live-editor.js": {
+    "file": "assets/service-page-live-editor-CMf3Pjd5.js",
+    "name": "service-page-live-editor",
+    "src": "resources/js/admin/service-page-live-editor.js",
     "isEntry": true
   },
   "resources/js/admin/shipments.js": {
@@ -516,6 +527,15 @@
     "file": "assets/product-detail-Hrcr62X4.js",
     "name": "product-detail",
     "src": "resources/js/frontend/shop/product-detail.js",
+    "isEntry": true,
+    "imports": [
+      "_alpine-init-BIs30qDh.js"
+    ]
+  },
+  "resources/js/frontend/shop/service-page.js": {
+    "file": "assets/service-page-DL-D4lRd.js",
+    "name": "service-page",
+    "src": "resources/js/frontend/shop/service-page.js",
     "isEntry": true,
     "imports": [
       "_alpine-init-BIs30qDh.js"
