@@ -20,17 +20,41 @@ class ServicePage extends Model
         'name', 'slug', 'short_description', 'description',
         'price', 'currency', 'cover_image_url', 'is_active', 'sort_order',
         'seo_title', 'seo_description', 'og_image_url', 'faqs',
+        // Estadísticas de marketing editables a mano — nunca alimentan el
+        // JSON-LD, ver comentario en la migración add_rating_stats_to_...
+        'rating_average_displayed', 'rating_total_rated', 'rating_distribution',
+        'rating_recommend_percent', 'rating_punctuality_average',
+        'rating_recurring_clients', 'rating_since_year',
     ];
 
     protected $casts = [
-        'is_active' => 'boolean',
-        'faqs'      => 'array',
-        'price'     => 'decimal:2',
+        'is_active'                  => 'boolean',
+        'faqs'                       => 'array',
+        'price'                      => 'decimal:2',
+        'rating_average_displayed'   => 'decimal:2',
+        'rating_distribution'        => 'array',
+        'rating_recommend_percent'   => 'decimal:2',
+        'rating_punctuality_average' => 'decimal:2',
     ];
 
     public function sections(): HasMany
     {
         return $this->hasMany(ServiceSection::class)->orderBy('sort_order');
+    }
+
+    public function images(): HasMany
+    {
+        return $this->hasMany(ServicePageImage::class)->orderBy('sort_order');
+    }
+
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(ServicePageReview::class)->orderBy('sort_order');
+    }
+
+    public function visibleReviews(): HasMany
+    {
+        return $this->reviews()->where('is_visible', true);
     }
 
     public function getCoverImageUrlAttribute(?string $value): ?string

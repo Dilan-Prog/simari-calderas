@@ -1033,6 +1033,21 @@ Route::controller(ServicePageController::class)
         Route::put('/{servicePage}/secciones/{section}', 'updateSection')->name('sections.update')->middleware('permission:service-pages,edit');
         Route::delete('/{servicePage}/secciones/{section}', 'destroySection')->name('sections.destroy')->middleware('permission:service-pages,delete');
         Route::post('/{servicePage}/secciones/reordenar', 'reorderSections')->name('sections.reorder')->middleware('permission:service-pages,edit');
+
+        Route::post('/{servicePage}/imagenes', 'storeImage')->name('images.store')->middleware('permission:service-pages,create');
+        Route::put('/{servicePage}/imagenes/{image}', 'updateImage')->name('images.update')->middleware('permission:service-pages,edit');
+        Route::delete('/{servicePage}/imagenes/{image}', 'destroyImage')->name('images.destroy')->middleware('permission:service-pages,delete');
+        Route::post('/{servicePage}/imagenes/reordenar', 'reorderImages')->name('images.reorder')->middleware('permission:service-pages,edit');
+
+        Route::post('/{servicePage}/resenas', 'storeReview')->name('reviews.store')->middleware('permission:service-pages,create');
+        Route::get('/{servicePage}/resenas/{review}', 'editReview')->name('reviews.edit')->middleware('permission:service-pages,edit');
+        Route::put('/{servicePage}/resenas/{review}', 'updateReview')->name('reviews.update')->middleware('permission:service-pages,edit');
+        Route::delete('/{servicePage}/resenas/{review}', 'destroyReview')->name('reviews.destroy')->middleware('permission:service-pages,delete');
+        Route::post('/{servicePage}/resenas/reordenar', 'reorderReviews')->name('reviews.reorder')->middleware('permission:service-pages,edit');
+
+        Route::get('/{servicePage}/editor-en-vivo', 'liveEditor')->name('live-editor')->middleware('permission:service-pages,edit');
+        Route::post('/{servicePage}/editor-en-vivo/preview', 'liveEditorPreview')->name('live-editor.preview')->middleware('permission:service-pages,edit');
+        Route::put('/{servicePage}/editor-en-vivo', 'liveEditorSave')->name('live-editor.save')->middleware('permission:service-pages,edit');
     });
 
 // ============================================================

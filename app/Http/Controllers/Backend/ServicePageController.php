@@ -8,17 +8,24 @@ use App\Models\Category;
 use App\Models\Collection;
 use App\Models\Products;
 use App\Models\ServicePage;
+use App\Models\ServicePageImage;
+use App\Models\ServicePageReview;
 use App\Models\ServiceSection;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 
 class ServicePageController extends Controller
 {
     // Mismo set de tipos que HomeSectionController::$productPageTypes /
-    // $collectionPageTypes (sin hero_slider, que es exclusivo del Home).
+    // $collectionPageTypes (sin hero_slider, que es exclusivo del Home), más
+    // 7 tipos nuevos exclusivos de Servicios (rediseño 2026-09).
     protected array $sectionTypes = [
         'banner', 'dual_banner', 'product_carousel', 'product_carousel_banner',
         'category_grid', 'brand_carousel', 'html_block', 'faq',
+        'rich_header', 'content_tabs', 'benefits_grid', 'process_steps',
+        'gallery_carousel', 'rating_reviews', 'cta_final',
     ];
 
     protected array $sources = [
@@ -84,12 +91,76 @@ class ServicePageController extends Controller
 
     public function edit(ServicePage $servicePage)
     {
-        $servicePage->load('sections');
+        $servicePage->load(['sections', 'images', 'reviews']);
         $categories = Category::where('is_active', true)->orderBy('name')->get(['id', 'name']);
         $brands = Brand::orderBy('name')->get(['id', 'name']);
         $collections = Collection::where('is_active', true)->orderBy('name')->get(['id', 'name']);
+        $headingOutline = $this->buildHeadingOutline($servicePage);
 
-        return view('admin.service-pages.edit', compact('servicePage', 'categories', 'brands', 'collections'));
+        return view('admin.service-pages.edit', compact(
+            'servicePage', 'categories', 'brands', 'collections', 'headingOutline'
+        ));
+    }
+
+    /**
+     * Árbol H1/H2/H3 derivado de las secciones REALES de la página, para el
+     * panel "Estructura semántica detectada" de la pestaña SEO — puramente
+     * informativo/validador, no bloquea el guardado.
+     */
+    protected function buildHeadingOutline(ServicePage $servicePage): array
+    {
+        $outline = [];
+        $hasRichHeader = false;
+
+        foreach ($servicePage->sections->where('is_active', true) as $section) {
+            switch ($section->type) {
+                case 'rich_header':
+                    $outline[] = ['level' => 'H1', 'text' => $servicePage->name, 'note' => 'único ✓'];
+                    $hasRichHeader = true;
+                    break;
+                case 'content_tabs':
+                    foreach ($section->config['tabs'] ?? [] as $tab) {
+                        if (!empty($tab['label'])) {
+                            $outline[] = ['level' => 'H2', 'text' => $tab['label']];
+                        }
+                    }
+                    break;
+                case 'benefits_grid':
+                    $count = count($section->config['items'] ?? []);
+                    $outline[] = ['level' => 'H2', 'text' => $section->title ?: 'Qué ganas con el servicio'];
+                    if ($count) {
+                        $outline[] = ['level' => 'H3', 'text' => $count . ' beneficios'];
+                    }
+                    break;
+                case 'process_steps':
+                    $count = count($section->config['steps'] ?? []);
+                    $outline[] = ['level' => 'H2', 'text' => $section->title ?: 'Cómo trabajamos'];
+                    if ($count) {
+                        $outline[] = ['level' => 'H3', 'text' => $count . ' pasos'];
+                    }
+                    break;
+                case 'gallery_carousel':
+                    $outline[] = ['level' => 'H2', 'text' => $section->title ?: 'Galería'];
+                    break;
+                case 'rating_reviews':
+                    $outline[] = ['level' => 'H2', 'text' => $section->title ?: 'Lo que dicen nuestros clientes'];
+                    break;
+                case 'faq':
+                    $outline[] = ['level' => 'H2', 'text' => $section->title ?: 'Preguntas frecuentes', 'note' => 'FAQPage ✓'];
+                    break;
+                case 'cta_final':
+                    $outline[] = ['level' => 'H2', 'text' => $section->title ?: 'CTA de cierre'];
+                    break;
+            }
+        }
+
+        if (!$hasRichHeader) {
+            array_unshift($outline, [
+                'level' => 'H1', 'text' => $servicePage->name, 'note' => '⚠ sin bloque Encabezado enriquecido',
+            ]);
+        }
+
+        return $outline;
     }
 
     public function update(Request $request, ServicePage $servicePage)
@@ -110,6 +181,16 @@ class ServicePageController extends Controller
             'seo_description'   => 'nullable|string|max:500',
             'og_image_url'      => 'nullable|string|max:255',
             'faq_items'         => 'nullable|array',
+            // Estadísticas de marketing (pestaña Rating y reseñas) — nunca
+            // alimentan el JSON-LD, solo el copy visual. Ver migración
+            // add_rating_stats_to_service_pages_table.
+            'rating_average_displayed'   => 'nullable|numeric|min:0|max:5',
+            'rating_total_rated'         => 'nullable|integer|min:0',
+            'rating_recommend_percent'   => 'nullable|numeric|min:0|max:100',
+            'rating_punctuality_average' => 'nullable|numeric|min:0|max:5',
+            'rating_recurring_clients'   => 'nullable|integer|min:0',
+            'rating_since_year'          => 'nullable|integer|min:2000|max:2100',
+            'rating_distribution'        => 'nullable|array',
         ]);
 
         $servicePage->name = $request->name;
@@ -122,10 +203,32 @@ class ServicePageController extends Controller
         $servicePage->sort_order = $request->sort_order ?? 0;
         $servicePage->is_active = $request->boolean('is_active', true);
         $this->fillSeoAndFaqs($servicePage, $request);
+        $this->fillRatingStats($servicePage, $request);
         $servicePage->save();
 
         return redirect()->route('admin.service-pages.edit', $servicePage)
             ->with('success', 'Servicio actualizado.');
+    }
+
+    /**
+     * Estadísticas de marketing editables a mano (caja "Promedio mostrado"
+     * de la pestaña Rating y reseñas) — ver nota en la migración sobre por
+     * qué nunca deben alimentar el JSON-LD.
+     */
+    protected function fillRatingStats(ServicePage $servicePage, Request $request): void
+    {
+        $servicePage->rating_average_displayed = $request->input('rating_average_displayed') ?: null;
+        $servicePage->rating_total_rated = $request->input('rating_total_rated') ?: null;
+        $servicePage->rating_recommend_percent = $request->input('rating_recommend_percent') ?: null;
+        $servicePage->rating_punctuality_average = $request->input('rating_punctuality_average') ?: null;
+        $servicePage->rating_recurring_clients = $request->input('rating_recurring_clients') ?: null;
+        $servicePage->rating_since_year = $request->input('rating_since_year') ?: null;
+
+        $distribution = collect((array) $request->input('rating_distribution', []))
+            ->filter(fn ($v) => $v !== null && $v !== '')
+            ->map(fn ($v) => (int) $v)
+            ->all();
+        $servicePage->rating_distribution = $distribution ?: null;
     }
 
     public function destroy(ServicePage $servicePage)
@@ -245,6 +348,82 @@ class ServicePageController extends Controller
                 // aporta título y texto descriptivo.
                 return ['description' => $request->input('faq_description') ?: null];
 
+            // ── Tipos nuevos (rediseño 2026-09) ─────────────────────────────
+
+            case 'rich_header':
+                // Sin ningún campo de teléfono a propósito — el CTA siempre
+                // arma un link wa.me, nunca tel:. Ver rich-header.blade.php.
+                $badges = array_slice(array_values(array_filter(array_map('trim',
+                    explode('·', (string) $request->input('rh_badges', ''))
+                ))), 0, 3);
+
+                return [
+                    'badges'                => $badges,
+                    'whatsapp_text'         => $request->input('rh_whatsapp_text') ?: 'Cotizar por WhatsApp',
+                    'meta_lines'            => array_values(array_filter((array) $request->input('rh_meta_lines', []))),
+                    'background_image_ids'  => array_values(array_filter(array_map('intval', (array) $request->input('rh_background_image_ids', [])))),
+                ];
+
+            case 'content_tabs':
+                return [
+                    'tabs' => collect((array) $request->input('ct_tabs', []))
+                        ->map(fn ($t) => [
+                            'label'    => trim($t['label'] ?? ''),
+                            'subtitle' => trim($t['subtitle'] ?? ''),
+                            'body'     => trim($t['body'] ?? ''),
+                            'bullets'  => array_values(array_filter((array) ($t['bullets'] ?? []))),
+                            'image_id' => $t['image_id'] ?: null,
+                        ])
+                        ->filter(fn ($t) => $t['label'] !== '')
+                        ->values()
+                        ->all(),
+                ];
+
+            case 'benefits_grid':
+                return [
+                    'items' => collect((array) $request->input('bg_items', []))
+                        ->map(fn ($i) => [
+                            'figure'      => trim($i['figure'] ?? ''),
+                            'title'       => trim($i['title'] ?? ''),
+                            'description' => trim($i['description'] ?? ''),
+                        ])
+                        ->filter(fn ($i) => $i['title'] !== '')
+                        ->values()
+                        ->all(),
+                ];
+
+            case 'process_steps':
+                return [
+                    'steps' => collect((array) $request->input('ps_steps', []))
+                        ->map(fn ($s) => [
+                            'title'       => trim($s['title'] ?? ''),
+                            'description' => trim($s['description'] ?? ''),
+                            'duration'    => trim($s['duration'] ?? ''),
+                        ])
+                        ->filter(fn ($s) => $s['title'] !== '')
+                        ->values()
+                        ->all(),
+                ];
+
+            case 'gallery_carousel':
+                return [
+                    'image_ids' => array_values(array_filter(array_map('intval', (array) $request->input('gc_image_ids', [])))),
+                ];
+
+            case 'rating_reviews':
+                return [
+                    'description'      => $request->input('rr_description') ?: null,
+                    'reviews_per_page' => (int) ($request->input('rr_reviews_per_page') ?: 3),
+                ];
+
+            case 'cta_final':
+                return [
+                    'headline'            => $request->input('cta_headline') ?: null,
+                    'subtext'             => $request->input('cta_subtext') ?: null,
+                    'whatsapp_text'       => $request->input('cta_whatsapp_text') ?: 'Cotizar por WhatsApp',
+                    'background_image_id' => $request->input('cta_background_image_id') ?: null,
+                ];
+
             default:
                 return null;
         }
@@ -259,6 +438,7 @@ class ServicePageController extends Controller
             'title'      => 'nullable|string|max:255',
             'sort_order' => 'nullable|integer|min:0',
             'is_active'  => 'nullable|boolean',
+            'rh_badges'  => 'nullable|string|max:255',
         ]);
     }
 
@@ -332,6 +512,275 @@ class ServicePageController extends Controller
         foreach (array_values($request->order) as $i => $sectionId) {
             $sections[$sectionId]->update(['sort_order' => $i]);
         }
+
+        return response()->json(['success' => true]);
+    }
+
+    // ── Galería de imágenes (pestaña Multimedia) ────────────────────────────
+    // Se agregan vía el picker compartido de media (window.openImagePicker),
+    // no un uploader propio nuevo — ver resources/js/admin/image-picker.js.
+    // Al terminar de guardar, sincroniza cover_image_url con la portada
+    // (sort_order = 0) para no romper el accessor/OG fallback ya existentes.
+
+    public function storeImage(Request $request, ServicePage $servicePage)
+    {
+        $request->validate([
+            'image_url' => 'required|string|max:255',
+            'alt_text'  => 'nullable|string|max:255',
+        ]);
+
+        $image = $servicePage->images()->create([
+            'image_url'  => $request->image_url,
+            'alt_text'   => $request->alt_text ?: null,
+            'sort_order' => $servicePage->images()->count(),
+        ]);
+
+        $this->syncCoverImage($servicePage);
+
+        return response()->json(['success' => true, 'image' => $image]);
+    }
+
+    public function updateImage(Request $request, ServicePage $servicePage, ServicePageImage $image)
+    {
+        abort_unless($image->service_page_id === $servicePage->id, 404);
+
+        $request->validate(['alt_text' => 'nullable|string|max:255']);
+
+        $image->update(['alt_text' => $request->alt_text ?: null]);
+
+        return response()->json(['success' => true, 'image' => $image]);
+    }
+
+    public function destroyImage(ServicePage $servicePage, ServicePageImage $image)
+    {
+        abort_unless($image->service_page_id === $servicePage->id, 404);
+
+        $image->delete();
+
+        // Reindexa sort_order para que la portada siga siendo la 0.
+        $servicePage->images()->orderBy('sort_order')->get()->values()
+            ->each(fn ($img, $i) => $img->sort_order === $i ? null : $img->update(['sort_order' => $i]));
+
+        $this->syncCoverImage($servicePage);
+
+        return response()->json(['success' => true]);
+    }
+
+    public function reorderImages(Request $request, ServicePage $servicePage)
+    {
+        $request->validate([
+            'order'   => 'required|array|min:1',
+            'order.*' => 'integer|exists:service_page_images,id',
+        ]);
+
+        $images = ServicePageImage::whereIn('id', $request->order)
+            ->where('service_page_id', $servicePage->id)
+            ->get()
+            ->keyBy('id');
+
+        if ($images->count() !== count($request->order)) {
+            return response()->json(['success' => false, 'message' => 'El orden recibido no coincide con las imágenes de este servicio.'], 422);
+        }
+
+        foreach (array_values($request->order) as $i => $imageId) {
+            $images[$imageId]->update(['sort_order' => $i]);
+        }
+
+        $this->syncCoverImage($servicePage);
+
+        return response()->json(['success' => true]);
+    }
+
+    protected function syncCoverImage(ServicePage $servicePage): void
+    {
+        $first = $servicePage->images()->orderBy('sort_order')->first();
+        $servicePage->cover_image_url = $first?->image_url;
+        $servicePage->save();
+    }
+
+    // ── Reseñas (pestaña Rating y reseñas) ──────────────────────────────────
+    // Contenido curado por el staff (igual criterio que las FAQs) — el sitio
+    // público no recibe reseñas de clientes directamente.
+
+    protected function validateReview(Request $request): array
+    {
+        return $request->validate([
+            'customer_name'           => 'required|string|max:255',
+            'customer_role'           => 'nullable|string|max:255',
+            'customer_company'        => 'nullable|string|max:255',
+            'customer_city'           => 'nullable|string|max:255',
+            'customer_state'          => 'nullable|string|max:255',
+            'review_date'             => 'nullable|date',
+            'rating'                  => 'required|integer|min:1|max:5',
+            'comment'                 => 'required|string|max:240',
+            'categories'              => 'nullable|array',
+            'categories.*'            => Rule::in(array_keys(ServicePageReview::CATEGORIES)),
+            'is_verified'             => 'nullable|boolean',
+            'photo_urls'              => 'nullable|array',
+            'photo_urls.*'            => 'string|max:255',
+            'business_response'       => 'nullable|string',
+            'business_response_date'  => 'nullable|date',
+            'is_visible'              => 'nullable|boolean',
+        ]);
+    }
+
+    public function storeReview(Request $request, ServicePage $servicePage)
+    {
+        $data = $this->validateReview($request);
+        $data['is_verified'] = $request->boolean('is_verified');
+        $data['is_visible'] = $request->boolean('is_visible', true);
+        $data['sort_order'] = $servicePage->reviews()->count();
+
+        $review = $servicePage->reviews()->create($data);
+
+        return response()->json(['success' => true, 'review' => $review]);
+    }
+
+    public function editReview(ServicePage $servicePage, ServicePageReview $review)
+    {
+        abort_unless($review->service_page_id === $servicePage->id, 404);
+
+        return response()->json($review);
+    }
+
+    public function updateReview(Request $request, ServicePage $servicePage, ServicePageReview $review)
+    {
+        abort_unless($review->service_page_id === $servicePage->id, 404);
+
+        $data = $this->validateReview($request);
+        $data['is_verified'] = $request->boolean('is_verified');
+        $data['is_visible'] = $request->boolean('is_visible', true);
+
+        $review->update($data);
+
+        return response()->json(['success' => true, 'review' => $review]);
+    }
+
+    public function destroyReview(ServicePage $servicePage, ServicePageReview $review)
+    {
+        abort_unless($review->service_page_id === $servicePage->id, 404);
+
+        $review->delete();
+
+        return response()->json(['success' => true]);
+    }
+
+    public function reorderReviews(Request $request, ServicePage $servicePage)
+    {
+        $request->validate([
+            'order'   => 'required|array|min:1',
+            'order.*' => 'integer|exists:service_page_reviews,id',
+        ]);
+
+        $reviews = ServicePageReview::whereIn('id', $request->order)
+            ->where('service_page_id', $servicePage->id)
+            ->get()
+            ->keyBy('id');
+
+        if ($reviews->count() !== count($request->order)) {
+            return response()->json(['success' => false, 'message' => 'El orden recibido no coincide con las reseñas de este servicio.'], 422);
+        }
+
+        foreach (array_values($request->order) as $i => $reviewId) {
+            $reviews[$reviewId]->update(['sort_order' => $i]);
+        }
+
+        return response()->json(['success' => true]);
+    }
+
+    // ── Editor en vivo (BETA, exclusivo Servicios) ──────────────────────────
+
+    public function liveEditor(ServicePage $servicePage)
+    {
+        $servicePage->load(['sections', 'images']);
+        $categories = Category::where('is_active', true)->orderBy('name')->get(['id', 'name']);
+        $brands = Brand::orderBy('name')->get(['id', 'name']);
+        $collections = Collection::where('is_active', true)->orderBy('name')->get(['id', 'name']);
+
+        return view('admin.service-pages.live-editor', compact('servicePage', 'categories', 'brands', 'collections'));
+    }
+
+    /**
+     * Renderiza la página pública REAL con un borrador de secciones que
+     * viaja en el body (aún no persistido) — a diferencia del modo "edición"
+     * de resources/js/admin/email-template-editor.js (que solo relee lo ya
+     * guardado en BD), aquí el usuario edita en memoria antes de guardar, así
+     * que el preview necesita reflejar ese estado sin tocar la BD.
+     */
+    public function liveEditorPreview(Request $request, ServicePage $servicePage)
+    {
+        $request->validate([
+            'sections'             => 'nullable|array',
+            'sections.*.type'      => 'required_with:sections|string',
+            'sections.*.title'     => 'nullable|string',
+            'sections.*.config'    => 'nullable|array',
+            'sections.*.is_active' => 'nullable|boolean',
+        ]);
+
+        $draftSections = collect($request->input('sections', []))->map(function ($s, $i) use ($servicePage) {
+            $section = new ServiceSection([
+                'type'       => $s['type'],
+                'title'      => $s['title'] ?? null,
+                'config'     => $s['config'] ?? [],
+                'sort_order' => $i,
+                'is_active'  => (bool) ($s['is_active'] ?? true),
+            ]);
+            $section->id = $s['id'] ?? null;
+            $section->service_page_id = $servicePage->id;
+
+            return $section;
+        })->filter(fn ($s) => $s->is_active)->values();
+
+        $html = view('frontend.shop.service-page.show', [
+            'servicePage' => $servicePage,
+            'sections'    => $draftSections,
+            'previewMode' => true,
+        ])->render();
+
+        return response()->json(['html' => $html]);
+    }
+
+    public function liveEditorSave(Request $request, ServicePage $servicePage)
+    {
+        $request->validate([
+            'sections'          => 'required|array',
+            'sections.*.type'   => 'required|string|in:' . implode(',', $this->sectionTypes),
+            'sections.*.title'  => 'nullable|string|max:255',
+            'sections.*.config' => 'nullable|array',
+            'sections.*.is_active' => 'nullable|boolean',
+        ]);
+
+        DB::transaction(function () use ($request, $servicePage) {
+            $keepIds = [];
+
+            foreach (array_values($request->input('sections')) as $i => $s) {
+                $attrs = [
+                    'type'       => $s['type'],
+                    'title'      => $s['title'] ?? null,
+                    'config'     => $s['config'] ?? [],
+                    'sort_order' => $i,
+                    'is_active'  => (bool) ($s['is_active'] ?? true),
+                ];
+
+                if (!empty($s['id'])) {
+                    $section = ServiceSection::where('id', $s['id'])
+                        ->where('service_page_id', $servicePage->id)
+                        ->first();
+                    if ($section) {
+                        $section->update($attrs);
+                        $keepIds[] = $section->id;
+                        continue;
+                    }
+                }
+
+                $created = $servicePage->sections()->create($attrs);
+                $keepIds[] = $created->id;
+            }
+
+            // No borra secciones que el editor en vivo no mandó de vuelta —
+            // solo actualiza/crea las recibidas, mismo criterio conservador
+            // que reorderSections() (nunca borra por omisión).
+        });
 
         return response()->json(['success' => true]);
     }

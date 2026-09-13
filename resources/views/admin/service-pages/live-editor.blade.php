@@ -1,0 +1,476 @@
+@extends('admin.layouts.master')
+
+@push('styles')
+    @vite('resources/css/admin/pages/home-sections.css')
+@endpush
+
+@section('title')
+    Editor en vivo - {{ $servicePage->name }} - Admin
+@endsection
+
+@section('content')
+<div class="container live-editor-page">
+
+    <div class="live-editor-topbar">
+        <div class="live-editor-topbar__left">
+            <p class="breadcrumb-clients-manager" style="margin-bottom:4px;">
+                Panel de Control &gt;
+                <a href="{{ route('admin.service-pages.index') }}">Servicios</a> &gt;
+                <a href="{{ route('admin.service-pages.edit', $servicePage) }}">{{ $servicePage->name }}</a> &gt;
+                <strong>Editor en vivo</strong>
+            </p>
+            <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+                <h1 style="margin:0;">Editor en vivo</h1>
+                <span class="users-manager-badge status" style="background:#111827;color:#fff;border-color:#111827;">BETA · SOLO SERVICIOS</span>
+            </div>
+        </div>
+
+        <div class="live-editor-topbar__right">
+            <div class="live-editor-viewport-toggle" id="leViewportToggle">
+                <button type="button" class="is-active" data-viewport="desktop">Escritorio</button>
+                <button type="button" data-viewport="mobile">Móvil</button>
+            </div>
+
+            <span id="leDirtyIndicator" class="live-editor-status is-saved">Guardado</span>
+
+            <button type="button" id="leSaveBtn" class="button-primary size-adjustment" style="background:var(--button-primary-color,#ff6213);border-color:var(--button-primary-color,#ff6213);">
+                Guardar cambios
+            </button>
+
+            <a href="{{ route('admin.service-pages.edit', $servicePage) }}" class="button-secondary size-adjustment">
+                ← Volver
+            </a>
+        </div>
+    </div>
+
+    <div class="live-editor-layout">
+
+        {{-- Columna izquierda: lista de bloques --}}
+        <aside class="live-editor-col live-editor-col--blocks">
+            <div class="live-editor-col-title">Bloques de la página</div>
+            <div id="leBlocksList" class="live-editor-blocks-list"></div>
+
+            <div class="live-editor-add-block">
+                <select id="leAddBlockType" class="users-manager-select">
+                    <option value="banner">Banner</option>
+                    <option value="dual_banner">Banner Doble</option>
+                    <option value="product_carousel">Carrusel de Productos</option>
+                    <option value="product_carousel_banner">Carrusel con Banner</option>
+                    <option value="category_grid">Grid de Categorías</option>
+                    <option value="brand_carousel">Carrusel de Marcas</option>
+                    <option value="html_block">Bloque HTML</option>
+                    <option value="faq">Preguntas Frecuentes</option>
+                    <option value="rich_header">Encabezado enriquecido</option>
+                    <option value="content_tabs">Descripción por secciones</option>
+                    <option value="benefits_grid">Beneficios / características</option>
+                    <option value="process_steps">Proceso / cómo funciona</option>
+                    <option value="gallery_carousel">Galería / carrusel</option>
+                    <option value="rating_reviews">Rating y reseñas</option>
+                    <option value="cta_final">CTA final</option>
+                </select>
+                <button type="button" id="leAddBlockBtn" class="button-secondary size-adjustment">+ Agregar bloque</button>
+            </div>
+        </aside>
+
+        {{-- Columna central: panel de edición del bloque seleccionado --}}
+        <section class="live-editor-col live-editor-col--panel" id="leEditPanel">
+            <div class="live-editor-panel-empty">
+                Selecciona un bloque de la izquierda para editarlo aquí.
+            </div>
+        </section>
+
+        {{-- Columna derecha: preview en iframe --}}
+        <section class="live-editor-col live-editor-col--preview">
+            <div class="live-editor-browser-bar">
+                <span class="live-editor-browser-dot" style="background:#ff5f57;"></span>
+                <span class="live-editor-browser-dot" style="background:#ffbd2e;"></span>
+                <span class="live-editor-browser-dot" style="background:#28c840;"></span>
+                <span class="live-editor-browser-url">equitermindustries.com.mx/servicio/{{ $servicePage->slug }}</span>
+            </div>
+            <div class="live-editor-iframe-wrap">
+                <iframe id="leIframe" class="live-editor-iframe" title="Vista previa"></iframe>
+            </div>
+        </section>
+
+    </div>
+</div>
+@endsection
+
+@push('styles')
+    <style>
+        /* ── Editor en vivo de Páginas de Servicio (BETA) ──
+           Layout de 3 columnas específico de esta pantalla. Reusa clases de
+           home-sections.css / ui-kit.css (button-primary, button-secondary,
+           users-manager-select, users-manager-input, hs-config-note, etc.)
+           para los controles; aquí solo van reglas de estructura. */
+
+        .live-editor-page {
+            max-width: none;
+            padding: 24px 32px;
+        }
+
+        .live-editor-topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .live-editor-topbar__right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .live-editor-viewport-toggle {
+            display: inline-flex;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .live-editor-viewport-toggle button {
+            border: none;
+            background: #fff;
+            color: #374151;
+            font-size: 13px;
+            font-weight: 600;
+            padding: 8px 14px;
+            cursor: pointer;
+        }
+
+        .live-editor-viewport-toggle button.is-active {
+            background: var(--button-primary-color, #ff6213);
+            color: #fff;
+        }
+
+        .live-editor-status {
+            font-size: 13px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .live-editor-status.is-dirty {
+            color: #d97706;
+        }
+
+        .live-editor-status.is-saved {
+            color: #16a34a;
+        }
+
+        .live-editor-status.is-saving {
+            color: #6b7280;
+        }
+
+        .live-editor-layout {
+            display: grid;
+            grid-template-columns: 280px 360px 1fr;
+            gap: 16px;
+            align-items: start;
+        }
+
+        @media (max-width: 1200px) {
+            .live-editor-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .live-editor-col {
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 14px;
+            box-sizing: border-box;
+        }
+
+        .live-editor-col-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #374151;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+            margin-bottom: 10px;
+        }
+
+        /* ── Columna de bloques ── */
+        .live-editor-blocks-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-height: calc(100vh - 320px);
+            overflow-y: auto;
+        }
+
+        .live-editor-block-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 8px 10px;
+            background: #fafafa;
+            cursor: pointer;
+            transition: opacity 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .live-editor-block-row:hover {
+            border-color: #d1d5db;
+        }
+
+        .live-editor-block-row.is-selected {
+            border-color: var(--button-primary-color, #ff6213);
+            box-shadow: 0 0 0 1px var(--button-primary-color, #ff6213);
+            background: #fff7f5;
+        }
+
+        .live-editor-block-row.is-dragging {
+            opacity: 0.4;
+        }
+
+        .live-editor-block-row.is-inactive {
+            opacity: 0.55;
+        }
+
+        .live-editor-block-drag-handle {
+            cursor: grab;
+            color: #9ca3af;
+            flex-shrink: 0;
+            display: flex;
+        }
+
+        .live-editor-block-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .live-editor-block-type {
+            font-size: 12px;
+            font-weight: 700;
+            color: #ff6213;
+            display: block;
+        }
+
+        .live-editor-block-title {
+            font-size: 12px;
+            color: #6b7280;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            display: block;
+        }
+
+        .live-editor-block-actions {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            flex-shrink: 0;
+        }
+
+        .live-editor-toggle-active {
+            width: 30px;
+            height: 18px;
+            border-radius: 999px;
+            border: 1px solid #d1d5db;
+            background: #e5e7eb;
+            position: relative;
+            cursor: pointer;
+            flex-shrink: 0;
+            padding: 0;
+        }
+
+        .live-editor-toggle-active::after {
+            content: '';
+            position: absolute;
+            top: 1px;
+            left: 1px;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: #fff;
+            transition: transform 0.15s ease;
+        }
+
+        .live-editor-toggle-active.is-on {
+            background: var(--button-primary-color, #ff6213);
+            border-color: var(--button-primary-color, #ff6213);
+        }
+
+        .live-editor-toggle-active.is-on::after {
+            transform: translateX(12px);
+        }
+
+        .live-editor-block-delete {
+            width: 24px;
+            height: 24px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            background: #fff;
+            color: #6b7280;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .live-editor-block-delete:hover {
+            background: #fee2e2;
+            border-color: #fca5a5;
+            color: #b91c1c;
+        }
+
+        .live-editor-blocks-empty {
+            text-align: center;
+            color: #9ca3af;
+            font-size: 13px;
+            padding: 24px 8px;
+        }
+
+        .live-editor-add-block {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        /* ── Columna central (panel de edición) ── */
+        .live-editor-col--panel {
+            max-height: calc(100vh - 200px);
+            overflow-y: auto;
+        }
+
+        .live-editor-panel-empty {
+            color: #9ca3af;
+            font-size: 13px;
+            text-align: center;
+            padding: 32px 8px;
+        }
+
+        .live-editor-panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .live-editor-panel-header h3 {
+            margin: 0;
+            font-size: 14px;
+        }
+
+        .live-editor-panel-close {
+            border: none;
+            background: none;
+            color: #6b7280;
+            font-size: 16px;
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        .live-editor-field {
+            margin-bottom: 12px;
+        }
+
+        .live-editor-field label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 4px;
+        }
+
+        .live-editor-field-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        /* ── Columna derecha (preview) ── */
+        .live-editor-col--preview {
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .live-editor-browser-bar {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 10px 12px;
+            background: #f3f4f6;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .live-editor-browser-dot {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .live-editor-browser-url {
+            margin-left: 10px;
+            font-size: 12px;
+            color: #6b7280;
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            padding: 4px 10px;
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .live-editor-iframe-wrap {
+            display: flex;
+            justify-content: center;
+            background: #e5e7eb;
+            height: calc(100vh - 200px);
+            overflow: auto;
+        }
+
+        .live-editor-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: #fff;
+            transition: width 0.2s ease;
+        }
+
+        .live-editor-iframe.is-mobile {
+            width: 375px;
+        }
+    </style>
+@endpush
+
+@push('scripts')
+    <script>
+        window.__LIVE_EDITOR__ = {!! \Illuminate\Support\Js::from([
+            'previewUrl' => route('admin.service-pages.live-editor.preview', $servicePage),
+            'saveUrl' => route('admin.service-pages.live-editor.save', $servicePage),
+            'editUrl' => route('admin.service-pages.edit', $servicePage),
+            'productsSearchUrl' => route('admin.service-pages.products.search'),
+            'sections' => $servicePage->sections->map(fn ($s) => [
+                'id' => $s->id,
+                'type' => $s->type,
+                'title' => $s->title,
+                'config' => $s->config ?: (object) [],
+                'is_active' => (bool) $s->is_active,
+            ])->values(),
+            'categories' => $categories->map(fn ($c) => ['id' => $c->id, 'name' => $c->name])->values(),
+            'brands' => $brands->map(fn ($b) => ['id' => $b->id, 'name' => $b->name])->values(),
+            'collections' => $collections->map(fn ($c) => ['id' => $c->id, 'name' => $c->name])->values(),
+            'images' => $servicePage->images->map(fn ($img) => [
+                'id' => $img->id,
+                'url' => $img->url,
+                'alt_text' => $img->alt_text,
+            ])->values(),
+        ]) !!};
+    </script>
+    @vite('resources/js/admin/service-page-live-editor.js')
+@endpush

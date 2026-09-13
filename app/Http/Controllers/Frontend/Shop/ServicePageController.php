@@ -13,6 +13,7 @@ class ServicePageController extends Controller
     {
         $servicePage = ServicePage::where('slug', $slug)
             ->where('is_active', true)
+            ->with('images')
             ->first();
 
         if (!$servicePage) {

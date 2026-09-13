@@ -37,11 +37,16 @@
         @csrf
         @method('PUT')
         @include('admin.service-pages.partials._form', ['servicePage' => $servicePage])
+        @include('admin.service-pages.partials._rating_stats', ['servicePage' => $servicePage])
 
         <div class="user-manager-modal-footer" style="justify-content:flex-start;margin-top:24px;">
             <button type="submit" class="button-primary size-adjustment" style="background:#ff6213;border-color:#ff6213;">Guardar Cambios</button>
         </div>
     </form>
+
+    @include('admin.service-pages.partials._gallery', ['servicePage' => $servicePage])
+
+    @include('admin.service-pages.partials._reviews', ['servicePage' => $servicePage])
 
     {{-- Secciones --}}
     <div style="display:flex;justify-content:space-between;align-items:center;margin:36px 0 16px;">
@@ -78,7 +83,15 @@
                         'brand_carousel'   => 'Carrusel de Marcas',
                         'html_block'       => 'Bloque HTML',
                         'faq'              => 'Preguntas Frecuentes',
+                        'rich_header'      => 'Encabezado enriquecido',
+                        'content_tabs'     => 'Descripción por secciones',
+                        'benefits_grid'    => 'Beneficios / características',
+                        'process_steps'    => 'Proceso / cómo funciona',
+                        'gallery_carousel' => 'Galería / carrusel',
+                        'rating_reviews'   => 'Rating y reseñas',
+                        'cta_final'        => 'CTA final',
                     ];
+                    $newTypes = ['rich_header', 'content_tabs', 'benefits_grid', 'process_steps', 'gallery_carousel', 'rating_reviews', 'cta_final'];
                 @endphp
                 @forelse ($servicePage->sections as $section)
                     <tr class="hs-row" data-id="{{ $section->id }}" draggable="true">
@@ -87,6 +100,9 @@
                         </td>
                         <td style="padding:12px 16px;">
                             <span class="hs-type-badge" data-type="{{ $section->type }}">{{ $typeLabels[$section->type] ?? $section->type }}</span>
+                            @if (in_array($section->type, $newTypes))
+                                <span class="users-manager-badge status" style="margin-left:6px;font-size:10px;">NUEVO</span>
+                            @endif
                         </td>
                         <td style="padding:12px 16px;font-weight:500;">{{ $section->title ?? '—' }}</td>
                         <td style="padding:12px 16px;text-align:center;color:#374151;" class="hs-sort-order">{{ $section->sort_order }}</td>
@@ -122,8 +138,11 @@
 
 @include('admin.service-pages.partials._section_modal')
 @include('admin.service-pages.partials._delete_section_modal')
+@include('admin.service-pages.partials._review_modal')
 @include('admin.service-pages.partials._section_scripts')
 @include('admin.service-pages.partials._faq_scripts')
+@include('admin.service-pages.partials._gallery_scripts')
+@include('admin.service-pages.partials._reviews_scripts')
 @include('admin.components.center-toast')
 </div>
 @endsection

@@ -411,3 +411,157 @@
     border-color: #fca5a5;
     color: #b91c1c;
 }
+
+/* ── Repeater genérico (content_tabs / benefits_grid / process_steps) —
+   mismo look que .hs-faq-row, reusado vía JS en _section_scripts.blade.php ── */
+.hs-repeat-rows {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 10px;
+}
+
+.hs-repeat-row {
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    background: #fafafa;
+}
+
+.hs-repeat-row-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.hs-repeat-row-num {
+    font-size: 12px;
+    font-weight: 700;
+    color: #6b7280;
+}
+
+.hs-repeat-remove:hover {
+    background: #fee2e2;
+    border-color: #fca5a5;
+    color: #b91c1c;
+}
+
+/* ── Galería de imágenes de Servicio (pestaña Multimedia) ── */
+.service-gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 14px;
+    margin-top: 4px;
+}
+
+.service-gallery-item {
+    position: relative;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 8px;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.service-gallery-item.is-dragging { opacity: .4; }
+.service-gallery-item.drag-over { border-color: #ff6213; }
+
+.service-gallery-item img {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+    border-radius: 6px;
+    background: #f3f4f6;
+}
+
+.service-gallery-item__drag {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    color: #9ca3af;
+    cursor: grab;
+    background: rgba(255,255,255,.85);
+    border-radius: 4px;
+}
+
+.service-gallery-item__remove {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(17,17,17,.65);
+    color: #fff;
+    cursor: pointer;
+    font-size: 13px;
+    line-height: 1;
+    z-index: 2;
+}
+
+.service-gallery-item__badge {
+    position: absolute;
+    bottom: 44px;
+    left: 8px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .03em;
+    color: #fff;
+    background: #ff6213;
+    padding: 2px 8px;
+    border-radius: 999px;
+    z-index: 2;
+}
+
+.service-gallery-item__alt {
+    font-size: 12px !important;
+    padding: 6px 8px !important;
+}
+
+.service-gallery-item--add {
+    align-items: center;
+    justify-content: center;
+    color: #9ca3af;
+    border-style: dashed;
+    cursor: pointer;
+    aspect-ratio: 1;
+    gap: 4px;
+    font-size: 12px;
+}
+.service-gallery-item--add:hover { border-color: #ff6213; color: #ff6213; }
+
+/* ── Reseñas capturadas (pestaña Rating y reseñas) ── */
+.service-review-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 12px;
+    background: #fff;
+}
+.service-review-row.is-dragging { opacity: .4; }
+.service-review-row.drag-over { border-color: #ff6213; }
+.service-review-row__drag { color: #9ca3af; cursor: grab; padding-top: 2px; }
+.service-review-row__body { flex: 1; min-width: 0; }
+.service-review-row__head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 4px; }
+.service-review-row__stars { color: #ff6213; font-size: 13px; }
+.service-review-row__comment { font-size: 13px; color: #6b7280; margin: 0; }
+
+.service-review-stars-input { display: flex; gap: 2px; }
+.service-review-star {
+    background: none;
+    border: none;
+    font-size: 22px;
+    color: #d1d5db;
+    cursor: pointer;
+    line-height: 1;
+    padding: 2px;
+}
+.service-review-star.is-active { color: #ff6213; }

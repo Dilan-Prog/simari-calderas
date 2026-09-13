@@ -152,6 +152,67 @@
             listId: 'ssPcbProductSearchList', emptyId: 'ssPcbProductSearchEmpty', chipsId: 'ssPcbProductChips', hiddenId: 'ssPcbProductIds',
         });
 
+        /* ── Filas repetibles genéricas (content_tabs / benefits_grid /
+           process_steps) — mismo patrón de addRow/reindex que _faq_scripts,
+           parametrizado para no triplicar la lógica. ── */
+        function ssMakeRepeater(containerId, addBtnId, rowHtmlFn, fieldSelectors) {
+            const container = document.getElementById(containerId);
+            const addBtn = document.getElementById(addBtnId);
+
+            function reindex() {
+                Array.from(container.children).forEach((row, i) => {
+                    const num = row.querySelector('.hs-repeat-row-num');
+                    if (num) num.textContent = i + 1;
+                });
+            }
+
+            function addRow(values = {}) {
+                const row = document.createElement('div');
+                row.className = 'hs-repeat-row';
+                row.innerHTML = rowHtmlFn();
+                fieldSelectors.forEach(sel => {
+                    const el = row.querySelector('.' + sel);
+                    if (el && values[sel] !== undefined) el.value = values[sel];
+                });
+                row.querySelector('.hs-repeat-remove').addEventListener('click', () => {
+                    row.remove();
+                    reindex();
+                });
+                container.appendChild(row);
+                reindex();
+            }
+
+            addBtn.addEventListener('click', () => addRow());
+
+            return {
+                addRow,
+                reset() { container.innerHTML = ''; },
+                rows() { return Array.from(container.children); },
+            };
+        }
+
+        const ssCtTabsRepeater = ssMakeRepeater('ssCtTabsRows', 'btnAddCtTab', () => `
+            <div class="hs-repeat-row-head"><span class="hs-repeat-row-num"></span><button type="button" class="hs-faq-btn hs-repeat-remove" title="Eliminar">&times;</button></div>
+            <input type="text" class="users-manager-input row-label" placeholder="Título de pestaña (ej. En qué consiste)">
+            <input type="text" class="users-manager-input row-subtitle" placeholder="Subtítulo (opcional)" style="margin-top:6px;">
+            <textarea class="users-manager-input client-modal-textarea row-body" rows="2" placeholder="Párrafo" style="margin-top:6px;"></textarea>
+            <textarea class="users-manager-input client-modal-textarea row-bullets" rows="2" placeholder="Viñetas, una por línea (opcional)" style="margin-top:6px;"></textarea>
+        `, ['row-label', 'row-subtitle', 'row-body', 'row-bullets']);
+
+        const ssBgItemsRepeater = ssMakeRepeater('ssBgItemsRows', 'btnAddBgItem', () => `
+            <div class="hs-repeat-row-head"><span class="hs-repeat-row-num"></span><button type="button" class="hs-faq-btn hs-repeat-remove" title="Eliminar">&times;</button></div>
+            <input type="text" class="users-manager-input row-figure" placeholder="Cifra (ej. -12%)">
+            <input type="text" class="users-manager-input row-title" placeholder="Título (ej. Menos combustible)" style="margin-top:6px;">
+            <textarea class="users-manager-input client-modal-textarea row-description" rows="2" placeholder="Descripción corta" style="margin-top:6px;"></textarea>
+        `, ['row-figure', 'row-title', 'row-description']);
+
+        const ssPsStepsRepeater = ssMakeRepeater('ssPsStepsRows', 'btnAddPsStep', () => `
+            <div class="hs-repeat-row-head"><span class="hs-repeat-row-num"></span><button type="button" class="hs-faq-btn hs-repeat-remove" title="Eliminar">&times;</button></div>
+            <input type="text" class="users-manager-input row-title" placeholder="Título del paso (ej. Inspección)">
+            <textarea class="users-manager-input client-modal-textarea row-description" rows="2" placeholder="Descripción" style="margin-top:6px;"></textarea>
+            <input type="text" class="users-manager-input row-duration" placeholder="Duración (ej. 1 h, 6-10 h)" style="margin-top:6px;">
+        `, ['row-title', 'row-description', 'row-duration']);
+
         function ssSyncConfigFields() {
             const type = document.getElementById('ssType').value;
             document.querySelectorAll('.config-fields').forEach(block => {
@@ -193,6 +254,10 @@
             document.getElementById('ssIsActive').value = '1';
             ssMainProductPicker.reset();
             ssPcbProductPicker.reset();
+            ssCtTabsRepeater.reset();
+            ssBgItemsRepeater.reset();
+            ssPsStepsRepeater.reset();
+            document.getElementById('ssRhMetaLines').value = '';
 
             ssSyncConfigFields();
             ssSyncSourceFields();
@@ -248,6 +313,40 @@
                     formData.append('pcb_product_ids[]', id);
                 });
             }
+
+            // rich_header: textarea de líneas -> rh_meta_lines[]
+            document.getElementById('ssRhMetaLines').value.split('\n')
+                .map(v => v.trim()).filter(Boolean)
+                .forEach(line => formData.append('rh_meta_lines[]', line));
+
+            // content_tabs
+            ssCtTabsRepeater.rows().forEach((row, i) => {
+                const label = row.querySelector('.row-label').value.trim();
+                if (!label) return;
+                formData.append(`ct_tabs[${i}][label]`, label);
+                formData.append(`ct_tabs[${i}][subtitle]`, row.querySelector('.row-subtitle').value.trim());
+                formData.append(`ct_tabs[${i}][body]`, row.querySelector('.row-body').value.trim());
+                row.querySelector('.row-bullets').value.split('\n').map(v => v.trim()).filter(Boolean)
+                    .forEach(b => formData.append(`ct_tabs[${i}][bullets][]`, b));
+            });
+
+            // benefits_grid
+            ssBgItemsRepeater.rows().forEach((row, i) => {
+                const title = row.querySelector('.row-title').value.trim();
+                if (!title) return;
+                formData.append(`bg_items[${i}][figure]`, row.querySelector('.row-figure').value.trim());
+                formData.append(`bg_items[${i}][title]`, title);
+                formData.append(`bg_items[${i}][description]`, row.querySelector('.row-description').value.trim());
+            });
+
+            // process_steps
+            ssPsStepsRepeater.rows().forEach((row, i) => {
+                const title = row.querySelector('.row-title').value.trim();
+                if (!title) return;
+                formData.append(`ps_steps[${i}][title]`, title);
+                formData.append(`ps_steps[${i}][description]`, row.querySelector('.row-description').value.trim());
+                formData.append(`ps_steps[${i}][duration]`, row.querySelector('.row-duration').value.trim());
+            });
 
             const url = ssIsEditMode ?
                 `${serviceSectionsBaseUrl}/${currentServiceSectionId}` :
@@ -340,6 +439,43 @@
                 document.getElementById('ssHtml').value = config.html ?? '';
             } else if (type === 'faq') {
                 document.getElementById('ssFaqDescription').value = config.description ?? '';
+            } else if (type === 'rich_header') {
+                document.getElementById('ssRhBadges').value = (config.badges ?? []).join(' · ');
+                document.getElementById('ssRhWhatsappText').value = config.whatsapp_text ?? 'Cotizar por WhatsApp';
+                document.getElementById('ssRhMetaLines').value = (config.meta_lines ?? []).join('\n');
+                const bgIds = (config.background_image_ids ?? []).map(String);
+                Array.from(document.getElementById('ssRhBackgroundImageIds').options).forEach(opt => {
+                    opt.selected = bgIds.includes(opt.value);
+                });
+            } else if (type === 'content_tabs') {
+                ssCtTabsRepeater.reset();
+                (config.tabs ?? []).forEach(t => ssCtTabsRepeater.addRow({
+                    'row-label': t.label ?? '', 'row-subtitle': t.subtitle ?? '',
+                    'row-body': t.body ?? '', 'row-bullets': (t.bullets ?? []).join('\n'),
+                }));
+            } else if (type === 'benefits_grid') {
+                ssBgItemsRepeater.reset();
+                (config.items ?? []).forEach(i => ssBgItemsRepeater.addRow({
+                    'row-figure': i.figure ?? '', 'row-title': i.title ?? '', 'row-description': i.description ?? '',
+                }));
+            } else if (type === 'process_steps') {
+                ssPsStepsRepeater.reset();
+                (config.steps ?? []).forEach(s => ssPsStepsRepeater.addRow({
+                    'row-title': s.title ?? '', 'row-description': s.description ?? '', 'row-duration': s.duration ?? '',
+                }));
+            } else if (type === 'gallery_carousel') {
+                const ids = (config.image_ids ?? []).map(String);
+                Array.from(document.getElementById('ssGcImageIds').options).forEach(opt => {
+                    opt.selected = ids.includes(opt.value);
+                });
+            } else if (type === 'rating_reviews') {
+                document.getElementById('ssRrDescription').value = config.description ?? '';
+                document.getElementById('ssRrReviewsPerPage').value = config.reviews_per_page ?? 3;
+            } else if (type === 'cta_final') {
+                document.getElementById('ssCtaHeadline').value = config.headline ?? '';
+                document.getElementById('ssCtaSubtext').value = config.subtext ?? '';
+                document.getElementById('ssCtaWhatsappText').value = config.whatsapp_text ?? 'Cotizar por WhatsApp';
+                document.getElementById('ssCtaBackgroundImageId').value = config.background_image_id ?? '';
             }
         }
 
