@@ -293,9 +293,13 @@ class ServicePageController extends Controller
             'is_active'         => 'nullable|boolean',
         ]);
 
-        // Un hub nunca tiene padre; y una página no puede ser su propio
-        // ancestro (evita ciclos al reasignar parent_id).
-        if ($validated['page_type'] === ServicePage::TYPE_HUB) {
+        // Un hub o una categoría nunca tienen padre — la jerarquía es de
+        // máximo 2 niveles bajo /servicios/ y publicPath() ya ignora
+        // parent_id para ambos tipos; dejarlo sin forzar aquí dejaba un
+        // parent_id "fantasma" que rompía ancestors()/breadcrumb aunque la
+        // URL pública fuera correcta. También evita que una página sea su
+        // propio ancestro (ciclos al reasignar parent_id).
+        if (in_array($validated['page_type'], [ServicePage::TYPE_HUB, ServicePage::TYPE_CATEGORY], true)) {
             $parentId = null;
         } elseif ($parentId) {
             if ((int) $parentId === $servicePage->id) {

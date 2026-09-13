@@ -41,7 +41,7 @@
 
                 <span class="live-editor-toolbar-divider"></span>
 
-                <a href="{{ route('service-page.show', $servicePage->slug) }}" target="_blank" rel="noopener" class="live-editor-btn live-editor-btn--outline" id="leViewLiveLink">
+                <a href="{{ url($servicePage->publicPath()) }}" target="_blank" rel="noopener" class="live-editor-btn live-editor-btn--outline" id="leViewLiveLink">
                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
                     Ver página en vivo
                 </a>
@@ -111,7 +111,7 @@
                 <span class="live-editor-browser-dot" style="background:#ff5f57;"></span>
                 <span class="live-editor-browser-dot" style="background:#ffbd2e;"></span>
                 <span class="live-editor-browser-dot" style="background:#28c840;"></span>
-                <span class="live-editor-browser-url" id="leBrowserUrl">equitermindustries.com.mx/servicio/{{ $servicePage->slug }}</span>
+                <span class="live-editor-browser-url" id="leBrowserUrl">equitermindustries.com.mx{{ $servicePage->publicPath() }}</span>
             </div>
             <div class="live-editor-iframe-wrap">
                 <iframe id="leIframe" class="live-editor-iframe" title="Vista previa"></iframe>

@@ -432,7 +432,8 @@
         const pageTypeSelect = editPanel.querySelector('#leGenPageType');
         const parentField = editPanel.querySelector('.leGenParentField');
         const toggleParentField = () => {
-            if (parentField) parentField.style.display = pageTypeSelect.value === 'hub' ? 'none' : '';
+            const hidesParent = pageTypeSelect.value === 'hub' || pageTypeSelect.value === 'category';
+            if (parentField) parentField.style.display = hidesParent ? 'none' : '';
         };
         pageTypeSelect.addEventListener('change', toggleParentField);
         toggleParentField();
