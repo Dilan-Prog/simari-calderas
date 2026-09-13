@@ -18,35 +18,37 @@
         </p>
 
         <div class="live-editor-heading-row">
-            <h1>{{ $servicePage->name }}</h1>
-            <span class="live-editor-badge" title="El editor en vivo está disponible solo en el módulo Servicios por ahora.">BETA · SOLO SERVICIOS</span>
-        </div>
-
-        <div class="live-editor-toolbar-row">
-            <div class="live-editor-viewport-toggle" id="leViewportToggle">
-                <button type="button" class="is-active" data-viewport="desktop">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/></svg>
-                    Escritorio
-                </button>
-                <button type="button" data-viewport="mobile">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="20" x="5" y="2" rx="2"/><path d="M12 18h.01"/></svg>
-                    Móvil
-                </button>
+            <div class="live-editor-heading-row__left">
+                <h1>{{ $servicePage->name }}</h1>
+                <span class="live-editor-badge" title="El editor en vivo está disponible solo en el módulo Servicios por ahora.">BETA · SOLO SERVICIOS</span>
             </div>
 
-            <span class="live-editor-toolbar-divider"></span>
+            <div class="live-editor-heading-row__right">
+                <div class="live-editor-viewport-toggle" id="leViewportToggle">
+                    <button type="button" class="is-active" data-viewport="desktop">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/></svg>
+                        Escritorio
+                    </button>
+                    <button type="button" data-viewport="mobile">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="20" x="5" y="2" rx="2"/><path d="M12 18h.01"/></svg>
+                        Móvil
+                    </button>
+                </div>
 
-            <span id="leDirtyIndicator" class="live-editor-status is-saved">Guardado</span>
-        </div>
+                <span class="live-editor-toolbar-divider"></span>
 
-        <div class="live-editor-actions-row">
-            <a href="{{ route('service-page.show', $servicePage->slug) }}" target="_blank" rel="noopener" class="live-editor-btn live-editor-btn--outline">
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
-                Ver página en vivo
-            </a>
-            <button type="button" id="leSaveBtn" class="live-editor-btn live-editor-btn--solid">
-                Guardar cambios
-            </button>
+                <span id="leDirtyIndicator" class="live-editor-status is-saved">Guardado</span>
+
+                <span class="live-editor-toolbar-divider"></span>
+
+                <a href="{{ route('service-page.show', $servicePage->slug) }}" target="_blank" rel="noopener" class="live-editor-btn live-editor-btn--outline">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
+                    Ver página en vivo
+                </a>
+                <button type="button" id="leSaveBtn" class="live-editor-btn live-editor-btn--solid">
+                    Guardar cambios
+                </button>
+            </div>
         </div>
     </div>
 
@@ -146,9 +148,24 @@
         .live-editor-heading-row {
             display: flex;
             align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .live-editor-heading-row__left {
+            display: flex;
+            align-items: center;
             gap: 10px;
             flex-wrap: wrap;
-            margin-bottom: 14px;
+        }
+
+        .live-editor-heading-row__right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
         }
 
         .live-editor-heading-row h1 {
