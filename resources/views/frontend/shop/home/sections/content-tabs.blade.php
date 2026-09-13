@@ -2,10 +2,15 @@
     $tabs = collect($section->config['tabs'] ?? [])
         ->filter(fn ($tab) => !empty($tab['label']))
         ->values();
+    $titleStyle = $section->config['title_style'] ?? null;
+    $titleTag = \App\Support\TextStyle::tag($titleStyle, 'h2', ['h2', 'h3']);
 @endphp
 
 @if ($tabs->isNotEmpty())
 <section class="svc-tabs" x-data="{ active: 0 }" @if ($previewMode) data-section-id="{{ $section->id }}" @endif>
+    @if ($section->title)
+        <{{ $titleTag }} class="svc-tabs__title"{!! \App\Support\TextStyle::attr($titleStyle) !!}>{{ $section->title }}</{{ $titleTag }}>
+    @endif
     <div class="svc-tabs__nav" role="tablist">
         @foreach ($tabs as $i => $tab)
             <button type="button" class="svc-tabs__tab" :class="{ 'is-active': active === {{ $i }} }" @click="active = {{ $i }}" role="tab" :aria-selected="active === {{ $i }}">{{ $tab['label'] }}</button>
@@ -19,8 +24,8 @@
                 : null;
         @endphp
         <div class="svc-tabs__panel" x-show="active === {{ $i }}" x-cloak role="tabpanel">
-            @if (!empty($tab['subtitle']))<h3>{{ $tab['subtitle'] }}</h3>@endif
-            @if (!empty($tab['body']))<p>{{ $tab['body'] }}</p>@endif
+            @if (!empty($tab['subtitle']))<h3{!! \App\Support\TextStyle::attr($tab['style'] ?? null) !!}>{{ $tab['subtitle'] }}</h3>@endif
+            @if (!empty($tab['body']))<p{!! \App\Support\TextStyle::attr($tab['style'] ?? null) !!}>{{ $tab['body'] }}</p>@endif
             @if (!empty($tab['bullets']))
                 <ul>
                     @foreach ($tab['bullets'] as $bullet)

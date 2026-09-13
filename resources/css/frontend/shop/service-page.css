@@ -122,8 +122,18 @@
 .svc-cta-final__bg { position: absolute; inset: 0; z-index: 0; }
 .svc-cta-final__bg img { width: 100%; height: 100%; object-fit: cover; opacity: .22; }
 .svc-cta-final__inner { position: relative; z-index: 1; max-width: 520px; margin: 0 auto; }
-.svc-cta-final h2 { font-size: 24px; margin: 0 0 8px; }
+.svc-cta-final h2, .svc-cta-final h3 { font-size: 24px; margin: 0 0 8px; }
 .svc-cta-final__subtext { font-size: 14.5px; color: rgba(255,255,255,.78); margin: 0 0 20px; }
+.svc-cta-final__actions { display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap; }
+
+/* ── Botón genérico (bloque "button" + botón secundario de cta_final) ── */
+.svc-btn { display: inline-flex; align-items: center; justify-content: center; padding: 12px 22px; border-radius: 10px; border: 2px solid transparent; font-weight: 700; font-size: 14.5px; text-decoration: none; color: #fff; transition: opacity .15s ease; }
+.svc-btn:hover { opacity: .88; color: inherit; }
+.svc-btn--outline { background: transparent !important; }
+.svc-button { margin-bottom: 32px; display: flex; }
+.svc-button--left { justify-content: flex-start; }
+.svc-button--center { justify-content: center; }
+.svc-button--right { justify-content: flex-end; }
 
 /* ── Grid automático hacia hijos (hub → categorías, categoría → servicios) ── */
 .svc-children { margin-bottom: 32px; }

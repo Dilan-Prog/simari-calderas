@@ -1399,3 +1399,120 @@
     background: #fff7f5;
     color: var(--secondary-color, #ff6213);
 }
+
+/* ── Panel flotante genérico del picker de enlaces (resources/js/admin/
+   link-picker.js), usado por window.LinkPicker.open(...) desde cualquier
+   pantalla del admin — antes vivía solo en pages/product-form.css bajo el
+   prefijo .pform-link-picker*, específico del picker de enlaces de FAQ de
+   Productos (ver resources/js/admin/variable-picker.js). ── */
+.admin-link-picker {
+    display: none;
+    position: fixed;
+    z-index: 500;
+    padding: 8px;
+    background: #ffffff;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    width: 260px;
+}
+
+.admin-link-picker.is-open {
+    display: block;
+}
+
+.admin-link-picker-title {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.admin-link-picker-back {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    color: #6b7280;
+    padding: 0;
+}
+
+.admin-link-picker-type {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 8px 10px;
+    margin-bottom: 4px;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    font-size: 13px;
+    color: #374151;
+    cursor: pointer;
+}
+
+.admin-link-picker-type:hover {
+    background: #eef2ff;
+    border-color: #c7d2fe;
+}
+
+.admin-link-picker-search {
+    width: 100%;
+    margin-bottom: 6px;
+}
+
+.admin-link-picker-results {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.admin-link-picker-item {
+    padding: 8px 10px;
+    font-size: 13px;
+    color: #374151;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.admin-link-picker-item:hover {
+    background: #eef2ff;
+    color: #3730a3;
+}
+
+.admin-link-picker-empty {
+    padding: 8px 10px;
+    font-size: 12.5px;
+    color: #9ca3af;
+}
+
+/* Type step ("custom" URL) — plain text input + "Usar" button, for external
+   links or anything not covered by product/collection/category/brand/
+   static_page. */
+.admin-link-picker-custom-input {
+    width: 100%;
+    margin-bottom: 6px;
+}
+
+.admin-link-picker-custom-submit {
+    display: block;
+    width: 100%;
+    padding: 8px 10px;
+    background: var(--secondary-color, #ff6213);
+    border: none;
+    border-radius: 6px;
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 500;
+    font-family: var(--font-family);
+    cursor: pointer;
+}
+
+.admin-link-picker-custom-submit:hover {
+    background: var(--button-primary-color-hover, #de4a00);
+}

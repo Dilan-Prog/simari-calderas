@@ -8,6 +8,7 @@ use App\Http\Controllers\Backend\AuditController;
 use App\Http\Controllers\Backend\AbandonedCartController;
 use App\Http\Controllers\Backend\DevOpsController;
 use App\Http\Controllers\Backend\ProductController;
+use App\Http\Controllers\Backend\LinkController;
 use App\Http\Controllers\Backend\ProductImportExportController;
 use App\Http\Controllers\Backend\QuoteController;
 use App\Http\Controllers\Backend\ServiceReportController;
@@ -186,7 +187,6 @@ Route::controller(ProductController::class)
         Route::get('/productos/imagenes/biblioteca', 'mediaLibrary')->name('products.images.library');
         Route::get('/productos/etiquetas/buscar', 'tagSuggestions')->name('products.tags.suggestions');
         Route::get('/productos/especificaciones/buscar', 'specNameSuggestions')->name('products.specs.suggestions');
-        Route::get('/productos/faq-enlaces/buscar', 'faqLinkSearch')->name('products.faq-links.search');
         Route::post('/productos/bulk', 'bulkUpdate')->name('products.bulk')->middleware('permission:products,edit');
         Route::get('/productos/edicion-masiva', 'bulkEditIndex')->name('products.bulk-edit');
         Route::post('/productos/edicion-masiva/guardar', 'bulkEditSave')->name('products.bulk.save')->middleware('permission:products,edit');
@@ -198,6 +198,17 @@ Route::controller(ProductController::class)
         Route::put('/productos/vistas/{id}', 'updateIndexView')->name('products.index-views.update')->middleware('permission:products,edit');
         Route::delete('/productos/vistas/{id}', 'destroyIndexView')->name('products.index-views.destroy')->middleware('permission:products,delete');
     });
+
+// Picker de enlaces genérico del admin (producto/colección/categoría/marca/
+// página estática) — generalización de la antigua ruta
+// products.faq-links.search (ProductController::faqLinkSearch, retirada).
+// Sin middleware permission:X propio: es un endpoint de solo lectura sobre
+// datos que ya son públicos en la tienda (nombres/slugs/URLs), y lo van a
+// consumir pantallas de admin de varios módulos vía resources/js/admin/
+// link-picker.js — basta con la autenticación de admin que ya aplica todo
+// routes/admin.php (grupo 'web','auth' + prefijo/nombre 'admin.' en
+// RouteServiceProvider).
+Route::get('/enlaces/buscar', [LinkController::class, 'search'])->name('links.search');
 
 // Vínculo proveedor-producto — mismo controlador que la copia bajo
 // permission:suppliers (ver arriba), duplicada aquí bajo permission:products

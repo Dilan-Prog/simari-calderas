@@ -14,10 +14,14 @@
         ->values();
 @endphp
 
+@php
+    $titleStyle = $config['title_style'] ?? null;
+    $titleTag = \App\Support\TextStyle::tag($titleStyle, 'h2', ['h2', 'h3']);
+@endphp
 @if ($items->isNotEmpty())
 <section class="home-faq">
     @if ($section->title)
-        <h2 class="home-faq__title">{{ $section->resolveText($section->title, $faqOwner) }}</h2>
+        <{{ $titleTag }} class="home-faq__title"{!! \App\Support\TextStyle::attr($titleStyle) !!}>{{ $section->resolveText($section->title, $faqOwner) }}</{{ $titleTag }}>
     @endif
     @if (!empty($config['description']))
         <p class="home-faq__description">{{ $section->resolveText($config['description'], $faqOwner) }}</p>

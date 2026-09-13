@@ -43,6 +43,7 @@
         gallery_carousel: 'Galería / carrusel',
         rating_reviews: 'Rating y reseñas',
         cta_final: 'CTA final',
+        button: 'Botón',
     };
 
     // Iconos por tipo de bloque (mismo set de stroke-icons ya usado en el
@@ -63,6 +64,7 @@
         gallery_carousel: '<rect width="18" height="18" x="3" y="3" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>',
         rating_reviews: '<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>',
         cta_final: '<path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>',
+        button: '<rect width="18" height="7" x="3" y="8.5" rx="3.5"/>',
         default: '<rect width="18" height="18" x="3" y="3" rx="2"/>',
     };
 
@@ -121,7 +123,9 @@
             case 'rating_reviews':
                 return { description: '', reviews_per_page: 3 };
             case 'cta_final':
-                return { headline: '', subtext: '', whatsapp_text: 'Cotizar por WhatsApp', background_image_id: null };
+                return { headline: '', subtext: '', whatsapp_text: 'Cotizar por WhatsApp', background_image_id: null, secondary_button: { text: '', url: '', style: 'outline', color: '#ff6213' } };
+            case 'button':
+                return { text: 'Cotizar ahora', url: '', style: 'solid', color: '#ff6213', align: 'center' };
             default:
                 return {};
         }
@@ -147,7 +151,7 @@
 
     const generalData = Object.assign({
         name: '', slug: '', short_description: '', price: '', currency: 'MXN', show_price: true,
-        seo_title: '', seo_description: '', is_active: false,
+        seo_title: '', seo_description: '', is_active: false, faqs: [],
     }, DATA.general || {});
 
     // ── Elementos ────────────────────────────────────────────────────
@@ -219,6 +223,275 @@
             .normalize('NFD').replace(/[^\x00-\x7F]/g, '')
             .replace(/[^a-z0-9\s-]/g, '')
             .trim().replace(/\s+/g, '-');
+    }
+
+    // ── Color picker (puerto sin React del ColorField de Email Marketing,
+    //    resources/js/admin/email-marketing/builder/PropertiesPanel.jsx:185-299)
+    //    -- misma paleta y mismo localStorage key 'emb-custom-colors', para
+    //    que "Mis colores" sea una sola lista compartida en todo el admin. ──
+    const COLOR_PALETTE = [
+        '#000000', '#141516', '#374151', '#4b5563', '#6b7280', '#9ca3af', '#d1d5db', '#f3f4f6', '#ffffff',
+        '#ef4444', '#f97316', '#ff6213', '#f59e0b', '#eab308', '#84cc16', '#22c55e', '#10b981',
+        '#14b8a6', '#06b6d4', '#0ea5e9', '#3b82f6', '#6366f1', '#8b5cf6', '#a855f7', '#d946ef',
+        '#ec4899', '#f43f5e', '#7c2d12', '#78350f', '#365314', '#134e4a', '#1e3a8a', '#4c1d95',
+    ];
+    const CUSTOM_COLORS_KEY = 'emb-custom-colors';
+
+    function loadCustomColors() {
+        try {
+            const raw = window.localStorage.getItem(CUSTOM_COLORS_KEY);
+            const parsed = raw ? JSON.parse(raw) : [];
+            return Array.isArray(parsed) ? parsed : [];
+        } catch (err) {
+            return [];
+        }
+    }
+
+    function saveCustomColors(colors) {
+        try {
+            window.localStorage.setItem(CUSTOM_COLORS_KEY, JSON.stringify(colors));
+        } catch (err) {
+            // localStorage no disponible (modo privado, cuota llena) -- el
+            // color elegido igual se aplica, solo no persiste entre sesiones.
+        }
+    }
+
+    function isValidHex(hex) {
+        return /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(hex);
+    }
+
+    /**
+     * Monta un color picker dentro de `container`. `value` es el hex actual
+     * (o vacío/null), `onChange(hex)` se llama al elegir uno.
+     */
+    function mountColorPicker(container, value, onChange) {
+        let customColors = loadCustomColors();
+
+        function swatchHtml(hex, removable) {
+            const active = value && value.toLowerCase() === hex.toLowerCase();
+            return `<button type="button" class="le-color-swatch ${active ? 'is-active' : ''}" data-hex="${hex}" title="${hex}" style="background:${hex}">
+                ${removable ? '<span class="le-color-swatch-remove" data-remove="' + hex + '" title="Quitar de mis colores">&times;</span>' : ''}
+            </button>`;
+        }
+
+        function render() {
+            container.innerHTML = `
+                <div class="le-color-swatches">${COLOR_PALETTE.map((hex) => swatchHtml(hex, false)).join('')}</div>
+                ${customColors.length ? `
+                    <div class="le-color-custom-label">Mis colores</div>
+                    <div class="le-color-swatches">${customColors.map((hex) => swatchHtml(hex, true)).join('')}</div>
+                ` : ''}
+                <div class="le-color-custom-row">
+                    <input type="color" class="le-color-native" value="${isValidHex(value) ? value : '#ff6213'}">
+                    <input type="text" class="users-manager-input le-color-hex" placeholder="#ff6213" value="${escHtml(value || '')}">
+                    <button type="button" class="live-editor-btn live-editor-btn--outline le-color-save">Guardar</button>
+                </div>
+            `;
+
+            container.querySelectorAll('.le-color-swatch').forEach((btn) => {
+                btn.addEventListener('click', (e) => {
+                    if (e.target.closest('.le-color-swatch-remove')) return;
+                    onChange(btn.dataset.hex);
+                    render();
+                });
+            });
+            container.querySelectorAll('.le-color-swatch-remove').forEach((btn) => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const hex = btn.dataset.remove;
+                    customColors = customColors.filter((c) => c !== hex);
+                    saveCustomColors(customColors);
+                    render();
+                });
+            });
+
+            const nativeInput = container.querySelector('.le-color-native');
+            const hexInput = container.querySelector('.le-color-hex');
+            nativeInput.addEventListener('input', () => { hexInput.value = nativeInput.value; });
+            container.querySelector('.le-color-save').addEventListener('click', () => {
+                let hex = hexInput.value.trim();
+                if (!hex) return;
+                if (!hex.startsWith('#')) hex = '#' + hex;
+                if (!isValidHex(hex)) return;
+                if (!customColors.includes(hex)) {
+                    customColors = [...customColors, hex];
+                    saveCustomColors(customColors);
+                }
+                onChange(hex);
+                render();
+            });
+        }
+
+        render();
+    }
+
+    /**
+     * Monta los controles de tipografía (alineación, tamaño, familia,
+     * color, y opcionalmente etiqueta de encabezado) sobre `target`
+     * (el objeto plano de config al que se le lee/escribe directo, ej.
+     * cfg.title_style). `opts.tagChoices` es un array de tags permitidos
+     * (ej. ['h2','h3']) o null/omitido si el campo nunca es un encabezado
+     * (ej. un párrafo). `opts.onChange` se llama tras cada cambio.
+     */
+    function mountTypographyFields(container, target, opts) {
+        opts = opts || {};
+        const tagChoices = opts.tagChoices || null;
+        const onChange = opts.onChange || (() => {});
+        const idPrefix = 'leStyle' + (++uidCounter);
+
+        function notify() {
+            markDirty();
+            onChange();
+            schedulePreview();
+        }
+
+        const tagField = tagChoices ? field('Etiqueta de encabezado', `
+            <select class="users-manager-select" id="${idPrefix}Tag">
+                ${tagChoices.map((t) => `<option value="${t}" ${(target.heading_tag || tagChoices[0]) === t ? 'selected' : ''}>${t.toUpperCase()}</option>`).join('')}
+            </select>
+        `) : '';
+
+        container.innerHTML = `
+            <p class="live-editor-col-title" style="margin:14px 0 8px;">Estilo del texto</p>
+            ${tagField}
+            <div class="live-editor-field-row">
+                ${field('Alineación', `
+                    <div class="le-align-toggle" id="${idPrefix}Align">
+                        <button type="button" data-align="left" class="${(target.text_align || 'left') === 'left' ? 'is-active' : ''}" title="Izquierda">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="21" x2="3" y1="6" y2="6"/><line x1="15" x2="3" y1="12" y2="12"/><line x1="17" x2="3" y1="18" y2="18"/></svg>
+                        </button>
+                        <button type="button" data-align="center" class="${target.text_align === 'center' ? 'is-active' : ''}" title="Centro">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="21" x2="3" y1="6" y2="6"/><line x1="17" x2="7" y1="12" y2="12"/><line x1="19" x2="5" y1="18" y2="18"/></svg>
+                        </button>
+                        <button type="button" data-align="right" class="${target.text_align === 'right' ? 'is-active' : ''}" title="Derecha">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="21" x2="3" y1="6" y2="6"/><line x1="21" x2="9" y1="12" y2="12"/><line x1="21" x2="7" y1="18" y2="18"/></svg>
+                        </button>
+                    </div>
+                `)}
+                ${field('Tamaño (px)', `<input type="number" class="users-manager-input" id="${idPrefix}Size" min="10" max="72" placeholder="Auto" value="${escHtml(target.font_size || '')}">`)}
+            </div>
+            ${field('Familia tipográfica', `
+                <select class="users-manager-select" id="${idPrefix}Family">
+                    <option value="" ${!target.font_family ? 'selected' : ''}>Predeterminada (Inter)</option>
+                    <option value="Inter Tight" ${target.font_family === 'Inter Tight' ? 'selected' : ''}>Inter Tight</option>
+                </select>
+            `)}
+            ${field('Color de texto', `<div id="${idPrefix}Color"></div>`)}
+        `;
+
+        if (tagChoices) {
+            container.querySelector('#' + idPrefix + 'Tag').addEventListener('change', (e) => {
+                target.heading_tag = e.target.value;
+                notify();
+            });
+        }
+
+        container.querySelector('#' + idPrefix + 'Align').addEventListener('click', (e) => {
+            const btn = e.target.closest('button[data-align]');
+            if (!btn) return;
+            target.text_align = btn.dataset.align;
+            container.querySelectorAll('#' + idPrefix + 'Align button').forEach((b) => b.classList.toggle('is-active', b === btn));
+            notify();
+        });
+
+        container.querySelector('#' + idPrefix + 'Size').addEventListener('input', (e) => {
+            const v = parseInt(e.target.value, 10);
+            target.font_size = Number.isFinite(v) ? v : null;
+            notify();
+        });
+
+        container.querySelector('#' + idPrefix + 'Family').addEventListener('change', (e) => {
+            target.font_family = e.target.value || null;
+            notify();
+        });
+
+        mountColorPicker(container.querySelector('#' + idPrefix + 'Color'), target.text_color, (hex) => {
+            target.text_color = hex;
+            notify();
+        });
+    }
+
+    /**
+     * Controles compartidos de un botón genérico: texto, enlace (vía el
+     * selector estilo Shopify de window.LinkPicker), estilo sólido/outline,
+     * color y (opcional) alineación. Usado tanto por el bloque "Botón"
+     * standalone como por el botón secundario de cta_final.
+     */
+    function mountButtonFields(container, target, opts) {
+        opts = opts || {};
+        const showAlign = opts.alignField !== false;
+        const idPrefix = 'leBtn' + (++uidCounter);
+
+        container.innerHTML = `
+            ${field('Texto del botón', `<input type="text" class="users-manager-input" id="${idPrefix}Text" value="${escHtml(target.text)}" placeholder="Cotizar ahora">`)}
+            ${field('Enlace', `
+                <div style="display:flex;gap:8px;">
+                    <input type="text" class="users-manager-input" id="${idPrefix}Url" value="${escHtml(target.url)}" placeholder="https:// o /servicios/..." style="flex:1;">
+                    <button type="button" class="live-editor-btn live-editor-btn--outline" id="${idPrefix}LinkPick">Elegir enlace</button>
+                </div>
+            `)}
+            <div class="live-editor-field-row">
+                ${field('Estilo', `
+                    <select class="users-manager-select" id="${idPrefix}Style">
+                        <option value="solid" ${(target.style || 'solid') === 'solid' ? 'selected' : ''}>Sólido</option>
+                        <option value="outline" ${target.style === 'outline' ? 'selected' : ''}>Contorno</option>
+                    </select>
+                `)}
+                ${showAlign ? field('Alineación', `
+                    <select class="users-manager-select" id="${idPrefix}Align">
+                        <option value="left" ${target.align === 'left' ? 'selected' : ''}>Izquierda</option>
+                        <option value="center" ${(target.align || 'center') === 'center' ? 'selected' : ''}>Centro</option>
+                        <option value="right" ${target.align === 'right' ? 'selected' : ''}>Derecha</option>
+                    </select>
+                `) : ''}
+            </div>
+            ${field('Color', `<div id="${idPrefix}Color"></div>`)}
+        `;
+
+        container.querySelector('#' + idPrefix + 'Text').addEventListener('input', (e) => {
+            target.text = e.target.value;
+            markDirty();
+            schedulePreview();
+        });
+        const urlInput = container.querySelector('#' + idPrefix + 'Url');
+        urlInput.addEventListener('input', (e) => {
+            target.url = e.target.value;
+            markDirty();
+            schedulePreview();
+        });
+        container.querySelector('#' + idPrefix + 'LinkPick').addEventListener('click', (e) => {
+            if (typeof window.LinkPicker !== 'function' && !(window.LinkPicker && window.LinkPicker.open)) return;
+            window.LinkPicker.open({
+                anchorEl: e.target,
+                onSelect: (url) => {
+                    urlInput.value = url;
+                    target.url = url;
+                    markDirty();
+                    schedulePreview();
+                },
+            });
+        });
+        container.querySelector('#' + idPrefix + 'Style').addEventListener('change', (e) => {
+            target.style = e.target.value;
+            markDirty();
+            schedulePreview();
+        });
+        if (showAlign) {
+            container.querySelector('#' + idPrefix + 'Align').addEventListener('change', (e) => {
+                target.align = e.target.value;
+                markDirty();
+                schedulePreview();
+            });
+        }
+        mountColorPicker(container.querySelector('#' + idPrefix + 'Color'), target.color || '#ff6213', (hex) => {
+            target.color = hex;
+            markDirty();
+            schedulePreview();
+        });
+    }
+
+    function renderButtonFields(container, cfg) {
+        mountButtonFields(container, cfg, { alignField: true });
     }
 
     function markDirty() {
@@ -447,11 +720,27 @@
             <div class="show-user-divider" style="margin:10px 0;"></div>
             ${field('Título SEO', `<input type="text" class="users-manager-input" id="leGenSeoTitle" value="${escHtml(generalData.seo_title)}" maxlength="160">`)}
             ${field('Descripción SEO', `<textarea class="users-manager-input client-modal-textarea" id="leGenSeoDesc" rows="2" maxlength="500">${escHtml(generalData.seo_description)}</textarea>`)}
+            <div class="show-user-divider" style="margin:10px 0;"></div>
+            <div class="live-editor-field">
+                <label>Preguntas frecuentes</label>
+                <p class="hs-config-note" style="margin:0 0 8px;">Alimentan el <code>FAQPage</code> de Google y el acordeón visible cuando hay un bloque "Preguntas Frecuentes" en esta página.</p>
+                <div id="leGenFaqRows" class="hs-faq-items"></div>
+                <button type="button" class="button-secondary size-adjustment" id="leGenFaqAdd" style="margin-top:10px;">+ Agregar pregunta</button>
+            </div>
             <div id="leGenErrors" class="user-manager-errors" style="display:none;margin-bottom:10px;"></div>
             <button type="button" id="leGenSaveBtn" class="live-editor-btn live-editor-btn--solid live-editor-btn--block">Guardar información general</button>
         `;
 
         editPanel.querySelector('#leGenSaveBtn').addEventListener('click', saveGeneralInfo);
+
+        editPanel.querySelector('#leGenFaqAdd').addEventListener('click', () => {
+            generalData.faqs = generalData.faqs || [];
+            generalData.faqs.push({ question: '', answer: '' });
+            markDirty();
+            renderFaqRepeater();
+        });
+
+        renderFaqRepeater();
 
         editPanel.querySelector('#leGenSlugGenerate').addEventListener('click', () => {
             const nameInput = editPanel.querySelector('#leGenName');
@@ -467,6 +756,41 @@
         };
         pageTypeSelect.addEventListener('change', toggleParentField);
         toggleParentField();
+    }
+
+    // Repetidor de FAQ (pregunta/respuesta) dentro de "Información general"
+    // -- mismo patrón visual que el repetidor de FAQ del formulario clásico
+    // (_faq_scripts.blade.php: hs-faq-items/hs-faq-row), pero re-renderizado
+    // al agregar/quitar en vez de reindexar name= (aquí no hay <form> real,
+    // el payload se arma a mano en saveGeneralInfo()).
+    function renderFaqRepeater() {
+        generalData.faqs = generalData.faqs || [];
+        const rows = editPanel.querySelector('#leGenFaqRows');
+        if (!rows) return;
+        rows.innerHTML = '';
+
+        generalData.faqs.forEach((faqItem, i) => {
+            const row = document.createElement('div');
+            row.className = 'hs-faq-row';
+            row.innerHTML = `
+                <div class="hs-faq-row-head">
+                    <span class="hs-faq-row-num">${i + 1}</span>
+                    <div class="hs-faq-row-actions">
+                        <button type="button" class="hs-faq-btn hs-faq-remove" title="Eliminar">&times;</button>
+                    </div>
+                </div>
+                <input type="text" class="users-manager-input hs-faq-question" placeholder="Pregunta" value="${escHtml(faqItem.question)}">
+                <textarea class="users-manager-input client-modal-textarea hs-faq-answer" rows="2" placeholder="Respuesta">${escHtml(faqItem.answer)}</textarea>
+            `;
+            row.querySelector('.hs-faq-question').addEventListener('input', (e) => { faqItem.question = e.target.value; markDirty(); });
+            row.querySelector('.hs-faq-answer').addEventListener('input', (e) => { faqItem.answer = e.target.value; markDirty(); });
+            row.querySelector('.hs-faq-remove').addEventListener('click', () => {
+                generalData.faqs.splice(i, 1);
+                markDirty();
+                renderFaqRepeater();
+            });
+            rows.appendChild(row);
+        });
     }
 
     async function saveGeneralInfo() {
@@ -489,6 +813,7 @@
             is_active: editPanel.querySelector('#leGenIsActive').checked,
             seo_title: editPanel.querySelector('#leGenSeoTitle').value,
             seo_description: editPanel.querySelector('#leGenSeoDesc').value,
+            faq_items: generalData.faqs || [],
         };
 
         btn.disabled = true;
@@ -568,6 +893,7 @@
                 <button type="button" class="live-editor-panel-close" id="lePanelClose" title="Cerrar">&times;</button>
             </div>
             ${field('Título (opcional, puedes usar {servicio})', `<input type="text" class="users-manager-input" id="leTitle" value="${escHtml(section.title)}" placeholder="Ej: Beneficios del servicio">`)}
+            ${TITLE_STYLE_TYPES.includes(section.type) ? '<div id="leTitleStyle"></div>' : ''}
             <div class="show-user-divider" style="margin:10px 0;"></div>
             <div id="leTypeFields"></div>
         `;
@@ -585,8 +911,19 @@
             schedulePreview();
         });
 
+        if (TITLE_STYLE_TYPES.includes(section.type)) {
+            const cfg = section.config = section.config || {};
+            cfg.title_style = cfg.title_style || {};
+            mountTypographyFields(editPanel.querySelector('#leTitleStyle'), cfg.title_style, { tagChoices: ['h2', 'h3'] });
+        }
+
         renderTypeFields(editPanel.querySelector('#leTypeFields'), section);
     }
+
+    // Tipos cuyo título de bloque (section.title) se renderiza públicamente
+    // como encabezado (<h2> por defecto) -- ganan el control de tipografía
+    // compartido justo debajo del campo Título.
+    const TITLE_STYLE_TYPES = ['benefits_grid', 'process_steps', 'content_tabs', 'gallery_carousel', 'faq'];
 
     function renderTypeFields(container, section) {
         const cfg = section.config = section.config || {};
@@ -648,6 +985,9 @@
                 break;
             case 'cta_final':
                 renderCtaFinalFields(container, cfg);
+                break;
+            case 'button':
+                renderButtonFields(container, cfg);
                 break;
             default:
                 container.innerHTML = '<p class="hs-config-note">Tipo de bloque desconocido.</p>';
@@ -922,6 +1262,12 @@
             <p class="hs-config-note">El CTA siempre abre WhatsApp; no existe botón de llamada.</p>
             ${field('Precio mostrado (opcional)', `<input type="text" class="users-manager-input" id="leRhPriceLabel" value="${escHtml(cfg.price_label)}" placeholder="$8,500 MXN + IVA">`)}
             ${field('Imágenes de fondo (galería del servicio)', `<select class="users-manager-select" id="leRhBgImages" multiple size="4">${imagesOptionsHtml(cfg.background_image_ids, DATA.images)}</select>`)}
+            <div class="show-user-divider" style="margin:10px 0;"></div>
+            <p class="hs-config-note">El título y la descripción corta se editan en "Información general" — aquí solo se controla su estilo.</p>
+            <p class="live-editor-col-title" style="margin:6px 0 0;">Estilo del título (H1, fijo)</p>
+            <div id="leRhTitleStyle"></div>
+            <p class="live-editor-col-title" style="margin:14px 0 0;">Estilo de la descripción corta</p>
+            <div id="leRhSubtitleStyle"></div>
         `;
 
         container.querySelector('#leRhBadges').addEventListener('input', (e) => {
@@ -949,6 +1295,11 @@
             markDirty();
             schedulePreview();
         });
+
+        cfg.title_style = cfg.title_style || {};
+        cfg.subtitle_style = cfg.subtitle_style || {};
+        mountTypographyFields(container.querySelector('#leRhTitleStyle'), cfg.title_style, {});
+        mountTypographyFields(container.querySelector('#leRhSubtitleStyle'), cfg.subtitle_style, {});
     }
 
     // ── Repetibles simples (content_tabs / benefits_grid / process_steps):
@@ -975,6 +1326,7 @@
                     <option value="">Sin imagen</option>
                     ${imagesOptionsHtml(tab.image_id ? [tab.image_id] : [], DATA.images)}
                 </select>
+                <div class="le-tab-style" style="margin-top:6px;"></div>
             `;
             row.querySelector('.le-label').addEventListener('input', (e) => { tab.label = e.target.value; markDirty(); renderBlocksList(); schedulePreview(); });
             row.querySelector('.le-subtitle').addEventListener('input', (e) => { tab.subtitle = e.target.value; markDirty(); schedulePreview(); });
@@ -987,6 +1339,8 @@
                 renderContentTabsFields(container, cfg);
                 schedulePreview();
             });
+            tab.style = tab.style || {};
+            mountTypographyFields(row.querySelector('.le-tab-style'), tab.style, {});
             rows.appendChild(row);
         });
 
@@ -1091,15 +1445,30 @@
     function renderCtaFinalFields(container, cfg) {
         container.innerHTML = `
             ${field('Título', `<input type="text" class="users-manager-input" id="leCtaHeadline" value="${escHtml(cfg.headline)}" placeholder="¿Listo para cotizar tu servicio?">`)}
+            <div id="leCtaHeadlineStyle"></div>
             ${field('Texto de apoyo', `<textarea class="users-manager-input client-modal-textarea" id="leCtaSubtext" rows="2">${escHtml(cfg.subtext)}</textarea>`)}
+            <div id="leCtaSubtextStyle"></div>
+            <div class="show-user-divider" style="margin:10px 0;"></div>
             ${field('Texto del botón', `<input type="text" class="users-manager-input" id="leCtaWhatsapp" value="${escHtml(cfg.whatsapp_text || 'Cotizar por WhatsApp')}">`)}
-            <p class="hs-config-note">El CTA siempre abre WhatsApp; no existe botón de llamada.</p>
+            <p class="hs-config-note">Deja este campo vacío para ocultar el botón de WhatsApp.</p>
             ${field('Imagen de fondo (opcional)', `<select class="users-manager-select" id="leCtaBg"><option value="">Sin imagen</option>${imagesOptionsHtml(cfg.background_image_id ? [cfg.background_image_id] : [], DATA.images)}</select>`)}
+            <div class="show-user-divider" style="margin:10px 0;"></div>
+            <p class="live-editor-col-title">Botón secundario (opcional)</p>
+            <p class="hs-config-note">Se muestra junto al de WhatsApp (o solo, si dejaste ese campo vacío) — útil para un enlace que no sea WhatsApp.</p>
+            <div id="leCtaSecondaryBtn"></div>
         `;
         container.querySelector('#leCtaHeadline').addEventListener('input', (e) => { cfg.headline = e.target.value; markDirty(); schedulePreview(); });
         container.querySelector('#leCtaSubtext').addEventListener('input', (e) => { cfg.subtext = e.target.value; markDirty(); schedulePreview(); });
         container.querySelector('#leCtaWhatsapp').addEventListener('input', (e) => { cfg.whatsapp_text = e.target.value; markDirty(); schedulePreview(); });
         container.querySelector('#leCtaBg').addEventListener('change', (e) => { cfg.background_image_id = e.target.value || null; markDirty(); schedulePreview(); });
+
+        cfg.headline_style = cfg.headline_style || {};
+        cfg.subtext_style = cfg.subtext_style || {};
+        mountTypographyFields(container.querySelector('#leCtaHeadlineStyle'), cfg.headline_style, { tagChoices: ['h2', 'h3'] });
+        mountTypographyFields(container.querySelector('#leCtaSubtextStyle'), cfg.subtext_style, {});
+
+        cfg.secondary_button = cfg.secondary_button || { text: '', url: '', style: 'outline', color: '#ff6213' };
+        mountButtonFields(container.querySelector('#leCtaSecondaryBtn'), cfg.secondary_button, { alignField: false });
     }
 
     // ── Columna derecha: preview vía POST al servidor ───────────────

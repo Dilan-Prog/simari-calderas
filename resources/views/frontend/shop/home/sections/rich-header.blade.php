@@ -26,10 +26,10 @@
             </div>
         @endif
 
-        <h1>{{ $servicePage->name }}</h1>
+        <h1{!! \App\Support\TextStyle::attr($config['title_style'] ?? null) !!}>{{ $servicePage->name }}</h1>
 
         @if ($servicePage->short_description)
-            <p class="svc-header__subtitle">{{ $servicePage->short_description }}</p>
+            <p class="svc-header__subtitle"{!! \App\Support\TextStyle::attr($config['subtitle_style'] ?? null) !!}>{{ $servicePage->short_description }}</p>
         @endif
 
         @if (!empty($config['price_label']))

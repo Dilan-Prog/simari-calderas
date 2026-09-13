@@ -31,7 +31,7 @@
     "isEntry": true
   },
   "resources/css/admin/app.css": {
-    "file": "assets/app-B3W2c2xe.css",
+    "file": "assets/app-TNXPXu9z.css",
     "src": "resources/css/admin/app.css",
     "isEntry": true
   },
@@ -246,7 +246,7 @@
     "isEntry": true
   },
   "resources/css/frontend/shop/service-page.css": {
-    "file": "assets/service-page-D_8GPmUN.css",
+    "file": "assets/service-page-BjEoW_Wa.css",
     "src": "resources/css/frontend/shop/service-page.css",
     "isEntry": true
   },
@@ -326,6 +326,12 @@
     "src": "resources/js/admin/image-picker.js",
     "isEntry": true
   },
+  "resources/js/admin/link-picker.js": {
+    "file": "assets/link-picker-Bl3qGDRP.js",
+    "name": "link-picker",
+    "src": "resources/js/admin/link-picker.js",
+    "isEntry": true
+  },
   "resources/js/admin/orders.js": {
     "file": "assets/orders--TxPSz-L.js",
     "name": "orders",
@@ -382,7 +388,7 @@
     "isEntry": true
   },
   "resources/js/admin/service-page-live-editor.js": {
-    "file": "assets/service-page-live-editor-CkkxMCuB.js",
+    "file": "assets/service-page-live-editor-GiZZVGMd.js",
     "name": "service-page-live-editor",
     "src": "resources/js/admin/service-page-live-editor.js",
     "isEntry": true
@@ -427,7 +433,7 @@
     "isEntry": true
   },
   "resources/js/admin/variable-picker.js": {
-    "file": "assets/variable-picker-D4MB39z6.js",
+    "file": "assets/variable-picker-COR2FNzn.js",
     "name": "variable-picker",
     "src": "resources/js/admin/variable-picker.js",
     "isEntry": true

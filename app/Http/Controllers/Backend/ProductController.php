@@ -1473,49 +1473,6 @@ class ProductController extends Controller
     }
 
     /**
-     * Resultados para el picker de enlaces del widget de FAQ (producto,
-     * colección, categoría) — el frontend ya arma [texto](url) con lo que
-     * regresa aquí, sin tener que conocer las rutas de cada tipo.
-     */
-    public function faqLinkSearch(Request $request)
-    {
-        $type = $request->input('type');
-        $term = trim((string) $request->input('q', ''));
-
-        $results = match ($type) {
-            'product' => Products::query()
-                ->where('publish_on_website', true)
-                ->when($term !== '', fn ($q) => $q->where(function ($q2) use ($term) {
-                    $q2->where('name', 'like', "%{$term}%")->orWhere('sku', 'like', "%{$term}%");
-                }))
-                ->orderBy('name')
-                ->limit(10)
-                ->get(['name', 'slug'])
-                ->map(fn ($p) => ['label' => $p->name, 'url' => route('product.show', $p->slug)]),
-
-            'collection' => Collection::query()
-                ->where('is_active', true)
-                ->when($term !== '', fn ($q) => $q->where('name', 'like', "%{$term}%"))
-                ->orderBy('name')
-                ->limit(10)
-                ->get(['name', 'slug'])
-                ->map(fn ($c) => ['label' => $c->name, 'url' => route('collection.show', $c->slug)]),
-
-            'category' => Category::query()
-                ->where('is_active', true)
-                ->when($term !== '', fn ($q) => $q->where('name', 'like', "%{$term}%"))
-                ->orderBy('name')
-                ->limit(10)
-                ->get(['name', 'slug'])
-                ->map(fn ($c) => ['label' => $c->name, 'url' => route('catalog.category', $c->slug)]),
-
-            default => collect(),
-        };
-
-        return response()->json($results->values());
-    }
-
-    /**
      * FIX BUG 2: Guard against FK constraint violations before deleting.
      * 6 tables reference products.id with onDelete('restrict'); deleting a
      * product still referenced by any of them crashed with an uncaught

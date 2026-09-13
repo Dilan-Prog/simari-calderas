@@ -25,7 +25,7 @@ class ServicePageController extends Controller
         'banner', 'dual_banner', 'product_carousel', 'product_carousel_banner',
         'category_grid', 'brand_carousel', 'html_block', 'faq',
         'rich_header', 'content_tabs', 'benefits_grid', 'process_steps',
-        'gallery_carousel', 'rating_reviews', 'cta_final',
+        'gallery_carousel', 'rating_reviews', 'cta_final', 'button',
     ];
 
     protected array $sources = [
@@ -303,6 +303,7 @@ class ServicePageController extends Controller
             'seo_title'         => 'nullable|string|max:160',
             'seo_description'   => 'nullable|string|max:500',
             'is_active'         => 'nullable|boolean',
+            'faq_items'         => 'nullable|array',
         ]);
 
         // Un hub o una categoría nunca tienen padre — la jerarquía es de
@@ -357,6 +358,13 @@ class ServicePageController extends Controller
         $servicePage->seo_title = $validated['seo_title'] ?: null;
         $servicePage->seo_description = $validated['seo_description'] ?: null;
         $servicePage->is_active = $request->boolean('is_active');
+        // Guarda por 'has()', no siempre: si algún llamado futuro a este
+        // endpoint omite faq_items, no debe borrar las FAQs existentes por
+        // accidente (a diferencia del formulario clásico, que sí siempre
+        // envía el array completo, aunque esté vacío).
+        if ($request->has('faq_items')) {
+            $servicePage->faqs = $this->mapFaqItems($request) ?: null;
+        }
         $servicePage->save();
 
         return response()->json(['success' => true, 'servicePage' => [
@@ -372,6 +380,7 @@ class ServicePageController extends Controller
             'seo_title' => $servicePage->seo_title,
             'seo_description' => $servicePage->seo_description,
             'is_active' => $servicePage->is_active,
+            'faqs' => $servicePage->faqs,
         ]]);
     }
 
@@ -391,8 +400,17 @@ class ServicePageController extends Controller
         $servicePage->seo_title = $request->input('seo_title') ?: null;
         $servicePage->seo_description = $request->input('seo_description') ?: null;
         $servicePage->og_image_url = $request->input('og_image_url') ?: null;
+        $servicePage->faqs = $this->mapFaqItems($request) ?: null;
+    }
 
-        $faqs = collect((array) $request->input('faq_items', []))
+    /**
+     * Extraído de fillSeoAndFaqs() para que updateGeneral() (editor en vivo)
+     * también pueda guardar FAQs sin duplicar el trim/filtro de pares
+     * vacíos -- mismo criterio en ambos lugares.
+     */
+    protected function mapFaqItems(Request $request): array
+    {
+        return collect((array) $request->input('faq_items', []))
             ->map(fn ($item) => [
                 'question' => trim($item['question'] ?? ''),
                 'answer'   => trim($item['answer'] ?? ''),
@@ -400,8 +418,6 @@ class ServicePageController extends Controller
             ->filter(fn ($item) => $item['question'] !== '' && $item['answer'] !== '')
             ->values()
             ->all();
-
-        $servicePage->faqs = $faqs ?: null;
     }
 
     /**
@@ -569,6 +585,15 @@ class ServicePageController extends Controller
                     'subtext'             => $request->input('cta_subtext') ?: null,
                     'whatsapp_text'       => $request->input('cta_whatsapp_text') ?: 'Cotizar por WhatsApp',
                     'background_image_id' => $request->input('cta_background_image_id') ?: null,
+                ];
+
+            case 'button':
+                return [
+                    'text'  => $request->input('btn_text') ?: 'Cotizar ahora',
+                    'url'   => $request->input('btn_url') ?: '',
+                    'style' => in_array($request->input('btn_style'), ['solid', 'outline'], true) ? $request->input('btn_style') : 'solid',
+                    'color' => $request->input('btn_color') ?: '#ff6213',
+                    'align' => in_array($request->input('btn_align'), ['left', 'center', 'right'], true) ? $request->input('btn_align') : 'center',
                 ];
 
             default:

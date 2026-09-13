@@ -90,6 +90,7 @@
                     <option value="gallery_carousel">Galería / carrusel</option>
                     <option value="rating_reviews">Rating y reseñas</option>
                     <option value="cta_final">CTA final</option>
+                    <option value="button">Botón</option>
                 </select>
                 <button type="button" id="leAddBlockBtn" class="live-editor-btn live-editor-btn--outline live-editor-btn--block">
                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
@@ -699,6 +700,88 @@
             border-top: 1px solid #e5e7eb;
             background: #fafafa;
         }
+
+        /* ── Controles de tipografía (mountTypographyFields/mountColorPicker) ── */
+        .le-align-toggle {
+            display: inline-flex;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .le-align-toggle button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 34px;
+            height: 34px;
+            border: none;
+            background: #fff;
+            color: #6b7280;
+            cursor: pointer;
+        }
+        .le-align-toggle button + button {
+            border-left: 1px solid #d1d5db;
+        }
+        .le-align-toggle button.is-active {
+            background: #ff6213;
+            color: #fff;
+        }
+
+        .le-color-swatches {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        .le-color-swatch {
+            position: relative;
+            width: 22px;
+            height: 22px;
+            border-radius: 5px;
+            border: 1px solid rgba(0,0,0,.12);
+            cursor: pointer;
+            padding: 0;
+        }
+        .le-color-swatch.is-active {
+            outline: 2px solid #ff6213;
+            outline-offset: 2px;
+        }
+        .le-color-swatch-remove {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: #141516;
+            color: #fff;
+            font-size: 9px;
+            line-height: 14px;
+            text-align: center;
+            box-shadow: 0 0 0 1px #fff;
+        }
+        .le-color-custom-label {
+            font-size: 11px;
+            color: #9ca3af;
+            margin: 8px 0 4px;
+        }
+        .le-color-custom-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 8px;
+        }
+        .le-color-native {
+            width: 30px;
+            height: 30px;
+            padding: 0;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+        .le-color-hex {
+            flex: 1;
+        }
     </style>
 @endpush
 
@@ -723,6 +806,7 @@
                 'seo_description' => $servicePage->seo_description,
                 'is_active' => (bool) $servicePage->is_active,
                 'public_path' => $servicePage->publicPath(),
+                'faqs' => $servicePage->faqs ?? [],
             ],
             'eligibleParents' => $eligibleParents->map(fn ($p) => [
                 'id' => $p->id, 'name' => $p->name, 'page_type' => $p->page_type,

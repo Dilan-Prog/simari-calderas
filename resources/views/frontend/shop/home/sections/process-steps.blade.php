@@ -1,7 +1,11 @@
+@php
+    $titleStyle = $section->config['title_style'] ?? null;
+    $titleTag = \App\Support\TextStyle::tag($titleStyle, 'h2', ['h2', 'h3']);
+@endphp
 @if (!empty($section->config['steps']))
 <section class="svc-process" @if($previewMode) data-section-id="{{ $section->id }}" @endif>
     @if ($section->title)
-        <h2 class="svc-process__title">{{ $section->title }}</h2>
+        <{{ $titleTag }} class="svc-process__title"{!! \App\Support\TextStyle::attr($titleStyle) !!}>{{ $section->title }}</{{ $titleTag }}>
     @endif
     <div class="svc-process__list">
         @foreach ($section->config['steps'] as $i => $step)

@@ -322,120 +322,10 @@
     /* ── Botón "Insertar enlace" (solo preguntas frecuentes) ──
        Inserta la sintaxis [texto](url), que TextLinks::render() convierte
        en un <a> real al mostrarse en público (ver app/Support/TextLinks.php).
-       A diferencia del menú de variables, aquí primero se elige un TIPO de
-       destino y luego se busca/selecciona un elemento concreto. */
-    const LINK_TYPES = [
-        { type: 'product', label: 'Producto' },
-        { type: 'collection', label: 'Colección' },
-        { type: 'category', label: 'Categoría / Catálogo' },
-        { type: 'contact', label: 'Contacto' },
-    ];
-
-    let linkPanel = null;
-    let linkTarget = null;
-    let linkBracketIndex = 0;
-    let linkSearchTimer = null;
-    let linkRequestId = 0;
-
-    function ensureLinkPanel() {
-        if (!linkPanel) {
-            linkPanel = document.createElement('div');
-            linkPanel.className = 'pform-link-picker';
-            document.body.appendChild(linkPanel);
-        }
-        return linkPanel;
-    }
-
-    function closeLinkPanel() {
-        if (linkPanel) {
-            linkPanel.classList.remove('is-open');
-            linkPanel.innerHTML = '';
-        }
-        linkTarget = null;
-    }
-
-    function positionLinkPanel(el) {
-        const rect = el.getBoundingClientRect();
-        linkPanel.style.left = Math.round(rect.left) + 'px';
-        linkPanel.style.top = Math.round(rect.bottom + 4) + 'px';
-    }
-
-    function insertLink(label, url) {
-        if (!linkTarget) return;
-        const token = `[${label}](${url})`;
-        const before = linkTarget.value.slice(0, linkBracketIndex);
-        const after = linkTarget.value.slice(linkBracketIndex);
-        linkTarget.value = before + token + after;
-        const newCursor = linkBracketIndex + token.length;
-        linkTarget.focus();
-        linkTarget.setSelectionRange(newCursor, newCursor);
-        linkTarget.dispatchEvent(new Event('input', { bubbles: true }));
-        closeLinkPanel();
-    }
-
-    function renderLinkTypeStep() {
-        const panel = ensureLinkPanel();
-        panel.innerHTML =
-            '<div class="pform-link-picker-title">Insertar enlace hacia…</div>' +
-            LINK_TYPES.map((t) => `<button type="button" class="pform-link-picker-type" data-type="${t.type}">${t.label}</button>`).join('');
-
-        panel.querySelectorAll('.pform-link-picker-type').forEach((btn) => {
-            btn.addEventListener('click', function () {
-                if (this.dataset.type === 'contact') {
-                    insertLink('Contáctanos', '/contacto');
-                } else {
-                    renderLinkSearchStep(this.dataset.type);
-                }
-            });
-        });
-    }
-
-    function renderLinkSearchStep(type) {
-        const panel = ensureLinkPanel();
-        const typeLabel = LINK_TYPES.find((t) => t.type === type)?.label ?? '';
-        panel.innerHTML =
-            '<div class="pform-link-picker-title">' +
-            `<button type="button" class="pform-link-picker-back">←</button> ${typeLabel}` +
-            '</div>' +
-            '<input type="text" class="pform-input pform-link-picker-search" placeholder="Buscar...">' +
-            '<ul class="pform-link-picker-results"></ul>';
-
-        panel.querySelector('.pform-link-picker-back').addEventListener('click', renderLinkTypeStep);
-
-        const input = panel.querySelector('.pform-link-picker-search');
-        const results = panel.querySelector('.pform-link-picker-results');
-
-        async function search(term) {
-            const myRequestId = ++linkRequestId;
-            try {
-                const res = await fetch(`/admin/productos/faq-enlaces/buscar?type=${type}&q=${encodeURIComponent(term)}`, {
-                    headers: { 'X-Requested-With': 'XMLHttpRequest' },
-                });
-                if (!res.ok || myRequestId !== linkRequestId) return;
-                const items = await res.json();
-                results.innerHTML = items
-                    .map((it) => `<li class="pform-link-picker-item" data-label="${escapeHtml(it.label)}" data-url="${escapeHtml(it.url)}">${escapeHtml(it.label)}</li>`)
-                    .join('') || '<li class="pform-link-picker-empty">Sin resultados</li>';
-
-                results.querySelectorAll('.pform-link-picker-item').forEach((li) => {
-                    li.addEventListener('mousedown', function (e) {
-                        e.preventDefault();
-                        insertLink(this.dataset.label, this.dataset.url);
-                    });
-                });
-            } catch (err) {
-                console.error('Error buscando destino de enlace:', err);
-            }
-        }
-
-        input.addEventListener('input', function () {
-            clearTimeout(linkSearchTimer);
-            linkSearchTimer = setTimeout(() => search(this.value.trim()), 250);
-        });
-        input.focus();
-        search('');
-    }
-
+       El panel de tipo/búsqueda/selección en sí ahora vive en
+       resources/js/admin/link-picker.js (window.LinkPicker), compartido con
+       otras pantallas del admin — aquí solo queda encontrar el textarea
+       destino específico de FAQ y hacer el splice de [label](url). */
     document.addEventListener('click', function (e) {
         const btn = e.target.closest('.pform-insert-link-btn');
         if (!btn) return;
@@ -446,17 +336,21 @@
         if (!target) return;
 
         target.focus();
-        linkTarget = target;
-        linkBracketIndex = target.selectionStart;
-        ensureLinkPanel().classList.add('is-open');
-        positionLinkPanel(target);
-        renderLinkTypeStep();
-    });
+        const bracketIndex = target.selectionStart;
 
-    document.addEventListener('mousedown', function (e) {
-        if (linkPanel && linkPanel.classList.contains('is-open') && !e.target.closest('.pform-link-picker') && !e.target.closest('.pform-insert-link-btn')) {
-            closeLinkPanel();
-        }
+        window.LinkPicker.open({
+            anchorEl: target,
+            onSelect: function (url, label) {
+                const token = `[${label}](${url})`;
+                const before = target.value.slice(0, bracketIndex);
+                const after = target.value.slice(bracketIndex);
+                target.value = before + token + after;
+                const newCursor = bracketIndex + token.length;
+                target.focus();
+                target.setSelectionRange(newCursor, newCursor);
+                target.dispatchEvent(new Event('input', { bubbles: true }));
+            },
+        });
     });
 
     /* ── API pública para el adaptador de Quill ── */
