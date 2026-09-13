@@ -1,3 +1,5 @@
+@import 'shared.css';
+
 /* Módulo Servicios — CSS dedicado (antes reusaba collection.css).
    Reusa las variables de tema globales (--font-family, --secondary-color
    [naranja de marca], --background-primary [ink oscuro]) ya definidas
