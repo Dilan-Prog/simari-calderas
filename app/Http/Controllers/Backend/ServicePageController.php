@@ -28,10 +28,6 @@ class ServicePageController extends Controller
         'gallery_carousel', 'rating_reviews', 'cta_final', 'button',
     ];
 
-    protected array $sources = [
-        'featured', 'new', 'recommended', 'category', 'brand', 'collection', 'manual',
-    ];
-
     public function index(Request $request)
     {
         $servicePages = ServicePage::orderBy('sort_order')
@@ -47,18 +43,13 @@ class ServicePageController extends Controller
         return view('admin.service-pages.index', compact('servicePages', 'visibleColumns'));
     }
 
-    public function create()
-    {
-        return view('admin.service-pages.create');
-    }
-
     /**
-     * "+ Nuevo Servicio" ahora crea un borrador mínimo (nombre/slug
-     * provisionales, inactivo) y manda directo al editor en vivo — ahí el
-     * admin captura nombre/slug reales en el panel "Información general"
-     * más los bloques, todo en una sola pantalla. El formulario clásico
-     * (create()/store() arriba) se conserva sin uso directo por si hace
-     * falta un alta rápida sin editor en vivo en el futuro.
+     * "+ Nuevo Servicio" crea un borrador mínimo (nombre/slug provisionales,
+     * inactivo) y manda directo al editor en vivo — ahí el admin captura
+     * nombre/slug reales en el panel "Información general" más los bloques,
+     * todo en una sola pantalla. El formulario clásico de creación (con su
+     * propio formulario completo antes de tener bloques) se retiró junto
+     * con el de edición -- ver nota arriba de updateGeneral().
      */
     public function quickCreate()
     {
@@ -79,164 +70,6 @@ class ServicePageController extends Controller
         ]);
 
         return redirect()->route('admin.service-pages.live-editor', $servicePage);
-    }
-
-    public function store(Request $request)
-    {
-        $request->merge(['slug' => Str::slug((string) $request->slug)]);
-
-        $request->validate([
-            'name'              => 'required|string|max:180',
-            'slug'              => 'required|string|max:255|unique:service_pages,slug',
-            'short_description' => 'nullable|string',
-            'description'       => 'nullable|string',
-            'price'             => 'nullable|numeric|min:0',
-            'currency'          => 'nullable|string|max:10',
-            'cover_image_url'   => 'nullable|string|max:255',
-            'is_active'         => 'nullable|boolean',
-            'sort_order'        => 'nullable|integer|min:0',
-            'seo_title'         => 'nullable|string|max:160',
-            'seo_description'   => 'nullable|string|max:500',
-            'og_image_url'      => 'nullable|string|max:255',
-            'faq_items'         => 'nullable|array',
-        ]);
-
-        $servicePage = new ServicePage();
-        $servicePage->name = $request->name;
-        $servicePage->slug = $request->slug;
-        $servicePage->short_description = $request->short_description ?: null;
-        $servicePage->description = $request->description ?: null;
-        $servicePage->price = $request->price !== null && $request->price !== '' ? $request->price : null;
-        $servicePage->currency = $request->currency ?: 'MXN';
-        $servicePage->cover_image_url = $request->cover_image_url ?: null;
-        $servicePage->sort_order = $request->sort_order ?? 0;
-        $servicePage->is_active = $request->boolean('is_active', true);
-        $this->fillSeoAndFaqs($servicePage, $request);
-        $servicePage->save();
-
-        return redirect()->route('admin.service-pages.edit', $servicePage)
-            ->with('success', 'Servicio creado. Ahora puedes agregar sus secciones.');
-    }
-
-    public function edit(ServicePage $servicePage)
-    {
-        $servicePage->load(['sections', 'images', 'reviews']);
-        $categories = Category::where('is_active', true)->orderBy('name')->get(['id', 'name']);
-        $brands = Brand::orderBy('name')->get(['id', 'name']);
-        $collections = Collection::where('is_active', true)->orderBy('name')->get(['id', 'name']);
-        $headingOutline = $this->buildHeadingOutline($servicePage);
-
-        return view('admin.service-pages.edit', compact(
-            'servicePage', 'categories', 'brands', 'collections', 'headingOutline'
-        ));
-    }
-
-    /**
-     * Árbol H1/H2/H3 derivado de las secciones REALES de la página, para el
-     * panel "Estructura semántica detectada" de la pestaña SEO — puramente
-     * informativo/validador, no bloquea el guardado.
-     */
-    protected function buildHeadingOutline(ServicePage $servicePage): array
-    {
-        $outline = [];
-        $hasRichHeader = false;
-
-        foreach ($servicePage->sections->where('is_active', true) as $section) {
-            switch ($section->type) {
-                case 'rich_header':
-                    $outline[] = ['level' => 'H1', 'text' => $servicePage->name, 'note' => 'único ✓'];
-                    $hasRichHeader = true;
-                    break;
-                case 'content_tabs':
-                    foreach ($section->config['tabs'] ?? [] as $tab) {
-                        if (!empty($tab['label'])) {
-                            $outline[] = ['level' => 'H2', 'text' => $tab['label']];
-                        }
-                    }
-                    break;
-                case 'benefits_grid':
-                    $count = count($section->config['items'] ?? []);
-                    $outline[] = ['level' => 'H2', 'text' => $section->title ?: 'Qué ganas con el servicio'];
-                    if ($count) {
-                        $outline[] = ['level' => 'H3', 'text' => $count . ' beneficios'];
-                    }
-                    break;
-                case 'process_steps':
-                    $count = count($section->config['steps'] ?? []);
-                    $outline[] = ['level' => 'H2', 'text' => $section->title ?: 'Cómo trabajamos'];
-                    if ($count) {
-                        $outline[] = ['level' => 'H3', 'text' => $count . ' pasos'];
-                    }
-                    break;
-                case 'gallery_carousel':
-                    $outline[] = ['level' => 'H2', 'text' => $section->title ?: 'Galería'];
-                    break;
-                case 'rating_reviews':
-                    $outline[] = ['level' => 'H2', 'text' => $section->title ?: 'Lo que dicen nuestros clientes'];
-                    break;
-                case 'faq':
-                    $outline[] = ['level' => 'H2', 'text' => $section->title ?: 'Preguntas frecuentes', 'note' => 'FAQPage ✓'];
-                    break;
-                case 'cta_final':
-                    $outline[] = ['level' => 'H2', 'text' => $section->title ?: 'CTA de cierre'];
-                    break;
-            }
-        }
-
-        if (!$hasRichHeader) {
-            array_unshift($outline, [
-                'level' => 'H1', 'text' => $servicePage->name, 'note' => '⚠ sin bloque Encabezado enriquecido',
-            ]);
-        }
-
-        return $outline;
-    }
-
-    public function update(Request $request, ServicePage $servicePage)
-    {
-        $request->merge(['slug' => Str::slug((string) $request->slug)]);
-
-        $request->validate([
-            'name'              => 'required|string|max:180',
-            'slug'              => 'required|string|max:255|unique:service_pages,slug,' . $servicePage->id,
-            'short_description' => 'nullable|string',
-            'description'       => 'nullable|string',
-            'price'             => 'nullable|numeric|min:0',
-            'currency'          => 'nullable|string|max:10',
-            'cover_image_url'   => 'nullable|string|max:255',
-            'is_active'         => 'nullable|boolean',
-            'sort_order'        => 'nullable|integer|min:0',
-            'seo_title'         => 'nullable|string|max:160',
-            'seo_description'   => 'nullable|string|max:500',
-            'og_image_url'      => 'nullable|string|max:255',
-            'faq_items'         => 'nullable|array',
-            // Estadísticas de marketing (pestaña Rating y reseñas) — nunca
-            // alimentan el JSON-LD, solo el copy visual. Ver migración
-            // add_rating_stats_to_service_pages_table.
-            'rating_average_displayed'   => 'nullable|numeric|min:0|max:5',
-            'rating_total_rated'         => 'nullable|integer|min:0',
-            'rating_recommend_percent'   => 'nullable|numeric|min:0|max:100',
-            'rating_punctuality_average' => 'nullable|numeric|min:0|max:5',
-            'rating_recurring_clients'   => 'nullable|integer|min:0',
-            'rating_since_year'          => 'nullable|integer|min:2000|max:2100',
-            'rating_distribution'        => 'nullable|array',
-        ]);
-
-        $servicePage->name = $request->name;
-        $servicePage->slug = $request->slug;
-        $servicePage->short_description = $request->short_description ?: null;
-        $servicePage->description = $request->description ?: null;
-        $servicePage->price = $request->price !== null && $request->price !== '' ? $request->price : null;
-        $servicePage->currency = $request->currency ?: 'MXN';
-        $servicePage->cover_image_url = $request->cover_image_url ?: null;
-        $servicePage->sort_order = $request->sort_order ?? 0;
-        $servicePage->is_active = $request->boolean('is_active', true);
-        $this->fillSeoAndFaqs($servicePage, $request);
-        $this->fillRatingStats($servicePage, $request);
-        $servicePage->save();
-
-        return redirect()->route('admin.service-pages.edit', $servicePage)
-            ->with('success', 'Servicio actualizado.');
     }
 
     /**
@@ -262,10 +95,13 @@ class ServicePageController extends Controller
 
     /**
      * Guardado AJAX de los campos "Información general" (Nombre/Slug/
-     * Descripción corta/Precio/SEO) desde el editor en vivo — deliberadamente
-     * separado de update() para no arriesgar pisar las estadísticas de
-     * rating, las FAQs o las imágenes si este panel se guarda solo, sin el
-     * resto del formulario clásico.
+     * Descripción corta/Precio/SEO/canónica/rating/FAQ) desde el editor en
+     * vivo. El formulario clásico de crear/editar (create()/store()/edit()/
+     * update(), y el sub-CRUD de secciones que traía) se retiró por completo
+     * (2026-09): el editor en vivo ya cubre todo lo que aquel hacía --
+     * Galería/Reseñas ganaron su propio panel ahí, y este método cubre el
+     * resto. Solo quedan del controlador clásico: index(), destroy() (borrar
+     * la página completa, acción del listado) y quickCreate().
      */
     public function updateGeneral(Request $request, ServicePage $servicePage)
     {
@@ -305,9 +141,8 @@ class ServicePageController extends Controller
             'canonical_url'     => 'nullable|url|max:255',
             'is_active'         => 'nullable|boolean',
             'faq_items'         => 'nullable|array',
-            // Estadísticas de marketing (pestaña Rating y reseñas / panel
-            // "Información general" del editor en vivo) — mismas reglas que
-            // update(), ver fillRatingStats().
+            // Estadísticas de marketing (panel "Información general" del
+            // editor en vivo) — ver fillRatingStats().
             'rating_average_displayed'   => 'nullable|numeric|min:0|max:5',
             'rating_total_rated'         => 'nullable|integer|min:0',
             'rating_recommend_percent'   => 'nullable|numeric|min:0|max:100',
@@ -376,15 +211,12 @@ class ServicePageController extends Controller
         $servicePage->is_active = $request->boolean('is_active');
         // Guarda por 'has()', no siempre: si algún llamado futuro a este
         // endpoint omite faq_items, no debe borrar las FAQs existentes por
-        // accidente (a diferencia del formulario clásico, que sí siempre
-        // envía el array completo, aunque esté vacío).
+        // accidente.
         if ($request->has('faq_items')) {
             $servicePage->faqs = $this->mapFaqItems($request) ?: null;
         }
-        // Igual que en update(): estas cifras nunca alimentan el JSON-LD, solo
-        // el copy visual del bloque "rating_reviews" / futuro AggregateRating
-        // manual. Se reusa fillRatingStats() para no duplicar la lógica de
-        // limpieza de rating_distribution (filtrar vacíos + castear a int).
+        // Estas cifras nunca alimentan el JSON-LD, solo el copy visual del
+        // bloque "rating_reviews" / futuro AggregateRating manual.
         $this->fillRatingStats($servicePage, $request);
         $servicePage->save();
 
@@ -424,19 +256,6 @@ class ServicePageController extends Controller
      * Mismo patrón de FAQs que Collection/Category: se guardan como
      * array de {question, answer}, descartando pares incompletos.
      */
-    protected function fillSeoAndFaqs(ServicePage $servicePage, Request $request): void
-    {
-        $servicePage->seo_title = $request->input('seo_title') ?: null;
-        $servicePage->seo_description = $request->input('seo_description') ?: null;
-        $servicePage->og_image_url = $request->input('og_image_url') ?: null;
-        $servicePage->faqs = $this->mapFaqItems($request) ?: null;
-    }
-
-    /**
-     * Extraído de fillSeoAndFaqs() para que updateGeneral() (editor en vivo)
-     * también pueda guardar FAQs sin duplicar el trim/filtro de pares
-     * vacíos -- mismo criterio en ambos lugares.
-     */
     protected function mapFaqItems(Request $request): array
     {
         return collect((array) $request->input('faq_items', []))
@@ -470,251 +289,6 @@ class ServicePageController extends Controller
         $products = $query->limit(20)->get(['id', 'name', 'sku', 'cover_image_url', 'price']);
 
         return response()->json($products);
-    }
-
-    // ── Secciones (sub-CRUD scopeado a la instancia) ────────────────────────
-
-    protected function buildSectionConfig(Request $request, string $type): ?array
-    {
-        switch ($type) {
-            case 'product_carousel':
-                return [
-                    'source'        => $request->input('source', 'featured'),
-                    'category_id'   => $request->input('category_id') ?: null,
-                    'brand_id'      => $request->input('brand_id') ?: null,
-                    'collection_id' => $request->input('collection_id') ?: null,
-                    'product_ids'   => array_values(array_filter((array) $request->input('product_ids', []))),
-                    'limit'         => $request->input('limit') !== null ? (int) $request->input('limit') : null,
-                ];
-
-            case 'banner':
-                return [
-                    'image_url' => $request->input('banner_image_url'),
-                    'link_url'  => $request->input('banner_link_url'),
-                    'alt'       => $request->input('banner_alt'),
-                ];
-
-            case 'product_carousel_banner':
-                return [
-                    'banner_image_url' => $request->input('pcb_banner_image_url'),
-                    'banner_link_url'  => $request->input('pcb_banner_link_url'),
-                    'banner_alt'       => $request->input('pcb_banner_alt'),
-                    'source'           => $request->input('pcb_source', 'featured'),
-                    'category_id'      => $request->input('pcb_category_id') ?: null,
-                    'brand_id'         => $request->input('pcb_brand_id') ?: null,
-                    'collection_id'    => $request->input('pcb_collection_id') ?: null,
-                    'product_ids'      => array_values(array_filter((array) $request->input('pcb_product_ids', []))),
-                    'limit'            => $request->input('pcb_limit') !== null ? (int) $request->input('pcb_limit') : null,
-                ];
-
-            case 'dual_banner':
-                return [
-                    'left' => [
-                        'image_url' => $request->input('left_image_url'),
-                        'link_url'  => $request->input('left_link_url'),
-                        'alt'       => $request->input('left_alt'),
-                    ],
-                    'right' => [
-                        'image_url' => $request->input('right_image_url'),
-                        'link_url'  => $request->input('right_link_url'),
-                        'alt'       => $request->input('right_alt'),
-                    ],
-                ];
-
-            case 'category_grid':
-                return [
-                    'category_ids' => array_values(array_filter((array) $request->input('category_ids', []))),
-                ];
-
-            case 'brand_carousel':
-                return [];
-
-            case 'html_block':
-                return ['html' => $request->input('html')];
-
-            case 'faq':
-                // Las preguntas viven en service_pages.faqs; la sección solo
-                // aporta título y texto descriptivo.
-                return ['description' => $request->input('faq_description') ?: null];
-
-            // ── Tipos nuevos (rediseño 2026-09) ─────────────────────────────
-
-            case 'rich_header':
-                // Sin ningún campo de teléfono a propósito — el CTA siempre
-                // arma un link wa.me, nunca tel:. Ver rich-header.blade.php.
-                $badges = array_slice(array_values(array_filter(array_map('trim',
-                    explode('·', (string) $request->input('rh_badges', ''))
-                ))), 0, 3);
-
-                return [
-                    'badges'                => $badges,
-                    'whatsapp_text'         => $request->input('rh_whatsapp_text') ?: 'Cotizar por WhatsApp',
-                    'meta_lines'            => array_values(array_filter((array) $request->input('rh_meta_lines', []))),
-                    'background_image_ids'  => array_values(array_filter(array_map('intval', (array) $request->input('rh_background_image_ids', [])))),
-                    // Texto libre (no numérico) para permitir formatos tipo
-                    // "$8,500 MXN + IVA" — independiente de service_pages.price.
-                    'price_label'           => $request->input('rh_price_label') ?: null,
-                ];
-
-            case 'content_tabs':
-                return [
-                    'tabs' => collect((array) $request->input('ct_tabs', []))
-                        ->map(fn ($t) => [
-                            'label'    => trim($t['label'] ?? ''),
-                            'subtitle' => trim($t['subtitle'] ?? ''),
-                            'body'     => trim($t['body'] ?? ''),
-                            'bullets'  => array_values(array_filter((array) ($t['bullets'] ?? []))),
-                            'image_id' => $t['image_id'] ?: null,
-                        ])
-                        ->filter(fn ($t) => $t['label'] !== '')
-                        ->values()
-                        ->all(),
-                ];
-
-            case 'benefits_grid':
-                return [
-                    'items' => collect((array) $request->input('bg_items', []))
-                        ->map(fn ($i) => [
-                            'figure'      => trim($i['figure'] ?? ''),
-                            'title'       => trim($i['title'] ?? ''),
-                            'description' => trim($i['description'] ?? ''),
-                        ])
-                        ->filter(fn ($i) => $i['title'] !== '')
-                        ->values()
-                        ->all(),
-                ];
-
-            case 'process_steps':
-                return [
-                    'steps' => collect((array) $request->input('ps_steps', []))
-                        ->map(fn ($s) => [
-                            'title'       => trim($s['title'] ?? ''),
-                            'description' => trim($s['description'] ?? ''),
-                            'duration'    => trim($s['duration'] ?? ''),
-                        ])
-                        ->filter(fn ($s) => $s['title'] !== '')
-                        ->values()
-                        ->all(),
-                ];
-
-            case 'gallery_carousel':
-                return [
-                    'image_ids' => array_values(array_filter(array_map('intval', (array) $request->input('gc_image_ids', [])))),
-                ];
-
-            case 'rating_reviews':
-                return [
-                    'description'      => $request->input('rr_description') ?: null,
-                    'reviews_per_page' => (int) ($request->input('rr_reviews_per_page') ?: 3),
-                ];
-
-            case 'cta_final':
-                return [
-                    'headline'            => $request->input('cta_headline') ?: null,
-                    'subtext'             => $request->input('cta_subtext') ?: null,
-                    'whatsapp_text'       => $request->input('cta_whatsapp_text') ?: 'Cotizar por WhatsApp',
-                    'background_image_id' => $request->input('cta_background_image_id') ?: null,
-                ];
-
-            case 'button':
-                return [
-                    'text'  => $request->input('btn_text') ?: 'Cotizar ahora',
-                    'url'   => $request->input('btn_url') ?: '',
-                    'style' => in_array($request->input('btn_style'), ['solid', 'outline'], true) ? $request->input('btn_style') : 'solid',
-                    'color' => $request->input('btn_color') ?: '#ff6213',
-                    'align' => in_array($request->input('btn_align'), ['left', 'center', 'right'], true) ? $request->input('btn_align') : 'center',
-                ];
-
-            default:
-                return null;
-        }
-    }
-
-    protected function validateSection(Request $request): void
-    {
-        $request->validate([
-            'type'       => 'required|string|in:' . implode(',', $this->sectionTypes),
-            'source'     => 'nullable|string|in:' . implode(',', $this->sources),
-            'pcb_source' => 'nullable|string|in:' . implode(',', $this->sources),
-            'title'      => 'nullable|string|max:255',
-            'sort_order' => 'nullable|integer|min:0',
-            'is_active'  => 'nullable|boolean',
-            'rh_badges'  => 'nullable|string|max:255',
-        ]);
-    }
-
-    public function storeSection(Request $request, ServicePage $servicePage)
-    {
-        $this->validateSection($request);
-
-        $section = new ServiceSection();
-        $section->service_page_id = $servicePage->id;
-        $section->type = $request->type;
-        $section->title = $request->title ?: null;
-        $section->config = $this->buildSectionConfig($request, $request->type);
-        $section->sort_order = $request->sort_order ?? $servicePage->sections()->count();
-        $section->is_active = $request->boolean('is_active', true);
-        $section->save();
-
-        return response()->json(['success' => true, 'section' => $section]);
-    }
-
-    public function editSection(ServicePage $servicePage, ServiceSection $section)
-    {
-        abort_unless($section->service_page_id === $servicePage->id, 404);
-
-        return response()->json($section);
-    }
-
-    public function updateSection(Request $request, ServicePage $servicePage, ServiceSection $section)
-    {
-        abort_unless($section->service_page_id === $servicePage->id, 404);
-
-        $this->validateSection($request);
-
-        $section->type = $request->type;
-        $section->title = $request->title ?: null;
-        $section->config = $this->buildSectionConfig($request, $request->type);
-        $section->sort_order = $request->sort_order ?? $section->sort_order;
-        $section->is_active = $request->boolean('is_active', true);
-        $section->save();
-
-        return response()->json(['success' => true, 'section' => $section]);
-    }
-
-    public function destroySection(ServicePage $servicePage, ServiceSection $section)
-    {
-        abort_unless($section->service_page_id === $servicePage->id, 404);
-
-        $section->delete();
-
-        return response()->json(['success' => true]);
-    }
-
-    public function reorderSections(Request $request, ServicePage $servicePage)
-    {
-        $request->validate([
-            'order'   => 'required|array|min:1',
-            'order.*' => 'integer|exists:service_sections,id',
-        ]);
-
-        $sections = ServiceSection::whereIn('id', $request->order)
-            ->where('service_page_id', $servicePage->id)
-            ->get()
-            ->keyBy('id');
-
-        if ($sections->count() !== count($request->order)) {
-            return response()->json([
-                'success' => false,
-                'message' => 'El orden recibido no coincide con las secciones de este servicio.',
-            ], 422);
-        }
-
-        foreach (array_values($request->order) as $i => $sectionId) {
-            $sections[$sectionId]->update(['sort_order' => $i]);
-        }
-
-        return response()->json(['success' => true]);
     }
 
     // ── Galería de imágenes (pestaña Multimedia) ────────────────────────────

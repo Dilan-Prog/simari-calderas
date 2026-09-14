@@ -1032,20 +1032,10 @@ Route::controller(ServicePageController::class)
     ->name('service-pages.')
     ->group(function () {
         Route::get('/', 'index')->name('index');
-        Route::get('/crear', 'create')->name('create')->middleware('permission:service-pages,create');
-        Route::post('/', 'store')->name('store')->middleware('permission:service-pages,create');
         Route::post('/crear-rapido', 'quickCreate')->name('quick-create')->middleware('permission:service-pages,create');
         Route::get('/productos/buscar', 'searchProducts')->name('products.search');
-        Route::get('/{servicePage}/editar', 'edit')->name('edit')->middleware('permission:service-pages,edit');
-        Route::put('/{servicePage}', 'update')->name('update')->middleware('permission:service-pages,edit');
         Route::put('/{servicePage}/general', 'updateGeneral')->name('update-general')->middleware('permission:service-pages,edit');
         Route::delete('/{servicePage}', 'destroy')->name('destroy')->middleware('permission:service-pages,delete');
-
-        Route::post('/{servicePage}/secciones', 'storeSection')->name('sections.store')->middleware('permission:service-pages,create');
-        Route::get('/{servicePage}/secciones/{section}', 'editSection')->name('sections.edit')->middleware('permission:service-pages,edit');
-        Route::put('/{servicePage}/secciones/{section}', 'updateSection')->name('sections.update')->middleware('permission:service-pages,edit');
-        Route::delete('/{servicePage}/secciones/{section}', 'destroySection')->name('sections.destroy')->middleware('permission:service-pages,delete');
-        Route::post('/{servicePage}/secciones/reordenar', 'reorderSections')->name('sections.reorder')->middleware('permission:service-pages,edit');
 
         Route::post('/{servicePage}/imagenes', 'storeImage')->name('images.store')->middleware('permission:service-pages,create');
         Route::put('/{servicePage}/imagenes/{image}', 'updateImage')->name('images.update')->middleware('permission:service-pages,edit');

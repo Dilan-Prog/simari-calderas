@@ -8,7 +8,7 @@
  *
  * Datos de arranque inyectados por resources/views/admin/service-pages/live-
  * editor.blade.php en window.__LIVE_EDITOR__:
- *   { previewUrl, saveUrl, editUrl, productsSearchUrl,
+ *   { previewUrl, saveUrl, generalUrl, productsSearchUrl,
  *     sections, categories, brands, collections, images }
  *
  * Patrones reusados de otros archivos del admin (ver comentarios inline):

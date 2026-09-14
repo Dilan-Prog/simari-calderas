@@ -13,7 +13,7 @@
 
     <div class="live-editor-topbar">
         <p class="live-editor-breadcrumb">
-            <a href="{{ route('admin.service-pages.edit', $servicePage) }}">Servicios</a>
+            <a href="{{ route('admin.service-pages.index') }}">Servicios</a>
             <span>&rsaquo;</span> Editor en vivo
         </p>
 
@@ -819,7 +819,6 @@
             'previewUrl' => route('admin.service-pages.live-editor.preview', $servicePage),
             'saveUrl' => route('admin.service-pages.live-editor.save', $servicePage),
             'generalUrl' => route('admin.service-pages.update-general', $servicePage),
-            'editUrl' => route('admin.service-pages.edit', $servicePage),
             'productsSearchUrl' => route('admin.service-pages.products.search'),
             'general' => [
                 'name' => $servicePage->name,
