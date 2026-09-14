@@ -784,7 +784,16 @@
                 row.classList.add('is-dragging');
             });
             row.addEventListener('dragend', () => {
-                row.classList.remove('is-dragging');
+                // Se limpia aquí (no solo en 'drop') porque 'dragend' es el
+                // único evento garantizado a disparar siempre al soltar,
+                // exitoso o no (ej. si el drop cae fuera de cualquier fila
+                // con listener) -- dejar la limpieza solo en 'drop' dejaba
+                // dragSrcUid y la clase is-dragging pegados tras un intento
+                // fallido, arruinando el siguiente arrastre.
+                dragSrcUid = null;
+                blocksList.querySelectorAll('.live-editor-block-row').forEach((r) => {
+                    r.classList.remove('is-dragging', 'drag-over');
+                });
             });
             row.addEventListener('dragover', (e) => {
                 e.preventDefault();
@@ -800,12 +809,19 @@
                 if (dragSrcUid === null || dragSrcUid === section._uid) return;
 
                 const srcIdx = draftSections.findIndex((s) => s._uid === dragSrcUid);
-                const targetIdx = draftSections.findIndex((s) => s._uid === section._uid);
-                dragSrcUid = null;
-                if (srcIdx === -1 || targetIdx === -1) return;
+                if (srcIdx === -1) return;
 
                 const [moved] = draftSections.splice(srcIdx, 1);
-                draftSections.splice(targetIdx, 0, moved);
+                // El índice del destino se vuelve a buscar DESPUÉS de quitar
+                // el bloque origen del arreglo -- si se reusa el índice de
+                // ANTES de ese splice, mover un bloque hacia ABAJO (índice
+                // origen menor al destino) lo insertaba una posición más
+                // abajo de la esperada, porque quitar el origen recorre el
+                // destino real una posición hacia atrás. Buscarlo de nuevo
+                // sobre el arreglo ya sin el origen es correcto en ambas
+                // direcciones sin necesitar aritmética de +/-1 condicional.
+                const targetIdx = draftSections.findIndex((s) => s._uid === section._uid);
+                draftSections.splice(targetIdx === -1 ? srcIdx : targetIdx, 0, moved);
 
                 markDirty();
                 renderBlocksList();
@@ -1249,7 +1265,14 @@
                 item.classList.add('is-dragging');
             });
             item.addEventListener('dragend', () => {
-                item.classList.remove('is-dragging');
+                // Ver el mismo comentario en renderBlocksList(): 'dragend'
+                // siempre dispara (a diferencia de 'drop'), así que la
+                // limpieza va aquí para no dejar dragSrcId/clases pegadas
+                // tras un intento de arrastre fallido.
+                galleryDragSrcId = null;
+                grid.querySelectorAll('.service-gallery-item').forEach((el) => {
+                    el.classList.remove('is-dragging', 'drag-over');
+                });
             });
             item.addEventListener('dragover', (e) => {
                 e.preventDefault();
@@ -1265,12 +1288,14 @@
                 if (galleryDragSrcId === null || galleryDragSrcId === img.id) return;
 
                 const srcIdx = DATA.images.findIndex((im) => String(im.id) === String(galleryDragSrcId));
-                const targetIdx = DATA.images.findIndex((im) => String(im.id) === String(img.id));
-                galleryDragSrcId = null;
-                if (srcIdx === -1 || targetIdx === -1) return;
+                if (srcIdx === -1) return;
 
                 const [moved] = DATA.images.splice(srcIdx, 1);
-                DATA.images.splice(targetIdx, 0, moved);
+                // Mismo fix que renderBlocksList(): el índice destino se
+                // vuelve a buscar DESPUÉS de quitar el origen del arreglo,
+                // si no, mover hacia abajo lo insertaba una posición de más.
+                const targetIdx = DATA.images.findIndex((im) => String(im.id) === String(img.id));
+                DATA.images.splice(targetIdx === -1 ? srcIdx : targetIdx, 0, moved);
 
                 renderGalleryGrid();
                 persistGalleryOrder();
@@ -1443,7 +1468,16 @@
             });
 
             row.addEventListener('dragstart', () => { reviewDragSrcId = review.id; row.classList.add('is-dragging'); });
-            row.addEventListener('dragend', () => row.classList.remove('is-dragging'));
+            row.addEventListener('dragend', () => {
+                // Ver el mismo comentario en renderBlocksList(): 'dragend'
+                // siempre dispara (a diferencia de 'drop'), así que la
+                // limpieza va aquí para no dejar dragSrcId/clases pegadas
+                // tras un intento de arrastre fallido.
+                reviewDragSrcId = null;
+                list.querySelectorAll('.service-review-row').forEach((el) => {
+                    el.classList.remove('is-dragging', 'drag-over');
+                });
+            });
             row.addEventListener('dragover', (e) => {
                 e.preventDefault();
                 if (reviewDragSrcId === null || reviewDragSrcId === review.id) return;
@@ -1456,12 +1490,14 @@
                 if (reviewDragSrcId === null || reviewDragSrcId === review.id) return;
 
                 const srcIdx = reviewsData.findIndex((r) => String(r.id) === String(reviewDragSrcId));
-                const targetIdx = reviewsData.findIndex((r) => String(r.id) === String(review.id));
-                reviewDragSrcId = null;
-                if (srcIdx === -1 || targetIdx === -1) return;
+                if (srcIdx === -1) return;
 
                 const [moved] = reviewsData.splice(srcIdx, 1);
-                reviewsData.splice(targetIdx, 0, moved);
+                // Mismo fix que renderBlocksList(): el índice destino se
+                // vuelve a buscar DESPUÉS de quitar el origen del arreglo,
+                // si no, mover hacia abajo lo insertaba una posición de más.
+                const targetIdx = reviewsData.findIndex((r) => String(r.id) === String(review.id));
+                reviewsData.splice(targetIdx === -1 ? srcIdx : targetIdx, 0, moved);
 
                 renderReviewsList();
                 persistReviewsOrder();
