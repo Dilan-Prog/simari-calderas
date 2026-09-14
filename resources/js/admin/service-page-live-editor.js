@@ -152,8 +152,7 @@
     const generalData = Object.assign({
         name: '', slug: '', short_description: '', price: '', currency: 'MXN', show_price: true,
         seo_title: '', seo_description: '', canonical_url: '', is_active: false, faqs: [],
-        // Estadísticas de marketing (ver ServicePageController::fillRatingStats) —
-        // portadas desde la pestaña "Rating y reseñas" del formulario clásico.
+        // Estadísticas de marketing (ver ServicePageController::fillRatingStats).
         rating_average_displayed: '', rating_total_rated: '', rating_recommend_percent: '',
         rating_punctuality_average: '', rating_recurring_clients: '', rating_since_year: '',
         rating_distribution: {},
@@ -162,7 +161,7 @@
     // ── Panel "Reseñas" — lista editable en memoria, sincronizada 1:1 con lo
     //    persistido tras cada alta/edición/borrado/reorden (a diferencia de
     //    draftSections, estos cambios NO esperan al botón "Guardar cambios":
-    //    mismo criterio inmediato que la galería y que el formulario clásico). ──
+    //    mismo criterio inmediato que la galería). ──
     const reviewsData = (DATA.reviews || []).map((r) => Object.assign({}, r));
 
     // ── Elementos ────────────────────────────────────────────────────
@@ -1833,7 +1832,7 @@
     function renderFaqFields(container, cfg) {
         container.innerHTML = `
             ${field('Texto descriptivo (opcional)', `<textarea class="users-manager-input client-modal-textarea" id="leFaqDescription" rows="2">${escHtml(cfg.description)}</textarea>`)}
-            <p class="hs-config-note">Las preguntas y respuestas se capturan en este Servicio (pestaña SEO y Preguntas Frecuentes del formulario clásico). Esta sección solo define el título y el texto descriptivo.</p>
+            <p class="hs-config-note">Las preguntas y respuestas se capturan en <strong>Información general → Preguntas frecuentes</strong>. Esta sección solo define dónde aparece el acordeón en la página, su título y el texto descriptivo.</p>
         `;
         container.querySelector('#leFaqDescription').addEventListener('input', (e) => {
             cfg.description = e.target.value;
@@ -2024,7 +2023,7 @@
         container.innerHTML = `
             ${field('Texto descriptivo (opcional)', `<textarea class="users-manager-input client-modal-textarea" id="leRrDescription" rows="2">${escHtml(cfg.description)}</textarea>`)}
             ${field('Reseñas visibles antes de "Ver más"', `<input type="number" class="users-manager-input" id="leRrPerPage" min="1" max="20" value="${cfg.reviews_per_page ?? 3}">`)}
-            <p class="hs-config-note">Las reseñas se capturan en la pestaña Rating y reseñas del formulario clásico.</p>
+            <p class="hs-config-note">Las reseñas se capturan en el panel <strong>Reseñas</strong> del sidebar, y las estadísticas de "Promedio mostrado" en <strong>Información general</strong>. Esta sección solo define dónde aparecen y su texto descriptivo.</p>
         `;
         container.querySelector('#leRrDescription').addEventListener('input', (e) => { cfg.description = e.target.value; markDirty(); schedulePreview(); });
         container.querySelector('#leRrPerPage').addEventListener('input', (e) => { cfg.reviews_per_page = parseInt(e.target.value, 10) || 3; markDirty(); schedulePreview(); });
