@@ -780,6 +780,19 @@
             //    (Arrastrar para reordenar secciones), adaptado para reordenar
             //    solo el array en memoria en vez de hacer fetch inmediato. ──
             row.addEventListener('dragstart', () => {
+                // Autolimpieza defensiva: 'dragend' debería disparar siempre
+                // al terminar un arrastre anterior, pero en la práctica no
+                // lo hace de forma confiable cuando el mouse suelta sobre el
+                // <iframe> de la vista previa (documento cruzado) — un caso
+                // real y frecuente en este layout, ya que la columna de
+                // bloques queda justo al lado del iframe. Si eso pasa, la
+                // fila anterior se queda con opacidad de "arrastrando" para
+                // siempre. Por eso, además de la limpieza en 'dragend', cada
+                // NUEVO arrastre empieza limpiando cualquier resto de uno
+                // anterior que no se haya limpiado solo.
+                blocksList.querySelectorAll('.live-editor-block-row').forEach((r) => {
+                    r.classList.remove('is-dragging', 'drag-over');
+                });
                 dragSrcUid = section._uid;
                 row.classList.add('is-dragging');
             });
@@ -1261,6 +1274,14 @@
             // Drag & drop nativo — mismo patrón que renderBlocksList() (lista
             // de bloques) y que la galería clásica original.
             item.addEventListener('dragstart', () => {
+                // Autolimpieza defensiva -- ver el mismo comentario en
+                // renderBlocksList(): 'dragend' no siempre llega a disparar
+                // en el uso real (ej. si el mouse suelta fuera de cualquier
+                // tarjeta con listener), así que cada nuevo arrastre empieza
+                // limpiando cualquier resto de uno anterior sin limpiar.
+                grid.querySelectorAll('.service-gallery-item').forEach((el) => {
+                    el.classList.remove('is-dragging', 'drag-over');
+                });
                 galleryDragSrcId = img.id;
                 item.classList.add('is-dragging');
             });
@@ -1467,7 +1488,17 @@
                 openDeleteModal(review.customer_name || 'Reseña', () => deleteReview(review.id));
             });
 
-            row.addEventListener('dragstart', () => { reviewDragSrcId = review.id; row.classList.add('is-dragging'); });
+            row.addEventListener('dragstart', () => {
+                // Autolimpieza defensiva -- ver el mismo comentario en
+                // renderBlocksList(): 'dragend' no siempre llega a disparar
+                // en el uso real, así que cada nuevo arrastre empieza
+                // limpiando cualquier resto de uno anterior sin limpiar.
+                list.querySelectorAll('.service-review-row').forEach((el) => {
+                    el.classList.remove('is-dragging', 'drag-over');
+                });
+                reviewDragSrcId = review.id;
+                row.classList.add('is-dragging');
+            });
             row.addEventListener('dragend', () => {
                 // Ver el mismo comentario en renderBlocksList(): 'dragend'
                 // siempre dispara (a diferencia de 'drop'), así que la
