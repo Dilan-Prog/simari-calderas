@@ -7,7 +7,7 @@
     @if ($section->title)
         <{{ $titleTag }} class="svc-benefits__title"{!! \App\Support\TextStyle::attr($titleStyle) !!}>{{ $section->title }}</{{ $titleTag }}>
     @endif
-    <div class="svc-benefits__grid">
+    <div class="svc-benefits__grid {{ ($section->config['layout'] ?? 'horizontal') === 'vertical' ? 'svc-benefits__grid--vertical' : '' }}">
         @foreach ($section->config['items'] as $item)
             <div class="svc-benefits__card">
                 @if (!empty($item['figure']))

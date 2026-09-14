@@ -25,7 +25,7 @@ class ServicePageController extends Controller
         'banner', 'dual_banner', 'product_carousel', 'product_carousel_banner',
         'category_grid', 'brand_carousel', 'html_block', 'faq',
         'rich_header', 'content_tabs', 'benefits_grid', 'process_steps',
-        'gallery_carousel', 'rating_reviews', 'cta_final', 'button',
+        'gallery_carousel', 'rating_reviews', 'cta_final', 'button', 'table_block',
     ];
 
     public function index(Request $request)
@@ -136,6 +136,7 @@ class ServicePageController extends Controller
             'price'             => 'nullable|numeric|min:0',
             'currency'          => 'nullable|string|max:10',
             'show_price'        => 'nullable|boolean',
+            'background_color'  => 'nullable|string|regex:/^#[0-9a-fA-F]{6}$/',
             'seo_title'         => 'nullable|string|max:160',
             'seo_description'   => 'nullable|string|max:500',
             'canonical_url'     => 'nullable|url|max:255',
@@ -201,6 +202,7 @@ class ServicePageController extends Controller
         $servicePage->price = $validated['price'] !== null && $validated['price'] !== '' ? $validated['price'] : null;
         $servicePage->currency = $validated['currency'] ?: 'MXN';
         $servicePage->show_price = $request->boolean('show_price', true);
+        $servicePage->background_color = $validated['background_color'] ?: null;
         $servicePage->seo_title = $validated['seo_title'] ?: null;
         $servicePage->seo_description = $validated['seo_description'] ?: null;
         // Igual que Products::canonical_url: solo se guarda si el checkbox
@@ -230,6 +232,7 @@ class ServicePageController extends Controller
             'price' => $servicePage->price,
             'currency' => $servicePage->currency,
             'show_price' => $servicePage->show_price,
+            'background_color' => $servicePage->background_color,
             'seo_title' => $servicePage->seo_title,
             'seo_description' => $servicePage->seo_description,
             'canonical_url' => $servicePage->canonical_url,

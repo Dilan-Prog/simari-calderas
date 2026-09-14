@@ -93,7 +93,7 @@
 @endsection
 
 @section('content')
-<div class="eq-shop-service">
+<div class="eq-shop-service" @if ($servicePage->background_color) style="background:{{ e($servicePage->background_color) }};" @endif>
     <div class="collection-breadcrumb">
         <a href="{{ route('home') }}">Inicio</a>
         @if ($servicePage->page_type !== \App\Models\ServicePage::TYPE_HUB)

@@ -27,7 +27,7 @@ class ServicePage extends Model
 
     protected $fillable = [
         'name', 'slug', 'page_type', 'parent_id', 'short_description', 'description',
-        'price', 'currency', 'show_price', 'cover_image_url', 'is_active', 'sort_order',
+        'price', 'currency', 'show_price', 'cover_image_url', 'background_color', 'is_active', 'sort_order',
         'seo_title', 'seo_description', 'canonical_url', 'og_image_url', 'faqs',
         // Estadísticas de marketing editables a mano — nunca alimentan el
         // JSON-LD, ver comentario en la migración add_rating_stats_to_...

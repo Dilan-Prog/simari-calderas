@@ -44,6 +44,7 @@
         rating_reviews: 'Rating y reseñas',
         cta_final: 'CTA final',
         button: 'Botón',
+        table_block: 'Tabla',
     };
 
     // Iconos por tipo de bloque (mismo set de stroke-icons ya usado en el
@@ -65,6 +66,7 @@
         rating_reviews: '<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>',
         cta_final: '<path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>',
         button: '<rect width="18" height="7" x="3" y="8.5" rx="3.5"/>',
+        table_block: '<path d="M3 3h18v18H3z"/><path d="M3 9h18"/><path d="M3 15h18"/><path d="M9 3v18"/>',
         default: '<rect width="18" height="18" x="3" y="3" rx="2"/>',
     };
 
@@ -115,7 +117,7 @@
             case 'content_tabs':
                 return { tabs: [] };
             case 'benefits_grid':
-                return { items: [] };
+                return { items: [], layout: 'horizontal' };
             case 'process_steps':
                 return { steps: [] };
             case 'gallery_carousel':
@@ -125,7 +127,9 @@
             case 'cta_final':
                 return { headline: '', subtext: '', whatsapp_text: 'Cotizar por WhatsApp', background_image_id: null, secondary_button: { text: '', url: '', style: 'outline', color: '#ff6213' } };
             case 'button':
-                return { text: 'Cotizar ahora', url: '', style: 'solid', color: '#ff6213', align: 'center' };
+                return { buttons: [{ text: 'Cotizar ahora', url: '', style: 'solid', color: '#ff6213' }], align: 'center' };
+            case 'table_block':
+                return { title: '', description: '', headers: [], rows: [], buttons: [], align: 'left' };
             default:
                 return {};
         }
@@ -151,6 +155,7 @@
 
     const generalData = Object.assign({
         name: '', slug: '', short_description: '', price: '', currency: 'MXN', show_price: true,
+        background_color: null,
         seo_title: '', seo_description: '', canonical_url: '', is_active: false, faqs: [],
         // Estadísticas de marketing (ver ServicePageController::fillRatingStats).
         rating_average_displayed: '', rating_total_rated: '', rating_recommend_percent: '',
@@ -497,7 +502,189 @@
     }
 
     function renderButtonFields(container, cfg) {
-        mountButtonFields(container, cfg, { alignField: true });
+        // Uno o varios botones en la misma fila (ej. CTA sólido + teléfono en
+        // contorno) — antes era un solo botón plano (text/url/style/color a
+        // nivel raíz de cfg); si un config viejo con ese shape llega aquí, se
+        // migra en memoria a la lista para no perder el dato ya guardado.
+        if (!Array.isArray(cfg.buttons)) {
+            cfg.buttons = cfg.text || cfg.url
+                ? [{ text: cfg.text || '', url: cfg.url || '', style: cfg.style || 'solid', color: cfg.color || '#ff6213' }]
+                : [{ text: 'Cotizar ahora', url: '', style: 'solid', color: '#ff6213' }];
+        }
+        cfg.align = cfg.align || 'center';
+
+        container.innerHTML = `
+            <p class="hs-config-note">Uno o varios botones en la misma fila (ej. "Agendar revisión" + un teléfono de contacto).</p>
+            ${field('Alineación de la fila', `
+                <select class="users-manager-select" id="leBtnAlign">
+                    <option value="left" ${cfg.align === 'left' ? 'selected' : ''}>Izquierda</option>
+                    <option value="center" ${cfg.align === 'center' ? 'selected' : ''}>Centro</option>
+                    <option value="right" ${cfg.align === 'right' ? 'selected' : ''}>Derecha</option>
+                </select>
+            `)}
+            <div id="leBtnRows" class="hs-repeat-rows"></div>
+            <button type="button" class="button-secondary size-adjustment" id="leBtnAdd" style="margin-top:10px;">+ Agregar botón</button>
+        `;
+
+        container.querySelector('#leBtnAlign').addEventListener('change', (e) => {
+            cfg.align = e.target.value;
+            markDirty();
+            schedulePreview();
+        });
+
+        const rows = container.querySelector('#leBtnRows');
+
+        cfg.buttons.forEach((btn, i) => {
+            const row = document.createElement('div');
+            row.className = 'hs-repeat-row';
+            const head = document.createElement('div');
+            head.className = 'hs-repeat-row-head';
+            head.innerHTML = `<span class="hs-repeat-row-num">${i + 1}</span><button type="button" class="hs-faq-btn hs-repeat-remove" title="Eliminar">&times;</button>`;
+            row.appendChild(head);
+            const fieldsWrap = document.createElement('div');
+            row.appendChild(fieldsWrap);
+            mountButtonFields(fieldsWrap, btn, { alignField: false });
+            head.querySelector('.hs-repeat-remove').addEventListener('click', () => {
+                cfg.buttons.splice(i, 1);
+                markDirty();
+                renderButtonFields(container, cfg);
+                schedulePreview();
+            });
+            rows.appendChild(row);
+        });
+
+        container.querySelector('#leBtnAdd').addEventListener('click', () => {
+            cfg.buttons.push({ text: '', url: '', style: 'outline', color: '#ff6213' });
+            markDirty();
+            renderButtonFields(container, cfg);
+            schedulePreview();
+        });
+    }
+
+    function renderTableBlockFields(container, cfg) {
+        cfg.headers = Array.isArray(cfg.headers) ? cfg.headers : [];
+        cfg.rows = Array.isArray(cfg.rows) ? cfg.rows : [];
+        cfg.buttons = Array.isArray(cfg.buttons) ? cfg.buttons : [];
+        cfg.align = cfg.align || 'left';
+
+        const colCount = Math.max(cfg.headers.length, 1);
+
+        container.innerHTML = `
+            ${field('Descripción (opcional, arriba de la tabla)', `<textarea class="users-manager-input client-modal-textarea" id="leTbDesc" rows="2">${escHtml(cfg.description)}</textarea>`)}
+            <p class="hs-config-subtitle">Columnas</p>
+            <div id="leTbHeaders" class="hs-repeat-rows"></div>
+            <button type="button" class="button-secondary size-adjustment" id="leTbAddCol" style="margin-top:6px;">+ Agregar columna</button>
+
+            <p class="hs-config-subtitle" style="margin-top:16px;">Filas</p>
+            <div id="leTbRows" class="hs-repeat-rows"></div>
+            <button type="button" class="button-secondary size-adjustment" id="leTbAddRow" style="margin-top:6px;" ${!cfg.headers.length ? 'disabled title="Agrega al menos una columna primero"' : ''}>+ Agregar fila</button>
+
+            <p class="hs-config-subtitle" style="margin-top:16px;">Botones debajo de la tabla (opcional)</p>
+            <div id="leTbButtons" class="hs-repeat-rows"></div>
+            <button type="button" class="button-secondary size-adjustment" id="leTbAddBtn" style="margin-top:6px;">+ Agregar botón</button>
+        `;
+
+        container.querySelector('#leTbDesc').addEventListener('input', (e) => {
+            cfg.description = e.target.value;
+            markDirty();
+            schedulePreview();
+        });
+
+        // Columnas: cambiar el texto de un encabezado no afecta el número de
+        // celdas de las filas ya capturadas (las filas guardan un array de
+        // celdas por posición) — agregar/quitar columnas sí ajusta cada fila
+        // para mantenerlas alineadas con los encabezados.
+        const headersWrap = container.querySelector('#leTbHeaders');
+        cfg.headers.forEach((header, i) => {
+            const row = document.createElement('div');
+            row.className = 'hs-repeat-row';
+            row.innerHTML = `
+                <div class="hs-repeat-row-head"><span class="hs-repeat-row-num">${i + 1}</span><button type="button" class="hs-faq-btn hs-repeat-remove" title="Eliminar columna">&times;</button></div>
+                <input type="text" class="users-manager-input le-header" placeholder="Nombre de columna" value="${escHtml(header)}">
+            `;
+            row.querySelector('.le-header').addEventListener('input', (e) => {
+                cfg.headers[i] = e.target.value;
+                markDirty();
+                schedulePreview();
+            });
+            row.querySelector('.hs-repeat-remove').addEventListener('click', () => {
+                cfg.headers.splice(i, 1);
+                cfg.rows.forEach((r) => r.splice(i, 1));
+                markDirty();
+                renderTableBlockFields(container, cfg);
+                schedulePreview();
+            });
+            headersWrap.appendChild(row);
+        });
+        container.querySelector('#leTbAddCol').addEventListener('click', () => {
+            cfg.headers.push('');
+            cfg.rows.forEach((r) => r.push(''));
+            markDirty();
+            renderTableBlockFields(container, cfg);
+            schedulePreview();
+        });
+
+        // Filas: cada fila es un array de N celdas (N = num. de columnas).
+        const rowsWrap = container.querySelector('#leTbRows');
+        cfg.rows.forEach((cells, ri) => {
+            while (cells.length < colCount) cells.push('');
+            const row = document.createElement('div');
+            row.className = 'hs-repeat-row';
+            const cellInputs = cells.map((cell, ci) => `
+                <input type="text" class="users-manager-input le-cell" data-ci="${ci}" placeholder="${escHtml(cfg.headers[ci] || 'Celda ' + (ci + 1))}" value="${escHtml(cell)}" style="${ci > 0 ? 'margin-top:6px;' : ''}">
+            `).join('');
+            row.innerHTML = `
+                <div class="hs-repeat-row-head"><span class="hs-repeat-row-num">${ri + 1}</span><button type="button" class="hs-faq-btn hs-repeat-remove" title="Eliminar fila">&times;</button></div>
+                ${cellInputs}
+            `;
+            row.querySelectorAll('.le-cell').forEach((input) => {
+                input.addEventListener('input', (e) => {
+                    cells[parseInt(e.target.dataset.ci, 10)] = e.target.value;
+                    markDirty();
+                    schedulePreview();
+                });
+            });
+            row.querySelector('.hs-repeat-remove').addEventListener('click', () => {
+                cfg.rows.splice(ri, 1);
+                markDirty();
+                renderTableBlockFields(container, cfg);
+                schedulePreview();
+            });
+            rowsWrap.appendChild(row);
+        });
+        container.querySelector('#leTbAddRow').addEventListener('click', () => {
+            cfg.rows.push(new Array(colCount).fill(''));
+            markDirty();
+            renderTableBlockFields(container, cfg);
+            schedulePreview();
+        });
+
+        // Botones (mismo campo compartido que el bloque "Botón" standalone).
+        const buttonsWrap = container.querySelector('#leTbButtons');
+        cfg.buttons.forEach((btn, i) => {
+            const row = document.createElement('div');
+            row.className = 'hs-repeat-row';
+            const head = document.createElement('div');
+            head.className = 'hs-repeat-row-head';
+            head.innerHTML = `<span class="hs-repeat-row-num">${i + 1}</span><button type="button" class="hs-faq-btn hs-repeat-remove" title="Eliminar">&times;</button>`;
+            row.appendChild(head);
+            const fieldsWrap = document.createElement('div');
+            row.appendChild(fieldsWrap);
+            mountButtonFields(fieldsWrap, btn, { alignField: false });
+            head.querySelector('.hs-repeat-remove').addEventListener('click', () => {
+                cfg.buttons.splice(i, 1);
+                markDirty();
+                renderTableBlockFields(container, cfg);
+                schedulePreview();
+            });
+            buttonsWrap.appendChild(row);
+        });
+        container.querySelector('#leTbAddBtn').addEventListener('click', () => {
+            cfg.buttons.push({ text: '', url: '', style: 'outline', color: '#ff6213' });
+            markDirty();
+            renderTableBlockFields(container, cfg);
+            schedulePreview();
+        });
     }
 
     function markDirty() {
@@ -764,6 +951,10 @@
                     <input type="checkbox" id="leGenIsActive" ${generalData.is_active ? 'checked' : ''}> Publicado (visible en el sitio público)
                 </label>
             `)}
+            ${field('Color de fondo de la página (opcional)', `
+                <div id="leGenBgColorPicker"></div>
+                <button type="button" id="leGenBgColorClear" class="live-editor-btn live-editor-btn--outline" style="margin-top:8px;" ${generalData.background_color ? '' : 'disabled'}>Quitar color (usar blanco)</button>
+            `)}
             <div class="show-user-divider" style="margin:10px 0;"></div>
             ${field('Título SEO', `<input type="text" class="users-manager-input" id="leGenSeoTitle" value="${escHtml(generalData.seo_title)}" maxlength="160">`)}
             ${field('Descripción SEO', `<textarea class="users-manager-input client-modal-textarea" id="leGenSeoDesc" rows="2" maxlength="500">${escHtml(generalData.seo_description)}</textarea>`)}
@@ -803,27 +994,11 @@
                     `).join('')}
                 </div>
             `)}
-            <div class="show-user-divider" style="margin:10px 0;"></div>
-            <div class="live-editor-field">
-                <label>Preguntas frecuentes</label>
-                <p class="hs-config-note" style="margin:0 0 8px;">Alimentan el <code>FAQPage</code> de Google y el acordeón visible cuando hay un bloque "Preguntas Frecuentes" en esta página.</p>
-                <div id="leGenFaqRows" class="hs-faq-items"></div>
-                <button type="button" class="button-secondary size-adjustment" id="leGenFaqAdd" style="margin-top:10px;">+ Agregar pregunta</button>
-            </div>
             <div id="leGenErrors" class="user-manager-errors" style="display:none;margin-bottom:10px;"></div>
             <button type="button" id="leGenSaveBtn" class="live-editor-btn live-editor-btn--solid live-editor-btn--block">Guardar información general</button>
         `;
 
-        editPanel.querySelector('#leGenSaveBtn').addEventListener('click', saveGeneralInfo);
-
-        editPanel.querySelector('#leGenFaqAdd').addEventListener('click', () => {
-            generalData.faqs = generalData.faqs || [];
-            generalData.faqs.push({ question: '', answer: '' });
-            markDirty();
-            renderFaqRepeater();
-        });
-
-        renderFaqRepeater();
+        editPanel.querySelector('#leGenSaveBtn').addEventListener('click', () => saveGeneralInfo());
 
         editPanel.querySelector('#leGenSlugGenerate').addEventListener('click', () => {
             const nameInput = editPanel.querySelector('#leGenName');
@@ -845,16 +1020,30 @@
         };
         pageTypeSelect.addEventListener('change', toggleParentField);
         toggleParentField();
+
+        const bgColorClearBtn = editPanel.querySelector('#leGenBgColorClear');
+        mountColorPicker(editPanel.querySelector('#leGenBgColorPicker'), generalData.background_color || '', (hex) => {
+            generalData.background_color = hex;
+            bgColorClearBtn.disabled = false;
+            markDirty();
+        });
+        bgColorClearBtn.addEventListener('click', () => {
+            generalData.background_color = null;
+            bgColorClearBtn.disabled = true;
+            renderGeneralPanel();
+            markDirty();
+        });
     }
 
-    // Repetidor de FAQ (pregunta/respuesta) dentro de "Información general"
-    // -- mismo patrón visual que el repetidor de FAQ del formulario clásico
-    // (_faq_scripts.blade.php: hs-faq-items/hs-faq-row), pero re-renderizado
-    // al agregar/quitar en vez de reindexar name= (aquí no hay <form> real,
-    // el payload se arma a mano en saveGeneralInfo()).
-    function renderFaqRepeater() {
+    // Repetidor de FAQ (pregunta/respuesta) -- vive en el panel del bloque
+    // "Preguntas Frecuentes" (renderFaqFields), no en "Información general",
+    // pero opera sobre generalData.faqs (compartido con toda la página, ver
+    // ServicePage::$faqs) y se persiste vía saveGeneralInfo() con el mismo
+    // criterio: re-renderizado al agregar/quitar en vez de reindexar name=
+    // (aquí no hay <form> real, el payload se arma a mano).
+    function renderFaqRepeater(rowsContainer) {
         generalData.faqs = generalData.faqs || [];
-        const rows = editPanel.querySelector('#leGenFaqRows');
+        const rows = rowsContainer;
         if (!rows) return;
         rows.innerHTML = '';
 
@@ -876,50 +1065,64 @@
             row.querySelector('.hs-faq-remove').addEventListener('click', () => {
                 generalData.faqs.splice(i, 1);
                 markDirty();
-                renderFaqRepeater();
+                renderFaqRepeater(rowsContainer);
             });
             rows.appendChild(row);
         });
     }
 
-    async function saveGeneralInfo() {
-        const btn = editPanel.querySelector('#leGenSaveBtn');
-        const errorsBox = editPanel.querySelector('#leGenErrors');
+    // Se llama tanto desde el botón de "Información general" como desde el
+    // botón "Guardar preguntas frecuentes" del panel del bloque FAQ (ver
+    // renderFaqFields) -- en ese segundo caso el DOM de "Información general"
+    // no existe, así que cada campo cae a su valor ya cargado en generalData
+    // si no encuentra el elemento en el panel actualmente renderizado.
+    async function saveGeneralInfo(opts) {
+        opts = opts || {};
+        const btn = editPanel.querySelector('#' + (opts.btnId || 'leGenSaveBtn'));
+        const errorsBox = editPanel.querySelector('#' + (opts.errorsBoxId || 'leGenErrors'));
         errorsBox.style.display = 'none';
         errorsBox.innerHTML = '';
         document.querySelectorAll('#leEditPanel .is-invalid').forEach((el) => el.classList.remove('is-invalid'));
 
-        const pageType = editPanel.querySelector('#leGenPageType').value;
+        const el = (id) => editPanel.querySelector('#' + id);
+        const val = (id, fallback) => { const node = el(id); return node ? node.value : fallback; };
+        const checked = (id, fallback) => { const node = el(id); return node ? node.checked : fallback; };
+
+        const pageType = val('leGenPageType', generalData.page_type);
+        const distNodes = editPanel.querySelectorAll('.le-gen-rating-dist');
         const payload = {
-            name: editPanel.querySelector('#leGenName').value,
-            slug: editPanel.querySelector('#leGenSlug').value,
+            name: val('leGenName', generalData.name),
+            slug: val('leGenSlug', generalData.slug),
             page_type: pageType,
-            parent_id: pageType === 'hub' ? '' : editPanel.querySelector('#leGenParentId').value,
-            short_description: editPanel.querySelector('#leGenShortDesc').value,
-            price: editPanel.querySelector('#leGenPrice').value,
-            currency: editPanel.querySelector('#leGenCurrency').value,
-            show_price: editPanel.querySelector('#leGenShowPrice').checked,
-            is_active: editPanel.querySelector('#leGenIsActive').checked,
-            seo_title: editPanel.querySelector('#leGenSeoTitle').value,
-            seo_description: editPanel.querySelector('#leGenSeoDesc').value,
-            is_canonical: editPanel.querySelector('#leGenIsCanonical').checked,
-            canonical_url: editPanel.querySelector('#leGenCanonicalUrl').value,
+            parent_id: pageType === 'hub' ? '' : val('leGenParentId', generalData.parent_id || ''),
+            short_description: val('leGenShortDesc', generalData.short_description),
+            price: val('leGenPrice', generalData.price),
+            currency: val('leGenCurrency', generalData.currency),
+            show_price: checked('leGenShowPrice', generalData.show_price),
+            // No hay un <input> plano detrás de este campo (lo maneja
+            // mountColorPicker sobre generalData directamente), a diferencia
+            // del resto del payload que sí puede releer el DOM vía val()/checked().
+            background_color: generalData.background_color || '',
+            is_active: checked('leGenIsActive', generalData.is_active),
+            seo_title: val('leGenSeoTitle', generalData.seo_title),
+            seo_description: val('leGenSeoDesc', generalData.seo_description),
+            is_canonical: checked('leGenIsCanonical', !generalData.canonical_url),
+            canonical_url: val('leGenCanonicalUrl', generalData.canonical_url),
             faq_items: generalData.faqs || [],
             // Estadísticas de marketing — ver ServicePageController::fillRatingStats().
             // NO se marca isDirty/markDirty() por estos campos, mismo criterio
             // que el resto de "Información general": este panel tiene su
             // propio botón "Guardar información general", independiente del
             // indicador de cambios sin guardar de los bloques.
-            rating_average_displayed: editPanel.querySelector('#leGenRatingAvg').value,
-            rating_total_rated: editPanel.querySelector('#leGenRatingTotal').value,
-            rating_recommend_percent: editPanel.querySelector('#leGenRatingRecommend').value,
-            rating_punctuality_average: editPanel.querySelector('#leGenRatingPunctuality').value,
-            rating_recurring_clients: editPanel.querySelector('#leGenRatingRecurring').value,
-            rating_since_year: editPanel.querySelector('#leGenRatingSince').value,
-            rating_distribution: Array.from(editPanel.querySelectorAll('.le-gen-rating-dist')).reduce((acc, el) => {
-                acc[el.dataset.star] = el.value;
-                return acc;
-            }, {}),
+            rating_average_displayed: val('leGenRatingAvg', generalData.rating_average_displayed),
+            rating_total_rated: val('leGenRatingTotal', generalData.rating_total_rated),
+            rating_recommend_percent: val('leGenRatingRecommend', generalData.rating_recommend_percent),
+            rating_punctuality_average: val('leGenRatingPunctuality', generalData.rating_punctuality_average),
+            rating_recurring_clients: val('leGenRatingRecurring', generalData.rating_recurring_clients),
+            rating_since_year: val('leGenRatingSince', generalData.rating_since_year),
+            rating_distribution: distNodes.length
+                ? Array.from(distNodes).reduce((acc, node) => { acc[node.dataset.star] = node.value; return acc; }, {})
+                : (generalData.rating_distribution || {}),
         };
 
         btn.disabled = true;
@@ -1576,6 +1779,9 @@
             case 'button':
                 renderButtonFields(container, cfg);
                 break;
+            case 'table_block':
+                renderTableBlockFields(container, cfg);
+                break;
             default:
                 container.innerHTML = '<p class="hs-config-note">Tipo de bloque desconocido.</p>';
         }
@@ -1832,13 +2038,31 @@
     function renderFaqFields(container, cfg) {
         container.innerHTML = `
             ${field('Texto descriptivo (opcional)', `<textarea class="users-manager-input client-modal-textarea" id="leFaqDescription" rows="2">${escHtml(cfg.description)}</textarea>`)}
-            <p class="hs-config-note">Las preguntas y respuestas se capturan en <strong>Información general → Preguntas frecuentes</strong>. Esta sección solo define dónde aparece el acordeón en la página, su título y el texto descriptivo.</p>
+            <div class="show-user-divider" style="margin:10px 0;"></div>
+            <div class="live-editor-field">
+                <label>Preguntas frecuentes</label>
+                <p class="hs-config-note" style="margin:0 0 8px;">Alimentan el <code>FAQPage</code> de Google y el acordeón de este bloque. Se comparten con toda la página, aunque haya más de un bloque "Preguntas Frecuentes".</p>
+                <div id="leFaqRows" class="hs-faq-items"></div>
+                <button type="button" class="button-secondary size-adjustment" id="leFaqAdd" style="margin-top:10px;">+ Agregar pregunta</button>
+            </div>
+            <div id="leFaqErrors" class="user-manager-errors" style="display:none;margin-bottom:10px;"></div>
+            <button type="button" id="leFaqSaveBtn" class="live-editor-btn live-editor-btn--solid live-editor-btn--block">Guardar preguntas frecuentes</button>
         `;
         container.querySelector('#leFaqDescription').addEventListener('input', (e) => {
             cfg.description = e.target.value;
             markDirty();
             schedulePreview();
         });
+
+        container.querySelector('#leFaqAdd').addEventListener('click', () => {
+            generalData.faqs = generalData.faqs || [];
+            generalData.faqs.push({ question: '', answer: '' });
+            markDirty();
+            renderFaqRepeater(container.querySelector('#leFaqRows'));
+        });
+        renderFaqRepeater(container.querySelector('#leFaqRows'));
+
+        container.querySelector('#leFaqSaveBtn').addEventListener('click', () => saveGeneralInfo({ btnId: 'leFaqSaveBtn', errorsBoxId: 'leFaqErrors' }));
     }
 
     function renderRichHeaderFields(container, cfg) {
@@ -1941,7 +2165,21 @@
 
     function renderBenefitsGridFields(container, cfg) {
         cfg.items = cfg.items || [];
-        container.innerHTML = '<p class="hs-config-note">Tarjetas de cifra + título + descripción.</p><div id="leBgRows" class="hs-repeat-rows"></div><button type="button" class="button-secondary size-adjustment" id="leBgAdd" style="margin-top:10px;">+ Agregar beneficio</button>';
+        cfg.layout = cfg.layout === 'vertical' ? 'vertical' : 'horizontal';
+        container.innerHTML = `
+            ${field('Diseño de las tarjetas', `
+                <select class="users-manager-select" id="leBgLayout">
+                    <option value="horizontal" ${cfg.layout === 'horizontal' ? 'selected' : ''}>Horizontal (en fila)</option>
+                    <option value="vertical" ${cfg.layout === 'vertical' ? 'selected' : ''}>Vertical (apiladas)</option>
+                </select>
+            `)}
+            <p class="hs-config-note">Tarjetas de cifra + título + descripción.</p><div id="leBgRows" class="hs-repeat-rows"></div><button type="button" class="button-secondary size-adjustment" id="leBgAdd" style="margin-top:10px;">+ Agregar beneficio</button>
+        `;
+        container.querySelector('#leBgLayout').addEventListener('change', (e) => {
+            cfg.layout = e.target.value;
+            markDirty();
+            schedulePreview();
+        });
         const rows = container.querySelector('#leBgRows');
 
         cfg.items.forEach((item, i) => {

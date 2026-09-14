@@ -109,6 +109,7 @@
                     <option value="rating_reviews">Rating y reseñas</option>
                     <option value="cta_final">CTA final</option>
                     <option value="button">Botón</option>
+                    <option value="table_block">Tabla</option>
                 </select>
                 <button type="button" id="leAddBlockBtn" class="live-editor-btn live-editor-btn--outline live-editor-btn--block">
                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
@@ -436,13 +437,23 @@
             border-bottom: 1px solid #e5e7eb;
         }
 
+        /* La columna entera desplaza junto con la lista de bloques (mismo
+           criterio ya usado en .live-editor-col--panel) -- antes solo
+           .live-editor-blocks-list tenía su propio scroll, pero el resto de
+           la columna (Información general, el link Galería/FAQ, "Agregar
+           bloque") no estaba contemplado en ese cálculo, así que con varios
+           bloques la columna completa se desbordaba de la página sin forma
+           de llegar al selector de "Agregar bloque". */
+        .live-editor-col--blocks {
+            max-height: calc(100vh - 200px);
+            overflow-y: auto;
+        }
+
         /* ── Columna de bloques ── */
         .live-editor-blocks-list {
             display: flex;
             flex-direction: column;
             gap: 8px;
-            max-height: calc(100vh - 320px);
-            overflow-y: auto;
         }
 
         .live-editor-block-row {
@@ -829,6 +840,7 @@
                 'price' => $servicePage->price,
                 'currency' => $servicePage->currency ?: 'MXN',
                 'show_price' => (bool) $servicePage->show_price,
+                'background_color' => $servicePage->background_color,
                 'seo_title' => $servicePage->seo_title,
                 'seo_description' => $servicePage->seo_description,
                 'is_active' => (bool) $servicePage->is_active,

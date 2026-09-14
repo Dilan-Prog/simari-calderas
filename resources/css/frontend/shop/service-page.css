@@ -1,4 +1,12 @@
 @import 'shared.css';
+/* FIX (bug real encontrado, mismo patrón que catalog.css): sin este import,
+   los bloques compartidos del CMS (banner/dual_banner/category_grid/
+   brand_carousel/html_block/FAQ, ver home-sections.css) se renderizaban
+   sin ningún estilo en Páginas de Servicio -- el selector `<code>` en la
+   pregunta/respuesta de FAQ solo se veía como texto plano en una caja,
+   sin acordeón. Ver también el `:is()` en home-sections.css, que además
+   necesitó sumar `.eq-shop-service` a su lista de contextos. */
+@import 'home-sections.css';
 
 /* Módulo Servicios — CSS dedicado (antes reusaba collection.css).
    Reusa las variables de tema globales (--font-family, --secondary-color
@@ -46,6 +54,7 @@
 .svc-benefits { margin-bottom: 32px; }
 .svc-benefits__title { font-size: 20px; margin: 0 0 16px; }
 .svc-benefits__grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.svc-benefits__grid--vertical { grid-template-columns: 1fr; }
 .svc-benefits__card { border: 1px solid #e5e7eb; border-radius: 12px; padding: 18px; background: #fff; }
 .svc-benefits__figure { font-size: 24px; font-weight: 800; color: var(--secondary-color); margin-bottom: 4px; }
 .svc-benefits__card-title { font-size: 14px; font-weight: 700; color: #141516; margin: 0 0 4px; }
@@ -134,6 +143,21 @@
 .svc-button--left { justify-content: flex-start; }
 .svc-button--center { justify-content: center; }
 .svc-button--right { justify-content: flex-end; }
+.svc-button__row { display: flex; gap: 12px; flex-wrap: wrap; }
+
+/* ── table_block (tablas de referencia/normativa) ── */
+.svc-table-block { margin-bottom: 32px; }
+.svc-table-block__title { font-size: 20px; margin: 0 0 8px; }
+.svc-table-block__desc { color: #6b7280; font-size: 14px; margin: 0 0 16px; }
+.svc-table-block__scroll { overflow-x: auto; border-radius: 10px; border: 1px solid #e5e7eb; }
+.svc-table-block__table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+.svc-table-block__table thead th { background: #141516; color: #fff; text-align: left; font-weight: 700; padding: 12px 16px; white-space: nowrap; }
+.svc-table-block__table tbody td { padding: 12px 16px; border-top: 1px solid #e5e7eb; color: #141516; }
+.svc-table-block__table tbody tr:nth-child(even) { background: #fafafa; }
+.svc-table-block__actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
+.svc-table-block__actions--left { justify-content: flex-start; }
+.svc-table-block__actions--center { justify-content: center; }
+.svc-table-block__actions--right { justify-content: flex-end; }
 
 /* ── Grid automático hacia hijos (hub → categorías, categoría → servicios) ── */
 .svc-children { margin-bottom: 32px; }
