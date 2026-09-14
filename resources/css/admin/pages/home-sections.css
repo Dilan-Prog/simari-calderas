@@ -470,6 +470,11 @@
 
 .service-gallery-item.is-dragging { opacity: .4; }
 .service-gallery-item.drag-over { border-color: #ff6213; }
+/* Clases de SortableJS (editor en vivo, ver service-page-live-editor.js) —
+   la galería clásica de arriba sigue en HTML5 drag-and-drop nativo, con sus
+   propias clases is-dragging/drag-over; no se tocan. */
+.service-gallery-item--ghost { opacity: .4; }
+.service-gallery-item--dragging { border-color: #ff6213; }
 
 .service-gallery-item img {
     width: 100%;
@@ -548,6 +553,10 @@
 }
 .service-review-row.is-dragging { opacity: .4; }
 .service-review-row.drag-over { border-color: #ff6213; }
+/* Clases de SortableJS (editor en vivo) — ver la misma nota en
+   .service-gallery-item--ghost más arriba. */
+.service-review-row--ghost { opacity: .4; }
+.service-review-row--dragging { border-color: #ff6213; }
 .service-review-row__drag { color: #9ca3af; cursor: grab; padding-top: 2px; }
 .service-review-row__body { flex: 1; min-width: 0; }
 .service-review-row__head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 4px; }

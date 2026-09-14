@@ -13,14 +13,22 @@
  *
  * Patrones reusados de otros archivos del admin (ver comentarios inline):
  *  - Debounce + iframe.srcdoc: resources/js/admin/email-template-editor.js
- *  - Drag & drop nativo (dragstart/dragover/dragleave/drop):
- *    resources/views/admin/service-pages/partials/_section_scripts.blade.php
+ *  - Reordenar con SortableJS (mismo paquete ya usado en dashboard-editor.js/
+ *    pipeline-board.js/deals-board.js) para las 3 listas arrastrables
+ *    (bloques, galería, reseñas) — se migró desde HTML5 drag-and-drop nativo
+ *    (dragstart/dragover/drop) porque, en uso real, el navegador podía dejar
+ *    una sesión de arrastre nativa "colgada" (el drop no siempre concluye de
+ *    forma confiable, sobre todo cerca del <iframe> de preview, que es un
+ *    documento aparte) — eso bloqueaba TODO clic en la página hasta recargar,
+ *    no solo un problema visual. SortableJS no depende de esa API nativa.
  *  - Buscador de productos con chips: mismo archivo (initServiceSectionProductPicker)
  *  - Config exacta por tipo de sección: app/Http/Controllers/Backend/ServicePageController.php
  *    (método que arma el config desde el modal clásico) — se siguió ESE shape
  *    real, no el de la descripción de la tarea, cuando divergían (ver nota en
  *    product_carousel_banner más abajo).
  */
+import Sortable from 'sortablejs';
+
 (function () {
     const DATA = window.__LIVE_EDITOR__;
     if (!DATA) return;
@@ -705,7 +713,7 @@
     }
 
     // ── Columna izquierda: lista de bloques ─────────────────────────
-    let dragSrcUid = null;
+    let blocksSortable = null;
 
     function renderBlocksList() {
         blocksList.innerHTML = '';
@@ -723,7 +731,6 @@
             row.className = 'live-editor-block-row';
             if (panelMode === 'block' && section._uid === selectedUid) row.classList.add('is-selected');
             if (!section.is_active) row.classList.add('is-inactive');
-            row.draggable = true;
             row.dataset.uid = section._uid;
 
             const iconPath = ICONS[section.type] || ICONS.default;
@@ -776,73 +783,31 @@
                 });
             });
 
-            // ── Drag & drop nativo, mismo patrón que _section_scripts.blade.php
-            //    (Arrastrar para reordenar secciones), adaptado para reordenar
-            //    solo el array en memoria en vez de hacer fetch inmediato. ──
-            row.addEventListener('dragstart', () => {
-                // Autolimpieza defensiva: 'dragend' debería disparar siempre
-                // al terminar un arrastre anterior, pero en la práctica no
-                // lo hace de forma confiable cuando el mouse suelta sobre el
-                // <iframe> de la vista previa (documento cruzado) — un caso
-                // real y frecuente en este layout, ya que la columna de
-                // bloques queda justo al lado del iframe. Si eso pasa, la
-                // fila anterior se queda con opacidad de "arrastrando" para
-                // siempre. Por eso, además de la limpieza en 'dragend', cada
-                // NUEVO arrastre empieza limpiando cualquier resto de uno
-                // anterior que no se haya limpiado solo.
-                blocksList.querySelectorAll('.live-editor-block-row').forEach((r) => {
-                    r.classList.remove('is-dragging', 'drag-over');
-                });
-                dragSrcUid = section._uid;
-                row.classList.add('is-dragging');
-            });
-            row.addEventListener('dragend', () => {
-                // Se limpia aquí (no solo en 'drop') porque 'dragend' es el
-                // único evento garantizado a disparar siempre al soltar,
-                // exitoso o no (ej. si el drop cae fuera de cualquier fila
-                // con listener) -- dejar la limpieza solo en 'drop' dejaba
-                // dragSrcUid y la clase is-dragging pegados tras un intento
-                // fallido, arruinando el siguiente arrastre.
-                dragSrcUid = null;
-                blocksList.querySelectorAll('.live-editor-block-row').forEach((r) => {
-                    r.classList.remove('is-dragging', 'drag-over');
-                });
-            });
-            row.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                if (dragSrcUid === null || dragSrcUid === section._uid) return;
-                row.classList.add('drag-over');
-            });
-            row.addEventListener('dragleave', () => {
-                row.classList.remove('drag-over');
-            });
-            row.addEventListener('drop', (e) => {
-                e.preventDefault();
-                row.classList.remove('drag-over');
-                if (dragSrcUid === null || dragSrcUid === section._uid) return;
-
-                const srcIdx = draftSections.findIndex((s) => s._uid === dragSrcUid);
-                if (srcIdx === -1) return;
-
-                const [moved] = draftSections.splice(srcIdx, 1);
-                // El índice del destino se vuelve a buscar DESPUÉS de quitar
-                // el bloque origen del arreglo -- si se reusa el índice de
-                // ANTES de ese splice, mover un bloque hacia ABAJO (índice
-                // origen menor al destino) lo insertaba una posición más
-                // abajo de la esperada, porque quitar el origen recorre el
-                // destino real una posición hacia atrás. Buscarlo de nuevo
-                // sobre el arreglo ya sin el origen es correcto en ambas
-                // direcciones sin necesitar aritmética de +/-1 condicional.
-                const targetIdx = draftSections.findIndex((s) => s._uid === section._uid);
-                draftSections.splice(targetIdx === -1 ? srcIdx : targetIdx, 0, moved);
-
-                markDirty();
-                renderBlocksList();
-                schedulePreview();
-            });
-
             blocksList.appendChild(row);
         });
+
+        // SortableJS (mismo paquete que dashboard-editor.js/pipeline-board.js)
+        // en vez de HTML5 drag-and-drop nativo — ver la nota en el docblock
+        // del archivo sobre por qué se migró (una sesión de arrastre nativa
+        // podía quedar "colgada" bloqueando toda la página hasta recargar).
+        // El contenedor (blocksList) nunca se destruye entre renders, solo
+        // sus hijos, así que la instancia se crea una sola vez.
+        if (!blocksSortable) {
+            blocksSortable = new Sortable(blocksList, {
+                animation: 150,
+                handle: '.live-editor-block-drag-handle',
+                ghostClass: 'live-editor-block-row--ghost',
+                dragClass: 'live-editor-block-row--dragging',
+                onEnd(evt) {
+                    if (evt.oldIndex === evt.newIndex) return;
+                    const [moved] = draftSections.splice(evt.oldIndex, 1);
+                    draftSections.splice(evt.newIndex, 0, moved);
+                    markDirty();
+                    renderBlocksList();
+                    schedulePreview();
+                },
+            });
+        }
     }
 
     // Los 3 botones "generales" (Información general / Galería / Reseñas) se
@@ -1220,7 +1185,6 @@
     //    (mismo array ya leído por imagesOptionsHtml() en rich_header/
     //    content_tabs/cta_final/gallery_carousel) para que esos otros
     //    pickers vean el cambio la próxima vez que se rendericen, sin reload. ──
-    let galleryDragSrcId = null;
 
     function renderGalleryPanel() {
         editPanel.innerHTML = `
@@ -1249,7 +1213,6 @@
             const item = document.createElement('div');
             item.className = 'service-gallery-item';
             item.dataset.id = img.id;
-            item.draggable = true;
             item.innerHTML = `
                 <div class="service-gallery-item__drag" title="Arrastrar para reordenar">
                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="5" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="9" cy="19" r="1"/><circle cx="15" cy="5" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="19" r="1"/></svg>
@@ -1271,57 +1234,6 @@
                 altDebounce = setTimeout(() => updateGalleryImageAlt(img.id, img.alt_text), 500);
             });
 
-            // Drag & drop nativo — mismo patrón que renderBlocksList() (lista
-            // de bloques) y que la galería clásica original.
-            item.addEventListener('dragstart', () => {
-                // Autolimpieza defensiva -- ver el mismo comentario en
-                // renderBlocksList(): 'dragend' no siempre llega a disparar
-                // en el uso real (ej. si el mouse suelta fuera de cualquier
-                // tarjeta con listener), así que cada nuevo arrastre empieza
-                // limpiando cualquier resto de uno anterior sin limpiar.
-                grid.querySelectorAll('.service-gallery-item').forEach((el) => {
-                    el.classList.remove('is-dragging', 'drag-over');
-                });
-                galleryDragSrcId = img.id;
-                item.classList.add('is-dragging');
-            });
-            item.addEventListener('dragend', () => {
-                // Ver el mismo comentario en renderBlocksList(): 'dragend'
-                // siempre dispara (a diferencia de 'drop'), así que la
-                // limpieza va aquí para no dejar dragSrcId/clases pegadas
-                // tras un intento de arrastre fallido.
-                galleryDragSrcId = null;
-                grid.querySelectorAll('.service-gallery-item').forEach((el) => {
-                    el.classList.remove('is-dragging', 'drag-over');
-                });
-            });
-            item.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                if (galleryDragSrcId === null || galleryDragSrcId === img.id) return;
-                item.classList.add('drag-over');
-            });
-            item.addEventListener('dragleave', () => {
-                item.classList.remove('drag-over');
-            });
-            item.addEventListener('drop', (e) => {
-                e.preventDefault();
-                item.classList.remove('drag-over');
-                if (galleryDragSrcId === null || galleryDragSrcId === img.id) return;
-
-                const srcIdx = DATA.images.findIndex((im) => String(im.id) === String(galleryDragSrcId));
-                if (srcIdx === -1) return;
-
-                const [moved] = DATA.images.splice(srcIdx, 1);
-                // Mismo fix que renderBlocksList(): el índice destino se
-                // vuelve a buscar DESPUÉS de quitar el origen del arreglo,
-                // si no, mover hacia abajo lo insertaba una posición de más.
-                const targetIdx = DATA.images.findIndex((im) => String(im.id) === String(img.id));
-                DATA.images.splice(targetIdx === -1 ? srcIdx : targetIdx, 0, moved);
-
-                renderGalleryGrid();
-                persistGalleryOrder();
-            });
-
             grid.appendChild(item);
         });
 
@@ -1337,6 +1249,28 @@
             window.openImagePicker(null, { onSelect: addGalleryImage });
         });
         grid.appendChild(addTile);
+
+        // SortableJS en vez de HTML5 drag-and-drop nativo — ver la nota en
+        // el docblock del archivo. `grid` se recrea en cada render (viene de
+        // un querySelector sobre el panel, no es un contenedor estable como
+        // blocksList), así que la instancia se crea fresca cada vez; la
+        // anterior queda huérfana junto con sus hijos ya reemplazados.
+        // filter excluye el tile "+" de ser arrastrable/reordenado — siempre
+        // se vuelve a agregar al final en el próximo render de cualquier forma.
+        new Sortable(grid, {
+            animation: 150,
+            handle: '.service-gallery-item__drag',
+            filter: '.service-gallery-item--add',
+            ghostClass: 'service-gallery-item--ghost',
+            dragClass: 'service-gallery-item--dragging',
+            onEnd(evt) {
+                if (evt.oldIndex === evt.newIndex) return;
+                const [moved] = DATA.images.splice(evt.oldIndex, 1);
+                DATA.images.splice(evt.newIndex, 0, moved);
+                renderGalleryGrid();
+                persistGalleryOrder();
+            },
+        });
     }
 
     async function addGalleryImage(url) {
@@ -1420,7 +1354,6 @@
     //    inventados: customer_name/role/company/city/state, review_date,
     //    rating, comment, categories[], is_verified, is_visible,
     //    business_response, business_response_date. ──
-    let reviewDragSrcId = null;
 
     function renderReviewsPanel() {
         const visibleCount = reviewsData.filter((r) => r.is_visible).length;
@@ -1457,7 +1390,6 @@
         reviewsData.forEach((review) => {
             const row = document.createElement('div');
             row.className = 'service-review-row';
-            row.draggable = true;
             row.dataset.id = review.id;
             const comment = review.comment || '';
             row.innerHTML = `
@@ -1488,53 +1420,24 @@
                 openDeleteModal(review.customer_name || 'Reseña', () => deleteReview(review.id));
             });
 
-            row.addEventListener('dragstart', () => {
-                // Autolimpieza defensiva -- ver el mismo comentario en
-                // renderBlocksList(): 'dragend' no siempre llega a disparar
-                // en el uso real, así que cada nuevo arrastre empieza
-                // limpiando cualquier resto de uno anterior sin limpiar.
-                list.querySelectorAll('.service-review-row').forEach((el) => {
-                    el.classList.remove('is-dragging', 'drag-over');
-                });
-                reviewDragSrcId = review.id;
-                row.classList.add('is-dragging');
-            });
-            row.addEventListener('dragend', () => {
-                // Ver el mismo comentario en renderBlocksList(): 'dragend'
-                // siempre dispara (a diferencia de 'drop'), así que la
-                // limpieza va aquí para no dejar dragSrcId/clases pegadas
-                // tras un intento de arrastre fallido.
-                reviewDragSrcId = null;
-                list.querySelectorAll('.service-review-row').forEach((el) => {
-                    el.classList.remove('is-dragging', 'drag-over');
-                });
-            });
-            row.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                if (reviewDragSrcId === null || reviewDragSrcId === review.id) return;
-                row.classList.add('drag-over');
-            });
-            row.addEventListener('dragleave', () => row.classList.remove('drag-over'));
-            row.addEventListener('drop', (e) => {
-                e.preventDefault();
-                row.classList.remove('drag-over');
-                if (reviewDragSrcId === null || reviewDragSrcId === review.id) return;
+            list.appendChild(row);
+        });
 
-                const srcIdx = reviewsData.findIndex((r) => String(r.id) === String(reviewDragSrcId));
-                if (srcIdx === -1) return;
-
-                const [moved] = reviewsData.splice(srcIdx, 1);
-                // Mismo fix que renderBlocksList(): el índice destino se
-                // vuelve a buscar DESPUÉS de quitar el origen del arreglo,
-                // si no, mover hacia abajo lo insertaba una posición de más.
-                const targetIdx = reviewsData.findIndex((r) => String(r.id) === String(review.id));
-                reviewsData.splice(targetIdx === -1 ? srcIdx : targetIdx, 0, moved);
-
+        // SortableJS en vez de HTML5 drag-and-drop nativo — ver la nota en
+        // el docblock del archivo. Igual que renderGalleryGrid(), `list` se
+        // recrea en cada render, así que la instancia se crea fresca cada vez.
+        new Sortable(list, {
+            animation: 150,
+            handle: '.service-review-row__drag',
+            ghostClass: 'service-review-row--ghost',
+            dragClass: 'service-review-row--dragging',
+            onEnd(evt) {
+                if (evt.oldIndex === evt.newIndex) return;
+                const [moved] = reviewsData.splice(evt.oldIndex, 1);
+                reviewsData.splice(evt.newIndex, 0, moved);
                 renderReviewsList();
                 persistReviewsOrder();
-            });
-
-            list.appendChild(row);
+            },
         });
     }
 

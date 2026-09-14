@@ -494,8 +494,15 @@
             color: #ff6213;
         }
 
-        .live-editor-block-row.is-dragging {
+        /* Clases de SortableJS (ver renderBlocksList() en el JS) — el
+           elemento "fantasma" que marca dónde caerá el bloque, y el
+           elemento real mientras se arrastra. */
+        .live-editor-block-row--ghost {
             opacity: 0.4;
+        }
+
+        .live-editor-block-row--dragging {
+            opacity: 0.7;
         }
 
         .live-editor-block-row.is-inactive {

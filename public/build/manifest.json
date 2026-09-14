@@ -111,7 +111,7 @@
     "isEntry": true
   },
   "resources/css/admin/pages/home-sections.css": {
-    "file": "assets/home-sections-D4qzE8XP.css",
+    "file": "assets/home-sections-CUaRlxDO.css",
     "src": "resources/css/admin/pages/home-sections.css",
     "isEntry": true
   },
@@ -388,10 +388,13 @@
     "isEntry": true
   },
   "resources/js/admin/service-page-live-editor.js": {
-    "file": "assets/service-page-live-editor-m7-WqcxR.js",
+    "file": "assets/service-page-live-editor-v7SuIOFq.js",
     "name": "service-page-live-editor",
     "src": "resources/js/admin/service-page-live-editor.js",
-    "isEntry": true
+    "isEntry": true,
+    "imports": [
+      "_sortable.esm-D-EvzYhP.js"
+    ]
   },
   "resources/js/admin/shipments.js": {
     "file": "assets/shipments-C-1OpR-1.js",
