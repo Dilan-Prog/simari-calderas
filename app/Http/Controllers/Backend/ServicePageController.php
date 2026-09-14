@@ -302,8 +302,19 @@ class ServicePageController extends Controller
             'show_price'        => 'nullable|boolean',
             'seo_title'         => 'nullable|string|max:160',
             'seo_description'   => 'nullable|string|max:500',
+            'canonical_url'     => 'nullable|url|max:255',
             'is_active'         => 'nullable|boolean',
             'faq_items'         => 'nullable|array',
+            // Estadísticas de marketing (pestaña Rating y reseñas / panel
+            // "Información general" del editor en vivo) — mismas reglas que
+            // update(), ver fillRatingStats().
+            'rating_average_displayed'   => 'nullable|numeric|min:0|max:5',
+            'rating_total_rated'         => 'nullable|integer|min:0',
+            'rating_recommend_percent'   => 'nullable|numeric|min:0|max:100',
+            'rating_punctuality_average' => 'nullable|numeric|min:0|max:5',
+            'rating_recurring_clients'   => 'nullable|integer|min:0',
+            'rating_since_year'          => 'nullable|integer|min:2000|max:2100',
+            'rating_distribution'        => 'nullable|array',
         ]);
 
         // Un hub o una categoría nunca tienen padre — la jerarquía es de
@@ -357,6 +368,11 @@ class ServicePageController extends Controller
         $servicePage->show_price = $request->boolean('show_price', true);
         $servicePage->seo_title = $validated['seo_title'] ?: null;
         $servicePage->seo_description = $validated['seo_description'] ?: null;
+        // Igual que Products::canonical_url: solo se guarda si el checkbox
+        // "Es la URL Canónica de este servicio" está DESMARCADO (is_canonical
+        // en el payload) -- si está marcado, esta página es su propia
+        // canónica y el campo se limpia aunque el input tuviera texto viejo.
+        $servicePage->canonical_url = $request->boolean('is_canonical', true) ? null : ($validated['canonical_url'] ?: null);
         $servicePage->is_active = $request->boolean('is_active');
         // Guarda por 'has()', no siempre: si algún llamado futuro a este
         // endpoint omite faq_items, no debe borrar las FAQs existentes por
@@ -365,6 +381,11 @@ class ServicePageController extends Controller
         if ($request->has('faq_items')) {
             $servicePage->faqs = $this->mapFaqItems($request) ?: null;
         }
+        // Igual que en update(): estas cifras nunca alimentan el JSON-LD, solo
+        // el copy visual del bloque "rating_reviews" / futuro AggregateRating
+        // manual. Se reusa fillRatingStats() para no duplicar la lógica de
+        // limpieza de rating_distribution (filtrar vacíos + castear a int).
+        $this->fillRatingStats($servicePage, $request);
         $servicePage->save();
 
         return response()->json(['success' => true, 'servicePage' => [
@@ -379,8 +400,16 @@ class ServicePageController extends Controller
             'show_price' => $servicePage->show_price,
             'seo_title' => $servicePage->seo_title,
             'seo_description' => $servicePage->seo_description,
+            'canonical_url' => $servicePage->canonical_url,
             'is_active' => $servicePage->is_active,
             'faqs' => $servicePage->faqs,
+            'rating_average_displayed' => $servicePage->rating_average_displayed,
+            'rating_total_rated' => $servicePage->rating_total_rated,
+            'rating_recommend_percent' => $servicePage->rating_recommend_percent,
+            'rating_punctuality_average' => $servicePage->rating_punctuality_average,
+            'rating_recurring_clients' => $servicePage->rating_recurring_clients,
+            'rating_since_year' => $servicePage->rating_since_year,
+            'rating_distribution' => $servicePage->rating_distribution,
         ]]);
     }
 
@@ -709,7 +738,12 @@ class ServicePageController extends Controller
 
         $this->syncCoverImage($servicePage);
 
-        return response()->json(['success' => true, 'image' => $image]);
+        // append('url'): `url` es un accessor (getUrlAttribute), no está en
+        // $appends del modelo, así que sin esto el JSON serializado NO trae
+        // esa clave -- el editor en vivo (y la galería clásica) necesitan la
+        // URL resuelta (UploadPath::url()) para pintar el <img> recién
+        // agregado sin recargar la página.
+        return response()->json(['success' => true, 'image' => $image->append('url')]);
     }
 
     public function updateImage(Request $request, ServicePage $servicePage, ServicePageImage $image)
@@ -720,7 +754,7 @@ class ServicePageController extends Controller
 
         $image->update(['alt_text' => $request->alt_text ?: null]);
 
-        return response()->json(['success' => true, 'image' => $image]);
+        return response()->json(['success' => true, 'image' => $image->append('url')]);
     }
 
     public function destroyImage(ServicePage $servicePage, ServicePageImage $image)
@@ -864,7 +898,7 @@ class ServicePageController extends Controller
 
     public function liveEditor(ServicePage $servicePage)
     {
-        $servicePage->load(['sections', 'images']);
+        $servicePage->load(['sections', 'images', 'reviews']);
         $categories = Category::where('is_active', true)->orderBy('name')->get(['id', 'name']);
         $brands = Brand::orderBy('name')->get(['id', 'name']);
         $collections = Collection::where('is_active', true)->orderBy('name')->get(['id', 'name']);

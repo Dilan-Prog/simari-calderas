@@ -62,13 +62,31 @@
                 </span>
                 <span class="live-editor-block-info">
                     <span class="live-editor-block-name">Información general</span>
-                    <span class="live-editor-block-type">Nombre, slug, precio, SEO</span>
+                    <span class="live-editor-block-type">Nombre, slug, precio, SEO, rating</span>
                 </span>
             </button>
 
-            <p class="live-editor-more-link">
-                <a href="{{ route('admin.service-pages.edit', $servicePage) }}">Galería, FAQ, Rating y reseñas &rarr;</a>
-            </p>
+            <button type="button" id="leGalleryBtn" class="live-editor-general-row">
+                <span class="live-editor-block-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+                </span>
+                <span class="live-editor-block-info">
+                    <span class="live-editor-block-name">Galería</span>
+                    <span class="live-editor-block-type">Imágenes del servicio</span>
+                </span>
+            </button>
+
+            <button type="button" id="leReviewsBtn" class="live-editor-general-row">
+                <span class="live-editor-block-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                </span>
+                <span class="live-editor-block-info">
+                    <span class="live-editor-block-name">Reseñas</span>
+                    <span class="live-editor-block-type">Reseñas capturadas</span>
+                </span>
+            </button>
+
+            <div class="live-editor-sidebar-divider"></div>
 
             <div class="live-editor-col-title">Bloques de la página</div>
             <div id="leBlocksList" class="live-editor-blocks-list"></div>
@@ -406,6 +424,16 @@
 
         .live-editor-more-link a:hover {
             color: #ff6213;
+        }
+
+        /* Separador entre los 3 botones "Información general / Galería /
+           Reseñas" y la lista de bloques -- mismas medidas que
+           .live-editor-more-link, que ya no envuelve ningún enlace desde que
+           Galería/Reseñas/Rating se portaron al editor en vivo. */
+        .live-editor-sidebar-divider {
+            margin: 0 0 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #e5e7eb;
         }
 
         /* ── Columna de bloques ── */
@@ -807,6 +835,18 @@
                 'is_active' => (bool) $servicePage->is_active,
                 'public_path' => $servicePage->publicPath(),
                 'faqs' => $servicePage->faqs ?? [],
+                'canonical_url' => $servicePage->canonical_url,
+                // Estadísticas de marketing (pestaña "Rating y reseñas —
+                // Promedio mostrado" del formulario clásico) -- portadas al
+                // panel "Información general" del editor en vivo. Nunca
+                // alimentan el JSON-LD, ver ServicePageController::fillRatingStats().
+                'rating_average_displayed' => $servicePage->rating_average_displayed,
+                'rating_total_rated' => $servicePage->rating_total_rated,
+                'rating_recommend_percent' => $servicePage->rating_recommend_percent,
+                'rating_punctuality_average' => $servicePage->rating_punctuality_average,
+                'rating_recurring_clients' => $servicePage->rating_recurring_clients,
+                'rating_since_year' => $servicePage->rating_since_year,
+                'rating_distribution' => $servicePage->rating_distribution,
             ],
             'eligibleParents' => $eligibleParents->map(fn ($p) => [
                 'id' => $p->id, 'name' => $p->name, 'page_type' => $p->page_type,
@@ -826,6 +866,38 @@
                 'url' => $img->url,
                 'alt_text' => $img->alt_text,
             ])->values(),
+            // Panel "Reseñas" del editor en vivo -- se pasa el set completo de
+            // columnas (igual criterio que 'sections'/'images') para no
+            // depender de reviews.edit (GET) al abrir el formulario de edición.
+            'reviews' => $servicePage->reviews->map(fn ($r) => [
+                'id' => $r->id,
+                'customer_name' => $r->customer_name,
+                'customer_role' => $r->customer_role,
+                'customer_company' => $r->customer_company,
+                'customer_city' => $r->customer_city,
+                'customer_state' => $r->customer_state,
+                'review_date' => $r->review_date?->format('Y-m-d'),
+                'rating' => $r->rating,
+                'comment' => $r->comment,
+                'categories' => $r->categories ?? [],
+                'is_verified' => (bool) $r->is_verified,
+                'is_visible' => (bool) $r->is_visible,
+                'business_response' => $r->business_response,
+                'business_response_date' => $r->business_response_date?->format('Y-m-d'),
+            ])->values(),
+            'reviewCategories' => \App\Models\ServicePageReview::CATEGORIES,
+            'imagesStoreUrl' => route('admin.service-pages.images.store', $servicePage),
+            'imagesReorderUrl' => route('admin.service-pages.images.reorder', $servicePage),
+            // Placeholders sustituidos en JS (String.replace) -- mismo truco
+            // que url() con un parámetro de ruta que todavía no se conoce en
+            // el momento de generar la URL (el id de imagen/reseña se sabe
+            // solo hasta que el usuario hace click en un item ya persistido).
+            'imageUpdateUrlTemplate' => route('admin.service-pages.images.update', [$servicePage, '__IMAGE_ID__']),
+            'imageDestroyUrlTemplate' => route('admin.service-pages.images.destroy', [$servicePage, '__IMAGE_ID__']),
+            'reviewsStoreUrl' => route('admin.service-pages.reviews.store', $servicePage),
+            'reviewsReorderUrl' => route('admin.service-pages.reviews.reorder', $servicePage),
+            'reviewUpdateUrlTemplate' => route('admin.service-pages.reviews.update', [$servicePage, '__REVIEW_ID__']),
+            'reviewDestroyUrlTemplate' => route('admin.service-pages.reviews.destroy', [$servicePage, '__REVIEW_ID__']),
         ]) !!};
     </script>
     @vite('resources/js/admin/service-page-live-editor.js')

@@ -8,6 +8,12 @@
         ?: \Illuminate\Support\Str::limit(strip_tags($servicePage->short_description ?? $servicePage->description ?? ''), 160)
         ?: ('Conoce el servicio ' . $servicePage->name . ' de Equiterm Industries.');
     $canonicalUrl = url($servicePage->publicPath());
+    // URL canónica manual (editor en vivo > Información general): para
+    // cuando este servicio es muy parecido a otro y se quiere que Google
+    // indexe ese otro como el "original". Solo afecta el
+    // <link rel="canonical"> -- og:url y el JSON-LD siguen describiendo
+    // este servicio en su propia URL real.
+    $canonicalTagUrl = $servicePage->canonical_url ?: $canonicalUrl;
 
     $ogImage = $servicePage->og_image_url ?: $servicePage->cover_image_url;
     if ($ogImage && !str_starts_with($ogImage, 'http')) {
@@ -17,7 +23,7 @@
 
 @section('title', $metaTitle)
 @section('description', $metaDescription)
-@section('canonical', $canonicalUrl)
+@section('canonical', $canonicalTagUrl)
 @section('og_title', $metaTitle)
 @section('og_description', $metaDescription)
 @section('og_url', $canonicalUrl)

@@ -145,14 +145,25 @@
     }));
 
     let selectedUid = null;
-    let panelMode = 'empty'; // 'empty' | 'block' | 'general'
+    let panelMode = 'empty'; // 'empty' | 'block' | 'general' | 'gallery' | 'reviews'
     let isDirty = false;
     let viewport = 'desktop';
 
     const generalData = Object.assign({
         name: '', slug: '', short_description: '', price: '', currency: 'MXN', show_price: true,
-        seo_title: '', seo_description: '', is_active: false, faqs: [],
+        seo_title: '', seo_description: '', canonical_url: '', is_active: false, faqs: [],
+        // Estadísticas de marketing (ver ServicePageController::fillRatingStats) —
+        // portadas desde la pestaña "Rating y reseñas" del formulario clásico.
+        rating_average_displayed: '', rating_total_rated: '', rating_recommend_percent: '',
+        rating_punctuality_average: '', rating_recurring_clients: '', rating_since_year: '',
+        rating_distribution: {},
     }, DATA.general || {});
+
+    // ── Panel "Reseñas" — lista editable en memoria, sincronizada 1:1 con lo
+    //    persistido tras cada alta/edición/borrado/reorden (a diferencia de
+    //    draftSections, estos cambios NO esperan al botón "Guardar cambios":
+    //    mismo criterio inmediato que la galería y que el formulario clásico). ──
+    const reviewsData = (DATA.reviews || []).map((r) => Object.assign({}, r));
 
     // ── Elementos ────────────────────────────────────────────────────
     const blocksList = document.getElementById('leBlocksList');
@@ -164,26 +175,31 @@
     const saveBtn = document.getElementById('leSaveBtn');
     const viewportToggle = document.getElementById('leViewportToggle');
     const generalInfoBtn = document.getElementById('leGeneralInfoBtn');
+    const galleryBtn = document.getElementById('leGalleryBtn');
+    const reviewsBtn = document.getElementById('leReviewsBtn');
     const pageHeading = document.querySelector('.live-editor-heading-row__left h1');
 
-    // ── Modal de confirmación al eliminar un bloque (reemplaza confirm()) ──
+    // ── Modal de confirmación al eliminar (reemplaza confirm()) — genérico:
+    //    antes solo borraba bloques (draftSections), ahora también lo usan el
+    //    panel Galería (borrar imagen) y el panel Reseñas (borrar reseña), así
+    //    que en vez de acoplarlo a un _uid de sección guarda un callback a
+    //    ejecutar al confirmar. ──
     const deleteModal = document.getElementById('leDeleteModal');
     const deleteModalTitle = document.getElementById('leDeleteModalTitle');
     const deleteModalAvatar = document.getElementById('leDeleteModalAvatar');
     const deleteModalCancel = document.getElementById('leDeleteModalCancel');
     const deleteModalConfirm = document.getElementById('leDeleteModalConfirm');
-    let pendingDeleteUid = null;
+    let pendingDeleteAction = null;
 
-    function openDeleteModal(section) {
-        pendingDeleteUid = section._uid;
-        const label = section.title || TYPE_LABELS[section.type] || section.type;
+    function openDeleteModal(label, onConfirm) {
+        pendingDeleteAction = onConfirm;
         deleteModalTitle.textContent = label;
-        deleteModalAvatar.textContent = label.charAt(0).toUpperCase();
+        deleteModalAvatar.textContent = (label || '?').charAt(0).toUpperCase();
         deleteModal.classList.add('active');
     }
 
     function closeDeleteModal() {
-        pendingDeleteUid = null;
+        pendingDeleteAction = null;
         deleteModal.classList.remove('active');
     }
 
@@ -193,18 +209,9 @@
     });
 
     deleteModalConfirm.addEventListener('click', () => {
-        if (!pendingDeleteUid) return;
-        const uid = pendingDeleteUid;
-        const idx = draftSections.findIndex((s) => s._uid === uid);
-        if (idx !== -1) draftSections.splice(idx, 1);
-        if (selectedUid === uid) {
-            selectedUid = null;
-            renderPanel();
-        }
+        const action = pendingDeleteAction;
         closeDeleteModal();
-        markDirty();
-        renderBlocksList();
-        schedulePreview();
+        if (typeof action === 'function') action();
     });
 
     function escHtml(s) {
@@ -569,7 +576,18 @@
 
             row.querySelector('.live-editor-block-delete').addEventListener('click', (e) => {
                 e.stopPropagation();
-                openDeleteModal(section);
+                const label = section.title || TYPE_LABELS[section.type] || section.type;
+                openDeleteModal(label, () => {
+                    const idx = draftSections.findIndex((s) => s._uid === section._uid);
+                    if (idx !== -1) draftSections.splice(idx, 1);
+                    if (selectedUid === section._uid) {
+                        selectedUid = null;
+                        renderPanel();
+                    }
+                    markDirty();
+                    renderBlocksList();
+                    schedulePreview();
+                });
             });
 
             // ── Drag & drop nativo, mismo patrón que _section_scripts.blade.php
@@ -612,10 +630,19 @@
         });
     }
 
+    // Los 3 botones "generales" (Información general / Galería / Reseñas) se
+    // resaltan como mutuamente excluyentes entre sí y con la lista de bloques
+    // -- de ahí este helper compartido por los 3 select*() de abajo.
+    function clearSidebarSelection() {
+        generalInfoBtn.classList.remove('is-selected');
+        galleryBtn.classList.remove('is-selected');
+        reviewsBtn.classList.remove('is-selected');
+    }
+
     function selectSection(uid) {
         selectedUid = uid;
         panelMode = 'block';
-        generalInfoBtn.classList.remove('is-selected');
+        clearSidebarSelection();
         renderBlocksList();
         renderPanel();
     }
@@ -623,12 +650,33 @@
     function selectGeneral() {
         selectedUid = null;
         panelMode = 'general';
+        clearSidebarSelection();
         generalInfoBtn.classList.add('is-selected');
         renderBlocksList();
         renderPanel();
     }
 
+    function selectGallery() {
+        selectedUid = null;
+        panelMode = 'gallery';
+        clearSidebarSelection();
+        galleryBtn.classList.add('is-selected');
+        renderBlocksList();
+        renderPanel();
+    }
+
+    function selectReviews() {
+        selectedUid = null;
+        panelMode = 'reviews';
+        clearSidebarSelection();
+        reviewsBtn.classList.add('is-selected');
+        renderBlocksList();
+        renderPanel();
+    }
+
     generalInfoBtn.addEventListener('click', selectGeneral);
+    galleryBtn.addEventListener('click', selectGallery);
+    reviewsBtn.addEventListener('click', selectReviews);
 
     addBtn.addEventListener('click', () => {
         const type = addTypeSelect.value;
@@ -720,6 +768,42 @@
             <div class="show-user-divider" style="margin:10px 0;"></div>
             ${field('Título SEO', `<input type="text" class="users-manager-input" id="leGenSeoTitle" value="${escHtml(generalData.seo_title)}" maxlength="160">`)}
             ${field('Descripción SEO', `<textarea class="users-manager-input client-modal-textarea" id="leGenSeoDesc" rows="2" maxlength="500">${escHtml(generalData.seo_description)}</textarea>`)}
+            ${field('', `
+                <label style="display:flex;align-items:center;gap:8px;font-weight:400;font-size:13px;color:#374151;">
+                    <input type="checkbox" id="leGenIsCanonical" ${!generalData.canonical_url ? 'checked' : ''}> Es la URL Canónica de este servicio
+                </label>
+                <p class="hs-config-note" style="margin-top:4px;">Marcado (normal): Google usa la URL de este mismo servicio. Desmárcalo solo si este servicio es muy parecido a otro y quieres que Google indexe ese otro en su lugar.</p>
+            `)}
+            <div id="leGenCanonicalUrlWrap" style="${!generalData.canonical_url ? 'display:none;' : ''}">
+                ${field('URL Canónica', `<input type="url" class="users-manager-input" id="leGenCanonicalUrl" value="${escHtml(generalData.canonical_url)}" maxlength="255" placeholder="https://equitermindustries.com.mx/servicio/otro-servicio-similar">`)}
+            </div>
+            <div class="show-user-divider" style="margin:10px 0;"></div>
+            <div class="live-editor-field">
+                <label>Rating y reseñas — Promedio mostrado</label>
+                <p class="hs-config-note" style="margin:0 0 8px;">Contenido curado por el equipo, igual que la FAQ. Estas cifras son de marketing (no tienen por qué coincidir con el número de reseñas capturadas en el panel "Reseñas") y nunca alimentan el marcado SEO — el marcado usa siempre el conteo real.</p>
+            </div>
+            <div class="live-editor-field-row">
+                ${field('Promedio mostrado (0–5)', `<input type="number" step="0.1" min="0" max="5" class="users-manager-input" id="leGenRatingAvg" value="${escHtml(generalData.rating_average_displayed)}">`)}
+                ${field('Total de servicios calificados', `<input type="number" min="0" class="users-manager-input" id="leGenRatingTotal" value="${escHtml(generalData.rating_total_rated)}">`)}
+            </div>
+            <div class="live-editor-field-row">
+                ${field('% que recomendaría el servicio', `<input type="number" step="0.1" min="0" max="100" class="users-manager-input" id="leGenRatingRecommend" value="${escHtml(generalData.rating_recommend_percent)}">`)}
+                ${field('Puntualidad de cuadrilla (0–5)', `<input type="number" step="0.1" min="0" max="5" class="users-manager-input" id="leGenRatingPunctuality" value="${escHtml(generalData.rating_punctuality_average)}">`)}
+            </div>
+            <div class="live-editor-field-row">
+                ${field('Clientes recurrentes', `<input type="number" min="0" class="users-manager-input" id="leGenRatingRecurring" value="${escHtml(generalData.rating_recurring_clients)}">`)}
+                ${field('Calificando desde (año, opcional)', `<input type="number" min="2000" max="2100" class="users-manager-input" id="leGenRatingSince" value="${escHtml(generalData.rating_since_year)}">`)}
+            </div>
+            ${field('Distribución por estrella', `
+                <div class="live-editor-field-row" style="grid-template-columns:repeat(5,1fr);">
+                    ${[5, 4, 3, 2, 1].map((star) => `
+                        <div>
+                            <label style="font-size:11px;color:#6b7280;display:block;margin-bottom:2px;">${star} ★</label>
+                            <input type="number" min="0" class="users-manager-input le-gen-rating-dist" data-star="${star}" value="${escHtml((generalData.rating_distribution || {})[star] ?? (generalData.rating_distribution || {})[String(star)] ?? '')}">
+                        </div>
+                    `).join('')}
+                </div>
+            `)}
             <div class="show-user-divider" style="margin:10px 0;"></div>
             <div class="live-editor-field">
                 <label>Preguntas frecuentes</label>
@@ -746,6 +830,12 @@
             const nameInput = editPanel.querySelector('#leGenName');
             editPanel.querySelector('#leGenSlug').value = slugify(nameInput.value);
             markDirty();
+        });
+
+        const isCanonicalCheckbox = editPanel.querySelector('#leGenIsCanonical');
+        const canonicalUrlWrap = editPanel.querySelector('#leGenCanonicalUrlWrap');
+        isCanonicalCheckbox.addEventListener('change', () => {
+            canonicalUrlWrap.style.display = isCanonicalCheckbox.checked ? 'none' : '';
         });
 
         const pageTypeSelect = editPanel.querySelector('#leGenPageType');
@@ -813,7 +903,24 @@
             is_active: editPanel.querySelector('#leGenIsActive').checked,
             seo_title: editPanel.querySelector('#leGenSeoTitle').value,
             seo_description: editPanel.querySelector('#leGenSeoDesc').value,
+            is_canonical: editPanel.querySelector('#leGenIsCanonical').checked,
+            canonical_url: editPanel.querySelector('#leGenCanonicalUrl').value,
             faq_items: generalData.faqs || [],
+            // Estadísticas de marketing — ver ServicePageController::fillRatingStats().
+            // NO se marca isDirty/markDirty() por estos campos, mismo criterio
+            // que el resto de "Información general": este panel tiene su
+            // propio botón "Guardar información general", independiente del
+            // indicador de cambios sin guardar de los bloques.
+            rating_average_displayed: editPanel.querySelector('#leGenRatingAvg').value,
+            rating_total_rated: editPanel.querySelector('#leGenRatingTotal').value,
+            rating_recommend_percent: editPanel.querySelector('#leGenRatingRecommend').value,
+            rating_punctuality_average: editPanel.querySelector('#leGenRatingPunctuality').value,
+            rating_recurring_clients: editPanel.querySelector('#leGenRatingRecurring').value,
+            rating_since_year: editPanel.querySelector('#leGenRatingSince').value,
+            rating_distribution: Array.from(editPanel.querySelectorAll('.le-gen-rating-dist')).reduce((acc, el) => {
+                acc[el.dataset.star] = el.value;
+                return acc;
+            }, {}),
         };
 
         btn.disabled = true;
@@ -847,7 +954,14 @@
                 const errors = data.errors || {};
                 errorsBox.innerHTML = Object.values(errors).flat().map((m) => `<p>${m}</p>`).join('');
                 errorsBox.style.display = 'block';
-                const fieldMap = { name: 'leGenName', slug: 'leGenSlug', page_type: 'leGenPageType', parent_id: 'leGenParentId', short_description: 'leGenShortDesc', price: 'leGenPrice', currency: 'leGenCurrency', seo_title: 'leGenSeoTitle', seo_description: 'leGenSeoDesc' };
+                const fieldMap = {
+                    name: 'leGenName', slug: 'leGenSlug', page_type: 'leGenPageType', parent_id: 'leGenParentId',
+                    short_description: 'leGenShortDesc', price: 'leGenPrice', currency: 'leGenCurrency',
+                    seo_title: 'leGenSeoTitle', seo_description: 'leGenSeoDesc', canonical_url: 'leGenCanonicalUrl',
+                    rating_average_displayed: 'leGenRatingAvg', rating_total_rated: 'leGenRatingTotal',
+                    rating_recommend_percent: 'leGenRatingRecommend', rating_punctuality_average: 'leGenRatingPunctuality',
+                    rating_recurring_clients: 'leGenRatingRecurring', rating_since_year: 'leGenRatingSince',
+                };
                 Object.keys(errors).forEach((f) => {
                     const el = editPanel.querySelector('#' + (fieldMap[f] || ''));
                     if (el) el.classList.add('is-invalid');
@@ -864,9 +978,483 @@
         }
     }
 
+    // ── Panel "Galería" — puerto de partials/_gallery.blade.php +
+    //    _gallery_scripts.blade.php. A diferencia de la galería clásica (que
+    //    hace un <form multipart>), aquí "subir" una imagen reusa el picker
+    //    de media compartido (window.openImagePicker, resources/js/admin/
+    //    image-picker.js, ya cargado globalmente por admin.layouts.master) —
+    //    storeImage() nunca recibió un archivo directo, solo {image_url,
+    //    alt_text}, así que ESE es el contrato real a imitar, no un upload
+    //    multipart nuevo. Cada alta/borrado/reorden muta DATA.images in-place
+    //    (mismo array ya leído por imagesOptionsHtml() en rich_header/
+    //    content_tabs/cta_final/gallery_carousel) para que esos otros
+    //    pickers vean el cambio la próxima vez que se rendericen, sin reload. ──
+    let galleryDragSrcId = null;
+
+    function renderGalleryPanel() {
+        editPanel.innerHTML = `
+            <div class="live-editor-panel-header">
+                <span class="live-editor-panel-header-info">
+                    <span class="live-editor-block-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+                    </span>
+                    <span>
+                        <strong>Galería del servicio</strong>
+                        <small>La primera imagen se usa como portada. Arrastra para reordenar.</small>
+                    </span>
+                </span>
+            </div>
+            <div id="leGalleryGrid" class="service-gallery-grid"></div>
+        `;
+        renderGalleryGrid();
+    }
+
+    function renderGalleryGrid() {
+        const grid = editPanel.querySelector('#leGalleryGrid');
+        if (!grid) return;
+        grid.innerHTML = '';
+
+        (DATA.images || []).forEach((img, i) => {
+            const item = document.createElement('div');
+            item.className = 'service-gallery-item';
+            item.dataset.id = img.id;
+            item.draggable = true;
+            item.innerHTML = `
+                <div class="service-gallery-item__drag" title="Arrastrar para reordenar">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="5" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="9" cy="19" r="1"/><circle cx="15" cy="5" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="19" r="1"/></svg>
+                </div>
+                ${i === 0 ? '<span class="service-gallery-item__badge">PORTADA</span>' : ''}
+                <button type="button" class="service-gallery-item__remove" title="Quitar">&times;</button>
+                <img src="${img.url}" alt="${escHtml(img.alt_text || '')}">
+                <input type="text" class="users-manager-input service-gallery-item__alt" placeholder="Texto alternativo" value="${escHtml(img.alt_text || '')}">
+            `;
+
+            item.querySelector('.service-gallery-item__remove').addEventListener('click', () => {
+                openDeleteModal(img.alt_text || ('Imagen #' + img.id), () => deleteGalleryImage(img.id));
+            });
+
+            let altDebounce = null;
+            item.querySelector('.service-gallery-item__alt').addEventListener('input', (e) => {
+                img.alt_text = e.target.value;
+                clearTimeout(altDebounce);
+                altDebounce = setTimeout(() => updateGalleryImageAlt(img.id, img.alt_text), 500);
+            });
+
+            // Drag & drop nativo — mismo patrón que renderBlocksList() (lista
+            // de bloques) y que la galería clásica original.
+            item.addEventListener('dragstart', () => {
+                galleryDragSrcId = img.id;
+                item.classList.add('is-dragging');
+            });
+            item.addEventListener('dragend', () => {
+                item.classList.remove('is-dragging');
+            });
+            item.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                if (galleryDragSrcId === null || galleryDragSrcId === img.id) return;
+                item.classList.add('drag-over');
+            });
+            item.addEventListener('dragleave', () => {
+                item.classList.remove('drag-over');
+            });
+            item.addEventListener('drop', (e) => {
+                e.preventDefault();
+                item.classList.remove('drag-over');
+                if (galleryDragSrcId === null || galleryDragSrcId === img.id) return;
+
+                const srcIdx = DATA.images.findIndex((im) => String(im.id) === String(galleryDragSrcId));
+                const targetIdx = DATA.images.findIndex((im) => String(im.id) === String(img.id));
+                galleryDragSrcId = null;
+                if (srcIdx === -1 || targetIdx === -1) return;
+
+                const [moved] = DATA.images.splice(srcIdx, 1);
+                DATA.images.splice(targetIdx, 0, moved);
+
+                renderGalleryGrid();
+                persistGalleryOrder();
+            });
+
+            grid.appendChild(item);
+        });
+
+        const addTile = document.createElement('div');
+        addTile.className = 'service-gallery-item service-gallery-item--add';
+        addTile.id = 'leGalleryAddTile';
+        addTile.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+            <span>Arrastra o selecciona</span>
+        `;
+        addTile.addEventListener('click', () => {
+            if (typeof window.openImagePicker !== 'function') return;
+            window.openImagePicker(null, { onSelect: addGalleryImage });
+        });
+        grid.appendChild(addTile);
+    }
+
+    async function addGalleryImage(url) {
+        try {
+            const res = await fetch(DATA.imagesStoreUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
+                body: JSON.stringify({ image_url: url, alt_text: '' }),
+            });
+            const data = await res.json();
+            if (res.ok) {
+                DATA.images.push({ id: data.image.id, url: data.image.url, alt_text: data.image.alt_text });
+                renderGalleryGrid();
+                if (window.showCenterToast) showCenterToast('Imagen agregada.');
+                schedulePreview();
+            } else if (window.showCenterToast) {
+                showCenterToast('No se pudo agregar la imagen.', 'error');
+            }
+        } catch (err) {
+            if (window.showCenterToast) showCenterToast('Error de conexión al agregar la imagen.', 'error');
+        }
+    }
+
+    async function deleteGalleryImage(id) {
+        try {
+            const res = await fetch(DATA.imageDestroyUrlTemplate.replace('__IMAGE_ID__', id), {
+                method: 'DELETE',
+                headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
+            });
+            if (res.ok) {
+                const idx = DATA.images.findIndex((im) => String(im.id) === String(id));
+                if (idx !== -1) DATA.images.splice(idx, 1);
+                renderGalleryGrid();
+                if (window.showCenterToast) showCenterToast('Imagen eliminada.');
+                schedulePreview();
+            } else if (window.showCenterToast) {
+                showCenterToast('No se pudo eliminar la imagen.', 'error');
+            }
+        } catch (err) {
+            if (window.showCenterToast) showCenterToast('Error de conexión al eliminar la imagen.', 'error');
+        }
+    }
+
+    async function updateGalleryImageAlt(id, altText) {
+        try {
+            await fetch(DATA.imageUpdateUrlTemplate.replace('__IMAGE_ID__', id), {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
+                body: JSON.stringify({ alt_text: altText }),
+            });
+        } catch (err) {
+            // Silencioso, igual que la galería clásica -- no bloquea la edición.
+        }
+    }
+
+    async function persistGalleryOrder() {
+        const order = DATA.images.map((img) => img.id);
+        try {
+            const res = await fetch(DATA.imagesReorderUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
+                body: JSON.stringify({ order }),
+            });
+            if (res.ok) {
+                if (window.showCenterToast) showCenterToast('Orden de galería actualizado.');
+                schedulePreview();
+            } else if (window.showCenterToast) {
+                showCenterToast('No se pudo guardar el nuevo orden de la galería.', 'error');
+            }
+        } catch (err) {
+            if (window.showCenterToast) showCenterToast('Error de conexión al reordenar la galería.', 'error');
+        }
+    }
+
+    // ── Panel "Reseñas" — puerto de partials/_reviews.blade.php +
+    //    _review_modal.blade.php + _reviews_scripts.blade.php. El alta/edición
+    //    se hace en un formulario inline (no modal aparte) que se abre/cierra
+    //    dentro del mismo panel -- mismo criterio de "un solo panel central"
+    //    que el resto del editor en vivo. Campos exactos = columnas reales de
+    //    ServicePageReview (ver app/Models/ServicePageReview.php), no los
+    //    inventados: customer_name/role/company/city/state, review_date,
+    //    rating, comment, categories[], is_verified, is_visible,
+    //    business_response, business_response_date. ──
+    let reviewDragSrcId = null;
+
+    function renderReviewsPanel() {
+        const visibleCount = reviewsData.filter((r) => r.is_visible).length;
+        editPanel.innerHTML = `
+            <div class="live-editor-panel-header">
+                <span class="live-editor-panel-header-info">
+                    <span class="live-editor-block-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                    </span>
+                    <span>
+                        <strong>Reseñas capturadas</strong>
+                        <small>${visibleCount} visibles de ${reviewsData.length}</small>
+                    </span>
+                </span>
+            </div>
+            <div id="leReviewsList" class="hs-repeat-rows"></div>
+            <button type="button" id="leReviewAddBtn" class="live-editor-btn live-editor-btn--outline live-editor-btn--block" style="margin-top:10px;">+ Agregar reseña</button>
+            <div id="leReviewFormWrap"></div>
+        `;
+        renderReviewsList();
+        editPanel.querySelector('#leReviewAddBtn').addEventListener('click', () => openReviewForm(null));
+    }
+
+    function renderReviewsList() {
+        const list = editPanel.querySelector('#leReviewsList');
+        if (!list) return;
+        list.innerHTML = '';
+
+        if (!reviewsData.length) {
+            list.innerHTML = '<p class="hs-config-note">Todavía no hay reseñas capturadas para este servicio.</p>';
+            return;
+        }
+
+        reviewsData.forEach((review) => {
+            const row = document.createElement('div');
+            row.className = 'service-review-row';
+            row.draggable = true;
+            row.dataset.id = review.id;
+            const comment = review.comment || '';
+            row.innerHTML = `
+                <div class="service-review-row__drag" title="Arrastrar para reordenar">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="5" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="9" cy="19" r="1"/><circle cx="15" cy="5" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="19" r="1"/></svg>
+                </div>
+                <div class="service-review-row__body">
+                    <div class="service-review-row__head">
+                        <strong>${escHtml(review.customer_name)}</strong>
+                        <span class="service-review-row__stars">${'★'.repeat(review.rating || 0)}${'☆'.repeat(5 - (review.rating || 0))}</span>
+                        ${review.is_verified ? '<span class="users-manager-badge status" style="font-size:10px;">Verificado</span>' : ''}
+                        <span class="users-manager-badge ${review.is_visible ? 'status' : 'status-inactive'}" style="font-size:10px;">${review.is_visible ? 'Visible' : 'Oculta'}</span>
+                    </div>
+                    <p class="service-review-row__comment">${escHtml(comment.length > 140 ? comment.slice(0, 140) + '…' : comment)}</p>
+                </div>
+                <div class="header-right-user-manager">
+                    <button type="button" class="table-users-manager-action-btn edit" title="Editar">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg>
+                    </button>
+                    <button type="button" class="table-users-manager-action-btn delete" title="Eliminar">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
+                    </button>
+                </div>
+            `;
+
+            row.querySelector('.edit').addEventListener('click', () => openReviewForm(review));
+            row.querySelector('.delete').addEventListener('click', () => {
+                openDeleteModal(review.customer_name || 'Reseña', () => deleteReview(review.id));
+            });
+
+            row.addEventListener('dragstart', () => { reviewDragSrcId = review.id; row.classList.add('is-dragging'); });
+            row.addEventListener('dragend', () => row.classList.remove('is-dragging'));
+            row.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                if (reviewDragSrcId === null || reviewDragSrcId === review.id) return;
+                row.classList.add('drag-over');
+            });
+            row.addEventListener('dragleave', () => row.classList.remove('drag-over'));
+            row.addEventListener('drop', (e) => {
+                e.preventDefault();
+                row.classList.remove('drag-over');
+                if (reviewDragSrcId === null || reviewDragSrcId === review.id) return;
+
+                const srcIdx = reviewsData.findIndex((r) => String(r.id) === String(reviewDragSrcId));
+                const targetIdx = reviewsData.findIndex((r) => String(r.id) === String(review.id));
+                reviewDragSrcId = null;
+                if (srcIdx === -1 || targetIdx === -1) return;
+
+                const [moved] = reviewsData.splice(srcIdx, 1);
+                reviewsData.splice(targetIdx, 0, moved);
+
+                renderReviewsList();
+                persistReviewsOrder();
+            });
+
+            list.appendChild(row);
+        });
+    }
+
+    function openReviewForm(review) {
+        const isEdit = !!review;
+        const wrap = editPanel.querySelector('#leReviewFormWrap');
+        if (!wrap) return;
+        const draft = isEdit ? Object.assign({}, review) : {
+            customer_name: '', customer_role: '', customer_company: '', customer_city: '', customer_state: '',
+            review_date: '', rating: 5, comment: '', categories: [], is_verified: false, is_visible: true,
+            business_response: '', business_response_date: '',
+        };
+
+        wrap.innerHTML = `
+            <div class="show-user-divider" style="margin:14px 0 10px;"></div>
+            <p class="live-editor-col-title">${isEdit ? 'Editar reseña' : 'Nueva reseña'}</p>
+            ${field('Cliente', `<input type="text" class="users-manager-input" id="leRevName" value="${escHtml(draft.customer_name)}">`)}
+            <div class="live-editor-field-row">
+                ${field('Puesto (opcional)', `<input type="text" class="users-manager-input" id="leRevRole" value="${escHtml(draft.customer_role)}" placeholder="Jefe de mantenimiento">`)}
+                ${field('Empresa (opcional)', `<input type="text" class="users-manager-input" id="leRevCompany" value="${escHtml(draft.customer_company)}">`)}
+            </div>
+            <div class="live-editor-field-row">
+                ${field('Ciudad (opcional)', `<input type="text" class="users-manager-input" id="leRevCity" value="${escHtml(draft.customer_city)}">`)}
+                ${field('Estado (opcional)', `<input type="text" class="users-manager-input" id="leRevState" value="${escHtml(draft.customer_state)}" placeholder="JAL">`)}
+            </div>
+            ${field('Fecha', `<input type="date" class="users-manager-input" id="leRevDate" value="${escHtml(draft.review_date)}">`)}
+            ${field('Calificación', `<div class="service-review-stars-input" id="leRevStars"></div><input type="hidden" id="leRevRating" value="${draft.rating || 5}">`)}
+            <div class="live-editor-field">
+                <label>Comentario &middot; <span id="leRevCommentCount">${(draft.comment || '').length}</span>/240</label>
+                <textarea class="users-manager-input client-modal-textarea" id="leRevComment" rows="3" maxlength="240">${escHtml(draft.comment)}</textarea>
+            </div>
+            ${field('Categorías', `
+                <div class="hs-product-chips" style="flex-wrap:wrap;">
+                    ${Object.entries(DATA.reviewCategories || {}).map(([key, label]) => `
+                        <label style="display:inline-flex;align-items:center;gap:4px;border:1px solid #d1d5db;border-radius:999px;padding:4px 10px;font-size:12.5px;cursor:pointer;font-weight:400;">
+                            <input type="checkbox" class="le-rev-category" value="${escHtml(key)}" ${(draft.categories || []).includes(key) ? 'checked' : ''}> ${escHtml(label)}
+                        </label>
+                    `).join('')}
+                </div>
+            `)}
+            <div class="live-editor-field-row">
+                ${field('', `<label style="display:flex;align-items:center;gap:8px;font-weight:400;font-size:13px;color:#374151;"><input type="checkbox" id="leRevVerified" ${draft.is_verified ? 'checked' : ''}> Cliente verificado</label>`)}
+                ${field('', `<label style="display:flex;align-items:center;gap:8px;font-weight:400;font-size:13px;color:#374151;"><input type="checkbox" id="leRevVisible" ${draft.is_visible ? 'checked' : ''}> Visible en público</label>`)}
+            </div>
+            ${field('Respuesta de Equiterm (opcional)', `<textarea class="users-manager-input client-modal-textarea" id="leRevResponse" rows="2">${escHtml(draft.business_response)}</textarea>`)}
+            ${field('Fecha de respuesta (opcional)', `<input type="date" class="users-manager-input" id="leRevResponseDate" value="${escHtml(draft.business_response_date)}">`)}
+            <div id="leRevErrors" class="user-manager-errors" style="display:none;margin-bottom:10px;"></div>
+            <div style="display:flex;gap:8px;">
+                <button type="button" id="leRevCancel" class="live-editor-btn live-editor-btn--outline" style="flex:1;">Cancelar</button>
+                <button type="button" id="leRevSave" class="live-editor-btn live-editor-btn--solid" style="flex:1;">${isEdit ? 'Guardar cambios' : 'Crear reseña'}</button>
+            </div>
+        `;
+
+        const starsWrap = wrap.querySelector('#leRevStars');
+        function setStars(v) {
+            wrap.querySelector('#leRevRating').value = v;
+            starsWrap.innerHTML = '';
+            for (let i = 1; i <= 5; i++) {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'service-review-star' + (i <= v ? ' is-active' : '');
+                btn.textContent = '★';
+                btn.addEventListener('click', () => setStars(i));
+                starsWrap.appendChild(btn);
+            }
+        }
+        setStars(draft.rating || 5);
+
+        wrap.querySelector('#leRevComment').addEventListener('input', function () {
+            wrap.querySelector('#leRevCommentCount').textContent = this.value.length;
+        });
+
+        wrap.querySelector('#leRevCancel').addEventListener('click', () => { wrap.innerHTML = ''; });
+        wrap.querySelector('#leRevSave').addEventListener('click', () => saveReview(isEdit ? review.id : null, wrap));
+
+        wrap.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    async function saveReview(id, wrap) {
+        const errorsBox = wrap.querySelector('#leRevErrors');
+        errorsBox.style.display = 'none';
+        errorsBox.innerHTML = '';
+
+        const payload = {
+            customer_name: wrap.querySelector('#leRevName').value,
+            customer_role: wrap.querySelector('#leRevRole').value || null,
+            customer_company: wrap.querySelector('#leRevCompany').value || null,
+            customer_city: wrap.querySelector('#leRevCity').value || null,
+            customer_state: wrap.querySelector('#leRevState').value || null,
+            review_date: wrap.querySelector('#leRevDate').value || null,
+            rating: parseInt(wrap.querySelector('#leRevRating').value, 10) || 5,
+            comment: wrap.querySelector('#leRevComment').value,
+            categories: Array.from(wrap.querySelectorAll('.le-rev-category:checked')).map((cb) => cb.value),
+            is_verified: wrap.querySelector('#leRevVerified').checked,
+            is_visible: wrap.querySelector('#leRevVisible').checked,
+            business_response: wrap.querySelector('#leRevResponse').value || null,
+            business_response_date: wrap.querySelector('#leRevResponseDate').value || null,
+        };
+
+        const saveBtn = wrap.querySelector('#leRevSave');
+        saveBtn.disabled = true;
+        const originalText = saveBtn.textContent;
+        saveBtn.textContent = 'Guardando...';
+
+        try {
+            const url = id ? DATA.reviewUpdateUrlTemplate.replace('__REVIEW_ID__', id) : DATA.reviewsStoreUrl;
+            const res = await fetch(url, {
+                method: id ? 'PUT' : 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
+                body: JSON.stringify(payload),
+            });
+            const data = await res.json();
+
+            if (res.ok) {
+                if (id) {
+                    const idx = reviewsData.findIndex((r) => String(r.id) === String(id));
+                    if (idx !== -1) reviewsData[idx] = Object.assign({}, reviewsData[idx], data.review);
+                } else {
+                    reviewsData.push(data.review);
+                }
+                renderReviewsPanel();
+                if (window.showCenterToast) showCenterToast(id ? 'Reseña actualizada.' : 'Reseña creada.');
+                schedulePreview();
+            } else if (res.status === 422) {
+                const errors = data.errors || {};
+                errorsBox.innerHTML = Object.values(errors).flat().map((m) => `<p>${m}</p>`).join('');
+                errorsBox.style.display = 'block';
+                saveBtn.disabled = false;
+                saveBtn.textContent = originalText;
+            } else {
+                throw new Error('save-review-failed');
+            }
+        } catch (err) {
+            errorsBox.innerHTML = '<p>No se pudo guardar. Intenta de nuevo.</p>';
+            errorsBox.style.display = 'block';
+            saveBtn.disabled = false;
+            saveBtn.textContent = originalText;
+        }
+    }
+
+    async function deleteReview(id) {
+        try {
+            const res = await fetch(DATA.reviewDestroyUrlTemplate.replace('__REVIEW_ID__', id), {
+                method: 'DELETE',
+                headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
+            });
+            if (res.ok) {
+                const idx = reviewsData.findIndex((r) => String(r.id) === String(id));
+                if (idx !== -1) reviewsData.splice(idx, 1);
+                renderReviewsPanel();
+                if (window.showCenterToast) showCenterToast('Reseña eliminada.');
+                schedulePreview();
+            } else if (window.showCenterToast) {
+                showCenterToast('No se pudo eliminar la reseña.', 'error');
+            }
+        } catch (err) {
+            if (window.showCenterToast) showCenterToast('Error de conexión al eliminar la reseña.', 'error');
+        }
+    }
+
+    async function persistReviewsOrder() {
+        const order = reviewsData.map((r) => r.id);
+        try {
+            const res = await fetch(DATA.reviewsReorderUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
+                body: JSON.stringify({ order }),
+            });
+            if (res.ok) {
+                if (window.showCenterToast) showCenterToast('Orden de reseñas actualizado.');
+            } else if (window.showCenterToast) {
+                showCenterToast('No se pudo guardar el nuevo orden.', 'error');
+            }
+        } catch (err) {
+            if (window.showCenterToast) showCenterToast('Error de conexión al guardar el orden.', 'error');
+        }
+    }
+
     function renderPanel() {
         if (panelMode === 'general') {
             renderGeneralPanel();
+            return;
+        }
+        if (panelMode === 'gallery') {
+            renderGalleryPanel();
+            return;
+        }
+        if (panelMode === 'reviews') {
+            renderReviewsPanel();
             return;
         }
 
