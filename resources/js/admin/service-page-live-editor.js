@@ -796,6 +796,14 @@ import Sortable from 'sortablejs';
             blocksSortable = new Sortable(blocksList, {
                 animation: 150,
                 handle: '.live-editor-block-drag-handle',
+                // forceFallback: SortableJS por defecto todavía delega en la
+                // API nativa de Drag and Drop del navegador (solo activa
+                // draggable=true dinámicamente al hacer mousedown en el
+                // handle) — exactamente la API cuya sesión se podía quedar
+                // "colgada" cerca del <iframe> de preview. Con esto, usa su
+                // propio manejo por eventos de mouse/touch de principio a
+                // fin, sin tocar la API nativa en ningún momento.
+                forceFallback: true,
                 ghostClass: 'live-editor-block-row--ghost',
                 dragClass: 'live-editor-block-row--dragging',
                 onEnd(evt) {
@@ -1261,6 +1269,7 @@ import Sortable from 'sortablejs';
             animation: 150,
             handle: '.service-gallery-item__drag',
             filter: '.service-gallery-item--add',
+            forceFallback: true, // ver la nota en renderBlocksList()
             ghostClass: 'service-gallery-item--ghost',
             dragClass: 'service-gallery-item--dragging',
             onEnd(evt) {
@@ -1429,6 +1438,7 @@ import Sortable from 'sortablejs';
         new Sortable(list, {
             animation: 150,
             handle: '.service-review-row__drag',
+            forceFallback: true, // ver la nota en renderBlocksList()
             ghostClass: 'service-review-row--ghost',
             dragClass: 'service-review-row--dragging',
             onEnd(evt) {
