@@ -130,6 +130,7 @@ class Products extends Model
         'og_description',
         'og_image',
         'canonical_url',
+        'canonical_product_id',
         // FIX BUG 9: currency + stock_unit columns added via
         // 2026_07_13_201018_add_currency_and_stock_unit_to_products_table.
         'currency',
@@ -247,6 +248,15 @@ class Products extends Model
     public function brand()
     {
         return $this->belongsTo(Brand::class, 'brand_id');
+    }
+
+    // Producto elegido como destino canónico (selector con búsqueda) — si es
+    // null, el producto o bien es su propio canónico (canonical_url también
+    // null) o bien usa una "URL personalizada" de texto libre no emparejada
+    // con ningún producto real del catálogo.
+    public function canonicalProduct()
+    {
+        return $this->belongsTo(Products::class, 'canonical_product_id');
     }
 
     public function getCoverImageUrlAttribute(?string $value): ?string

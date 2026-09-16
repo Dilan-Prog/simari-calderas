@@ -31,7 +31,7 @@
     "isEntry": true
   },
   "resources/css/admin/app.css": {
-    "file": "assets/app-TNXPXu9z.css",
+    "file": "assets/app-DwYNe6Yg.css",
     "src": "resources/css/admin/app.css",
     "isEntry": true
   },
@@ -264,6 +264,12 @@
     "file": "assets/admin-quotes-D102Nu4-.js",
     "name": "admin-quotes",
     "src": "resources/js/admin-quotes.js",
+    "isEntry": true
+  },
+  "resources/js/admin/canonical-picker.js": {
+    "file": "assets/canonical-picker-DS7R4_eN.js",
+    "name": "canonical-picker",
+    "src": "resources/js/admin/canonical-picker.js",
     "isEntry": true
   },
   "resources/js/admin/charts.js": {

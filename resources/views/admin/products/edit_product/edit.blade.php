@@ -1114,28 +1114,12 @@
                             </div>
                         </div>
 
-                        <div class="pform-field">
-                            <label style="display:flex;align-items:center;gap:8px;font-size:14px;font-weight:500;color:#374151;cursor:pointer">
-                                <input type="checkbox" id="pformIsCanonical" name="is_canonical" value="1" style="width:auto"
-                                    {{ old('is_canonical', $product->canonical_url ? '0' : '1') == '1' ? 'checked' : '' }}
-                                    form="productEditForm">
-                                Es la URL Canónica de este producto
-                            </label>
-                            <p class="pform-hint">Marcado (normal): Google usa la URL de este mismo producto.
-                                Desmárcalo solo si este producto es muy parecido a otro que ya existe y quieres que
-                                Google indexe ese otro producto en su lugar.</p>
-                        </div>
-
-                        <div class="pform-field" id="pformCanonicalUrlWrap" style="{{ $product->canonical_url ? '' : 'display:none' }}">
-                            <label class="pform-label" for="pformCanonicalUrl">URL Canónica</label>
-                            <input type="url" id="pformCanonicalUrl" name="canonical_url" class="pform-input @error('canonical_url') pform-field-error @enderror"
-                                maxlength="255" placeholder="https://equitermindustries.com.mx/producto/otro-producto-similar"
-                                value="{{ old('canonical_url', $product->canonical_url ?? '') }}" form="productEditForm">
-                            @error('canonical_url')
-                                <p class="pform-error-msg">{{ $message }}</p>
-                            @enderror
-                            <p class="pform-hint">A qué producto debe apuntar la señal de Google.</p>
-                        </div>
+                        @include('admin.products.partials._canonical_picker', [
+                            'formId' => 'productEditForm',
+                            'excludeId' => $product->id,
+                            'canonicalProduct' => $product->canonicalProduct,
+                            'canonicalUrl' => $product->canonical_url,
+                        ])
 
                         <div class="pform-field">
                             <label class="pform-label" for="pformSeoSlug">URL Slug</label>

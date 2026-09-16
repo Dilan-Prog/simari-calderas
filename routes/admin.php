@@ -187,6 +187,7 @@ Route::controller(ProductController::class)
         Route::get('/productos/imagenes/biblioteca', 'mediaLibrary')->name('products.images.library');
         Route::get('/productos/etiquetas/buscar', 'tagSuggestions')->name('products.tags.suggestions');
         Route::get('/productos/especificaciones/buscar', 'specNameSuggestions')->name('products.specs.suggestions');
+        Route::get('/productos/canonica/buscar', 'searchForCanonical')->name('products.canonical.search');
         Route::post('/productos/bulk', 'bulkUpdate')->name('products.bulk')->middleware('permission:products,edit');
         Route::get('/productos/edicion-masiva', 'bulkEditIndex')->name('products.bulk-edit');
         Route::post('/productos/edicion-masiva/guardar', 'bulkEditSave')->name('products.bulk.save')->middleware('permission:products,edit');

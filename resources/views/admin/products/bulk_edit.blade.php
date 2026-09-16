@@ -49,8 +49,7 @@
             ['key' => 'og_title', 'label' => 'Título Social', 'group' => 'SEO / Social', 'type' => 'text', 'maxlength' => 255],
             ['key' => 'og_description', 'label' => 'Descripción Social', 'group' => 'SEO / Social', 'type' => 'textarea'],
             ['key' => 'og_image', 'label' => 'Imagen Social (URL)', 'group' => 'SEO / Social', 'type' => 'text', 'maxlength' => 255],
-            ['key' => 'is_canonical', 'label' => '¿Es la URL Canónica?', 'group' => 'SEO / Social', 'type' => 'checkbox'],
-            ['key' => 'canonical_url', 'label' => 'URL Canónica (si "¿Es la URL Canónica?" está desmarcado)', 'group' => 'SEO / Social', 'type' => 'text', 'maxlength' => 255],
+            ['key' => 'canonical', 'label' => 'URL Canónica', 'group' => 'SEO / Social', 'type' => 'canonical-picker'],
             ['key' => 'faqs', 'label' => 'FAQ', 'group' => 'SEO / Social', 'type' => 'faq'],
         ];
         // Columnas visibles por defecto la primera vez (antes de que exista
@@ -368,6 +367,20 @@
                                                     FAQ ({{ $faqCount }})
                                                 </button>
                                             @break
+
+                                            @case('canonical-picker')
+                                                @php
+                                                    $canonicalSummary = $product->canonical_product_id
+                                                        ? ($product->canonicalProduct?->name ?? 'Producto #' . $product->canonical_product_id)
+                                                        : ($product->canonical_url ? 'URL personalizada' : 'Es canónica');
+                                                @endphp
+                                                <button type="button" class="prod-bulk-popover-trigger" data-id="{{ $product->id }}" data-field="canonical"
+                                                    data-canonical-product-id="{{ $product->canonical_product_id }}"
+                                                    data-canonical-product="{{ $product->canonicalProduct ? json_encode(['id' => $product->canonicalProduct->id, 'name' => $product->canonicalProduct->name, 'sku' => $product->canonicalProduct->sku, 'model' => $product->canonicalProduct->model, 'slug' => $product->canonicalProduct->slug]) : 'null' }}"
+                                                    data-canonical-url="{{ $product->canonical_url }}">
+                                                    {{ $canonicalSummary }}
+                                                </button>
+                                            @break
                                         @endswitch
                                     </td>
                                 @endforeach
@@ -466,6 +479,44 @@
             <div class="del-confirm-actions">
                 <button type="button" class="button-secondary size-adjustment" id="bulkTagsCancelBtn">Cancelar</button>
                 <button type="button" class="button-primary size-adjustment" id="bulkTagsSaveBtn">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    {{-- Popover de "Producto/URL Canónica" — buscador en vivo (mismo motor
+         de resources/js/admin/canonical-picker.js usado en Crear/Editar
+         producto, aquí en modo "solo buscador" vía mountSearchOnly()) +
+         alternativa de URL personalizada manual, adaptado al patrón de
+         popover reutilizable de esta pantalla (una sola instancia para
+         cualquier fila). --}}
+    <div id="bulkCanonicalModal" class="del-confirm-overlay">
+        <div class="del-confirm-box prod-bulk-specs-modal-box">
+            <h2 class="del-confirm-title">Producto / URL Canónica</h2>
+            <p class="del-confirm-desc">Busca el producto al que Google debe apuntar la señal canónica, o usa una
+                URL personalizada.</p>
+
+            <div id="bulkCanonicalSelected" class="cp-picker-selected" style="display:none">
+                <div class="cp-picker-selected-info">
+                    <strong class="cp-picker-selected-name"></strong>
+                    <span class="cp-picker-selected-meta"></span>
+                </div>
+                <button type="button" class="pform-btn outline" id="bulkCanonicalChangeBtn">Cambiar</button>
+            </div>
+
+            <div id="bulkCanonicalSearchContainer"></div>
+
+            <input type="url" id="bulkCanonicalUrlInput" class="pform-input cp-picker-custom-input" style="display:none"
+                placeholder="https://equitermindustries.com.mx/producto/otro-producto-similar" maxlength="255">
+
+            <p class="cp-picker-toggle-row">
+                <button type="button" class="cp-picker-toggle-link" id="bulkCanonicalToggleBtn">
+                    Usar una URL personalizada en su lugar
+                </button>
+            </p>
+
+            <div class="del-confirm-actions">
+                <button type="button" class="button-secondary size-adjustment" id="bulkCanonicalCancelBtn">Cancelar</button>
+                <button type="button" class="button-primary size-adjustment" id="bulkCanonicalSaveBtn">Guardar</button>
             </div>
         </div>
     </div>

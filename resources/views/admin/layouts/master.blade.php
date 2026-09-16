@@ -19,6 +19,7 @@
     @vite(['resources/js/admin/image-picker.js'])
     @vite(['resources/js/admin/spec-name-autocomplete.js'])
     @vite(['resources/js/admin/link-picker.js'])
+    @vite(['resources/js/admin/canonical-picker.js'])
     @vite(['resources/js/admin/variable-picker.js'])
     @vite(['resources/js/admin/rule-value-picker.js'])
     @stack('styles')

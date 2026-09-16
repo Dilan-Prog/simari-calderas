@@ -1558,3 +1558,136 @@
    (renamed to .admin-link-picker*) — the panel is now generic and shared
    across admin screens via resources/js/admin/link-picker.js, not just the
    Products FAQ answer field. */
+
+/* ── Selector de "Producto Canónico" (resources/js/admin/canonical-picker.js) ──
+   Reutilizado tal cual en Crear/Editar Producto (.cp-picker, montaje
+   completo) y en el popover de Editar en lote (.cp-picker-search-only,
+   solo el buscador) — este archivo se carga admin-wide vía admin/app.css,
+   así que también alcanza a bulk_edit.blade.php sin imports extra. */
+.cp-search {
+    position: relative;
+}
+
+.cp-search-results {
+    display: none;
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    z-index: 20;
+    margin: 0;
+    padding: 4px;
+    list-style: none;
+    background: #ffffff;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    max-height: 280px;
+    overflow-y: auto;
+}
+
+.cp-search-results.is-open {
+    display: block;
+}
+
+.cp-search-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 8px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.cp-search-item:hover {
+    background: #eef2ff;
+}
+
+.cp-search-item-main {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.cp-search-item-name {
+    font-size: 13.5px;
+    font-weight: 500;
+    color: #374151;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.cp-search-item-meta {
+    font-size: 12px;
+    color: #6b7280;
+    font-family: monospace;
+}
+
+.cp-search-item-slug {
+    flex-shrink: 0;
+    font-size: 11px;
+    color: #9ca3af;
+    max-width: 160px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.cp-search-empty {
+    padding: 10px;
+    font-size: 13px;
+    color: #9ca3af;
+    text-align: center;
+}
+
+.cp-picker-selected {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 10px 14px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    background: #f9fafb;
+}
+
+.cp-picker-selected-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.cp-picker-selected-name {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: #111827;
+}
+
+.cp-picker-selected-meta {
+    font-size: 12px;
+    color: #6b7280;
+    font-family: monospace;
+}
+
+.cp-picker-toggle-row {
+    margin: 8px 0 0;
+}
+
+.cp-picker-toggle-link {
+    background: none;
+    border: none;
+    padding: 0;
+    color: var(--secondary-color, #0054ff);
+    font-size: 12.5px;
+    font-family: var(--font-family);
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.cp-picker-custom-input {
+    margin-top: 10px;
+}

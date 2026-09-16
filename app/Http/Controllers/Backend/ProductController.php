@@ -222,6 +222,11 @@ class ProductController extends Controller
             'cover_image_url',
             'category_id',
             'brand_id',
+            // FIX (bug de URL Canónica): esta columna faltaba en el
+            // select() — $product->canonical_url llegaba null en PHP sin
+            // importar el valor real en BD, así que la columna opcional
+            // "URL Canónica" del listado siempre se veía vacía.
+            'canonical_url',
         ])->with(['category.parent.parent', 'brand', 'images']);
 
         // Totals over the filtered set, computed before pagination/get()
@@ -262,7 +267,7 @@ class ProductController extends Controller
         'category_id', 'brand_id', 'is_active', 'publish_on_website', 'is_featured', 'is_new', 'is_recommended',
         'tags', 'specifications', 'faqs',
         'seo_title', 'seo_description', 'seo_keywords', 'og_title', 'og_description', 'og_image', 'canonical_url',
-        'is_canonical', 'redirect_old_slug',
+        'canonical_product_id', 'is_canonical', 'redirect_old_slug',
     ];
 
     private const BULK_EDIT_STOCK_UNITS = ['pieza', 'juego', 'kit', 'metro', 'kg', 'litro'];
@@ -335,7 +340,14 @@ class ProductController extends Controller
             'category_id', 'brand_id', 'is_active', 'publish_on_website', 'is_featured', 'is_new', 'is_recommended',
             'tags', 'specifications', 'faqs',
             'seo_title', 'seo_description', 'seo_keywords', 'og_title', 'og_description', 'og_image',
-        ])->with(['category.parent.parent', 'suppliers']);
+            // FIX (bug de URL Canónica): estas 3 columnas faltaban en el
+            // select() — $product->canonical_url y $product->slug llegaban
+            // null en PHP sin importar el valor real en BD, así que
+            // Products::getIsCanonicalAttribute() (empty($this->canonical_url))
+            // daba siempre true y "URL Canónica" siempre se veía vacía, sin
+            // importar cuántas filas sí tuvieran un valor real guardado.
+            'canonical_url', 'canonical_product_id', 'slug',
+        ])->with(['category.parent.parent', 'suppliers', 'canonicalProduct:id,name,model,sku,slug']);
 
         $totalFiltered = (clone $query)->count();
         $perPageInput  = $request->input('per_page', 25);
@@ -560,6 +572,21 @@ class ProductController extends Controller
             case 'redirect_old_slug':
                 return [true, (bool) $value, null];
 
+            case 'canonical_product_id':
+                // Mismo criterio de auto-referencia que update() del
+                // formulario individual: un producto no puede ser su propio
+                // canónico. $productId es la fila que se está validando (ver
+                // firma del método), no el producto elegido.
+                if ($value === null || $value === '') {
+                    return [true, null, null];
+                }
+                $exists = Products::where('id', $value)->exists();
+                if (!$exists || (int) $value === (int) $productId) {
+                    return [false, null, 'Producto inválido.'];
+                }
+
+                return [true, (int) $value, null];
+
             case 'slug':
                 $v = \Illuminate\Support\Str::slug(trim((string) $value));
                 if ($v === '') {
@@ -675,6 +702,18 @@ class ProductController extends Controller
                         continue;
                     }
 
+                    // Selector de producto canónico: si llegó un
+                    // canonical_product_id no nulo, nunca se confía en un
+                    // canonical_url enviado en el mismo lote — se recalcula
+                    // aquí en servidor a partir del slug real del producto
+                    // elegido, igual que store()/update() del formulario
+                    // individual, para que ambos campos nunca queden
+                    // desincronizados.
+                    if (array_key_exists('canonical_product_id', $fields) && $fields['canonical_product_id'] !== null) {
+                        $target = Products::find($fields['canonical_product_id']);
+                        $fields['canonical_url'] = $target ? route('product.show', $target->slug) : null;
+                    }
+
                     // 'is_canonical' y 'redirect_old_slug' no son columnas
                     // reales — igual que en store()/update(), controlan
                     // canonical_url y el redirect automático de slug en vez
@@ -682,6 +721,11 @@ class ProductController extends Controller
                     if (array_key_exists('is_canonical', $fields)) {
                         if ($fields['is_canonical']) {
                             $fields['canonical_url'] = null;
+                            // Volver a "Es canónica" limpia ambos campos —
+                            // si no, un canonical_product_id elegido antes en
+                            // el mismo guardado (o de una fila que ya lo
+                            // tenía) quedaría huérfano con canonical_url null.
+                            $fields['canonical_product_id'] = null;
                         }
                         unset($fields['is_canonical']);
                     }
@@ -932,6 +976,11 @@ class ProductController extends Controller
             'og_description'    => 'nullable|string',
             'og_image'          => 'nullable|url|max:255',
             'canonical_url'     => 'nullable|url|max:255',
+            // Selector de producto canónico — reemplaza el input de texto
+            // libre; no hay chequeo de auto-referencia aquí porque el
+            // producto todavía no existe en store() (no tiene id con el que
+            // pudiera colisionar).
+            'canonical_product_id' => 'nullable|integer|exists:products,id',
             // FIX BUG 9: added validation for the new currency/stock_unit
             // columns.
             'currency'          => 'nullable|in:MXN,USD',
@@ -1003,12 +1052,24 @@ class ProductController extends Controller
         $product->og_title          = $request->og_title       ?? null;
         $product->og_description    = $request->og_description ?? null;
         $product->og_image          = $request->og_image       ?? null;
-        // Checkbox "¿Es la URL Canónica?" — marcado (o ausente, default true)
-        // = el producto usa su propia URL, se ignora lo que haya en el
-        // campo de texto. Desmarcado = se respeta canonical_url tal cual.
-        $product->canonical_url     = $request->boolean('is_canonical', true)
-            ? null
-            : ($request->canonical_url ?: null);
+        // Selector de producto canónico: si se eligió un producto destino,
+        // canonical_url NUNCA se toma tal cual del cliente — se recalcula
+        // aquí en servidor a partir del slug real del producto elegido, para
+        // que ambos campos nunca queden desincronizados. Checkbox "¿Es la
+        // URL Canónica?" marcado (o ausente, default true) = el producto usa
+        // su propia URL. Desmarcado sin producto elegido = "URL
+        // personalizada" de texto libre, se respeta canonical_url tal cual.
+        if ($request->filled('canonical_product_id')) {
+            $target = Products::find($request->canonical_product_id);
+            $product->canonical_product_id = $target?->id;
+            $product->canonical_url = $target ? route('product.show', $target->slug) : null;
+        } elseif ($request->boolean('is_canonical', true)) {
+            $product->canonical_product_id = null;
+            $product->canonical_url = null;
+        } else {
+            $product->canonical_product_id = null;
+            $product->canonical_url = $request->canonical_url ?: null;
+        }
         // FIX BUG 9: currency + stock_unit now have a real column and a
         // name= attribute in the view.
         $product->currency          = $request->currency       ?? 'MXN';
@@ -1158,6 +1219,20 @@ class ProductController extends Controller
             'og_description'    => 'nullable|string',
             'og_image'          => 'nullable|url|max:255',
             'canonical_url'     => 'nullable|url|max:255',
+            // Selector de producto canónico — a diferencia de store(), aquí
+            // SÍ existe un producto propio con el que podría colisionar
+            // (auto-canonicalizarse no tiene sentido: un producto no puede
+            // apuntar su URL canónica a sí mismo), así que se rechaza con un
+            // closure inline en vez de Rule::notIn (más claro con un mensaje
+            // de error dedicado).
+            'canonical_product_id' => [
+                'nullable', 'integer', 'exists:products,id',
+                function ($attribute, $value, $fail) use ($product) {
+                    if ($value !== null && (int) $value === (int) $product->id) {
+                        $fail('Un producto no puede ser su propio canónico.');
+                    }
+                },
+            ],
             // FIX BUG 9: added validation for the new currency/stock_unit
             // columns.
             'currency'          => 'nullable|in:MXN,USD',
@@ -1223,12 +1298,25 @@ class ProductController extends Controller
         $product->og_title          = $request->og_title       ?? null;
         $product->og_description    = $request->og_description ?? null;
         $product->og_image          = $request->og_image       ?? null;
-        // Checkbox "¿Es la URL Canónica?" — marcado (o ausente, default true)
-        // = el producto usa su propia URL, se ignora lo que haya en el
-        // campo de texto. Desmarcado = se respeta canonical_url tal cual.
-        $product->canonical_url     = $request->boolean('is_canonical', true)
-            ? null
-            : ($request->canonical_url ?: null);
+        // Selector de producto canónico: mismo criterio que store() — si se
+        // eligió un producto destino, canonical_url NUNCA se toma tal cual
+        // del cliente, se recalcula en servidor a partir del slug real del
+        // producto elegido (la validación de arriba ya descartó
+        // auto-referencia). Checkbox "¿Es la URL Canónica?" marcado (o
+        // ausente, default true) sin producto elegido = el producto usa su
+        // propia URL. Desmarcado sin producto elegido = "URL personalizada"
+        // de texto libre, se respeta canonical_url tal cual.
+        if ($request->filled('canonical_product_id')) {
+            $target = Products::find($request->canonical_product_id);
+            $product->canonical_product_id = $target?->id;
+            $product->canonical_url = $target ? route('product.show', $target->slug) : null;
+        } elseif ($request->boolean('is_canonical', true)) {
+            $product->canonical_product_id = null;
+            $product->canonical_url = null;
+        } else {
+            $product->canonical_product_id = null;
+            $product->canonical_url = $request->canonical_url ?: null;
+        }
         // FIX BUG 9: currency + stock_unit now have a real column and a
         // name= attribute in the view.
         $product->currency          = $request->currency       ?? 'MXN';
@@ -1470,6 +1558,48 @@ class ProductController extends Controller
             ->pluck('name');
 
         return response()->json($names);
+    }
+
+    /**
+     * Buscador en vivo para el selector de producto canónico (crear/editar
+     * individual y editor en lote) — mismo criterio de búsqueda que
+     * filteredProductsQuery() (name/sku/supplier_sku/suppliers_products.sku)
+     * sumando model, slug y marca, que son los campos adicionales que pidió
+     * el usuario para este selector específico. Solo productos activos
+     * (no tiene sentido apuntar el canónico a un producto inactivo/oculto).
+     * $exclude_id evita que un producto pueda elegirse a sí mismo.
+     */
+    public function searchForCanonical(Request $request)
+    {
+        $q = $request->get('q', '');
+        $excludeId = $request->get('exclude_id');
+
+        $products = Products::query()
+            ->with('brand:id,name')
+            ->where('is_active', 1)
+            ->when($excludeId, fn ($query) => $query->where('id', '!=', $excludeId))
+            ->where(function ($query) use ($q) {
+                $query->where('name', 'like', "%{$q}%")
+                    ->orWhere('sku', 'like', "%{$q}%")
+                    ->orWhere('supplier_sku', 'like', "%{$q}%")
+                    ->orWhere('model', 'like', "%{$q}%")
+                    ->orWhere('slug', 'like', "%{$q}%")
+                    ->orWhereHas('brand', fn ($b) => $b->where('name', 'like', "%{$q}%"))
+                    ->orWhereHas('suppliers', fn ($s) => $s->where('suppliers_products.sku', 'like', "%{$q}%"));
+            })
+            ->select('id', 'name', 'sku', 'model', 'slug', 'brand_id')
+            ->take(15)
+            ->get()
+            ->map(fn ($p) => [
+                'id' => $p->id,
+                'name' => $p->name,
+                'sku' => $p->sku,
+                'model' => $p->model,
+                'slug' => $p->slug,
+                'brand' => $p->brand?->name,
+            ]);
+
+        return response()->json($products);
     }
 
     /**

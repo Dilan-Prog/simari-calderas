@@ -19,19 +19,12 @@
                 });
             });
 
-            /* ── Toggle "¿Es la URL Canónica?" — muestra/oculta el campo de
-               URL Canónica según el checkbox (misma lógica que edit.blade.php). */
-            const isCanonicalCheckbox = document.getElementById('pformIsCanonical');
-            const canonicalUrlWrap = document.getElementById('pformCanonicalUrlWrap');
-            const canonicalUrlInput = document.getElementById('pformCanonicalUrl');
-            if (isCanonicalCheckbox && canonicalUrlWrap) {
-                isCanonicalCheckbox.addEventListener('change', () => {
-                    canonicalUrlWrap.style.display = isCanonicalCheckbox.checked ? 'none' : '';
-                    if (isCanonicalCheckbox.checked && canonicalUrlInput) {
-                        canonicalUrlInput.value = '';
-                    }
-                });
-            }
+            /* ── "¿Es la URL Canónica?" ahora vive en
+               resources/js/admin/canonical-picker.js (buscador de producto
+               canónico + URL personalizada), montado desde
+               resources/views/admin/products/partials/_canonical_picker.blade.php
+               — ese módulo ya maneja su propio show/hide internamente
+               (misma lógica que edit.blade.php). */
 
             /* ── Character counter (short desc) ── */
             const shortDesc = document.getElementById('pformShortDesc');

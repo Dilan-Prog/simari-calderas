@@ -657,6 +657,93 @@
             let tagSuggestionsTimer = null;
             let tagSuggestionActiveIndex = -1;
 
+            // ── Popover de "Producto/URL Canónica" — buscador en vivo (vía
+            // window.CanonicalPicker.mountSearchOnly(), modo "solo
+            // buscador" del mismo módulo usado en Crear/Editar producto) +
+            // alternativa de URL personalizada, adaptado al patrón de
+            // popover reutilizable de esta pantalla. A diferencia de Tags/
+            // FAQ/Specs (un solo campo por popover), este popover resuelve
+            // a TRES cambios pendientes por producto (canonical_product_id,
+            // canonical_url, is_canonical) porque el backend de "Editar en
+            // lote" espera un campo explícito por celda, no la semántica
+            // implícita de un <form> normal.
+            const canonicalModal = document.getElementById('bulkCanonicalModal');
+            const canonicalSelected = document.getElementById('bulkCanonicalSelected');
+            const canonicalSelectedName = canonicalSelected.querySelector('.cp-picker-selected-name');
+            const canonicalSelectedMeta = canonicalSelected.querySelector('.cp-picker-selected-meta');
+            const canonicalChangeBtn = document.getElementById('bulkCanonicalChangeBtn');
+            const canonicalSearchContainer = document.getElementById('bulkCanonicalSearchContainer');
+            const canonicalUrlInput = document.getElementById('bulkCanonicalUrlInput');
+            const canonicalToggleBtn = document.getElementById('bulkCanonicalToggleBtn');
+            const canonicalCancelBtn = document.getElementById('bulkCanonicalCancelBtn');
+            const canonicalSaveBtn = document.getElementById('bulkCanonicalSaveBtn');
+            let canonicalEditingTrigger = null;
+            let canonicalMode = 'none'; // 'none' | 'product' | 'custom'
+            let canonicalSelectedProduct = null;
+
+            function formatCanonicalMeta(p) {
+                return [p.model, p.sku, p.brand].filter(Boolean).join(' · ') + (p.slug ? ' · ' + p.slug : '');
+            }
+
+            function renderCanonicalModalState() {
+                canonicalSelected.style.display = (canonicalMode === 'product') ? 'flex' : 'none';
+                canonicalSearchContainer.style.display = (canonicalMode === 'none') ? '' : 'none';
+                canonicalUrlInput.style.display = (canonicalMode === 'custom') ? '' : 'none';
+                canonicalToggleBtn.textContent = (canonicalMode === 'custom')
+                    ? 'Buscar un producto en su lugar'
+                    : 'Usar una URL personalizada en su lugar';
+
+                if (canonicalMode === 'product' && canonicalSelectedProduct) {
+                    canonicalSelectedName.textContent = canonicalSelectedProduct.name || '';
+                    canonicalSelectedMeta.textContent = formatCanonicalMeta(canonicalSelectedProduct);
+                }
+            }
+
+            canonicalChangeBtn.addEventListener('click', () => {
+                canonicalSelectedProduct = null;
+                canonicalMode = 'none';
+                renderCanonicalModalState();
+            });
+
+            canonicalToggleBtn.addEventListener('click', () => {
+                if (canonicalMode === 'custom') {
+                    canonicalMode = 'none';
+                    canonicalUrlInput.value = '';
+                } else {
+                    canonicalMode = 'custom';
+                    canonicalSelectedProduct = null;
+                }
+                renderCanonicalModalState();
+            });
+
+            canonicalCancelBtn.addEventListener('click', () => canonicalModal.classList.remove('active'));
+            canonicalModal.addEventListener('click', (e) => {
+                if (e.target === canonicalModal) canonicalModal.classList.remove('active');
+            });
+
+            canonicalSaveBtn.addEventListener('click', () => {
+                if (!canonicalEditingTrigger) return;
+
+                const productId = (canonicalMode === 'product' && canonicalSelectedProduct) ? canonicalSelectedProduct.id : '';
+                const customUrl = (canonicalMode === 'custom') ? canonicalUrlInput.value.trim() : '';
+                const isCanonical = !productId && !customUrl;
+
+                canonicalEditingTrigger.dataset.canonicalProductId = productId;
+                canonicalEditingTrigger.dataset.canonicalProduct = (canonicalMode === 'product' && canonicalSelectedProduct)
+                    ? JSON.stringify(canonicalSelectedProduct)
+                    : 'null';
+                canonicalEditingTrigger.dataset.canonicalUrl = customUrl;
+                canonicalEditingTrigger.textContent = isCanonical
+                    ? 'Es canónica'
+                    : (productId ? (canonicalSelectedProduct.name || ('Producto #' + productId)) : 'URL personalizada');
+
+                setPendingChange(canonicalEditingTrigger.dataset.id, 'canonical_product_id', productId, canonicalEditingTrigger);
+                setPendingChange(canonicalEditingTrigger.dataset.id, 'canonical_url', customUrl, canonicalEditingTrigger);
+                setPendingChange(canonicalEditingTrigger.dataset.id, 'is_canonical', isCanonical, canonicalEditingTrigger);
+
+                canonicalModal.classList.remove('active');
+            });
+
             function addTagChip(val) {
                 const chip = document.createElement('span');
                 chip.className = 'pform-tag-chip';
@@ -809,6 +896,36 @@
                     }
 
                     faqModal.classList.add('active');
+                    return;
+                }
+
+                if (trigger.dataset.field === 'canonical') {
+                    canonicalEditingTrigger = trigger;
+
+                    const productId = trigger.dataset.canonicalProductId;
+                    let product = null;
+                    try {
+                        product = trigger.dataset.canonicalProduct ? JSON.parse(trigger.dataset.canonicalProduct) : null;
+                    } catch (err) {
+                        product = null;
+                    }
+                    const url = trigger.dataset.canonicalUrl || '';
+
+                    canonicalSelectedProduct = (productId && product) ? product : null;
+                    canonicalUrlInput.value = url;
+                    canonicalMode = canonicalSelectedProduct ? 'product' : (url ? 'custom' : 'none');
+
+                    window.CanonicalPicker.mountSearchOnly(canonicalSearchContainer, {
+                        excludeId: trigger.dataset.id,
+                        onSelect(p) {
+                            canonicalSelectedProduct = p;
+                            canonicalMode = 'product';
+                            renderCanonicalModalState();
+                        },
+                    });
+
+                    renderCanonicalModalState();
+                    canonicalModal.classList.add('active');
                     return;
                 }
 
