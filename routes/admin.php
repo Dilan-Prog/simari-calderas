@@ -194,7 +194,6 @@ Route::controller(ProductController::class)
         Route::post('/productos/edicion-masiva/vistas', 'storeBulkEditView')->name('products.bulk-edit.views.store')->middleware('permission:products,create');
         Route::put('/productos/edicion-masiva/vistas/{id}', 'updateBulkEditView')->name('products.bulk-edit.views.update')->middleware('permission:products,edit');
         Route::delete('/productos/edicion-masiva/vistas/{id}', 'destroyBulkEditView')->name('products.bulk-edit.views.destroy')->middleware('permission:products,delete');
-        Route::post('/productos/edicion-masiva/asignar-proveedor', 'bulkAssignSupplier')->name('products.bulk-edit.assign-supplier')->middleware('permission:products,edit');
         Route::post('/productos/vistas', 'storeIndexView')->name('products.index-views.store')->middleware('permission:products,create');
         Route::put('/productos/vistas/{id}', 'updateIndexView')->name('products.index-views.update')->middleware('permission:products,edit');
         Route::delete('/productos/vistas/{id}', 'destroyIndexView')->name('products.index-views.destroy')->middleware('permission:products,delete');

@@ -68,6 +68,14 @@
             'stock','stock_unit','currency','availability','category_id','brand_id','is_active','publish_on_website',
             'is_featured','is_new','is_recommended','show_in_merchant_center','tags','canonical'];
         $bulkApplyColumns = collect($bulkEditColumns)->whereIn('key', $bulkApplyKeys)->values();
+
+        // "Proveedor" no es una columna real de $bulkEditColumns (no tiene
+        // celda editable por fila, solo la columna de solo-lectura
+        // "Proveedores" que ya lista los proveedores asignados) — se agrega
+        // aquí como entrada sintética, solo para el selector de esta barra,
+        // sin tocar $bulkEditColumns/BULK_EDIT_VIEW_COLUMNS (no debe
+        // aparecer en el menú "Columnas", ahí no hay nada que ocultar/mostrar).
+        $bulkApplyColumns->push(['key' => 'supplier_id', 'label' => 'Proveedor', 'group' => 'Organización', 'type' => 'select-supplier']);
         $bulkApplyGroups = $bulkApplyColumns->groupBy('group');
 
         // Shape simple (key/type/options) para exponer a JS — calculado
@@ -86,6 +94,13 @@
         // para JS, en vez de exponer el modelo completo.
         $bulkApplyBrandsForJs = $brands->map(function ($b) {
             return ['id' => $b->id, 'name' => $b->name];
+        })->values();
+
+        // $activeSuppliers ya llega a esta vista desde
+        // ProductController::bulkEditIndex() — misma fuente que usaba la
+        // antigua barra "Asignar proveedor" (retirada), recortada a id/name.
+        $bulkApplySuppliersForJs = $activeSuppliers->map(function ($s) {
+            return ['id' => $s->id, 'name' => $s->company_name];
         })->values();
     @endphp
 
@@ -268,7 +283,8 @@
                                 </td>
                                 <td class="prod-bulk-readonly prod-bulk-pinned-col" data-col="sku">{{ $product->sku }}</td>
                                 <td class="prod-bulk-readonly" data-col="supplier_sku">{{ $product->supplier_sku }}</td>
-                                <td class="prod-bulk-readonly prod-bulk-suppliers-cell" data-col="suppliers">
+                                <td class="prod-bulk-readonly prod-bulk-suppliers-cell" data-col="suppliers"
+                                    data-id="{{ $product->id }}" data-field="supplier_id">
                                     @forelse ($product->suppliers as $supplier)
                                         <div>{{ $supplier->company_name }}@if ($supplier->pivot->sku) (SKU: {{ $supplier->pivot->sku }})@endif</div>
                                     @empty
@@ -571,25 +587,13 @@
         <button type="button" class="prod-bulk-btn" id="prodBulkEditSaveBtn">Guardar cambios</button>
     </div>
 
-    {{-- Barra de asignación masiva de proveedor — vincula de golpe los N
-         productos seleccionados con 1 proveedor, llevándose su
-         "SKU Proveedor (legacy)" como el SKU de ese proveedor. --}}
-    <div id="prodSupplierAssignBar" class="prod-supplier-assign-bar">
-        <span class="prod-bulk-count"><span id="prodSupplierAssignCount">0</span> producto(s) seleccionado(s)</span>
-        <select id="prodSupplierAssignSelect">
-            <option value="">Asignar a proveedor...</option>
-            @foreach ($activeSuppliers as $supplier)
-                <option value="{{ $supplier->id }}">{{ $supplier->company_name }}</option>
-            @endforeach
-        </select>
-        <button type="button" id="prodSupplierAssignBtn">Asignar</button>
-    </div>
-
     {{-- Barra de "Aplicar a seleccionados" — aplica un mismo valor a una
          columna elegida en todas las filas marcadas con el checkbox de
          selección, dejándolas en "cambios sin guardar" (mismo Map `changes`
          y botón "Guardar cambios" ya existentes) — nunca escribe en BD de
-         inmediato, a diferencia de la barra de "Asignar proveedor" de arriba. --}}
+         inmediato. "Proveedor" vive aquí también (unificado con la antigua
+         barra "Asignar proveedor", que guardaba de inmediato con su propio
+         endpoint — se retiró en favor de este único mecanismo). --}}
     <div id="prodBulkApplyBar" class="prod-bulk-apply-bar">
         <div class="prod-bulk-apply-bar-row">
             <span class="prod-bulk-count"><span id="prodBulkApplyCount">0</span> producto(s) seleccionado(s) en esta página</span>
@@ -618,6 +622,7 @@
         <script>
             window.PROD_BULK_APPLY_COLUMNS = @json($bulkApplyColumnsForJs);
             window.PROD_BULK_APPLY_BRANDS = @json($bulkApplyBrandsForJs);
+            window.PROD_BULK_APPLY_SUPPLIERS = @json($bulkApplySuppliersForJs);
         </script>
     @endpush
 @endsection

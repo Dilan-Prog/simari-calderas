@@ -267,7 +267,7 @@ class ProductController extends Controller
         'category_id', 'brand_id', 'is_active', 'publish_on_website', 'is_featured', 'is_new', 'is_recommended', 'show_in_merchant_center',
         'tags', 'specifications', 'faqs',
         'seo_title', 'seo_description', 'seo_keywords', 'og_title', 'og_description', 'og_image', 'canonical_url',
-        'canonical_product_id', 'is_canonical', 'redirect_old_slug',
+        'canonical_product_id', 'is_canonical', 'redirect_old_slug', 'supplier_id',
     ];
 
     private const BULK_EDIT_STOCK_UNITS = ['pieza', 'juego', 'kit', 'metro', 'kg', 'litro'];
@@ -403,37 +403,6 @@ class ProductController extends Controller
      * se traslapan entre corridas. No toca cost/lead_time_days (no hay dato
      * histórico que adivinar ahí) ni borra products.supplier_sku.
      */
-    public function bulkAssignSupplier(Request $request)
-    {
-        $validated = $request->validate([
-            'supplier_id'    => 'required|exists:suppliers,id',
-            'product_ids'    => 'required|array|min:1',
-            'product_ids.*'  => 'integer|exists:products,id',
-        ]);
-
-        $assigned = 0;
-
-        DB::transaction(function () use ($validated, &$assigned) {
-            $products = Products::whereIn('id', $validated['product_ids'])->get(['id', 'supplier_sku']);
-
-            foreach ($products as $product) {
-                $row = SupplierProduct::updateOrCreate(
-                    ['supplier_id' => $validated['supplier_id'], 'product_id' => $product->id],
-                    ['sku' => $product->supplier_sku, 'is_primary' => true]
-                );
-
-                SupplierProduct::demoteOtherPrimaries($product->id, $row->id);
-                $assigned++;
-            }
-        });
-
-        return response()->json([
-            'success'  => true,
-            'assigned' => $assigned,
-            'message'  => "{$assigned} producto(s) asignado(s) correctamente.",
-        ]);
-    }
-
     /**
      * Campo => longitud máxima, para los campos de texto simple que solo
      * necesitan trim + límite (misma longitud que ya exige store()/update()
@@ -551,6 +520,13 @@ class ProductController extends Controller
             case 'category_id':
                 if (!Category::where('id', $value)->exists()) {
                     return [false, null, 'Categoría no válida.'];
+                }
+
+                return [true, (int) $value, null];
+
+            case 'supplier_id':
+                if (!Supplier::where('id', $value)->exists()) {
+                    return [false, null, 'Proveedor no válido.'];
                 }
 
                 return [true, (int) $value, null];
@@ -733,6 +709,20 @@ class ProductController extends Controller
                     if (array_key_exists('redirect_old_slug', $fields)) {
                         $product->redirectOldSlug = (bool) $fields['redirect_old_slug'];
                         unset($fields['redirect_old_slug']);
+                    }
+
+                    // 'supplier_id' tampoco es una columna de products — igual
+                    // que hacía bulkAssignSupplier() (ahora retirado, unificado
+                    // aquí), vincula el producto a ese proveedor como principal
+                    // llevándose su SKU de proveedor (legacy) ya guardado, y
+                    // desmarca cualquier otro proveedor que fuera principal.
+                    if (array_key_exists('supplier_id', $fields)) {
+                        $row = SupplierProduct::updateOrCreate(
+                            ['supplier_id' => $fields['supplier_id'], 'product_id' => $product->id],
+                            ['sku' => $product->supplier_sku, 'is_primary' => true]
+                        );
+                        SupplierProduct::demoteOtherPrimaries($product->id, $row->id);
+                        unset($fields['supplier_id']);
                     }
 
                     foreach ($fields as $field => $value) {

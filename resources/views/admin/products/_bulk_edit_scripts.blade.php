@@ -204,6 +204,16 @@
 
                     saveBtn.textContent = 'Guardar cambios';
                     syncUnsavedBar();
+
+                    // La celda "Proveedores" es de solo lectura (se imprime
+                    // server-side a partir de la relación real) — reconstruir
+                    // en JS la lista de proveedores + su SKU heredaría toda
+                    // la lógica de _forelse en Blade sin necesidad real.
+                    // Recargar es más simple y siempre queda 100% fiel a lo
+                    // que de verdad se guardó.
+                    if (data.results.some(r => r.field === 'supplier_id' && r.ok)) {
+                        setTimeout(() => window.location.reload(), 700);
+                    }
                 } catch (err) {
                     console.error('Error saving bulk edit changes:', err);
                     showToast('Error de conexión. Intenta de nuevo.', 'error');
@@ -1162,26 +1172,16 @@
 
             syncUnsavedBar();
 
-            // ── Backfill masivo: asignar N productos seleccionados a 1 proveedor ──
+            // ── Selección de filas (checkbox por fila + "Seleccionar todos") ──
             const selectAllCb   = document.getElementById('prodBulkSelectAll');
             const rowCheckboxes = () => Array.from(document.querySelectorAll('.prod-bulk-row-select'));
-            const assignBar     = document.getElementById('prodSupplierAssignBar');
-            const assignCount   = document.getElementById('prodSupplierAssignCount');
-            const assignSelect  = document.getElementById('prodSupplierAssignSelect');
-            const assignBtn     = document.getElementById('prodSupplierAssignBtn');
-            const assignUrl     = '{{ route("admin.products.bulk-edit.assign-supplier") }}';
-
-            function syncAssignBar() {
-                const selected = rowCheckboxes().filter(cb => cb.checked);
-                assignCount.textContent = selected.length;
-                assignBar.classList.toggle('active', selected.length > 0);
-            }
 
             // syncSelectionBars(): punto único llamado cada vez que cambia la
-            // selección de filas — actualiza TODAS las barras que dependen de
-            // ella (hoy: "Asignar proveedor" + "Aplicar a seleccionados").
+            // selección de filas — hoy solo actualiza "Aplicar a
+            // seleccionados" (la antigua barra "Asignar proveedor" de guardado
+            // inmediato se retiró; Proveedor se unificó como una columna más
+            // de esta barra, ver sección de abajo).
             function syncSelectionBars() {
-                syncAssignBar();
                 syncBulkApplyBar();
             }
 
@@ -1198,45 +1198,6 @@
                 syncSelectionBars();
             });
 
-            if (assignBtn) {
-                assignBtn.addEventListener('click', async () => {
-                    const supplierId = assignSelect.value;
-                    const productIds = rowCheckboxes().filter(cb => cb.checked).map(cb => cb.value);
-
-                    if (!supplierId) {
-                        showToast('Selecciona un proveedor.', 'error');
-                        return;
-                    }
-                    if (!productIds.length) {
-                        showToast('Selecciona al menos un producto.', 'error');
-                        return;
-                    }
-
-                    try {
-                        const response = await fetch(assignUrl, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': csrfToken,
-                                'Accept': 'application/json',
-                            },
-                            body: JSON.stringify({ supplier_id: supplierId, product_ids: productIds }),
-                        });
-                        const data = await response.json();
-                        if (response.ok && data.success) {
-                            showToast(data.message || 'Asignado correctamente.');
-                            rowCheckboxes().forEach(cb => { cb.checked = false; });
-                            if (selectAllCb) selectAllCb.checked = false;
-                            syncAssignBar();
-                        } else {
-                            showToast(data.message || 'No se pudo asignar.', 'error');
-                        }
-                    } catch (err) {
-                        showToast('Error de red al asignar.', 'error');
-                    }
-                });
-            }
-
             // ── "Aplicar a seleccionados": aplica un mismo valor de una
             // columna elegida a todas las filas actualmente marcadas, sin
             // guardar de inmediato — reusa el mismo pipeline `changes` Map +
@@ -1250,6 +1211,7 @@
 
             const bulkApplyColumns = window.PROD_BULK_APPLY_COLUMNS || [];
             const bulkApplyBrands  = window.PROD_BULK_APPLY_BRANDS || [];
+            const bulkApplySuppliers = window.PROD_BULK_APPLY_SUPPLIERS || [];
 
             function bulkApplyColumnConfig(colKey) {
                 return bulkApplyColumns.find(c => c.key === colKey) || null;
@@ -1323,6 +1285,23 @@
                 bulkApplySelectedRowCheckboxes().forEach(cb => applyCategoryToRow(cb.closest('tr'), mainId, subId, childId));
             }
 
+            // ── Proveedor — a diferencia de las columnas normales, no hay un
+            // <input>/<select> editable por fila (solo la celda de solo-
+            // lectura "Proveedores", marcada con data-field="supplier_id"
+            // para poder reusar el mismo mecanismo de dirty/guardado-ok/
+            // error). Se marca directamente vía setPendingChange en vez de
+            // pasar por applyToSelectedRows(), que asume un <input>/<select>
+            // editable real. ──
+            function applySupplierToRow(row, supplierId) {
+                const cell = row.querySelector('[data-field="supplier_id"]');
+                if (!cell) return;
+                setPendingChange(cell.dataset.id, 'supplier_id', supplierId, cell);
+            }
+
+            function applySupplierToSelectedRows(supplierId) {
+                bulkApplySelectedRowCheckboxes().forEach(cb => applySupplierToRow(cb.closest('tr'), supplierId));
+            }
+
             // ── C. Control de valor dinámico según el tipo de columna
             // elegida en #prodBulkApplyColumnSelect. ──
             const PROD_BULK_APPLY_CAT_MAIN_ID = 'prodBulkApplyCatMain';
@@ -1386,6 +1365,27 @@
                         const opt = document.createElement('option');
                         opt.value = b.id;
                         opt.textContent = b.name;
+                        select.appendChild(opt);
+                    });
+                    prodBulkApplyValueWrap.appendChild(select);
+                    select.addEventListener('change', syncBulkApplyBar);
+                    return;
+                }
+
+                // Proveedor: unificado con la antigua barra "Asignar
+                // proveedor" (retirada) — mismo efecto (vincula el producto a
+                // ese proveedor como principal, llevándose su SKU de
+                // proveedor legacy ya guardado), pero ahora queda en
+                // "cambios sin guardar" como cualquier otra columna, en vez
+                // de escribir en BD de inmediato.
+                if (col.type === 'select-supplier') {
+                    const select = document.createElement('select');
+                    select.id = 'prodBulkApplyValueSelect';
+                    select.innerHTML = '<option value="">Seleccionar...</option>';
+                    (bulkApplySuppliers || []).forEach(s => {
+                        const opt = document.createElement('option');
+                        opt.value = s.id;
+                        opt.textContent = s.name;
                         select.appendChild(opt);
                     });
                     prodBulkApplyValueWrap.appendChild(select);
@@ -1484,7 +1484,7 @@
                     const select = document.getElementById('prodBulkApplyValueSelect');
                     return select ? select.value === '1' : false;
                 }
-                if (col.type === 'select' || col.type === 'select-brand') {
+                if (col.type === 'select' || col.type === 'select-brand' || col.type === 'select-supplier') {
                     return document.getElementById('prodBulkApplyValueSelect')?.value ?? '';
                 }
                 if (col.type === 'tags' || col.type === 'canonical-picker') {
@@ -1513,6 +1513,11 @@
                 if (col) {
                     if (col.type === 'select-category-main') {
                         hasValue = !!document.getElementById(PROD_BULK_APPLY_CAT_MAIN_ID)?.value;
+                    } else if (col.type === 'select-supplier') {
+                        // A diferencia de otros selects, aquí vacío no tiene
+                        // sentido — "aplicar ningún proveedor" no es una
+                        // acción real, así que se exige elegir uno.
+                        hasValue = !!document.getElementById('prodBulkApplyValueSelect')?.value;
                     } else {
                         // Resto de tipos (incluidos tags/canonical-picker):
                         // cualquier valor cuenta, incluido vacío — ej.
@@ -1543,6 +1548,11 @@
                 if (col.type === 'tags' || col.type === 'canonical-picker') {
                     // No-op: ya se aplicó al guardar el modal correspondiente
                     // (tagsSaveBtn/canonicalSaveBtn en modo "aplicar").
+                    return;
+                }
+                if (col.type === 'select-supplier') {
+                    applySupplierToSelectedRows(getApplyValue(colKey));
+                    syncBulkApplyBar();
                     return;
                 }
 

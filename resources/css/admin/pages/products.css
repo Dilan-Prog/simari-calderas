@@ -804,62 +804,23 @@ button.prod-import-template-link {
     transform: translateX(-50%) translateY(0);
 }
 
-/* ── Barra de asignación masiva de proveedor (backfill) ── */
-.prod-supplier-assign-bar {
-    position: fixed;
-    left: 50%;
-    bottom: 24px;
-    /* FIX: same as .prod-bulk-bar — translateY(120%) alone doesn't clear
-       the 24px bottom offset, leaving a sliver visible while "hidden". */
-    transform: translateX(-50%) translateY(calc(100% + 40px));
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    background: #1d4ed8;
-    color: #ffffff;
-    padding: 12px 16px;
-    border-radius: 12px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
-    z-index: 500;
-    transition: transform 0.2s ease;
-}
-
-.prod-supplier-assign-bar.active {
-    transform: translateX(-50%) translateY(0);
-}
-
-.prod-supplier-assign-bar select {
-    border-radius: 8px;
-    border: none;
-    padding: 8px 10px;
-    font-size: 13px;
-    color: #111827;
-}
-
-.prod-supplier-assign-bar button {
-    background: rgba(255, 255, 255, 0.15);
-    color: #ffffff;
-    border: none;
-    border-radius: 8px;
-    padding: 8px 14px;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-}
-
-.prod-supplier-assign-bar button:hover {
-    background: rgba(255, 255, 255, 0.25);
-}
-
 /* ── Barra de "Aplicar a seleccionados" — mismo patrón visual que
-   .prod-bulk-bar / .prod-supplier-assign-bar de arriba, pero con un
-   "bottom" distinto para no solaparse si las 3 barras flotantes llegaran
-   a estar activas a la vez (ver plan). ── */
+   .prod-bulk-bar de arriba, pero con un "bottom" distinto para no
+   solaparse con esa (ambas pueden estar activas a la vez: seleccionar
+   filas + tener cambios sin guardar es el caso común). La antigua barra
+   "Asignar proveedor" (guardado inmediato) se retiró — Proveedor se
+   unificó como una columna más de esta barra. ── */
 .prod-bulk-apply-bar {
     position: fixed;
     left: 50%;
     bottom: 100px;
-    transform: translateX(-50%) translateY(calc(100% + 40px));
+    /* FIX: translateY(<percentage>) is relative to the element's OWN
+       height, not the viewport — so it must also clear this bar's own
+       100px "bottom" offset (not just its height) to fully leave the
+       viewport when hidden. Using the same "+40px" buffer as the 24px-
+       bottom bars above left ~60px of this taller-offset bar visibly
+       stuck at the bottom of the screen even without .active. */
+    transform: translateX(-50%) translateY(calc(100% + 100px + 40px));
     display: flex;
     flex-direction: column;
     gap: 6px;
