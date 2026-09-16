@@ -35,8 +35,19 @@
     color: var(--adt-text);
     padding: 26px 30px 70px;
     width: 100%;
-    max-width: 1680px;
-    margin: 0 auto;
+    /* Sin max-width/margin:auto -- en pantallas anchas eso dejaba franjas
+       en blanco a los lados (mismo reclamo de visibilidad que ya se había
+       hecho antes sobre esta pantalla). La página ahora ocupa todo el
+       ancho disponible de .admin-main. */
+    /* .admin-main tiene overflow:hidden (layout de sidebar fijo) -- esta
+       página debe proveer su propio contenedor con scroll interno, o todo
+       lo que quede bajo el primer viewport (la tabla completa, en cuanto
+       hay más de un puñado de filas) queda inalcanzable sin scroll alguno.
+       Mismo patrón ya usado en email-marketing.css/statistics.css. */
+    height: calc(100vh - 64px);
+    overflow-y: auto;
+    overflow-x: hidden;
+    box-sizing: border-box;
 }
 
 .adt-page * { box-sizing: border-box; }
@@ -336,9 +347,9 @@
 .adt-filter-clear:hover { color: var(--adt-text); text-decoration: underline; }
 
 /* Sin límite de alto propio -- antes tenía max-height:620px con scroll
-   interno, obligando a un doble scroll (el de la página y el de la tabla)
+   interno, obligando a un doble scroll (el de la tabla y el de .adt-page)
    para ver apenas ~3 de las 20 filas de la página. La tabla ahora fluye a
-   su alto real y usa el scroll normal de la página; solo se conserva
+   su alto real y usa el scroll de .adt-page (ver arriba); solo se conserva
    overflow-x por si la tabla no cabe a lo ancho en pantallas angostas. */
 .adt-scroll { overflow-x: auto; }
 .adt-scroll::-webkit-scrollbar { height: 10px; }
