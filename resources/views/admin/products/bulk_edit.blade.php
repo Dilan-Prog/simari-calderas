@@ -40,6 +40,7 @@
             ['key' => 'is_featured', 'label' => 'Destacado', 'group' => 'Organización', 'type' => 'checkbox'],
             ['key' => 'is_new', 'label' => 'Nuevo', 'group' => 'Organización', 'type' => 'checkbox'],
             ['key' => 'is_recommended', 'label' => 'Recomendado', 'group' => 'Organización', 'type' => 'checkbox'],
+            ['key' => 'show_in_merchant_center', 'label' => 'Merchant Center', 'group' => 'Organización', 'type' => 'checkbox'],
             ['key' => 'tags', 'label' => 'Tags', 'group' => 'Organización', 'type' => 'tags'],
             ['key' => 'specifications', 'label' => 'Especificaciones', 'group' => 'Organización', 'type' => 'specs'],
 

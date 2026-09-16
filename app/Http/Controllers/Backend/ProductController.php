@@ -264,7 +264,7 @@ class ProductController extends Controller
     private const BULK_EDIT_FIELDS = [
         'name', 'model', 'short_description', 'description', 'slug',
         'price', 'compare_price', 'price_includes_tax', 'cost', 'shipping_cost', 'free_shipping_threshold', 'stock', 'stock_unit', 'currency', 'availability',
-        'category_id', 'brand_id', 'is_active', 'publish_on_website', 'is_featured', 'is_new', 'is_recommended',
+        'category_id', 'brand_id', 'is_active', 'publish_on_website', 'is_featured', 'is_new', 'is_recommended', 'show_in_merchant_center',
         'tags', 'specifications', 'faqs',
         'seo_title', 'seo_description', 'seo_keywords', 'og_title', 'og_description', 'og_image', 'canonical_url',
         'canonical_product_id', 'is_canonical', 'redirect_old_slug',
@@ -283,10 +283,10 @@ class ProductController extends Controller
     private const BULK_EDIT_VIEW_COLUMNS = [
         'model', 'short_description', 'description', 'slug',
         'price', 'compare_price', 'price_includes_tax', 'cost', 'shipping_cost', 'free_shipping_threshold', 'stock', 'stock_unit', 'currency', 'availability',
-        'category_id', 'category_sub', 'category_child', 'brand_id', 'is_active', 'publish_on_website', 'is_featured', 'is_new', 'is_recommended',
+        'category_id', 'category_sub', 'category_child', 'brand_id', 'is_active', 'publish_on_website', 'is_featured', 'is_new', 'is_recommended', 'show_in_merchant_center',
         'tags', 'specifications', 'faqs',
-        'seo_title', 'seo_description', 'seo_keywords', 'og_title', 'og_description', 'og_image', 'canonical_url',
-        'is_canonical', 'redirect_old_slug',
+        'seo_title', 'seo_description', 'seo_keywords', 'og_title', 'og_description', 'og_image', 'canonical',
+        'redirect_old_slug',
     ];
     private const BULK_EDIT_VIEWS_MAX_PER_USER = 10;
     // Columnas fijas/pegadas de la tabla (nunca ocultables, por eso no
@@ -337,7 +337,7 @@ class ProductController extends Controller
         $query = $this->filteredProductsQuery($request, [
             'id', 'name', 'sku', 'model', 'supplier_sku', 'short_description', 'description',
             'price', 'compare_price', 'price_includes_tax', 'cost', 'shipping_cost', 'free_shipping_threshold', 'stock', 'stock_unit', 'currency', 'availability',
-            'category_id', 'brand_id', 'is_active', 'publish_on_website', 'is_featured', 'is_new', 'is_recommended',
+            'category_id', 'brand_id', 'is_active', 'publish_on_website', 'is_featured', 'is_new', 'is_recommended', 'show_in_merchant_center',
             'tags', 'specifications', 'faqs',
             'seo_title', 'seo_description', 'seo_keywords', 'og_title', 'og_description', 'og_image',
             // FIX (bug de URL Canónica): estas 3 columnas faltaban en el
@@ -567,6 +567,7 @@ class ProductController extends Controller
             case 'is_featured':
             case 'is_new':
             case 'is_recommended':
+            case 'show_in_merchant_center':
             case 'price_includes_tax':
             case 'is_canonical':
             case 'redirect_old_slug':
