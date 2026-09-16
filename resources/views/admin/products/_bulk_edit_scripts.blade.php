@@ -150,6 +150,19 @@
                         return;
                     }
 
+                    // La columna "canonical" desdobla UNA selección en 3
+                    // cambios pendientes (canonical_product_id/canonical_url/
+                    // is_canonical, ver arriba), pero los 3 comparten el mismo
+                    // trigger en el DOM, marcado con data-field="canonical" —
+                    // ninguno de los 3 tiene su propio elemento con ese
+                    // data-field exacto. Este mapa permite encontrar igual el
+                    // trigger real para la retroalimentación visual.
+                    const fieldElementAlias = {
+                        canonical_product_id: 'canonical',
+                        canonical_url: 'canonical',
+                        is_canonical: 'canonical',
+                    };
+
                     let okCount = 0, errCount = 0;
                     data.results.forEach(r => {
                         // Selector genérico (no solo .prod-bulk-input) para que
@@ -157,19 +170,30 @@
                         // Especificaciones, que no es una celda normal.
                         const el = document.querySelector(
                             `[data-id="${r.id}"][data-field="${r.field}"]`
+                        ) ?? document.querySelector(
+                            `[data-id="${r.id}"][data-field="${fieldElementAlias[r.field] ?? r.field}"]`
                         );
-                        if (!el) return;
 
+                        // El conteo de éxito/error refleja lo que de verdad
+                        // pasó en el servidor — nunca depende de si logramos
+                        // encontrar un elemento en el DOM para marcarlo. Sin
+                        // esto, un cambio guardado correctamente pero sin
+                        // elemento visual coincidente se reportaría como "0
+                        // cambios guardados" aunque sí se haya guardado.
                         if (r.ok) {
                             okCount++;
-                            el.classList.remove('dirty', 'has-error');
-                            el.classList.add('saved-ok');
-                            setTimeout(() => el.classList.remove('saved-ok'), 2000);
+                            if (el) {
+                                el.classList.remove('dirty', 'has-error');
+                                el.classList.add('saved-ok');
+                                setTimeout(() => el.classList.remove('saved-ok'), 2000);
+                            }
                             changes.delete(cellKey(r.id, r.field));
                         } else {
                             errCount++;
-                            el.classList.add('has-error');
-                            el.title = r.error ?? 'No se pudo guardar.';
+                            if (el) {
+                                el.classList.add('has-error');
+                                el.title = r.error ?? 'No se pudo guardar.';
+                            }
                         }
                     });
 
