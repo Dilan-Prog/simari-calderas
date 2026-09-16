@@ -678,6 +678,10 @@
             const tagsSaveBtn = document.getElementById('bulkTagsSaveBtn');
             const tagSuggestionsUrl = '{{ route('admin.products.tags.suggestions') }}';
             let tagsEditingTrigger = null;
+            // true mientras el modal de Tags está abierto en modo "Aplicar a
+            // seleccionados" (barra nueva, ver más abajo) en vez del modo
+            // normal de editar una sola fila.
+            let tagsApplyMode = false;
             let tagSuggestionsTimer = null;
             let tagSuggestionActiveIndex = -1;
 
@@ -704,6 +708,9 @@
             let canonicalEditingTrigger = null;
             let canonicalMode = 'none'; // 'none' | 'product' | 'custom'
             let canonicalSelectedProduct = null;
+            // true mientras el modal de Canónica está abierto en modo
+            // "Aplicar a seleccionados" (barra nueva, ver más abajo).
+            let canonicalApplyMode = false;
 
             function formatCanonicalMeta(p) {
                 return [p.model, p.sku, p.brand].filter(Boolean).join(' · ') + (p.slug ? ' · ' + p.slug : '');
@@ -740,17 +747,55 @@
                 renderCanonicalModalState();
             });
 
-            canonicalCancelBtn.addEventListener('click', () => canonicalModal.classList.remove('active'));
+            canonicalCancelBtn.addEventListener('click', () => {
+                canonicalApplyMode = false;
+                canonicalModal.classList.remove('active');
+            });
             canonicalModal.addEventListener('click', (e) => {
-                if (e.target === canonicalModal) canonicalModal.classList.remove('active');
+                if (e.target === canonicalModal) {
+                    canonicalApplyMode = false;
+                    canonicalModal.classList.remove('active');
+                }
             });
 
             canonicalSaveBtn.addEventListener('click', () => {
-                if (!canonicalEditingTrigger) return;
-
                 const productId = (canonicalMode === 'product' && canonicalSelectedProduct) ? canonicalSelectedProduct.id : '';
                 const customUrl = (canonicalMode === 'custom') ? canonicalUrlInput.value.trim() : '';
                 const isCanonical = !productId && !customUrl;
+
+                // ── "Aplicar a seleccionados" en modo Canónica: REEMPLAZA (a
+                // diferencia de Tags, que suma) el destino canónico en TODAS
+                // las filas seleccionadas, en vez de en un solo trigger. El
+                // caso "el producto elegido coincide con una fila
+                // seleccionada" no se excluye aquí a propósito — el servidor
+                // ya rechaza esa fila puntual al validar (mismo mecanismo que
+                // ya protege esto fila por fila), sin bloquear al resto. ──
+                if (canonicalApplyMode) {
+                    rowCheckboxes().filter(cb => cb.checked).forEach(cb => {
+                        const row = cb.closest('tr');
+                        const trigger = row.querySelector('[data-field="canonical"]');
+                        if (!trigger) return;
+
+                        trigger.dataset.canonicalProductId = productId;
+                        trigger.dataset.canonicalProduct = (canonicalMode === 'product' && canonicalSelectedProduct)
+                            ? JSON.stringify(canonicalSelectedProduct)
+                            : 'null';
+                        trigger.dataset.canonicalUrl = customUrl;
+                        trigger.textContent = isCanonical
+                            ? 'Es canónica'
+                            : (productId ? (canonicalSelectedProduct.name || ('Producto #' + productId)) : 'URL personalizada');
+
+                        setPendingChange(trigger.dataset.id, 'canonical_product_id', productId, trigger);
+                        setPendingChange(trigger.dataset.id, 'canonical_url', customUrl, trigger);
+                        setPendingChange(trigger.dataset.id, 'is_canonical', isCanonical, trigger);
+                    });
+
+                    canonicalApplyMode = false;
+                    canonicalModal.classList.remove('active');
+                    return;
+                }
+
+                if (!canonicalEditingTrigger) return;
 
                 canonicalEditingTrigger.dataset.canonicalProductId = productId;
                 canonicalEditingTrigger.dataset.canonicalProduct = (canonicalMode === 'product' && canonicalSelectedProduct)
@@ -1015,19 +1060,59 @@
                 faqModal.classList.remove('active');
             });
 
-            tagsCancelBtn.addEventListener('click', () => tagsModal.classList.remove('active'));
+            tagsCancelBtn.addEventListener('click', () => {
+                tagsApplyMode = false;
+                tagsModal.classList.remove('active');
+            });
             tagsModal.addEventListener('click', (e) => {
-                if (e.target === tagsModal) tagsModal.classList.remove('active');
+                if (e.target === tagsModal) {
+                    tagsApplyMode = false;
+                    tagsModal.classList.remove('active');
+                }
             });
 
             tagsSaveBtn.addEventListener('click', () => {
+                const chosenTags = Array.from(tagList.querySelectorAll('.pform-tag-chip')).map(chip => chip.textContent);
+
+                // ── "Aplicar a seleccionados" en modo Tags: SUMA (nunca
+                // reemplaza) las etiquetas elegidas a las que cada producto ya
+                // tenga, sin duplicar — comparación case-insensitive, el tag
+                // ya existente en la fila gana el empate de mayúsculas/
+                // minúsculas para no crear casi-duplicados tipo "Eficiente"/
+                // "eficiente". ──
+                if (tagsApplyMode) {
+                    function applyTagsToRow(row, newTags) {
+                        const trigger = row.querySelector('[data-field="tags"]');
+                        if (!trigger) return;
+
+                        const current = JSON.parse(trigger.dataset.tags || '[]');
+                        const seen = new Set(current.map(t => t.toLowerCase()));
+                        const merged = [...current];
+                        newTags.forEach(t => {
+                            if (!seen.has(t.toLowerCase())) {
+                                merged.push(t);
+                                seen.add(t.toLowerCase());
+                            }
+                        });
+
+                        const json = JSON.stringify(merged);
+                        trigger.dataset.tags = json;
+                        trigger.textContent = `Tags (${merged.length})`;
+                        setPendingChange(trigger.dataset.id, 'tags', json, trigger);
+                    }
+
+                    rowCheckboxes().filter(cb => cb.checked).forEach(cb => applyTagsToRow(cb.closest('tr'), chosenTags));
+
+                    tagsApplyMode = false;
+                    tagsModal.classList.remove('active');
+                    return;
+                }
+
                 if (!tagsEditingTrigger) return;
 
-                const tags = Array.from(tagList.querySelectorAll('.pform-tag-chip')).map(chip => chip.textContent);
-
-                const json = JSON.stringify(tags);
+                const json = JSON.stringify(chosenTags);
                 tagsEditingTrigger.dataset.tags = json;
-                tagsEditingTrigger.textContent = `Tags (${tags.length})`;
+                tagsEditingTrigger.textContent = `Tags (${chosenTags.length})`;
                 setPendingChange(tagsEditingTrigger.dataset.id, 'tags', json, tagsEditingTrigger);
                 tagsModal.classList.remove('active');
             });
@@ -1092,17 +1177,25 @@
                 assignBar.classList.toggle('active', selected.length > 0);
             }
 
+            // syncSelectionBars(): punto único llamado cada vez que cambia la
+            // selección de filas — actualiza TODAS las barras que dependen de
+            // ella (hoy: "Asignar proveedor" + "Aplicar a seleccionados").
+            function syncSelectionBars() {
+                syncAssignBar();
+                syncBulkApplyBar();
+            }
+
             if (selectAllCb) {
                 selectAllCb.addEventListener('change', function () {
                     rowCheckboxes().forEach(cb => { cb.checked = selectAllCb.checked; });
-                    syncAssignBar();
+                    syncSelectionBars();
                 });
             }
 
             document.addEventListener('change', (e) => {
                 if (!e.target.matches('.prod-bulk-row-select')) return;
                 if (!e.target.checked) selectAllCb.checked = false;
-                syncAssignBar();
+                syncSelectionBars();
             });
 
             if (assignBtn) {
@@ -1143,6 +1236,326 @@
                     }
                 });
             }
+
+            // ── "Aplicar a seleccionados": aplica un mismo valor de una
+            // columna elegida a todas las filas actualmente marcadas, sin
+            // guardar de inmediato — reusa el mismo pipeline `changes` Map +
+            // botón "Guardar cambios" que ya usa la edición celda por celda.
+            // Nunca escribe en BD directamente ni llama a un endpoint nuevo. ──
+            const prodBulkApplyBar          = document.getElementById('prodBulkApplyBar');
+            const prodBulkApplyCount        = document.getElementById('prodBulkApplyCount');
+            const prodBulkApplyColumnSelect = document.getElementById('prodBulkApplyColumnSelect');
+            const prodBulkApplyValueWrap    = document.getElementById('prodBulkApplyValueWrap');
+            const prodBulkApplyBtn          = document.getElementById('prodBulkApplyBtn');
+
+            const bulkApplyColumns = window.PROD_BULK_APPLY_COLUMNS || [];
+            const bulkApplyBrands  = window.PROD_BULK_APPLY_BRANDS || [];
+
+            function bulkApplyColumnConfig(colKey) {
+                return bulkApplyColumns.find(c => c.key === colKey) || null;
+            }
+
+            function bulkApplySelectedRowCheckboxes() {
+                return rowCheckboxes().filter(cb => cb.checked);
+            }
+
+            // Fuente de categorías raíz para #prodBulkApplyCatMain: NO existe
+            // (todavía) ninguna variable JS global con la lista de categorías
+            // principales — bulk_edit.blade.php hoy las imprime directo como
+            // <option> dentro del select .prod-bulk-cat-main de cada fila
+            // (un foreach sobre $categoryTree en Blade), sin exponerlas aparte
+            // para JS. En vez de inventar un fetch nuevo, se reusan en tiempo
+            // de ejecución las opciones ya impresas en la primera fila visible
+            // de la tabla (mismo dato, cero requests nuevos). Si la tabla no
+            // tiene filas (0 resultados filtrados), esta lista queda vacía y
+            // el select de la barra también — no bloquea el resto del feature.
+            // TODO: si en el futuro se expone una variable JS global dedicada
+            // (ej. window.PROD_BULK_APPLY_CATEGORIES), preferirla aquí en vez
+            // de este scrape del DOM.
+            function rootCategoriesFromDom() {
+                const sampleSelect = document.querySelector('.prod-bulk-cat-main');
+                if (!sampleSelect) return [];
+                return Array.from(sampleSelect.options)
+                    .filter(opt => opt.value !== '')
+                    .map(opt => ({ id: opt.value, name: opt.textContent.trim() }));
+            }
+
+            // ── A. Columnas normales (texto/número/select/checkbox) — cero
+            // validación de formato en JS, la única fuente de verdad sigue
+            // siendo validateBulkEditChange() en servidor al Guardar. ──
+            function applyToSelectedRows(colKey, value) {
+                bulkApplySelectedRowCheckboxes().forEach(cb => {
+                    const row = cb.closest('tr');
+                    const el = row.querySelector(`[data-id][data-field="${colKey}"]`);
+                    if (!el) return;
+
+                    if (el.type === 'checkbox') {
+                        el.checked = !!value;
+                        el.dispatchEvent(new Event('change', { bubbles: true }));
+                    } else if (el.tagName === 'SELECT') {
+                        el.value = value;
+                        el.dispatchEvent(new Event('change', { bubbles: true }));
+                    } else {
+                        el.value = value;
+                        el.dispatchEvent(new Event('input', { bubbles: true }));
+                    }
+                });
+            }
+
+            // ── B. Categoría en cascada — REEMPLAZA los 3 niveles de golpe.
+            // Mismo flujo que el listener de fila (ver más arriba, sección
+            // "Categoría en cascada"), pero fijando los 3 valores directamente
+            // en vez de reaccionar a un evento de usuario. ──
+            function applyCategoryToRow(row, mainId, subId, childId) {
+                const main = row.querySelector('.prod-bulk-cat-main');
+                const sub = row.querySelector('.prod-bulk-cat-sub');
+                const child = row.querySelector('.prod-bulk-cat-child');
+                if (!main || !sub || !child) return;
+
+                main.value = mainId;
+                populateCatSelect(sub, subcategories[mainId] || [], subId || '');
+                const subObj = (subcategories[mainId] || []).find(s => String(s.id) === String(subId));
+                populateCatSelect(child, subObj?.children || [], childId || '');
+                setPendingChange(main.dataset.id, 'category_id', catEffectiveValue(row), main);
+            }
+
+            function applyCategoryToSelectedRows(mainId, subId, childId) {
+                bulkApplySelectedRowCheckboxes().forEach(cb => applyCategoryToRow(cb.closest('tr'), mainId, subId, childId));
+            }
+
+            // ── C. Control de valor dinámico según el tipo de columna
+            // elegida en #prodBulkApplyColumnSelect. ──
+            const PROD_BULK_APPLY_CAT_MAIN_ID = 'prodBulkApplyCatMain';
+            const PROD_BULK_APPLY_CAT_SUB_ID = 'prodBulkApplyCatSub';
+            const PROD_BULK_APPLY_CAT_CHILD_ID = 'prodBulkApplyCatChild';
+
+            function buildApplyValueControl(colKey) {
+                prodBulkApplyValueWrap.innerHTML = '';
+                const col = bulkApplyColumnConfig(colKey);
+                if (!col) return;
+
+                // select-category-main: los 3 selects en cascada, con IDs
+                // PROPIOS (nunca las clases .prod-bulk-cat-main/sub/child) —
+                // el listener existente de cascada por fila hace
+                // `e.target.closest('tr')`, que daría null aquí y tronaría.
+                if (col.type === 'select-category-main') {
+                    prodBulkApplyValueWrap.innerHTML =
+                        `<select id="${PROD_BULK_APPLY_CAT_MAIN_ID}"><option value="">Principal...</option></select>` +
+                        `<select id="${PROD_BULK_APPLY_CAT_SUB_ID}" disabled><option value="">Subcategoría...</option></select>` +
+                        `<select id="${PROD_BULK_APPLY_CAT_CHILD_ID}" disabled><option value="">Hija...</option></select>`;
+
+                    const mainSel = document.getElementById(PROD_BULK_APPLY_CAT_MAIN_ID);
+                    const subSel = document.getElementById(PROD_BULK_APPLY_CAT_SUB_ID);
+                    const childSel = document.getElementById(PROD_BULK_APPLY_CAT_CHILD_ID);
+
+                    rootCategoriesFromDom().forEach(r => {
+                        const opt = document.createElement('option');
+                        opt.value = r.id;
+                        opt.textContent = r.name;
+                        mainSel.appendChild(opt);
+                    });
+
+                    // Categoría se aplica de inmediato al elegir cada nivel
+                    // (como Tags/Canónica), no al hacer clic en el botón
+                    // principal — ver sección G más abajo.
+                    mainSel.addEventListener('change', () => {
+                        populateCatSelect(subSel, subcategories[mainSel.value] || [], '');
+                        populateCatSelect(childSel, [], '');
+                        applyCategoryToSelectedRows(mainSel.value, subSel.value, childSel.value);
+                        syncBulkApplyBar();
+                    });
+                    subSel.addEventListener('change', () => {
+                        const subs = subcategories[mainSel.value] || [];
+                        const subObj = subs.find(s => String(s.id) === String(subSel.value));
+                        populateCatSelect(childSel, subObj?.children || [], '');
+                        applyCategoryToSelectedRows(mainSel.value, subSel.value, childSel.value);
+                        syncBulkApplyBar();
+                    });
+                    childSel.addEventListener('change', () => {
+                        applyCategoryToSelectedRows(mainSel.value, subSel.value, childSel.value);
+                        syncBulkApplyBar();
+                    });
+                    return;
+                }
+
+                if (col.type === 'select-brand') {
+                    const select = document.createElement('select');
+                    select.id = 'prodBulkApplyValueSelect';
+                    select.innerHTML = '<option value="">Seleccionar...</option>';
+                    (bulkApplyBrands || []).forEach(b => {
+                        const opt = document.createElement('option');
+                        opt.value = b.id;
+                        opt.textContent = b.name;
+                        select.appendChild(opt);
+                    });
+                    prodBulkApplyValueWrap.appendChild(select);
+                    select.addEventListener('change', syncBulkApplyBar);
+                    return;
+                }
+
+                if (col.type === 'select') {
+                    const select = document.createElement('select');
+                    select.id = 'prodBulkApplyValueSelect';
+                    Object.entries(col.options || {}).forEach(([val, label]) => {
+                        const opt = document.createElement('option');
+                        opt.value = val;
+                        opt.textContent = label;
+                        select.appendChild(opt);
+                    });
+                    prodBulkApplyValueWrap.appendChild(select);
+                    select.addEventListener('change', syncBulkApplyBar);
+                    return;
+                }
+
+                if (col.type === 'checkbox') {
+                    const select = document.createElement('select');
+                    select.id = 'prodBulkApplyValueSelect';
+                    select.innerHTML = '<option value="1">Sí</option><option value="0">No</option>';
+                    prodBulkApplyValueWrap.appendChild(select);
+                    select.addEventListener('change', syncBulkApplyBar);
+                    return;
+                }
+
+                if (col.type === 'tags') {
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.id = 'prodBulkApplyTagsBtn';
+                    btn.textContent = 'Elegir tags...';
+                    prodBulkApplyValueWrap.appendChild(btn);
+                    btn.addEventListener('click', () => {
+                        tagsApplyMode = true;
+                        tagsEditingTrigger = null;
+                        tagList.innerHTML = '';
+                        closeTagSuggestions();
+                        tagsModal.classList.add('active');
+                    });
+                    return;
+                }
+
+                // El tipo real en $bulkEditColumns/window.PROD_BULK_APPLY_COLUMNS
+                // es 'canonical-picker' (no 'canonical' — esa es la KEY de la
+                // columna, no su type).
+                if (col.type === 'canonical-picker') {
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.id = 'prodBulkApplyCanonicalBtn';
+                    btn.textContent = 'Elegir producto canónico...';
+                    prodBulkApplyValueWrap.appendChild(btn);
+                    btn.addEventListener('click', () => {
+                        canonicalApplyMode = true;
+                        canonicalEditingTrigger = null;
+                        canonicalSelectedProduct = null;
+                        canonicalMode = 'none';
+                        canonicalUrlInput.value = '';
+                        renderCanonicalModalState();
+                        canonicalModal.classList.add('active');
+
+                        window.CanonicalPicker.mountSearchOnly(canonicalSearchContainer, {
+                            onSelect(p) {
+                                canonicalSelectedProduct = p;
+                                canonicalMode = 'product';
+                                renderCanonicalModalState();
+                            },
+                        });
+                    });
+                    return;
+                }
+
+                // text / number (default)
+                const input = document.createElement('input');
+                input.type = (col.type === 'number') ? 'number' : 'text';
+                input.id = 'prodBulkApplyValueInput';
+                prodBulkApplyValueWrap.appendChild(input);
+                input.addEventListener('input', syncBulkApplyBar);
+            }
+
+            function getApplyValue(colKey) {
+                const col = bulkApplyColumnConfig(colKey);
+                if (!col) return undefined;
+
+                if (col.type === 'select-category-main') {
+                    return {
+                        main: document.getElementById(PROD_BULK_APPLY_CAT_MAIN_ID)?.value || '',
+                        sub: document.getElementById(PROD_BULK_APPLY_CAT_SUB_ID)?.value || '',
+                        child: document.getElementById(PROD_BULK_APPLY_CAT_CHILD_ID)?.value || '',
+                    };
+                }
+                if (col.type === 'checkbox') {
+                    const select = document.getElementById('prodBulkApplyValueSelect');
+                    return select ? select.value === '1' : false;
+                }
+                if (col.type === 'select' || col.type === 'select-brand') {
+                    return document.getElementById('prodBulkApplyValueSelect')?.value ?? '';
+                }
+                if (col.type === 'tags' || col.type === 'canonical-picker') {
+                    // Se aplican al guardar sus propios modales (D/E), no
+                    // desde acá — ver el listener de prodBulkApplyBtn abajo.
+                    return undefined;
+                }
+                return document.getElementById('prodBulkApplyValueInput')?.value ?? '';
+            }
+
+            prodBulkApplyColumnSelect.addEventListener('change', () => {
+                buildApplyValueControl(prodBulkApplyColumnSelect.value);
+                syncBulkApplyBar();
+            });
+
+            // ── F. Contador + habilitar/deshabilitar el botón principal ──
+            function syncBulkApplyBar() {
+                const selected = bulkApplySelectedRowCheckboxes();
+                prodBulkApplyCount.textContent = selected.length;
+                prodBulkApplyBar.classList.toggle('active', selected.length > 0);
+
+                const colKey = prodBulkApplyColumnSelect.value;
+                const col = bulkApplyColumnConfig(colKey);
+
+                let hasValue = false;
+                if (col) {
+                    if (col.type === 'select-category-main') {
+                        hasValue = !!document.getElementById(PROD_BULK_APPLY_CAT_MAIN_ID)?.value;
+                    } else {
+                        // Resto de tipos (incluidos tags/canonical-picker):
+                        // cualquier valor cuenta, incluido vacío — ej.
+                        // shipping_cost/free_shipping_threshold ya aceptan
+                        // vacío en servidor. Tags/Canónica se aplican de
+                        // inmediato al guardar su propio modal (D/E); el botón
+                        // principal no ejecuta ninguna acción para ellos (ver
+                        // más abajo) pero se deja habilitado como affordance.
+                        hasValue = true;
+                    }
+                }
+
+                prodBulkApplyBtn.disabled = !(selected.length > 0 && colKey && hasValue);
+            }
+
+            // ── G. Botón principal "Aplicar a seleccionados" ──
+            prodBulkApplyBtn.addEventListener('click', () => {
+                const colKey = prodBulkApplyColumnSelect.value;
+                const col = bulkApplyColumnConfig(colKey);
+                if (!col || !colKey) return;
+
+                if (col.type === 'select-category-main') {
+                    // No-op: la categoría ya se aplicó fila por fila desde los
+                    // listeners propios de #prodBulkApplyCatMain/Sub/Child
+                    // (ver buildApplyValueControl, sección C).
+                    return;
+                }
+                if (col.type === 'tags' || col.type === 'canonical-picker') {
+                    // No-op: ya se aplicó al guardar el modal correspondiente
+                    // (tagsSaveBtn/canonicalSaveBtn en modo "aplicar").
+                    return;
+                }
+
+                applyToSelectedRows(colKey, getApplyValue(colKey));
+                // No se desmarcan las filas seleccionadas — a diferencia de
+                // "Asignar proveedor" (que guarda de inmediato), aquí la
+                // selección debe persistir para poder aplicar una segunda
+                // columna distinta a las mismas filas antes de "Guardar
+                // cambios".
+                syncBulkApplyBar();
+            });
+
+            syncBulkApplyBar();
         })();
     </script>
 @endpush

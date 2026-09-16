@@ -58,6 +58,35 @@
         // abrumar con ~27 columnas de entrada.
         $defaultVisibleColumns = ['price', 'compare_price', 'cost', 'stock', 'category_id', 'brand_id', 'is_active', 'publish_on_website'];
         $columnGroups = collect($bulkEditColumns)->groupBy('group');
+
+        // Whitelist de columnas aplicables de un jalón a todas las filas
+        // seleccionadas ("Aplicar a seleccionados") — subconjunto de
+        // $bulkEditColumns de arriba, ver el plan aprobado. Deja fuera texto
+        // libre no repetible (Nombre/Modelo/Slug/Descripciones/SEO/Social) y
+        // los campos complejos Especificaciones/FAQ.
+        $bulkApplyKeys = ['price','price_includes_tax','compare_price','cost','shipping_cost','free_shipping_threshold',
+            'stock','stock_unit','currency','availability','category_id','brand_id','is_active','publish_on_website',
+            'is_featured','is_new','is_recommended','show_in_merchant_center','tags','canonical'];
+        $bulkApplyColumns = collect($bulkEditColumns)->whereIn('key', $bulkApplyKeys)->values();
+        $bulkApplyGroups = $bulkApplyColumns->groupBy('group');
+
+        // Shape simple (key/type/options) para exponer a JS — calculado
+        // aquí, en una variable propia, para que la directiva "json" del
+        // script de abajo sea de una sola línea sin closures anidados (una
+        // expresión multilínea con un fn() adentro confundía al compilador
+        // de directivas de Blade y truncaba el HTML/JS generado).
+        $bulkApplyColumnsForJs = $bulkApplyColumns->map(function ($c) {
+            return ['key' => $c['key'], 'type' => $c['type'], 'options' => $c['options'] ?? null];
+        })->values();
+
+        // $brands ya llega a esta vista desde ProductController::bulkEditIndex()
+        // (Brand::orderBy('name')->get(['id','name']) — sin filtrar
+        // is_active, a diferencia de create()/edit(); se deja igual aquí, no
+        // se toca el controller en este pase). Se recorta a solo id/name
+        // para JS, en vez de exponer el modelo completo.
+        $bulkApplyBrandsForJs = $brands->map(function ($b) {
+            return ['id' => $b->id, 'name' => $b->name];
+        })->values();
     @endphp
 
     <div class="prod-page prod-bulk-edit-page">
@@ -555,5 +584,41 @@
         </select>
         <button type="button" id="prodSupplierAssignBtn">Asignar</button>
     </div>
+
+    {{-- Barra de "Aplicar a seleccionados" — aplica un mismo valor a una
+         columna elegida en todas las filas marcadas con el checkbox de
+         selección, dejándolas en "cambios sin guardar" (mismo Map `changes`
+         y botón "Guardar cambios" ya existentes) — nunca escribe en BD de
+         inmediato, a diferencia de la barra de "Asignar proveedor" de arriba. --}}
+    <div id="prodBulkApplyBar" class="prod-bulk-apply-bar">
+        <div class="prod-bulk-apply-bar-row">
+            <span class="prod-bulk-count"><span id="prodBulkApplyCount">0</span> producto(s) seleccionado(s) en esta página</span>
+            <select id="prodBulkApplyColumnSelect">
+                <option value="">Aplicar columna...</option>
+                @foreach ($bulkApplyGroups as $group => $cols)
+                    <optgroup label="{{ $group }}">
+                        @foreach ($cols as $col)
+                            <option value="{{ $col['key'] }}" data-type="{{ $col['type'] }}">{{ $col['label'] }}</option>
+                        @endforeach
+                    </optgroup>
+                @endforeach
+            </select>
+            <div id="prodBulkApplyValueWrap"></div>
+            <button type="button" id="prodBulkApplyBtn" disabled>Aplicar a seleccionados</button>
+        </div>
+        <p class="prod-bulk-apply-bar-hint">Solo afecta lo seleccionado en esta página — no a todos los productos filtrados. Si necesitas cubrir todo el filtro, cambia primero el selector de página a "Todos".</p>
+    </div>
+
+    {{-- Datos para la barra de "Aplicar a seleccionados" (window.PROD_BULK_APPLY_*) —
+         solo datos, sin lógica: la lógica de aplicado vive en
+         _bulk_edit_scripts.blade.php (no se toca desde aquí). Se pushea
+         antes del include de ese script, al final del archivo, para que lo
+         encuentre ya con estas variables globales definidas. --}}
+    @push('scripts')
+        <script>
+            window.PROD_BULK_APPLY_COLUMNS = @json($bulkApplyColumnsForJs);
+            window.PROD_BULK_APPLY_BRANDS = @json($bulkApplyBrandsForJs);
+        </script>
+    @endpush
 @endsection
 @include('admin.products._bulk_edit_scripts')
