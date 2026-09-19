@@ -372,6 +372,9 @@ img { max-width: 100%; height: auto; display: block; }
 .eq-footer__contact { color: #9ca3af; font-size: 13.5px; line-height: 1.8; }
 .eq-footer__contact a { display: inline; color: #9ca3af; padding: 0; }
 .eq-footer__legal { display: flex; justify-content: space-between; align-items: center; padding-top: 20px; color: #4b5563; font-size: 12.5px; flex-wrap: wrap; gap: 8px; }
+.eq-footer__credit { color: #4b5563; }
+.eq-footer__credit a { color: #6b7280; text-decoration: none; }
+.eq-footer__credit a:hover { color: #9ca3af; text-decoration: underline; }
 .footer-legal-links { display: flex; align-items: center; list-style: none; margin: 0; padding: 0; gap: 16px; flex-wrap: wrap; }
 .footer-legal-links li { display: inline-flex; align-items: center; }
 .footer-legal-links li:not(:last-child)::after { content: '•'; margin-left: 16px; color: #4b5563; }

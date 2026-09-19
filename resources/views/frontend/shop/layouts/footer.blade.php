@@ -47,6 +47,7 @@
                 </ul>
             </nav>
       <span>Distribuidor autorizado Masstercal Rinnai · Aquaplus</span>
+      <span class="eq-footer__credit">Página web: <a href="https://rankprosolutions.com.mx/" target="_blank" rel="noopener nofollow">RankPro Solutions</a></span>
     </div>
   </div>
 </footer>
