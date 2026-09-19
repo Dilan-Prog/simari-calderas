@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Collection;
 use App\Models\Products;
+use App\Models\ServicePage;
 use Carbon\Carbon;
 use Spatie\Sitemap\Sitemap;
 use Spatie\Sitemap\Tags\Url;
@@ -64,6 +65,21 @@ class SitemapController extends Controller
                     ->setPriority(0.7)
                     ->setChangeFrequency('weekly')
                     ->setLastModificationDate($product->updated_at ?? now())
+            );
+        }
+
+        // Páginas de Servicio (hub /servicios, categorías y servicios hoja).
+        // whereNull('canonical_url'): una página con canonical_url apunta a
+        // OTRA URL como su versión canónica (ver ServicePageController::
+        // update, es_canonical desmarcado) -- listarla aquí duplicaría
+        // contenido canónico hacia otra parte, mismo criterio que Google
+        // recomienda para sitemaps.
+        foreach (ServicePage::where('is_active', true)->whereNull('canonical_url')->get(['id', 'slug', 'page_type', 'parent_id', 'updated_at']) as $page) {
+            $sitemap->add(
+                Url::create(url($page->publicPath()))
+                    ->setPriority($page->page_type === ServicePage::TYPE_SERVICE ? 0.7 : 0.8)
+                    ->setChangeFrequency('weekly')
+                    ->setLastModificationDate($page->updated_at ?? now())
             );
         }
 
