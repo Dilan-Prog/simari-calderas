@@ -51,6 +51,8 @@ class MenuItem extends Model
                 ? route('catalog.index', ['marca' => [$this->linked_entity_id]]) : '#',
             'product' => ($p = Products::find($this->linked_entity_id))
                 ? route('product.show', $p->slug) : '#',
+            'service_page' => ($sp = ServicePage::find($this->linked_entity_id))
+                ? url($sp->publicPath()) : '#',
             'static_page' => $this->url ? route($this->url) : '#',
             default => $this->url ?: '#',
         };

@@ -196,6 +196,7 @@
                     <option value="collection">Colección</option>
                     <option value="brand">Marca</option>
                     <option value="product">Producto</option>
+                    <option value="service_page">Página de Servicio</option>
                     <option value="static_page">Página estática</option>
                 </select>
             </div>
@@ -280,6 +281,21 @@
                         <button type="button" id="menuProductChipClear" aria-label="Quitar">&times;</button>
                     </span>
                 </div>
+            </div>
+
+            {{-- service_page: Páginas de Servicio (/servicios/...), pocas
+                 filas hoy -- select plano, mismo patrón simple que
+                 collection/brand. El nombre del padre se antepone para
+                 distinguir un servicio hoja de su categoría ("Calderas ›
+                 Diagnóstico"), ver $servicePages en MenuController::edit(). --}}
+            <div class="users-manager-email-camp menu-dest-field" data-link-type="service_page" id="menuDestServicePage" style="display:none;">
+                <label class="supliers-manager-slider-label">Página de Servicio</label>
+                <select class="users-manager-select" id="menuItemServicePageSelect">
+                    <option value="">Seleccionar...</option>
+                    @foreach ($servicePages ?? [] as $sp)
+                        <option value="{{ $sp->id }}">{{ $sp->page_type === 'service' && $sp->parent ? $sp->parent->name . ' › ' . $sp->name : $sp->name }}</option>
+                    @endforeach
+                </select>
             </div>
 
             {{-- static_page --}}

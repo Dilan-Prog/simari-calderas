@@ -9,6 +9,7 @@ use App\Models\Collection;
 use App\Models\Menu;
 use App\Models\MenuItem;
 use App\Models\Products;
+use App\Models\ServicePage;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
@@ -84,6 +85,18 @@ class MenuController extends Controller
         $collections = Collection::where('is_active', true)->orderBy('name')->get(['id', 'name']);
         $brands = Brand::where('is_active', true)->orderBy('name')->get(['id', 'name']);
 
+        // Páginas de Servicio activas (hub/categoría/servicio) -- se listan
+        // todas juntas en un solo <select> con el nombre del padre como
+        // prefijo para los servicios hoja ("Calderas › Diagnóstico"), igual
+        // de simple que categories/collections/brands ya que el volumen de
+        // Páginas de Servicio es bajo (no amerita un buscador AJAX como el
+        // de productos).
+        $servicePages = ServicePage::where('is_active', true)
+            ->with('parent:id,name')
+            ->orderBy('page_type')
+            ->orderBy('name')
+            ->get(['id', 'name', 'page_type', 'parent_id']);
+
         // Nombres legibles para el resumen de destino de cada ítem existente
         // en el árbol del admin ("Categoría: Calentadores Masstercal"). Como
         // linked_entity_type/linked_entity_id es una convención propia (no
@@ -99,6 +112,7 @@ class MenuController extends Controller
             'collection' => Collection::whereIn('id', $idsByType->get('collection', collect()))->pluck('name', 'id'),
             'brand'      => Brand::whereIn('id', $idsByType->get('brand', collect()))->pluck('name', 'id'),
             'product'    => Products::whereIn('id', $idsByType->get('product', collect()))->pluck('name', 'id'),
+            'service_page' => ServicePage::whereIn('id', $idsByType->get('service_page', collect()))->pluck('name', 'id'),
         ];
 
         $staticPageLabels = [
@@ -119,7 +133,7 @@ class MenuController extends Controller
 
         return view('admin.menus.edit', compact(
             'menu', 'rootItems', 'childrenByParent',
-            'categories', 'collections', 'brands', 'linkedEntityNames'
+            'categories', 'collections', 'brands', 'servicePages', 'linkedEntityNames'
         ));
     }
 
@@ -300,11 +314,11 @@ class MenuController extends Controller
      */
     private function linkTypeValidationRules(Request $request): array
     {
-        $entityTypes = ['category', 'collection', 'brand', 'product'];
+        $entityTypes = ['category', 'collection', 'brand', 'product', 'service_page'];
         $linkType = $request->input('link_type');
 
         return [
-            'link_type' => ['required', Rule::in(['category', 'collection', 'brand', 'product', 'static_page', 'custom_url'])],
+            'link_type' => ['required', Rule::in(['category', 'collection', 'brand', 'product', 'service_page', 'static_page', 'custom_url'])],
             'linked_entity_id' => [
                 Rule::requiredIf(in_array($linkType, $entityTypes, true)),
                 'nullable',
@@ -319,6 +333,7 @@ class MenuController extends Controller
                         'collection' => Collection::whereKey($value)->exists(),
                         'brand'      => Brand::whereKey($value)->exists(),
                         'product'    => Products::whereKey($value)->exists(),
+                        'service_page' => ServicePage::whereKey($value)->exists(),
                         default      => true,
                     };
 
@@ -358,6 +373,7 @@ class MenuController extends Controller
             case 'collection':
             case 'brand':
             case 'product':
+            case 'service_page':
                 $item->linked_entity_id = $request->linked_entity_id;
                 $item->url = null;
                 break;

@@ -366,14 +366,18 @@
                 }
             }
 
-            /* ── Colección / Marca: <select> simples ── */
+            /* ── Colección / Marca / Página de Servicio: <select> simples ── */
             const collectionSelect = document.getElementById('menuItemCollectionSelect');
             const brandSelect = document.getElementById('menuItemBrandSelect');
+            const servicePageSelect = document.getElementById('menuItemServicePageSelect');
 
             collectionSelect.addEventListener('change', function() {
                 linkedEntityIdHidden.value = this.value;
             });
             brandSelect.addEventListener('change', function() {
+                linkedEntityIdHidden.value = this.value;
+            });
+            servicePageSelect.addEventListener('change', function() {
                 linkedEntityIdHidden.value = this.value;
             });
 
@@ -494,7 +498,7 @@
                 document.getElementById('menuItemSortOrder').value = '0';
 
                 // Destino: custom_url es el default razonable (única
-                // opción de hoy) — limpia los 6 bloques condicionales para
+                // opción de hoy) — limpia los 7 bloques condicionales para
                 // que ninguno arrastre datos del elemento anterior.
                 linkTypeSelect.value = 'custom_url';
                 linkedEntityIdHidden.value = '';
@@ -505,6 +509,7 @@
                 categoryChild.disabled = true;
                 collectionSelect.value = '';
                 brandSelect.value = '';
+                servicePageSelect.value = '';
                 staticPageSelect.value = 'privacy-notice';
                 clearSelectedProduct();
                 syncItemDestinationFields();
@@ -570,6 +575,9 @@
                         linkedEntityIdHidden.value = linkedEntityId;
                     } else if (linkType === 'brand') {
                         brandSelect.value = linkedEntityId;
+                        linkedEntityIdHidden.value = linkedEntityId;
+                    } else if (linkType === 'service_page') {
+                        servicePageSelect.value = linkedEntityId;
                         linkedEntityIdHidden.value = linkedEntityId;
                     } else if (linkType === 'product') {
                         linkedEntityIdHidden.value = linkedEntityId;
