@@ -9,7 +9,21 @@
         <div>
           <div class="eq-footer__col-title">{{ $footerMenu['menu']->name }}</div>
           @foreach ($footerMenu['items'] as $item)
-            <a href="{{ $item->resolved_url }}" target="{{ $item->target }}">{{ $item->title }}</a>
+            @if ($item->children->isNotEmpty())
+              <details class="eq-footer__item-group">
+                <summary class="eq-footer__item-summary">
+                  <a href="{{ $item->resolved_url }}" target="{{ $item->target }}" onclick="event.stopPropagation()">{{ $item->title }}</a>
+                  <svg class="eq-footer__item-chevron" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                </summary>
+                <div class="eq-footer__item-children">
+                  @foreach ($item->children as $child)
+                    <a href="{{ $child->resolved_url }}" target="{{ $child->target }}">{{ $child->title }}</a>
+                  @endforeach
+                </div>
+              </details>
+            @else
+              <a href="{{ $item->resolved_url }}" target="{{ $item->target }}">{{ $item->title }}</a>
+            @endif
           @endforeach
         </div>
       @endforeach

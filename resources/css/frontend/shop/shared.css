@@ -387,6 +387,27 @@ img { max-width: 100%; height: auto; display: block; }
 .eq-footer__grid a:hover { color: var(--secondary-color); }
 .eq-footer__contact { color: #9ca3af; font-size: 13.5px; line-height: 1.8; }
 .eq-footer__contact a { display: inline; color: #9ca3af; padding: 0; }
+/* Ítem del footer con subcategorías: acordeón nativo <details>/<summary> --
+   el título sigue siendo un link (navega directo a la categoría), la
+   flecha es lo que se "presiona" para desplegar/ocultar los hijos, mismo
+   criterio que un footer de Shopify. */
+.eq-footer__item-group { margin: 0; }
+.eq-footer__item-summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 5px 0;
+    cursor: pointer;
+    list-style: none;
+}
+.eq-footer__item-summary::-webkit-details-marker { display: none; }
+.eq-footer__item-summary a { display: inline; padding: 0; }
+.eq-footer__item-chevron { flex-shrink: 0; color: #6b7280; transition: transform 0.2s ease; }
+.eq-footer__item-group[open] .eq-footer__item-chevron { transform: rotate(180deg); }
+.eq-footer__item-children { padding-left: 14px; }
+.eq-footer__item-children a { font-size: 13px; }
+
 .eq-footer__legal { display: flex; justify-content: space-between; align-items: center; padding-top: 20px; color: #4b5563; font-size: 12.5px; flex-wrap: wrap; gap: 8px; }
 .eq-footer__credit { color: #4b5563; }
 .eq-footer__credit a { color: #6b7280; text-decoration: none; }
