@@ -162,7 +162,7 @@ import Sortable from 'sortablejs';
     let viewport = 'desktop';
 
     const generalData = Object.assign({
-        name: '', slug: '', short_description: '', price: '', currency: 'MXN', show_price: true,
+        name: '', slug: '', sort_order: 0, short_description: '', price: '', currency: 'MXN', show_price: true,
         background_color: null,
         seo_title: '', seo_description: '', canonical_url: '', is_active: false, faqs: [],
         // Estadísticas de marketing (ver ServicePageController::fillRatingStats).
@@ -937,6 +937,8 @@ import Sortable from 'sortablejs';
                 `, 'leGenParentField')}
             </div>
             <p class="hs-config-note">/servicios → hub · /servicios/{categoría} → nivel 2 · /servicios/{categoría}/{servicio} → nivel 3. Un servicio sin padre se sirve en /servicio/{slug} (legacy).</p>
+            ${field('Orden', `<input type="number" min="0" step="1" class="users-manager-input" id="leGenSortOrder" value="${escHtml(generalData.sort_order)}">`, '')}
+            <p class="hs-config-note" style="margin-top:-8px;">Controla el orden entre páginas con el mismo padre (menor primero) -- se ve reflejado en la lista "Páginas de Servicio" del admin y en el menú/mega-menú del sitio público.</p>
             ${field('Descripción corta', `<textarea class="users-manager-input client-modal-textarea" id="leGenShortDesc" rows="2">${escHtml(generalData.short_description)}</textarea>`)}
             <div class="live-editor-field-row">
                 ${field('Precio (opcional)', `<input type="number" step="0.01" min="0" class="users-manager-input" id="leGenPrice" value="${escHtml(generalData.price)}">`)}
@@ -1097,6 +1099,7 @@ import Sortable from 'sortablejs';
             slug: val('leGenSlug', generalData.slug),
             page_type: pageType,
             parent_id: pageType === 'hub' ? '' : val('leGenParentId', generalData.parent_id || ''),
+            sort_order: val('leGenSortOrder', generalData.sort_order),
             short_description: val('leGenShortDesc', generalData.short_description),
             price: val('leGenPrice', generalData.price),
             currency: val('leGenCurrency', generalData.currency),

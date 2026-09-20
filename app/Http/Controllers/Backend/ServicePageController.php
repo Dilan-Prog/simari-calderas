@@ -28,19 +28,29 @@ class ServicePageController extends Controller
         'gallery_carousel', 'rating_reviews', 'cta_final', 'button', 'table_block',
     ];
 
+    /**
+     * Igual que CategoryController::index(): la tabla es un árbol completo
+     * (hub → categoría → servicio, hasta 3 niveles), no una lista plana
+     * paginada -- el filtro de búsqueda/nivel/estado es 100% client-side
+     * sobre las filas ya renderizadas (ver admin.service-pages.index).
+     */
     public function index(Request $request)
     {
-        $servicePages = ServicePage::orderBy('sort_order')
+        $allForTree = ServicePage::with(['children.children'])
+            ->whereNull('parent_id')
+            ->orderBy('sort_order')
             ->orderBy('name')
-            ->when($request->filled('q'), fn ($q) => $q->where('name', 'like', '%' . $request->q . '%'))
-            ->paginate(15)
-            ->withQueryString();
+            ->get();
 
         $visibleColumns = \App\Models\UserColumnPreference::where('user_id', auth()->id())
             ->where('table_key', 'service-pages.index')
             ->value('columns');
 
-        return view('admin.service-pages.index', compact('servicePages', 'visibleColumns'));
+        return view('admin.service-pages.index', [
+            'allForTree' => $allForTree,
+            'total' => ServicePage::count(),
+            'visibleColumns' => $visibleColumns,
+        ]);
     }
 
     /**
@@ -132,6 +142,7 @@ class ServicePageController extends Controller
                     fn ($q) => $q->where('page_type', ServicePage::TYPE_CATEGORY)
                 ),
             ],
+            'sort_order'        => 'nullable|integer|min:0',
             'short_description' => 'nullable|string',
             'price'             => 'nullable|numeric|min:0',
             'currency'          => 'nullable|string|max:10',
@@ -198,6 +209,7 @@ class ServicePageController extends Controller
         $servicePage->slug = $validated['slug'];
         $servicePage->page_type = $validated['page_type'];
         $servicePage->parent_id = $parentId;
+        $servicePage->sort_order = $validated['sort_order'] !== null ? (int) $validated['sort_order'] : 0;
         $servicePage->short_description = $validated['short_description'] ?: null;
         $servicePage->price = $validated['price'] !== null && $validated['price'] !== '' ? $validated['price'] : null;
         $servicePage->currency = $validated['currency'] ?: 'MXN';
@@ -227,6 +239,7 @@ class ServicePageController extends Controller
             'slug' => $servicePage->slug,
             'page_type' => $servicePage->page_type,
             'parent_id' => $servicePage->parent_id,
+            'sort_order' => $servicePage->sort_order,
             'public_path' => $servicePage->publicPath(),
             'short_description' => $servicePage->short_description,
             'price' => $servicePage->price,

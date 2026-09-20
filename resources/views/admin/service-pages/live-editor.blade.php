@@ -843,6 +843,7 @@
                 'slug' => $servicePage->slug,
                 'page_type' => $servicePage->page_type,
                 'parent_id' => $servicePage->parent_id,
+                'sort_order' => $servicePage->sort_order,
                 'short_description' => $servicePage->short_description,
                 'price' => $servicePage->price,
                 'currency' => $servicePage->currency ?: 'MXN',
