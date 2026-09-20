@@ -38,6 +38,23 @@ class SecurityHeaders
             ? ['http://127.0.0.1:5173', 'http://localhost:5173', 'ws://127.0.0.1:5173', 'ws://localhost:5173']
             : [];
 
+        // Payment Brick de Mercado Pago (checkout público) carga su SDK desde
+        // sdk.mercadopago.com, hace llamadas de validación/BIN a
+        // api.mercadopago.com, y renderiza los campos de tarjeta en un
+        // iframe propio (cumplimiento PCI -- el número/CVV nunca tocan nuestro
+        // DOM) servido desde mercadopago.com/mercadolibre.com; sus assets
+        // estáticos (fuentes/íconos) viven en mlstatic.com. Se permiten los
+        // subdominios completos de las 3 familias en vez de listar hosts
+        // sueltos porque el SDK los reparte entre varios (http2.mlstatic.com,
+        // www.mercadopago.com.mx, etc.) y no está documentado como una lista
+        // cerrada -- sin esto el navegador bloquea el script en silencio
+        // (se ve como fallo de red en devtools, no como error de CSP a
+        // simple vista) sin importar si la página es HTTP o HTTPS.
+        $mercadoPagoScript = 'https://sdk.mercadopago.com https://*.mlstatic.com';
+        $mercadoPagoConnect = 'https://*.mercadopago.com https://*.mlstatic.com';
+        $mercadoPagoFrame = 'https://*.mercadopago.com https://*.mercadolibre.com';
+        $mercadoPagoStyle = 'https://*.mlstatic.com';
+
         $csp = implode('; ', [
             "default-src 'self'",
             // 'unsafe-eval' es necesario porque Alpine.js (usado en todo el
@@ -47,11 +64,12 @@ class SecurityHeaders
             // al usuario, simplemente deja de evaluar condiciones y los
             // elementos x-show quedan permanentemente en su estado inicial del
             // DOM (visible), como el mega-menú "Próximamente" que nunca cierra.
-            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com" . (app()->environment('local') ? ' http://127.0.0.1:5173 http://localhost:5173' : ''),
-            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com" . (app()->environment('local') ? ' http://127.0.0.1:5173 http://localhost:5173' : ''),
-            "font-src 'self' https://fonts.gstatic.com",
+            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com {$mercadoPagoScript}" . (app()->environment('local') ? ' http://127.0.0.1:5173 http://localhost:5173' : ''),
+            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com {$mercadoPagoStyle}" . (app()->environment('local') ? ' http://127.0.0.1:5173 http://localhost:5173' : ''),
+            "font-src 'self' https://fonts.gstatic.com https://*.mlstatic.com",
             "img-src 'self' data: https:",
-            "connect-src 'self' https://www.google-analytics.com" . (app()->environment('local') ? ' ' . implode(' ', $viteDevOrigins) : ''),
+            "connect-src 'self' https://www.google-analytics.com {$mercadoPagoConnect}" . (app()->environment('local') ? ' ' . implode(' ', $viteDevOrigins) : ''),
+            "frame-src 'self' {$mercadoPagoFrame}",
             "frame-ancestors 'self'",
         ]);
         $response->headers->set('Content-Security-Policy', $csp);

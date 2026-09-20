@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Frontend\Shop;
 use App\Http\Controllers\Controller;
 use App\Models\Cart;
 use App\Models\CustomerAddress;
+use App\Models\MercadoPagoPayment;
 use App\Models\PaymentMethod;
 use App\Models\StoreOrder;
 use App\Models\StoreOrderItem;
@@ -76,40 +77,99 @@ class CheckoutController extends Controller
         );
     }
 
+    // Mismo catálogo estático ya usado en el selector "Estado" (checkbox de
+    // dirección de envío y modal de la libreta de direcciones).
+    public const ESTADOS_MEXICO = [
+        'Aguascalientes', 'Baja California', 'Baja California Sur', 'Campeche', 'Chiapas',
+        'Chihuahua', 'Ciudad de México', 'Coahuila', 'Colima', 'Durango', 'Estado de México',
+        'Guanajuato', 'Guerrero', 'Hidalgo', 'Jalisco', 'Michoacán', 'Morelos', 'Nayarit',
+        'Nuevo León', 'Oaxaca', 'Puebla', 'Querétaro', 'Quintana Roo', 'San Luis Potosí',
+        'Sinaloa', 'Sonora', 'Tabasco', 'Tamaulipas', 'Tlaxcala', 'Veracruz', 'Yucatán', 'Zacatecas',
+    ];
+
+    /**
+     * Checkout de una sola página, tipo acordeón (Carrito / Dirección de
+     * envío / Método de pago apilados en un solo <div>, sin navegar entre
+     * URLs distintas) -- ensambla aquí TODO lo que antes vivía repartido
+     * entre index()/shipping()/payment() para que la vista pueda renderizar
+     * las 3 secciones de una sola vez. El estado de avance real (qué tanto
+     * ya se llenó) sigue viviendo donde ya vivía: el carrito en BD y los
+     * datos de envío en session('checkout.shipping') -- storeShipping()/
+     * confirm() no cambiaron su forma de guardar nada, solo ganaron una
+     * rama JSON para no forzar una navegación de página completa.
+     */
     public function index()
     {
+        // session('checkout.mp_order_id') (ver confirm()) es a propósito
+        // permanente -- existe para reutilizar el pedido ya creado tanto si
+        // el cliente cambia de radio Tarjeta<->Mercado Pago sin recargar esta
+        // página, como si un cobro de Checkout Pro se rechaza y necesita
+        // reintentar el MISMO pedido (ver openCheckoutProPopup() en
+        // checkout-payment.js). Limpiarla aquí en cada GET rompía ese
+        // segundo caso -- la única defensa real contra reutilizar un pedido
+        // viejo de una sesión de checkout ya abandonada es la ventana de 30
+        // minutos en confirm(), no esto.
         $cart = $this->currentCart()->load('items.product.images');
 
         $subtotal = $cart->subtotal();
         $taxTotal = $cart->taxTotal();
         $shippingTotal = $cart->shippingTotal();
         $freeShippingProgress = $cart->freeShippingProgress();
+        $summary = [
+            'subtotal'      => $subtotal,
+            'taxTotal'      => $taxTotal,
+            'shippingTotal' => $shippingTotal,
+            'total'         => round($subtotal + $taxTotal + $shippingTotal, 2),
+        ];
 
-        return view('frontend.shop.checkout.index', compact('cart', 'subtotal', 'taxTotal', 'shippingTotal', 'freeShippingProgress'));
-    }
-
-    public function shipping()
-    {
-        $cart = $this->currentCart()->load('items');
-
-        if ($cart->items->isEmpty()) {
-            return redirect()->route('checkout.index')->with('error', 'Tu carrito está vacío.');
-        }
-
+        $customer = Auth::guard('customer')->user();
         $addresses = collect();
-        if (Auth::guard('customer')->check()) {
-            $addresses = CustomerAddress::where('customer_id', Auth::guard('customer')->id())->get();
+        if ($customer) {
+            $addresses = CustomerAddress::where('customer_id', $customer->id)->get();
         }
-
-        $termsUrl = route('terms-of-service');
-
         // Precarga: dirección default del cliente si existe, si no la primera.
         $prefill = $addresses->firstWhere('is_default', true) ?? $addresses->first();
 
+        $paymentMethods = PaymentMethod::where('is_active', true)->orderBy('sort_order')->get();
+
+        // La opción "Mercado Pago" (Checkout Pro) se deshabilita de antemano
+        // cuando el carrito ya mezcla productos con/sin MSI -- ese caso
+        // siempre termina en 2 "cobros" (ver createMercadoPagoPaymentSlots())
+        // y checkoutPro() ya rechaza pedidos con más de 1 cobro. Evita un
+        // clic muerto: sin esto, el radio se vería seleccionable y solo al
+        // confirmar aparecería el 422.
+        $cartWouldSplitMsi = $this->cartHasMixedMsiProducts($cart);
+
+        $termsUrl = route('terms-of-service');
         $usoCfdiOptions = self::USO_CFDI_OPTIONS;
         $regimenFiscalOptions = self::REGIMEN_FISCAL_OPTIONS;
+        $estadosMexico = self::ESTADOS_MEXICO;
+        $deliveryEstimateLabel = config('shop.delivery_estimate_label');
 
-        return view('frontend.shop.checkout.shipping', compact('addresses', 'termsUrl', 'prefill', 'usoCfdiOptions', 'regimenFiscalOptions'));
+        // Si el cliente ya llenó envío en una visita previa de esta misma
+        // sesión (recargó la página, volvió de un paso de MP, etc.), la
+        // sección de envío arranca marcada "completada" en vez de forzarlo a
+        // recapturar todo -- el JS del acordeón usa esto solo para decidir
+        // el estado inicial, storeShipping() sigue siendo la única fuente
+        // real de verdad de si los datos ya están guardados.
+        $shippingCompleted = session()->has('checkout.shipping');
+
+        return view('frontend.shop.checkout.index', compact(
+            'cart', 'subtotal', 'taxTotal', 'shippingTotal', 'freeShippingProgress', 'summary',
+            'customer', 'addresses', 'prefill', 'termsUrl', 'usoCfdiOptions', 'regimenFiscalOptions', 'estadosMexico',
+            'paymentMethods', 'shippingCompleted', 'cartWouldSplitMsi', 'deliveryEstimateLabel'
+        ));
+    }
+
+    // Mismo agrupamiento por accepts_msi que createMercadoPagoPaymentSlots(),
+    // pero de solo lectura sobre las líneas del carrito -- antes de que
+    // exista ningún StoreOrder/MercadoPagoPayment todavía (se usa para
+    // decidir, en index(), si la opción "Mercado Pago" debe verse deshabilitada).
+    private function cartHasMixedMsiProducts(Cart $cart): bool
+    {
+        $groups = $cart->items->groupBy(fn ($item) => ($item->product?->accepts_msi ?? false) ? 1 : 2);
+
+        return $groups->get(1, collect())->isNotEmpty() && $groups->get(2, collect())->isNotEmpty();
     }
 
     public function storeShipping(Request $request)
@@ -117,6 +177,10 @@ class CheckoutController extends Controller
         $cart = $this->currentCart()->load('items');
 
         if ($cart->items->isEmpty()) {
+            if ($request->wantsJson()) {
+                return response()->json(['message' => 'Tu carrito está vacío.'], 422);
+            }
+
             return redirect()->route('checkout.index')->with('error', 'Tu carrito está vacío.');
         }
 
@@ -125,11 +189,11 @@ class CheckoutController extends Controller
             'contact_email'           => ['required', 'email', 'max:150'],
             'contact_phone'           => ['required', 'string', 'max:30'],
             'shipping_address_line1'  => ['required', 'string', 'max:255'],
-            'shipping_address_line2'  => ['nullable', 'string', 'max:255'],
+            'shipping_address_line2'  => ['required', 'string', 'max:255'], // Colonia
+            'shipping_reference'      => ['nullable', 'string', 'max:255'], // Referencias de entrega (opcional)
             'shipping_city'           => ['required', 'string', 'max:100'],
             'shipping_state'          => ['required', 'string', 'max:100'],
             'shipping_postal_code'    => ['required', 'string', 'max:20'],
-            'terms_accepted'          => ['required', 'accepted'],
             'requires_invoice'        => ['nullable', 'boolean'],
             'rfc'                     => ['required_if:requires_invoice,1', 'nullable', 'string', 'max:13'],
             'uso_cfdi'                => ['required_if:requires_invoice,1', 'nullable', 'string', Rule::in(array_column(self::USO_CFDI_OPTIONS, 'value'))],
@@ -166,7 +230,37 @@ class CheckoutController extends Controller
 
         session()->put('checkout.shipping', $data);
 
-        return redirect()->route('checkout.payment');
+        // Libreta de direcciones (solo clientes con cuenta, y solo cuando
+        // todavía no tienen ninguna guardada -- ver checkbox "Guardar esta
+        // dirección" en la vista): editar/agregar direcciones ya guardadas
+        // se hace aparte, vía el modal de shipping.blade.php +
+        // CustomerAddressController, nunca a través de este formulario.
+        if (Auth::guard('customer')->check() && $request->boolean('save_address')) {
+            $customer = Auth::guard('customer')->user();
+            $customer->customer_addresses()->create([
+                'recipient_name' => $data['contact_name'],
+                'phone'          => $data['contact_phone'],
+                'postal_code'    => $data['shipping_postal_code'],
+                'state'          => $data['shipping_state'],
+                'city'           => $data['shipping_city'],
+                'address_line1'  => $data['shipping_address_line1'],
+                'address_line2'  => $data['shipping_address_line2'] ?? null,
+                'reference'      => $data['shipping_reference'] ?? null,
+                'country'        => 'MX',
+                'is_default'     => $customer->customer_addresses()->doesntExist(),
+            ]);
+        }
+
+        // Acordeón de una sola página: la sección de Envío se envía por
+        // fetch() con Accept: application/json (ver checkout-accordion.js) y
+        // nunca navega -- solo necesita saber que se guardó bien para
+        // colapsar esta sección y abrir la de Método de pago. El redirect de
+        // abajo es respaldo para JS deshabilitado/fetch fallido.
+        if ($request->wantsJson()) {
+            return response()->json(['ok' => true]);
+        }
+
+        return redirect()->route('checkout.index');
     }
 
     /**
@@ -206,52 +300,189 @@ class CheckoutController extends Controller
         return response()->json(['saved' => true]);
     }
 
-    public function payment()
-    {
-        if (! session()->has('checkout.shipping')) {
-            return redirect()->route('checkout.shipping');
-        }
-
-        $cart = $this->currentCart()->load('items.product');
-
-        if ($cart->items->isEmpty()) {
-            return redirect()->route('checkout.index')->with('error', 'Tu carrito está vacío.');
-        }
-
-        $paymentMethods = PaymentMethod::where('is_active', true)->orderBy('sort_order')->get();
-
-        $subtotal = $cart->subtotal();
-        $taxTotal = $cart->taxTotal();
-        $shippingTotal = $cart->shippingTotal();
-        $summary = [
-            'subtotal'      => $subtotal,
-            'taxTotal'      => $taxTotal,
-            'shippingTotal' => $shippingTotal,
-            'total'         => round($subtotal + $taxTotal + $shippingTotal, 2),
-        ];
-        $freeShippingProgress = $cart->freeShippingProgress();
-
-        return view('frontend.shop.checkout.payment', compact('paymentMethods', 'summary', 'freeShippingProgress'));
-    }
-
     public function confirm(Request $request)
     {
         $data = $request->validate([
             'payment_method_id' => ['required', 'integer', 'exists:payment_methods,id'],
+            // Cuando el método elegido es Mercado Pago, este campo decide
+            // cuál de los 2 sub-flujos corre (ver más abajo) -- para
+            // cualquier otro método de pago se ignora por completo. Un solo
+            // PaymentMethod admin sigue siendo la fuente de verdad de "MP
+            // está activo"; esto es una bifurcación de UI/JS del checkout,
+            // no un tipo de método nuevo en la tabla payment_methods.
+            'mp_payment_flow' => ['nullable', 'string', 'in:card,checkout_pro'],
         ]);
 
-        if (! session()->has('checkout.shipping')) {
-            return redirect()->route('checkout.shipping');
+        $paymentMethod = PaymentMethod::find($data['payment_method_id']);
+        $isMercadoPago = $paymentMethod && in_array($paymentMethod->type, ['pasarela', 'digital'], true)
+            && ($paymentMethod->details['processor'] ?? null) === 'mercadopago';
+
+        // Tarjeta (auto-arranca al abrir la sección de Pago, ver
+        // maybeAutoStartMercadoPago() en checkout-accordion.js) ya
+        // consumió session('checkout.shipping') y creó el pedido la primera
+        // vez que este endpoint corrió. Si el cliente después cambia al
+        // radio "Mercado Pago" (o viceversa) dentro del MISMO intento de
+        // checkout, este 2º POST llegaría aquí sin esa sesión y fallaría en
+        // falso con "Primero completa los datos de envío" -- se reutiliza
+        // el pedido ya creado en vez de exigir volver a llenar Envío.
+        $storeOrder = null;
+        if ($isMercadoPago && session('checkout.mp_order_id')) {
+            $existing = StoreOrder::find(session('checkout.mp_order_id'));
+            // Segunda capa de seguridad además de limpiar la sesión en
+            // index() (ver ahí el porqué): el cambio de radio Tarjeta<->
+            // Mercado Pago que motiva esta reutilización ocurre en segundos,
+            // nunca en horas -- una ventana generosa sigue permitiendo ese
+            // caso real sin arriesgar reutilizar un pedido de un intento de
+            // checkout completamente distinto y ya viejo.
+            if ($existing
+                && $existing->status === 'pendiente_pago'
+                && $existing->created_at->gt(now()->subMinutes(30))
+                && $existing->payments()->where('status', 'approved')->doesntExist()) {
+                $storeOrder = $existing;
+            }
         }
 
-        $cart = $this->currentCart()->load('items.product');
+        if (! $storeOrder) {
+            if (! session()->has('checkout.shipping')) {
+                if ($request->wantsJson()) {
+                    return response()->json(['message' => 'Primero completa los datos de envío.'], 422);
+                }
 
-        if ($cart->items->isEmpty()) {
-            return redirect()->route('checkout.index')->with('error', 'Tu carrito está vacío.');
+                return redirect()->route('checkout.index');
+            }
+
+            $cart = $this->currentCart()->load('items.product');
+
+            if ($cart->items->isEmpty()) {
+                return redirect()->route('checkout.index')->with('error', 'Tu carrito está vacío.');
+            }
+
+            $shipping = session('checkout.shipping');
+
+            $storeOrder = $this->createOrderFromCart($cart, $shipping, $data['payment_method_id']);
+
+            session()->forget('checkout.shipping');
         }
 
-        $shipping = session('checkout.shipping');
+        // Mercado Pago (Checkout API/CardForm o Checkout Pro) se ramifica
+        // del resto de métodos de pago justo aquí: el pedido ya existe con
+        // status 'pendiente_pago' igual que cualquier otro método, pero en
+        // vez de mostrar la confirmación directa se arma el cobro (o los 2
+        // cobros, si el carrito mezcla líneas con/sin MSI) y se manda al
+        // cliente al flujo elegido. Para cualquier otro método de pago,
+        // cero cambios: sigue renderizando confirmation.blade.php
+        // exactamente como antes.
+        if ($isMercadoPago) {
+            // createMercadoPagoPaymentSlots() ya es idempotente en la
+            // práctica aquí: solo se llama la primera vez que se crea el
+            // pedido (arriba) -- si se reutilizó uno existente, sus slots
+            // ya están creados y no se duplican.
+            if ($storeOrder->wasRecentlyCreated) {
+                $this->createMercadoPagoPaymentSlots($storeOrder);
+            }
+            session(['checkout.mp_order_id' => $storeOrder->id]);
 
+            $mpFlow = $data['mp_payment_flow'] ?? 'card';
+
+            // Flujo "Mercado Pago" (Wallet/Efectivo/Transferencia/Mercado
+            // Crédito): 100% delegado a Checkout Pro -- ya NO se ofrece como
+            // link secundario bajo la tarjeta, es su propio radio. Solo
+            // aplica con un único cobro (checkoutPro() ya rechaza >1 con
+            // 422; se repite el chequeo aquí para responder sin necesidad de
+            // que el cliente golpee ese endpoint aparte).
+            if ($mpFlow === 'checkout_pro') {
+                if ($storeOrder->payments()->count() > 1) {
+                    if ($request->wantsJson()) {
+                        return response()->json([
+                            'message' => 'Esta opción no está disponible cuando tu pedido combina productos con y sin meses sin intereses. Elige "Tarjeta de crédito o débito".',
+                        ], 422);
+                    }
+
+                    return redirect()->route('checkout.index')->with('error', 'Esta opción no está disponible cuando tu pedido combina productos con y sin meses sin intereses.');
+                }
+
+                $onlyPayment = $storeOrder->payments()->first();
+                // Ruta POST-only (checkoutPro() crea la Order real de MP y
+                // regresa su checkout_url vía JSON) -- el cliente hace un
+                // 2º fetch a esta URL (ver checkout-payment.js) y navega al
+                // resultado. Sin JS no hay forma de completar este flujo en
+                // un solo salto; el respaldo cae a la misma página de
+                // Tarjeta que ya usa el flujo "card" (JS deshabilitado es un
+                // caso ya degradado en el resto de este checkout).
+                $checkoutProUrl = route('checkout.payment.mercadopago.checkout-pro', [$storeOrder->order_number, $onlyPayment->id]);
+                // thanksUrl: a dónde navega la pestaña principal cuando el
+                // popup de Mercado Pago se cierra (ver goToCheckoutPro() en
+                // checkout-payment.js) -- misma ruta a la que MP redirige de
+                // vuelta dentro del popup al terminar el pago.
+                $thanksUrl = route('checkout.payment.mercadopago.thanks', $storeOrder->order_number);
+
+                if ($request->wantsJson()) {
+                    return response()->json(['flow' => 'checkout_pro', 'checkoutProUrl' => $checkoutProUrl, 'thanksUrl' => $thanksUrl]);
+                }
+
+                return redirect()->route('checkout.payment.mercadopago', $storeOrder->order_number);
+            }
+
+            // Flujo "Tarjeta": Checkout API vía CardForm/Secure Fields,
+            // montado directo en payment.blade.php (sin navegar a una URL
+            // aparte) -- checkout-payment.js llama a este mismo endpoint con
+            // Accept: application/json y monta el formulario con esta
+            // respuesta. El redirect de abajo queda como respaldo (JS
+            // deshabilitado, fetch fallido antes de llegar aquí, etc.) --
+            // checkout.payment.mercadopago sigue existiendo y sirviendo esta
+            // misma orden.
+            $cardPublicKey = \App\Services\MercadoPago\MercadoPagoPaymentService::publicKeyFor('api');
+
+            // Sin esto, un rol "api" (Checkout API/Tarjeta) sin Public Key
+            // configurada en /admin/integraciones (o su .env de respaldo)
+            // hacía que new MercadoPago(null) fallara en silencio del lado
+            // del cliente: los 3 campos de tarjeta se quedaban como <div>
+            // vacíos para siempre, sin ningún mensaje -- parecía que el
+            // checkout entero estaba roto en vez de solo faltar una
+            // credencial por configurar.
+            if ($request->wantsJson() && blank($cardPublicKey)) {
+                return response()->json([
+                    'message' => 'El pago con tarjeta no está disponible en este momento (falta configurar Mercado Pago). Intenta con la otra opción de pago o contáctanos.',
+                ], 503);
+            }
+
+            if ($request->wantsJson()) {
+                return response()->json([
+                    'publicKey' => $cardPublicKey,
+                    'retryOnly' => null,
+                    // CardForm necesita un email de payer para tokenizar
+                    // (cardholderEmail, campo oculto no sensible) -- el
+                    // mismo correo de contacto ya capturado en Envío.
+                    'payerEmail' => $storeOrder->contact_email,
+                    'payments' => $storeOrder->payments()->orderBy('charge_group')->get()->map(fn ($p) => [
+                        'id'          => $p->id,
+                        'chargeGroup' => $p->charge_group,
+                        'includesMsi' => (bool) $p->includes_msi,
+                        'amount'      => (float) $p->amount,
+                        'containerId' => 'cardform-' . $p->charge_group,
+                        'chargeUrl'   => route('checkout.payment.mercadopago.charge', [$storeOrder->order_number, $p->id]),
+                    ])->values(),
+                ]);
+            }
+
+            return redirect()->route('checkout.payment.mercadopago', $storeOrder->order_number);
+        }
+
+        // No hay ruta GET dedicada para la confirmación (el bloque de rutas
+        // del checkout son solo las 9 especificadas): se renderiza la vista
+        // directamente desde este POST, mostrando el folio recién creado.
+        return view('frontend.shop.checkout.confirmation', ['storeOrder' => $storeOrder]);
+    }
+
+    /**
+     * Crea el StoreOrder + StoreOrderItems a partir del carrito actual y lo
+     * deja listo para pago (carrito vaciado y marcado como convertido).
+     * Misma lógica exacta que confirm() tenía inline antes de este refactor
+     * -- extraída para que la rama de Mercado Pago pueda reutilizarla sin
+     * duplicar el bloque de creación de la orden.
+     */
+    private function createOrderFromCart(Cart $cart, array $shipping, int $paymentMethodId): StoreOrder
+    {
         // Recalcula todo server-side a partir de los items actuales del
         // carrito: nunca confiar en totales viejos de sesión ni en el
         // cliente. unit_price_snapshot (fijado en CartController::add())
@@ -264,7 +495,7 @@ class CheckoutController extends Controller
         $shippingTotal = $cart->shippingTotal();
         $total = round($subtotal + $taxTotal + $shippingTotal, 2);
 
-        $storeOrder = DB::transaction(function () use ($cart, $shipping, $data, $subtotal, $shippingTotal, $total, $taxTotal) {
+        return DB::transaction(function () use ($cart, $shipping, $paymentMethodId, $subtotal, $shippingTotal, $total, $taxTotal) {
             $storeOrder = StoreOrder::create([
                 'order_number'            => StoreOrder::generateOrderNumber(),
                 'customer_id'             => Auth::guard('customer')->id(),
@@ -273,11 +504,12 @@ class CheckoutController extends Controller
                 'contact_phone'           => $shipping['contact_phone'],
                 'shipping_address_line1'  => $shipping['shipping_address_line1'],
                 'shipping_address_line2'  => $shipping['shipping_address_line2'] ?? null,
+                'shipping_reference'      => $shipping['shipping_reference'] ?? null,
                 'shipping_city'           => $shipping['shipping_city'],
                 'shipping_state'          => $shipping['shipping_state'],
                 'shipping_postal_code'    => $shipping['shipping_postal_code'],
                 'shipping_country'        => 'MX',
-                'payment_method_id'       => $data['payment_method_id'],
+                'payment_method_id'       => $paymentMethodId,
                 'subtotal'                => $subtotal,
                 'shipping_total'          => $shippingTotal,
                 'discount_total'          => 0,
@@ -321,12 +553,86 @@ class CheckoutController extends Controller
 
             return $storeOrder;
         });
+    }
 
-        session()->forget('checkout.shipping');
+    /**
+     * Arma los "slots" de cobro de Mercado Pago para un pedido recién creado:
+     * agrupa sus líneas por si el producto acepta MSI o no y crea 1 fila en
+     * mercado_pago_payments por grupo no vacío (1 o 2 filas). El monto de
+     * cada grupo es su subtotal (line_total de sus líneas) + su parte
+     * proporcional de envío/IVA del pedido -- ambos montos deben sumar
+     * exacto $order->total, así que se redondea uno por proporción directa
+     * y el otro se calcula como el residuo exacto (el grupo con mayor peso
+     * decimal en el reparto se queda con el centavo de redondeo sobrante).
+     */
+    private function createMercadoPagoPaymentSlots(StoreOrder $order): void
+    {
+        $order->loadMissing('items.product');
 
-        // No hay ruta GET dedicada para la confirmación (el bloque de rutas
-        // del checkout son solo las 9 especificadas): se renderiza la vista
-        // directamente desde este POST, mostrando el folio recién creado.
-        return view('frontend.shop.checkout.confirmation', ['storeOrder' => $storeOrder]);
+        $groups = $order->items->groupBy(function (StoreOrderItem $item) {
+            return ($item->product?->accepts_msi ?? false) ? 1 : 2;
+        });
+
+        $msiItems = $groups->get(1, collect());
+        $regularItems = $groups->get(2, collect());
+
+        if ($msiItems->isEmpty() && $regularItems->isEmpty()) {
+            return;
+        }
+
+        // Un solo grupo con contenido: se lleva el pedido completo, sin
+        // necesidad de repartir nada -- charge_group siempre 1 en este caso.
+        if ($msiItems->isEmpty() || $regularItems->isEmpty()) {
+            $onlyGroup = $msiItems->isNotEmpty() ? $msiItems : $regularItems;
+
+            MercadoPagoPayment::create([
+                'store_order_id'       => $order->id,
+                'charge_group'         => 1,
+                'includes_msi'         => $msiItems->isNotEmpty(),
+                'store_order_item_ids' => $onlyGroup->pluck('id')->values()->all(),
+                'amount'               => round((float) $order->total, 2),
+                'currency'             => $order->currency,
+                'status'               => 'pending',
+            ]);
+
+            return;
+        }
+
+        // Ambos grupos tienen líneas: reparte shipping_total + tax_total a
+        // prorrata del peso (subtotal del grupo / subtotal de ambos grupos),
+        // trabajando en centavos enteros para evitar arrastres de flotantes.
+        $msiSubtotalCents = (int) round($msiItems->sum(fn (StoreOrderItem $item) => (float) $item->line_total) * 100);
+        $regularSubtotalCents = (int) round($regularItems->sum(fn (StoreOrderItem $item) => (float) $item->line_total) * 100);
+        $sumSubtotalCents = $msiSubtotalCents + $regularSubtotalCents;
+        $totalCents = (int) round(((float) $order->total) * 100);
+
+        // round() normal (mitad hacia arriba) sobre el monto proporcional del
+        // grupo MSI ya le da el centavo de residuo al grupo con mayor peso
+        // decimal; el grupo regular se calcula como el complemento exacto,
+        // así ambos montos siempre suman exactamente $order->total.
+        $msiAmountCents = $sumSubtotalCents > 0
+            ? (int) round($totalCents * ($msiSubtotalCents / $sumSubtotalCents))
+            : intdiv($totalCents, 2);
+        $regularAmountCents = $totalCents - $msiAmountCents;
+
+        MercadoPagoPayment::create([
+            'store_order_id'       => $order->id,
+            'charge_group'         => 1,
+            'includes_msi'         => true,
+            'store_order_item_ids' => $msiItems->pluck('id')->values()->all(),
+            'amount'               => round($msiAmountCents / 100, 2),
+            'currency'             => $order->currency,
+            'status'               => 'pending',
+        ]);
+
+        MercadoPagoPayment::create([
+            'store_order_id'       => $order->id,
+            'charge_group'         => 2,
+            'includes_msi'         => false,
+            'store_order_item_ids' => $regularItems->pluck('id')->values()->all(),
+            'amount'               => round($regularAmountCents / 100, 2),
+            'currency'             => $order->currency,
+            'status'               => 'pending',
+        ]);
     }
 }

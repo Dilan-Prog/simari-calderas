@@ -168,6 +168,7 @@ return [
         // App\Providers\BroadcastServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\MailSettingsServiceProvider::class,
+        App\Providers\MercadoPagoSettingsServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
     ])->toArray(),
 

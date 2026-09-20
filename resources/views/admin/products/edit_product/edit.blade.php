@@ -191,6 +191,7 @@
                 <input type="hidden" name="is_recommended" id="pformIsRecommended" value="{{ old('is_recommended', $product->is_recommended ? 1 : 0) }}">
                 <input type="hidden" name="publish_on_website" id="pformPublishOnWebsite" value="{{ old('publish_on_website', $product->publish_on_website ? 1 : 0) }}">
                 <input type="hidden" name="show_in_merchant_center" id="pformShowInMerchantCenter" value="{{ old('show_in_merchant_center', $product->show_in_merchant_center ? 1 : 0) }}">
+                <input type="hidden" name="accepts_msi" id="pformAcceptsMsi" value="{{ old('accepts_msi', $product->accepts_msi ? 1 : 0) }}">
                 <div class="pform-panel-wrap">
                     {{-- Panel 0: Información Básica --}}
                     <div class="pform-tab-panel active" id="pformPanel0" role="tabpanel">
@@ -851,6 +852,26 @@
                                             </div>
                                         </div>
                                         <p class="pform-badge-sub">Incluye este producto en el feed de anuncios de Google Shopping</p>
+                                    </button>
+
+                                    <button type="button"
+                                        class="pform-badge-card {{ old('accepts_msi', $product->accepts_msi ?? false) ? 'active' : '' }}"
+                                        id="badgeAcceptsMsi">
+                                        <div class="pform-badge-card-header">
+                                            <div class="pform-badge-icon">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                                                    viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                    <rect x="2" y="5" width="20" height="14" rx="2" />
+                                                    <line x1="2" y1="10" x2="22" y2="10" />
+                                                </svg>
+                                            </div>
+                                            <div>
+                                                <div class="pform-badge-name">Acepta meses sin intereses</div>
+                                                <div class="pform-toggle"></div>
+                                            </div>
+                                        </div>
+                                        <p class="pform-badge-sub">El número de meses disponibles lo determina Mercado Pago según el banco del cliente al pagar.</p>
                                     </button>
                                 </div>
                             </div>

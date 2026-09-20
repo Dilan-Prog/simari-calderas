@@ -14,11 +14,19 @@
         // a diferencia de solo tener host, que puede quedar vacío y caer al
         // fallback de .env sin que eso signifique nada operativo).
         $smtpConfigured = $hasPassword;
-        $whatsappConfigured = $whatsappActiveCount > 0;
+        // La antigua pantalla standalone "Cuentas de WhatsApp" ahora vive
+        // aquí como 2 paneles (API vs Web/QR) -- cada uno con su propio
+        // estado "conectada"/"sin configurar" en el sidebar, en vez del
+        // resumen combinado que había antes.
+        $metaWhatsappConfigured = $metaWhatsappActiveCount > 0;
+        $qrWhatsappConfigured = $qrWhatsappConnectedCount > 0;
         $webhooksConfigured = $webhooks->count() > 0;
+        // $mercadoPagoConfigured ya llega calculado desde IntegrationController::index()
+        // (un sub-array por rol/aplicación de Mercado Pago -- ver $mercadoPago).
 
         $bounceWebhookUrl = route('webhooks.email-bounce');
         $whatsappWebhookUrl = route('whatsapp.webhook.verify');
+        $mercadoPagoWebhookUrl = route('webhooks.mercadopago');
     @endphp
     <div class="container user-manager">
         <section class="clients-manager-section">
@@ -30,7 +38,7 @@
                         Panel de Control &gt; Integraciones
                     </p>
                     <h1>Integraciones</h1>
-                    <p class="breadcrumb-clients-manager main">Correo SMTP, WhatsApp Business y Webhooks salientes</p>
+                    <p class="breadcrumb-clients-manager main">Correo SMTP, WhatsApp Business, Webhooks salientes y Mercado Pago</p>
                 </div>
             </header>
 
@@ -72,13 +80,23 @@
                             </span>
                         </span>
                     </button>
-                    <button type="button" class="integr-sidebar-item" data-panel="whatsapp">
+                    <button type="button" class="integr-sidebar-item" data-panel="whatsapp-api">
                         <span class="integr-avatar">WA</span>
                         <span class="integr-sidebar-item-text">
-                            <span class="integr-sidebar-item-title">WhatsApp Business</span>
+                            <span class="integr-sidebar-item-title">WhatsApp API</span>
                             <span class="integr-sidebar-item-status">
-                                <i class="integr-dot {{ $whatsappConfigured ? 'is-on' : '' }}"></i>
-                                {{ $whatsappConfigured ? $whatsappActiveCount . ' cuenta' . ($whatsappActiveCount === 1 ? '' : 's') . ' activa' . ($whatsappActiveCount === 1 ? '' : 's') : 'Sin configurar' }}
+                                <i class="integr-dot {{ $metaWhatsappConfigured ? 'is-on' : '' }}"></i>
+                                {{ $metaWhatsappConfigured ? $metaWhatsappActiveCount . ' cuenta' . ($metaWhatsappActiveCount === 1 ? '' : 's') . ' activa' . ($metaWhatsappActiveCount === 1 ? '' : 's') : 'Sin configurar' }}
+                            </span>
+                        </span>
+                    </button>
+                    <button type="button" class="integr-sidebar-item" data-panel="whatsapp-web">
+                        <span class="integr-avatar">WW</span>
+                        <span class="integr-sidebar-item-text">
+                            <span class="integr-sidebar-item-title">WhatsApp Web</span>
+                            <span class="integr-sidebar-item-status">
+                                <i class="integr-dot {{ $qrWhatsappConfigured ? 'is-on' : '' }}"></i>
+                                {{ $qrWhatsappConfigured ? $qrWhatsappConnectedCount . ' conectada' . ($qrWhatsappConnectedCount === 1 ? '' : 's') : 'Sin conectar' }}
                             </span>
                         </span>
                     </button>
@@ -89,6 +107,16 @@
                             <span class="integr-sidebar-item-status">
                                 <i class="integr-dot {{ $webhooksConfigured ? 'is-on' : '' }}"></i>
                                 {{ $webhooksConfigured ? $webhooks->count() . ' registrado' . ($webhooks->count() === 1 ? '' : 's') : 'Sin webhooks' }}
+                            </span>
+                        </span>
+                    </button>
+                    <button type="button" class="integr-sidebar-item" data-panel="mercadopago">
+                        <span class="integr-avatar">MP</span>
+                        <span class="integr-sidebar-item-text">
+                            <span class="integr-sidebar-item-title">Mercado Pago</span>
+                            <span class="integr-sidebar-item-status">
+                                <i class="integr-dot {{ $mercadoPagoConfigured ? 'is-on' : '' }}"></i>
+                                {{ $mercadoPagoConfigured ? 'Conectada' : 'Sin configurar' }}
                             </span>
                         </span>
                     </button>
@@ -269,21 +297,25 @@
                         </div>
                     </div>
 
-                    {{-- ============ Panel 2: WhatsApp Business ============ --}}
-                    <div class="integr-panel" id="integrPanel-whatsapp">
+                    {{-- ============ Panel 2a: WhatsApp API (Meta Cloud API) ============
+                         Fusión de la antigua pantalla standalone
+                         admin.whatsapp-accounts.index -- tabla+CRUD reales
+                         filtrados a connection_type=meta_cloud_api. Backend
+                         sin cambios: WhatsappAccountController. --}}
+                    <div class="integr-panel" id="integrPanel-whatsapp-api">
                         <div class="integr-panel-card">
                             <div class="integr-panel-header">
                                 <div class="integr-panel-avatar">WA</div>
                                 <div class="integr-panel-header-text">
                                     <div class="integr-panel-title-row">
-                                        <h2>WhatsApp Business</h2>
-                                        <span class="integr-badge {{ $whatsappConfigured ? 'is-on' : '' }}">
-                                            {{ $whatsappConfigured ? 'Conectada' : 'Sin configurar' }}
+                                        <h2>WhatsApp API</h2>
+                                        <span class="integr-badge {{ $metaWhatsappConfigured ? 'is-on' : '' }}">
+                                            {{ $metaWhatsappConfigured ? 'Conectada' : 'Sin configurar' }}
                                         </span>
                                     </div>
                                     <p class="integr-panel-desc">
-                                        Números de WhatsApp Business (Meta Cloud API) usados por el Embudo de Venta
-                                        para enviar y recibir mensajes de clientes.
+                                        Números de WhatsApp Business conectados vía Meta Cloud API, usados por el
+                                        Embudo de Venta y el webhook público para enviar y recibir mensajes.
                                     </p>
                                 </div>
                             </div>
@@ -294,30 +326,114 @@
                             </div>
 
                             <div class="integr-tab-content active" data-tab-content="credenciales">
-                                <div class="pform-panel-wrap">
-                                    <div class="pform-panel">
-                                        <h2 class="pform-panel-title">Cuentas de WhatsApp</h2>
-                                        <p class="pform-hint" style="margin-bottom:16px;">
-                                            Los números de WhatsApp Business (Meta Cloud API) usados por el Embudo de
-                                            Venta y el webhook público se administran en su propia pantalla, con su
-                                            propio CRUD y datos de configuración del webhook de Meta.
-                                        </p>
-                                        <a href="{{ route('admin.whatsapp-accounts.index') }}" class="pform-btn primary"
-                                            style="display:inline-block; text-decoration:none;">
-                                            Ir a Cuentas de WhatsApp
-                                        </a>
+                                <p class="ap-readonly-note" style="margin-bottom:12px;">
+                                    El token de acceso se guarda cifrado. Por seguridad, el valor guardado nunca se
+                                    muestra de nuevo — solo puedes reemplazarlo al editar.
+                                </p>
+
+                                <header class="clients-manager-main" style="margin-bottom:4px;">
+                                    <div>
+                                        <h2 class="pform-panel-title" style="margin:0;">Cuentas WhatsApp API</h2>
+                                        <p class="pform-hint">Números conectados vía Meta Cloud API</p>
                                     </div>
-                                </div>
+                                    <div style="display:flex; align-items:center; gap:10px;">
+                                        @permiso('whatsapp', 'create')
+                                        <button type="button" class="button-primary size-adjustment"
+                                            id="btnNewWhatsappApiAccount">
+                                            + Nueva cuenta
+                                        </button>
+                                        @endpermiso
+                                    </div>
+                                </header>
+
+                                <main class="table-container-clients-manager" style="margin-top:16px;">
+                                    <div class="table-scroll">
+                                        <table class="clients-manager-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>NOMBRE</th>
+                                                    <th>NÚMERO</th>
+                                                    <th>PHONE NUMBER ID</th>
+                                                    <th>ESTADO</th>
+                                                    <th>ACCIONES</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="whatsappApiAccountsTableBody">
+                                                @forelse ($metaWhatsappAccounts as $account)
+                                                    <tr class="whatsapp-account-row" data-id="{{ $account->id }}">
+                                                        <td>
+                                                            <p class="pm-name">{{ $account->name }}</p>
+                                                        </td>
+                                                        <td class="pm-type">
+                                                            {{ $account->phone_number ?? '—' }}
+                                                        </td>
+                                                        <td class="pm-type">
+                                                            {{ $account->phone_number_id ?? '—' }}
+                                                        </td>
+                                                        <td>
+                                                            @if ($account->is_active)
+                                                                <span class="status-badge status-active">Activa</span>
+                                                            @else
+                                                                <span class="status-badge status-inactive">Inactiva</span>
+                                                            @endif
+                                                        </td>
+                                                        <td>
+                                                            <div class="actions-container">
+                                                                @permiso('whatsapp', 'edit')
+                                                                <button type="button" class="action-btn btn-edit-whatsapp-account"
+                                                                    data-id="{{ $account->id }}" title="Editar">
+                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                                                        viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                                        <path
+                                                                            d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z" />
+                                                                    </svg>
+                                                                </button>
+                                                                @endpermiso
+                                                                @permiso('whatsapp', 'delete')
+                                                                <button type="button" class="action-btn btn-delete-whatsapp-account"
+                                                                    data-id="{{ $account->id }}" data-name="{{ $account->name }}"
+                                                                    title="Eliminar">
+                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                                                        viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                                        <path d="M3 6h18" />
+                                                                        <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+                                                                        <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+                                                                        <line x1="10" x2="10" y1="11" y2="17" />
+                                                                        <line x1="14" x2="14" y1="11" y2="17" />
+                                                                    </svg>
+                                                                </button>
+                                                                @endpermiso
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                @empty
+                                                    <tr>
+                                                        <td colspan="5" style="text-align:center; padding:40px; color:#6b7280;">
+                                                            No hay cuentas de WhatsApp API registradas.
+                                                        </td>
+                                                    </tr>
+                                                @endforelse
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </main>
                             </div>
 
+                            {{-- ---- Avanzado: datos del webhook, necesarios al configurar el
+                                 número en Meta for Developers > WhatsApp > Configuration. La
+                                 URL se calcula con route(), así que siempre refleja el dominio
+                                 real donde corre la app. --}}
                             <div class="integr-tab-content" data-tab-content="avanzado">
                                 <div class="pform-panel-wrap">
                                     <div class="pform-panel">
-                                        <h2 class="pform-panel-title">Webhook de WhatsApp</h2>
+                                        <h2 class="pform-panel-title">Webhook de WhatsApp API</h2>
                                         <p class="pform-hint" style="margin-bottom:16px;">
                                             URL que se registra en Meta for Developers &gt; WhatsApp &gt;
-                                            Configuration. El Verify Token se configura por cuenta en
-                                            <a href="{{ route('admin.whatsapp-accounts.index') }}">Cuentas de WhatsApp</a>.
+                                            Configuration. El "Token de verificación" que Meta pide es el mismo que
+                                            cada cuenta guarda en su campo "Token de verificación del webhook"
+                                            (pestaña Credenciales, arriba — edita la cuenta para verlo).
                                         </p>
                                         <div class="pform-field">
                                             <label class="pform-label">Callback URL</label>
@@ -327,6 +443,173 @@
                                                     data-value="{{ $whatsappWebhookUrl }}">Copiar</button>
                                             </div>
                                         </div>
+                                        @if (Str::startsWith($whatsappWebhookUrl, 'http://localhost') || Str::contains($whatsappWebhookUrl, '.test'))
+                                            <p style="margin:8px 0 0; font-size:12px; color:#b45309;">
+                                                Esta URL apunta a tu entorno local — Meta no puede alcanzarla. Configura
+                                                el webhook hasta que el sitio esté publicado en un dominio real
+                                                (Hostinger).
+                                            </p>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- ============ Panel 2b: WhatsApp Web (conexión por QR / Baileys) ============
+                         Segunda mitad de la fusión de la antigua pantalla
+                         standalone -- tabla+CRUD reales filtrados a
+                         connection_type=baileys_qr, más el flujo de
+                         escaneo/reconexión de QR. --}}
+                    <div class="integr-panel" id="integrPanel-whatsapp-web">
+                        <div class="integr-panel-card">
+                            <div class="integr-panel-header">
+                                <div class="integr-panel-avatar">WW</div>
+                                <div class="integr-panel-header-text">
+                                    <div class="integr-panel-title-row">
+                                        <h2>WhatsApp Web</h2>
+                                        <span class="integr-badge {{ $qrWhatsappConfigured ? 'is-on' : '' }}">
+                                            {{ $qrWhatsappConfigured ? 'Conectada' : 'Sin configurar' }}
+                                        </span>
+                                    </div>
+                                    <p class="integr-panel-desc">
+                                        Números conectados escaneando un código QR desde WhatsApp en el teléfono —
+                                        sin necesidad de configurar nada en Meta for Developers.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="integr-tabs">
+                                <button type="button" class="integr-tab active" data-tab="credenciales">Credenciales</button>
+                                <button type="button" class="integr-tab" data-tab="avanzado">Avanzado</button>
+                            </div>
+
+                            <div class="integr-tab-content active" data-tab-content="credenciales">
+                                <header class="clients-manager-main" style="margin-bottom:4px;">
+                                    <div>
+                                        <h2 class="pform-panel-title" style="margin:0;">Cuentas WhatsApp Web</h2>
+                                        <p class="pform-hint">Conectadas escaneando un código QR</p>
+                                    </div>
+                                    <div style="display:flex; align-items:center; gap:10px;">
+                                        @permiso('whatsapp', 'create')
+                                        <button type="button" class="button-primary size-adjustment"
+                                            id="btnNewWhatsappQrAccount">
+                                            + Nueva cuenta
+                                        </button>
+                                        @endpermiso
+                                    </div>
+                                </header>
+
+                                <main class="table-container-clients-manager" style="margin-top:16px;">
+                                    <div class="table-scroll">
+                                        <table class="clients-manager-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>NOMBRE</th>
+                                                    <th>NÚMERO</th>
+                                                    <th>ESTADO SESIÓN</th>
+                                                    <th>ESTADO</th>
+                                                    <th>ACCIONES</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="whatsappQrAccountsTableBody">
+                                                @forelse ($qrWhatsappAccounts as $account)
+                                                    <tr class="whatsapp-account-row" data-id="{{ $account->id }}">
+                                                        <td>
+                                                            <p class="pm-name">{{ $account->name }}</p>
+                                                        </td>
+                                                        <td class="pm-type">
+                                                            {{ $account->phone_number ?? '—' }}
+                                                        </td>
+                                                        <td>
+                                                            @php
+                                                                $sessionLabels = [
+                                                                    'connected' => ['Conectado', '#f0fff3', '#3cbe40', '#8bff8f'],
+                                                                    'qr_pending' => ['Esperando QR', '#fffbeb', '#b45309', '#fde68a'],
+                                                                    'disconnected' => ['Desconectado', '#f3f4f6', '#4b5563', '#acb5c1'],
+                                                                ];
+                                                                $sLabel = $sessionLabels[$account->session_status] ?? $sessionLabels['disconnected'];
+                                                            @endphp
+                                                            <span class="status-badge"
+                                                                style="background:{{ $sLabel[1] }}; color:{{ $sLabel[2] }}; border:1px solid {{ $sLabel[3] }};">{{ $sLabel[0] }}</span>
+                                                        </td>
+                                                        <td>
+                                                            @if ($account->is_active)
+                                                                <span class="status-badge status-active">Activa</span>
+                                                            @else
+                                                                <span class="status-badge status-inactive">Inactiva</span>
+                                                            @endif
+                                                        </td>
+                                                        <td>
+                                                            <div class="actions-container">
+                                                                @if (empty($account->session_status) || $account->session_status === 'disconnected')
+                                                                    @permiso('whatsapp', 'edit')
+                                                                    <button type="button" class="action-btn btn-reconnect-whatsapp-account"
+                                                                        data-id="{{ $account->id }}" data-name="{{ $account->name }}"
+                                                                        title="Reconectar">
+                                                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                                                            viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                                            <path d="M3 12a9 9 0 0 1 15-6.7L21 8" />
+                                                                            <path d="M21 3v5h-5" />
+                                                                            <path d="M21 12a9 9 0 0 1-15 6.7L3 16" />
+                                                                            <path d="M3 21v-5h5" />
+                                                                        </svg>
+                                                                    </button>
+                                                                    @endpermiso
+                                                                @endif
+                                                                @permiso('whatsapp', 'edit')
+                                                                <button type="button" class="action-btn btn-edit-whatsapp-account"
+                                                                    data-id="{{ $account->id }}" title="Editar">
+                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                                                        viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                                        <path
+                                                                            d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z" />
+                                                                    </svg>
+                                                                </button>
+                                                                @endpermiso
+                                                                @permiso('whatsapp', 'delete')
+                                                                <button type="button" class="action-btn btn-delete-whatsapp-account"
+                                                                    data-id="{{ $account->id }}" data-name="{{ $account->name }}"
+                                                                    title="Eliminar">
+                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                                                        viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                                        <path d="M3 6h18" />
+                                                                        <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+                                                                        <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+                                                                        <line x1="10" x2="10" y1="11" y2="17" />
+                                                                        <line x1="14" x2="14" y1="11" y2="17" />
+                                                                    </svg>
+                                                                </button>
+                                                                @endpermiso
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                @empty
+                                                    <tr>
+                                                        <td colspan="5" style="text-align:center; padding:40px; color:#6b7280;">
+                                                            No hay cuentas de WhatsApp Web registradas.
+                                                        </td>
+                                                    </tr>
+                                                @endforelse
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </main>
+                            </div>
+
+                            <div class="integr-tab-content" data-tab-content="avanzado">
+                                <div class="pform-panel-wrap">
+                                    <div class="pform-panel">
+                                        <h2 class="pform-panel-title">Sobre esta conexión</h2>
+                                        <p class="pform-hint">
+                                            No requiere configurar nada en Meta for Developers — la sesión se
+                                            establece escaneando el código QR desde WhatsApp en el teléfono
+                                            (Ajustes → Dispositivos vinculados → Vincular un dispositivo). No hay
+                                            webhook que registrar manualmente.
+                                        </p>
                                     </div>
                                 </div>
                             </div>
@@ -451,6 +734,236 @@
                                     </div>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+
+                    {{-- ============ Panel 4: Mercado Pago ============ --}}
+                    <div class="integr-panel" id="integrPanel-mercadopago">
+                        <div class="integr-panel-card">
+                            <div class="integr-panel-header">
+                                <div class="integr-panel-avatar">MP</div>
+                                <div class="integr-panel-header-text">
+                                    <div class="integr-panel-title-row">
+                                        <h2>Mercado Pago</h2>
+                                        <span class="integr-badge {{ $mercadoPagoConfigured ? 'is-on' : '' }}">
+                                            {{ $mercadoPagoConfigured ? 'Conectada' : 'Sin configurar' }}
+                                        </span>
+                                    </div>
+                                    <p class="integr-panel-desc">
+                                        Mercado Pago emite credenciales por <strong>Aplicación</strong> (no una sola
+                                        para toda la cuenta): el checkout público usa 2 aplicaciones distintas — una
+                                        para Tarjeta (Checkout API/CardForm) y otra para la redirección de
+                                        Wallet/Efectivo/Transferencia (Checkout Pro). Configura cada una por separado
+                                        abajo.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <form method="POST" action="{{ route('admin.integrations.update-mercadopago') }}">
+                                @csrf
+                                @method('PUT')
+
+                                @foreach ($mercadoPago as $role => $roleData)
+                                    @php
+                                        $mpMode = old("mercadopago.{$role}.mode", $roleData['mode']);
+                                        $fid = fn (string $field) => "mercadopago_{$role}_{$field}"; // ids únicos por rol para los <label for>
+                                    @endphp
+
+                                    <div class="pform-panel-wrap">
+                                        <div class="pform-panel">
+                                            <div class="pform-panel-title-row">
+                                                <h2 class="pform-panel-title">{{ $roleData['label'] }}</h2>
+                                                <span class="integr-badge {{ $roleData['configured'] ? 'is-on' : '' }}">
+                                                    {{ $roleData['configured'] ? 'Conectada' : 'Sin configurar' }}
+                                                </span>
+                                            </div>
+                                            <p class="pform-hint" style="margin-bottom:12px;">
+                                                Puedes guardar los 2 juegos de credenciales a la vez (sandbox y
+                                                producción) — este interruptor decide cuál de los 2 usa de verdad
+                                                el checkout ahora mismo para esta aplicación específica.
+                                            </p>
+
+                                            <input type="hidden" name="mercadopago[{{ $role }}][mode]" id="{{ $fid('mode') }}" value="{{ $mpMode }}">
+                                            <div class="mp-mode-toggle" role="group" aria-label="Modo de {{ $roleData['label'] }}" data-mp-mode-toggle-for="{{ $fid('mode') }}">
+                                                <button type="button" class="mp-mode-btn {{ $mpMode === 'sandbox' ? 'active' : '' }}"
+                                                    data-mp-mode="sandbox">Sandbox (pruebas)</button>
+                                                <button type="button" class="mp-mode-btn {{ $mpMode === 'live' ? 'active' : '' }}"
+                                                    data-mp-mode="live">Producción (live)</button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="pform-panel-wrap">
+                                        <div class="pform-panel">
+                                            <div class="pform-panel-title-row">
+                                                <h2 class="pform-panel-title">Credenciales de prueba (sandbox)</h2>
+                                                @if ($roleData['mode'] === 'sandbox')
+                                                    <span class="integr-badge is-on">Activo</span>
+                                                @endif
+                                            </div>
+                                            <p class="pform-hint" style="margin-bottom:16px;">
+                                                Pestaña "Credenciales de prueba" de la aplicación <strong>{{ $roleData['label'] }}</strong>
+                                                en el panel de desarrolladores de Mercado Pago.
+                                            </p>
+
+                                            <div class="pform-field">
+                                                <label class="pform-label" for="{{ $fid('sandbox_public_key') }}">Public Key (prueba)</label>
+                                                <input type="text" id="{{ $fid('sandbox_public_key') }}" name="mercadopago[{{ $role }}][sandbox_public_key]"
+                                                    class="pform-input"
+                                                    value="{{ old("mercadopago.{$role}.sandbox_public_key", $roleData['sandbox_public_key']) }}"
+                                                    placeholder="TEST-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+                                                    autocomplete="off">
+                                            </div>
+
+                                            <div class="pform-field">
+                                                <label class="pform-label" for="{{ $fid('sandbox_access_token') }}">Access Token (prueba)</label>
+                                                <input type="password" id="{{ $fid('sandbox_access_token') }}"
+                                                    name="mercadopago[{{ $role }}][sandbox_access_token]" class="pform-input"
+                                                    placeholder="{{ $roleData['has_sandbox_access_token'] ? '••••••••  (guardado — deja vacío para conservarlo)' : 'TEST-xxxxxxxxxxxxxxxxxxxxxxxxx' }}"
+                                                    autocomplete="new-password">
+                                                <p class="pform-hint">Se guarda encriptado. Déjalo vacío para no cambiarlo.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="pform-panel-wrap">
+                                        <div class="pform-panel">
+                                            <div class="pform-panel-title-row">
+                                                <h2 class="pform-panel-title">Credenciales de producción (live)</h2>
+                                                @if ($roleData['mode'] === 'live')
+                                                    <span class="integr-badge is-on">Activo</span>
+                                                @endif
+                                            </div>
+                                            <p class="pform-hint" style="margin-bottom:16px;">
+                                                Pestaña "Credenciales de producción" de esta misma aplicación — solo se
+                                                usan de verdad cuando el modo de arriba está en "Producción (live)".
+                                            </p>
+
+                                            <div class="pform-field">
+                                                <label class="pform-label" for="{{ $fid('live_public_key') }}">Public Key (producción)</label>
+                                                <input type="text" id="{{ $fid('live_public_key') }}" name="mercadopago[{{ $role }}][live_public_key]"
+                                                    class="pform-input"
+                                                    value="{{ old("mercadopago.{$role}.live_public_key", $roleData['live_public_key']) }}"
+                                                    placeholder="APP_USR-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+                                                    autocomplete="off">
+                                            </div>
+
+                                            <div class="pform-field">
+                                                <label class="pform-label" for="{{ $fid('live_access_token') }}">Access Token (producción)</label>
+                                                <input type="password" id="{{ $fid('live_access_token') }}"
+                                                    name="mercadopago[{{ $role }}][live_access_token]" class="pform-input"
+                                                    placeholder="{{ $roleData['has_live_access_token'] ? '••••••••  (guardado — deja vacío para conservarlo)' : 'APP_USR-xxxxxxxxxxxxxxxxxxxxxxxxx' }}"
+                                                    autocomplete="new-password">
+                                                <p class="pform-hint">Se guarda encriptado. Déjalo vacío para no cambiarlo.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="pform-panel-wrap">
+                                        <div class="pform-panel">
+                                            <h2 class="pform-panel-title">Webhook — {{ $roleData['label'] }}</h2>
+                                            <p class="pform-hint" style="margin-bottom:16px;">
+                                                Mercado Pago asigna una firma secreta de webhook por aplicación —
+                                                pega aquí la de <strong>{{ $roleData['label'] }}</strong> (la URL de
+                                                notificación es la misma para las 2 aplicaciones, ver abajo).
+                                            </p>
+
+                                            <div class="pform-field">
+                                                <label class="pform-label" for="{{ $fid('webhook_secret') }}">Webhook Secret</label>
+                                                <div class="integr-copy-row">
+                                                    <input type="password" id="{{ $fid('webhook_secret') }}"
+                                                        name="mercadopago[{{ $role }}][webhook_secret]" class="pform-input"
+                                                        placeholder="{{ $roleData['has_webhook_secret'] ? '••••••••  (guardado — deja vacío para conservarlo)' : 'Clave secreta del webhook' }}"
+                                                        autocomplete="new-password">
+                                                    <button type="button" class="pform-btn outline mp-generate-secret-btn" data-target="{{ $fid('webhook_secret') }}">Generar</button>
+                                                </div>
+
+                                                <div class="mp-generated-secret-row" data-for="{{ $fid('webhook_secret') }}" style="display:none; margin-top:10px;">
+                                                    <div class="integr-copy-row">
+                                                        <input type="text" class="pform-input mp-generated-secret-display" readonly>
+                                                        <button type="button" class="pform-btn outline integr-copy-btn" data-value="">Copiar</button>
+                                                    </div>
+                                                    <p class="pform-hint" style="color:#0f7a4f;">
+                                                        Cópiala y pégala en Mercado Pago (pestaña Webhooks de esta
+                                                        aplicación &gt; "Firma secreta"). También quedó puesta arriba,
+                                                        se guarda al hacer clic en "Guardar configuración".
+                                                    </p>
+                                                </div>
+
+                                                <p class="pform-hint">Se guarda encriptado. Déjalo vacío para no
+                                                    cambiarlo. Sin este valor, la firma del webhook de esta aplicación
+                                                    no se verifica.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endforeach
+
+                                <div class="pform-panel-wrap">
+                                    <div class="pform-panel">
+                                        <h2 class="pform-panel-title">URL del Webhook</h2>
+                                        <p class="pform-hint" style="margin-bottom:16px;">
+                                            Misma URL para las {{ count($mercadoPago) }} aplicaciones — pégala en
+                                            cada una (panel de desarrolladores de Mercado Pago &gt; esa aplicación
+                                            &gt; Webhooks &gt; URL de notificación), cada una con su propia firma
+                                            secreta capturada arriba.
+                                        </p>
+                                        <div class="pform-field">
+                                            <div class="integr-copy-row">
+                                                <input type="text" class="pform-input" value="{{ $mercadoPagoWebhookUrl }}" readonly>
+                                                <button type="button" class="pform-btn outline integr-copy-btn"
+                                                    data-value="{{ $mercadoPagoWebhookUrl }}">Copiar</button>
+                                            </div>
+                                        </div>
+
+                                        <button type="submit" class="pform-btn primary" style="margin-top:16px;">Guardar configuración</button>
+                                    </div>
+                                </div>
+                            </form>
+
+                            <style>
+                                .mp-mode-toggle { display: inline-flex; border: 1px solid #d6d3d1; border-radius: 8px; overflow: hidden; }
+                                .mp-mode-btn { padding: 8px 16px; font-size: 13px; font-weight: 600; background: #fff; border: none; cursor: pointer; color: #57534e; }
+                                .mp-mode-btn + .mp-mode-btn { border-left: 1px solid #d6d3d1; }
+                                .mp-mode-btn.active { background: #ff6213; color: #fff; }
+                                .pform-panel-title-row { display: flex; align-items: center; gap: 10px; }
+                            </style>
+                            <script>
+                                // Un toggle sandbox/live independiente por rol -- cada uno escribe en su
+                                // propio hidden input (data-mp-mode-toggle-for apunta al id de ese input).
+                                document.querySelectorAll('[data-mp-mode-toggle-for]').forEach(function (toggle) {
+                                    var hidden = document.getElementById(toggle.dataset.mpModeToggleFor);
+                                    toggle.querySelectorAll('.mp-mode-btn').forEach(function (btn) {
+                                        btn.addEventListener('click', function () {
+                                            hidden.value = this.dataset.mpMode;
+                                            toggle.querySelectorAll('.mp-mode-btn').forEach(function (b) { b.classList.remove('active'); });
+                                            this.classList.add('active');
+                                        });
+                                    });
+                                });
+
+                                // Genera un secreto aleatorio del lado del navegador (crypto.getRandomValues,
+                                // nunca se manda al servidor sin que el admin apachurre "Guardar configuración")
+                                // -- uno independiente por rol (cada botón "Generar" solo toca el campo de su
+                                // propio rol, vía data-target).
+                                document.querySelectorAll('.mp-generate-secret-btn').forEach(function (btn) {
+                                    btn.addEventListener('click', function () {
+                                        var targetInput = document.getElementById(this.dataset.target);
+                                        var row = document.querySelector('.mp-generated-secret-row[data-for="' + this.dataset.target + '"]');
+                                        if (!targetInput || !row) return;
+
+                                        var bytes = new Uint8Array(24);
+                                        crypto.getRandomValues(bytes);
+                                        var secret = Array.from(bytes).map(function (b) {
+                                            return b.toString(16).padStart(2, '0');
+                                        }).join('');
+
+                                        targetInput.value = secret;
+                                        row.querySelector('.mp-generated-secret-display').value = secret;
+                                        row.style.display = 'block';
+                                        row.querySelector('.integr-copy-btn').dataset.value = secret;
+                                    });
+                                });
+                            </script>
                         </div>
                     </div>
 
@@ -781,3 +1294,8 @@
 @include('admin.integrations.partials._webhook_modal_form')
 @include('admin.integrations.partials._webhook_modal_delete')
 @include('admin.integrations.partials._webhook_scripts')
+@include('admin.integrations.partials._whatsapp_api_modal_form')
+@include('admin.integrations.partials._whatsapp_qr_modal_form')
+@include('admin.integrations.partials._whatsapp_qr_modal_scan')
+@include('admin.integrations.partials._whatsapp_modal_delete')
+@include('admin.integrations.partials._whatsapp_scripts')

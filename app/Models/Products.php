@@ -118,6 +118,10 @@ class Products extends Model
         // ya público del feed XML de Google Merchant Center (ej. servicios,
         // fichas incompletas) sin ocultarlo del catálogo del sitio.
         'show_in_merchant_center',
+        // Si este producto acepta meses sin intereses en el checkout de
+        // Mercado Pago. El número de meses real lo determina Mercado Pago
+        // según el banco/tarjeta del cliente, no se captura un tope aquí.
+        'accepts_msi',
         'seo_title',
         'seo_description',
         // FIX BUG 3: tags column added via
@@ -146,6 +150,7 @@ class Products extends Model
         'is_recommended'  => 'boolean',
         'publish_on_website' => 'boolean',
         'show_in_merchant_center' => 'boolean',
+        'accepts_msi' => 'boolean',
         'price_includes_tax' => 'boolean',
         'price'       => 'decimal:2',
         'cost'        => 'decimal:2',

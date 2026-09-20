@@ -155,7 +155,7 @@
                 @endforeach
 
                 <div class="catalog-results__pagination">
-                    {{ $products->links() }}
+                    {{ $products->links('frontend.shop.partials.pagination') }}
                 </div>
             @else
                 <div class="catalog-results__empty">No hay productos que coincidan con estos filtros.</div>

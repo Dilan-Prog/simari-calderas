@@ -264,7 +264,7 @@ class ProductController extends Controller
     private const BULK_EDIT_FIELDS = [
         'name', 'model', 'short_description', 'description', 'slug',
         'price', 'compare_price', 'price_includes_tax', 'cost', 'shipping_cost', 'free_shipping_threshold', 'stock', 'stock_unit', 'currency', 'availability',
-        'category_id', 'brand_id', 'is_active', 'publish_on_website', 'is_featured', 'is_new', 'is_recommended', 'show_in_merchant_center',
+        'category_id', 'brand_id', 'is_active', 'publish_on_website', 'is_featured', 'is_new', 'is_recommended', 'show_in_merchant_center', 'accepts_msi',
         'tags', 'specifications', 'faqs',
         'seo_title', 'seo_description', 'seo_keywords', 'og_title', 'og_description', 'og_image', 'canonical_url',
         'canonical_product_id', 'is_canonical', 'redirect_old_slug', 'supplier_id',
@@ -283,7 +283,7 @@ class ProductController extends Controller
     private const BULK_EDIT_VIEW_COLUMNS = [
         'model', 'short_description', 'description', 'slug',
         'price', 'compare_price', 'price_includes_tax', 'cost', 'shipping_cost', 'free_shipping_threshold', 'stock', 'stock_unit', 'currency', 'availability',
-        'category_id', 'category_sub', 'category_child', 'brand_id', 'is_active', 'publish_on_website', 'is_featured', 'is_new', 'is_recommended', 'show_in_merchant_center',
+        'category_id', 'category_sub', 'category_child', 'brand_id', 'is_active', 'publish_on_website', 'is_featured', 'is_new', 'is_recommended', 'show_in_merchant_center', 'accepts_msi',
         'tags', 'specifications', 'faqs',
         'seo_title', 'seo_description', 'seo_keywords', 'og_title', 'og_description', 'og_image', 'canonical',
         'redirect_old_slug',
@@ -337,7 +337,7 @@ class ProductController extends Controller
         $query = $this->filteredProductsQuery($request, [
             'id', 'name', 'sku', 'model', 'supplier_sku', 'short_description', 'description',
             'price', 'compare_price', 'price_includes_tax', 'cost', 'shipping_cost', 'free_shipping_threshold', 'stock', 'stock_unit', 'currency', 'availability',
-            'category_id', 'brand_id', 'is_active', 'publish_on_website', 'is_featured', 'is_new', 'is_recommended', 'show_in_merchant_center',
+            'category_id', 'brand_id', 'is_active', 'publish_on_website', 'is_featured', 'is_new', 'is_recommended', 'show_in_merchant_center', 'accepts_msi',
             'tags', 'specifications', 'faqs',
             'seo_title', 'seo_description', 'seo_keywords', 'og_title', 'og_description', 'og_image',
             // FIX (bug de URL Canónica): estas 3 columnas faltaban en el
@@ -544,6 +544,7 @@ class ProductController extends Controller
             case 'is_new':
             case 'is_recommended':
             case 'show_in_merchant_center':
+            case 'accepts_msi':
             case 'price_includes_tax':
             case 'is_canonical':
             case 'redirect_old_slug':
@@ -983,6 +984,7 @@ class ProductController extends Controller
             'is_recommended'    => 'nullable|boolean',
             'publish_on_website' => 'nullable|boolean',
             'show_in_merchant_center' => 'nullable|boolean',
+            'accepts_msi'       => 'nullable|boolean',
             'availability'      => 'nullable|in:available,on_order,out_of_stock',
             'images'            => 'nullable|array',
             'images.*'          => 'image|mimes:jpeg,jpg,png|max:2048',
@@ -1073,6 +1075,10 @@ class ProductController extends Controller
         $product->is_recommended    = $request->boolean('is_recommended', false);
         $product->publish_on_website = $request->boolean('publish_on_website', false);
         $product->show_in_merchant_center = $request->boolean('show_in_merchant_center', true);
+        // Default false (a diferencia de show_in_merchant_center): un
+        // producto nuevo no debe aceptar MSI hasta que un admin lo marque
+        // explícitamente — ver nota en la migración add_accepts_msi_to_products_table.
+        $product->accepts_msi       = $request->boolean('accepts_msi', false);
         $product->availability      = $request->availability ?? 'available';
         // Save specifications
         if ($request->filled('spec_key')) {
@@ -1235,6 +1241,7 @@ class ProductController extends Controller
             'is_recommended'    => 'nullable|boolean',
             'publish_on_website' => 'nullable|boolean',
             'show_in_merchant_center' => 'nullable|boolean',
+            'accepts_msi'       => 'nullable|boolean',
             'availability'      => 'nullable|in:available,on_order,out_of_stock',
             'images'            => 'nullable|array',
             'images.*'          => 'image|mimes:jpeg,jpg,png|max:2048',
@@ -1320,6 +1327,10 @@ class ProductController extends Controller
         $product->is_recommended    = $request->boolean('is_recommended', false);
         $product->publish_on_website = $request->boolean('publish_on_website', false);
         $product->show_in_merchant_center = $request->boolean('show_in_merchant_center', true);
+        // Default false (a diferencia de show_in_merchant_center): mismo
+        // criterio que store() — ver nota en la migración
+        // add_accepts_msi_to_products_table.
+        $product->accepts_msi       = $request->boolean('accepts_msi', false);
         $product->availability      = $request->availability ?? 'available';
 
         // Save specifications

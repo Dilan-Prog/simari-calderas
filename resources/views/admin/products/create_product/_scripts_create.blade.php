@@ -303,7 +303,7 @@
             });
 
             /* ── Badge toggle cards ── */
-            document.querySelectorAll('.pform-badge-card:not(#badgeFeatured):not(#badgeNew):not(#badgeRecommended):not(#badgePublishOnWebsite):not(#badgeMerchantCenter)')
+            document.querySelectorAll('.pform-badge-card:not(#badgeFeatured):not(#badgeNew):not(#badgeRecommended):not(#badgePublishOnWebsite):not(#badgeMerchantCenter):not(#badgeAcceptsMsi)')
                 .forEach(function(card) {
                     card.addEventListener('click', function() {
                         this.classList.toggle('active');
@@ -843,6 +843,14 @@
             badgeMerchantCenter.addEventListener('click', function() {
                 this.classList.toggle('active');
                 document.getElementById('pformShowInMerchantCenter').value = this.classList.contains('active') ? 1 : 0;
+            });
+        }
+
+        const badgeAcceptsMsi = document.getElementById('badgeAcceptsMsi');
+        if (badgeAcceptsMsi) {
+            badgeAcceptsMsi.addEventListener('click', function() {
+                this.classList.toggle('active');
+                document.getElementById('pformAcceptsMsi').value = this.classList.contains('active') ? 1 : 0;
             });
         }
 

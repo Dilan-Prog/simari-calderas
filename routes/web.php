@@ -6,6 +6,7 @@ use App\Http\Controllers\Frontend\Shop\CatalogController;
 use App\Http\Controllers\Frontend\Shop\CheckoutController;
 use App\Http\Controllers\Frontend\Shop\CollectionController as ShopCollectionController;
 use App\Http\Controllers\Frontend\Shop\LegalController;
+use App\Http\Controllers\Frontend\Shop\MercadoPagoCheckoutController;
 use App\Http\Controllers\Frontend\Shop\ProductController as ShopProductController;
 use App\Http\Controllers\Frontend\Shop\ServicePageController as ShopServicePageController;
 use App\Http\Controllers\Frontend\EmailTrackingController;
@@ -14,6 +15,7 @@ use App\Http\Controllers\Frontend\SitemapController;
 use App\Http\Controllers\MediaServeController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Public\EmailBounceWebhookController;
+use App\Http\Controllers\Public\MercadoPagoWebhookController;
 use App\Http\Controllers\Public\WhatsappWebhookController;
 use Illuminate\Support\Facades\Route;
 
@@ -47,6 +49,12 @@ Route::post('/whatsapp/webhook', [WhatsappWebhookController::class, 'receive'])-
 // mientras se documenta su formato (ver EmailBounceWebhookController).
 Route::post('/webhooks/email-bounce', [EmailBounceWebhookController::class, 'receive'])->name('webhooks.email-bounce');
 
+// Webhook de notificaciones de Mercado Pago (IPN): ?data.id=X&type=payment
+// en la URL + header x-request-id. Nunca confía en el status del payload,
+// solo dispara ProcessMercadoPagoWebhookJob (que sí hace la llamada
+// server-to-server real).
+Route::post('/webhooks/mercadopago', [MercadoPagoWebhookController::class, 'receive'])->name('webhooks.mercadopago');
+
 // Serves uploaded product/service-report/document files from UploadPath::base(),
 // which may live outside public_html in production (see App\Support\UploadPath).
 Route::get('/media/{path}', [MediaServeController::class, 'show'])
@@ -69,14 +77,29 @@ Route::controller(CartController::class)->prefix('carrito')->name('cart.')->grou
     Route::get('/mini', 'mini')->name('mini');
     Route::get('/recuperar/{token}', 'recover')->name('recover');
 });
+// Checkout de una sola página (acordeón: Carrito / Envío / Pago apilados en
+// checkout.index) -- shipping.store y confirm siguen siendo endpoints POST
+// normales, ahora consumidos por fetch() desde esa misma página en vez de
+// un GET por cada paso (ver CheckoutController::index()).
 Route::controller(CheckoutController::class)->prefix('finalizar-pedido')->name('checkout.')->group(function () {
     Route::get('/', 'index')->name('index');
-    Route::get('/envio', 'shipping')->name('shipping');
     Route::post('/envio', 'storeShipping')->name('shipping.store');
     Route::post('/contacto', 'captureContact')->name('capture-contact')->middleware('throttle:20,1');
-    Route::get('/pago', 'payment')->name('payment');
     Route::post('/confirmar', 'confirm')->name('confirm');
 });
+Route::get('/finalizar-pedido/pago/mercadopago/{order:order_number}', [MercadoPagoCheckoutController::class, 'show'])->name('checkout.payment.mercadopago');
+// throttle bajo (10/min por IP) a propósito -- charge()/checkoutPro() son
+// las únicas rutas de este checkout que de verdad procesan un cobro contra
+// Mercado Pago; sin límite, alguien podría usarlas para probar en volumen
+// si tarjetas robadas son válidas (carding). Un checkout real nunca hace
+// más de 1-2 intentos por minuto.
+Route::post('/finalizar-pedido/pago/mercadopago/{order:order_number}/cobrar/{payment}', [MercadoPagoCheckoutController::class, 'charge'])->name('checkout.payment.mercadopago.charge')->middleware('throttle:10,1');
+Route::post('/finalizar-pedido/pago/mercadopago/{order:order_number}/checkout-pro/{payment}', [MercadoPagoCheckoutController::class, 'checkoutPro'])->name('checkout.payment.mercadopago.checkout-pro')->middleware('throttle:10,1');
+// thanks() la llama nuestro propio JS en segundo plano (fetch) además de la
+// navegación real -- límite más generoso, no procesa cobros, solo
+// reconcilia contra la API.
+Route::get('/finalizar-pedido/pago/mercadopago/{order:order_number}/gracias', [MercadoPagoCheckoutController::class, 'thanks'])->name('checkout.payment.mercadopago.thanks')->middleware('throttle:30,1');
+Route::get('/finalizar-pedido/pago/mercadopago/{order:order_number}/reintentar/{payment}', [MercadoPagoCheckoutController::class, 'retry'])->name('checkout.payment.mercadopago.retry')->middleware('signed');
 Route::get('/producto/{slug}', [ShopProductController::class, 'show'])->name('product.show');
 Route::get('/coleccion/{slug}', [ShopCollectionController::class, 'show'])->name('collection.show');
 // Arquitectura de 3 niveles (hub → categoría → servicio), todas resueltas

@@ -51,6 +51,12 @@ class StoreOrderStatus
             'bg'          => '#e6f6ee',
             'description' => 'Confirmada la recepción por el cliente. Ciclo cerrado.',
         ],
+        'pago_parcial' => [
+            'label'       => 'Pago parcial',
+            'color'       => '#b45309',
+            'bg'          => '#fef3c7',
+            'description' => 'Uno de los dos cobros de Mercado Pago fue aprobado; el otro está pendiente de reintento.',
+        ],
         'cancelado' => [
             'label'       => 'Cancelado',
             'color'       => '#c81e1e',
@@ -89,6 +95,14 @@ class StoreOrderStatus
             return [];
         }
 
+        // Pago parcial: uno de los 2 cobros de Mercado Pago ya se aprobó y
+        // el otro falló. El flujo automático solo pide 'pagado'; se deja
+        // 'cancelado' disponible para que un admin lo cierre a mano si el
+        // cliente nunca reintenta el cobro fallido.
+        if ($current === 'pago_parcial') {
+            return ['pagado', 'cancelado'];
+        }
+
         $transitions = array_values(array_diff(self::FLOW, [$current]));
 
         // Ya no se puede cancelar una vez enviada.
@@ -96,6 +110,12 @@ class StoreOrderStatus
         $shippedIndex = array_search('enviado', self::FLOW, true);
         if ($currentIndex !== false && $currentIndex < $shippedIndex) {
             $transitions[] = 'cancelado';
+        }
+
+        // Un pedido pendiente de pago puede terminar en pago parcial si se
+        // paga con Mercado Pago y solo uno de los 2 cobros se aprueba.
+        if ($current === 'pendiente_pago') {
+            $transitions[] = 'pago_parcial';
         }
 
         return $transitions;

@@ -709,3 +709,59 @@ img { max-width: 100%; height: auto; display: block; }
 .eq-modal__btn--primary:hover { background: #de4a00; }
 .eq-modal__btn--danger { background: #c81e1e; color: #fff; border: none; }
 .eq-modal__btn--danger:hover { background: #a81616; }
+
+/* ── Paginación pública (catálogo, colecciones, etc.) ──
+   Ver frontend/shop/partials/pagination.blade.php -- reemplaza la vista
+   por defecto de Laravel (Tailwind, sin CSS en este sitio). */
+.shop-pagination {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    margin-top: 8px;
+}
+.shop-pagination__summary {
+    margin: 0;
+    font-size: 13px;
+    color: #6b7280;
+}
+.shop-pagination__list {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+.shop-pagination__btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 40px;
+    min-height: 40px;
+    padding: 0 12px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    background: #ffffff;
+    color: #374151;
+    font-size: 13.5px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+.shop-pagination__btn:hover { background: #f5f5f5; border-color: #c9ced4; color: #374151; text-decoration: none; }
+.shop-pagination__btn.is-active {
+    background: var(--secondary-color);
+    border-color: var(--secondary-color);
+    color: #ffffff;
+    cursor: default;
+}
+.shop-pagination__btn.is-disabled { color: #c9ced4; cursor: not-allowed; background: #f9fafb; }
+.shop-pagination__btn.is-disabled:hover { background: #f9fafb; border-color: #e5e7eb; }
+.shop-pagination__dots { border: none; background: none; min-width: auto; padding: 0 4px; color: #9ca3af; cursor: default; }
+@media (max-width: 560px) {
+    .shop-pagination__btn { min-width: 36px; min-height: 36px; padding: 0 8px; font-size: 12.5px; }
+}

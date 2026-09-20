@@ -147,7 +147,7 @@
                 @endforeach
             </div>
             <div class="collection-pagination">
-                {{ $products->links() }}
+                {{ $products->links('frontend.shop.partials.pagination') }}
             </div>
         @else
             <p class="collection-empty">Esta colección aún no tiene productos disponibles.</p>

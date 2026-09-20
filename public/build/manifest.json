@@ -206,32 +206,32 @@
     "isEntry": true
   },
   "resources/css/frontend/shop/account.css": {
-    "file": "assets/account-ulvCEk1f.css",
+    "file": "assets/account-C7QY8H32.css",
     "src": "resources/css/frontend/shop/account.css",
     "isEntry": true
   },
   "resources/css/frontend/shop/catalog.css": {
-    "file": "assets/catalog-CwVZTFss.css",
+    "file": "assets/catalog-CcLSUe-K.css",
     "src": "resources/css/frontend/shop/catalog.css",
     "isEntry": true
   },
   "resources/css/frontend/shop/checkout.css": {
-    "file": "assets/checkout-Bw6IzZy8.css",
+    "file": "assets/checkout-BCLRKiE6.css",
     "src": "resources/css/frontend/shop/checkout.css",
     "isEntry": true
   },
   "resources/css/frontend/shop/collection.css": {
-    "file": "assets/collection-Bg3Qvq8P.css",
+    "file": "assets/collection-Dg4J-S6k.css",
     "src": "resources/css/frontend/shop/collection.css",
     "isEntry": true
   },
   "resources/css/frontend/shop/home.css": {
-    "file": "assets/home-D83b_wP2.css",
+    "file": "assets/home-CQBOWXxq.css",
     "src": "resources/css/frontend/shop/home.css",
     "isEntry": true
   },
   "resources/css/frontend/shop/legal.css": {
-    "file": "assets/legal-CHFpNbLV.css",
+    "file": "assets/legal-BgG5skMC.css",
     "src": "resources/css/frontend/shop/legal.css",
     "isEntry": true
   },
@@ -241,12 +241,12 @@
     "isEntry": true
   },
   "resources/css/frontend/shop/product-detail.css": {
-    "file": "assets/product-detail-C-Tclndq.css",
+    "file": "assets/product-detail-B1u5cNEf.css",
     "src": "resources/css/frontend/shop/product-detail.css",
     "isEntry": true
   },
   "resources/css/frontend/shop/service-page.css": {
-    "file": "assets/service-page-D-AFszXL.css",
+    "file": "assets/service-page-CjnqeVRq.css",
     "src": "resources/css/frontend/shop/service-page.css",
     "isEntry": true
   },
@@ -511,6 +511,18 @@
       "_alpine-init-Pyo8z4j8.js"
     ]
   },
+  "resources/js/frontend/shop/checkout-accordion.js": {
+    "file": "assets/checkout-accordion-BhNFBlsQ.js",
+    "name": "checkout-accordion",
+    "src": "resources/js/frontend/shop/checkout-accordion.js",
+    "isEntry": true
+  },
+  "resources/js/frontend/shop/checkout-payment.js": {
+    "file": "assets/checkout-payment-D9oVbhb0.js",
+    "name": "checkout-payment",
+    "src": "resources/js/frontend/shop/checkout-payment.js",
+    "isEntry": true
+  },
   "resources/js/frontend/shop/collection.js": {
     "file": "assets/collection-oRvYyC2Q.js",
     "name": "collection",
@@ -528,6 +540,12 @@
     "imports": [
       "_alpine-init-Pyo8z4j8.js"
     ]
+  },
+  "resources/js/frontend/shop/mercadopago-checkout.js": {
+    "file": "assets/mercadopago-checkout-CuVVQXh-.js",
+    "name": "mercadopago-checkout",
+    "src": "resources/js/frontend/shop/mercadopago-checkout.js",
+    "isEntry": true
   },
   "resources/js/frontend/shop/pool-calculator.js": {
     "file": "assets/pool-calculator-DkimvQta.js",

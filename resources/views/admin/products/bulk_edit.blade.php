@@ -41,6 +41,7 @@
             ['key' => 'is_new', 'label' => 'Nuevo', 'group' => 'Organización', 'type' => 'checkbox'],
             ['key' => 'is_recommended', 'label' => 'Recomendado', 'group' => 'Organización', 'type' => 'checkbox'],
             ['key' => 'show_in_merchant_center', 'label' => 'Merchant Center', 'group' => 'Organización', 'type' => 'checkbox'],
+            ['key' => 'accepts_msi', 'label' => 'Acepta MSI', 'group' => 'Organización', 'type' => 'checkbox'],
             ['key' => 'tags', 'label' => 'Tags', 'group' => 'Organización', 'type' => 'tags'],
             ['key' => 'specifications', 'label' => 'Especificaciones', 'group' => 'Organización', 'type' => 'specs'],
 
@@ -66,7 +67,7 @@
         // los campos complejos Especificaciones/FAQ.
         $bulkApplyKeys = ['price','price_includes_tax','compare_price','cost','shipping_cost','free_shipping_threshold',
             'stock','stock_unit','currency','availability','category_id','brand_id','is_active','publish_on_website',
-            'is_featured','is_new','is_recommended','show_in_merchant_center','tags','canonical'];
+            'is_featured','is_new','is_recommended','show_in_merchant_center','accepts_msi','tags','canonical'];
         $bulkApplyColumns = collect($bulkEditColumns)->whereIn('key', $bulkApplyKeys)->values();
 
         // "Proveedor" no es una columna real de $bulkEditColumns (no tiene

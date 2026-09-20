@@ -591,6 +591,10 @@ Route::controller(WhatsappAccountController::class)
         Route::get('/{whatsappAccount}/editar', 'edit')->name('edit')->middleware('permission:whatsapp,edit');
         Route::put('/{whatsappAccount}', 'update')->name('update')->middleware('permission:whatsapp,edit');
         Route::delete('/{whatsappAccount}', 'destroy')->name('destroy')->middleware('permission:whatsapp,delete');
+        // Polling del modal "Escanea el código QR" (Part D, conexión
+        // baileys_qr) -- misma acción de permiso que editar/reconectar una
+        // cuenta existente.
+        Route::get('/{whatsappAccount}/qr', 'qrStatus')->name('qr-status')->middleware('permission:whatsapp,edit');
     });
 
 // ============================================================
@@ -941,6 +945,7 @@ Route::controller(IntegrationController::class)
         Route::put('/integraciones', 'update')->name('integrations.update')->middleware('permission:settings,edit');
         Route::post('/integraciones/probar-correo', 'sendTestMail')->name('integrations.test-mail');
         Route::post('/integraciones/probar-correo-cotizacion', 'sendTestQuoteEmail')->name('integrations.test-quote-mail');
+        Route::put('/integraciones/mercadopago', 'updateMercadoPago')->name('integrations.update-mercadopago')->middleware('permission:settings,edit');
     });
 
 // CRUD del catálogo "Webhooks" (entidad reutilizable para el nodo "Llamar

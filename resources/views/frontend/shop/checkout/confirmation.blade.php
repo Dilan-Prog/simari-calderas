@@ -7,8 +7,19 @@
 @section('title', 'Pedido confirmado — Equiterm Industries')
 
 @section('content')
+@php
+    // loadMissing() es idempotente -- seguro llamarlo aunque el controller ya
+    // haya cargado alguna de estas relaciones (CheckoutController::confirm()
+    // no se toca aquí, este eager-load vive en la propia vista).
+    $storeOrder->loadMissing(['items.product.images', 'paymentMethod']);
+@endphp
 <div class="eq-checkout">
     <div class="checkout-confirmation">
+        {{-- Esta vista SOLO se renderiza cuando el pago realmente quedó
+             aprobado o en un estado asíncrono válido (in_process/pending,
+             ver MercadoPagoCheckoutController::thanks()) -- un pago
+             rechazado/cancelado nunca llega aquí, se queda en la página de
+             checkout con un modal de reintento en su lugar. --}}
         <div class="checkout-confirmation__icon">
             <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </div>
@@ -18,6 +29,23 @@
             Hemos recibido tu pedido por un total de <strong>${{ number_format($storeOrder->total, 2) }} {{ $storeOrder->currency }}</strong>.
             Te contactaremos a <strong>{{ $storeOrder->contact_email }}</strong> con los siguientes pasos para tu pago y envío.
         </p>
+
+        <div class="checkout-confirmation__items">
+            @foreach ($storeOrder->items as $item)
+                <div class="checkout-confirmation__item">
+                    <div class="checkout-confirmation__item-img">
+                        @if ($item->product && $item->product->images->first())
+                            <img src="{{ $item->product->images->first()->url }}" alt="{{ $item->product_name }}">
+                        @endif
+                    </div>
+                    <div class="checkout-confirmation__item-info">
+                        <div class="checkout-confirmation__item-name">{{ $item->product_name }}</div>
+                        <div class="checkout-confirmation__item-sku">{{ $item->product_sku }} · Cantidad {{ $item->quantity }}</div>
+                    </div>
+                    <div class="checkout-confirmation__item-total">${{ number_format($item->line_total, 2) }}</div>
+                </div>
+            @endforeach
+        </div>
 
         <div style="text-align:left; max-width:320px; margin:0 auto 28px;">
             <div class="checkout-summary__row">
@@ -35,6 +63,26 @@
             <div class="checkout-summary__row checkout-summary__row--total" style="margin-bottom:0;">
                 <span>Total</span>
                 <span>${{ number_format($storeOrder->total, 2) }} {{ $storeOrder->currency }}</span>
+            </div>
+        </div>
+
+        <div class="checkout-confirmation__cards">
+            <div class="checkout-confirmation__card">
+                <div class="checkout-confirmation__card-label">Enviar a</div>
+                <div class="checkout-confirmation__card-title">{{ $storeOrder->contact_name }}</div>
+                <div class="checkout-confirmation__card-text">
+                    {{ $storeOrder->shipping_address_line1 }}
+                    @if (!empty($storeOrder->shipping_address_line2))
+                        , {{ $storeOrder->shipping_address_line2 }}
+                    @endif
+                    <br>
+                    {{ $storeOrder->shipping_city }}, {{ $storeOrder->shipping_state }}, CP {{ $storeOrder->shipping_postal_code }}
+                </div>
+            </div>
+            <div class="checkout-confirmation__card">
+                <div class="checkout-confirmation__card-label">Método de pago</div>
+                <div class="checkout-confirmation__card-title">{{ $storeOrder->paymentMethod->name ?? 'No especificado' }}</div>
+                <div class="checkout-confirmation__card-text">Entrega estimada: {{ config('shop.delivery_estimate_label', '3–5 días hábiles') }}</div>
             </div>
         </div>
 

@@ -25,6 +25,7 @@ class StoreOrder extends Model
         'contact_phone',
         'shipping_address_line1',
         'shipping_address_line2',
+        'shipping_reference',
         'shipping_city',
         'shipping_state',
         'shipping_postal_code',
@@ -88,6 +89,11 @@ class StoreOrder extends Model
     public function shipment(): HasOne
     {
         return $this->hasOne(Shipment::class);
+    }
+
+    public function payments(): HasMany
+    {
+        return $this->hasMany(MercadoPagoPayment::class)->orderBy('charge_group');
     }
 
     // Folio "PW-YYYY-XXXX" ("Pedido Web") — mismo patrón que

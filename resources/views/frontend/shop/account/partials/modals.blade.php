@@ -46,50 +46,77 @@
     </div>
 </div>
 
-{{-- MODAL: form dirección (visual) --}}
+{{-- MODAL: form dirección (REAL -- persiste vía CustomerAddressController) --}}
 <div class="eq-modal" x-show="modal === 'address-form'" x-cloak @click.self="closeModal()">
     <div class="eq-modal__card eq-modal__card--form">
-        <div class="eq-modal__header">
-            <div class="eq-modal__header-title" x-text="modalData.title ?? 'Agregar dirección'"></div>
-            <button type="button" class="eq-modal__close" @click="closeModal()">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12" stroke-linecap="round"/></svg>
-            </button>
-        </div>
-        <div class="eq-modal__body">
-            <div class="portal-field">
-                <label>Etiqueta</label>
-                <input type="text" placeholder="Ej. Oficina Corporativa" :value="modalData.label ?? ''">
+        <form method="POST" :action="modalData.actionUrl">
+            @csrf
+            <template x-if="modalData.method === 'PUT'">
+                <input type="hidden" name="_method" value="PUT">
+            </template>
+            <div class="eq-modal__header">
+                <div class="eq-modal__header-title" x-text="modalData.title ?? 'Agregar dirección'"></div>
+                <button type="button" class="eq-modal__close" @click="closeModal()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12" stroke-linecap="round"/></svg>
+                </button>
             </div>
-            <div class="portal-field">
-                <label>Calle y número</label>
-                <input type="text" :value="modalData.calle ?? ''">
-            </div>
-            <div class="portal-grid-2">
+            <div class="eq-modal__body">
                 <div class="portal-field">
-                    <label>Colonia</label>
-                    <input type="text" :value="modalData.colonia ?? ''">
+                    <label>Etiqueta (opcional)</label>
+                    <input type="text" name="label" placeholder="Ej. Oficina Corporativa" :value="modalData.label ?? ''">
+                </div>
+                <div class="portal-grid-2">
+                    <div class="portal-field">
+                        <label>Nombre de quien recibe</label>
+                        <input type="text" name="recipient_name" required :value="modalData.recipient_name ?? ''">
+                    </div>
+                    <div class="portal-field">
+                        <label>Teléfono</label>
+                        <input type="tel" name="phone" required :value="modalData.phone ?? ''">
+                    </div>
                 </div>
                 <div class="portal-field">
-                    <label>CP</label>
-                    <input type="text" :value="modalData.cp ?? ''">
+                    <label>Calle y número</label>
+                    <input type="text" name="address_line1" required :value="modalData.address_line1 ?? ''">
                 </div>
+                <div class="portal-grid-2">
+                    <div class="portal-field">
+                        <label>Colonia, referencias (opcional)</label>
+                        <input type="text" name="address_line2" :value="modalData.address_line2 ?? ''">
+                    </div>
+                    <div class="portal-field">
+                        <label>CP</label>
+                        <input type="text" name="postal_code" required :value="modalData.postal_code ?? ''">
+                    </div>
+                </div>
+                <div class="portal-grid-2">
+                    <div class="portal-field">
+                        <label>Estado</label>
+                        <select name="state" required>
+                            <option value="">Selecciona un estado</option>
+                            @foreach ($estadosMexico as $estado)
+                                <option value="{{ $estado }}" :selected="modalData.state === '{{ $estado }}'">{{ $estado }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="portal-field">
+                        <label>Ciudad</label>
+                        <input type="text" name="city" required :value="modalData.city ?? ''">
+                    </div>
+                </div>
+                <label class="auth-check">
+                    <input type="checkbox" name="is_default" value="1" :checked="modalData.is_default ?? false"> Establecer como predeterminada
+                </label>
             </div>
-            <div class="portal-field">
-                <label>Ciudad, Estado</label>
-                <input type="text" :value="modalData.ciudad ?? ''">
+            <div class="eq-modal__actions eq-modal__actions--footer">
+                <button type="button" class="eq-modal__btn" @click="closeModal()">Cancelar</button>
+                <button type="submit" class="eq-modal__btn eq-modal__btn--primary">Guardar dirección</button>
             </div>
-            <label class="auth-check">
-                <input type="checkbox" :checked="modalData.isDefault ?? false"> Establecer como predeterminada
-            </label>
-        </div>
-        <div class="eq-modal__actions eq-modal__actions--footer">
-            <button type="button" class="eq-modal__btn" @click="closeModal()">Cancelar</button>
-            <button type="button" class="eq-modal__btn eq-modal__btn--primary" @click="closeModal()">Guardar dirección</button>
-        </div>
+        </form>
     </div>
 </div>
 
-{{-- MODAL: eliminar dirección (visual) --}}
+{{-- MODAL: eliminar dirección (REAL) --}}
 <div class="eq-modal" x-show="modal === 'address-delete'" x-cloak @click.self="closeModal()">
     <div class="eq-modal__card">
         <div class="eq-modal__icon eq-modal__icon--danger">
@@ -97,10 +124,14 @@
         </div>
         <div class="eq-modal__title">¿Eliminar esta dirección?</div>
         <div class="eq-modal__text"><span x-text="modalData.label ?? 'Esta dirección'"></span> se eliminará de tu cuenta. Esta acción no se puede deshacer.</div>
-        <div class="eq-modal__actions">
-            <button type="button" class="eq-modal__btn" @click="closeModal()">Cancelar</button>
-            <button type="button" class="eq-modal__btn eq-modal__btn--danger" @click="closeModal()">Eliminar</button>
-        </div>
+        <form method="POST" :action="modalData.actionUrl" style="display:contents;">
+            @csrf
+            @method('DELETE')
+            <div class="eq-modal__actions">
+                <button type="button" class="eq-modal__btn" @click="closeModal()">Cancelar</button>
+                <button type="submit" class="eq-modal__btn eq-modal__btn--danger">Eliminar</button>
+            </div>
+        </form>
     </div>
 </div>
 

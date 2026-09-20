@@ -4,6 +4,7 @@ use App\Http\Controllers\Frontend\Shop\AccountController;
 use App\Http\Controllers\Frontend\Shop\Auth\LoginController;
 use App\Http\Controllers\Frontend\Shop\Auth\PasswordResetController;
 use App\Http\Controllers\Frontend\Shop\Auth\RegisterController;
+use App\Http\Controllers\Frontend\Shop\CustomerAddressController;
 use App\Http\Controllers\Frontend\Shop\PortalRequestController;
 use Illuminate\Support\Facades\Route;
 
@@ -38,5 +39,11 @@ Route::prefix('cuenta')->name('shop.')->group(function () {
         // Solicitud de acceso al portal de servicios (wizard con autosave)
         Route::post('portal/solicitud/respuesta', [PortalRequestController::class, 'answer'])->name('portal-request.answer');
         Route::post('portal/solicitud/finalizar', [PortalRequestController::class, 'finish'])->name('portal-request.finish');
+
+        // Direcciones guardadas -- consumido desde /cuenta#direcciones y desde
+        // el selector de dirección del paso de Envío del checkout.
+        Route::post('direcciones', [CustomerAddressController::class, 'store'])->name('addresses.store');
+        Route::put('direcciones/{address}', [CustomerAddressController::class, 'update'])->name('addresses.update');
+        Route::delete('direcciones/{address}', [CustomerAddressController::class, 'destroy'])->name('addresses.destroy');
     });
 });

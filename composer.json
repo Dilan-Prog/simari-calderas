@@ -15,6 +15,7 @@
         "laravel/sanctum": "^3.3",
         "laravel/tinker": "^2.8",
         "maatwebsite/excel": "^3.1",
+        "mercadopago/dx-php": "^2.6",
         "smalot/pdfparser": "^2.12",
         "spatie/laravel-sitemap": "^6.0"
     },

@@ -5,6 +5,17 @@
 
     $portalRequest = $customer->portalRequest;
     $portalRequestCompleted = (bool) ($portalRequest?->completed_at);
+
+    // Mismo catálogo estático ya usado en checkout/shipping.blade.php (sin
+    // dependencia externa) -- se usa aquí para el <select> de Estado del
+    // modal real de direcciones.
+    $estadosMexico = [
+        'Aguascalientes', 'Baja California', 'Baja California Sur', 'Campeche', 'Chiapas',
+        'Chihuahua', 'Ciudad de México', 'Coahuila', 'Colima', 'Durango', 'Estado de México',
+        'Guanajuato', 'Guerrero', 'Hidalgo', 'Jalisco', 'Michoacán', 'Morelos', 'Nayarit',
+        'Nuevo León', 'Oaxaca', 'Puebla', 'Querétaro', 'Quintana Roo', 'San Luis Potosí',
+        'Sinaloa', 'Sonora', 'Tabasco', 'Tamaulipas', 'Tlaxcala', 'Veracruz', 'Yucatán', 'Zacatecas',
+    ];
 @endphp
 
 @section('title', 'Mi cuenta — Equiterm Industries')

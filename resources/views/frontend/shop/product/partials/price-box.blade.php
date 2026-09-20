@@ -38,6 +38,13 @@
         </div>
     @endif
 
+    @if ($product->accepts_msi)
+        <div class="product-price-box__shipping-note">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+            Hasta 12 meses sin intereses con tarjetas participantes
+        </div>
+    @endif
+
     <div class="product-qty-row">
         <div class="product-qty-stepper">
             <button type="button" @click="dec()" :disabled="qty <= 1" aria-label="Disminuir cantidad">−</button>
