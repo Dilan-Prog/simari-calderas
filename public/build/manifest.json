@@ -206,32 +206,32 @@
     "isEntry": true
   },
   "resources/css/frontend/shop/account.css": {
-    "file": "assets/account-CpAM5AOF.css",
+    "file": "assets/account-D39VU5K7.css",
     "src": "resources/css/frontend/shop/account.css",
     "isEntry": true
   },
   "resources/css/frontend/shop/catalog.css": {
-    "file": "assets/catalog-BQgMtpQ8.css",
+    "file": "assets/catalog-2eT1kHim.css",
     "src": "resources/css/frontend/shop/catalog.css",
     "isEntry": true
   },
   "resources/css/frontend/shop/checkout.css": {
-    "file": "assets/checkout-BzTkla3o.css",
+    "file": "assets/checkout-BtVZ1qMh.css",
     "src": "resources/css/frontend/shop/checkout.css",
     "isEntry": true
   },
   "resources/css/frontend/shop/collection.css": {
-    "file": "assets/collection-CDaTjENp.css",
+    "file": "assets/collection-iV-2baZl.css",
     "src": "resources/css/frontend/shop/collection.css",
     "isEntry": true
   },
   "resources/css/frontend/shop/home.css": {
-    "file": "assets/home-BqUPHcJg.css",
+    "file": "assets/home-Ek6-9ovO.css",
     "src": "resources/css/frontend/shop/home.css",
     "isEntry": true
   },
   "resources/css/frontend/shop/legal.css": {
-    "file": "assets/legal-CLfvz_xg.css",
+    "file": "assets/legal-CeluAIeP.css",
     "src": "resources/css/frontend/shop/legal.css",
     "isEntry": true
   },
@@ -241,12 +241,12 @@
     "isEntry": true
   },
   "resources/css/frontend/shop/product-detail.css": {
-    "file": "assets/product-detail-Ca8krPZ3.css",
+    "file": "assets/product-detail-D3ASPKF-.css",
     "src": "resources/css/frontend/shop/product-detail.css",
     "isEntry": true
   },
   "resources/css/frontend/shop/service-page.css": {
-    "file": "assets/service-page-DOfEUSn-.css",
+    "file": "assets/service-page-Co_j89c5.css",
     "src": "resources/css/frontend/shop/service-page.css",
     "isEntry": true
   },
@@ -394,7 +394,7 @@
     "isEntry": true
   },
   "resources/js/admin/service-page-live-editor.js": {
-    "file": "assets/service-page-live-editor-BrlKd6aA.js",
+    "file": "assets/service-page-live-editor-B7suO-37.js",
     "name": "service-page-live-editor",
     "src": "resources/js/admin/service-page-live-editor.js",
     "isEntry": true,

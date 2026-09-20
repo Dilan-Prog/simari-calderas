@@ -2356,6 +2356,20 @@ import Sortable from 'sortablejs';
         dirtyIndicator.textContent = 'Guardando…';
         dirtyIndicator.className = 'live-editor-status is-saving';
 
+        // "Información general" (nombre/slug/precio/descripción/SEO/rating)
+        // y el repetidor de FAQ se guardan con su propio botón, endpoint
+        // aparte -- este botón grande solo guardaba el orden/config de los
+        // bloques. Si el panel abierto es uno de esos dos, este botón
+        // también dispara ESE guardado primero: de lo contrario, editar
+        // "Descripción corta" y luego pulsar el botón grande (lo más
+        // intuitivo) no guardaba nada ahí, pareciendo que el campo "no deja
+        // actualizarse".
+        if (editPanel.querySelector('#leGenSaveBtn')) {
+            await saveGeneralInfo();
+        } else if (editPanel.querySelector('#leFaqSaveBtn')) {
+            await saveGeneralInfo({ btnId: 'leFaqSaveBtn', errorsBoxId: 'leFaqErrors' });
+        }
+
         try {
             const res = await fetch(DATA.saveUrl, {
                 method: 'PUT',

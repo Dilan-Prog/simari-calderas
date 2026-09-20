@@ -306,7 +306,10 @@
 
                   <div class="eq-mega__svc-promo-body">
                     <div class="eq-mega__col-label">{{ $category->name }}</div>
-                    <div class="eq-mega__svc-promo-title">{{ $child->short_description ?: $child->name }}</div>
+                    <div class="eq-mega__svc-promo-title">{{ $child->name }}</div>
+                    @if ($child->short_description)
+                      <p class="eq-mega__svc-promo-desc">{{ $child->short_description }}</p>
+                    @endif
 
                     @if ($child->rating_average_displayed)
                       <div class="eq-mega__svc-promo-rating">
