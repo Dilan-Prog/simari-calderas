@@ -62,10 +62,6 @@ window.__tsConfig = {
             @php
                 $linkedQuoteId = old('from_quote_id', $service?->from_quote_id ?? $fromQuote?->id);
                 $linkedQuote   = $linkedQuoteId ? $acceptedQuotes->firstWhere('id', (int) $linkedQuoteId) : null;
-                // Modo legacy: solo aplica al EDITAR un servicio que ya existía sin
-                // cotización de origen (borradores viejos). Los servicios nuevos
-                // siempre se crean a partir de una cotización aceptada.
-                $isLegacyEdit  = $isEdit && $service->customer_id && !$service->from_quote_id;
             @endphp
 
             {{-- Cliente --}}
@@ -91,14 +87,7 @@ window.__tsConfig = {
 
             {{-- Cotización de origen — filtrada por el cliente elegido arriba --}}
             <div class="ts-field">
-                <label class="ts-label">
-                    Cotización de origen
-                    @if($isLegacyEdit)
-                        (opcional)
-                    @else
-                        <span class="ts-label__req">*</span>
-                    @endif
-                </label>
+                <label class="ts-label">Cotización de origen (opcional)</label>
                 <div class="client-select-wrap" id="ts-quote-picker" style="{{ $linkedQuote ? 'display:none' : '' }}">
                     <input type="text" id="tsQuoteSearchInput" class="ts-input"
                            placeholder="Selecciona un cliente primero..." autocomplete="off" disabled>
@@ -125,7 +114,7 @@ window.__tsConfig = {
                     (<span id="ts-quote-linked-customer">{{ $linkedQuote ? ($linkedQuote->customer->company ?: trim("{$linkedQuote->customer->first_name} {$linkedQuote->customer->last_name}")) : '' }}</span>)</span>
                     <button type="button" id="ts-quote-unlink" class="ts-btn ts-btn--ghost" style="padding:2px 10px">Quitar vínculo</button>
                 </div>
-                <input type="hidden" name="from_quote_id" id="tsFromQuoteId" value="{{ $linkedQuoteId }}" {{ $isLegacyEdit ? '' : 'required' }}>
+                <input type="hidden" name="from_quote_id" id="tsFromQuoteId" value="{{ $linkedQuoteId }}">
                 <span class="ts-field-error"></span>
             </div>
 

@@ -110,8 +110,9 @@ class TechnicalServiceController extends Controller
     {
         $validated = $request->validate([
             'draft_token'        => 'nullable|string|max:255',
+            'customer_id'        => 'required|exists:customers,id',
             'from_quote_id'      => [
-                'required',
+                'nullable',
                 Rule::exists('quotes', 'id')->where(
                     fn ($q) => $q->where('status', 'accepted')->whereNotNull('customer_id')
                 ),
@@ -128,10 +129,13 @@ class TechnicalServiceController extends Controller
             'week_number'        => 'nullable|integer|min:1|max:53',
         ]);
 
-        // El cliente se deriva de la cotización elegida — nunca se acepta directo
-        // del request, así customer_id y from_quote_id nunca quedan desalineados.
-        $quote = Quote::findOrFail($validated['from_quote_id']);
-        $validated['customer_id'] = $quote->customer_id;
+        // La cotización de origen es opcional -- si se eligió una, el cliente
+        // se deriva de ella (así customer_id y from_quote_id nunca quedan
+        // desalineados); si no, se usa el cliente elegido directo en el form.
+        if (!empty($validated['from_quote_id'])) {
+            $quote = Quote::findOrFail($validated['from_quote_id']);
+            $validated['customer_id'] = $quote->customer_id;
+        }
 
         $service = $this->tsService->store($validated, auth()->id());
 
