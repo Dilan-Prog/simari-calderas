@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers\Frontend\Shop;
 
+use App\Actions\AdvanceStoreOrderStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Cart;
 use App\Models\CartItem;
 use App\Models\Products;
+use App\Models\StoreOrder;
 use App\Services\CartRecoveryService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -23,6 +25,74 @@ class CartController extends Controller
             ['session_id' => session()->getId()],
             ['customer_id' => Auth::guard('customer')->id()]
         );
+    }
+
+    /**
+     * Cualquier cambio al carrito (agregar, quitar, cambiar cantidad)
+     * invalida el progreso de checkout ya guardado en sesión -- sin esto,
+     * el cliente podía vaciar/rellenar su carrito con productos distintos y
+     * el acordeón seguía saltando directo a "Método de pago" con la
+     * dirección vieja, reutilizando además el pedido/cobro de Mercado Pago
+     * ya creado para el carrito anterior (monto equivocado). Cualquier
+     * cambio al carrito es, por definición, un pedido distinto al que ya
+     * se había empezado a pagar.
+     */
+    private function invalidateCheckoutSession(): void
+    {
+        session()->forget(['checkout.shipping', 'checkout.mp_order_id']);
+    }
+
+    /**
+     * "Tarjeta" (el método pre-seleccionado por defecto) arranca solo en
+     * cuanto se abre la sección de Pago (ver maybeAutoStartMercadoPago() en
+     * checkout-accordion.js) -- eso ya crea un StoreOrder real de verdad y
+     * vacía el carrito, aunque el cliente nunca haya dado clic en pagar.
+     * Sin esto, agregar un producto más mientras se ve el paso de pago se
+     * sentía como "se borró mi carrito": en realidad ya estaba convertido
+     * en un pedido en automático. Se restauran los artículos de ese pedido
+     * -- SOLO si nunca se le aprobó ningún cobro -- de vuelta al carrito
+     * actual antes de agregar lo nuevo, y se cancela el pedido huérfano en
+     * vez de dejarlo "pendiente_pago" para siempre sin que nadie vaya a
+     * completarlo.
+     */
+    private function restoreDraftOrderIfAny(Cart $cart): void
+    {
+        $draftOrderId = session('checkout.mp_order_id');
+
+        if (! $draftOrderId) {
+            return;
+        }
+
+        $draftOrder = StoreOrder::where('id', $draftOrderId)
+            ->where('status', 'pendiente_pago')
+            ->first();
+
+        if (! $draftOrder || $draftOrder->payments()->where('status', 'approved')->exists()) {
+            return;
+        }
+
+        $draftOrder->loadMissing('items');
+
+        foreach ($draftOrder->items as $item) {
+            $existing = CartItem::where('cart_id', $cart->id)->where('product_id', $item->product_id)->first();
+
+            CartItem::updateOrCreate(
+                ['cart_id' => $cart->id, 'product_id' => $item->product_id],
+                ['quantity' => ($existing->quantity ?? 0) + $item->quantity, 'unit_price_snapshot' => $item->unit_price]
+            );
+        }
+
+        $cart->update(['converted_to_store_order_id' => null]);
+
+        (new AdvanceStoreOrderStatus())(
+            $draftOrder,
+            'cancelado',
+            'Cancelado en automático: el cliente agregó otro producto al carrito antes de pagar -- sus artículos se restauraron al carrito actual.'
+        );
+
+        // Slots de Mercado Pago de un pedido que nunca se cobró -- no tiene
+        // caso dejarlos huérfanos apuntando a un pedido ya cancelado.
+        $draftOrder->payments()->delete();
     }
 
     public function add(Request $request)
@@ -44,6 +114,7 @@ class CartController extends Controller
         }
 
         $cart = $this->currentCart();
+        $this->restoreDraftOrderIfAny($cart);
 
         $existing = CartItem::where('cart_id', $cart->id)->where('product_id', $product->id)->first();
         $newQuantity = ($existing->quantity ?? 0) + $data['quantity'];
@@ -59,6 +130,7 @@ class CartController extends Controller
         );
 
         $cart->update(['last_activity_at' => now()]);
+        $this->invalidateCheckoutSession();
 
         // Primer punto de captura de atribución publicitaria (no el
         // checkout): así los carritos que nunca llegan a pagar -- la
@@ -103,6 +175,14 @@ class CartController extends Controller
         $item->update(['quantity' => $data['quantity']]);
 
         $cart->update(['last_activity_at' => now()]);
+        // Solo el pedido/cobro de Mercado Pago reutilizable -- ese sí queda
+        // con el monto viejo y no se puede reusar. La dirección de envío
+        // NO se toca aquí: esta misma función es el stepper +/- de
+        // cantidad DENTRO del checkout ya iniciado (ver checkout-accordion.js);
+        // invalidar checkout.shipping también obligaría a rellenar la
+        // dirección de nuevo solo por ajustar una cantidad, una molestia
+        // real que el cliente no pidió.
+        session()->forget('checkout.mp_order_id');
 
         $cart->load('items');
 
@@ -134,6 +214,7 @@ class CartController extends Controller
 
         // Carrito vaciado a mano ya no cuenta como "abandonado".
         $cart->update(['last_activity_at' => $cart->items->isEmpty() ? null : now()]);
+        $this->invalidateCheckoutSession();
 
         if (! $request->wantsJson()) {
             return back();

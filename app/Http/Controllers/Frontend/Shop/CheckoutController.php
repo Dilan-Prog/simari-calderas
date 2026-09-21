@@ -410,14 +410,9 @@ class CheckoutController extends Controller
                 // Tarjeta que ya usa el flujo "card" (JS deshabilitado es un
                 // caso ya degradado en el resto de este checkout).
                 $checkoutProUrl = route('checkout.payment.mercadopago.checkout-pro', [$storeOrder->order_number, $onlyPayment->id]);
-                // thanksUrl: a dónde navega la pestaña principal cuando el
-                // popup de Mercado Pago se cierra (ver goToCheckoutPro() en
-                // checkout-payment.js) -- misma ruta a la que MP redirige de
-                // vuelta dentro del popup al terminar el pago.
-                $thanksUrl = route('checkout.payment.mercadopago.thanks', $storeOrder->order_number);
 
                 if ($request->wantsJson()) {
-                    return response()->json(['flow' => 'checkout_pro', 'checkoutProUrl' => $checkoutProUrl, 'thanksUrl' => $thanksUrl]);
+                    return response()->json(['flow' => 'checkout_pro', 'checkoutProUrl' => $checkoutProUrl]);
                 }
 
                 return redirect()->route('checkout.payment.mercadopago', $storeOrder->order_number);
