@@ -182,18 +182,19 @@ function init() {
 
     // 2º paso del flujo "checkout_pro" -- mismo POST que ya usaba el link
     // secundario "¿Prefieres pagar con OXXO...?" cuando vivía bajo la
-    // Tarjeta; ahora lo dispara el submit principal del radio dedicado.
-    // Redirección de página completa -- el flujo estándar que documenta
-    // Mercado Pago para Checkout Pro (nunca en popup/iframe/ventana
-    // emergente vía window.open: abrir su checkout así puede activar
-    // heurísticas de seguridad de su CDN, viéndose como un 403 de
-    // CloudFront en vez de su pantalla real -- confirmado en vivo). Cuando
-    // MP regresa aquí (éxito, pendiente o fallo, mismos 3 back_urls),
-    // MercadoPagoCheckoutController::thanks() ya reconcilia el resultado
-    // real contra la API antes de decidir si muestra "confirmado" o
-    // regresa aquí con un aviso -- no hace falta ninguna lógica de
-    // verificación de este lado.
-    function goToCheckoutPro(checkoutProUrl) {
+    // Tarjeta; ahora lo dispara el submit principal del radio dedicado. En
+    // vez de navegar la pestaña completa al checkout hospedado de MP, se
+    // abre en una ventana emergente -- el cliente nunca pierde de vista
+    // nuestro sitio de fondo. Si el navegador bloquea el popup (ej. Safari
+    // sin gesto de usuario directo), se cae al respaldo de navegación
+    // completa de siempre.
+    //
+    // NOTA: se probó cambiar esto a redirección de página completa
+    // (sospechando que el popup causaba el 403 de CloudFront visto en QA),
+    // pero el 403 volvió a pasar igual sin popup -- confirmado que NO es la
+    // causa. Se revierte a este comportamiento (con modal) porque es la
+    // experiencia que se quiere conservar.
+    function goToCheckoutPro(checkoutProUrl, thanksUrl) {
         fetch(checkoutProUrl, {
             method: 'POST',
             headers: {
@@ -208,12 +209,121 @@ function init() {
                     throw new Error(data.message || 'No se pudo iniciar el pago.');
                 }
 
-                window.location.href = data.redirectUrl;
+                openCheckoutProPopup(data.redirectUrl, thanksUrl);
             })
             .catch((err) => {
                 if (submitBtn) submitBtn.disabled = false;
                 showError(err.message || 'No se pudo conectar con el servidor.');
             });
+    }
+
+    function openCheckoutProPopup(url, thanksUrl) {
+        const width = Math.round(window.screen.availWidth * 0.7);
+        const height = Math.round(window.screen.availHeight * 0.7);
+        const left = window.screen.availLeft + Math.max(0, (window.screen.availWidth - width) / 2);
+        const top = window.screen.availTop + Math.max(0, (window.screen.availHeight - height) / 2);
+        const popup = window.open(
+            url,
+            'mp_checkout_pro',
+            `width=${width},height=${height},left=${left},top=${top},noopener=no`
+        );
+
+        if (!popup) {
+            // Bloqueado por el navegador -- respaldo: navegación completa,
+            // mismo comportamiento que antes de tener popup.
+            window.location.href = url;
+            return;
+        }
+
+        // El popup navega dentro del dominio de Mercado Pago mientras el
+        // cliente paga -- leer popup.location ahí truena por same-origin.
+        // Solo se puede leer de nuevo cuando MP lo regresa a nuestro propio
+        // dominio (back_urls de checkoutPro(), todas apuntan a thanksUrl) --
+        // SOLO en ese momento se navega la pestaña principal. Si el cliente
+        // cierra el popup a mano (con la "X") sin que eso haya pasado nunca,
+        // NO se navega a ningún lado -- se queda en esta misma pestaña/paso
+        // de Método de pago y se le avisa con un modal que el pago no se
+        // completó, para que pueda reintentar de inmediato.
+        let reachedThanks = false;
+        const poll = setInterval(() => {
+            if (popup.closed) {
+                clearInterval(poll);
+                if (!reachedThanks) {
+                    if (submitBtn) submitBtn.disabled = false;
+                    showPaymentIncompleteModal('Cerraste la ventana de Mercado Pago antes de terminar. No se realizó ningún cargo -- por favor vuelve a intentarlo.');
+                }
+                return;
+            }
+
+            if (!thanksUrl) return;
+
+            let popupUrl = null;
+            try {
+                popupUrl = popup.location.href;
+            } catch (e) {
+                return; // Todavía en mercadopago.com -- seguir esperando.
+            }
+
+            if (popupUrl && popupUrl.indexOf(thanksUrl) === 0) {
+                reachedThanks = true;
+                clearInterval(poll);
+                popup.close();
+
+                // No se navega la pestaña principal todavía -- MP puede
+                // regresar aquí tanto por un pago aprobado como por uno
+                // rechazado (mismos 3 back_urls, ver checkoutPro()). Se le
+                // pregunta primero al propio thanks() (en JSON, sin
+                // renderizar nada) si el pago de verdad se completó antes de
+                // decidir a dónde ir -- si falló, JAMÁS se navega a la página
+                // de "confirmado", se avisa aquí mismo con el modal.
+                fetch(popupUrl, { headers: { Accept: 'application/json' } })
+                    .then((res) => res.json())
+                    .then((data) => {
+                        if (data.failed) {
+                            if (submitBtn) submitBtn.disabled = false;
+                            showPaymentIncompleteModal('Tu pago con Mercado Pago no se completó. No te preocupes, no se realizó ningún cargo -- por favor vuelve a intentarlo.');
+                        } else {
+                            window.location.href = popupUrl;
+                        }
+                    })
+                    .catch(() => {
+                        // No se pudo ni preguntar -- más seguro navegar a la
+                        // página real (que reconcilia de nuevo desde cero)
+                        // que dejar al cliente sin ningún resultado.
+                        window.location.href = popupUrl;
+                    });
+            }
+        }, 600);
+    }
+
+    // Reusa el mismo componente visual de .checkout-address-modal (ver
+    // "¿Eliminar esta dirección?" en index.blade.php) en vez de inventar un
+    // modal aparte -- mismo look & feel, cero CSS nuevo.
+    function showPaymentIncompleteModal(message) {
+        if (document.getElementById('mpPaymentIncompleteModal')) return; // ya visible -- no duplicar
+
+        const overlay = document.createElement('div');
+        overlay.id = 'mpPaymentIncompleteModal';
+        overlay.className = 'checkout-address-modal';
+        overlay.style.display = 'flex';
+        overlay.innerHTML = `
+            <div class="checkout-address-modal__backdrop" data-mp-modal-close></div>
+            <div class="checkout-address-modal__box checkout-address-modal__box--sm">
+                <div class="checkout-address-modal__icon checkout-address-modal__icon--danger">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4m0 4h.01M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <div class="checkout-address-modal__title" style="text-align:center;">Tu pago no se completó</div>
+                <p class="checkout-address-modal__text"></p>
+                <div class="checkout-address-modal__actions">
+                    <button type="button" class="checkout-submit" data-mp-modal-close>Entendido</button>
+                </div>
+            </div>
+        `;
+        overlay.querySelector('.checkout-address-modal__text').textContent = message;
+        document.body.appendChild(overlay);
+
+        const close = () => overlay.remove();
+        overlay.querySelectorAll('[data-mp-modal-close]').forEach((el) => el.addEventListener('click', close));
     }
 
     document.querySelectorAll('input[name="payment_method_id"]').forEach((radio) => {
@@ -288,7 +398,7 @@ function init() {
                 }
 
                 if (data.flow === 'checkout_pro' && data.checkoutProUrl) {
-                    goToCheckoutPro(data.checkoutProUrl);
+                    goToCheckoutPro(data.checkoutProUrl, data.thanksUrl);
                     return;
                 }
 
