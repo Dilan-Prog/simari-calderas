@@ -276,6 +276,43 @@ class WhatsappService
             return;
         }
 
+        $sentAt = isset($incoming['timestamp']) ? \Illuminate\Support\Carbon::createFromTimestamp((int) $incoming['timestamp']) : now();
+
+        $type = $incoming['type'] ?? 'text';
+        $content = match ($type) {
+            'text'     => $incoming['text']['body'] ?? null,
+            'button'   => $incoming['button']['text'] ?? null,
+            'interactive' => $incoming['interactive']['button_reply']['title']
+                ?? $incoming['interactive']['list_reply']['title']
+                ?? null,
+            default    => null,
+        };
+        $mediaUrl = $incoming[$type]['id'] ?? null; // Meta entrega un media id, no una URL directa; se resuelve aparte si se necesita.
+
+        $this->ingestInboundMessage($account, $phone, [
+            'message_type'         => $type,
+            'content'              => $content,
+            'media_url'            => is_string($mediaUrl) ? $mediaUrl : null,
+            'external_message_id'  => $incoming['id'] ?? null,
+            'sent_at'              => $sentAt,
+        ]);
+    }
+
+    /**
+     * Punto de entrada único, agnóstico de proveedor, para persistir un
+     * mensaje entrante ya normalizado: dado el WhatsappAccount resuelto, el
+     * teléfono de contacto y los datos del mensaje, encuentra o crea la
+     * WhatsappConversation y crea el WhatsappMessage. Usado tanto por
+     * storeInboundMessage() (parseo del payload de Meta) como por
+     * WhatsappQrWebhookController (payload ya plano del microservicio de
+     * Baileys/QR) — evita duplicar la lógica de creación de
+     * conversación/asignación de pipeline en dos lugares.
+     *
+     * $data acepta: message_type (default 'text'), content, media_url,
+     * external_message_id, sent_at (default now()).
+     */
+    public function ingestInboundMessage(WhatsappAccount $account, string $phone, array $data = []): WhatsappMessage
+    {
         $conversation = WhatsappConversation::where('account_id', $account->id)
             ->where('contact_phone', $phone)
             ->first();
@@ -293,25 +330,14 @@ class WhatsappService
             ]);
         }
 
-        $sentAt = isset($incoming['timestamp']) ? \Illuminate\Support\Carbon::createFromTimestamp((int) $incoming['timestamp']) : now();
+        $sentAt = $data['sent_at'] ?? now();
 
-        $type = $incoming['type'] ?? 'text';
-        $content = match ($type) {
-            'text'     => $incoming['text']['body'] ?? null,
-            'button'   => $incoming['button']['text'] ?? null,
-            'interactive' => $incoming['interactive']['button_reply']['title']
-                ?? $incoming['interactive']['list_reply']['title']
-                ?? null,
-            default    => null,
-        };
-        $mediaUrl = $incoming[$type]['id'] ?? null; // Meta entrega un media id, no una URL directa; se resuelve aparte si se necesita.
-
-        $conversation->messages()->create([
+        $message = $conversation->messages()->create([
             'sender_type'          => WhatsappMessage::SENDER_CONTACT,
-            'message_type'         => $type,
-            'content'              => $content,
-            'media_url'            => is_string($mediaUrl) ? $mediaUrl : null,
-            'external_message_id'  => $incoming['id'] ?? null,
+            'message_type'         => $data['message_type'] ?? 'text',
+            'content'              => $data['content'] ?? null,
+            'media_url'            => $data['media_url'] ?? null,
+            'external_message_id'  => $data['external_message_id'] ?? null,
             'is_template'          => false,
             'sent_at'              => $sentAt,
         ]);
@@ -320,6 +346,8 @@ class WhatsappService
             'last_message_at' => $sentAt,
             'unread_count'    => $conversation->unread_count + 1,
         ]);
+
+        return $message;
     }
 
     private function applyStatusUpdate(array $status): void

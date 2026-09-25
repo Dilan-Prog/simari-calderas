@@ -10,6 +10,12 @@
  * Fiscal), toggle de factura, y la captura progresiva de contacto.
  */
 
+// IMPORTANTE: este entry NO llama Alpine.start() -- en checkout/index.blade.php
+// (donde vive este archivo) siempre se carga junto con mercadopago-checkout.js,
+// que se declara antes en $shopVite y ya lo arranca ahí (también es el único
+// script de pay-mercadopago.blade.php). Llamar Alpine.start() una segunda
+// vez rompe Alpine (mismo criterio que pool-calculator.js).
+
 function csrfToken() {
     const meta = document.querySelector('meta[name="csrf-token"]');
     return meta ? meta.content : '';

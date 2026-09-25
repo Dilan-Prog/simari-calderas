@@ -2,12 +2,14 @@
     <h1 class="portal-title">Mi perfil</h1>
 
     @if (!$customer->portal_access && !$portalRequestCompleted)
+        {{-- Botón deshabilitado a propósito -- "Solicitar acceso al portal"
+             está en "Próximamente" (ver sidebar.blade.php/portal-request.blade.php). --}}
         <div class="portal-banner">
             <div>
-                <strong>Portal de servicios técnicos</strong>
-                <p>Solicita acceso para consultar tus reportes de servicio y servicios técnicos en línea.</p>
+                <strong>Portal de servicios técnicos <em>(Próximamente)</em></strong>
+                <p>Muy pronto vas a poder solicitar acceso para consultar tus reportes de servicio y servicios técnicos en línea.</p>
             </div>
-            <button type="button" class="portal-btn" @click="go('solicitar-portal')">Solicitar acceso</button>
+            <button type="button" class="portal-btn" disabled>Solicitar acceso</button>
         </div>
     @elseif (!$customer->portal_access && $portalRequestCompleted)
         <div class="portal-banner portal-banner--pending">

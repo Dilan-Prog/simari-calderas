@@ -14,24 +14,34 @@ use Illuminate\Http\Request;
  */
 class WhatsappAccountController extends Controller
 {
+    /**
+     * La pantalla standalone se fusionó dentro de Integraciones (paneles
+     * "WhatsApp API" / "WhatsApp Web") -- este GET ya no tiene vista propia,
+     * solo redirige para no dejar bookmarks/enlaces viejos rotos. store/
+     * update/destroy/edit/qrStatus siguen siendo el backend real, ahora
+     * consumido por fetch desde admin.integrations.index.
+     */
     public function index()
     {
-        $whatsappAccounts = WhatsappAccount::latest()->get();
-        $webhookUrl = route('whatsapp.webhook.receive');
-
-        return view('admin.whatsapp-accounts.index', compact('whatsappAccounts', 'webhookUrl'));
+        return redirect()->route('admin.integrations.index');
     }
 
     private function validateAccount(Request $request): array
     {
         return $request->validate([
             'name'                          => 'required|string|max:100',
-            'phone_number'                  => 'required|string|max:30',
+            // Las cuentas "baileys_qr" (Part D) no capturan número visible en
+            // el formulario -- lo reporta el microservicio de Baileys una vez
+            // conectada la sesión -- así que solo es obligatorio para
+            // meta_cloud_api (incluyendo cuando el campo no se envía, que es
+            // el default del modelo/columna).
+            'phone_number'                  => 'required_unless:connection_type,baileys_qr|nullable|string|max:30',
             'phone_number_id'               => 'nullable|string|max:100',
             'whatsapp_business_account_id'  => 'nullable|string|max:100',
             'webhook_verify_token'          => 'nullable|string|max:100',
             'access_token'                  => 'nullable|string',
             'app_secret'                    => 'nullable|string',
+            'connection_type'               => 'nullable|in:meta_cloud_api,baileys_qr',
             'is_active'                     => 'nullable|boolean',
         ]);
     }
@@ -42,11 +52,12 @@ class WhatsappAccountController extends Controller
 
         $account = new WhatsappAccount();
         $account->name = $data['name'];
-        $account->phone_number = $data['phone_number'];
+        $account->phone_number = $data['phone_number'] ?? null;
         $account->phone_number_id = $data['phone_number_id'] ?? null;
         $account->whatsapp_business_account_id = $data['whatsapp_business_account_id'] ?? null;
         $account->webhook_verify_token = $data['webhook_verify_token'] ?? null;
         $account->provider = 'meta_cloud_api';
+        $account->connection_type = $data['connection_type'] ?? 'meta_cloud_api';
         $account->is_active = $request->boolean('is_active', true);
 
         if (filled($data['access_token'] ?? null)) {
@@ -105,5 +116,28 @@ class WhatsappAccountController extends Controller
         $whatsappAccount->delete();
 
         return response()->json(['success' => true]);
+    }
+
+    /**
+     * Polling endpoint del modal "Escanea el código QR" (Part D, conexión
+     * baileys_qr). Si la cuenta todavía no tiene sesión activa (nunca se
+     * llamó o quedó "disconnected", incluyendo el caso de "Reconectar"),
+     * el primer poll dispara startSession() -- que persiste
+     * session_id/session_status en la cuenta como side effect y devuelve el
+     * primer QR. Los polls siguientes, ya con sesión en curso, solo
+     * consultan el estado (sessionStatus() puede devolver un QR renovado
+     * mientras siga 'qr_pending', ya que los códigos de Baileys expiran).
+     */
+    public function qrStatus(WhatsappAccount $whatsappAccount)
+    {
+        $service = app(\App\Services\WhatsappBaileysService::class);
+
+        if (blank($whatsappAccount->session_status) || $whatsappAccount->session_status === 'disconnected') {
+            $result = $service->startSession($whatsappAccount);
+        } else {
+            $result = $service->sessionStatus($whatsappAccount);
+        }
+
+        return response()->json($result);
     }
 }

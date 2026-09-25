@@ -206,32 +206,32 @@
     "isEntry": true
   },
   "resources/css/frontend/shop/account.css": {
-    "file": "assets/account-C7QY8H32.css",
+    "file": "assets/account-CwqfsQba.css",
     "src": "resources/css/frontend/shop/account.css",
     "isEntry": true
   },
   "resources/css/frontend/shop/catalog.css": {
-    "file": "assets/catalog-CcLSUe-K.css",
+    "file": "assets/catalog-CHPEr-bA.css",
     "src": "resources/css/frontend/shop/catalog.css",
     "isEntry": true
   },
   "resources/css/frontend/shop/checkout.css": {
-    "file": "assets/checkout-BCLRKiE6.css",
+    "file": "assets/checkout-B2n63zJ5.css",
     "src": "resources/css/frontend/shop/checkout.css",
     "isEntry": true
   },
   "resources/css/frontend/shop/collection.css": {
-    "file": "assets/collection-Dg4J-S6k.css",
+    "file": "assets/collection-DjKRXc2u.css",
     "src": "resources/css/frontend/shop/collection.css",
     "isEntry": true
   },
   "resources/css/frontend/shop/home.css": {
-    "file": "assets/home-CQBOWXxq.css",
+    "file": "assets/home-B5uGbJsh.css",
     "src": "resources/css/frontend/shop/home.css",
     "isEntry": true
   },
   "resources/css/frontend/shop/legal.css": {
-    "file": "assets/legal-BgG5skMC.css",
+    "file": "assets/legal-DlWessqY.css",
     "src": "resources/css/frontend/shop/legal.css",
     "isEntry": true
   },
@@ -241,12 +241,12 @@
     "isEntry": true
   },
   "resources/css/frontend/shop/product-detail.css": {
-    "file": "assets/product-detail-B1u5cNEf.css",
+    "file": "assets/product-detail-DrzqqPHF.css",
     "src": "resources/css/frontend/shop/product-detail.css",
     "isEntry": true
   },
   "resources/css/frontend/shop/service-page.css": {
-    "file": "assets/service-page-CjnqeVRq.css",
+    "file": "assets/service-page-De97DlGw.css",
     "src": "resources/css/frontend/shop/service-page.css",
     "isEntry": true
   },
@@ -542,10 +542,13 @@
     ]
   },
   "resources/js/frontend/shop/mercadopago-checkout.js": {
-    "file": "assets/mercadopago-checkout-CuVVQXh-.js",
+    "file": "assets/mercadopago-checkout-U5s4LO9U.js",
     "name": "mercadopago-checkout",
     "src": "resources/js/frontend/shop/mercadopago-checkout.js",
-    "isEntry": true
+    "isEntry": true,
+    "imports": [
+      "_alpine-init-Pyo8z4j8.js"
+    ]
   },
   "resources/js/frontend/shop/pool-calculator.js": {
     "file": "assets/pool-calculator-DkimvQta.js",

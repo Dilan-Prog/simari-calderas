@@ -11,6 +11,7 @@ use App\Models\User;
 use App\Models\WhatsappAccount;
 use App\Models\WhatsappConversation;
 use App\Services\DealService;
+use App\Services\WhatsappBaileysService;
 use App\Services\WhatsappService;
 use Illuminate\Http\Request;
 
@@ -27,6 +28,20 @@ class WhatsappFunnelController extends Controller
         private WhatsappService $whatsappService,
         private DealService $dealService
     ) {}
+
+    /**
+     * Resuelve el servicio correcto según el tipo de conexión de la cuenta —
+     * meta_cloud_api (el constructor-injected WhatsappService, comportamiento
+     * de siempre) o baileys_qr (WhatsappBaileysService, microservicio Node
+     * aparte). Ambos exponen el mismo contrato público, así que el caller no
+     * necesita ramificar más allá de esto.
+     */
+    private function resolveService(WhatsappAccount $account): WhatsappService|WhatsappBaileysService
+    {
+        return $account->connection_type === 'baileys_qr'
+            ? app(WhatsappBaileysService::class)
+            : $this->whatsappService;
+    }
 
     /**
      * Kanban principal. Acepta ?pipeline_id= para cambiar de embudo
@@ -97,7 +112,7 @@ class WhatsappFunnelController extends Controller
         $accounts = WhatsappAccount::active()->orderBy('name')->get();
         $templateAccount = $accounts->first();
         $templates = $templateAccount
-            ? $this->whatsappService->approvedTemplates($templateAccount)
+            ? $this->resolveService($templateAccount)->approvedTemplates($templateAccount)
             : config('whatsapp.approved_templates', []);
         $dealPipelines = Pipeline::query()->deals()->with('stages')->orderBy('name')->get();
 
@@ -152,14 +167,16 @@ class WhatsappFunnelController extends Controller
             $conversation->update(['unread_count' => 0]);
         }
 
+        $service = $conversation->account ? $this->resolveService($conversation->account) : $this->whatsappService;
+
         $templates = $conversation->account
-            ? $this->whatsappService->approvedTemplates($conversation->account)
+            ? $service->approvedTemplates($conversation->account)
             : config('whatsapp.approved_templates', []);
 
         return response()->json([
             'conversation' => $conversation,
             'messages' => $conversation->messages,
-            'within_window' => $this->whatsappService->isWithin24hWindow($conversation),
+            'within_window' => $service->isWithin24hWindow($conversation),
             'templates' => $templates,
         ]);
     }
@@ -186,16 +203,18 @@ class WhatsappFunnelController extends Controller
             ], 422);
         }
 
+        $service = $this->resolveService($conversation->account);
+
         if ($data['type'] === 'text') {
-            if (!$this->whatsappService->isWithin24hWindow($conversation)) {
+            if (!$service->isWithin24hWindow($conversation)) {
                 return response()->json([
                     'message' => 'La ventana de 24h para texto libre está cerrada. Usa una plantilla aprobada para reabrir la conversación.',
                 ], 422);
             }
 
-            $message = $this->whatsappService->sendTextMessage($conversation, $data['text']);
+            $message = $service->sendTextMessage($conversation, $data['text']);
         } else {
-            $message = $this->whatsappService->sendTemplateMessage(
+            $message = $service->sendTemplateMessage(
                 $conversation,
                 $data['template_name'],
                 $data['params'] ?? []
@@ -370,6 +389,7 @@ class WhatsappFunnelController extends Controller
             'params' => 'nullable|array',
         ]);
 
+        $account = WhatsappAccount::findOrFail($data['account_id']);
         $toStage = PipelineStage::findOrFail($data['pipeline_stage_id']);
 
         $customer = Customer::where('phone', $data['contact_phone'])->first();
@@ -386,11 +406,21 @@ class WhatsappFunnelController extends Controller
             'unread_count' => 0,
         ]);
 
-        $this->whatsappService->sendTemplateMessage(
-            $conversation,
-            $data['template_name'],
-            $data['params'] ?? []
-        );
+        $service = $this->resolveService($account);
+
+        if ($account->connection_type === 'baileys_qr') {
+            // Baileys/QR no tiene concepto de plantilla ni la restricción de
+            // "solo plantilla" de Meta para abrir conversación -- se envía
+            // texto libre directamente.
+            $text = empty($data['params'] ?? []) ? $data['template_name'] : implode(' ', $data['params']);
+            $service->sendTextMessage($conversation, $text);
+        } else {
+            $service->sendTemplateMessage(
+                $conversation,
+                $data['template_name'],
+                $data['params'] ?? []
+            );
+        }
 
         return response()->json([
             'success' => true,

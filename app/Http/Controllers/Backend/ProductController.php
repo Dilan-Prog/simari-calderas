@@ -986,6 +986,7 @@ class ProductController extends Controller
             'show_in_merchant_center' => 'nullable|boolean',
             'accepts_msi'       => 'nullable|boolean',
             'availability'      => 'nullable|in:available,on_order,out_of_stock',
+            'lead_time_text'    => 'nullable|string|max:150',
             'images'            => 'nullable|array',
             'images.*'          => 'image|mimes:jpeg,jpg,png|max:2048',
             'image_urls'        => 'nullable|array',
@@ -1080,6 +1081,12 @@ class ProductController extends Controller
         // explícitamente — ver nota en la migración add_accepts_msi_to_products_table.
         $product->accepts_msi       = $request->boolean('accepts_msi', false);
         $product->availability      = $request->availability ?? 'available';
+        // Solo tiene sentido cuando availability='on_order' -- se limpia
+        // en cualquier otro estado para no dejar un texto de entrega
+        // "fantasma" si el admin cambia de opinión y lo marca disponible.
+        $product->lead_time_text    = $product->availability === 'on_order'
+            ? ($request->lead_time_text ?: null)
+            : null;
         // Save specifications
         if ($request->filled('spec_key')) {
             $specs = [];
@@ -1243,6 +1250,7 @@ class ProductController extends Controller
             'show_in_merchant_center' => 'nullable|boolean',
             'accepts_msi'       => 'nullable|boolean',
             'availability'      => 'nullable|in:available,on_order,out_of_stock',
+            'lead_time_text'    => 'nullable|string|max:150',
             'images'            => 'nullable|array',
             'images.*'          => 'image|mimes:jpeg,jpg,png|max:2048',
             'image_urls'        => 'nullable|array',
@@ -1332,6 +1340,12 @@ class ProductController extends Controller
         // add_accepts_msi_to_products_table.
         $product->accepts_msi       = $request->boolean('accepts_msi', false);
         $product->availability      = $request->availability ?? 'available';
+        // Solo tiene sentido cuando availability='on_order' -- se limpia
+        // en cualquier otro estado para no dejar un texto de entrega
+        // "fantasma" si el admin cambia de opinión y lo marca disponible.
+        $product->lead_time_text    = $product->availability === 'on_order'
+            ? ($request->lead_time_text ?: null)
+            : null;
 
         // Save specifications
         if ($request->filled('spec_key')) {

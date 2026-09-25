@@ -1,3 +1,9 @@
+{{-- Deshabilitado a propósito a pedido del cliente -- a diferencia de las
+     otras secciones "Próximamente", ESTA sí era funcionalidad real (wizard
+     + envío de solicitud a shop.portal-request.answer/finish, ligado a
+     PortalRequest). Se deja el archivo completo comentado en vez de
+     borrarlo, por si se quiere reactivar. --}}
+@if (false)
 @if (!$customer->portal_access && !$portalRequestCompleted)
 <section x-show="section === 'solicitar-portal'" x-cloak
     x-data="portalWizard(@js([
@@ -114,6 +120,18 @@
 
                 <button type="submit" class="portal-btn" style="margin-top:16px;">Enviar solicitud</button>
             </form>
+        </div>
+    </div>
+</section>
+@endif
+@endif
+
+@if (!$customer->portal_access)
+<section x-show="section === 'solicitar-portal'" x-cloak>
+    <h1 class="portal-title">Solicitar acceso al portal de servicios</h1>
+    <div class="portal-card">
+        <div class="portal-empty">
+            <p>Muy pronto vas a poder solicitar tu acceso al portal de servicios desde aquí.</p>
         </div>
     </div>
 </section>

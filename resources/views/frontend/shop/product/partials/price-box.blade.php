@@ -13,6 +13,13 @@
     <div class="product-price-box__eyebrow">{{ $product->availability_label }} &nbsp;|&nbsp; SKU {{ $product->sku }}</div>
     <h1 class="product-price-box__title">{{ $resolvedName }}</h1>
 
+    @if ($product->availability === 'on_order' && $product->lead_time_text)
+        <div class="product-price-box__shipping-note">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+            Tiempo de entrega estimado: {{ $product->lead_time_text }}
+        </div>
+    @endif
+
     @if ($hasDiscount)
         <div class="product-price-box__discount-row">
             <span class="product-price-box__discount-badge">{{ $discountPct }}% OFF</span>

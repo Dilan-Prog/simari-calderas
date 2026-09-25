@@ -418,6 +418,14 @@ img { max-width: 100%; height: auto; display: block; }
 .footer-legal-links a { color: #9ca3af; font-size: 12.5px; text-decoration: none; }
 .footer-legal-links a:hover { color: var(--secondary-color); }
 
+/* Logos de métodos de pago aceptados -- su propio renglón, arriba del
+   renglón legal (copyright/enlaces/distribuidor), no al mismo nivel que
+   "Términos y condiciones". margin-left:auto los alinea a la derecha
+   dentro de ese renglón. */
+.eq-footer__payment-logos { display: flex; align-items: center; gap: 14px; width: fit-content; margin-left: auto; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.08); }
+.eq-footer__payment-logos img { height: 30px; width: auto; border-radius: 4px; opacity: .9; }
+.eq-footer__payment-logos svg { display: block; opacity: .9; }
+
 /* ===== Cart drawer ===== */
 .cart-drawer__backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2000; }
 .cart-drawer__panel {

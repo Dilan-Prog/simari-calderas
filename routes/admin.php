@@ -20,6 +20,7 @@ use App\Http\Controllers\Backend\DeliveryController;
 use App\Http\Controllers\Backend\RoleController;
 use App\Http\Controllers\Backend\SupplierManageController;
 use App\Http\Controllers\Backend\PurchaseOrderController;
+use App\Http\Controllers\Backend\ApiClientController;
 use App\Http\Controllers\Backend\IntegrationController;
 use App\Http\Controllers\Backend\SettingController;
 use App\Http\Controllers\Backend\HomeSectionController;
@@ -961,6 +962,20 @@ Route::controller(WebhookController::class)
         Route::delete('/{webhook}', 'destroy')->name('destroy')->middleware('permission:settings,edit');
         Route::post('/probar', 'test')->name('test')->middleware('permission:settings,edit');
         Route::get('/credenciales', 'credentials')->name('credentials')->middleware('permission:settings');
+    });
+
+// CRUD de clientes de API (App\Models\ApiClient) + emisión/revocación de sus
+// tokens Sanctum, para integraciones externas como N8N. Anidado bajo
+// Integraciones igual que Webhooks arriba.
+Route::controller(ApiClientController::class)
+    ->prefix('integraciones/api-clientes')
+    ->name('integrations.api-clients.')
+    ->group(function () {
+        Route::post('/', 'store')->name('store')->middleware('permission:settings,edit');
+        Route::put('/{apiClient}/toggle', 'toggle')->name('toggle')->middleware('permission:settings,edit');
+        Route::delete('/{apiClient}', 'destroy')->name('destroy')->middleware('permission:settings,edit');
+        Route::post('/{apiClient}/tokens', 'createToken')->name('tokens.store')->middleware('permission:settings,edit');
+        Route::delete('/{apiClient}/tokens/{tokenId}', 'revokeToken')->name('tokens.destroy')->middleware('permission:settings,edit');
     });
 
 // ============================================================

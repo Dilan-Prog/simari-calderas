@@ -46,3 +46,28 @@ Route::prefix('v1/ad-tracking')->middleware('throttle:60,1')->group(function () 
 Route::prefix('v1/pool-calculator')->middleware('throttle:60,1')->group(function () {
     Route::post('/leads', [PoolCalculatorLeadController::class, 'store']);
 });
+
+/*
+|--------------------------------------------------------------------------
+| API de integraciones (N8N y otros clientes externos de confianza)
+|--------------------------------------------------------------------------
+|
+| Autenticación: auth:sanctum, contra tokens emitidos a App\Models\ApiClient
+| (panel Integraciones > API / N8N, ver IntegrationController). Autorización:
+| token.ability:xxx por ruta (App\Http\Middleware\EnsureTokenAbility, NO el
+| middleware `permission` de roles humanos -- ver comentario en esa clase).
+| Rate limit propio 'api-n8n' (RouteServiceProvider), separado del limiter
+| público 'api' que usan las rutas de arriba. Cada archivo requerido es
+| dueño exclusivo de sus propias rutas -- así se pueden tocar en paralelo
+| sin pisarse entre sí.
+|
+*/
+Route::prefix('v1')
+    ->middleware(['auth:sanctum', 'throttle:api-n8n', 'log.api'])
+    ->group(function () {
+        require __DIR__ . '/api/workflows.php';
+        require __DIR__ . '/api/crm.php';
+        require __DIR__ . '/api/quotes.php';
+        require __DIR__ . '/api/catalog.php';
+        require __DIR__ . '/api/whatsapp-marketing.php';
+    });

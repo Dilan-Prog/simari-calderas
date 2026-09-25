@@ -35,6 +35,12 @@
         </div>
       </div>
     </div>
+    <div class="eq-footer__payment-logos" aria-label="Métodos de pago aceptados">
+      <img src="{{ asset('images/payment-logos/visa.jpg') }}" alt="Visa" loading="lazy">
+      <img src="{{ asset('images/payment-logos/mastercard.jpg') }}" alt="Mastercard" loading="lazy">
+      <img src="{{ asset('images/payment-logos/amex.webp') }}" alt="American Express" loading="lazy">
+      @include('frontend.shop.partials.mercadopago-logo', ['width' => 34, 'height' => 34])
+    </div>
     <div class="eq-footer__legal">
       <span>© {{ date('Y') }} Equiterm Industries. Todos los derechos reservados.</span>
       <nav class="footer-legal" aria-label="Enlaces legales">

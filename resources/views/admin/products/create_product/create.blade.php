@@ -609,6 +609,18 @@
                                         <p class="pform-error-msg">{{ $message }}</p>
                                     @enderror
                                 </div>
+
+                                <div class="pform-field" id="pformLeadTimeWrap"
+                                    style="margin-top:12px; {{ old('availability') === 'on_order' ? '' : 'display:none' }}">
+                                    <label class="pform-label">Tiempo de entrega estimado</label>
+                                    <input type="text" name="lead_time_text" id="pformLeadTime" class="pform-input"
+                                        placeholder="Ej. 5-7 días hábiles"
+                                        value="{{ old('lead_time_text') }}" maxlength="150">
+                                    <p class="pform-hint">Se muestra al cliente junto al aviso de "Sobre pedido" en la ficha del producto.</p>
+                                    @error('lead_time_text')
+                                        <p class="pform-error-msg">{{ $message }}</p>
+                                    @enderror
+                                </div>
                             </div>
                         </div>
 

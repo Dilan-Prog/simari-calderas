@@ -6,6 +6,7 @@ use App\Models\Products;
 use App\Models\Quote;
 use App\Models\SalesOrder;
 use App\Models\SalesOrderItem;
+use App\Models\User;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
@@ -23,7 +24,14 @@ class SalesOrderService
                 'order_number'       => SalesOrder::generateOrderNumber(),
                 'quote_id'           => $quote->id,
                 'customer_id'        => $quote->customer_id,
-                'created_by_user_id' => auth()->id(),
+                // created_by_user_id tiene FK a `users` -- auth()->id() a
+                // secas asume un App\Models\User. Con auth:sanctum,
+                // Auth::shouldUse('sanctum') hace que auth()->id() devuelva
+                // el id de un App\Models\ApiClient cuando el request viene
+                // de la API de integraciones (N8N), que no existe en
+                // `users` -- mismo criterio ya aplicado en
+                // DealService::create() para 'moved_by'.
+                'created_by_user_id' => auth()->user() instanceof User ? auth()->id() : null,
                 'status'             => 'pendiente',
             ]);
 

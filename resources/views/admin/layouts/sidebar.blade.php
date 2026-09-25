@@ -64,9 +64,14 @@
             request()->routeIs('admin.deliveries.*') => 'deliveries',
             request()->routeIs('admin.menus.*') => 'menus',
             request()->routeIs('admin.settings.*') => 'configuracion-sitio',
-            request()->routeIs('admin.integrations.*') => 'integraciones',
+            // Cuentas de WhatsApp se fusionó dentro de Integraciones (paneles
+            // "WhatsApp API"/"WhatsApp Web") -- un bookmark viejo a
+            // admin.whatsapp-accounts.index redirige ahí (ver
+            // WhatsappAccountController::index), y esto asegura que el nav
+            // resalte "Integraciones" en vez de no resaltar nada mientras
+            // corre esa redirección.
+            request()->routeIs('admin.integrations.*', 'admin.whatsapp-accounts.*') => 'integraciones',
             request()->routeIs('admin.audit.*') => 'audit',
-            request()->routeIs('admin.whatsapp-accounts.*') => 'whatsapp',
             request()->routeIs('admin.whatsapp-funnel.*') => 'embudo-de-venta',
             request()->routeIs('admin.payment-methods.*') => 'metodos-de-pago',
             request()->routeIs('admin.shipping-rules.*') => 'reglas-de-envio',
@@ -88,7 +93,7 @@
             'ecommerce' => ['productos', 'categorias', 'marcas', 'colecciones', 'paginas-servicio', 'galeria', 'inicio-secciones', 'inventory', 'menus', 'configuracion-sitio', 'integraciones', 'metodos-de-pago', 'reglas-de-envio', 'carritos-abandonados', 'ordenes', 'envios', 'deliveries'],
             'servicios' => ['reportes-servicio', 'servicios-tecnicos'],
             'erp' => ['cotizaciones', 'proveedores', 'ordenes-compra', 'pedidos', 'entrega-material', 'planeacion-quimicos', 'erp-configuracion', 'clientes', 'pipelines', 'embudo-de-venta', 'negocios', 'automatizaciones'],
-            'administracion' => ['roles', 'usuarios', 'google-ads', 'ad-tracking', 'pool-calculator-leads', 'devops', 'audit', 'whatsapp', 'email-marketing', 'dashboards', 'reportes', 'metas'],
+            'administracion' => ['roles', 'usuarios', 'google-ads', 'ad-tracking', 'pool-calculator-leads', 'devops', 'audit', 'email-marketing', 'dashboards', 'reportes', 'metas'],
             'estadisticas' => ['estadisticas-resumen', 'estadisticas-ventas', 'estadisticas-embudo', 'estadisticas-compras', 'estadisticas-servicios', 'estadisticas-reportes', 'estadisticas-inventario', 'estadisticas-tienda'],
         ];
         $activeGroup = collect($groupSections)->search(fn ($sections) => in_array($activeSection, $sections));
@@ -134,8 +139,7 @@
             || $authUser->hasPermission('crm-reports')
             || $authUser->hasPermission('audit')
             || $authUser->hasPermission('blog')
-            || $authUser->hasPermission('seo')
-            || $authUser->hasPermission('whatsapp');
+            || $authUser->hasPermission('seo');
 
         // Módulo aparte a propósito: Estadísticas cruza Ecommerce, Servicios,
         // ERP y Administración (Ventas, Compras, Servicios Técnicos, Reportes
@@ -1010,23 +1014,6 @@
                                 <path d="M2 12h20" />
                             </svg>
                             <span class="sidebar-nav-item-label">SEO Global</span>
-                        </div>
-                    </a>
-                @endif
-
-                {{-- WhatsApp --}}
-                @if ($authUser->hasPermission('whatsapp'))
-                    <a class="sidebar-nav-item {{ $activeSection === 'whatsapp' ? 'active' : '' }}"
-                        data-section="whatsapp" data-label="WhatsApp"
-                        href="{{ route('admin.whatsapp-accounts.index') }}">
-                        <div class="sidebar-nav-item-left">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round">
-                                <path
-                                    d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.62 3.38 2 2 0 0 1 3.62 1.22l3 .01a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
-                            </svg>
-                            <span class="sidebar-nav-item-label">WhatsApp</span>
                         </div>
                     </a>
                 @endif

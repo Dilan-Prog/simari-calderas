@@ -115,10 +115,36 @@ trait LogsActivity
             'description' => null,
             'old_value' => $old,
             'new_value' => $new,
-            'performed_by_user_id' => auth()->id(),
+            'performed_by_user_id' => static::resolvePerformedByUserId(),
             'performed_at' => now(),
             'ip_address' => $inConsole ? null : request()?->ip(),
             'user_agent' => $inConsole ? null : request()?->userAgent(),
         ]);
+    }
+
+    /**
+     * `performed_by_user_id` tiene FK a `users.id` -- por eso el check aquí
+     * es específicamente `instanceof \App\Models\User`, NO el contrato
+     * genérico Authenticatable. App\Models\ApiClient (Fase de API N8N, ver
+     * app/Http/Middleware/EnsureTokenAbility.php) SÍ implementa
+     * Authenticatable (lo necesita Sanctum::actingAs() en tests), pero sus
+     * ids viven en `api_clients`, no en `users` -- si se guardara su id
+     * aquí, o bien truena la FK (no existe ese id en `users`), o peor,
+     * atribuye el log a un User real que coincida por número de id. Cuando
+     * una petición autenticada con un token de ApiClient dispara
+     * created/updated/deleted sobre cualquier modelo con este trait (ej.
+     * Deal vía la API REST), esto deja performed_by_user_id en null -- el
+     * token ya queda identificado por separado en LogApiRequest::class, que
+     * escribe su propia fila en system_logs con el nombre/id del ApiClient.
+     */
+    private static function resolvePerformedByUserId(): ?int
+    {
+        $user = auth()->user();
+
+        if (! $user instanceof \App\Models\User) {
+            return null;
+        }
+
+        return $user->getAuthIdentifier();
     }
 }

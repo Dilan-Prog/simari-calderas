@@ -35,7 +35,16 @@ class DealService
                 'deal_id'       => $deal->id,
                 'from_stage_id' => null,
                 'to_stage_id'   => $deal->pipeline_stage_id,
-                'moved_by'      => auth()->id(),
+                // moved_by tiene FK a `users` -- auth()->id() a secas asume
+                // que el principal autenticado siempre es un App\Models\User
+                // de sesión web. Desde la API de integraciones (Fase 3, N8N)
+                // el principal es un App\Models\ApiClient (auth:sanctum hace
+                // Auth::shouldUse('sanctum'), así que auth()->id() ya no
+                // resuelve al guard 'web'); guardar su id aquí violaría la FK
+                // (o peor, se lo atribuiría por coincidencia numérica a un
+                // User real). Mismo criterio que
+                // App\Traits\LogsActivity::resolvePerformedByUserId().
+                'moved_by'      => auth()->user() instanceof User ? auth()->id() : null,
                 'moved_at'      => now(),
             ]);
 

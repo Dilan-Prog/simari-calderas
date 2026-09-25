@@ -28,6 +28,17 @@ class RouteServiceProvider extends ServiceProvider
             return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
         });
 
+        // Clientes de API de confianza (N8N, etc. -- App\Models\ApiClient,
+        // autenticados con auth:sanctum + token.ability). Límite más alto que
+        // el limiter 'api' público de arriba (usado por ad-tracking/pool-calculator),
+        // por-token en vez de por-IP para no mezclar cuotas entre integraciones
+        // distintas que compartan salida de red.
+        RateLimiter::for('api-n8n', function (Request $request) {
+            return Limit::perMinute(300)->by(
+                $request->user()?->currentAccessToken()?->id ?: $request->ip()
+            );
+        });
+
         $this->routes(function () {
             Route::middleware('api')
                 ->prefix('api')

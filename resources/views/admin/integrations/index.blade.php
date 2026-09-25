@@ -120,6 +120,16 @@
                             </span>
                         </span>
                     </button>
+                    <button type="button" class="integr-sidebar-item" data-panel="api-clients">
+                        <span class="integr-avatar">N8</span>
+                        <span class="integr-sidebar-item-text">
+                            <span class="integr-sidebar-item-title">API / N8N</span>
+                            <span class="integr-sidebar-item-status">
+                                <i class="integr-dot {{ $apiClientsConfigured ? 'is-on' : '' }}"></i>
+                                {{ $apiClientsConfigured ? $apiClients->count() . ' cliente' . ($apiClients->count() === 1 ? '' : 's') : 'Sin configurar' }}
+                            </span>
+                        </span>
+                    </button>
                 </nav>
 
                 <div class="integr-content">
@@ -736,6 +746,9 @@
                             </div>
                         </div>
                     </div>
+
+                    {{-- ============ Panel: API / N8N ============ --}}
+                    @include('admin.integrations.partials._api_clients_panel')
 
                     {{-- ============ Panel 4: Mercado Pago ============ --}}
                     <div class="integr-panel" id="integrPanel-mercadopago">

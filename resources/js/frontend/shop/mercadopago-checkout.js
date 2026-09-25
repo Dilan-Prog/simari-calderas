@@ -19,6 +19,18 @@
  *    devuelve CheckoutController::confirm() cuando responde JSON.
  */
 
+import Alpine from './alpine-init.js';
+
+// Este archivo es el único común a los 2 consumidores de arriba, así que es
+// el que arranca Alpine para ambos -- sin esto window.Alpine quedaba
+// undefined en las 2 páginas y ningún @click/x-show funcionaba, ni siquiera
+// los del header compartido (mega-menú de Categorías/Servicios). Se declara
+// antes que checkout-payment.js/checkout-accordion.js en el $shopVite de
+// index.blade.php (los scripts type="module" ejecutan en orden de
+// documento), así que este es el único Alpine.start() de esa página -- ver
+// el comentario en checkout-accordion.js.
+Alpine.start();
+
 const STATUS_DETAIL_LABELS = {
     cc_rejected_insufficient_amount: 'Fondos insuficientes.',
     cc_rejected_bad_filled_security_code: 'El código de seguridad (CVV) es incorrecto.',

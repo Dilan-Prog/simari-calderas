@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Backend;
 
 use App\Http\Controllers\Controller;
+use App\Models\ApiClient;
 use App\Models\EmailTemplate;
 use App\Models\Quote;
 use App\Models\Setting;
@@ -80,6 +81,13 @@ class IntegrationController extends Controller
 
         $webhooks = \App\Models\Webhook::with('credential')->orderBy('name')->get();
 
+        // Panel "API / N8N" -- tokens.count() no es una columna real, es el
+        // resultado de withCount() sobre la relación morphMany heredada de
+        // HasApiTokens (ver ApiClient).
+        $apiClients = ApiClient::withCount('tokens')->with('tokens')->latest()->get();
+        $apiAbilities = config('api_abilities');
+        $apiClientsConfigured = $apiClients->isNotEmpty();
+
         // La antigua pantalla standalone "Cuentas de WhatsApp" se fusionó
         // aquí como 2 paneles separados -- uno por connection_type, cada
         // uno con su propia tabla/CRUD/modal (ver
@@ -105,6 +113,9 @@ class IntegrationController extends Controller
             'qrWhatsappConnectedCount',
             'mercadoPago',
             'mercadoPagoConfigured',
+            'apiClients',
+            'apiAbilities',
+            'apiClientsConfigured',
         ));
     }
 

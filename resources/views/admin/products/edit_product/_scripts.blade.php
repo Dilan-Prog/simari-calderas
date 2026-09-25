@@ -297,8 +297,13 @@
                             'Bajo Pedido': 'on_order',
                             'Agotado': 'out_of_stock',
                         };
-                        document.getElementById('pformAvailability').value =
-                            map[titleEl?.textContent.trim()] ?? 'available';
+                        const newAvailability = map[titleEl?.textContent.trim()] ?? 'available';
+                        document.getElementById('pformAvailability').value = newAvailability;
+
+                        const leadTimeWrap = document.getElementById('pformLeadTimeWrap');
+                        if (leadTimeWrap) {
+                            leadTimeWrap.style.display = newAvailability === 'on_order' ? '' : 'none';
+                        }
                     });
                 });
             });

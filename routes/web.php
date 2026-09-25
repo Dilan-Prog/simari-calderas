@@ -16,6 +16,7 @@ use App\Http\Controllers\MediaServeController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Public\EmailBounceWebhookController;
 use App\Http\Controllers\Public\MercadoPagoWebhookController;
+use App\Http\Controllers\Public\WhatsappQrWebhookController;
 use App\Http\Controllers\Public\WhatsappWebhookController;
 use Illuminate\Support\Facades\Route;
 
@@ -43,6 +44,11 @@ Route::get('/e/unsubscribe/{token}', [EmailTrackingController::class, 'unsubscri
 // verificación (hub.challenge) + POST de recepción de mensajes/estados.
 Route::get('/whatsapp/webhook', [WhatsappWebhookController::class, 'verify'])->name('whatsapp.webhook.verify');
 Route::post('/whatsapp/webhook', [WhatsappWebhookController::class, 'receive'])->name('whatsapp.webhook.receive');
+
+// Webhook público del microservicio Node.js de WhatsApp vía Baileys/QR
+// (whatsapp-qr-service/), sin auth de sesión -- autenticado por secreto
+// compartido (Authorization: Bearer) en WhatsappQrWebhookController.
+Route::post('/whatsapp-qr/webhook', [WhatsappQrWebhookController::class, 'receive'])->name('whatsapp.qr.webhook');
 
 // Webhook del buzón de correo (Hostinger "Agentic Mail" / hMail, evento
 // message.received) -- por ahora solo registra el payload real en log

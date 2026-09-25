@@ -59,6 +59,8 @@ class Kernel extends HttpKernel
         'role' => \App\Http\Middleware\RoleMiddleware::class,
         'permission' => \App\Http\Middleware\CheckPermission::class,
         'portal.access' => \App\Http\Middleware\EnsurePortalAccess::class,
+        'token.ability' => \App\Http\Middleware\EnsureTokenAbility::class,
+        'log.api' => \App\Http\Middleware\LogApiRequest::class,
         'auth.basic' => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,
         'auth.session' => \Illuminate\Session\Middleware\AuthenticateSession::class,
         'cache.headers' => \Illuminate\Http\Middleware\SetCacheHeaders::class,

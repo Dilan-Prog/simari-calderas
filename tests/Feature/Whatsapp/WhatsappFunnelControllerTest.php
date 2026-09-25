@@ -9,7 +9,10 @@ use App\Models\Role;
 use App\Models\User;
 use App\Models\WhatsappAccount;
 use App\Models\WhatsappConversation;
+use App\Models\WhatsappMessage;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
 
 /**
@@ -282,5 +285,220 @@ class WhatsappFunnelControllerTest extends TestCase
 
         $response->assertStatus(422);
         $this->assertSame($dealCountBefore, Deal::count());
+    }
+
+    // ------------------------------------------------------------------
+    // Resolución de servicio según connection_type (baileys_qr vs
+    // meta_cloud_api) -- ver WhatsappFunnelController::resolveService().
+    // ------------------------------------------------------------------
+
+    private function makeQrAccount(array $overrides = []): WhatsappAccount
+    {
+        return WhatsappAccount::create(array_merge([
+            'name' => 'Cuenta QR de prueba',
+            'phone_number' => '+52 55 9876 5432',
+            'connection_type' => 'baileys_qr',
+            'session_id' => 'session-funnel-test',
+            'is_active' => true,
+        ], $overrides));
+    }
+
+    public function test_send_message_for_baileys_qr_account_uses_the_qr_service_not_meta(): void
+    {
+        Config::set('services.whatsapp_qr.url', 'https://qr.example.test');
+        Config::set('services.whatsapp_qr.secret', 'qr-shared-secret');
+
+        $admin = $this->adminUser();
+        $account = $this->makeQrAccount();
+
+        $conversation = WhatsappConversation::create([
+            'account_id' => $account->id,
+            'contact_phone' => '5215512345678',
+            'status' => 'open',
+            'started_at' => now(),
+            'unread_count' => 0,
+        ]);
+
+        Http::preventStrayRequests();
+        Http::fake([
+            'qr.example.test/*' => Http::response(['success' => true, 'id' => 'baileys-1'], 200),
+        ]);
+
+        $response = $this->actingAs($admin)->postJson(
+            "/admin/embudo-de-venta/{$conversation->id}/mensajes",
+            ['type' => 'text', 'text' => 'Hola desde el embudo']
+        );
+
+        $response->assertOk();
+        $response->assertJsonPath('success', true);
+
+        Http::assertSent(function ($request) use ($account) {
+            return $request->url() === "https://qr.example.test/sessions/{$account->session_id}/send"
+                && ! str_contains($request->url(), 'graph.facebook.com');
+        });
+
+        $this->assertDatabaseHas('whatsapp_messages', [
+            'conversation_id' => $conversation->id,
+            'content' => 'Hola desde el embudo',
+            'sender_type' => WhatsappMessage::SENDER_AGENT,
+        ]);
+    }
+
+    public function test_send_message_for_baileys_qr_account_allows_free_text_outside_any_window(): void
+    {
+        // A diferencia de Meta, Baileys/QR no tiene ventana de 24h -- el
+        // envío de texto libre nunca debe ser rechazado con 422 por esta
+        // regla, aunque no exista ningún mensaje entrante previo.
+        Config::set('services.whatsapp_qr.url', 'https://qr.example.test');
+        Config::set('services.whatsapp_qr.secret', 'qr-shared-secret');
+
+        $admin = $this->adminUser();
+        $account = $this->makeQrAccount();
+
+        $conversation = WhatsappConversation::create([
+            'account_id' => $account->id,
+            'contact_phone' => '5215512345678',
+            'status' => 'open',
+            'started_at' => now(),
+            'unread_count' => 0,
+        ]);
+
+        Http::fake([
+            'qr.example.test/*' => Http::response(['success' => true, 'id' => 'baileys-2'], 200),
+        ]);
+
+        $response = $this->actingAs($admin)->postJson(
+            "/admin/embudo-de-venta/{$conversation->id}/mensajes",
+            ['type' => 'text', 'text' => 'Texto libre sin ventana']
+        );
+
+        $response->assertOk();
+        $response->assertJsonPath('success', true);
+    }
+
+    public function test_send_message_for_meta_cloud_api_account_is_unchanged(): void
+    {
+        // Regresión: una cuenta meta_cloud_api (comportamiento normal, sin
+        // connection_type explícito) debe seguir usando WhatsappService
+        // (graph.facebook.com), nunca el servicio de QR.
+        $admin = $this->adminUser();
+        $account = $this->makeAccount();
+        // connection_type no se pasa explícitamente al crear -- Eloquent no
+        // recarga el default de columna de la BD en la instancia en
+        // memoria devuelta por create(), así que se verifica vía fresh().
+        $this->assertSame('meta_cloud_api', $account->fresh()->connection_type);
+
+        $conversation = WhatsappConversation::create([
+            'account_id' => $account->id,
+            'contact_phone' => '5215512345678',
+            'status' => 'open',
+            'started_at' => now(),
+            'unread_count' => 0,
+        ]);
+
+        WhatsappMessage::create([
+            'conversation_id' => $conversation->id,
+            'sender_type' => WhatsappMessage::SENDER_CONTACT,
+            'message_type' => 'text',
+            'content' => 'Hola',
+            'sent_at' => now()->subHours(1),
+        ]);
+
+        Http::preventStrayRequests();
+        Http::fake([
+            'graph.facebook.com/*' => Http::response([
+                'messaging_product' => 'whatsapp',
+                'messages' => [['id' => 'wamid.FUNNEL1']],
+            ], 200),
+        ]);
+
+        $response = $this->actingAs($admin)->postJson(
+            "/admin/embudo-de-venta/{$conversation->id}/mensajes",
+            ['type' => 'text', 'text' => 'Hola vía Meta']
+        );
+
+        $response->assertOk();
+        $response->assertJsonPath('success', true);
+
+        Http::assertSent(function ($request) use ($account) {
+            return $request->url() === "https://graph.facebook.com/v19.0/{$account->phone_number_id}/messages";
+        });
+    }
+
+    public function test_new_chat_for_baileys_qr_account_sends_plain_text_not_a_forced_template(): void
+    {
+        Config::set('services.whatsapp_qr.url', 'https://qr.example.test');
+        Config::set('services.whatsapp_qr.secret', 'qr-shared-secret');
+
+        $admin = $this->adminUser();
+        [$waPipeline, $stageA] = $this->whatsappPipelineWithStages();
+        $account = $this->makeQrAccount();
+
+        Http::preventStrayRequests();
+        Http::fake([
+            'qr.example.test/*' => Http::response(['success' => true, 'id' => 'baileys-newchat'], 200),
+        ]);
+
+        $response = $this->actingAs($admin)->postJson('/admin/embudo-de-venta/nuevo-chat', [
+            'account_id' => $account->id,
+            'contact_phone' => '5215512345678',
+            'pipeline_stage_id' => $stageA->id,
+            'template_name' => 'Hola, te contactamos por WhatsApp',
+        ]);
+
+        $response->assertOk();
+        $response->assertJsonPath('success', true);
+
+        // Se envía como texto plano al endpoint /send del microservicio de
+        // QR -- nunca se construye un payload de plantilla de Meta.
+        Http::assertSent(function ($request) use ($account) {
+            return $request->url() === "https://qr.example.test/sessions/{$account->session_id}/send"
+                && $request['text'] === 'Hola, te contactamos por WhatsApp';
+        });
+
+        $this->assertDatabaseHas('whatsapp_messages', [
+            'message_type' => 'text',
+            'is_template' => false,
+            'content' => 'Hola, te contactamos por WhatsApp',
+        ]);
+    }
+
+    public function test_new_chat_for_meta_cloud_api_account_still_sends_a_template(): void
+    {
+        // Regresión: newChat sobre una cuenta meta_cloud_api debe seguir
+        // forzando una plantilla aprobada, nunca texto libre.
+        $admin = $this->adminUser();
+        [$waPipeline, $stageA] = $this->whatsappPipelineWithStages();
+        $account = $this->makeAccount();
+
+        Http::preventStrayRequests();
+        Http::fake([
+            'graph.facebook.com/*' => Http::response([
+                'messaging_product' => 'whatsapp',
+                'messages' => [['id' => 'wamid.NEWCHAT1']],
+            ], 200),
+        ]);
+
+        $response = $this->actingAs($admin)->postJson('/admin/embudo-de-venta/nuevo-chat', [
+            'account_id' => $account->id,
+            'contact_phone' => '5215512345678',
+            'pipeline_stage_id' => $stageA->id,
+            'template_name' => 'bienvenida',
+        ]);
+
+        $response->assertOk();
+        $response->assertJsonPath('success', true);
+
+        Http::assertSent(function ($request) use ($account) {
+            return $request->url() === "https://graph.facebook.com/v19.0/{$account->phone_number_id}/messages"
+                && $request['type'] === 'template'
+                && $request['template']['name'] === 'bienvenida';
+        });
+
+        $this->assertDatabaseHas('whatsapp_messages', [
+            'message_type' => 'template',
+            'is_template' => true,
+            'template_name' => 'bienvenida',
+        ]);
     }
 }
