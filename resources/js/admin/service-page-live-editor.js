@@ -1765,14 +1765,14 @@ import Sortable from 'sortablejs';
 
         switch (section.type) {
             case 'banner':
-                renderBannerFields(container, cfg, '');
+                renderBannerFields(container, cfg, '', null, { recommendedSize: '1200×400px, horizontal (ancho completo de la página)' });
                 break;
             case 'dual_banner':
                 container.innerHTML = '<p class="hs-config-subtitle">Banner Izquierdo</p><div id="leDbLeft"></div><p class="hs-config-subtitle">Banner Derecho</p><div id="leDbRight"></div>';
                 cfg.left = cfg.left || { image_url: '', link_url: '', alt: '' };
                 cfg.right = cfg.right || { image_url: '', link_url: '', alt: '' };
-                renderBannerFields(container.querySelector('#leDbLeft'), cfg.left, 'Left');
-                renderBannerFields(container.querySelector('#leDbRight'), cfg.right, 'Right');
+                renderBannerFields(container.querySelector('#leDbLeft'), cfg.left, 'Left', null, { recommendedSize: '800×500px cada uno (mismo tamaño en ambos para que se vean parejos)' });
+                renderBannerFields(container.querySelector('#leDbRight'), cfg.right, 'Right', null, { recommendedSize: '800×500px cada uno (mismo tamaño en ambos para que se vean parejos)' });
                 break;
             case 'product_carousel':
                 renderProductCarouselFields(container, cfg, '');
@@ -1785,7 +1785,7 @@ import Sortable from 'sortablejs';
                     if (key === 'image_url') cfg.banner_image_url = value;
                     if (key === 'link_url') cfg.banner_link_url = value;
                     if (key === 'alt') cfg.banner_alt = value;
-                });
+                }, { recommendedSize: '440×640px, vertical (se recorta para llenar el espacio junto al carrusel)' });
                 renderProductCarouselFields(container.querySelector('#lePcbCarousel'), cfg, 'Pcb');
                 break;
             case 'category_grid':
@@ -1833,10 +1833,11 @@ import Sortable from 'sortablejs';
     }
 
     // ── banner / dual_banner (izq/der) / product_carousel_banner.banner ──
-    function renderBannerFields(container, cfg, suffix, customSetter) {
+    function renderBannerFields(container, cfg, suffix, customSetter, opts) {
         const idImg = 'leBanner' + suffix + 'Image';
         const idLink = 'leBanner' + suffix + 'Link';
         const idAlt = 'leBanner' + suffix + 'Alt';
+        const recommendedSize = opts && opts.recommendedSize;
 
         container.innerHTML = `
             ${field('URL de Imagen', `
@@ -1844,6 +1845,7 @@ import Sortable from 'sortablejs';
                     <input type="text" class="users-manager-input" id="${idImg}" value="${escHtml(cfg.image_url)}" placeholder="https://...">
                     <button type="button" class="img-picker-trigger-btn" data-target="${idImg}">Seleccionar</button>
                 </div>
+                ${recommendedSize ? `<p class="hs-config-note">Medida recomendada: ${escHtml(recommendedSize)}.</p>` : ''}
             `)}
             <div class="live-editor-field-row">
                 ${field('URL de Enlace', `<input type="text" class="users-manager-input" id="${idLink}" value="${escHtml(cfg.link_url)}" placeholder="/servicio/otro-servicio">`)}
