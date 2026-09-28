@@ -574,3 +574,52 @@
     padding: 2px;
 }
 .service-review-star.is-active { color: #ff6213; }
+
+/* Selector visual de imágenes en miniatura del Editor en vivo (reemplaza
+   los <select multiple> nativos para "Imágenes de fondo"/"Imágenes a
+   mostrar") -- reusa .img-library-grid/.img-library-item de
+   product-form.css (ya cargado globalmente vía admin/app.css) para verse
+   igual que el resto del admin; esto solo agrega el estado "seleccionado". */
+.le-img-picker-item {
+    /* .img-library-item ya trae el resto (position/border/radio/overflow/
+       fondo/padding) -- aquí solo se resetea lo que corresponde a que este
+       es un <button>, no el <div> que usa el resto del admin. */
+    font: inherit;
+    cursor: pointer;
+    box-sizing: border-box;
+}
+.le-img-picker-item.is-selected {
+    border-color: #ff6213;
+    box-shadow: 0 0 0 2px rgba(255, 98, 19, 0.25);
+}
+.le-img-picker-check {
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    background: #ff6213;
+    color: #fff;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1;
+}
+/* .button-secondary.size-adjustment (ui-kit.css) trae height:52px fijo --
+   pensado para una sola línea corta. Con un texto que puede envolver a 2
+   líneas dentro de esta columna angosta del panel, el alto fijo hacía que
+   el texto se saliera de la caja (se veía "roto"). Aquí se vuelve auto y
+   se reduce a un tamaño de acción secundaria en vez del botón grande de
+   formularios. */
+.le-img-picker-clear {
+    height: auto;
+    min-height: 0;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 8px 14px;
+    line-height: 1.3;
+    white-space: normal;
+}

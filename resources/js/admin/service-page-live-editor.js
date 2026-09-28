@@ -897,6 +897,68 @@ import Sortable from 'sortablejs';
         )).join('');
     }
 
+    /**
+     * Selector visual de imágenes en miniatura, multi-selección con clic --
+     * reemplaza el <select multiple> nativo (feo, y sin forma obvia de
+     * vaciar la selección salvo Ctrl/Cmd+clic en cada opción). Opera 100%
+     * sobre DATA.images (la galería de ESTE servicio, ya en memoria) -- a
+     * diferencia de window.openImagePicker() (picker global del admin, que
+     * siempre trae la librería completa del sitio vía AJAX y es de una sola
+     * imagen a la vez), por eso no se reutiliza ese aquí.
+     *
+     * @param {HTMLElement} container   Dónde pintar el grid.
+     * @param {number[]} selectedIds    IDs ya seleccionados (cfg.xxx actual).
+     * @param {Array}    images         DATA.images.
+     * @param {(ids:number[]) => void} onChange  Se llama con la nueva selección completa en cada clic.
+     * @param {{clearAllLabel?: string}} [opts]  Si se pasa clearAllLabel, agrega un botón para vaciar la selección entera de un clic (ej. "Mostrar toda la galería").
+     */
+    function renderImagePickerGrid(container, selectedIds, images, onChange, opts) {
+        const selected = new Set((selectedIds || []).map(String));
+        const clearAllLabel = opts && opts.clearAllLabel;
+
+        function paint() {
+            if (!images || !images.length) {
+                container.innerHTML = '<p class="hs-config-note">Esta página todavía no tiene imágenes en su Galería — sube alguna ahí primero.</p>';
+                return;
+            }
+
+            const tiles = images.map((img) => {
+                const isSelected = selected.has(String(img.id));
+                return `
+                    <button type="button" class="img-library-item le-img-picker-item ${isSelected ? 'is-selected' : ''}" data-id="${img.id}" title="${escHtml(img.alt_text || ('Imagen #' + img.id))}">
+                        <img src="${escHtml(img.url)}" alt="${escHtml(img.alt_text || '')}">
+                        ${isSelected ? '<span class="le-img-picker-check">&check;</span>' : ''}
+                    </button>
+                `;
+            }).join('');
+
+            container.innerHTML = `
+                <div class="img-library-grid">${tiles}</div>
+                ${clearAllLabel ? `<button type="button" class="button-secondary size-adjustment le-img-picker-clear" style="margin-top:8px;">${escHtml(clearAllLabel)}</button>` : ''}
+            `;
+
+            container.querySelectorAll('.le-img-picker-item').forEach((el) => {
+                el.addEventListener('click', () => {
+                    const id = el.dataset.id;
+                    if (selected.has(id)) selected.delete(id); else selected.add(id);
+                    paint();
+                    onChange(Array.from(selected).map((v) => parseInt(v, 10)));
+                });
+            });
+
+            const clearBtn = container.querySelector('.le-img-picker-clear');
+            if (clearBtn) {
+                clearBtn.addEventListener('click', () => {
+                    selected.clear();
+                    paint();
+                    onChange([]);
+                });
+            }
+        }
+
+        paint();
+    }
+
     // ── Panel "Información general" — campos propios de ServicePage
     //    (no son una sección), se guardan aparte vía PUT a DATA.generalUrl
     //    (ServicePageController::updateGeneral), sin tocar rating_*/faqs/
@@ -2055,7 +2117,7 @@ import Sortable from 'sortablejs';
             ${field('Texto del botón', `<input type="text" class="users-manager-input" id="leRhWhatsapp" value="${escHtml(cfg.whatsapp_text || 'Cotizar por WhatsApp')}">`)}
             <p class="hs-config-note">El CTA siempre abre WhatsApp; no existe botón de llamada.</p>
             ${field('Precio mostrado (opcional)', `<input type="text" class="users-manager-input" id="leRhPriceLabel" value="${escHtml(cfg.price_label)}" placeholder="$8,500 MXN + IVA">`)}
-            ${field('Imágenes de fondo (galería del servicio)', `<select class="users-manager-select" id="leRhBgImages" multiple size="4">${imagesOptionsHtml(cfg.background_image_ids, DATA.images)}</select>`)}
+            ${field('Imagen de fondo (galería del servicio)', `<div id="leRhBgImages"></div><p class="hs-config-note" style="margin-top:6px;">Si marcas varias, solo se usa la primera.</p>`)}
             <div class="show-user-divider" style="margin:10px 0;"></div>
             <p class="hs-config-note">El título y la descripción corta se editan en "Información general" — aquí solo se controla su estilo.</p>
             <p class="live-editor-col-title" style="margin:6px 0 0;">Estilo del título (H1, fijo)</p>
@@ -2084,8 +2146,8 @@ import Sortable from 'sortablejs';
             markDirty();
             schedulePreview();
         });
-        container.querySelector('#leRhBgImages').addEventListener('change', (e) => {
-            cfg.background_image_ids = Array.from(e.target.selectedOptions).map((o) => parseInt(o.value, 10));
+        renderImagePickerGrid(container.querySelector('#leRhBgImages'), cfg.background_image_ids, DATA.images, (ids) => {
+            cfg.background_image_ids = ids;
             markDirty();
             schedulePreview();
         });
@@ -2229,15 +2291,12 @@ import Sortable from 'sortablejs';
     }
 
     function renderGalleryCarouselFields(container, cfg) {
-        container.innerHTML = field('Imágenes a mostrar (vacío = toda la galería)', `
-            <select class="users-manager-select" id="leGcImages" multiple size="6">${imagesOptionsHtml(cfg.image_ids, DATA.images)}</select>
-            ${(!DATA.images || !DATA.images.length) ? '<p class="hs-config-note" style="margin-top:6px;">Este servicio todavía no tiene imágenes en su galería.</p>' : ''}
-        `);
-        container.querySelector('#leGcImages').addEventListener('change', (e) => {
-            cfg.image_ids = Array.from(e.target.selectedOptions).map((o) => parseInt(o.value, 10));
+        container.innerHTML = field('Imágenes a mostrar (vacío = toda la galería)', `<div id="leGcImages"></div>`);
+        renderImagePickerGrid(container.querySelector('#leGcImages'), cfg.image_ids, DATA.images, (ids) => {
+            cfg.image_ids = ids;
             markDirty();
             schedulePreview();
-        });
+        }, { clearAllLabel: 'Vaciar selección' });
     }
 
     function renderRatingReviewsFields(container, cfg) {
