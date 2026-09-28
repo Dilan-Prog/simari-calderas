@@ -131,15 +131,26 @@ class MediaController extends Controller
             });
         }
 
-        $unionQ = $galleryQ
-            ->unionAll($productQ)
-            ->unionAll($brandQ)
-            ->unionAll($categoryQ)
-            ->unionAll($collectionQ)
-            ->unionAll($productCoverQ)
-            ->unionAll($servicePageCoverQ)
-            ->unionAll($slideQ)
-            ->unionAll($reportImageQ);
+        // Sidebar de secciones del picker (image-picker.js) -- filtra a un
+        // subconjunto de fuentes en vez de la combinación completa. 'all'
+        // (pestaña "Subidas", por defecto) conserva el comportamiento
+        // original: todas las fuentes juntas.
+        $queriesBySource = [
+            'gallery'  => [$galleryQ],
+            'reports'  => [$reportImageQ],
+            'brands'   => [$brandQ],
+            'products' => [$productQ, $productCoverQ],
+        ];
+        $source = (string) $request->input('source', 'all');
+        $selectedQueries = $queriesBySource[$source] ?? [
+            $galleryQ, $productQ, $brandQ, $categoryQ, $collectionQ,
+            $productCoverQ, $servicePageCoverQ, $slideQ, $reportImageQ,
+        ];
+
+        $unionQ = array_shift($selectedQueries);
+        foreach ($selectedQueries as $query) {
+            $unionQ = $unionQ->unionAll($query);
+        }
 
         // Agrupado por image_path: la misma imagen puede vivir en varias
         // fuentes a la vez (p. ej. subida a Galería y reutilizada como

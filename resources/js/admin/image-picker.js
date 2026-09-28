@@ -28,6 +28,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const libraryEmpty = document.getElementById('imagePickerLibraryEmpty');
     const libraryLoading = document.getElementById('imagePickerLibraryLoading');
     const libraryLoadMore = document.getElementById('imagePickerLibraryLoadMore');
+    const sourceTabs = document.getElementById('imagePickerSourceTabs');
 
     let targetInputId = null;
     let onSelect = null;
@@ -35,6 +36,7 @@ document.addEventListener('DOMContentLoaded', function () {
     let urlCheckTimer = null;
     let librarySearchTimer = null;
     let libraryNextPage = 1;
+    let currentSource = 'all';
 
     function csrfToken() {
         return document.querySelector('meta[name="csrf-token"]').content;
@@ -68,7 +70,23 @@ document.addEventListener('DOMContentLoaded', function () {
         resetPanel();
         modal.classList.add('active');
         librarySearch.value = '';
+        currentSource = 'all';
+        if (sourceTabs) {
+            sourceTabs.querySelectorAll('.img-library-sidebar-btn').forEach((btn) => {
+                btn.classList.toggle('is-active', btn.dataset.source === 'all');
+            });
+        }
         loadLibrary(1, false);
+    }
+
+    if (sourceTabs) {
+        sourceTabs.addEventListener('click', function (e) {
+            const btn = e.target.closest('.img-library-sidebar-btn');
+            if (!btn || btn.dataset.source === currentSource) return;
+            currentSource = btn.dataset.source;
+            sourceTabs.querySelectorAll('.img-library-sidebar-btn').forEach((b) => b.classList.toggle('is-active', b === btn));
+            loadLibrary(1, false);
+        });
     }
 
     function closeModal() {
@@ -212,7 +230,7 @@ document.addEventListener('DOMContentLoaded', function () {
         libraryLoading.style.display = 'block';
         libraryLoadMore.style.display = 'none';
         try {
-            const params = new URLSearchParams({ page: page });
+            const params = new URLSearchParams({ page: page, source: currentSource });
             if (librarySearch.value.trim()) params.set('search', librarySearch.value.trim());
 
             const response = await fetch(libraryUrl + '?' + params.toString(), {

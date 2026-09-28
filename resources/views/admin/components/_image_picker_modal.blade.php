@@ -51,14 +51,25 @@
         </div>
 
         <p class="img-library-label">Imágenes ya subidas en tu catálogo</p>
-        <div class="img-library-grid" id="imagePickerLibraryGrid"></div>
-        <p class="img-library-empty" id="imagePickerLibraryEmpty" style="display:none">
-            Aún no has subido imágenes a ningún producto.
-        </p>
-        <p class="img-library-loading" id="imagePickerLibraryLoading" style="display:none">Cargando...</p>
-        <button type="button" class="img-library-load-more" id="imagePickerLibraryLoadMore" style="display:none">
-            Cargar más
-        </button>
+        <div class="img-library-body">
+            <div class="img-library-sidebar" id="imagePickerSourceTabs">
+                <button type="button" class="img-library-sidebar-btn is-active" data-source="all">Subidas</button>
+                <button type="button" class="img-library-sidebar-btn" data-source="gallery">Imágenes</button>
+                <button type="button" class="img-library-sidebar-btn" data-source="reports">Imágenes de reportes</button>
+                <button type="button" class="img-library-sidebar-btn" data-source="brands">Marcas</button>
+                <button type="button" class="img-library-sidebar-btn" data-source="products">Productos</button>
+            </div>
+            <div class="img-library-main">
+                <div class="img-library-grid" id="imagePickerLibraryGrid"></div>
+                <p class="img-library-empty" id="imagePickerLibraryEmpty" style="display:none">
+                    Aún no has subido imágenes a ningún producto.
+                </p>
+                <p class="img-library-loading" id="imagePickerLibraryLoading" style="display:none">Cargando...</p>
+                <button type="button" class="img-library-load-more" id="imagePickerLibraryLoadMore" style="display:none">
+                    Cargar más
+                </button>
+            </div>
+        </div>
 
         <div class="del-confirm-actions">
             <button type="button" class="button-secondary size-adjustment" id="imagePickerCancel">Cerrar</button>
