@@ -20,6 +20,7 @@
                             Seleccionar
                         </button>
                     </div>
+                    <p class="hs-config-note">Medida recomendada: 1920×660px, horizontal (se recorta con object-fit:cover si no coincide exacto).</p>
                 </div>
 
                 <div class="user-manager-form">
