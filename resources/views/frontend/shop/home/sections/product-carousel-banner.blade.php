@@ -50,6 +50,7 @@
         'image_url' => $config['banner_image_url'] ?? null,
         'link_url'  => $config['banner_link_url'] ?? null,
         'alt'       => $config['banner_alt'] ?? null,
+        'no_link'   => $config['banner_no_link'] ?? false,
     ];
 
     $viewAllUrl = ($sourceCollection && $sourceCollection->is_active)

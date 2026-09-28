@@ -13,9 +13,15 @@
     @endif
     <div class="product-carousel__wrap">
         @if ($banner && !empty($banner['image_url']))
-            <a href="{{ $banner['link_url'] ?: '#' }}" class="product-carousel__banner-link">
-                <img src="{{ $banner['image_url'] }}" alt="{{ $banner['alt'] ?: $title }}" class="product-carousel__banner-img">
-            </a>
+            @if (empty($banner['no_link']) && !empty($banner['link_url']))
+                <a href="{{ $banner['link_url'] }}" class="product-carousel__banner-link">
+                    <img src="{{ $banner['image_url'] }}" alt="{{ $banner['alt'] ?: $title }}" class="product-carousel__banner-img">
+                </a>
+            @else
+                <div class="product-carousel__banner-link">
+                    <img src="{{ $banner['image_url'] }}" alt="{{ $banner['alt'] ?: $title }}" class="product-carousel__banner-img">
+                </div>
+            @endif
         @endif
         <div class="product-carousel__track-wrap">
             <div class="product-carousel__track" x-ref="track">

@@ -91,11 +91,11 @@ import Sortable from 'sortablejs';
     function defaultConfigForType(type) {
         switch (type) {
             case 'banner':
-                return { image_url: '', link_url: '', alt: '' };
+                return { image_url: '', link_url: '', alt: '', no_link: false };
             case 'dual_banner':
                 return {
-                    left: { image_url: '', link_url: '', alt: '' },
-                    right: { image_url: '', link_url: '', alt: '' },
+                    left: { image_url: '', link_url: '', alt: '', no_link: false },
+                    right: { image_url: '', link_url: '', alt: '', no_link: false },
                 };
             case 'product_carousel':
                 return { source: 'featured', category_id: null, brand_id: null, collection_id: null, product_ids: [], limit: 10 };
@@ -108,7 +108,7 @@ import Sortable from 'sortablejs';
                 // el modal clásico. Se sigue ESE shape verificado para que el
                 // preview y el guardado no queden desalineados con el render público.
                 return {
-                    banner_image_url: '', banner_link_url: '', banner_alt: '',
+                    banner_image_url: '', banner_link_url: '', banner_alt: '', banner_no_link: false,
                     source: 'featured', category_id: null, brand_id: null, collection_id: null,
                     product_ids: [], limit: 10,
                 };
@@ -1769,8 +1769,8 @@ import Sortable from 'sortablejs';
                 break;
             case 'dual_banner':
                 container.innerHTML = '<p class="hs-config-subtitle">Banner Izquierdo</p><div id="leDbLeft"></div><p class="hs-config-subtitle">Banner Derecho</p><div id="leDbRight"></div>';
-                cfg.left = cfg.left || { image_url: '', link_url: '', alt: '' };
-                cfg.right = cfg.right || { image_url: '', link_url: '', alt: '' };
+                cfg.left = cfg.left || { image_url: '', link_url: '', alt: '', no_link: false };
+                cfg.right = cfg.right || { image_url: '', link_url: '', alt: '', no_link: false };
                 renderBannerFields(container.querySelector('#leDbLeft'), cfg.left, 'Left', null, { recommendedSize: '800×500px cada uno (mismo tamaño en ambos para que se vean parejos)' });
                 renderBannerFields(container.querySelector('#leDbRight'), cfg.right, 'Right', null, { recommendedSize: '800×500px cada uno (mismo tamaño en ambos para que se vean parejos)' });
                 break;
@@ -1780,11 +1780,12 @@ import Sortable from 'sortablejs';
             case 'product_carousel_banner':
                 container.innerHTML = '<p class="hs-config-subtitle">Banner</p><div id="lePcbBanner"></div><p class="hs-config-subtitle">Productos del carrusel</p><div id="lePcbCarousel"></div>';
                 renderBannerFields(container.querySelector('#lePcbBanner'), {
-                    image_url: cfg.banner_image_url, link_url: cfg.banner_link_url, alt: cfg.banner_alt,
+                    image_url: cfg.banner_image_url, link_url: cfg.banner_link_url, alt: cfg.banner_alt, no_link: cfg.banner_no_link,
                 }, 'PcbBanner', (key, value) => {
                     if (key === 'image_url') cfg.banner_image_url = value;
                     if (key === 'link_url') cfg.banner_link_url = value;
                     if (key === 'alt') cfg.banner_alt = value;
+                    if (key === 'no_link') cfg.banner_no_link = value;
                 }, { recommendedSize: '440×640px, vertical (se recorta para llenar el espacio junto al carrusel)' });
                 renderProductCarouselFields(container.querySelector('#lePcbCarousel'), cfg, 'Pcb');
                 break;
@@ -1848,20 +1849,32 @@ import Sortable from 'sortablejs';
                 ${recommendedSize ? `<p class="hs-config-note">Medida recomendada: ${escHtml(recommendedSize)}.</p>` : ''}
             `)}
             <div class="live-editor-field-row">
-                ${field('URL de Enlace', `<input type="text" class="users-manager-input" id="${idLink}" value="${escHtml(cfg.link_url)}" placeholder="/servicio/otro-servicio">`)}
+                ${field('URL de Enlace', `<input type="text" class="users-manager-input" id="${idLink}" value="${escHtml(cfg.link_url)}" placeholder="/servicio/otro-servicio" ${cfg.no_link ? 'disabled' : ''}>`)}
                 ${field('Texto Alternativo', `<input type="text" class="users-manager-input" id="${idAlt}" value="${escHtml(cfg.alt)}">`)}
             </div>
+            <label style="display:flex;align-items:center;gap:8px;font-weight:400;font-size:13px;color:#374151;margin-top:-8px;">
+                <input type="checkbox" id="${idLink}NoLink" ${cfg.no_link ? 'checked' : ''}> Sin enlace (la imagen no redirige a ningún lado)
+            </label>
         `;
 
         const setImg = (v) => customSetter ? customSetter('image_url', v) : (cfg.image_url = v);
         const setLink = (v) => customSetter ? customSetter('link_url', v) : (cfg.link_url = v);
         const setAlt = (v) => customSetter ? customSetter('alt', v) : (cfg.alt = v);
+        const setNoLink = (v) => customSetter ? customSetter('no_link', v) : (cfg.no_link = v);
 
         const imgInput = container.querySelector('#' + idImg);
         imgInput.addEventListener('input', () => { setImg(imgInput.value); markDirty(); schedulePreview(); });
 
-        container.querySelector('#' + idLink).addEventListener('input', (e) => { setLink(e.target.value); markDirty(); schedulePreview(); });
+        const linkInput = container.querySelector('#' + idLink);
+        linkInput.addEventListener('input', (e) => { setLink(e.target.value); markDirty(); schedulePreview(); });
         container.querySelector('#' + idAlt).addEventListener('input', (e) => { setAlt(e.target.value); markDirty(); schedulePreview(); });
+
+        container.querySelector('#' + idLink + 'NoLink').addEventListener('change', (e) => {
+            setNoLink(e.target.checked);
+            linkInput.disabled = e.target.checked;
+            markDirty();
+            schedulePreview();
+        });
 
         const trigger = container.querySelector('.img-picker-trigger-btn');
         trigger.addEventListener('click', () => {
