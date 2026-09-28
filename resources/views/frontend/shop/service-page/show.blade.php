@@ -46,7 +46,32 @@
     $visibleReviews = $ratingSectionActive ? $servicePage->visibleReviews()->get() : collect();
 @endphp
 
+@php
+    // Mismos niveles que el breadcrumb HTML de abajo (Inicio › Servicios ›
+    // ancestros › este servicio) -- se arma aquí, antes del contenido, para
+    // que el schema BreadcrumbList y el HTML nunca se desincronicen.
+    $breadcrumbItems = collect([['name' => 'Inicio', 'item' => url('/')]]);
+    if ($servicePage->page_type !== \App\Models\ServicePage::TYPE_HUB) {
+        $breadcrumbItems->push(['name' => 'Servicios', 'item' => route('service-pages.hub')]);
+    }
+    foreach ($ancestors as $ancestor) {
+        $breadcrumbItems->push(['name' => $ancestor->name, 'item' => url($ancestor->publicPath())]);
+    }
+    $breadcrumbItems->push(['name' => $servicePage->name, 'item' => $canonicalUrl]);
+@endphp
 @section('schema')
+    <script type="application/ld+json">
+        {!! json_encode([
+            '@context' => 'https://schema.org',
+            '@type' => 'BreadcrumbList',
+            'itemListElement' => $breadcrumbItems->values()->map(fn ($crumb, $i) => [
+                '@type' => 'ListItem',
+                'position' => $i + 1,
+                'name' => $crumb['name'],
+                'item' => $crumb['item'],
+            ])->all(),
+        ], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_PRETTY_PRINT) !!}
+    </script>
     <script type="application/ld+json">
         {!! json_encode(array_filter([
             '@context' => 'https://schema.org',
@@ -54,10 +79,39 @@
             'name' => $servicePage->name,
             'url' => $canonicalUrl,
             'description' => $metaDescription,
+            // Nombre de la categoría padre si existe (más genérico que el
+            // nombre del servicio en sí, ej. "Calderas Industriales" para el
+            // servicio "Mantenimiento") -- si no tiene padre, usa su propio
+            // nombre en vez de dejarlo vacío.
+            'serviceType' => optional(collect($ancestors)->last())->name ?: $servicePage->name,
+            'areaServed' => [
+                '@type' => 'Country',
+                'name' => 'México',
+            ],
             'provider' => [
                 '@type' => 'Organization',
                 'name' => 'Equiterm Industries',
             ],
+            'hasOfferCatalog' => $children->isNotEmpty() ? [
+                '@type' => 'OfferCatalog',
+                'name' => $servicePage->name,
+                'itemListElement' => $children->map(fn ($child) => [
+                    '@type' => 'Offer',
+                    'itemOffered' => [
+                        '@type' => 'Service',
+                        'name' => $child->name,
+                        'url' => url($child->publicPath()),
+                    ],
+                ])->values()->all(),
+            ] : null,
+            // Solo si el servicio tiene un precio real capturado Y configurado
+            // para mostrarse públicamente -- nunca un precio inventado.
+            'offers' => ($servicePage->price && $servicePage->show_price) ? [
+                '@type' => 'Offer',
+                'priceCurrency' => $servicePage->currency ?: 'MXN',
+                'price' => (string) $servicePage->price,
+                'availability' => 'https://schema.org/InStock',
+            ] : null,
             'aggregateRating' => $visibleReviews->isNotEmpty() ? [
                 '@type' => 'AggregateRating',
                 'ratingValue' => round($visibleReviews->avg('rating'), 1),
