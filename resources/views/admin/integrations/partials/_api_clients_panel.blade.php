@@ -99,17 +99,38 @@
                                         <p class="pform-hint" style="margin:0 0 8px; font-weight:600;">Tokens de "{{ $client->name }}"</p>
                                         <div style="display:flex; flex-direction:column; gap:6px; margin-bottom:14px;">
                                             @foreach ($client->tokens as $token)
-                                                <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; padding:8px 10px; background:#fff; border:1px solid #e5e7eb; border-radius:6px;">
-                                                    <span style="font-size:13px;">
-                                                        <strong>{{ $token->name }}</strong>
-                                                        — {{ implode(', ', $token->abilities ?? []) }}
-                                                    </span>
-                                                    <form method="POST" action="{{ route('admin.integrations.api-clients.tokens.destroy', [$client, $token->id]) }}"
-                                                        onsubmit="return confirm('¿Revocar este token? Cualquier integración que lo use dejará de funcionar de inmediato.');">
-                                                        @csrf
-                                                        @method('DELETE')
-                                                        <button type="submit" class="action-btn" title="Revocar" style="color:#b91c1c;">✕</button>
-                                                    </form>
+                                                <div style="padding:8px 10px; background:#fff; border:1px solid #e5e7eb; border-radius:6px;">
+                                                    <div style="display:flex; align-items:center; justify-content:space-between; gap:12px;">
+                                                        <span style="font-size:13px;">
+                                                            <strong>{{ $token->name }}</strong>
+                                                            — {{ implode(', ', $token->abilities ?? []) }}
+                                                        </span>
+                                                        <form method="POST" action="{{ route('admin.integrations.api-clients.tokens.destroy', [$client, $token->id]) }}"
+                                                            onsubmit="return confirm('¿Revocar este token? Cualquier integración que lo use dejará de funcionar de inmediato.');">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <button type="submit" class="action-btn" title="Revocar" style="color:#b91c1c;">✕</button>
+                                                        </form>
+                                                    </div>
+                                                    {{-- Guía de uso de ESTE token concreto -- solo las abilities que
+                                                         realmente tiene, no el catálogo completo (eso es el form de
+                                                         abajo, para cuando se genera uno nuevo). --}}
+                                                    <details style="margin-top:8px;">
+                                                        <summary style="cursor:pointer; font-size:12px; font-weight:600; color:#6b7280;">Ver guía de parámetros para N8N</summary>
+                                                        <div style="margin-top:8px; display:flex; flex-direction:column; gap:10px;">
+                                                            @foreach (($token->abilities ?? []) as $ability)
+                                                                @foreach (($apiEndpoints[$ability] ?? []) as $endpoint)
+                                                                    <div style="font-size:12px;">
+                                                                        <code style="font-weight:700;">{{ $endpoint['method'] }} {{ $apiBaseUrl }}{{ $endpoint['path'] }}</code>
+                                                                        <p style="margin:2px 0 0; color:#6b7280;">{{ $endpoint['params'] }}</p>
+                                                                        @if (!empty($endpoint['note']))
+                                                                            <p style="margin:2px 0 0; color:#9ca3af; font-style:italic;">{{ $endpoint['note'] }}</p>
+                                                                        @endif
+                                                                    </div>
+                                                                @endforeach
+                                                            @endforeach
+                                                        </div>
+                                                    </details>
                                                 </div>
                                             @endforeach
                                         </div>
@@ -136,7 +157,7 @@
                                                                 <span>
                                                                     {{ $label }}
                                                                     @foreach (($apiEndpoints[$ability] ?? []) as $endpoint)
-                                                                        <code style="display:block; font-size:11px; color:#9ca3af;">{{ $endpoint }}</code>
+                                                                        <code style="display:block; font-size:11px; color:#9ca3af;">{{ $endpoint['method'] }} {{ $endpoint['path'] }}</code>
                                                                     @endforeach
                                                                 </span>
                                                             </label>
