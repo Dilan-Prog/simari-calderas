@@ -21,6 +21,15 @@
             </div>
         </div>
 
+        <div class="pform-panel" style="margin-bottom:16px;">
+            <p style="margin:0 0 6px; font-size:12px; font-weight:700; color:#6b7280; text-transform:uppercase;">Ruta base de la API</p>
+            <code style="display:block; padding:10px 12px; background:#f2f3f5; border-radius:6px; word-break:break-all; font-size:13px;">{{ $apiBaseUrl }}</code>
+            <p class="pform-hint" style="margin-top:8px;">
+                Cada endpoint de abajo es relativo a esta ruta (ej. <code>GET /customers</code> = <code>{{ $apiBaseUrl }}/customers</code>).
+                Encabezado requerido: <code>Authorization: Bearer {token}</code>.
+            </p>
+        </div>
+
         @if (session('plain_text_token'))
             <div class="pform-panel" style="border-left:4px solid #10b981; margin-bottom:16px;">
                 <p style="margin:0 0 8px; color:#047857; font-weight:600;">
@@ -120,11 +129,16 @@
                                                 <label class="supliers-manager-slider-label">Abilities</label>
                                                 @foreach ($apiAbilities as $groupLabel => $group)
                                                     <p style="margin:10px 0 4px; font-size:12px; font-weight:700; color:#6b7280; text-transform:uppercase;">{{ $groupLabel }}</p>
-                                                    <div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:4px;">
+                                                    <div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:6px;">
                                                         @foreach ($group as $ability => $label)
-                                                            <label style="display:flex; align-items:center; gap:6px; font-size:13px; font-weight:400;">
-                                                                <input type="checkbox" name="abilities[]" value="{{ $ability }}">
-                                                                {{ $label }}
+                                                            <label style="display:flex; align-items:flex-start; gap:6px; font-size:13px; font-weight:400;">
+                                                                <input type="checkbox" name="abilities[]" value="{{ $ability }}" style="margin-top:3px;">
+                                                                <span>
+                                                                    {{ $label }}
+                                                                    @foreach (($apiEndpoints[$ability] ?? []) as $endpoint)
+                                                                        <code style="display:block; font-size:11px; color:#9ca3af;">{{ $endpoint }}</code>
+                                                                    @endforeach
+                                                                </span>
                                                             </label>
                                                         @endforeach
                                                     </div>

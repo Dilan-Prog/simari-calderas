@@ -34,6 +34,12 @@
 <meta property="og:image"       content="@yield('og_image', 'https://equitermindustries.com.mx/images/og-home.jpg')" />
 <meta property="og:image:width"  content="1200" />
 <meta property="og:image:height" content="630" />
+<meta property="og:image:alt"   content="@yield('og_image_alt', 'Equiterm Industries — mantenimiento y servicio de calderas industriales en México')" />
+<meta name="twitter:card"        content="summary_large_image" />
+<meta name="twitter:title"       content="@yield('og_title', 'Diseñamos, instalamos y mantenemos sistemas de calderas, calentadores y tratamiento de agua para los sectores industrial, alimentario, hotelero y metalmecánico. Soporte técnico especializado disponible 24/7 | Equiterm Industries')" />
+<meta name="twitter:description" content="@yield('og_description', 'Diseñamos, instalamos y mantenemos sistemas de calderas, calentadores y tratamiento de agua para los sectores industrial, alimentario, hotelero y metalmecánico. Soporte técnico especializado disponible 24/7')" />
+<meta name="twitter:image"       content="@yield('og_image', 'https://equitermindustries.com.mx/images/og-home.jpg')" />
+<meta name="twitter:image:alt"   content="@yield('og_image_alt', 'Equiterm Industries — mantenimiento y servicio de calderas industriales en México')" />
 <link rel="preconnect" href="https://www.googletagmanager.com">
 <link rel="preconnect" href="https://www.google-analytics.com">
 <link rel="preconnect" href="https://fonts.googleapis.com">

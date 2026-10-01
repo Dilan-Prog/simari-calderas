@@ -29,6 +29,7 @@
 @section('og_url', $canonicalUrl)
 @if ($ogImage)
     @section('og_image', $ogImage)
+    @section('og_image_alt', $servicePage->name . ' — Equiterm Industries')
 @endif
 
 @php

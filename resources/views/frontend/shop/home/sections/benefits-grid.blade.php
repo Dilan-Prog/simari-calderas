@@ -3,7 +3,7 @@
     $titleTag = \App\Support\TextStyle::tag($titleStyle, 'h2', ['h2', 'h3']);
 @endphp
 @if (!empty($section->config['items']))
-<section class="svc-benefits" @if($previewMode) data-section-id="{{ $section->id }}" @endif>
+<section class="svc-benefits" aria-label="{{ $section->title ?: 'Beneficios del servicio' }}" @if($previewMode) data-section-id="{{ $section->id }}" @endif>
     @if ($section->title)
         <{{ $titleTag }} class="svc-benefits__title"{!! \App\Support\TextStyle::attr($titleStyle) !!}>{{ $section->title }}</{{ $titleTag }}>
     @endif

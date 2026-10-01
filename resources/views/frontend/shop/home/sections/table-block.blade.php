@@ -16,6 +16,7 @@
 
     <div class="svc-table-block__scroll">
         <table class="svc-table-block__table">
+            <caption class="sr-only">{{ $section->title ?: 'Tabla de información del servicio' }}</caption>
             <thead>
                 <tr>
                     @foreach ($headers as $header)

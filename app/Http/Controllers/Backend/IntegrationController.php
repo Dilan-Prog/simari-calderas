@@ -86,6 +86,8 @@ class IntegrationController extends Controller
         // HasApiTokens (ver ApiClient).
         $apiClients = ApiClient::withCount('tokens')->with('tokens')->latest()->get();
         $apiAbilities = config('api_abilities');
+        $apiEndpoints = config('api_endpoints');
+        $apiBaseUrl = url('/api/v1');
         $apiClientsConfigured = $apiClients->isNotEmpty();
 
         // La antigua pantalla standalone "Cuentas de WhatsApp" se fusionó
@@ -115,6 +117,8 @@ class IntegrationController extends Controller
             'mercadoPagoConfigured',
             'apiClients',
             'apiAbilities',
+            'apiEndpoints',
+            'apiBaseUrl',
             'apiClientsConfigured',
         ));
     }
