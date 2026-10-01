@@ -52,5 +52,6 @@ return [
     'Marketing' => [
         'email-campaigns:trigger' => 'Disparar envío de campañas de correo',
         'email-campaigns:read'    => 'Leer estadísticas de envíos/aperturas/clicks',
+        'email-templates:read'    => 'Leer plantillas de correo electrónico',
     ],
 ];

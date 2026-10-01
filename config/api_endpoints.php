@@ -94,4 +94,8 @@ return [
     'email-campaigns:read' => [
         ['method' => 'GET', 'path' => '/email-sends', 'params' => 'campaign_id, per_page (query, opcionales)'],
     ],
+    'email-templates:read' => [
+        ['method' => 'GET', 'path' => '/email-templates', 'params' => 'type (other|secuencia|transaccional), per_page (query, opcionales)'],
+        ['method' => 'GET', 'path' => '/email-templates/{id}', 'params' => 'sin parámetros', 'note' => 'incluye html_body completo (con variables {{...}} sin sustituir)'],
+    ],
 ];

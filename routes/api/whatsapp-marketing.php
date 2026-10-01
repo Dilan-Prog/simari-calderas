@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\Marketing\EmailCampaignController;
+use App\Http\Controllers\Api\Marketing\EmailTemplateController;
 use App\Http\Controllers\Api\Whatsapp\WhatsappConversationController;
 use App\Http\Controllers\Api\Whatsapp\WhatsappSendController;
 use Illuminate\Support\Facades\Route;
@@ -11,7 +12,8 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 | Ver plan: C:\Users\dilon\.claude\plans\replicated-frolicking-clarke.md
 | Abilities disponibles (config/api_abilities.php): whatsapp:read,
-| whatsapp:send, email-campaigns:trigger, email-campaigns:read.
+| whatsapp:send, email-campaigns:trigger, email-campaigns:read,
+| email-templates:read.
 |
 | Se incluye tal cual desde routes/api.php dentro del grupo v1
 | (auth:sanctum + throttle:api-n8n + log.api ya aplicados) -- cada ruta
@@ -29,3 +31,8 @@ Route::post('/email-campaigns/{campaign}/send', [EmailCampaignController::class,
 
 Route::get('/email-sends', [EmailCampaignController::class, 'sends'])
     ->middleware('token.ability:email-campaigns:read');
+
+Route::controller(EmailTemplateController::class)->prefix('email-templates')->group(function () {
+    Route::get('/', 'index')->middleware('token.ability:email-templates:read');
+    Route::get('/{emailTemplate}', 'show')->middleware('token.ability:email-templates:read');
+});
