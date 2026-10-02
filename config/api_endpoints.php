@@ -42,7 +42,7 @@ return [
         ['method' => 'POST', 'path' => '/deals/{deal}/contacts', 'params' => 'name*, email, phone'],
     ],
     'tasks:write' => [
-        ['method' => 'POST', 'path' => '/tasks', 'params' => 'title*, taskable_type*, taskable_id*, due_date'],
+        ['method' => 'POST', 'path' => '/tasks', 'params' => 'title*, taskable_type*, taskable_id*, assigned_to, description, due_at, status', 'note' => 'taskable_type debe ser un FQCN registrado en config/automatable_modules.php (ej. App\\\\Models\\\\Quote)'],
     ],
 
     'quotes:read' => [
