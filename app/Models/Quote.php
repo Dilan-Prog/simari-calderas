@@ -39,6 +39,9 @@ class Quote extends Model
         'total',
         'valid_until',
         'sent_at',
+        'last_reminder_sent_at',
+        'accepted_at',
+        'rejected_at',
         'notes',
         'terms_conditions',
         'converted_to_order_id',
@@ -55,6 +58,9 @@ class Quote extends Model
         'total'                => 'decimal:2',
         'valid_until'          => 'date',
         'sent_at'              => 'datetime',
+        'last_reminder_sent_at' => 'datetime',
+        'accepted_at'          => 'datetime',
+        'rejected_at'          => 'datetime',
     ];
 
     public function createdBy(): BelongsTo

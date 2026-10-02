@@ -52,6 +52,7 @@ return [
     'quotes:write' => [
         ['method' => 'POST', 'path' => '/quotes', 'params' => 'customer_id*, guest_name*, tax_rate*, currency* (MXN|USD), exchange_rate*, items* (array: product_name*, quantity*, unit_price*, line_total* por cada uno), guest_email, guest_phone, guest_company, guest_rfc, valid_until, discount_total, isr_retention_rate, notes, terms_conditions'],
         ['method' => 'POST', 'path' => '/quotes/{quote}/accept', 'params' => 'sin body', 'note' => 'idempotente -- genera el Pedido de venta (SalesOrder) automáticamente la primera vez; si ya estaba aceptada, no hace nada de nuevo'],
+        ['method' => 'POST', 'path' => '/quotes/{quote}/mark-reminder-sent', 'params' => 'sin body', 'note' => 'registra last_reminder_sent_at = ahora -- no cambia el status, solo marca que ya se le mandó un recordatorio'],
     ],
     'sales-orders:read' => [
         ['method' => 'GET', 'path' => '/sales-orders', 'params' => 'status, customer_id, quote_id, per_page (query, opcionales)', 'note' => 'solo lectura -- se generan automáticamente al aceptar una cotización, no vía API'],

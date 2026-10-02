@@ -29,7 +29,7 @@ return [
 
     'Cotizaciones y Pedidos' => [
         'quotes:read'       => 'Leer cotizaciones',
-        'quotes:write'      => 'Crear cotizaciones y aceptar cotizaciones',
+        'quotes:write'      => 'Crear cotizaciones, aceptarlas y registrar recordatorios enviados',
         'sales-orders:read' => 'Leer pedidos de venta',
         'store-orders:read' => 'Leer pedidos de la tienda en línea',
     ],

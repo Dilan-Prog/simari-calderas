@@ -28,6 +28,7 @@ Route::controller(QuoteController::class)->prefix('quotes')->group(function () {
     Route::get('/{quote}', 'show')->middleware('token.ability:quotes:read');
     Route::post('/', 'store')->middleware('token.ability:quotes:write');
     Route::post('/{quote}/accept', 'accept')->middleware('token.ability:quotes:write');
+    Route::post('/{quote}/mark-reminder-sent', 'markReminderSent')->middleware('token.ability:quotes:write');
 });
 
 Route::controller(SalesOrderController::class)->prefix('sales-orders')->group(function () {

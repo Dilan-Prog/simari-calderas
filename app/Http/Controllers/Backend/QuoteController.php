@@ -571,6 +571,17 @@ class QuoteController extends Controller
                 $attributes['sent_at'] = now();
             }
 
+            // Fecha exacta del cambio a aceptada/rechazada -- solo se marca
+            // la primera vez (igual criterio que $wasAccepted de abajo, pero
+            // aplicado también a "rechazada" para no pisar la fecha real si
+            // alguien repite la acción).
+            if ($request->status === 'accepted' && !$quote->accepted_at) {
+                $attributes['accepted_at'] = now();
+            }
+            if ($request->status === 'rejected' && !$quote->rejected_at) {
+                $attributes['rejected_at'] = now();
+            }
+
             $quote->update($attributes);
 
             if ($request->status === 'sent') {

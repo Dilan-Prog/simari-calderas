@@ -122,12 +122,24 @@ class QuoteController extends Controller
         // SalesOrder por reintento de N8N.
         if ($quote->status !== 'accepted') {
             DB::transaction(function () use ($quote) {
-                $quote->update(['status' => 'accepted']);
+                $quote->update(['status' => 'accepted', 'accepted_at' => now()]);
                 $this->quoteService->processAcceptance($quote);
             });
         }
 
         $quote->load(['customer', 'items', 'salesOrders.items']);
+
+        return response()->json(['data' => new QuoteResource($quote)]);
+    }
+
+    /**
+     * Para el flujo de seguimiento de N8N: registra cuándo se mandó el
+     * último recordatorio, sin tocar status/sent_at -- un recordatorio no
+     * cambia el estatus de la cotización, solo cuenta como "ya se le avisó".
+     */
+    public function markReminderSent(Quote $quote): JsonResponse
+    {
+        $quote->update(['last_reminder_sent_at' => now()]);
 
         return response()->json(['data' => new QuoteResource($quote)]);
     }
