@@ -70,12 +70,20 @@
 .task-modal-quickview-panel { display: none; margin-top: 10px; padding-top: 10px; border-top: 1px dashed #e5e7eb; font-size: 12.5px; color: #374151; }
 .task-modal-quickview-panel.active { display: block; }
 .task-modal-quickview-panel div { margin-bottom: 4px; }
+.task-modal-quickview-products { margin-top: 10px; display: flex; flex-direction: column; gap: 8px; }
+.task-modal-quickview-product { display: flex; align-items: center; gap: 8px; }
+.task-modal-quickview-product img { width: 34px; height: 34px; object-fit: cover; border-radius: 5px; border: 1px solid #e5e7eb; flex-shrink: 0; background: #f3f4f6; }
+.task-modal-quickview-product-placeholder { width: 34px; height: 34px; border-radius: 5px; border: 1px solid #e5e7eb; background: #f3f4f6; flex-shrink: 0; }
+.task-modal-quickview-product-name { font-weight: 600; color: #111827; font-size: 12.5px; }
+.task-modal-quickview-product-sku { color: #9ca3af; font-size: 11.5px; }
 .task-modal-related-link { color: var(--secondary-color); font-weight: 600; text-decoration: none; font-size: 12.5px; display: inline-block; margin-top: 8px; }
 .task-modal-related-link:hover { text-decoration: underline; }
 .task-modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px; }
 .task-modal-btn { height: 38px; padding: 0 18px; border-radius: 7px; font-size: 13px; font-weight: 700; cursor: pointer; border: none; }
 .task-modal-btn--cancel { background: #f2f3f5; color: #374151; }
 .task-modal-btn--save { background: var(--secondary-color); color: #fff; }
+.task-modal-btn--delete { background: #fff; color: #b91c1c; border: 1px solid #fecaca; }
+.task-modal-btn--delete:hover { background: #fef2f2; }
 </style>
 @endpush
 
@@ -122,11 +130,13 @@
                                 'description' => $task->description,
                                 'due_at' => optional($task->due_at)->format('Y-m-d\TH:i'),
                                 'status' => $task->status,
+                                'closed_at' => optional($task->closed_at)->format('d/m/Y H:i'),
                                 'assigned_to' => $task->assigned_to,
                                 'related_label' => $task->taskableLabel(),
                                 'related_url' => $task->taskableUrl(),
                                 'customer' => $task->taskableCustomerInfo(),
                                 'quick_view' => $task->taskableQuickView(),
+                                'quote_items' => $task->taskableQuoteItems(),
                             ]) }}">
                                 <td>
                                     <div class="tasks-td-title">{{ $task->title }}</div>
@@ -185,8 +195,10 @@
                     <div>
                         <strong id="taskModalRelatedLabel"></strong>
                         <p class="task-modal-customer-line" id="taskModalCustomerName" style="display:none;"></p>
+                        <p class="task-modal-customer-line" id="taskModalCustomerCompany" style="display:none;"></p>
                         <p class="task-modal-customer-line" id="taskModalCustomerPhone" style="display:none;"></p>
                         <p class="task-modal-customer-line" id="taskModalCustomerEmail" style="display:none;"></p>
+                        <p class="task-modal-customer-line" id="taskModalCustomerRfc" style="display:none;"></p>
                     </div>
                     <button type="button" class="task-modal-quickview-btn" id="taskModalQuickViewBtn" style="display:none;">Vista rápida ⌄</button>
                 </div>
@@ -215,6 +227,7 @@
                         <option value="{{ $value }}">{{ $label }}</option>
                     @endforeach
                 </select>
+                <p class="task-modal-field-hint" id="taskFieldClosedAtHint" style="display:none;"></p>
             </div>
             <div class="task-modal-field">
                 <label>Asignada a</label>
@@ -227,9 +240,15 @@
             </div>
 
             <div class="task-modal-actions">
+                <button type="button" class="task-modal-btn task-modal-btn--delete" id="taskModalDeleteBtn" style="display:none;">Eliminar</button>
+                <div style="flex:1;"></div>
                 <button type="button" class="task-modal-btn task-modal-btn--cancel" id="taskModalCancel">Cancelar</button>
                 <button type="submit" class="task-modal-btn task-modal-btn--save">Guardar</button>
             </div>
+        </form>
+        <form method="POST" id="taskDeleteForm" style="display:none;">
+            @csrf
+            @method('DELETE')
         </form>
     </div>
 </div>
@@ -244,8 +263,10 @@
     const relatedLabel = document.getElementById('taskModalRelatedLabel');
     const relatedLink = document.getElementById('taskModalRelatedLink');
     const customerName = document.getElementById('taskModalCustomerName');
+    const customerCompany = document.getElementById('taskModalCustomerCompany');
     const customerPhone = document.getElementById('taskModalCustomerPhone');
     const customerEmail = document.getElementById('taskModalCustomerEmail');
+    const customerRfc = document.getElementById('taskModalCustomerRfc');
     const quickViewBtn = document.getElementById('taskModalQuickViewBtn');
     const quickViewPanel = document.getElementById('taskModalQuickViewPanel');
     const fieldTitle = document.getElementById('taskFieldTitle');
@@ -254,7 +275,16 @@
     const fieldDueAt = document.getElementById('taskFieldDueAt');
     const fieldDueAtHint = document.getElementById('taskFieldDueAtHint');
     const fieldStatus = document.getElementById('taskFieldStatus');
+    const fieldClosedAtHint = document.getElementById('taskFieldClosedAtHint');
     const fieldAssignedTo = document.getElementById('taskFieldAssignedTo');
+    const deleteBtn = document.getElementById('taskModalDeleteBtn');
+    const deleteForm = document.getElementById('taskDeleteForm');
+
+    function escapeHtml(value) {
+        const div = document.createElement('div');
+        div.textContent = value || '';
+        return div.innerHTML;
+    }
 
     function setLine(el, label, value) {
         if (value) {
@@ -279,7 +309,9 @@
         fieldDueAt.removeAttribute('readonly');
         fieldDueAtHint.style.display = 'none';
         fieldStatus.value = 'open';
+        fieldClosedAtHint.style.display = 'none';
         fieldAssignedTo.value = '';
+        deleteBtn.style.display = 'none';
         overlay.classList.add('active');
     }
 
@@ -292,8 +324,10 @@
             related.style.display = 'block';
             relatedLabel.textContent = task.related_label;
             setLine(customerName, 'Cliente', task.customer ? task.customer.name : null);
+            setLine(customerCompany, 'Empresa', task.customer ? task.customer.company : null);
             setLine(customerPhone, 'Teléfono', task.customer ? task.customer.phone : null);
             setLine(customerEmail, 'Correo', task.customer ? task.customer.email : null);
+            setLine(customerRfc, 'RFC', task.customer ? task.customer.rfc : null);
 
             quickViewPanel.classList.remove('active');
             if (task.quick_view) {
@@ -304,12 +338,26 @@
                     quickViewBtn.textContent = isOpen ? 'Vista rápida ⌃' : 'Vista rápida ⌄';
                     if (isOpen) {
                         const qv = task.quick_view;
+                        const items = task.quote_items || [];
+                        const productsHtml = items.length ? (
+                            '<div class="task-modal-quickview-products">' +
+                            items.map(function (item) {
+                                const img = item.image_url
+                                    ? '<img src="' + escapeHtml(item.image_url) + '" alt="">'
+                                    : '<div class="task-modal-quickview-product-placeholder"></div>';
+                                return '<div class="task-modal-quickview-product">' + img +
+                                    '<div><div class="task-modal-quickview-product-name">' + escapeHtml(item.name) + '</div>' +
+                                    '<div class="task-modal-quickview-product-sku">' + escapeHtml(item.sku || 'Sin SKU') + '</div></div></div>';
+                            }).join('') +
+                            '</div>'
+                        ) : '';
                         quickViewPanel.innerHTML =
                             '<div><strong>N.o cotización:</strong> ' + qv.quote_number + '</div>' +
                             '<div><strong>Estatus:</strong> ' + qv.status_label + '</div>' +
                             '<div><strong>Total:</strong> ' + qv.total + '</div>' +
                             (qv.sent_at ? '<div><strong>Enviada:</strong> ' + qv.sent_at + '</div>' : '') +
-                            (qv.valid_until ? '<div><strong>Vigente hasta:</strong> ' + qv.valid_until + '</div>' : '');
+                            (qv.valid_until ? '<div><strong>Vigente hasta:</strong> ' + qv.valid_until + '</div>' : '') +
+                            productsHtml;
                     }
                 };
             } else {
@@ -334,7 +382,21 @@
         fieldDueAt.setAttribute('readonly', 'readonly');
         fieldDueAtHint.style.display = 'block';
         fieldStatus.value = task.status || 'open';
+        if (task.closed_at) {
+            fieldClosedAtHint.style.display = 'block';
+            fieldClosedAtHint.textContent = 'Cerrada el ' + task.closed_at;
+        } else {
+            fieldClosedAtHint.style.display = 'none';
+        }
         fieldAssignedTo.value = task.assigned_to || '';
+
+        deleteBtn.style.display = 'inline-block';
+        deleteBtn.onclick = function () {
+            if (!confirm('¿Eliminar esta tarea? Esto no se puede deshacer.')) return;
+            deleteForm.action = '{{ url('admin/tareas') }}/' + task.id;
+            deleteForm.submit();
+        };
+
         overlay.classList.add('active');
     }
 

@@ -16,7 +16,7 @@ class TaskController extends Controller
         $status = $request->get('status', 'open');
 
         $query = Task::with([
-            'taskable' => fn (MorphTo $morphTo) => $morphTo->morphWith([Quote::class => ['customer']]),
+            'taskable' => fn (MorphTo $morphTo) => $morphTo->morphWith([Quote::class => ['customer', 'items.product']]),
             'assignee',
             'createdByWorkflow',
         ])->latest();
@@ -69,8 +69,22 @@ class TaskController extends Controller
             'assigned_to' => 'nullable|exists:users,id',
         ]);
 
+        // Registro de cuándo se cerró -- solo se fija la primera vez (mismo
+        // criterio que Quote::accepted_at/rejected_at); si se reabre y se
+        // vuelve a cerrar después, no se pisa la fecha original.
+        if ($data['status'] === 'closed' && !$task->closed_at) {
+            $data['closed_at'] = now();
+        }
+
         $task->update($data);
 
         return redirect()->route('admin.tasks.index')->with('success', 'Tarea actualizada.');
+    }
+
+    public function destroy(Task $task)
+    {
+        $task->delete();
+
+        return redirect()->route('admin.tasks.index')->with('success', 'Tarea eliminada.');
     }
 }

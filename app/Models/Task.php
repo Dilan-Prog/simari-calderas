@@ -37,11 +37,13 @@ class Task extends Model
         'description',
         'due_at',
         'status',
+        'closed_at',
         'created_by_workflow_id',
     ];
 
     protected $casts = [
-        'due_at' => 'datetime',
+        'due_at'    => 'datetime',
+        'closed_at' => 'datetime',
     ];
 
     public function taskable(): MorphTo
@@ -116,9 +118,11 @@ class Task extends Model
         $customer = $quote->customer;
 
         return [
-            'name'  => $customer ? trim($customer->first_name . ' ' . $customer->last_name) : $quote->guest_name,
-            'phone' => $customer?->phone ?? $quote->guest_phone,
-            'email' => $customer?->email ?? $quote->guest_email,
+            'name'    => $customer ? trim($customer->first_name . ' ' . $customer->last_name) : $quote->guest_name,
+            'phone'   => $customer?->phone ?? $quote->guest_phone,
+            'email'   => $customer?->email ?? $quote->guest_email,
+            'company' => $customer?->company ?? $quote->guest_company,
+            'rfc'     => $customer?->rfc ?? $quote->guest_rfc,
         ];
     }
 
@@ -142,5 +146,24 @@ class Task extends Model
             'valid_until'  => optional($quote->valid_until)->format('d/m/Y'),
             'sent_at'      => optional($quote->sent_at)->format('d/m/Y H:i'),
         ];
+    }
+
+    /**
+     * Productos cotizados, para el botón "Vista rápida" -- product_name/
+     * product_sku vienen ya congelados en el propio QuoteItem (snapshot al
+     * momento de cotizar, no cambian si el producto se edita después); la
+     * imagen sí se lee del Product real porque el item no guarda una propia.
+     */
+    public function taskableQuoteItems(): ?array
+    {
+        if (!$this->taskable instanceof \App\Models\Quote) {
+            return null;
+        }
+
+        return $this->taskable->items->map(fn ($item) => [
+            'name'      => $item->product_name,
+            'sku'       => $item->product_sku,
+            'image_url' => $item->product?->cover_image_url,
+        ])->values()->all();
     }
 }
