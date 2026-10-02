@@ -19,9 +19,16 @@ class TaskController extends Controller
             'taskable' => fn (MorphTo $morphTo) => $morphTo->morphWith([Quote::class => ['customer', 'items.product']]),
             'assignee',
             'createdByWorkflow',
+            'deletedBy',
         ])->latest();
 
-        if ($status !== 'all') {
+        // "Todas" también incluye las eliminadas (borrado lógico) -- se
+        // quedan visibles ahí marcadas "Eliminada por {nombre}" en vez de
+        // desaparecer. Cualquier otro filtro de estatus las excluye (el
+        // scope global de SoftDeletes ya hace eso solo).
+        if ($status === 'all') {
+            $query->withTrashed();
+        } else {
             $query->where('status', $status);
         }
 
@@ -81,8 +88,14 @@ class TaskController extends Controller
         return redirect()->route('admin.tasks.index')->with('success', 'Tarea actualizada.');
     }
 
-    public function destroy(Task $task)
+    /**
+     * Borrado lógico únicamente -- nunca se destruye la fila. Se registra
+     * quién la eliminó para poder mostrar "Eliminada por {nombre}" en la
+     * lista en vez de que la tarea simplemente desaparezca.
+     */
+    public function destroy(Request $request, Task $task)
     {
+        $task->update(['deleted_by' => $request->user()->id]);
         $task->delete();
 
         return redirect()->route('admin.tasks.index')->with('success', 'Tarea eliminada.');

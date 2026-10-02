@@ -43,6 +43,9 @@
 .tasks-pill--in_progress { background: #dbeafe; color: #1e40af; }
 .tasks-pill--in_review { background: #fae8ff; color: #86198f; }
 .tasks-pill--closed { background: #f2f3f5; color: #6b7280; }
+.tasks-pill--deleted { background: #fef2f2; color: #b91c1c; }
+.task-row-deleted { height: 56px; border-bottom: 1px solid #F3F4F6; opacity: .6; cursor: default; }
+.task-row-deleted .tasks-td-title { text-decoration: line-through; }
 .tasks-link { color: var(--secondary-color); font-weight: 600; text-decoration: none; }
 .tasks-link:hover { text-decoration: underline; }
 .tasks-muted { color: #9CA3AF; }
@@ -124,7 +127,7 @@
                     </thead>
                     <tbody>
                         @foreach ($tasks as $task)
-                            <tr class="task-row" data-task="{{ json_encode([
+                            <tr class="{{ $task->trashed() ? 'task-row-deleted' : 'task-row' }}" data-task="{{ json_encode([
                                 'id' => $task->id,
                                 'title' => $task->title,
                                 'description' => $task->description,
@@ -168,7 +171,11 @@
                                     @endif
                                 </td>
                                 <td>
-                                    <span class="tasks-pill tasks-pill--{{ $task->status }}">{{ \App\Models\Task::statusLabel($task->status) }}</span>
+                                    @if ($task->trashed())
+                                        <span class="tasks-pill tasks-pill--deleted">Eliminada por {{ $task->deletedBy?->full_name ?? 'usuario eliminado' }}</span>
+                                    @else
+                                        <span class="tasks-pill tasks-pill--{{ $task->status }}">{{ \App\Models\Task::statusLabel($task->status) }}</span>
+                                    @endif
                                 </td>
                                 <td class="tasks-muted">{{ $task->created_at->format('d/m/Y H:i') }}</td>
                             </tr>

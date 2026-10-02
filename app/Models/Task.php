@@ -6,10 +6,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Task extends Model
 {
     use HasFactory;
+    use SoftDeletes;
 
     /**
      * Mismo criterio que Quote::statusLabel()/SalesOrder::statusLabel() --
@@ -39,6 +41,7 @@ class Task extends Model
         'status',
         'closed_at',
         'created_by_workflow_id',
+        'deleted_by',
     ];
 
     protected $casts = [
@@ -54,6 +57,15 @@ class Task extends Model
     public function assignee(): BelongsTo
     {
         return $this->belongsTo(User::class, 'assigned_to');
+    }
+
+    /**
+     * Quién la eliminó -- "eliminar" aquí siempre es borrado lógico
+     * (SoftDeletes), la fila se queda visible como "Eliminada por {nombre}".
+     */
+    public function deletedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'deleted_by');
     }
 
     public function createdByWorkflow(): BelongsTo
