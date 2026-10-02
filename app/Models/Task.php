@@ -11,6 +11,24 @@ class Task extends Model
 {
     use HasFactory;
 
+    /**
+     * Mismo criterio que Quote::statusLabel()/SalesOrder::statusLabel() --
+     * slug en inglés guardado en BD (compatible con 'open' que ya usan
+     * scopeOpen()/el default de la API), etiqueta en español para la UI.
+     */
+    const STATUSES = [
+        'open'        => 'Abierto',
+        'pending'     => 'Pendiente',
+        'in_progress' => 'En Proceso',
+        'in_review'   => 'En Revisión',
+        'closed'      => 'Cerrada',
+    ];
+
+    public static function statusLabel(string $status): string
+    {
+        return self::STATUSES[$status] ?? $status;
+    }
+
     protected $fillable = [
         'taskable_type',
         'taskable_id',
@@ -80,5 +98,49 @@ class Task extends Model
             \App\Models\Deal::class  => route('admin.deals.show', $this->taskable_id),
             default                  => null,
         };
+    }
+
+    /**
+     * Datos del cliente de la cotización relacionada, para mostrar "de qué
+     * cliente se trata" directo en el detalle de la tarea sin tener que
+     * entrar a la cotización -- cae a los datos de invitado (guest_*) si la
+     * cotización no tiene un Customer de cuenta ligado.
+     */
+    public function taskableCustomerInfo(): ?array
+    {
+        if (!$this->taskable instanceof \App\Models\Quote) {
+            return null;
+        }
+
+        $quote = $this->taskable;
+        $customer = $quote->customer;
+
+        return [
+            'name'  => $customer ? trim($customer->first_name . ' ' . $customer->last_name) : $quote->guest_name,
+            'phone' => $customer?->phone ?? $quote->guest_phone,
+            'email' => $customer?->email ?? $quote->guest_email,
+        ];
+    }
+
+    /**
+     * Resumen para el botón "Vista rápida" del detalle de la tarea -- evita
+     * tener que salir a /admin/cotizaciones/{id} solo para ver el estatus o
+     * el total.
+     */
+    public function taskableQuickView(): ?array
+    {
+        if (!$this->taskable instanceof \App\Models\Quote) {
+            return null;
+        }
+
+        $quote = $this->taskable;
+
+        return [
+            'quote_number' => $quote->quote_number,
+            'status_label' => \App\Models\Quote::statusLabel($quote->status),
+            'total'        => number_format((float) $quote->total, 2) . ' ' . $quote->currency,
+            'valid_until'  => optional($quote->valid_until)->format('d/m/Y'),
+            'sent_at'      => optional($quote->sent_at)->format('d/m/Y H:i'),
+        ];
     }
 }

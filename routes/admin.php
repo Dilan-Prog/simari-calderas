@@ -404,6 +404,8 @@ Route::controller(DealController::class)
 // Tareas (generadas por automatizaciones, ej. "sin correo"/"sin WhatsApp")
 // ============================================================
 Route::get('/tareas', [TaskController::class, 'index'])->name('tasks.index');
+Route::post('/tareas', [TaskController::class, 'store'])->name('tasks.store');
+Route::put('/tareas/{task}', [TaskController::class, 'update'])->name('tasks.update');
 
 // ============================================================
 // Email Marketing (página única con pestañas: plantillas, listas,
