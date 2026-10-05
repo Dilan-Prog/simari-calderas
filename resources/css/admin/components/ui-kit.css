@@ -1408,7 +1408,9 @@
 .admin-link-picker {
     display: none;
     position: fixed;
-    z-index: 500;
+    /* Por encima de los modales laterales del admin (.user-manager-modal,
+       z-index 999): el campo de destino de bloques se abre dentro de uno. */
+    z-index: 1200;
     padding: 8px;
     background: #ffffff;
     border: 1px solid #d1d5db;
@@ -1515,4 +1517,86 @@
 
 .admin-link-picker-custom-submit:hover {
     background: var(--button-primary-color-hover, #de4a00);
+}
+
+/* ── Campo de destino de enlace (window.LinkPicker.mountField): botón que
+   abre el picker + etiqueta del destino + quitar + "abrir en pestaña nueva".
+   Usado por el editor de secciones (encabezado, banners, fichas). ── */
+.admin-link-field__row {
+    display: flex;
+    align-items: stretch;
+    gap: 6px;
+}
+
+.admin-link-field__btn {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 12px;
+    background: #f9fafb;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 13px;
+    font-family: var(--font-family);
+    color: #6b7280;
+    text-align: left;
+    cursor: pointer;
+}
+
+.admin-link-field__btn svg {
+    flex-shrink: 0;
+}
+
+.admin-link-field__btn:hover {
+    border-color: var(--secondary-color, #ff6213);
+    background: #fff7f5;
+}
+
+.admin-link-field__btn.has-value {
+    color: #111827;
+    background: #ffffff;
+}
+
+.admin-link-field__btn.is-broken {
+    color: #b91c1c;
+    border-color: #fca5a5;
+    background: #fef2f2;
+}
+
+.admin-link-field__label {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.admin-link-field__clear {
+    flex-shrink: 0;
+    width: 34px;
+    background: #f3f4f6;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    color: #6b7280;
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.admin-link-field__clear:hover {
+    background: #fee2e2;
+    border-color: #fca5a5;
+    color: #b91c1c;
+}
+
+.admin-link-field__newtab {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 6px;
+    font-size: 12.5px;
+    color: #4b5563;
+    cursor: pointer;
 }

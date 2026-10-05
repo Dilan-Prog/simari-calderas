@@ -120,7 +120,7 @@
     $schemaFaqs = collect($product->faqs ?? [])
         ->filter(fn ($item) => !empty($item['question']) && !empty($item['answer']))
         ->values();
-    $faqSectionActive = $sections->contains(fn ($s) => $s->type === 'faq');
+    $faqSectionActive = $blocksStack->concat($sections)->contains(fn ($s) => $s->type === 'faq');
     $faqSchema = null;
     if ($faqSectionActive && $schemaFaqs->isNotEmpty()) {
         $faqSchema = [
@@ -255,8 +255,11 @@
         </div>
     </section>
 
-    {{-- Secciones administrables desde Admin > Secciones del Sitio > Página de Producto --}}
-    @foreach ($sections as $section)
+    {{-- Bloques dinámicos del producto (zona "stack"): pila a todo el ancho en
+         el orden elegido en Admin > Productos > Bloques. Las secciones
+         globales legadas ($sections, page='product') solo llegan aquí si el
+         flag config('shop.product_global_sections') está activo. --}}
+    @foreach ($blocksStack->concat($sections) as $section)
         @php $sectionView = 'frontend.shop.home.sections.' . str_replace('_', '-', $section->type); @endphp
         @unless (\Illuminate\Support\Facades\View::exists($sectionView))
             @php \Illuminate\Support\Facades\Log::warning("HomeSection #{$section->id} referencia una vista inexistente: {$sectionView}"); @endphp

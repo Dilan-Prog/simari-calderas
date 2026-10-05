@@ -9,7 +9,7 @@
                 </svg>
             </div>
             <h2 class="del-confirm-title">¿Eliminar sección?</h2>
-            <p class="del-confirm-desc">Esta acción no se puede deshacer. Si es un slider, también se eliminarán sus slides.</p>
+            <p class="del-confirm-desc" id="delHomeSectionDesc">Esta acción no se puede deshacer. Si es un slider, también se eliminarán sus slides.</p>
             <div class="del-confirm-user-card">
                 <div class="del-confirm-avatar" id="delHomeSectionAvatar">S</div>
                 <div>

@@ -13,6 +13,8 @@ use App\Models\ProductDocument;
 use App\Models\ProductBulkEditView;
 use App\Models\ProductIndexView;
 use App\Models\ProductSpecName;
+use App\Models\HomeSection;
+use App\Models\ProductSectionAssignment;
 use Illuminate\Support\Str;
 use App\Models\Category;
 use App\Models\Brand;
@@ -293,6 +295,10 @@ class ProductController extends Controller
     // viven en BULK_EDIT_VIEW_COLUMNS) — sí necesitan poder guardar un
     // ancho ajustado, a diferencia de la visibilidad.
     private const BULK_EDIT_PINNED_COLUMNS = ['_select', 'name', 'sku'];
+    // Columnas fijas de solo lectura (tampoco ocultables) que sí viajan en el
+    // mapa de anchos al guardar una vista: sin ellas la validación rechazaba
+    // el guardado con "Columna de ancho no soportada".
+    private const BULK_EDIT_READONLY_COLUMNS = ['supplier_sku', 'suppliers', 'block_templates'];
 
     // Catálogo de columnas mostrables/ocultables en el listado normal de
     // Productos (admin/productos) — whitelist para las vistas guardadas de
@@ -347,7 +353,10 @@ class ProductController extends Controller
             // daba siempre true y "URL Canónica" siempre se veía vacía, sin
             // importar cuántas filas sí tuvieran un valor real guardado.
             'canonical_url', 'canonical_product_id', 'slug',
-        ])->with(['category.parent.parent', 'suppliers', 'canonicalProduct:id,name,model,sku,slug']);
+        ])->with(['category.parent.parent', 'suppliers', 'canonicalProduct:id,name,model,sku,slug',
+            // Columna informativa "Plantillas" (bloques dinámicos): solo las
+            // asignaciones a plantillas product_template, para listar sus nombres.
+            'sectionAssignments.section:id,name,title,type,page']);
 
         $totalFiltered = (clone $query)->count();
         $perPageInput  = $request->input('per_page', 25);
@@ -744,7 +753,7 @@ class ProductController extends Controller
             'columns' => ['required', 'array', 'min:1'],
             'columns.*' => ['string', Rule::in(self::BULK_EDIT_VIEW_COLUMNS)],
             'widths' => ['nullable', 'array', function ($attribute, $value, $fail) {
-                $allowed = array_merge(self::BULK_EDIT_VIEW_COLUMNS, self::BULK_EDIT_PINNED_COLUMNS);
+                $allowed = array_merge(self::BULK_EDIT_VIEW_COLUMNS, self::BULK_EDIT_PINNED_COLUMNS, self::BULK_EDIT_READONLY_COLUMNS);
                 foreach (array_keys($value) as $key) {
                     if (!in_array($key, $allowed, true)) {
                         $fail("Columna de ancho no soportada: {$key}.");
@@ -1671,7 +1680,20 @@ class ProductController extends Controller
         }
 
         $product->suppliers()->detach();
+
+        // Bloques dinámicos: las asignaciones caen solas por cascade FK (products
+        // se borra en duro, sin SoftDeletes), pero las secciones PROPIAS
+        // (product_custom) son de un solo producto y quedarían huérfanas en
+        // home_sections. Las plantillas (product_template) se conservan.
+        $customSectionIds = ProductSectionAssignment::where('product_id', $product->id)
+            ->whereIn('home_section_id', HomeSection::where('page', HomeSection::PAGE_PRODUCT_CUSTOM)->select('id'))
+            ->pluck('home_section_id');
+
         $product->delete();
+
+        if ($customSectionIds->isNotEmpty()) {
+            HomeSection::whereIn('id', $customSectionIds)->get()->each->delete();
+        }
     }
 
     public function destroy(string $id)

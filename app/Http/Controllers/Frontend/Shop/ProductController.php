@@ -7,6 +7,7 @@ use App\Models\HomeSection;
 use App\Models\PaymentMethod;
 use App\Models\Products;
 use App\Models\Redirect;
+use App\Services\ProductBlocks;
 use Illuminate\Http\Request;
 
 class ProductController extends Controller
@@ -35,16 +36,29 @@ class ProductController extends Controller
             ? collect(json_decode($product->specifications, true) ?? [])
             : collect();
 
-        $sections = HomeSection::where('page', 'product')
-            ->where('is_active', true)
-            ->orderBy('sort_order')
-            ->get();
+        // Secciones globales legadas (page='product'): solo si el flag las
+        // reactiva; por defecto la página de producto usa únicamente los
+        // bloques dinámicos asignados a cada producto (ProductBlocks).
+        $sections = config('shop.product_global_sections')
+            ? HomeSection::where('page', 'product')
+                ->where('is_active', true)
+                ->orderBy('sort_order')
+                ->get()
+            : collect();
+
+        // Bloques dinámicos del producto: 'stack' (a todo el ancho debajo de
+        // .product-main) y 'sidebar' (columna derecha, sobre "Medios de pago").
+        $blocks = ProductBlocks::forProduct($product);
+        $blocksStack = $blocks['stack'];
+        $blocksSidebar = $blocks['sidebar'];
 
         $paymentMethods = PaymentMethod::where('is_active', true)
             ->orderBy('sort_order')
             ->orderBy('name')
             ->get();
 
-        return view('frontend.shop.product.show', compact('product', 'specifications', 'sections', 'paymentMethods'));
+        return view('frontend.shop.product.show', compact(
+            'product', 'specifications', 'sections', 'blocksStack', 'blocksSidebar', 'paymentMethods'
+        ));
     }
 }

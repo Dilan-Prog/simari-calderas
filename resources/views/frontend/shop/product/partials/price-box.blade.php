@@ -140,6 +140,17 @@
         <span class="product-price-box__trust-label">Compra 100% protegida</span>
     </div>
 
+    {{-- Bloques dinámicos de la zona "sidebar" (carrusel de fichas chicas),
+         justo arriba de "Medios de pago". Sin bloques no se pinta nada. --}}
+    @if (isset($blocksSidebar) && $blocksSidebar->isNotEmpty())
+        <div class="product-price-box__blocks">
+            @foreach ($blocksSidebar as $sidebarBlock)
+                @php $sidebarView = 'frontend.shop.home.sections.' . str_replace('_', '-', $sidebarBlock->type); @endphp
+                @includeIf($sidebarView, ['section' => $sidebarBlock])
+            @endforeach
+        </div>
+    @endif
+
     {{-- Medios de pago --}}
     @if ($tier1Methods->isNotEmpty())
         <div class="product-price-box__payments">

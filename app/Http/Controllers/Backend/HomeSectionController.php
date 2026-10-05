@@ -8,8 +8,13 @@ use App\Models\Category;
 use App\Models\Collection;
 use App\Models\HomeSection;
 use App\Models\HomeSectionSlide;
+use App\Models\ProductSectionAssignment;
 use App\Models\Products;
+use App\Services\ProductBlocks;
+use App\Support\LinkTarget;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 
 class HomeSectionController extends Controller
 {
@@ -19,10 +24,19 @@ class HomeSectionController extends Controller
         'pool_calculator',
     ];
 
-    // La página de producto admite todos los tipos menos el slider principal.
+    // La página de producto (legada, secciones globales) admite todos los
+    // tipos menos el slider principal.
     protected array $productPageTypes = [
         'banner', 'dual_banner', 'product_carousel', 'product_carousel_banner',
         'category_grid', 'brand_carousel', 'html_block', 'faq',
+    ];
+
+    // Bloques por producto (plantillas 'product_template' y secciones propias
+    // 'product_custom'): los de la página de producto + card_carousel (fichas
+    // con imagen/texto/enlace, solo en la zona lateral).
+    protected array $productBlockTypes = [
+        'banner', 'dual_banner', 'product_carousel', 'product_carousel_banner',
+        'category_grid', 'brand_carousel', 'html_block', 'faq', 'card_carousel',
     ];
 
     // Las páginas de colección: igual que producto (sin hero_slider, con faq)
@@ -35,38 +49,118 @@ class HomeSectionController extends Controller
     ];
 
     protected array $sources = [
-        'featured', 'new', 'recommended', 'category', 'brand', 'collection', 'manual',
+        'featured', 'new', 'recommended', 'category', 'brand', 'collection', 'manual', 'tag',
     ];
 
     // Fuentes relativas al producto que se está viendo: solo tienen sentido
-    // en la página de producto.
+    // en la página de producto (y en sus bloques por producto).
     protected array $productPageSources = [
-        'featured', 'new', 'recommended', 'category', 'brand', 'collection', 'manual',
+        'featured', 'new', 'recommended', 'category', 'brand', 'collection', 'manual', 'tag',
         'related_category', 'related_brand',
     ];
+
+    protected const MAX_CARDS = 12;
+
+    /** Páginas que son bloques por producto (plantilla o propia). */
+    protected static function isProductBlockPage(?string $page): bool
+    {
+        return in_array($page, [HomeSection::PAGE_PRODUCT_TEMPLATE, HomeSection::PAGE_PRODUCT_CUSTOM], true);
+    }
+
+    /** Tipos permitidos por `page` (los consume también el modal en JS). */
+    protected function allowedTypesFor(?string $page): array
+    {
+        return match ($page) {
+            'product'                          => $this->productPageTypes,
+            'collection'                       => $this->collectionPageTypes,
+            HomeSection::PAGE_PRODUCT_TEMPLATE,
+            HomeSection::PAGE_PRODUCT_CUSTOM   => $this->productBlockTypes,
+            default                            => $this->types,
+        };
+    }
+
+    /**
+     * Categorías activas de TODOS los niveles (categoría, subcategoría,
+     * categoría hija) como lista plana en orden de árbol, con `depth` y
+     * `label` indentado — para los selectores de "Por Categoría".
+     *
+     * @return array<int, array{id:int, label:string, depth:int}>
+     */
+    public static function categoryOptions(): array
+    {
+        $byParent = Category::where('is_active', true)
+            ->orderBy('sort_order')
+            ->orderBy('name')
+            ->get(['id', 'name', 'parent_id'])
+            ->groupBy(fn ($c) => $c->parent_id ?? 0);
+
+        $out = [];
+        $walk = function ($parentId, int $depth) use (&$walk, &$out, $byParent) {
+            foreach ($byParent->get($parentId, collect()) as $cat) {
+                $out[] = [
+                    'id'    => $cat->id,
+                    'label' => str_repeat('— ', $depth) . $cat->name,
+                    'depth' => $depth,
+                ];
+                if ($depth < 5) {
+                    $walk($cat->id, $depth + 1);
+                }
+            }
+        };
+        $walk(0, 0);
+
+        return $out;
+    }
+
+    /**
+     * Datos que necesita el editor (partial admin.home-sections.partials.
+     * editor) para pintar selectores: categorías (raíz y árbol completo),
+     * marcas, colecciones y el mapa de tipos permitidos por página.
+     */
+    public static function editorData(): array
+    {
+        $self = new static();
+
+        return [
+            'categories'      => Category::where('is_active', true)->whereNull('parent_id')
+                ->orderBy('sort_order')->orderBy('name')->get(),
+            'categoryOptions' => static::categoryOptions(),
+            'brands'          => Brand::orderBy('name')->get(),
+            'collections'     => Collection::where('is_active', true)->orderBy('name')->get(),
+            'pageTypes'       => [
+                'home'                             => $self->types,
+                'product'                          => $self->productPageTypes,
+                'collection'                       => $self->collectionPageTypes,
+                HomeSection::PAGE_PRODUCT_TEMPLATE => $self->productBlockTypes,
+                HomeSection::PAGE_PRODUCT_CUSTOM   => $self->productBlockTypes,
+            ],
+        ];
+    }
 
     public function index()
     {
         $page = match (request('pagina')) {
             'producto'    => 'product',
             'colecciones' => 'collection',
+            'plantillas'  => HomeSection::PAGE_PRODUCT_TEMPLATE,
             default       => 'home',
         };
 
         $sections = HomeSection::where('page', $page)->orderBy('sort_order')->orderBy('id')->get();
-        $categories = Category::where('is_active', true)
-            ->whereNull('parent_id')
-            ->orderBy('sort_order')
-            ->orderBy('name')
-            ->get();
-        $brands = Brand::orderBy('name')->get();
-        $collections = Collection::where('is_active', true)->orderBy('name')->get();
+
+        $usageCounts = $page === HomeSection::PAGE_PRODUCT_TEMPLATE
+            ? ProductBlocks::usageCounts()
+            : collect();
 
         $visibleColumns = \App\Models\UserColumnPreference::where('user_id', auth()->id())
             ->where('table_key', 'home-sections.index')
             ->value('columns');
 
-        return view('admin.home-sections.index', compact('sections', 'categories', 'brands', 'collections', 'page', 'visibleColumns'));
+        $globalProductSectionsOn = (bool) config('shop.product_global_sections', false);
+
+        return view('admin.home-sections.index', [
+            'editorData' => static::editorData(),
+        ] + compact('sections', 'page', 'visibleColumns', 'usageCounts', 'globalProductSectionsOn'));
     }
 
     /**
@@ -93,52 +187,120 @@ class HomeSectionController extends Controller
         return response()->json($products);
     }
 
+    /**
+     * Sugerencias de etiquetas para la fuente "Por Etiqueta" (mismo origen
+     * que el autocompletado de Productos/Colecciones, aquí bajo el permiso
+     * de home-sections).
+     */
+    public function tagSuggestions(Request $request)
+    {
+        return app(ProductController::class)->tagSuggestions($request);
+    }
+
+    /**
+     * Destino de enlace del request: `{$linkKey}[type|id|url|new_tab]`
+     * (LinkTarget::normalize). Si el request no trae el campo nuevo se cae al
+     * campo legado de URL suelta, para clientes que aún no usan el picker.
+     * `link_url` solo se mantiene (compatibilidad) cuando el destino es una
+     * URL personalizada; los destinos por entidad se resuelven al renderizar.
+     *
+     * @return array{0: ?array, 1: ?string}  [link, link_url]
+     */
+    protected function linkInput(Request $request, string $linkKey, string $legacyKey): array
+    {
+        $raw = $request->input($linkKey);
+
+        if (is_array($raw)) {
+            $link = LinkTarget::normalize($raw);
+
+            return [$link, $link && $link['type'] === 'custom' ? $link['url'] : null];
+        }
+
+        $legacy = $request->input($legacyKey);
+
+        return [null, $legacy !== null && $legacy !== '' ? $legacy : null];
+    }
+
     protected function buildConfig(Request $request, string $type): ?array
     {
         switch ($type) {
             case 'product_carousel':
                 return [
-                    'source'        => $request->input('source', 'featured'),
-                    'category_id'   => $request->input('category_id') ?: null,
-                    'brand_id'      => $request->input('brand_id') ?: null,
-                    'collection_id' => $request->input('collection_id') ?: null,
-                    'product_ids'   => array_values(array_filter((array) $request->input('product_ids', []))),
-                    'limit'         => $request->input('limit') !== null ? (int) $request->input('limit') : null,
+                    'source'          => $request->input('source', 'featured'),
+                    'category_id'     => $request->input('category_id') ?: null,
+                    'brand_id'        => $request->input('brand_id') ?: null,
+                    'collection_id'   => $request->input('collection_id') ?: null,
+                    'tag'             => trim((string) $request->input('tag', '')) ?: null,
+                    'exclude_current' => $request->boolean('exclude_current', true),
+                    'product_ids'     => array_values(array_filter((array) $request->input('product_ids', []))),
+                    'limit'           => $request->input('limit') !== null ? (int) $request->input('limit') : null,
                 ];
 
             case 'banner':
+                [$link, $linkUrl] = $this->linkInput($request, 'banner_link', 'banner_link_url');
+
                 return [
                     'image_url' => $request->input('banner_image_url'),
-                    'link_url'  => $request->input('banner_link_url'),
+                    'link_url'  => $linkUrl,
+                    'link'      => $link,
                     'alt'       => $request->input('banner_alt'),
                 ];
 
             case 'product_carousel_banner':
+                [$link, $linkUrl] = $this->linkInput($request, 'pcb_banner_link', 'pcb_banner_link_url');
+
                 return [
                     'banner_image_url' => $request->input('pcb_banner_image_url'),
-                    'banner_link_url'  => $request->input('pcb_banner_link_url'),
+                    'banner_link_url'  => $linkUrl,
+                    'banner_link'      => $link,
                     'banner_alt'       => $request->input('pcb_banner_alt'),
                     'source'           => $request->input('pcb_source', 'featured'),
                     'category_id'      => $request->input('pcb_category_id') ?: null,
                     'brand_id'         => $request->input('pcb_brand_id') ?: null,
                     'collection_id'    => $request->input('pcb_collection_id') ?: null,
+                    'tag'              => trim((string) $request->input('pcb_tag', '')) ?: null,
+                    'exclude_current'  => $request->boolean('pcb_exclude_current', true),
                     'product_ids'      => array_values(array_filter((array) $request->input('pcb_product_ids', []))),
                     'limit'            => $request->input('pcb_limit') !== null ? (int) $request->input('pcb_limit') : null,
                 ];
 
             case 'dual_banner':
+                [$leftLink, $leftUrl]   = $this->linkInput($request, 'left_link', 'left_link_url');
+                [$rightLink, $rightUrl] = $this->linkInput($request, 'right_link', 'right_link_url');
+
                 return [
                     'left' => [
                         'image_url' => $request->input('left_image_url'),
-                        'link_url'  => $request->input('left_link_url'),
+                        'link_url'  => $leftUrl,
+                        'link'      => $leftLink,
                         'alt'       => $request->input('left_alt'),
                     ],
                     'right' => [
                         'image_url' => $request->input('right_image_url'),
-                        'link_url'  => $request->input('right_link_url'),
+                        'link_url'  => $rightUrl,
+                        'link'      => $rightLink,
                         'alt'       => $request->input('right_alt'),
                     ],
                 ];
+
+            case 'card_carousel':
+                // Fichas {image_url, text, link}; una ficha sin imagen ni
+                // texto se descarta (fila vacía del repeater).
+                $items = collect((array) $request->input('card_items', []))
+                    ->filter(fn ($it) => is_array($it))
+                    ->map(function (array $it) {
+                        return [
+                            'image_url' => trim((string) ($it['image_url'] ?? '')) ?: null,
+                            'text'      => trim((string) ($it['text'] ?? '')) ?: null,
+                            'link'      => LinkTarget::normalize(is_array($it['link'] ?? null) ? $it['link'] : null),
+                        ];
+                    })
+                    ->filter(fn ($it) => $it['image_url'] || $it['text'])
+                    ->take(self::MAX_CARDS)
+                    ->values()
+                    ->all();
+
+                return ['items' => $items];
 
             case 'category_grid':
                 return [
@@ -181,57 +343,127 @@ class HomeSectionController extends Controller
 
     /**
      * Reglas comunes de store/update. Los tipos y fuentes permitidos
-     * dependen de la página: hero_slider solo existe en el home y las
-     * fuentes related_* solo en la página de producto.
+     * dependen de la página: hero_slider solo existe en el home, las
+     * fuentes related_* solo en la página de producto / sus bloques, y
+     * card_carousel solo en bloques por producto con zone='sidebar'.
      */
     protected function validateSection(Request $request): void
     {
         $page = $request->input('page');
+        $isBlock = static::isProductBlockPage($page);
 
-        $allowedTypes = match ($page) {
-            'product'    => $this->productPageTypes,
-            'collection' => $this->collectionPageTypes,
-            default      => $this->types,
-        };
+        $allowedTypes = $this->allowedTypesFor($page);
 
         // Las fuentes relativas (related_*) solo tienen sentido con un
-        // producto en contexto; colecciones usa las fuentes fijas.
-        $allowedSources = $page === 'product' ? $this->productPageSources : $this->sources;
+        // producto en contexto; colecciones/home usan las fuentes fijas.
+        $allowedSources = ($page === 'product' || $isBlock) ? $this->productPageSources : $this->sources;
 
-        $request->validate([
-            'page'       => 'required|string|in:home,product,collection',
-            'type'       => 'required|string|in:' . implode(',', $allowedTypes),
-            'source'     => 'nullable|string|in:' . implode(',', $allowedSources),
-            'pcb_source' => 'nullable|string|in:' . implode(',', $allowedSources),
-            'title'      => 'nullable|string|max:255',
-            'sort_order' => 'nullable|integer|min:0',
-            'is_active'  => 'nullable|boolean',
+        $validator = Validator::make($request->all(), [
+            'page'         => 'required|string|in:home,product,collection,' . HomeSection::PAGE_PRODUCT_TEMPLATE . ',' . HomeSection::PAGE_PRODUCT_CUSTOM,
+            'type'         => 'required|string|in:' . implode(',', $allowedTypes),
+            'source'       => 'nullable|string|in:' . implode(',', $allowedSources),
+            'pcb_source'   => 'nullable|string|in:' . implode(',', $allowedSources),
+            'title'        => 'nullable|string|max:255',
+            'name'         => ($page === HomeSection::PAGE_PRODUCT_TEMPLATE ? 'required' : 'nullable') . '|string|max:150',
+            'zone'         => 'nullable|string|in:' . HomeSection::ZONE_STACK . ',' . HomeSection::ZONE_SIDEBAR,
+            'heading_link' => 'nullable|array',
+            'product_id'   => 'nullable|integer|exists:products,id',
+            'card_items'   => 'nullable|array|max:' . self::MAX_CARDS,
+            'sort_order'   => 'nullable|integer|min:0',
+            'is_active'    => 'nullable|boolean',
+        ], [
+            'name.required'  => 'La plantilla necesita un nombre interno.',
+            'card_items.max' => 'Máximo ' . self::MAX_CARDS . ' fichas por carrusel.',
+            'type.in'        => 'Ese tipo de sección no está disponible en esta página.',
         ]);
+
+        $validator->after(function ($v) use ($request) {
+            // Las fichas viven solo en la columna lateral.
+            if ($request->input('type') === 'card_carousel'
+                && $request->filled('zone')
+                && $request->input('zone') !== HomeSection::ZONE_SIDEBAR) {
+                $v->errors()->add('zone', 'El carrusel de fichas solo puede ir en la barra lateral.');
+            }
+        });
+
+        $validator->validate();
+    }
+
+    /** Zona final: card_carousel siempre lateral; solo los bloques por producto eligen zona. */
+    protected function resolveZone(Request $request): string
+    {
+        if ($request->input('type') === 'card_carousel') {
+            return HomeSection::ZONE_SIDEBAR;
+        }
+
+        if (static::isProductBlockPage($request->input('page'))) {
+            return $request->input('zone') === HomeSection::ZONE_SIDEBAR
+                ? HomeSection::ZONE_SIDEBAR
+                : HomeSection::ZONE_STACK;
+        }
+
+        return HomeSection::ZONE_STACK;
+    }
+
+    /** Copia los campos comunes del request al modelo (sin guardar). */
+    protected function fillSection(HomeSection $section, Request $request): void
+    {
+        $isBlock = static::isProductBlockPage($request->page);
+
+        $section->type         = $request->type;
+        $section->page         = $request->page;
+        $section->zone         = $this->resolveZone($request);
+        $section->name         = $isBlock ? (trim((string) $request->input('name', '')) ?: null) : null;
+        $section->title        = $request->title ?? null;
+        $section->heading_link = LinkTarget::normalize(is_array($request->input('heading_link')) ? $request->input('heading_link') : null);
+        $section->config       = $this->buildConfig($request, $request->type);
+        $section->sort_order   = $request->sort_order ?? 0;
+        $section->is_active    = $request->boolean('is_active', true);
     }
 
     public function store(Request $request)
     {
         $this->validateSection($request);
 
-        $section = new HomeSection();
-        $section->type       = $request->type;
-        $section->page       = $request->page;
-        $section->title      = $request->title ?? null;
-        $section->config     = $this->buildConfig($request, $request->type);
-        $section->sort_order = $request->sort_order ?? 0;
-        $section->is_active  = $request->boolean('is_active', true);
-        $section->save();
+        $assignment = null;
+
+        $section = DB::transaction(function () use ($request, &$assignment) {
+            $section = new HomeSection();
+            $this->fillSection($section, $request);
+            $section->save();
+
+            // Sección propia creada desde la ficha de un producto: queda
+            // asignada al final de sus bloques.
+            if ($section->page === HomeSection::PAGE_PRODUCT_CUSTOM && $request->filled('product_id')) {
+                $productId = (int) $request->input('product_id');
+                $assignment = ProductSectionAssignment::create([
+                    'product_id'      => $productId,
+                    'home_section_id' => $section->id,
+                    'sort_order'      => (int) (ProductSectionAssignment::where('product_id', $productId)->max('sort_order') ?? -1) + 1,
+                    'is_visible'      => true,
+                ]);
+            }
+
+            return $section;
+        });
 
         return response()->json([
-            'success' => true,
-            'section' => $section,
+            'success'    => true,
+            'section'    => $section,
+            'assignment' => $assignment,
         ]);
     }
 
     public function edit(string $id)
     {
         $section = HomeSection::findOrFail($id);
-        return response()->json($section);
+
+        $data = $section->toArray();
+        $data['usage_count'] = $section->page === HomeSection::PAGE_PRODUCT_TEMPLATE
+            ? $section->productAssignments()->count()
+            : null;
+
+        return response()->json($data);
     }
 
     public function update(Request $request, string $id)
@@ -240,12 +472,7 @@ class HomeSectionController extends Controller
 
         $this->validateSection($request);
 
-        $section->type       = $request->type;
-        $section->page       = $request->page;
-        $section->title      = $request->title ?? null;
-        $section->config     = $this->buildConfig($request, $request->type);
-        $section->sort_order = $request->sort_order ?? 0;
-        $section->is_active  = $request->boolean('is_active', true);
+        $this->fillSection($section, $request);
         $section->save();
 
         return response()->json([
@@ -254,9 +481,27 @@ class HomeSectionController extends Controller
         ]);
     }
 
-    public function destroy(string $id)
+    /**
+     * Elimina una sección. Una plantilla en uso responde 409 {in_use: N}
+     * salvo que llegue confirm=1; al confirmar, las asignaciones caen por
+     * cascade (FK product_section_assignments.home_section_id).
+     */
+    public function destroy(Request $request, string $id)
     {
         $section = HomeSection::findOrFail($id);
+
+        if ($section->page === HomeSection::PAGE_PRODUCT_TEMPLATE) {
+            $inUse = $section->productAssignments()->count();
+
+            if ($inUse > 0 && !$request->boolean('confirm')) {
+                return response()->json([
+                    'success' => false,
+                    'in_use'  => $inUse,
+                    'message' => "Esta plantilla se usa en {$inUse} producto(s). Confirma para eliminarla de todos.",
+                ], 409);
+            }
+        }
+
         $section->delete();
 
         return response()->json(['success' => true]);

@@ -56,7 +56,7 @@
 /* Banners */
 :is(.eq-shop-home, .eq-shop-product, .eq-shop-collection, .eq-shop-catalog, .eq-shop-service) .home-banner { width: 95%; margin: 32px auto; border-radius: 8px; overflow: hidden; }
 :is(.eq-shop-home, .eq-shop-product, .eq-shop-collection, .eq-shop-catalog, .eq-shop-service) .home-banner img { width: 100%; display: block; }
-:is(.eq-shop-home, .eq-shop-product, .eq-shop-collection, .eq-shop-catalog, .eq-shop-service) .home-dual-banner { width: 95%; margin: 0 auto 32px; display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; }
+:is(.eq-shop-home, .eq-shop-product, .eq-shop-collection, .eq-shop-catalog, .eq-shop-service) .home-dual-banner { width: 95%; margin: 0 auto 32px; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr)); gap: 16px; }
 :is(.eq-shop-home, .eq-shop-product, .eq-shop-collection, .eq-shop-catalog, .eq-shop-service) .home-dual-banner__item img { width: 100%; border-radius: 8px; display: block; }
 
 /* FAQ (acordeón) */
@@ -77,3 +77,47 @@
 :is(.eq-shop-home, .eq-shop-product, .eq-shop-collection, .eq-shop-catalog, .eq-shop-service) .home-faq__question span:last-child { color: var(--secondary-color); font-size: 18px; font-weight: 800; flex-shrink: 0; }
 :is(.eq-shop-home, .eq-shop-product, .eq-shop-collection, .eq-shop-catalog, .eq-shop-service) .home-faq__answer { padding: 0 18px 14px; }
 :is(.eq-shop-home, .eq-shop-product, .eq-shop-collection, .eq-shop-catalog, .eq-shop-service) .home-faq__answer p { margin: 0; font-size: 14px; color: #4b5563; line-height: 1.65; }
+
+/* ===== Bloques dinámicos de producto ===== */
+
+/* Encabezado de bloque (banner / banner doble). Si hay heading_link el texto
+   del título es el ancla; sin enlace (o enlace roto) es solo texto. */
+.home-block-heading { width: 95%; margin: 24px auto 12px; font-size: clamp(16px, 3vw, 19px); font-weight: 800; color: #141516; line-height: 1.25; }
+.home-banner .home-block-heading { width: 100%; margin: 0 0 12px; }
+:is(.home-block-heading, .product-carousel__title, .card-carousel__title) a { color: inherit; text-decoration: none; }
+:is(.home-block-heading, .product-carousel__title, .card-carousel__title) a:hover { color: var(--secondary-color); text-decoration: underline; }
+
+/* Con encabezado, el recorte redondeado pasa a la imagen (la sección ya no
+   puede ocultar el desbordamiento porque contiene el título). */
+:is(.eq-shop-home, .eq-shop-product, .eq-shop-collection, .eq-shop-catalog, .eq-shop-service) .home-banner--with-heading { overflow: visible; }
+:is(.eq-shop-home, .eq-shop-product, .eq-shop-collection, .eq-shop-catalog, .eq-shop-service) .home-banner--with-heading img { border-radius: 8px; }
+.home-banner__link { display: block; }
+
+/* Carrusel de fichas chicas (zona "sidebar", columna derecha). */
+.card-carousel { margin: 18px 0; min-width: 0; max-width: 100%; }
+.card-carousel__title { margin: 0 0 10px; font-size: 15.5px; font-weight: 800; color: #141516; line-height: 1.25; }
+.card-carousel__wrap { position: relative; min-width: 0; }
+.card-carousel__track {
+    display: flex; gap: 10px; overflow-x: auto; scroll-snap-type: x mandatory; scroll-behavior: smooth;
+    scrollbar-width: none; padding-bottom: 2px; -webkit-overflow-scrolling: touch;
+}
+.card-carousel__track::-webkit-scrollbar { display: none; }
+.card-carousel__card {
+    flex: 0 0 clamp(120px, 40%, 168px); min-width: 0; box-sizing: border-box; scroll-snap-align: start;
+    display: flex; flex-direction: column; gap: 8px; text-decoration: none; color: inherit;
+    border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 8px; background: #fff;
+}
+a.card-carousel__card { transition: box-shadow .2s, transform .2s; }
+a.card-carousel__card:hover { box-shadow: 0 8px 18px rgba(0,0,0,0.1); transform: translateY(-2px); }
+.card-carousel__img-wrap { display: block; width: 100%; aspect-ratio: 4 / 3; border-radius: 6px; overflow: hidden; background: #f5f6f7; }
+.card-carousel__img-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.card-carousel__text { font-size: 12.5px; font-weight: 700; line-height: 1.35; color: #141516; overflow-wrap: anywhere; }
+.card-carousel__nav {
+    position: absolute; top: 38%; z-index: 2; width: 30px; height: 30px; border-radius: 50%; background: #fff;
+    border: 1px solid rgba(0,0,0,0.1); box-shadow: 0 4px 12px rgba(0,0,0,0.14); cursor: pointer; font-size: 16px; line-height: 1; padding: 0;
+}
+.card-carousel__nav--prev { left: 4px; }
+.card-carousel__nav--next { right: 4px; }
+@media (max-width: 720px) {
+    .card-carousel__nav { display: none; } /* en móvil se desliza con el dedo */
+}

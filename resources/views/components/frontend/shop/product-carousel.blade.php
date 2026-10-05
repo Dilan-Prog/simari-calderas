@@ -1,10 +1,17 @@
-@props(['title' => null, 'products' => [], 'banner' => null, 'viewAllUrl' => null])
+@props(['title' => null, 'products' => [], 'banner' => null, 'viewAllUrl' => null, 'headingUrl' => null, 'headingNewTab' => false])
 
 <section class="product-carousel {{ $banner ? 'product-carousel--with-banner' : '' }}" x-data="carouselTrack()">
     @if ($title || $viewAllUrl)
         <div class="product-carousel__header">
             @if ($title)
-                <h2 class="product-carousel__title">{{ $title }}</h2>
+                <h2 class="product-carousel__title">
+                    @if ($headingUrl)
+                        {{-- Texto ancla = título (SEO). Solo se pinta <a> si el destino resuelve. --}}
+                        <a href="{{ $headingUrl }}" rel="noopener" @if ($headingNewTab) target="_blank" @endif>{{ $title }}</a>
+                    @else
+                        {{ $title }}
+                    @endif
+                </h2>
             @endif
             @if ($viewAllUrl)
                 <a href="{{ $viewAllUrl }}" class="product-carousel__view-all">Ver todo ›</a>
@@ -13,13 +20,17 @@
     @endif
     <div class="product-carousel__wrap">
         @if ($banner && !empty($banner['image_url']))
+            @php
+                $bannerAlt = ($banner['alt'] ?? '') ?: ($title ?? '');
+                $bannerNewTab = !empty($banner['new_tab']);
+            @endphp
             @if (empty($banner['no_link']) && !empty($banner['link_url']))
-                <a href="{{ $banner['link_url'] }}" class="product-carousel__banner-link">
-                    <img src="{{ $banner['image_url'] }}" alt="{{ $banner['alt'] ?: $title }}" class="product-carousel__banner-img">
+                <a href="{{ $banner['link_url'] }}" class="product-carousel__banner-link" @if ($bannerNewTab) target="_blank" rel="noopener" @endif>
+                    <img src="{{ $banner['image_url'] }}" alt="{{ $bannerAlt }}" class="product-carousel__banner-img">
                 </a>
             @else
                 <div class="product-carousel__banner-link">
-                    <img src="{{ $banner['image_url'] }}" alt="{{ $banner['alt'] ?: $title }}" class="product-carousel__banner-img">
+                    <img src="{{ $banner['image_url'] }}" alt="{{ $bannerAlt }}" class="product-carousel__banner-img">
                 </div>
             @endif
         @endif

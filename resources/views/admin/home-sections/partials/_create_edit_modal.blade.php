@@ -1,3 +1,22 @@
+{{--
+    Markup del modal de crear/editar sección. NO se incluye directo: lo incluye
+    admin.home-sections.partials.editor (que además trae el JS y documenta las
+    variables). Lo que depende de la página (tipos, orígenes related_*, nombre
+    interno, zona, notas de variables) se muestra/oculta en JS según
+    HomeSectionEditor.open({page}) — los elementos con data-pages="a b c" solo
+    se ven (y se envían) en esas páginas.
+
+    Variables: $editorData (HomeSectionController::editorData()).
+--}}
+@php
+    $hsCategories      = $editorData['categories'];
+    $hsCategoryOptions = $editorData['categoryOptions'];
+    $hsBrands          = $editorData['brands'];
+    $hsCollections     = $editorData['collections'];
+
+    $hsImgIcon = '<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>';
+    $hsSearchIcon = '<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>';
+@endphp
     {{-- Create/Edit Modal --}}
     <div id="homeSectionModal" class="user-manager-modal client-manage-modal">
         <div class="user-manager-modal-content client-modal-content">
@@ -9,50 +28,59 @@
 
             <div id="home-section-modal-errors" class="user-manager-errors" style="display:none;"></div>
 
-            <form class="user-manager-modal-body" id="homeSectionForm">
+            <form class="user-manager-modal-body" id="homeSectionForm" novalidate>
                 @csrf
-                <input type="hidden" name="page" id="hsPage" value="{{ $page ?? 'home' }}">
+                <input type="hidden" name="page" id="hsPage" value="home">
+                <input type="hidden" name="product_id" id="hsProductId" value="" disabled>
+
+                {{-- Plantilla compartida: aviso de que editarla cambia todos sus productos --}}
+                <div class="hs-template-warning" id="hsTemplateWarning" style="display:none;"></div>
+
                 <div class="user-manager-form">
                     <div>
                         <label class="supliers-manager-slider-label">Tipo de Sección <span style="color:red">*</span></label>
-                        <select class="users-manager-select" id="hsType" name="type">
-                            @if (($page ?? 'home') === 'home')
-                                <option value="hero_slider">Slider Principal</option>
-                            @endif
-                            <option value="banner">Banner</option>
-                            <option value="dual_banner">Banner Doble</option>
-                            <option value="product_carousel">Carrusel de Productos</option>
-                            <option value="product_carousel_banner">Carrusel con Banner</option>
-                            <option value="category_grid">Grid de Categorías</option>
-                            <option value="brand_carousel">Carrusel de Marcas</option>
-                            <option value="html_block">Bloque HTML</option>
-                            @if (in_array($page ?? 'home', ['product', 'collection'], true))
-                                <option value="faq">Preguntas Frecuentes</option>
-                            @endif
-                        </select>
+                        <select class="users-manager-select" id="hsType" name="type"></select>
                     </div>
-                    <div>
-                        <div class="pform-label-row">
-                            <label class="supliers-manager-slider-label">Título (opcional)</label>
-                            @if (($page ?? 'home') === 'product')
-                                <button type="button" class="pform-insert-variable-btn" data-variable-target="hsTitle">{ } Insertar variable</button>
-                            @endif
-                        </div>
-                        <input type="text" class="users-manager-input" name="title" id="hsTitle"
-                            placeholder="Ej: Productos Destacados">
-                        @if (($page ?? 'home') === 'product')
-                            <p class="hs-config-note" style="margin-top:4px;">
-                                Puedes usar las variables del producto: <code>{nombre_producto}</code>, <code>{marca}</code>, <code>{modelo}</code>, <code>{categoria}</code>, <code>{precio}</code>, etc. — se sustituyen por los datos del producto que se esté viendo.
-                            </p>
-                        @elseif (($page ?? 'home') === 'collection')
-                            <p class="hs-config-note" style="margin-top:4px;">
-                                Puedes usar <code>{coleccion}</code>; se sustituye por el nombre de la colección que se está viendo.
-                            </p>
-                        @endif
+                    <div data-pages="product_template product_custom">
+                        <label class="supliers-manager-slider-label">Nombre interno <span class="hs-name-required" style="color:red">*</span></label>
+                        <input type="text" class="users-manager-input" name="name" id="hsName" maxlength="150"
+                            placeholder="Ej: Más vendidos de la misma marca">
+                        <p class="hs-config-note" style="margin-top:4px;">Solo lo ves tú en el admin; no se muestra en la tienda.</p>
                     </div>
                 </div>
 
                 <div class="user-manager-form">
+                    <div>
+                        <div class="pform-label-row">
+                            <label class="supliers-manager-slider-label">Título del encabezado (opcional)</label>
+                            <button type="button" class="pform-insert-variable-btn" data-variable-target="hsTitle"
+                                data-pages="product product_template product_custom">{ } Insertar variable</button>
+                        </div>
+                        <input type="text" class="users-manager-input" name="title" id="hsTitle"
+                            placeholder="Ej: Productos Destacados">
+                        <p class="hs-config-note" style="margin-top:4px;" data-pages="product product_template product_custom">
+                            Puedes usar las variables del producto: <code>{nombre_producto}</code>, <code>{marca}</code>, <code>{modelo}</code>, <code>{categoria}</code>, <code>{precio}</code>, etc. — se sustituyen por los datos del producto que se esté viendo.
+                        </p>
+                        <p class="hs-config-note" style="margin-top:4px;" data-pages="collection">
+                            Puedes usar <code>{coleccion}</code>; se sustituye por el nombre de la colección que se está viendo.
+                        </p>
+                    </div>
+                    <div>
+                        <label class="supliers-manager-slider-label">Enlace del encabezado (opcional)</label>
+                        <div id="hsHeadingLinkMount"></div>
+                        <p class="hs-config-note" style="margin-top:4px;">El título se vuelve un enlace a este destino (necesita un título).</p>
+                    </div>
+                </div>
+
+                <div class="user-manager-form">
+                    <div data-pages="product_template product_custom">
+                        <label class="supliers-manager-slider-label">Zona</label>
+                        <select class="users-manager-select" name="zone" id="hsZone">
+                            <option value="stack">Pila (ancho completo, bajo el producto)</option>
+                            <option value="sidebar">Barra lateral</option>
+                        </select>
+                        <p class="hs-config-note" id="hsZoneNote" style="margin-top:4px;display:none;"></p>
+                    </div>
                     <div>
                         <label class="supliers-manager-slider-label">Orden</label>
                         <input type="number" class="users-manager-input" name="sort_order" id="hsSortOrder" value="0" min="0">
@@ -83,16 +111,13 @@
                         <label class="supliers-manager-slider-label">URL de Imagen</label>
                         <div class="img-picker-field">
                             <input type="text" class="users-manager-input" name="banner_image_url" id="hsBannerImageUrl" placeholder="https://...">
-                            <button type="button" class="img-picker-trigger-btn" onclick="openImagePicker('hsBannerImageUrl')">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
-                                Seleccionar
-                            </button>
+                            <button type="button" class="img-picker-trigger-btn" onclick="openImagePicker('hsBannerImageUrl')">{!! $hsImgIcon !!} Seleccionar</button>
                         </div>
                     </div>
                     <div class="user-manager-form">
                         <div>
-                            <label class="supliers-manager-slider-label">URL de Enlace</label>
-                            <input type="text" class="users-manager-input" name="banner_link_url" id="hsBannerLinkUrl" placeholder="/catalogo">
+                            <label class="supliers-manager-slider-label">Destino del enlace</label>
+                            <div id="hsBannerLinkMount"></div>
                         </div>
                         <div>
                             <label class="supliers-manager-slider-label">Texto Alternativo</label>
@@ -108,16 +133,13 @@
                         <label class="supliers-manager-slider-label">URL de Imagen</label>
                         <div class="img-picker-field">
                             <input type="text" class="users-manager-input" name="left_image_url" id="hsLeftImageUrl" placeholder="https://...">
-                            <button type="button" class="img-picker-trigger-btn" onclick="openImagePicker('hsLeftImageUrl')">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
-                                Seleccionar
-                            </button>
+                            <button type="button" class="img-picker-trigger-btn" onclick="openImagePicker('hsLeftImageUrl')">{!! $hsImgIcon !!} Seleccionar</button>
                         </div>
                     </div>
                     <div class="user-manager-form">
                         <div>
-                            <label class="supliers-manager-slider-label">URL de Enlace</label>
-                            <input type="text" class="users-manager-input" name="left_link_url" id="hsLeftLinkUrl">
+                            <label class="supliers-manager-slider-label">Destino del enlace</label>
+                            <div id="hsLeftLinkMount"></div>
                         </div>
                         <div>
                             <label class="supliers-manager-slider-label">Texto Alternativo</label>
@@ -129,16 +151,13 @@
                         <label class="supliers-manager-slider-label">URL de Imagen</label>
                         <div class="img-picker-field">
                             <input type="text" class="users-manager-input" name="right_image_url" id="hsRightImageUrl" placeholder="https://...">
-                            <button type="button" class="img-picker-trigger-btn" onclick="openImagePicker('hsRightImageUrl')">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
-                                Seleccionar
-                            </button>
+                            <button type="button" class="img-picker-trigger-btn" onclick="openImagePicker('hsRightImageUrl')">{!! $hsImgIcon !!} Seleccionar</button>
                         </div>
                     </div>
                     <div class="user-manager-form">
                         <div>
-                            <label class="supliers-manager-slider-label">URL de Enlace</label>
-                            <input type="text" class="users-manager-input" name="right_link_url" id="hsRightLinkUrl">
+                            <label class="supliers-manager-slider-label">Destino del enlace</label>
+                            <div id="hsRightLinkMount"></div>
                         </div>
                         <div>
                             <label class="supliers-manager-slider-label">Texto Alternativo</label>
@@ -153,16 +172,15 @@
                         <div>
                             <label class="supliers-manager-slider-label">Origen de Productos</label>
                             <select class="users-manager-select" name="source" id="hsSource">
-                                @if (($page ?? 'home') === 'product')
-                                    <option value="related_category">Misma categoría del producto</option>
-                                    <option value="related_brand">Misma marca del producto</option>
-                                @endif
+                                <option value="related_category" data-pages="product product_template product_custom">Misma categoría del producto</option>
+                                <option value="related_brand" data-pages="product product_template product_custom">Misma marca del producto</option>
                                 <option value="featured">Destacados</option>
                                 <option value="new">Nuevos</option>
                                 <option value="recommended">Recomendados</option>
                                 <option value="category">Por Categoría</option>
                                 <option value="brand">Por Marca</option>
                                 <option value="collection">Por Colección</option>
+                                <option value="tag">Por Etiqueta</option>
                                 <option value="manual">Selección Manual</option>
                             </select>
                         </div>
@@ -173,11 +191,11 @@
                     </div>
                     <div class="user-manager-form">
                         <div class="hs-source-field" data-source="category">
-                            <label class="supliers-manager-slider-label">Categoría</label>
+                            <label class="supliers-manager-slider-label">Categoría (incluye sus subcategorías)</label>
                             <select class="users-manager-select" name="category_id" id="hsCategoryId">
                                 <option value="">Selecciona una categoría</option>
-                                @foreach ($categories as $cat)
-                                    <option value="{{ $cat->id }}">{{ $cat->name }}</option>
+                                @foreach ($hsCategoryOptions as $opt)
+                                    <option value="{{ $opt['id'] }}">{{ $opt['label'] }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -185,7 +203,7 @@
                             <label class="supliers-manager-slider-label">Marca</label>
                             <select class="users-manager-select" name="brand_id" id="hsBrandId">
                                 <option value="">Selecciona una marca</option>
-                                @foreach ($brands as $brand)
+                                @foreach ($hsBrands as $brand)
                                     <option value="{{ $brand->id }}">{{ $brand->name }}</option>
                                 @endforeach
                             </select>
@@ -194,17 +212,23 @@
                             <label class="supliers-manager-slider-label">Colección</label>
                             <select class="users-manager-select" name="collection_id" id="hsCollectionId">
                                 <option value="">Selecciona una colección</option>
-                                @foreach ($collections as $collection)
+                                @foreach ($hsCollections as $collection)
                                     <option value="{{ $collection->id }}">{{ $collection->name }}</option>
                                 @endforeach
                             </select>
+                        </div>
+                        <div class="hs-source-field" data-source="tag">
+                            <label class="supliers-manager-slider-label">Etiqueta</label>
+                            <input type="text" class="users-manager-input" name="tag" id="hsTag" list="hsTagList"
+                                placeholder="Escribe una etiqueta de producto" autocomplete="off">
+                            <datalist id="hsTagList"></datalist>
                         </div>
                     </div>
                     <div class="users-manager-email-camp hs-source-field" data-source="manual">
                         <label class="supliers-manager-slider-label">Productos</label>
                         <div class="hs-product-search" id="hsProductSearch">
                             <div class="hs-product-search__input-wrap">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                                {!! $hsSearchIcon !!}
                                 <input type="text" id="hsProductSearchInput" class="hs-product-search__input" placeholder="Buscar producto por nombre o SKU..." autocomplete="off">
                             </div>
                             <div class="hs-product-search__dropdown" id="hsProductSearchDropdown" style="display:none;">
@@ -215,6 +239,13 @@
                         <div class="hs-product-chips" id="hsProductChips"></div>
                         <input type="hidden" id="hsProductIds">
                     </div>
+                    <div class="users-manager-email-camp" data-pages="product product_template product_custom">
+                        <input type="hidden" name="exclude_current" value="0">
+                        <label class="hs-check-label">
+                            <input type="checkbox" name="exclude_current" id="hsExcludeCurrent" value="1" checked>
+                            Excluir el producto que se está viendo
+                        </label>
+                    </div>
                 </div>
 
                 {{-- product_carousel_banner --}}
@@ -224,16 +255,13 @@
                         <label class="supliers-manager-slider-label">URL de Imagen</label>
                         <div class="img-picker-field">
                             <input type="text" class="users-manager-input" name="pcb_banner_image_url" id="hsPcbBannerImageUrl" placeholder="https://...">
-                            <button type="button" class="img-picker-trigger-btn" onclick="openImagePicker('hsPcbBannerImageUrl')">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
-                                Seleccionar
-                            </button>
+                            <button type="button" class="img-picker-trigger-btn" onclick="openImagePicker('hsPcbBannerImageUrl')">{!! $hsImgIcon !!} Seleccionar</button>
                         </div>
                     </div>
                     <div class="user-manager-form">
                         <div>
-                            <label class="supliers-manager-slider-label">URL de Enlace</label>
-                            <input type="text" class="users-manager-input" name="pcb_banner_link_url" id="hsPcbBannerLinkUrl" placeholder="/catalogo">
+                            <label class="supliers-manager-slider-label">Destino del enlace</label>
+                            <div id="hsPcbBannerLinkMount"></div>
                         </div>
                         <div>
                             <label class="supliers-manager-slider-label">Texto Alternativo</label>
@@ -246,16 +274,15 @@
                         <div>
                             <label class="supliers-manager-slider-label">Origen de Productos</label>
                             <select class="users-manager-select" name="pcb_source" id="hsPcbSource">
-                                @if (($page ?? 'home') === 'product')
-                                    <option value="related_category">Misma categoría del producto</option>
-                                    <option value="related_brand">Misma marca del producto</option>
-                                @endif
+                                <option value="related_category" data-pages="product product_template product_custom">Misma categoría del producto</option>
+                                <option value="related_brand" data-pages="product product_template product_custom">Misma marca del producto</option>
                                 <option value="featured">Destacados</option>
                                 <option value="new">Nuevos</option>
                                 <option value="recommended">Recomendados</option>
                                 <option value="category">Por Categoría</option>
                                 <option value="brand">Por Marca</option>
                                 <option value="collection">Por Colección</option>
+                                <option value="tag">Por Etiqueta</option>
                                 <option value="manual">Selección Manual</option>
                             </select>
                         </div>
@@ -266,11 +293,11 @@
                     </div>
                     <div class="user-manager-form">
                         <div class="hs-pcb-source-field" data-source="category">
-                            <label class="supliers-manager-slider-label">Categoría</label>
+                            <label class="supliers-manager-slider-label">Categoría (incluye sus subcategorías)</label>
                             <select class="users-manager-select" name="pcb_category_id" id="hsPcbCategoryId">
                                 <option value="">Selecciona una categoría</option>
-                                @foreach ($categories as $cat)
-                                    <option value="{{ $cat->id }}">{{ $cat->name }}</option>
+                                @foreach ($hsCategoryOptions as $opt)
+                                    <option value="{{ $opt['id'] }}">{{ $opt['label'] }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -278,7 +305,7 @@
                             <label class="supliers-manager-slider-label">Marca</label>
                             <select class="users-manager-select" name="pcb_brand_id" id="hsPcbBrandId">
                                 <option value="">Selecciona una marca</option>
-                                @foreach ($brands as $brand)
+                                @foreach ($hsBrands as $brand)
                                     <option value="{{ $brand->id }}">{{ $brand->name }}</option>
                                 @endforeach
                             </select>
@@ -287,17 +314,22 @@
                             <label class="supliers-manager-slider-label">Colección</label>
                             <select class="users-manager-select" name="pcb_collection_id" id="hsPcbCollectionId">
                                 <option value="">Selecciona una colección</option>
-                                @foreach ($collections as $collection)
+                                @foreach ($hsCollections as $collection)
                                     <option value="{{ $collection->id }}">{{ $collection->name }}</option>
                                 @endforeach
                             </select>
+                        </div>
+                        <div class="hs-pcb-source-field" data-source="tag">
+                            <label class="supliers-manager-slider-label">Etiqueta</label>
+                            <input type="text" class="users-manager-input" name="pcb_tag" id="hsPcbTag" list="hsTagList"
+                                placeholder="Escribe una etiqueta de producto" autocomplete="off">
                         </div>
                     </div>
                     <div class="users-manager-email-camp hs-pcb-source-field" data-source="manual">
                         <label class="supliers-manager-slider-label">Productos</label>
                         <div class="hs-product-search" id="hsPcbProductSearch">
                             <div class="hs-product-search__input-wrap">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                                {!! $hsSearchIcon !!}
                                 <input type="text" id="hsPcbProductSearchInput" class="hs-product-search__input" placeholder="Buscar producto por nombre o SKU..." autocomplete="off">
                             </div>
                             <div class="hs-product-search__dropdown" id="hsPcbProductSearchDropdown" style="display:none;">
@@ -308,6 +340,23 @@
                         <div class="hs-product-chips" id="hsPcbProductChips"></div>
                         <input type="hidden" id="hsPcbProductIds">
                     </div>
+                    <div class="users-manager-email-camp" data-pages="product product_template product_custom">
+                        <input type="hidden" name="pcb_exclude_current" value="0">
+                        <label class="hs-check-label">
+                            <input type="checkbox" name="pcb_exclude_current" id="hsPcbExcludeCurrent" value="1" checked>
+                            Excluir el producto que se está viendo
+                        </label>
+                    </div>
+                </div>
+
+                {{-- card_carousel: fichas imagen + texto + destino (solo barra lateral) --}}
+                <div class="config-fields" data-type="card_carousel">
+                    <p class="hs-config-note">
+                        Carrusel de fichas para la <strong>barra lateral</strong> (máximo 12). Cada ficha lleva una imagen,
+                        un texto corto y, opcionalmente, un destino.
+                    </p>
+                    <div class="hs-card-list" id="hsCardList"></div>
+                    <button type="button" class="button-secondary size-adjustment" id="hsCardAdd" style="margin-top:8px;">+ Agregar ficha</button>
                 </div>
 
                 {{-- category_grid --}}
@@ -315,7 +364,7 @@
                     <div class="users-manager-email-camp">
                         <label class="supliers-manager-slider-label">Categorías a mostrar (vacío = todas las principales activas)</label>
                         <select class="users-manager-select" name="category_ids[]" id="hsCategoryIds" multiple size="6">
-                            @foreach ($categories as $cat)
+                            @foreach ($hsCategories as $cat)
                                 <option value="{{ $cat->id }}">{{ $cat->name }}</option>
                             @endforeach
                         </select>
@@ -340,26 +389,24 @@
                     <div class="users-manager-email-camp">
                         <div class="pform-label-row">
                             <label class="supliers-manager-slider-label">Texto descriptivo (opcional, aparece bajo el título)</label>
-                            @if (($page ?? 'home') === 'product')
-                                <button type="button" class="pform-insert-variable-btn" data-variable-target="hsFaqDescription">{ } Insertar variable</button>
-                            @endif
+                            <button type="button" class="pform-insert-variable-btn" data-variable-target="hsFaqDescription"
+                                data-pages="product product_template product_custom">{ } Insertar variable</button>
                         </div>
                         <textarea class="users-manager-input client-modal-textarea" name="faq_description" id="hsFaqDescription" rows="2"
                             placeholder="Ej: Resolvemos las dudas más comunes sobre este producto."></textarea>
                     </div>
-                    <p class="hs-config-note">
-                        @if (($page ?? 'home') === 'collection')
-                            Las preguntas y respuestas se capturan <strong>en cada colección</strong>
-                            (Colecciones → editar → SEO y Preguntas Frecuentes). Esta sección solo
-                            define el título y el texto descriptivo; se oculta en colecciones sin preguntas.
-                            Puedes usar <code>{coleccion}</code> en el título/descripción.
-                        @else
-                            Las preguntas y respuestas se capturan <strong>en cada producto</strong>
-                            (Productos → editar → botón SEO → Preguntas Frecuentes). Esta sección solo
-                            define el título y el texto descriptivo; se oculta en productos sin preguntas.
-                            Puedes usar las variables del producto: <code>{nombre_producto}</code>, <code>{marca}</code>,
-                            <code>{modelo}</code>, <code>{categoria}</code>, <code>{precio}</code>, etc. en el título/descripción.
-                        @endif
+                    <p class="hs-config-note" data-pages="collection">
+                        Las preguntas y respuestas se capturan <strong>en cada colección</strong>
+                        (Colecciones → editar → SEO y Preguntas Frecuentes). Esta sección solo
+                        define el título y el texto descriptivo; se oculta en colecciones sin preguntas.
+                        Puedes usar <code>{coleccion}</code> en el título/descripción.
+                    </p>
+                    <p class="hs-config-note" data-pages="product product_template product_custom">
+                        Las preguntas y respuestas se capturan <strong>en cada producto</strong>
+                        (Productos → editar → botón SEO → Preguntas Frecuentes). Esta sección solo
+                        define el título y el texto descriptivo; se oculta en productos sin preguntas.
+                        Puedes usar las variables del producto: <code>{nombre_producto}</code>, <code>{marca}</code>,
+                        <code>{modelo}</code>, <code>{categoria}</code>, <code>{precio}</code>, etc. en el título/descripción.
                     </p>
                 </div>
 

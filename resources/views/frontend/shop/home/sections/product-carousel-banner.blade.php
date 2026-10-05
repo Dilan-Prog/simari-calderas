@@ -2,15 +2,22 @@
     // Contexto de la página ANTES de cualquier reasignación (ver
     // product-carousel.blade.php).
     $ctx = $product ?? $collection ?? $servicePage ?? null;
+    $currentProduct = isset($product) ? $product : null;
 
     $config = $section->config ?? [];
     $source = $config['source'] ?? 'featured';
     $limit = $config['limit'] ?? 12;
+    $excludeCurrent = $currentProduct && ($config['exclude_current'] ?? true);
     $sourceCollection = null;
 
     if ($source === 'collection' && !empty($config['collection_id'])) {
         $sourceCollection = \App\Models\Collection::with('rules')->find($config['collection_id']);
-        $products = $sourceCollection ? $sourceCollection->resolveProducts($limit) : collect();
+        $products = $sourceCollection
+            ? $sourceCollection->resolveProducts($excludeCurrent ? $limit + 1 : $limit)
+            : collect();
+        if ($excludeCurrent) {
+            $products = $products->reject(fn ($p) => $p->id === $currentProduct->id)->take($limit)->values();
+        }
     } else {
         $query = \App\Models\Products::query()
             ->where('is_active', true)
@@ -24,9 +31,11 @@
         // vía Category::idsWithChildren(), aquí faltaba el mismo alcance.
         $categoryIds = in_array($source, ['category', 'related_category'], true)
             ? (\App\Models\Category::find(
-                $source === 'category' ? ($config['category_id'] ?? 0) : (isset($product) ? $product->category_id : 0)
+                $source === 'category' ? ($config['category_id'] ?? 0) : ($currentProduct ? $currentProduct->category_id : 0)
             )?->idsWithChildren() ?? [0])
             : [0];
+
+        $tag = trim((string) ($config['tag'] ?? ''));
 
         match ($source) {
             'category'    => $query->whereIn('category_id', $categoryIds),
@@ -34,28 +43,52 @@
             'new'         => $query->where('is_new', true),
             'recommended' => $query->where('is_recommended', true),
             'manual'      => $query->whereIn('id', $config['product_ids'] ?? []),
+            // Etiqueta (products.tags, JSON array de strings); sin etiqueta
+            // configurada no resuelve nada.
+            'tag'         => $tag !== '' ? $query->whereJsonContains('tags', $tag) : $query->whereRaw('1 = 0'),
             // Fuentes relativas al producto en cuyo contexto se renderiza la
             // sección (solo página de producto; en el Home degradan a vacío).
-            'related_category' => $query->whereIn('category_id', $categoryIds)
-                ->when(isset($product), fn ($q) => $q->where('id', '!=', $product->id)),
-            'related_brand'    => $query->where('brand_id', isset($product) ? ($product->brand_id ?? 0) : 0)
-                ->when(isset($product), fn ($q) => $q->where('id', '!=', $product->id)),
+            'related_category' => $query->whereIn('category_id', $categoryIds),
+            'related_brand'    => $query->where('brand_id', $currentProduct ? ($currentProduct->brand_id ?? 0) : 0),
             default       => $query->where('is_featured', true),
         };
+
+        // Las fuentes relativas siempre excluyen al producto actual; en el
+        // resto depende de config['exclude_current'] (default true).
+        if ($currentProduct && ($excludeCurrent || in_array($source, ['related_category', 'related_brand'], true))) {
+            $query->where('id', '!=', $currentProduct->id);
+        }
 
         $products = $query->orderByDesc('created_at')->take($limit)->get();
     }
 
+    // Destino del banner: `banner_link` (LinkTarget) tiene prioridad; si no
+    // existe se usa el campo legado banner_link_url. Un destino roto deja el
+    // banner sin enlace (nunca href vacío ni '#').
+    $bannerLinkUrl = $config['banner_link_url'] ?? null;
+    $bannerNewTab = false;
+    if (!empty($config['banner_link']['type'])) {
+        $bannerLinkUrl = \App\Support\LinkTarget::resolve($config['banner_link']);
+        $bannerNewTab = !empty($config['banner_link']['new_tab']);
+    }
+
     $banner = [
         'image_url' => $config['banner_image_url'] ?? null,
-        'link_url'  => $config['banner_link_url'] ?? null,
-        'alt'       => $config['banner_alt'] ?? null,
+        'link_url'  => $bannerLinkUrl,
+        'new_tab'   => $bannerNewTab,
+        'alt'       => $config['banner_alt'] ?? '',
         'no_link'   => $config['banner_no_link'] ?? false,
     ];
 
     $viewAllUrl = ($sourceCollection && $sourceCollection->is_active)
         ? route('collection.show', $sourceCollection->slug)
         : null;
+
+    $headingTitle = $section->resolveText($section->title, $ctx);
+    $headingUrl = $headingTitle ? \App\Support\LinkTarget::resolve($section->heading_link) : null;
+    $headingNewTab = !empty($section->heading_link['new_tab']);
 @endphp
 
-<x-frontend.shop.product-carousel :title="$section->resolveText($section->title, $ctx)" :products="$products" :banner="$banner" :view-all-url="$viewAllUrl" />
+@if (count($products) > 0)
+<x-frontend.shop.product-carousel :title="$headingTitle" :products="$products" :banner="$banner" :view-all-url="$viewAllUrl" :heading-url="$headingUrl" :heading-new-tab="$headingNewTab" />
+@endif

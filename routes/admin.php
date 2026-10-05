@@ -8,6 +8,7 @@ use App\Http\Controllers\Backend\AuditController;
 use App\Http\Controllers\Backend\AbandonedCartController;
 use App\Http\Controllers\Backend\DevOpsController;
 use App\Http\Controllers\Backend\ProductController;
+use App\Http\Controllers\Backend\ProductBlockController;
 use App\Http\Controllers\Backend\LinkController;
 use App\Http\Controllers\Backend\ProductImportExportController;
 use App\Http\Controllers\Backend\QuoteController;
@@ -198,6 +199,25 @@ Route::controller(ProductController::class)
         Route::post('/productos/vistas', 'storeIndexView')->name('products.index-views.store')->middleware('permission:products,create');
         Route::put('/productos/vistas/{id}', 'updateIndexView')->name('products.index-views.update')->middleware('permission:products,edit');
         Route::delete('/productos/vistas/{id}', 'destroyIndexView')->name('products.index-views.destroy')->middleware('permission:products,delete');
+    });
+
+// Productos — Bloques dinámicos del detalle de producto (pestaña "Bloques"
+// del formulario de edición + acción "Plantillas de bloques" del editor por
+// lotes). Lógica de asignación en App\Services\ProductBlocks.
+Route::controller(ProductBlockController::class)
+    ->middleware('permission:products,edit')
+    ->prefix('/productos')
+    ->name('products.blocks.')
+    ->group(function () {
+        Route::get('/bloques/plantillas', 'templates')->name('templates');
+        Route::post('/bloques/lote/vista-previa', 'bulkPreview')->name('bulk.preview');
+        Route::post('/bloques/lote/aplicar', 'bulkApply')->name('bulk.apply');
+        Route::get('/{id}/bloques', 'index')->whereNumber('id')->name('index');
+        Route::post('/{id}/bloques/plantillas', 'attach')->whereNumber('id')->name('attach');
+        Route::post('/{id}/bloques/propia', 'adopt')->whereNumber('id')->name('adopt');
+        Route::post('/{id}/bloques/reordenar', 'reorder')->whereNumber('id')->name('reorder');
+        Route::delete('/{id}/bloques/{assignment}', 'destroy')->whereNumber(['id', 'assignment'])->name('destroy');
+        Route::post('/{id}/bloques/{assignment}/copia-propia', 'copyToCustom')->whereNumber(['id', 'assignment'])->name('copy');
     });
 
 // Picker de enlaces genérico del admin (producto/colección/categoría/marca/
@@ -989,6 +1009,7 @@ Route::controller(HomeSectionController::class)
     ->group(function () {
         Route::get('/inicio-secciones', 'index')->name('home-sections.index');
         Route::get('/inicio-secciones/productos/buscar', 'searchProducts')->name('home-sections.products.search');
+        Route::get('/inicio-secciones/etiquetas/buscar', 'tagSuggestions')->name('home-sections.tags.suggestions');
         Route::post('/inicio-secciones/crear', 'store')->name('home-sections.store')->middleware('permission:home-sections,create');
         Route::get('/inicio-secciones/editar/{id}', 'edit')->name('home-sections.edit')->middleware('permission:home-sections,edit');
         Route::put('/inicio-secciones/editar/{id}', 'update')->name('home-sections.update')->middleware('permission:home-sections,edit');

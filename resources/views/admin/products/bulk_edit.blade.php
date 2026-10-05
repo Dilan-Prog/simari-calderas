@@ -220,6 +220,7 @@
                         <col data-col="sku">
                         <col data-col="supplier_sku">
                         <col data-col="suppliers">
+                        <col data-col="block_templates">
                         @foreach ($bulkEditColumns as $col)
                             <col data-col="{{ $col['key'] }}">
                         @endforeach
@@ -241,6 +242,11 @@
                             </th>
                             <th data-col="suppliers">Proveedores
                                 <span class="prod-bulk-resize-handle" data-resize-col="suppliers"></span>
+                            </th>
+                            {{-- Informativa (solo lectura): plantillas de bloques asignadas.
+                                 Se asigna con "Plantillas de bloques" en la barra de selección. --}}
+                            <th data-col="block_templates">Plantillas
+                                <span class="prod-bulk-resize-handle" data-resize-col="block_templates"></span>
                             </th>
                             @foreach ($bulkEditColumns as $col)
                                 <th data-col="{{ $col['key'] }}">{{ $col['label'] }}
@@ -288,6 +294,18 @@
                                     data-id="{{ $product->id }}" data-field="supplier_id">
                                     @forelse ($product->suppliers as $supplier)
                                         <div>{{ $supplier->company_name }}@if ($supplier->pivot->sku) (SKU: {{ $supplier->pivot->sku }})@endif</div>
+                                    @empty
+                                        —
+                                    @endforelse
+                                </td>
+                                <td class="prod-bulk-readonly prod-bulk-blocks-cell" data-col="block_templates"
+                                    data-blocks-cell="{{ $product->id }}">
+                                    @php
+                                        $blockTemplates = $product->sectionAssignments
+                                            ->filter(fn ($a) => $a->section && $a->section->page === \App\Models\HomeSection::PAGE_PRODUCT_TEMPLATE);
+                                    @endphp
+                                    @forelse ($blockTemplates as $assignment)
+                                        <div>{{ $assignment->section->name ?: ($assignment->section->title ?: 'Plantilla #' . $assignment->section->id) }}</div>
                                     @empty
                                         —
                                     @endforelse
@@ -582,6 +600,8 @@
         </div>
     </div>
 
+    @include('admin.products._bulk_blocks_modal')
+
     <div id="prodBulkEditBar" class="prod-bulk-bar">
         <span class="prod-bulk-count"><span id="prodBulkEditCount">0</span> cambio(s) sin guardar</span>
         <button type="button" class="prod-bulk-btn" id="prodBulkEditDiscardBtn">Descartar cambios</button>
@@ -610,6 +630,11 @@
             </select>
             <div id="prodBulkApplyValueWrap"></div>
             <button type="button" id="prodBulkApplyBtn" disabled>Aplicar a seleccionados</button>
+            {{-- Bloques dinámicos del detalle de producto: asigna/quita PLANTILLAS a
+                 los productos seleccionados. A diferencia de las columnas de arriba,
+                 esta acción se guarda en BD al confirmar (con vista previa), no
+                 queda como "cambio sin guardar". --}}
+            <button type="button" id="prodBulkBlocksBtn">Plantillas de bloques</button>
         </div>
         <p class="prod-bulk-apply-bar-hint">Solo afecta lo seleccionado en esta página — no a todos los productos filtrados. Si necesitas cubrir todo el filtro, cambia primero el selector de página a "Todos".</p>
     </div>
@@ -628,3 +653,4 @@
     @endpush
 @endsection
 @include('admin.products._bulk_edit_scripts')
+@include('admin.products._bulk_blocks_scripts')

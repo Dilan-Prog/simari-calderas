@@ -16,6 +16,10 @@
 @media (max-width: 720px) {
     .eq-shop-product .product-main { grid-template-columns: 1fr; }
 }
+/* Los hijos de un grid no se encogen por debajo de su contenido: sin esto un
+   carrusel (bloques de la zona sidebar) ensancharía la columna derecha. */
+.eq-shop-product .product-main__left,
+.eq-shop-product .product-main__right { min-width: 0; }
 
 /* Gallery */
 .eq-shop-product .product-gallery__main-row { display: flex; gap: 12px; align-items: flex-start; }

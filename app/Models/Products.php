@@ -376,6 +376,15 @@ class Products extends Model
         return $this->hasMany(ProductImage::class, 'product_id')->orderBy('sort_order');
     }
 
+    /**
+     * Bloques dinámicos de la página de producto (plantillas ligadas y
+     * secciones propias), en el orden elegido por el admin.
+     */
+    public function sectionAssignments()
+    {
+        return $this->hasMany(ProductSectionAssignment::class, 'product_id')->orderBy('sort_order')->orderBy('id');
+    }
+
     // FIX (Documentación tab): added so the "Documentación" panel can save
     // and recover the 6 document uploads (ficha técnica, manual, catálogo,
     // certificación, garantía, adicional) — this relation and the

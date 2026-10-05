@@ -14,16 +14,36 @@ class HomeSection extends Model
         return 'home_section';
     }
 
-    protected $fillable = ['type', 'page', 'title', 'config', 'sort_order', 'is_active'];
+    // Valores de `page` para bloques por producto (ver migración
+    // add_product_blocks_to_home_sections): plantilla reutilizable ligada a N
+    // productos, o sección propia de un solo producto.
+    public const PAGE_PRODUCT_TEMPLATE = 'product_template';
+    public const PAGE_PRODUCT_CUSTOM   = 'product_custom';
+
+    public const ZONE_STACK   = 'stack';
+    public const ZONE_SIDEBAR = 'sidebar';
+
+    protected $fillable = ['type', 'page', 'zone', 'name', 'title', 'config', 'heading_link', 'sort_order', 'is_active'];
 
     protected $casts = [
-        'config'    => 'array',
-        'is_active' => 'boolean',
+        'config'       => 'array',
+        'heading_link' => 'array',
+        'is_active'    => 'boolean',
     ];
 
     public function slides()
     {
         return $this->hasMany(HomeSectionSlide::class)->orderBy('sort_order');
+    }
+
+    public function productAssignments()
+    {
+        return $this->hasMany(ProductSectionAssignment::class);
+    }
+
+    public function scopeProductTemplates($query)
+    {
+        return $query->where('page', self::PAGE_PRODUCT_TEMPLATE);
     }
 
     /**
