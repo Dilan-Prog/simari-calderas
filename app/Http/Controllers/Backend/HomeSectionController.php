@@ -231,6 +231,7 @@ class HomeSectionController extends Controller
                     'brand_id'        => $request->input('brand_id') ?: null,
                     'collection_id'   => $request->input('collection_id') ?: null,
                     'tag'             => trim((string) $request->input('tag', '')) ?: null,
+                    'eyebrow'         => mb_substr(trim((string) $request->input('eyebrow', '')), 0, 80) ?: null,
                     'exclude_current' => $request->boolean('exclude_current', true),
                     'product_ids'     => array_values(array_filter((array) $request->input('product_ids', []))),
                     'limit'           => $request->input('limit') !== null ? (int) $request->input('limit') : null,

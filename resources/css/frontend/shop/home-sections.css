@@ -121,3 +121,54 @@ a.card-carousel__card:hover { box-shadow: 0 8px 18px rgba(0,0,0,0.1); transform:
 @media (max-width: 720px) {
     .card-carousel__nav { display: none; } /* en móvil se desliza con el dedo */
 }
+
+/* Carrusel de productos COMPACTO (zona "sidebar", columna derecha arriba de
+   "Medios de pago"): etiqueta + título, flechas arriba a la derecha, tarjetas
+   chicas con SKU/nombre/precio/"Agregar" e indicador de páginas. Las tarjetas
+   por fila dependen del ANCHO DEL CONTENEDOR (no de la ventana): 2 / 3 / 4. */
+.pc-compact { container-type: inline-size; margin: 20px 0; min-width: 0; max-width: 100%; }
+.pc-compact__header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+.pc-compact__heading { min-width: 0; }
+.pc-compact__eyebrow { margin: 0 0 3px; font-size: 10.5px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--secondary-color, #ff6a13); line-height: 1.2; }
+.pc-compact__title { margin: 0; font-size: 16px; font-weight: 800; color: #141516; line-height: 1.25; overflow-wrap: anywhere; }
+.pc-compact__title a { color: inherit; text-decoration: none; }
+.pc-compact__title a:hover { color: var(--secondary-color, #ff6a13); text-decoration: underline; }
+.pc-compact__nav { display: flex; gap: 6px; flex: 0 0 auto; }
+.pc-compact__arrow {
+    width: 30px; height: 30px; border-radius: 8px; background: #fff; border: 1px solid rgba(0,0,0,0.14);
+    font-size: 16px; line-height: 1; padding: 0; cursor: pointer; color: #141516;
+}
+.pc-compact__arrow:hover:not(:disabled) { border-color: #141516; }
+.pc-compact__arrow:disabled { opacity: .4; cursor: default; }
+.pc-compact__track {
+    --pc-gap: 12px; --pc-cols: 2;
+    display: flex; gap: var(--pc-gap); overflow-x: auto; scroll-snap-type: x mandatory; scroll-behavior: smooth;
+    scrollbar-width: none; -webkit-overflow-scrolling: touch;
+}
+.pc-compact__track::-webkit-scrollbar { display: none; }
+.pc-compact__card {
+    flex: 0 0 calc((100% - (var(--pc-cols) - 1) * var(--pc-gap)) / var(--pc-cols));
+    min-width: 0; box-sizing: border-box; scroll-snap-align: start;
+    display: flex; flex-direction: column; gap: 8px;
+    border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 8px; background: #fff;
+}
+.pc-compact__link { display: flex; flex-direction: column; gap: 5px; color: inherit; text-decoration: none; flex: 1 1 auto; min-width: 0; }
+.pc-compact__img-wrap { display: block; width: 100%; aspect-ratio: 4 / 3; border-radius: 6px; overflow: hidden; background: #f5f6f7; }
+.pc-compact__img-wrap img { width: 100%; height: 100%; object-fit: contain; display: block; }
+.pc-compact__sku { font-size: 10.5px; font-weight: 600; letter-spacing: .02em; color: #7a7f85; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; overflow-wrap: anywhere; }
+.pc-compact__name {
+    font-size: 12.5px; line-height: 1.35; color: #141516; overflow-wrap: anywhere;
+    display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+}
+.pc-compact__price-row { margin-top: auto; padding-top: 2px; display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 6px; }
+.pc-compact__price { font-size: 15px; font-weight: 800; color: #141516; overflow-wrap: anywhere; }
+.pc-compact__iva { font-size: 10.5px; font-weight: 600; color: #9ca3af; white-space: nowrap; }
+/* Botones: mismos estilos base que la tarjeta normal (shared.css), solo
+   ajustados de tamaño para la tarjeta chica. */
+.pc-compact__add, .pc-compact__quote { width: 100%; box-sizing: border-box; padding: 8px 6px; font-size: 12.5px; text-align: center; }
+.pc-compact__card { gap: 6px; }
+.pc-compact__dots { display: flex; justify-content: center; gap: 6px; margin-top: 12px; }
+.pc-compact__dot { width: 16px; height: 5px; border-radius: 3px; background: #d9dcdf; transition: background .2s; }
+.pc-compact__dot.is-active { background: #141516; }
+@container (min-width: 380px) { .pc-compact__track { --pc-cols: 3; } }
+@container (min-width: 560px) { .pc-compact__track { --pc-cols: 4; } }

@@ -239,6 +239,12 @@
                         <div class="hs-product-chips" id="hsProductChips"></div>
                         <input type="hidden" id="hsProductIds">
                     </div>
+                    <div class="users-manager-email-camp" data-pages="product_template product_custom">
+                        <label class="supliers-manager-slider-label">Etiqueta superior (opcional)</label>
+                        <input type="text" class="users-manager-input" name="eyebrow" id="hsEyebrow" maxlength="80"
+                            placeholder="Ej. CONTROLADORES DC1010">
+                        <p class="hs-config-note">Texto chico en naranja sobre el título. Solo se muestra cuando la sección va en la columna lateral (arriba de "Medios de pago"), donde el carrusel se dibuja en versión compacta.</p>
+                    </div>
                     <div class="users-manager-email-camp" data-pages="product product_template product_custom">
                         <input type="hidden" name="exclude_current" value="0">
                         <label class="hs-check-label">

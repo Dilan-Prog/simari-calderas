@@ -474,6 +474,7 @@
                 $('hsBrandId').value = config.brand_id ?? '';
                 $('hsCollectionId').value = config.collection_id ?? '';
                 $('hsTag').value = config.tag ?? '';
+                $('hsEyebrow').value = config.eyebrow ?? '';
                 $('hsExcludeCurrent').checked = config.exclude_current ?? true;
                 $('hsLimit').value = config.limit ?? 10;
                 mainProductPicker.setSelectedIds(config.product_ids ?? []);

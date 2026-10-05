@@ -79,5 +79,10 @@
 @endphp
 
 @if (count($products) > 0)
-<x-frontend.shop.product-carousel :title="$headingTitle" :products="$products" :view-all-url="$viewAllUrl" :heading-url="$headingUrl" :heading-new-tab="$headingNewTab" />
+    @if (($section->zone ?? 'stack') === 'sidebar')
+        {{-- Columna lateral (arriba de "Medios de pago"): versión compacta. --}}
+        <x-frontend.shop.product-carousel-compact :title="$headingTitle" :eyebrow="$section->resolveText($config['eyebrow'] ?? null, $ctx)" :products="$products" :heading-url="$headingUrl" :heading-new-tab="$headingNewTab" />
+    @else
+        <x-frontend.shop.product-carousel :title="$headingTitle" :products="$products" :view-all-url="$viewAllUrl" :heading-url="$headingUrl" :heading-new-tab="$headingNewTab" />
+    @endif
 @endif
