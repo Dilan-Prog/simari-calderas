@@ -62,10 +62,25 @@
             <p class="breadcrumb-clients-manager main">{{ $pageMeta[$page]['subtitle'] }}</p>
         </div>
         <div style="display:flex;align-items:flex-start;gap:8px;">
-            @include('admin.components._column_visibility_menu', [
-                'tableKey' => 'home-sections.index',
-                'columnDefs' => ['tipo' => 'Tipo', 'orden' => 'Orden', 'estado' => 'Estado'],
-            ])
+            @if ($isTemplatePage)
+                @include('admin.components._column_visibility_menu', [
+                    'tableKey' => 'home-sections.templates',
+                    'columnDefs' => [
+                        'titulo'  => 'Nombre que se muestra',
+                        'badge'   => 'Badge superior',
+                        'fuente'  => 'Colección / productos',
+                        'destino' => 'Destino del encabezado',
+                        'tipo'    => 'Tipo y zona',
+                        'uso'     => 'En uso',
+                        'estado'  => 'Estado',
+                    ],
+                ])
+            @else
+                @include('admin.components._column_visibility_menu', [
+                    'tableKey' => 'home-sections.index',
+                    'columnDefs' => ['tipo' => 'Tipo', 'orden' => 'Orden', 'estado' => 'Estado'],
+                ])
+            @endif
             @permiso('home-sections','create')
             <button type="button" class="button-primary size-adjustment" id="btnNewHomeSection"
                 style="background:#ff6213;border-color:#ff6213;white-space:nowrap;">
@@ -96,6 +111,145 @@
         </div>
     @endif
 
+    @if ($isTemplatePage)
+    {{-- Plantillas de producto: una sola tabla (cabecera y cuerpo alineados),
+         con buscador y filtros del lado del cliente. --}}
+    @php
+        $tplTypes = $sections->pluck('type')->unique()->values();
+    @endphp
+    <div class="hs-tpl-toolbar">
+        <input type="search" id="hsTplSearch" class="users-manager-input hs-tpl-search"
+            placeholder="Buscar por nombre, título, badge, colección o destino…" autocomplete="off">
+        <select id="hsTplZone" class="users-manager-select hs-tpl-filter">
+            <option value="">Todas las zonas</option>
+            <option value="stack">Pila principal</option>
+            <option value="sidebar">Barra lateral</option>
+        </select>
+        <select id="hsTplType" class="users-manager-select hs-tpl-filter">
+            <option value="">Todos los tipos</option>
+            @foreach ($tplTypes as $t)
+                <option value="{{ $t }}">{{ $typeLabels[$t] ?? $t }}</option>
+            @endforeach
+        </select>
+        <select id="hsTplState" class="users-manager-select hs-tpl-filter">
+            <option value="">Todos los estados</option>
+            <option value="1">Activas</option>
+            <option value="0">Inactivas</option>
+        </select>
+        <span class="hs-tpl-count" id="hsTplCount">{{ $sections->count() }} plantilla(s)</span>
+    </div>
+
+    <main class="table-container-clients-manager head hs-tpl-wrap">
+        <div class="table-scroll">
+            <table class="clients-manager-table hs-tpl-table" id="homeSectionsTable">
+                <thead>
+                    <tr>
+                        <th>Nombre interno</th>
+                        <th data-col="titulo">Nombre que se muestra</th>
+                        <th data-col="badge">Badge superior</th>
+                        <th data-col="fuente">Colección / productos</th>
+                        <th data-col="destino">Destino del encabezado</th>
+                        <th data-col="tipo">Tipo y zona</th>
+                        <th data-col="uso">En uso</th>
+                        <th data-col="estado">Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="homeSectionsTableBody">
+                @forelse ($sections as $section)
+                    @php
+                        $rowLabel = $section->name ?: ($section->title ?: ($typeLabels[$section->type] ?? $section->type));
+                        $eyebrow = trim((string) ($section->config['eyebrow'] ?? ''));
+                        $sourceLabel = $section->productSourceLabel();
+                        $destLabel = $section->heading_link ? \App\Support\LinkTarget::label($section->heading_link) : null;
+                        $destBroken = $section->heading_link && \App\Support\LinkTarget::isBroken($section->heading_link);
+                        $uses = $usageCounts[$section->id] ?? 0;
+                        $searchText = mb_strtolower(implode(' ', array_filter([$section->name, $section->title, $eyebrow, $sourceLabel, $destLabel])));
+                    @endphp
+                    <tr class="hs-row hs-tpl-row" data-id="{{ $section->id }}"
+                        data-search="{{ $searchText }}" data-zone="{{ $section->zone }}"
+                        data-type="{{ $section->type }}" data-active="{{ $section->is_active ? 1 : 0 }}">
+                        <td class="hs-tpl-name">
+                            <strong>{{ $section->name ?: '—' }}</strong>
+                            <div class="hs-cell-sub">ID #{{ $section->id }}</div>
+                        </td>
+                        <td data-col="titulo">
+                            @if ($section->title)
+                                {{ $section->title }}
+                            @else
+                                <span class="hs-muted">Sin título</span>
+                            @endif
+                        </td>
+                        <td data-col="badge">
+                            @if ($eyebrow !== '')
+                                <span class="hs-eyebrow-badge">{{ $eyebrow }}</span>
+                            @else
+                                <span class="hs-muted">—</span>
+                            @endif
+                        </td>
+                        <td data-col="fuente">
+                            @if ($sourceLabel)
+                                {{ $sourceLabel }}
+                            @else
+                                <span class="hs-muted">—</span>
+                            @endif
+                        </td>
+                        <td data-col="destino">
+                            @if ($destLabel)
+                                {{ $destLabel }}
+                                @if ($destBroken)
+                                    <span class="hs-broken-badge">enlace roto</span>
+                                @endif
+                            @else
+                                <span class="hs-muted">Sin enlace</span>
+                            @endif
+                        </td>
+                        <td data-col="tipo">
+                            <span class="hs-type-badge" data-type="{{ $section->type }}">{{ $typeLabels[$section->type] ?? $section->type }}</span>
+                            <span class="hs-zone-badge hs-zone-badge--{{ $section->zone }}">{{ $zoneLabels[$section->zone] ?? $section->zone }}</span>
+                        </td>
+                        <td data-col="uso">
+                            @if ($uses > 0)
+                                <span class="hs-use-pill">{{ $uses }} producto(s)</span>
+                            @else
+                                <span class="hs-muted">Sin asignar</span>
+                            @endif
+                        </td>
+                        <td data-col="estado">
+                            <span class="users-manager-badge {{ $section->is_active ? 'status' : 'status-inactive' }}">
+                                {{ $section->is_active ? 'Activa' : 'Inactiva' }}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="header-right-user-manager">
+                                @permiso('home-sections','edit')
+                                <button type="button" class="table-users-manager-action-btn edit btn-edit-home-section" data-id="{{ $section->id }}" title="Editar">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg>
+                                </button>
+                                @endpermiso
+                                @permiso('home-sections','delete')
+                                <button type="button" class="table-users-manager-action-btn delete btn-delete-home-section" data-id="{{ $section->id }}" data-title="{{ e($rowLabel) }}" title="Eliminar">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
+                                </button>
+                                @endpermiso
+                            </div>
+                        </td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="9" class="hs-tpl-empty">
+                            No hay plantillas de producto todavía. Crea una con “Nueva Plantilla” y asígnala a productos desde Productos.
+                        </td>
+                    </tr>
+                @endforelse
+                    <tr id="hsTplNoResults" style="display:none;">
+                        <td colspan="9" class="hs-tpl-empty">Ninguna plantilla coincide con la búsqueda o los filtros.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+    @else
     {{-- Table --}}
     <main class="table-container-clients-manager head">
         <table class="clients-manager-table brand-table">
@@ -212,6 +366,7 @@
             </table>
         </div>
     </main>
+    @endif
 
 </section>
 
@@ -224,10 +379,44 @@
     <script src="{{ asset('js/admin/column-visibility.js') }}"></script>
     <script>
         initColumnVisibility({
-            tableKey: 'home-sections.index',
+            tableKey: '{{ $isTemplatePage ? 'home-sections.templates' : 'home-sections.index' }}',
             savedColumns: @json($visibleColumns),
             saveUrl: '{{ route('admin.column-preferences.update') }}',
         });
     </script>
+    @if ($isTemplatePage)
+    <script>
+        (function () {
+            const search = document.getElementById('hsTplSearch');
+            if (!search) return;
+            const zone = document.getElementById('hsTplZone');
+            const type = document.getElementById('hsTplType');
+            const state = document.getElementById('hsTplState');
+            const count = document.getElementById('hsTplCount');
+            const rows = Array.from(document.querySelectorAll('.hs-tpl-row'));
+            const none = document.getElementById('hsTplNoResults');
+
+            function apply() {
+                const q = search.value.trim().toLowerCase();
+                let visible = 0;
+                rows.forEach(function (r) {
+                    const ok = (!q || r.dataset.search.indexOf(q) !== -1)
+                        && (!zone.value || r.dataset.zone === zone.value)
+                        && (!type.value || r.dataset.type === type.value)
+                        && (!state.value || r.dataset.active === state.value);
+                    r.style.display = ok ? '' : 'none';
+                    if (ok) visible++;
+                });
+                count.textContent = visible === rows.length
+                    ? rows.length + ' plantilla(s)'
+                    : visible + ' de ' + rows.length + ' plantilla(s)';
+                if (none) none.style.display = rows.length && !visible ? '' : 'none';
+            }
+
+            search.addEventListener('input', apply);
+            [zone, type, state].forEach(function (el) { el.addEventListener('change', apply); });
+        })();
+    </script>
+    @endif
 @endpush
 @endsection

@@ -764,3 +764,83 @@
     border: 1px solid #e5e7eb;
     background: #fff;
 }
+
+/* ============================================================
+   Modal de crear/editar sección: CENTRADO y al 80% de la pantalla
+   (antes era un panel lateral de 700px). Cabecera fija, cuerpo con
+   scroll y botones siempre visibles abajo.
+   ============================================================ */
+#homeSectionModal {
+    justify-content: center;
+    align-items: center;
+    padding: 2vh 2vw;
+    box-sizing: border-box;
+}
+#homeSectionModal .user-manager-modal-content {
+    width: 80vw;
+    max-width: none;
+    height: 80vh;
+    max-height: 80vh;
+    border-radius: 14px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    animation: hsModalIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+#homeSectionModal .user-manager-modal-header { flex: 0 0 auto; }
+#homeSectionModal .user-manager-errors { flex: 0 0 auto; }
+#homeSectionModal #homeSectionForm {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    padding-bottom: 0;
+}
+#homeSectionModal .user-manager-modal-footer {
+    position: sticky;
+    bottom: 0;
+    z-index: 2;
+    margin: 20px -20px 0;
+    padding: 14px 20px;
+    background: #fff;
+    border-top: 1px solid rgb(219, 219, 219);
+}
+@keyframes hsModalIn {
+    from { opacity: 0; transform: translateY(14px) scale(0.98); }
+    to   { opacity: 1; transform: none; }
+}
+@media (max-width: 900px) {
+    #homeSectionModal { padding: 0; }
+    #homeSectionModal .user-manager-modal-content {
+        width: 100vw; height: 100vh; max-height: 100vh; border-radius: 0;
+    }
+}
+
+/* ============================================================
+   Plantillas de producto: lista robusta (búsqueda, filtros, columnas)
+   ============================================================ */
+.hs-tpl-toolbar {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 10px;
+    margin: 0 0 14px;
+}
+.hs-tpl-search { flex: 1 1 280px; min-width: 220px; max-width: 460px; }
+.hs-tpl-filter { flex: 0 0 auto; width: auto; min-width: 160px; }
+.hs-tpl-count { margin-left: auto; font-size: 13px; color: #6b7280; white-space: nowrap; }
+.hs-tpl-table { width: 100%; table-layout: auto; }
+.hs-tpl-table th { text-align: left; white-space: nowrap; padding: 12px 16px; }
+.hs-tpl-table td { padding: 12px 16px; vertical-align: middle; font-size: 13.5px; color: #1f2937; }
+.hs-tpl-table td.hs-tpl-name { min-width: 180px; }
+.hs-tpl-table td.hs-tpl-name strong { font-weight: 700; color: #141516; }
+.hs-tpl-row:hover { background: #fafafa; }
+.hs-muted { color: #9ca3af; font-size: 13px; }
+.hs-eyebrow-badge {
+    display: inline-block; padding: 3px 10px; border-radius: 999px;
+    font-size: 11px; font-weight: 800; letter-spacing: .05em; text-transform: uppercase;
+    background: #fff3ec; color: #ff6213; border: 1px solid #ff621340;
+}
+.hs-use-pill {
+    display: inline-block; padding: 3px 10px; border-radius: 999px;
+    font-size: 12px; font-weight: 600; background: #eef2ff; color: #4338ca;
+}
+.hs-tpl-table td[data-col="tipo"] { white-space: nowrap; }
+.hs-tpl-table td[data-col="tipo"] .hs-zone-badge { margin-left: 4px; }
+.hs-tpl-empty { padding: 32px 16px; text-align: center; color: #9ca3af; }

@@ -60,8 +60,9 @@
         function closeModal() {
             const content = modal.querySelector('.user-manager-modal-content');
             if (content) {
-                content.style.transition = 'transform 0.2s ease-in';
-                content.style.transform = 'translateX(100%)';
+                content.style.transition = 'transform 0.2s ease-in, opacity 0.2s ease-in';
+                content.style.transform = 'translateY(14px) scale(0.98)';
+                content.style.opacity = '0';
             }
             modal.style.transition = 'opacity 0.2s ease-in';
             modal.style.opacity = '0';
@@ -71,6 +72,7 @@
                 modal.style.transition = '';
                 if (content) {
                     content.style.transform = '';
+                    content.style.opacity = '';
                     content.style.transition = '';
                 }
             }, 200);

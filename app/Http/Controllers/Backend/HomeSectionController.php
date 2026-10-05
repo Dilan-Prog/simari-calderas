@@ -153,7 +153,7 @@ class HomeSectionController extends Controller
             : collect();
 
         $visibleColumns = \App\Models\UserColumnPreference::where('user_id', auth()->id())
-            ->where('table_key', 'home-sections.index')
+            ->where('table_key', $page === HomeSection::PAGE_PRODUCT_TEMPLATE ? 'home-sections.templates' : 'home-sections.index')
             ->value('columns');
 
         $globalProductSectionsOn = (bool) config('shop.product_global_sections', false);

@@ -41,6 +41,34 @@ class HomeSection extends Model
         return $this->hasMany(ProductSectionAssignment::class);
     }
 
+    /**
+     * De dónde salen los productos de un carrusel (para listados del admin):
+     * "Colección: X", "Etiqueta: x", "Manual (N productos)", etc. null si el
+     * tipo de bloque no lleva productos (banners, fichas...).
+     */
+    public function productSourceLabel(): ?string
+    {
+        if (!in_array($this->type, ['product_carousel', 'product_carousel_banner'], true)) {
+            return null;
+        }
+
+        $config = $this->config ?? [];
+        $source = $config['source'] ?? 'featured';
+
+        return match ($source) {
+            'collection' => 'Colección: ' . (Collection::find($config['collection_id'] ?? 0)?->name ?? 'no encontrada'),
+            'category'   => 'Categoría: ' . (Category::find($config['category_id'] ?? 0)?->name ?? 'no encontrada'),
+            'brand'      => 'Marca: ' . (Brand::find($config['brand_id'] ?? 0)?->name ?? 'no encontrada'),
+            'tag'        => 'Etiqueta: ' . (($config['tag'] ?? '') !== '' ? $config['tag'] : 'sin definir'),
+            'manual'     => 'Manual (' . count($config['product_ids'] ?? []) . ' productos)',
+            'new'        => 'Productos nuevos',
+            'recommended' => 'Recomendados',
+            'related_category' => 'Misma categoría del producto',
+            'related_brand'    => 'Misma marca del producto',
+            default      => 'Destacados',
+        };
+    }
+
     public function scopeProductTemplates($query)
     {
         return $query->where('page', self::PAGE_PRODUCT_TEMPLATE);

@@ -28,6 +28,7 @@ class ColumnPreferenceController extends Controller
         'menus.index',
         'products.index',
         'home-sections.index',
+        'home-sections.templates',
         'brands.index',
         'suppliers.index',
         'service-pages.index',
