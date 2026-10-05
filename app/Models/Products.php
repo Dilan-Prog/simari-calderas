@@ -377,6 +377,49 @@ class Products extends Model
     }
 
     /**
+     * Cómo se muestra el envío de este producto en tarjetas: mismo orden de
+     * precedencia que Cart::shippingGroups() -- 1) costo propio del producto
+     * (shipping_cost > 0) gana siempre; 2) ShippingRule activa de su marca;
+     * 3) ShippingRule activa de su categoría exacta; 4) sin cargo (gratis).
+     * Antes las tarjetas solo miraban el costo propio y decían "Envío
+     * gratis" aunque la marca/categoría tuviera una regla que SÍ cobra.
+     *
+     * Las reglas activas se leen una sola vez por request (cache "array"),
+     * no una query por tarjeta.
+     *
+     * @return array{cost: float, threshold: ?float, source: ?string}
+     *   source: 'product' | 'brand' | 'category' | null (sin cargo)
+     */
+    public function shippingInfo(): array
+    {
+        if ($this->shipping_cost && (float) $this->shipping_cost > 0) {
+            return [
+                'cost'      => (float) $this->shipping_cost,
+                'threshold' => $this->free_shipping_threshold ? (float) $this->free_shipping_threshold : null,
+                'source'    => 'product',
+            ];
+        }
+
+        $rules = \Illuminate\Support\Facades\Cache::driver('array')->rememberForever(
+            'shipping_rules.active',
+            fn () => ShippingRule::where('is_active', true)->get()
+        );
+
+        $rule = ($this->brand_id ? $rules->firstWhere('brand_id', $this->brand_id) : null)
+            ?? ($this->category_id ? $rules->firstWhere('category_id', $this->category_id) : null);
+
+        if ($rule && $rule->shipping_cost && (float) $rule->shipping_cost > 0) {
+            return [
+                'cost'      => (float) $rule->shipping_cost,
+                'threshold' => $rule->free_shipping_threshold ? (float) $rule->free_shipping_threshold : null,
+                'source'    => $rule->brand_id ? 'brand' : 'category',
+            ];
+        }
+
+        return ['cost' => 0.0, 'threshold' => null, 'source' => null];
+    }
+
+    /**
      * Bloques dinámicos de la página de producto (plantillas ligadas y
      * secciones propias), en el orden elegido por el admin.
      */

@@ -66,6 +66,7 @@
                         <span class="pc-compact__price">${{ number_format($item->base_price, 2) }} MXN</span>
                         <span class="pc-compact__iva">Precio + IVA</span>
                     </span>
+                    <x-frontend.shop.shipping-line :product="$item" />
                 </a>
                 <button type="button" class="product-card__add-btn pc-compact__add" data-product-id="{{ $item->id }}"
                     data-sku="{{ $item->sku }}" data-name="{{ $itemName }}" data-price="{{ $item->base_price }}">Agregar al carrito</button>
