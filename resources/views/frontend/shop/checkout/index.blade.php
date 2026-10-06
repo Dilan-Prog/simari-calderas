@@ -289,7 +289,15 @@
 
                         <div class="checkout-alert checkout-alert--error" id="shippingInlineError" style="display:none;"></div>
 
-                        <form method="POST" action="{{ route('checkout.shipping.store') }}" id="shippingForm" enctype="multipart/form-data" data-accordion-form>
+                        {{--
+                            novalidate a propósito: las burbujas nativas del navegador (idioma del
+                            SO, estilo genérico, sin marca) se reemplazan por la validación propia
+                            en checkout-accordion.js (validateShippingForm()), que reutiliza los
+                            mismos <span class="checkout-field-error"> que ya pinta el 422 del
+                            servidor -- una sola fuente visual de "qué campo falla", en vivo y
+                            acorde al diseño del sitio, no al del sistema operativo.
+                        --}}
+                        <form method="POST" action="{{ route('checkout.shipping.store') }}" id="shippingForm" enctype="multipart/form-data" data-accordion-form novalidate>
                             @csrf
                             <div class="checkout-form">
                                 <div class="checkout-form__head">
@@ -302,25 +310,47 @@
 
                                 <div class="checkout-form__section-label">Contacto</div>
                                 <div class="checkout-form__grid">
-                                    <div class="checkout-form__span2">
+                                    <div class="checkout-field checkout-form__span2">
                                         <input type="text" name="contact_name" maxlength="150" required placeholder="Nombre completo"
+                                            pattern="[A-Za-zÀ-ÖØ-öø-ÿÑñ\s.,&'()-]+" title="Solo letras, espacios y puntuación básica (. , & ' ( ) -)."
                                             value="{{ old('contact_name', $prefill->recipient_name ?? ($customer ? trim($customer->first_name . ' ' . $customer->last_name) : '')) }}">
+                                        <span class="checkout-field-error" data-error-for="contact_name"></span>
                                     </div>
-                                    <input type="email" name="contact_email" maxlength="150" required placeholder="Correo electrónico"
-                                        value="{{ old('contact_email', $customer->email ?? '') }}">
-                                    <input type="tel" name="contact_phone" maxlength="30" required placeholder="Teléfono"
-                                        value="{{ old('contact_phone', $prefill->phone ?? ($customer->phone ?? '')) }}">
+                                    <div class="checkout-field">
+                                        <input type="email" name="contact_email" maxlength="150" required placeholder="Correo electrónico"
+                                            value="{{ old('contact_email', $customer->email ?? '') }}">
+                                        <span class="checkout-field-error" data-error-for="contact_email"></span>
+                                    </div>
+                                    <div class="checkout-field">
+                                        <input type="tel" name="contact_phone" maxlength="30" required placeholder="Teléfono"
+                                            pattern="[0-9\s\-\+\(\)]{7,30}" title="Solo números y los símbolos + - ( ), entre 7 y 30 caracteres."
+                                            value="{{ old('contact_phone', $prefill->phone ?? ($customer->phone ?? '')) }}">
+                                        <span class="checkout-field-error" data-error-for="contact_phone"></span>
+                                    </div>
                                 </div>
+
+                                @unless ($customer)
+                                    <div class="checkout-login-callout">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><path d="m10 17 5-5-5-5"/><path d="M15 12H3"/></svg>
+                                        <div class="checkout-login-callout__text">
+                                            <div class="checkout-login-callout__title">¿Ya tienes cuenta?</div>
+                                            <div class="checkout-login-callout__subtitle">Inicia sesión para que este pedido quede registrado en tu cuenta y puedas darle seguimiento.</div>
+                                        </div>
+                                        <a href="{{ route('shop.login', ['redirect' => url()->current()]) }}" class="checkout-login-callout__btn">Iniciar sesión</a>
+                                    </div>
+                                @endunless
 
                                 <div class="checkout-form__section-label">Dirección de entrega</div>
                                 <div class="checkout-form__grid checkout-form__grid--tight">
-                                    <div class="checkout-form__span2">
-                                        <input type="text" name="shipping_postal_code" id="shippingPostalCode" maxlength="20" required placeholder="Código postal"
+                                    <div class="checkout-field checkout-form__span2">
+                                        <input type="text" name="shipping_postal_code" id="shippingPostalCode" maxlength="5" inputmode="numeric" required placeholder="Código postal"
+                                            pattern="\d{5}" title="El código postal debe tener exactamente 5 dígitos."
                                             value="{{ old('shipping_postal_code', $prefill->postal_code ?? '') }}">
                                         <div class="checkout-form__hint" id="shippingCpHint">Escribe tu código postal para habilitar el resto de la dirección.</div>
+                                        <span class="checkout-field-error" data-error-for="shipping_postal_code"></span>
                                     </div>
 
-                                    <div class="checkout-form__combo checkout-form__span2" data-combo="estado">
+                                    <div class="checkout-field checkout-form__combo checkout-form__span2" data-combo="estado">
                                         <input type="text" name="shipping_state" maxlength="100" required placeholder="Buscar estado..." autocomplete="off"
                                             value="{{ old('shipping_state', $prefill->state ?? '') }}" data-combo-input data-cp-gated>
                                         <div class="checkout-form__combo-list" data-combo-list>
@@ -328,22 +358,34 @@
                                                 <div class="checkout-form__combo-option" data-value="{{ $estado }}">{{ $estado }}</div>
                                             @endforeach
                                         </div>
+                                        <span class="checkout-field-error" data-error-for="shipping_state"></span>
                                     </div>
 
-                                    <input type="text" name="shipping_city" maxlength="100" required placeholder="Ciudad" data-cp-gated
-                                        value="{{ old('shipping_city', $prefill->city ?? '') }}">
+                                    <div class="checkout-field">
+                                        <input type="text" name="shipping_city" maxlength="100" required placeholder="Ciudad" data-cp-gated
+                                            pattern="[A-Za-zÀ-ÖØ-öø-ÿÑñ\s.,'-]+" title="Solo letras, espacios y puntuación básica (. , ' -)."
+                                            value="{{ old('shipping_city', $prefill->city ?? '') }}">
+                                        <span class="checkout-field-error" data-error-for="shipping_city"></span>
+                                    </div>
 
-                                    <input type="text" name="shipping_address_line2" maxlength="255" required placeholder="Colonia" data-cp-gated
-                                        value="{{ old('shipping_address_line2', $prefill->address_line2 ?? '') }}">
+                                    <div class="checkout-field">
+                                        <input type="text" name="shipping_address_line2" maxlength="255" required placeholder="Colonia" data-cp-gated
+                                            pattern="[A-Za-zÀ-ÖØ-öø-ÿÑñ0-9\s.,#'-]+" title="Letras, números y puntuación básica (. , # ' -)."
+                                            value="{{ old('shipping_address_line2', $prefill->address_line2 ?? '') }}">
+                                        <span class="checkout-field-error" data-error-for="shipping_address_line2"></span>
+                                    </div>
 
-                                    <div class="checkout-form__span2">
+                                    <div class="checkout-field checkout-form__span2">
                                         <input type="text" name="shipping_address_line1" maxlength="255" required placeholder="Calle y número" data-cp-gated
+                                            pattern="[A-Za-zÀ-ÖØ-öø-ÿÑñ0-9\s.,#'\/-]+" title="Letras, números y puntuación básica (. , # ' / -)."
                                             value="{{ old('shipping_address_line1', $prefill->address_line1 ?? '') }}">
+                                        <span class="checkout-field-error" data-error-for="shipping_address_line1"></span>
                                     </div>
 
-                                    <div class="checkout-form__span2">
+                                    <div class="checkout-field checkout-form__span2">
                                         <input type="text" name="shipping_reference" maxlength="255" placeholder="Referencias de entrega (opcional)" data-cp-gated
                                             value="{{ old('shipping_reference', $prefill->reference ?? '') }}">
+                                        <span class="checkout-field-error" data-error-for="shipping_reference"></span>
                                     </div>
                                 </div>
 
@@ -367,10 +409,14 @@
                                     </label>
 
                                 <div id="invoiceFields" class="checkout-invoice-card__body checkout-form__grid checkout-form__grid--tight checkout-form__invoice-fields{{ $requiresInvoiceOld ? '' : ' is-hidden' }}">
-                                    <input type="text" name="rfc" maxlength="13" placeholder="RFC" style="text-transform:uppercase;"
-                                        value="{{ old('rfc') }}">
+                                    <div class="checkout-field">
+                                        <input type="text" name="rfc" maxlength="13" placeholder="RFC" style="text-transform:uppercase;"
+                                            pattern="[A-ZÑ&amp;]{3,4}[0-9]{6}[A-Z0-9]{3}" title="RFC con formato válido, ej. XAXX010101000."
+                                            value="{{ old('rfc') }}">
+                                        <span class="checkout-field-error" data-error-for="rfc"></span>
+                                    </div>
 
-                                    <div class="checkout-form__combo" data-combo="usoCfdi">
+                                    <div class="checkout-field checkout-form__combo" data-combo="usoCfdi">
                                         <input type="text" placeholder="Buscar uso de CFDI..." autocomplete="off" data-combo-input
                                             value="{{ $usoCfdiOldLabel }}">
                                         <input type="hidden" name="uso_cfdi" value="{{ old('uso_cfdi') }}" data-combo-hidden>
@@ -379,14 +425,17 @@
                                                 <div class="checkout-form__combo-option" data-value="{{ $opt['value'] }}" data-label="{{ $opt['label'] }}">{{ $opt['label'] }}</div>
                                             @endforeach
                                         </div>
+                                        <span class="checkout-field-error" data-error-for="uso_cfdi"></span>
                                     </div>
 
-                                    <div class="checkout-form__span2">
+                                    <div class="checkout-field checkout-form__span2">
                                         <input type="text" name="razon_social" maxlength="150" placeholder="Razón social"
+                                            pattern="[\p{L}\p{N}\s.,&amp;'()-]+" title="Letras, números y los caracteres . , &amp; ' ( ) -."
                                             value="{{ old('razon_social') }}">
+                                        <span class="checkout-field-error" data-error-for="razon_social"></span>
                                     </div>
 
-                                    <div class="checkout-form__combo checkout-form__span2" data-combo="regimenFiscal">
+                                    <div class="checkout-field checkout-form__combo checkout-form__span2" data-combo="regimenFiscal">
                                         <input type="text" placeholder="Buscar régimen fiscal..." autocomplete="off" data-combo-input
                                             value="{{ $regimenFiscalOldLabel }}">
                                         <input type="hidden" name="regimen_fiscal" value="{{ old('regimen_fiscal') }}" data-combo-hidden>
@@ -395,20 +444,24 @@
                                                 <div class="checkout-form__combo-option" data-value="{{ $opt['value'] }}" data-label="{{ $opt['label'] }}">{{ $opt['label'] }}</div>
                                             @endforeach
                                         </div>
+                                        <span class="checkout-field-error" data-error-for="regimen_fiscal"></span>
                                     </div>
 
-                                    <div class="checkout-form__span2">
-                                        <input type="text" name="cp_fiscal" maxlength="10" placeholder="Código postal fiscal"
+                                    <div class="checkout-field checkout-form__span2">
+                                        <input type="text" name="cp_fiscal" maxlength="5" inputmode="numeric" placeholder="Código postal fiscal"
+                                            pattern="\d{5}" title="El código postal fiscal debe tener exactamente 5 dígitos."
                                             value="{{ old('cp_fiscal') }}">
+                                        <span class="checkout-field-error" data-error-for="cp_fiscal"></span>
                                     </div>
 
-                                    <div class="checkout-form__span2">
+                                    <div class="checkout-field checkout-form__span2">
                                         <label class="checkout-form__file-label">Constancia de Situación Fiscal (SAT)</label>
                                         <input type="file" name="tax_certificate" accept=".pdf,.jpg,.jpeg,.png" class="checkout-form__file">
                                         <div class="checkout-form__file-hint">
                                             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="9" rx="1.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
                                             PDF, JPG o PNG. Máx. 5MB. Se usa solo para timbrar tu factura.
                                         </div>
+                                        <span class="checkout-field-error" data-error-for="tax_certificate"></span>
                                     </div>
                                 </div>
                                 </div>{{-- /.checkout-invoice-card --}}

@@ -121,9 +121,23 @@ function initAccordion() {
         const errorBox = document.getElementById('shippingInlineError');
         const submitBtn = document.getElementById('shippingSubmitBtn');
 
+        // Limpia el error de un campo puntual en cuanto el visitante lo
+        // vuelve a tocar, sin esperar al siguiente submit completo.
+        shippingForm.addEventListener('input', (e) => {
+            const wrapper = e.target.closest('.checkout-field');
+            if (!wrapper || !wrapper.classList.contains('has-error')) return;
+            wrapper.classList.remove('has-error');
+            const errorEl = wrapper.querySelector('.checkout-field-error');
+            if (errorEl) errorEl.textContent = '';
+        });
+
         shippingForm.addEventListener('submit', (e) => {
             e.preventDefault();
             if (errorBox) errorBox.style.display = 'none';
+            clearShippingFieldErrors(shippingForm);
+
+            if (!validateShippingForm(shippingForm)) return;
+
             if (submitBtn) submitBtn.disabled = true;
 
             fetch(shippingForm.getAttribute('action') || root.dataset.shippingStoreUrl, {
@@ -138,11 +152,10 @@ function initAccordion() {
                     const data = await res.json().catch(() => ({}));
 
                     if (!res.ok) {
-                        const messages = data.errors
-                            ? Object.values(data.errors).flat()
-                            : [data.message || 'No se pudo guardar. Revisa los datos e intenta de nuevo.'];
-                        if (errorBox) {
-                            errorBox.innerHTML = '<ul>' + messages.map((m) => `<li>${m}</li>`).join('') + '</ul>';
+                        if (data.errors) {
+                            showShippingFieldErrors(shippingForm, data.errors);
+                        } else if (errorBox) {
+                            errorBox.textContent = data.message || 'No se pudo guardar. Revisa los datos e intenta de nuevo.';
                             errorBox.style.display = 'block';
                         }
                         if (submitBtn) submitBtn.disabled = false;
@@ -163,6 +176,108 @@ function initAccordion() {
                 });
         });
     }
+}
+
+function setShippingFieldError(form, name, message) {
+    const input = form.querySelector(`[name="${name}"]`);
+    const errorEl = form.querySelector(`[data-error-for="${name}"]`);
+    const wrapper = input ? input.closest('.checkout-field') : null;
+
+    if (wrapper) wrapper.classList.add('has-error');
+    if (errorEl) errorEl.textContent = message;
+
+    return input;
+}
+
+/**
+ * Mismo patrón que showFieldErrors() en admin/technical-services.js: cada
+ * campo del 422 de Laravel se mapea a su <span class="checkout-field-error">
+ * (data-error-for="<name>") en vez de amontonar todo en un solo cartel
+ * arriba del formulario, así el visitante ve exactamente qué campo corregir.
+ */
+function showShippingFieldErrors(form, errors) {
+    let firstInvalid = null;
+
+    Object.entries(errors).forEach(([name, messages]) => {
+        const message = Array.isArray(messages) ? messages[0] : messages;
+        const input = setShippingFieldError(form, name, message);
+        if (!firstInvalid && input) firstInvalid = input;
+    });
+
+    if (firstInvalid) firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function clearShippingFieldErrors(form) {
+    form.querySelectorAll('.checkout-field.has-error').forEach((el) => el.classList.remove('has-error'));
+    form.querySelectorAll('.checkout-field-error').forEach((el) => { el.textContent = ''; });
+}
+
+/**
+ * Validación en vivo, del lado del cliente, ANTES de tocar el servidor --
+ * mismo criterio de "dominio" que CheckoutController::storeShipping() (obligatorio
+ * + patrón de caracteres válidos por campo), pero pintada con los mismos
+ * <span class="checkout-field-error"> de marca en vez de las burbujas nativas
+ * del navegador (#shippingForm tiene novalidate a propósito, ver blade).
+ * Recorre todo campo que traiga su propio data-error-for -- incluidos los de
+ * facturación (RFC, etc.), que solo se validan si "Necesito factura" está
+ * marcado: initInvoiceToggle() solo los esconde con CSS, no los deshabilita,
+ * así que ese checkeo va explícito aquí (mismo criterio que required_if en
+ * el servidor).
+ */
+function validateShippingForm(form) {
+    let firstInvalid = null;
+    const invoiceFieldNames = ['rfc', 'uso_cfdi', 'razon_social', 'regimen_fiscal', 'cp_fiscal', 'tax_certificate'];
+    const requiresInvoice = form.querySelector('#requiresInvoice');
+    const invoiceChecked = !!(requiresInvoice && requiresInvoice.checked);
+
+    form.querySelectorAll('[data-error-for]').forEach((span) => {
+        const name = span.dataset.errorFor;
+        const input = form.querySelector(`[name="${name}"]`);
+        if (!input || input.disabled) return;
+        if (invoiceFieldNames.includes(name) && !invoiceChecked) return;
+
+        const isFile = input.type === 'file';
+        const isRequired = input.hasAttribute('required') || invoiceFieldNames.includes(name);
+        const value = isFile ? '' : input.value.trim();
+        let message = '';
+
+        if (isFile) {
+            if (isRequired && input.files.length === 0) message = 'Este campo es obligatorio.';
+        } else if (isRequired && !value) {
+            message = 'Este campo es obligatorio.';
+        } else if (value && input.type === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+            message = 'Escribe un correo electrónico válido.';
+        } else if (value && input.hasAttribute('pattern')) {
+            // Un pattern mal escrito no debe tumbar la validación de TODO el
+            // formulario (un throw aquí abortaría el resto del forEach) --
+            // en ese caso se deja pasar el campo del lado del cliente y el
+            // 422 real del servidor (que sí corre su propio regex en PHP)
+            // sigue siendo la última palabra.
+            try {
+                const regex = new RegExp(`^(?:${input.getAttribute('pattern')})$`, 'u');
+                if (!regex.test(value)) message = input.title || 'El formato no es válido.';
+            } catch (err) {
+                console.error(`Patrón inválido en el campo "${name}":`, err);
+            }
+        } else if (value && ['shipping_state', 'uso_cfdi', 'regimen_fiscal'].includes(name)) {
+            const comboWrap = input.closest('.checkout-form__combo') || form;
+            const validValues = Array.from(comboWrap.querySelectorAll('.checkout-form__combo-option')).map((opt) => opt.dataset.value);
+            const labels = { shipping_state: 'un estado', uso_cfdi: 'un uso de CFDI', regimen_fiscal: 'un régimen fiscal' };
+            if (!validValues.includes(value)) message = `Elige ${labels[name]} válido de la lista.`;
+        }
+
+        if (message) {
+            const errored = setShippingFieldError(form, name, message);
+            if (!firstInvalid) firstInvalid = errored;
+        }
+    });
+
+    if (firstInvalid) {
+        firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        firstInvalid.focus({ preventScroll: true });
+    }
+
+    return !firstInvalid;
 }
 
 function initAddressPicker() {
@@ -317,6 +432,8 @@ function initSpanishValidationMessages() {
                 );
             } else if (field.validity.typeMismatch) {
                 field.setCustomValidity('El formato no es válido.');
+            } else if (field.validity.patternMismatch) {
+                field.setCustomValidity(field.title || 'El formato no es válido.');
             } else {
                 field.setCustomValidity('');
             }
@@ -334,6 +451,14 @@ function initInvoiceToggle() {
     if (invoiceCheckbox && invoiceFields) {
         invoiceCheckbox.addEventListener('change', () => {
             invoiceFields.classList.toggle('is-hidden', !invoiceCheckbox.checked);
+
+            // Al desmarcar "Necesito factura" esos campos dejan de ser
+            // obligatorios (ver validateShippingForm()) -- cualquier error
+            // que traían marcado ya no aplica.
+            if (!invoiceCheckbox.checked) {
+                invoiceFields.querySelectorAll('.checkout-field.has-error').forEach((el) => el.classList.remove('has-error'));
+                invoiceFields.querySelectorAll('.checkout-field-error').forEach((el) => { el.textContent = ''; });
+            }
         });
     }
 }
@@ -365,6 +490,16 @@ function initSearchableCombos() {
                 input.value = opt.dataset.label || opt.dataset.value;
                 if (hidden) hidden.value = opt.dataset.value;
                 wrap.classList.remove('is-open');
+
+                // Elegir del dropdown no dispara 'input' (solo se asigna
+                // .value directo) -- si el campo venía marcado en rojo por
+                // validateShippingForm(), esto lo limpia igual que si
+                // hubiera escrito.
+                if (wrap.classList.contains('has-error')) {
+                    wrap.classList.remove('has-error');
+                    const errorEl = wrap.querySelector('.checkout-field-error');
+                    if (errorEl) errorEl.textContent = '';
+                }
             });
         });
 

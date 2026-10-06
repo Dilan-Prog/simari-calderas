@@ -216,7 +216,7 @@
     "isEntry": true
   },
   "resources/css/frontend/shop/checkout.css": {
-    "file": "assets/checkout-XU54OH-N.css",
+    "file": "assets/checkout-4JH9t9KZ.css",
     "src": "resources/css/frontend/shop/checkout.css",
     "isEntry": true
   },
@@ -512,7 +512,7 @@
     ]
   },
   "resources/js/frontend/shop/checkout-accordion.js": {
-    "file": "assets/checkout-accordion-BhNFBlsQ.js",
+    "file": "assets/checkout-accordion-f--k0Nei.js",
     "name": "checkout-accordion",
     "src": "resources/js/frontend/shop/checkout-accordion.js",
     "isEntry": true

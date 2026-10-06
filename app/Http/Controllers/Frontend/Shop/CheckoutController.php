@@ -185,22 +185,63 @@ class CheckoutController extends Controller
         }
 
         $data = $request->validate([
-            'contact_name'            => ['required', 'string', 'max:150'],
+            // Validación de "dominio" (caracteres válidos por campo), no solo
+            // presencia/longitud -- mismo criterio que los formularios de
+            // admin (ver PurchaseOrderController/ProductController): cada
+            // campo restringe a los caracteres que de verdad puede tener ese
+            // dato en la vida real, así el mensaje de error dice exactamente
+            // qué está mal en vez de un genérico "formato inválido".
+            'contact_name'            => ['required', 'string', 'max:150', 'regex:/^[\pL\s.,&\'()-]+$/u'],
             'contact_email'           => ['required', 'email', 'max:150'],
-            'contact_phone'           => ['required', 'string', 'max:30'],
-            'shipping_address_line1'  => ['required', 'string', 'max:255'],
-            'shipping_address_line2'  => ['required', 'string', 'max:255'], // Colonia
+            'contact_phone'           => ['required', 'string', 'max:30', 'regex:/^[0-9\s\-\+\(\)]{7,30}$/'],
+            'shipping_address_line1'  => ['required', 'string', 'max:255', 'regex:/^[\pL\pN\s.,#\'\/-]+$/u'],
+            'shipping_address_line2'  => ['required', 'string', 'max:255', 'regex:/^[\pL\pN\s.,#\'-]+$/u'], // Colonia
             'shipping_reference'      => ['nullable', 'string', 'max:255'], // Referencias de entrega (opcional)
-            'shipping_city'           => ['required', 'string', 'max:100'],
-            'shipping_state'          => ['required', 'string', 'max:100'],
-            'shipping_postal_code'    => ['required', 'string', 'max:20'],
+            'shipping_city'           => ['required', 'string', 'max:100', 'regex:/^[\pL\s.,\'-]+$/u'],
+            'shipping_state'          => ['required', 'string', Rule::in(self::ESTADOS_MEXICO)],
+            'shipping_postal_code'    => ['required', 'digits:5'],
             'requires_invoice'        => ['nullable', 'boolean'],
-            'rfc'                     => ['required_if:requires_invoice,1', 'nullable', 'string', 'max:13'],
+            'rfc'                     => ['required_if:requires_invoice,1', 'nullable', 'string', 'regex:/^[A-ZÑ&]{3,4}\d{6}[A-Z0-9]{3}$/'],
             'uso_cfdi'                => ['required_if:requires_invoice,1', 'nullable', 'string', Rule::in(array_column(self::USO_CFDI_OPTIONS, 'value'))],
-            'razon_social'            => ['required_if:requires_invoice,1', 'nullable', 'string', 'max:150'],
+            'razon_social'            => ['required_if:requires_invoice,1', 'nullable', 'string', 'max:150', 'regex:/^[\pL\pN\s.,&\'()-]+$/u'],
             'regimen_fiscal'          => ['required_if:requires_invoice,1', 'nullable', 'string', Rule::in(array_column(self::REGIMEN_FISCAL_OPTIONS, 'value'))],
-            'cp_fiscal'               => ['required_if:requires_invoice,1', 'nullable', 'string', 'max:10'],
+            'cp_fiscal'               => ['required_if:requires_invoice,1', 'nullable', 'digits:5'],
             'tax_certificate'         => ['required_if:requires_invoice,1', 'nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],
+        ], [
+            // El sitio no trae archivos de idioma (lang/es) para los
+            // mensajes por defecto del validador -- sin esto, un 422 real
+            // le llegaría al cliente en inglés ("The x field is required.").
+            'required'             => 'Este campo es obligatorio.',
+            'required_if'          => 'Este campo es obligatorio.',
+            'max'                  => 'Este campo es demasiado largo.',
+            'contact_email.email' => 'Escribe un correo electrónico válido.',
+            'contact_name.regex'  => 'Solo se permiten letras, espacios y los caracteres . , & \' ( ) -.',
+            'contact_phone.regex' => 'Solo números y los símbolos + - ( ), entre 7 y 30 caracteres.',
+            'shipping_address_line1.regex' => 'Letras, números y los caracteres . , # \' / -.',
+            'shipping_address_line2.regex' => 'Letras, números y los caracteres . , # \' -.',
+            'shipping_city.regex'  => 'Solo se permiten letras, espacios y los caracteres . , \' -.',
+            'shipping_state.in'    => 'Elige un estado válido de la lista.',
+            'shipping_postal_code.digits' => 'El código postal debe tener exactamente 5 dígitos.',
+            'rfc.regex'             => 'El RFC no tiene un formato válido (ej. XAXX010101000).',
+            'razon_social.regex'   => 'Letras, números y los caracteres . , & \' ( ) -.',
+            'uso_cfdi.in'          => 'Elige un uso de CFDI válido de la lista.',
+            'regimen_fiscal.in'    => 'Elige un régimen fiscal válido de la lista.',
+            'cp_fiscal.digits'     => 'El código postal fiscal debe tener exactamente 5 dígitos.',
+        ], [
+            'contact_name'           => 'nombre completo',
+            'contact_email'          => 'correo electrónico',
+            'contact_phone'          => 'teléfono',
+            'shipping_address_line1' => 'calle y número',
+            'shipping_address_line2' => 'colonia',
+            'shipping_city'          => 'ciudad',
+            'shipping_state'         => 'estado',
+            'shipping_postal_code'   => 'código postal',
+            'rfc'                    => 'RFC',
+            'uso_cfdi'               => 'uso de CFDI',
+            'razon_social'           => 'razón social',
+            'regimen_fiscal'         => 'régimen fiscal',
+            'cp_fiscal'              => 'código postal fiscal',
+            'tax_certificate'        => 'constancia de situación fiscal',
         ]);
 
         $data['requires_invoice'] = $request->boolean('requires_invoice');

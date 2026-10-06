@@ -13,8 +13,16 @@ use Illuminate\Validation\ValidationException;
 
 class LoginController extends Controller
 {
-    public function create()
+    public function create(Request $request)
     {
+        // Permite volver exactamente a donde estaba el visitante (ej. a
+        // mitad del checkout) tras loguearse -- ver banner "¿Ya tienes
+        // cuenta?" en checkout/index.blade.php. Solo se acepta una ruta
+        // relativa propia del sitio, nunca una URL externa arbitraria.
+        if ($request->filled('redirect') && Str::startsWith($request->query('redirect'), url('/'))) {
+            $request->session()->put('url.intended', $request->query('redirect'));
+        }
+
         return view('frontend.shop.account.auth', ['mode' => 'login']);
     }
 
