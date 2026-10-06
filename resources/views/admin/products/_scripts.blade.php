@@ -364,9 +364,17 @@
                 });
             }
 
+            const bulkExportBtn = document.getElementById('prodBulkExportBtn');
+            const exportBaseUrl = '{{ route('admin.products.export') }}';
+
             function syncBulkBar() {
                 bulkCount.textContent = selectedIds.size;
                 bulkBar.classList.toggle('active', selectedIds.size > 0);
+                // "Exportar selección": download-format.js lee esta URL al hacer clic.
+                if (bulkExportBtn) {
+                    bulkExportBtn.setAttribute('data-download-url',
+                        exportBaseUrl + '?ids=' + Array.from(selectedIds).join(','));
+                }
                 syncCheckboxesUI();
             }
 

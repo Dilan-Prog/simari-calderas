@@ -5,6 +5,10 @@
     <button type="button" class="prod-bulk-btn" data-action="deactivate">Desactivar</button>
     <button type="button" class="prod-bulk-btn" data-action="publish">Publicar en Web</button>
     <button type="button" class="prod-bulk-btn" data-action="unpublish">Despublicar</button>
+    {{-- data-download-url se actualiza en _scripts.blade.php (syncBulkBar) con
+         los ids seleccionados; el modal de formato (PDF/Excel) lo abre. --}}
+    <button type="button" class="prod-bulk-btn" id="prodBulkExportBtn"
+        data-download-url="{{ route('admin.products.export') }}">Exportar selección</button>
     @permiso('products','delete')
     <button type="button" class="prod-bulk-btn danger" id="prodBulkDeleteBtn">Eliminar</button>
     @endpermiso

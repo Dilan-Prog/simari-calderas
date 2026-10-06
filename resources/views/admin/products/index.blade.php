@@ -285,7 +285,7 @@
                                     <div class="prod-actions">
                                         @permiso('products','edit')
                                         <button class="prod-action-btn edit" type="button"
-                                            onclick="window.location.href='{{ route('admin.products.edit', $product->id) }}'">
+                                            onclick="window.location.href='{{ route('admin.products.edit', ['id' => $product->id, 'return_to' => request()->fullUrl()]) }}'">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17"
                                                 viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -395,7 +395,7 @@
                             <div class="prod-actions">
                                 @permiso('products','edit')
                                 <button class="prod-action-btn edit" type="button"
-                                    onclick="window.location.href='{{ route('admin.products.edit', $product->id) }}'">
+                                    onclick="window.location.href='{{ route('admin.products.edit', ['id' => $product->id, 'return_to' => request()->fullUrl()]) }}'">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17"
                                         viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                         stroke-linecap="round" stroke-linejoin="round">

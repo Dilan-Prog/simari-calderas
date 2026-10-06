@@ -196,6 +196,7 @@
             <form id="productEditForm" method="POST" action="{{ route('admin.products.update', $product->id) }}" enctype="multipart/form-data">
                 @csrf
                 @method('PUT')
+                <input type="hidden" name="return_to" value="{{ old('return_to', $returnTo ?? '') }}">
                 <input type="hidden" name="is_active" id="pformIsActive" value="{{ old('is_active', $product->is_active ? 1 : 0) }}">
                 <input type="hidden" name="is_featured" id="pformIsFeatured" value="{{ old('is_featured', $product->is_featured ? 1 : 0) }}">
                 <input type="hidden" name="is_new" id="pformIsNew" value="{{ old('is_new', $product->is_new ? 1 : 0) }}">

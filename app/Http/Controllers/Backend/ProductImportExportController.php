@@ -51,14 +51,26 @@ class ProductImportExportController extends Controller
 
     public function export(Request $request)
     {
+        // "Exportar selección": ids=1,2,3 desde la barra de acciones masivas
+        // del listado. Sin ids exporta todo el catálogo, como siempre.
+        $ids = null;
+        if ($request->filled('ids')) {
+            $ids = array_values(array_unique(array_filter(
+                array_map('intval', explode(',', (string) $request->input('ids'))),
+                fn ($id) => $id > 0
+            )));
+        }
+
         if ($request->input('format') === 'pdf') {
-            $products = \App\Models\Products::with(['category.parent.parent', 'brand'])->orderBy('id')->get();
+            $products = \App\Models\Products::with(['category.parent.parent', 'brand'])
+                ->when($ids !== null, fn ($q) => $q->whereIn('id', $ids))
+                ->orderBy('id')->get();
 
             return Pdf::loadView('admin.products.pdf.catalog', ['products' => $products])
                 ->setPaper('a4', 'landscape')->download('catalogo-productos-' . now()->format('Y-m-d') . '.pdf');
         }
 
-        return Excel::download(new ProductsExport(), 'productos-' . now()->format('Y-m-d') . '.xlsx');
+        return Excel::download(new ProductsExport($ids), 'productos-' . now()->format('Y-m-d') . '.xlsx');
     }
 
     public function import(Request $request)

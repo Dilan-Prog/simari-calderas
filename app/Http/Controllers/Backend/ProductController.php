@@ -1182,9 +1182,14 @@ class ProductController extends Controller
 
         $allSuppliers = Supplier::where('status', 'active')->orderBy('company_name')->get();
 
+        // Solo se conserva si apunta al propio listado (ver safeIndexReturnUrl).
+        $returnTo = request()->filled('return_to')
+            ? $this->safeIndexReturnUrl(request('return_to'))
+            : '';
+
         return view(
             'admin.products.edit_product.edit',
-            compact('product', 'categories', 'brands', 'allSuppliers')
+            compact('product', 'categories', 'brands', 'allSuppliers', 'returnTo')
         );
     }
 
@@ -1443,8 +1448,27 @@ class ProductController extends Controller
             }
         }
 
-        return redirect()->route('admin.products.index')
+        // Vuelve al listado tal como estaba (búsqueda, filtros y página) si
+        // el usuario llegó desde ahí -- ver return_to en index.blade.php.
+        return redirect($this->safeIndexReturnUrl($request->input('return_to')))
             ->with('success', 'Producto actualizado correctamente.');
+    }
+
+    /**
+     * Solo acepta URLs del propio listado de productos (mismo host y ruta),
+     * nunca una URL externa arbitraria; en cualquier otro caso cae al listado
+     * sin filtros.
+     */
+    private function safeIndexReturnUrl(?string $url): string
+    {
+        $indexUrl = route('admin.products.index');
+
+        if ($url && str_starts_with($url, $indexUrl)
+            && in_array(substr($url, strlen($indexUrl), 1), ['', '?'], true)) {
+            return $url;
+        }
+
+        return $indexUrl;
     }
 
     /**

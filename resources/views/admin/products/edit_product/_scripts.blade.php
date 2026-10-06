@@ -78,7 +78,9 @@
 
             /* ── Back button ── */
             document.getElementById('pformBackBtn').addEventListener('click', function() {
-                window.location.href = '{{ route('admin.products.index') }}';
+                // Si se llegó desde el listado, vuelve con la misma búsqueda/página.
+                const returnTo = document.querySelector('#productEditForm input[name="return_to"]');
+                window.location.href = (returnTo && returnTo.value) || '{{ route('admin.products.index') }}';
             });
 
             /* ── Validation helpers ── */
