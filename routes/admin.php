@@ -281,6 +281,9 @@ Route::controller(CategoryController::class)
         Route::get('/categorias/editar/{id}', 'edit')->name('categories.edit')->middleware('permission:categories,edit');
         Route::put('/categorias/editar/{id}', 'update')->name('categories.update')->middleware('permission:categories,edit');
         Route::delete('/categorias/eliminar/{id}', 'destroy')->name('categories.destroy')->middleware('permission:categories,delete');
+        // Filtros técnicos por categoría (catálogo público): grupos y opciones basadas en etiquetas de producto.
+        Route::get('/categorias/{id}/filtros', [\App\Http\Controllers\Backend\CategoryFilterController::class, 'show'])->name('categories.filters.show')->whereNumber('id');
+        Route::put('/categorias/{id}/filtros', [\App\Http\Controllers\Backend\CategoryFilterController::class, 'update'])->name('categories.filters.update')->whereNumber('id')->middleware('permission:categories,edit');
     });
 
 // ============================================================

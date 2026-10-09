@@ -68,11 +68,12 @@ Route::get('/media/{path}', [MediaServeController::class, 'show'])
     ->name('media.show');
 Route::controller(CatalogController::class)->group(function () {
     Route::get('/', 'home')->name('home');
-    Route::get('/catalogo', 'index')->name('catalog.index');
+    Route::get('/catalogo', 'index')->middleware('throttle:catalog')->name('catalog.index');
     // FIX (SEO slugs): widened to match multi-segment hierarchical slugs
     // (e.g. "bombas-de-calor/masstercal") — see Redirect model + Category::slug.
     Route::get('/catalogo/{categorySlug}', 'category')
         ->where('categorySlug', '.*')
+        ->middleware('throttle:catalog')
         ->name('catalog.category');
     Route::get('/buscar-en-vivo', 'liveSearch')->middleware('throttle:30,1')->name('catalog.live-search');
 });

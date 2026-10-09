@@ -239,6 +239,11 @@
                             echo '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg>';
                             echo '</button>';
                         }
+                        if ($user && $user->hasPermission('categories', 'edit')) {
+                            echo '<button type="button" class="table-users-manager-action-btn btn-category-filters" data-category-id="'.$cat->id.'" data-category-name="'.e($cat->name).'" title="Filtros técnicos" aria-label="Filtros técnicos de '.e($cat->name).'">';
+                            echo '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="4" x2="20" y1="6" y2="6"/><line x1="7" x2="17" y1="12" y2="12"/><line x1="10" x2="14" y1="18" y2="18"/></svg>';
+                            echo '</button>';
+                        }
                         if ($user && $user->hasPermission('categories', 'delete')) {
                             echo '<button type="button" class="table-users-manager-action-btn delete btn-delete-category" data-id="'.$cat->id.'" data-name="'.e($cat->name).'" data-slug="'.e($cat->slug).'">';
                             echo '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>';
@@ -285,6 +290,10 @@
 
 @include('admin.categories.partials._create_edit_modal')
 @include('admin.categories.partials._delete_modal')
+@permiso('categories','edit')
+@include('admin.categories.partials._filters_modal')
+@include('admin.categories.partials._filters_scripts')
+@endpermiso
 @include('admin.categories.partials._scripts')
 </div>
 @push('scripts')

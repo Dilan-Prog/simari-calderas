@@ -518,10 +518,25 @@ img { max-width: 100%; height: auto; display: block; }
     min-width: 0; box-sizing: border-box; transition: box-shadow .2s, transform .2s;
 }
 .product-card:hover { box-shadow: 0 10px 24px rgba(0,0,0,0.1); transform: translateY(-3px); }
-.product-card__badge {
-    position: absolute; top: 10px; left: 10px; z-index: 3; background: var(--background-primary); color: #fff;
-    font-size: 10.5px; font-weight: 800; padding: 3px 8px; border-radius: 4px;
+.product-card__sr {
+    position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden;
+    clip: rect(0,0,0,0); white-space: nowrap; border: 0;
 }
+/* Etiquetas (BadgeResolver, máx. 2) sobre la esquina superior izquierda de la
+   imagen. Colores por etiqueta en --badge-bg/--badge-fg (el fg se calcula en PHP
+   por contraste WCAG). No capturan clics: el enlace de la imagen sigue activo. */
+.product-card__badges {
+    position: absolute; top: 20px; left: 20px; z-index: 3; max-width: calc(100% - 40px);
+    display: flex; flex-direction: column; align-items: flex-start; gap: 4px; pointer-events: none;
+}
+.product-card__badge {
+    background: var(--badge-bg, var(--background-primary)); color: var(--badge-fg, #fff);
+    font-size: 11px; font-weight: 800; line-height: 1.2; padding: 3px 8px; border-radius: 4px;
+    max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+}
+.product-card--compact .product-card__badges { top: 16px; left: 16px; max-width: calc(100% - 32px); gap: 3px; }
+.product-card--compact .product-card__badge { font-size: 10px; padding: 2px 6px; }
 .product-card__link { color: inherit; text-decoration: none; display: flex; flex-direction: column; gap: 8px; flex: 1; }
 .product-card__img-wrap { position: relative; width: 100%; aspect-ratio: 1 / 1; border-radius: 6px; overflow: hidden; background: #fff; }
 .product-card__img { width: 100%; height: 100%; object-fit: contain; }
@@ -542,29 +557,49 @@ img { max-width: 100%; height: auto; display: block; }
 .product-card__name { font-size: 13.5px; line-height: 1.3; min-height: 56px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 .product-card--compact .product-card__name { min-height: 34px; -webkit-line-clamp: 2; font-size: 13px; }
 .product-card__sku { font-size: 11.5px; color: #9ca3af; margin-top: -6px; }
-.product-card__original { font-size: 12.5px; color: #9ca3af; text-decoration: line-through; }
-.product-card__price-row { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+.product-card__original { font-size: 12.5px; font-weight: 500; color: #6b7280; text-decoration: line-through; white-space: nowrap; }
+.product-card--compact .product-card__original { font-size: 11.5px; }
+.product-card__price-row { display: flex; align-items: baseline; flex-wrap: wrap; gap: 2px 8px; }
 .product-card__price { font-size: 19px; font-weight: 800; overflow-wrap: break-word; }
 .product-card--compact .product-card__price { font-size: 16px; }
-.product-card__discount { background: var(--secondary-color); color: #fff; font-size: 11px; font-weight: 800; padding: 2px 6px; border-radius: 4px; }
-.product-card__iva-note { font-size: 11px; color: #9ca3af; font-weight: 600; white-space: nowrap; }
+.product-card__iva-note { font-size: 11px; color: #6b7280; font-weight: 600; white-space: nowrap; }
 .product-card--compact .product-card__iva-note { display: none; }
 .product-card__shipping { display: flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 700; }
 .product-card__shipping svg { color: var(--secondary-color); }
 .product-card__shipping--paid { font-size: 11px; font-weight: 600; color: #6b7280; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .product-card__shipping--paid svg { color: #6b7280; flex-shrink: 0; }
+/* Acción principal única: botón grande naranja de marca. */
 .product-card__add-btn {
-    margin-top: 4px; background: var(--button-primary-color); color: #fff; border: none; border-radius: 6px;
-    padding: 9px; font-size: 12.5px; font-weight: 700; cursor: pointer; transition: opacity .15s ease;
+    margin-top: 6px; width: 100%; min-height: 44px; box-sizing: border-box;
+    background: var(--button-primary-color); color: #fff; border: none; border-radius: 8px;
+    padding: 11px 10px; font-size: 14px; font-weight: 800; line-height: 1.2; cursor: pointer;
+    box-shadow: 0 2px 6px rgba(255,98,19,0.28); transition: background-color .15s ease, box-shadow .15s ease;
 }
-.product-card__add-btn:hover { opacity: .88; }
-.product-card__add-btn:disabled { cursor: not-allowed; opacity: .6; }
+.product-card__add-btn:hover { background: #e5530c; box-shadow: 0 3px 10px rgba(255,98,19,0.38); }
+.product-card__add-btn:focus-visible { outline: 3px solid #141516; outline-offset: 2px; }
+.product-card__add-btn:disabled { cursor: not-allowed; opacity: .6; box-shadow: none; }
+/* Acción secundaria: enlace de texto pequeño (gris #374151 sobre blanco = 10:1,
+   AA) con subrayado, área táctil >= 36px de alto y foco visible. */
 .product-card__quote-btn {
-    margin-top: 6px; background: transparent; color: #141516; border: 1.5px solid rgba(0,0,0,0.15); border-radius: 6px;
-    padding: 8px; font-size: 12.5px; font-weight: 700; cursor: pointer; text-decoration: none; text-align: center;
-    display: block; transition: background .15s ease;
+    align-self: center; margin-top: 0; min-height: 36px; box-sizing: border-box; padding: 6px 8px;
+    display: inline-flex; align-items: center; justify-content: center; text-align: center;
+    background: transparent; border: 0; border-radius: 4px; color: #374151;
+    font-size: 12px; font-weight: 600; line-height: 1.2; cursor: pointer;
+    text-decoration: underline; text-underline-offset: 2px; transition: color .15s ease;
 }
-.product-card__quote-btn:hover { background: rgba(0,0,0,0.03); }
+.product-card__quote-btn:hover { color: #141516; text-decoration-thickness: 2px; }
+.product-card__quote-btn:focus-visible { outline: 2px solid #141516; outline-offset: 2px; }
+
+/* Tarjeta en cuadrículas de 2 columnas móvil (~160 px): menos relleno y tipografía
+   ajustada para que nombre, precio y botón no se desborden. */
+@media (max-width: 480px) {
+    .product-card { padding: 10px; }
+    .product-card__badges { top: 16px; left: 16px; max-width: calc(100% - 32px); }
+    .product-card__badge { font-size: 10px; padding: 2px 6px; }
+    .product-card__name { font-size: 13px; }
+    .product-card__price { font-size: 17px; }
+    .product-card__add-btn { font-size: 13px; padding: 10px 6px; }
+}
 
 /* ===== Product carousel ===== */
 .product-carousel { position: relative; padding: 32px 0; }

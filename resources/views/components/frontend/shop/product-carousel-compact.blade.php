@@ -8,7 +8,7 @@
      página de producto (columna derecha, arriba de "Medios de pago"):
      etiqueta + título a la izquierda, flechas a la derecha, tarjetas chicas
      (imagen, SKU, nombre, precio, "Agregar") e indicador de páginas abajo.
-     Los botones "Agregar al carrito" / "Solicitar Cotización" reutilizan
+     Los botones "Agregar al carrito" / "Solicitar cotización" reutilizan
      .product-card__add-btn (+ data-*) y .product-card__quote-btn (+
      data-ad-track) para que los tomen los mismos handlers de carrito y de
      tracking que las tarjetas normales. --}}
@@ -70,7 +70,7 @@
                 </a>
                 <button type="button" class="product-card__add-btn pc-compact__add" data-product-id="{{ $item->id }}"
                     data-sku="{{ $item->sku }}" data-name="{{ $itemName }}" data-price="{{ $item->base_price }}">Agregar al carrito</button>
-                <a href="{{ $quoteUrl }}" target="_blank" rel="noopener nofollow" class="product-card__quote-btn pc-compact__quote" data-ad-track="quote_start" data-product-id="{{ $item->id }}">Solicitar Cotización</a>
+                <a href="{{ $quoteUrl }}" target="_blank" rel="noopener nofollow" class="product-card__quote-btn pc-compact__quote" data-ad-track="quote_start" data-product-id="{{ $item->id }}">Solicitar cotización<span class="product-card__sr"> (se abre en una pestaña nueva)</span></a>
             </article>
         @endforeach
     </div>

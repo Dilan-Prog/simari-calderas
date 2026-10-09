@@ -18,7 +18,7 @@
                     @if ($paginator->onFirstPage())
                         <span class="shop-pagination__btn is-disabled" aria-disabled="true">&lsaquo; Anterior</span>
                     @else
-                        <a href="{{ $paginator->previousPageUrl() }}" class="shop-pagination__btn" rel="prev" aria-label="Página anterior">&lsaquo; Anterior</a>
+                        <a href="{{ $paginator->previousPageUrl() }}" class="shop-pagination__btn" rel="prev" aria-label="Página anterior" data-catalog-link>&lsaquo; Anterior</a>
                     @endif
                 </li>
 
@@ -32,11 +32,11 @@
                         @foreach ($element as $page => $url)
                             @if ($page == $paginator->currentPage())
                                 <li>
-                                    <span class="shop-pagination__btn is-active" aria-current="page">{{ $page }}</span>
+                                    <span class="shop-pagination__btn is-active" aria-current="page" aria-label="Página {{ $page }}, página actual">{{ $page }}</span>
                                 </li>
                             @else
                                 <li>
-                                    <a href="{{ $url }}" class="shop-pagination__btn">{{ $page }}</a>
+                                    <a href="{{ $url }}" class="shop-pagination__btn" aria-label="Ir a la página {{ $page }}" data-catalog-link>{{ $page }}</a>
                                 </li>
                             @endif
                         @endforeach
@@ -46,7 +46,7 @@
                 {{-- Siguiente --}}
                 <li>
                     @if ($paginator->hasMorePages())
-                        <a href="{{ $paginator->nextPageUrl() }}" class="shop-pagination__btn" rel="next" aria-label="Página siguiente">Siguiente &rsaquo;</a>
+                        <a href="{{ $paginator->nextPageUrl() }}" class="shop-pagination__btn" rel="next" aria-label="Página siguiente" data-catalog-link>Siguiente &rsaquo;</a>
                     @else
                         <span class="shop-pagination__btn is-disabled" aria-disabled="true">Siguiente &rsaquo;</span>
                     @endif

@@ -31,7 +31,10 @@ class ShopMegaMenuComposer
         $publishedProducts = Products::query()
             ->where('is_active', true)
             ->where('publish_on_website', true)
-            ->with(['images' => fn ($q) => $q->orderBy('sort_order')])
+            // brand y category.parent: la tarjeta resuelve las variables del
+            // nombre ({marca}, {categoria}, {categoria_padre}) y sin esto cada
+            // tarjeta del megamenú disparaba 2-4 consultas (N+1 en TODA página).
+            ->with(['images' => fn ($q) => $q->orderBy('sort_order'), 'brand', 'category.parent'])
             ->orderByDesc('is_featured')
             ->orderByDesc('created_at')
             ->get();

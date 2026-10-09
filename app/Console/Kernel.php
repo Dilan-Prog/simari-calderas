@@ -114,6 +114,16 @@ class Kernel extends ConsoleKernel
         $schedule->command('ad-tracking:purge-expired')
             ->daily()
             ->withoutOverlapping();
+
+        // Catálogo: recalcula las unidades vendidas por producto (pedidos
+        // pagados en la ventana catalog.best_seller_days) para la etiqueta
+        // "Más vendido" y el orden "vendidos". El comando se autodescubre
+        // (commands() carga app/Console/Commands). Cada hora basta: no hace
+        // falta reaccionar al minuto a una venta.
+        $schedule->command('catalog:refresh-sales')
+            ->hourly()
+            ->withoutOverlapping()
+            ->runInBackground();
     }
 
     /**

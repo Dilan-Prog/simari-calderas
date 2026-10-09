@@ -3,11 +3,11 @@
 namespace App\Http\Controllers\Frontend\Shop;
 
 use App\Http\Controllers\Controller;
-use App\Models\Brand;
 use App\Models\Category;
 use App\Models\HomeSection;
-use App\Models\Products;
 use App\Models\Redirect;
+use App\Services\Catalog\CatalogParams;
+use App\Services\Catalog\CatalogQuery;
 use Illuminate\Http\Request;
 
 class CatalogController extends Controller
@@ -52,171 +52,61 @@ class CatalogController extends Controller
      * pre-rendered as HTML (reusing <x-frontend.shop.product-card>, so the
      * overlay always looks identical to every other product grid) plus the
      * category/brand facets for that search term with their own counts.
+     *
+     * Usa el mismo servicio que el catálogo (CatalogParams + CatalogQuery); el
+     * JSON conserva la forma que espera shared.js (searchOverlay).
      */
     public function liveSearch(Request $request)
     {
-        $term = trim((string) $request->input('q', ''));
+        $params = CatalogParams::fromRequest($request, null);
 
-        if (mb_strlen($term) < 2) {
+        if ($params->q === '') {
             return response()->json(['total' => 0, 'categories' => [], 'brands' => [], 'productsHtml' => '']);
         }
 
-        $baseQuery = Products::where('is_active', true)
-            ->where('publish_on_website', true)
-            ->where(function ($q) use ($term) {
-                $q->where('name', 'like', "%{$term}%")
-                    ->orWhere('sku', 'like', "%{$term}%")
-                    ->orWhere('description', 'like', "%{$term}%")
-                    ->orWhereHas('brand', fn ($b) => $b->where('name', 'like', "%{$term}%"));
-            });
-
-        $categoryCounts = (clone $baseQuery)
-            ->selectRaw('category_id, count(*) as cnt')
-            ->groupBy('category_id')
-            ->pluck('cnt', 'category_id');
-
-        $categories = Category::whereIn('id', $categoryCounts->keys())
-            ->orderBy('name')
-            ->get(['id', 'name'])
-            ->map(fn ($cat) => ['id' => $cat->id, 'name' => $cat->name, 'count' => $categoryCounts->get($cat->id, 0)])
-            ->values();
-
-        $brandCounts = (clone $baseQuery)
-            ->whereNotNull('brand_id')
-            ->selectRaw('brand_id, count(*) as cnt')
-            ->groupBy('brand_id')
-            ->pluck('cnt', 'brand_id');
-
-        $brands = Brand::whereIn('id', $brandCounts->keys())
-            ->orderBy('name')
-            ->get(['id', 'name'])
-            ->map(fn ($brand) => ['id' => $brand->id, 'name' => $brand->name, 'count' => $brandCounts->get($brand->id, 0)])
-            ->values();
-
-        $productsQuery = clone $baseQuery;
-
-        if ($request->filled('categoria')) {
-            $productsQuery->whereIn('category_id', (array) $request->input('categoria'));
-        }
-        if ($request->filled('marca')) {
-            $productsQuery->whereIn('brand_id', (array) $request->input('marca'));
-        }
-
-        match ($request->input('orden', 'relevancia')) {
-            'precio_asc'  => $productsQuery->orderBy('price', 'asc'),
-            'precio_desc' => $productsQuery->orderBy('price', 'desc'),
-            'descuento'   => $productsQuery->orderByRaw('(COALESCE(compare_price, 0) - price) DESC'),
-            default       => $productsQuery->orderByDesc('is_featured')->orderByDesc('created_at'),
-        };
-
-        $total = (clone $productsQuery)->count();
-
-        $products = $productsQuery
-            ->with(['images' => fn ($q) => $q->orderBy('sort_order')])
-            ->take(12)
-            ->get();
+        $found = app(CatalogQuery::class)->search($params, 12);
 
         return response()->json([
-            'total'        => $total,
-            'categories'   => $categories,
-            'brands'       => $brands,
+            'total'        => $found['total'],
+            'categories'   => $found['categories'],
+            'brands'       => $found['brands'],
             'productsHtml' => view('frontend.shop.partials.search-results-grid', [
-                'products' => $products,
-                'term'     => $term,
+                'products' => $found['products'],
+                'term'     => $params->q,
             ])->render(),
         ]);
     }
 
     protected function renderCatalog(Request $request, ?Category $category)
     {
-        $query = Products::query()
-            ->where('is_active', true)
-            ->where('publish_on_website', true)
-            ->with(['brand', 'category', 'images' => function ($q) {
-                $q->orderBy('sort_order');
-            }]);
+        $params = CatalogParams::fromRequest($request, $category);
+        $baseUrl = $category ? route('catalog.category', $category->slug) : route('catalog.index');
 
-        // No se pueden aplicar como dos whereIn() independientes: Eloquent los
-        // une con AND sobre la misma columna, y si el checkbox marcado es una
-        // subcategoría anidada (nieto+) del $category de la ruta, la
-        // intersección quedaba vacía aunque el producto sí perteneciera a
-        // ambos alcances lógicamente. Se combinan explícitamente aquí.
-        $categoryIds = $category ? $category->idsWithChildren() : null;
+        $result = app(CatalogQuery::class)->run($params, $category, $baseUrl, 24);
 
-        if ($request->filled('categoria')) {
-            $requestedIds = array_map('intval', (array) $request->input('categoria'));
-            $categoryIds = $categoryIds ? array_values(array_intersect($categoryIds, $requestedIds)) : $requestedIds;
+        if ($request->wantsJson()) {
+            $data = ['result' => $result, 'category' => $category];
+
+            return response()->json([
+                'ok'             => true,
+                'total'          => $result->total,
+                'liveMessage'    => $result->meta['liveMessage'],
+                'title'          => ($category->name ?? 'Catálogo') . ' — Equiterm Industries',
+                'url'            => $result->meta['stateUrl'],
+                'page'           => $result->meta['page'],
+                'pages'          => $result->meta['pages'],
+                'activeCount'    => $result->meta['activeCount'],
+                'noindex'        => $result->meta['noindex'],
+                'sidebarHtml'    => view('frontend.shop.catalog.partials.sidebar', $data)->render(),
+                'chipsHtml'      => view('frontend.shop.catalog.partials.chips', $data)->render(),
+                'toolbarHtml'    => view('frontend.shop.catalog.partials.toolbar', $data)->render(),
+                'productsHtml'   => view('frontend.shop.catalog.partials.grid', $data)->render(),
+                'paginationHtml' => (string) $result->paginator->links('frontend.shop.partials.pagination'),
+            ])->withHeaders(['Vary' => 'Accept', 'Cache-Control' => 'private, no-cache']);
         }
 
-        if ($categoryIds !== null) {
-            $query->whereIn('category_id', $categoryIds);
-        }
-        if ($request->filled('marca')) {
-            $query->whereIn('brand_id', (array) $request->input('marca'));
-        }
-        if ($request->filled('q')) {
-            $term = $request->input('q');
-            $query->where(function ($q) use ($term) {
-                $q->where('name', 'like', "%{$term}%")
-                    ->orWhere('sku', 'like', "%{$term}%")
-                    ->orWhere('description', 'like', "%{$term}%")
-                    ->orWhereHas('brand', fn ($b) => $b->where('name', 'like', "%{$term}%"));
-            });
-        }
-        if ($request->filled('precio_min')) {
-            $query->where('price', '>=', (float) $request->input('precio_min'));
-        }
-        if ($request->filled('precio_max')) {
-            $query->where('price', '<=', (float) $request->input('precio_max'));
-        }
-
-        match ($request->input('orden', 'relevancia')) {
-            'precio_asc'  => $query->orderBy('price', 'asc'),
-            'precio_desc' => $query->orderBy('price', 'desc'),
-            'descuento'   => $query->orderByRaw('(COALESCE(compare_price, 0) - price) DESC'),
-            default       => $query->orderByDesc('is_featured')->orderByDesc('created_at'),
-        };
-
-        $products = $query->paginate(24)->withQueryString();
-
-        $allCategories = Category::where('is_active', true)->get(['id', 'parent_id', 'name', 'slug', 'sort_order']);
-
-        $publishedCountsByCategory = Products::where('is_active', true)
-            ->where('publish_on_website', true)
-            ->selectRaw('category_id, count(*) as cnt')
-            ->groupBy('category_id')
-            ->pluck('cnt', 'category_id');
-
-        $descendantIds = function (int $categoryId) use ($allCategories, &$descendantIds) {
-            return $allCategories->where('parent_id', $categoryId)->pluck('id')
-                ->flatMap(fn ($id) => collect([$id])->merge($descendantIds($id)));
-        };
-
-        $categoryOptions = $allCategories->sortBy('sort_order')->values()->map(function ($cat) use ($publishedCountsByCategory, $descendantIds) {
-            $ids = collect([$cat->id])->merge($descendantIds($cat->id));
-            $cat->products_count = $ids->sum(fn ($id) => $publishedCountsByCategory->get($id, 0));
-
-            return $cat;
-        });
-
-        $brandOptions = Brand::where('is_active', true)
-            ->withCount(['products' => function ($q) {
-                $q->where('is_active', true)->where('publish_on_website', true);
-            }])
-            ->orderBy('name')
-            ->get();
-
-        $priceBounds = Products::where('is_active', true)
-            ->where('publish_on_website', true)
-            ->selectRaw('MIN(price) as min_price, MAX(price) as max_price')
-            ->first();
-
-        $productsByCategory = $products->getCollection()->groupBy(function ($product) {
-            return $product->category->name ?? 'Otros';
-        });
-
-        return view('frontend.shop.catalog.index', compact(
-            'products', 'productsByCategory', 'categoryOptions', 'brandOptions', 'priceBounds', 'category'
-        ));
+        return response()
+            ->view('frontend.shop.catalog.index', ['result' => $result, 'category' => $category])
+            ->header('Vary', 'Accept');
     }
 }

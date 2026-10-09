@@ -58,6 +58,8 @@ class AppServiceProvider extends ServiceProvider
             // disponible por cualquier razón.
         }
 
+        $this->registerCatalogCacheInvalidation();
+
         View::composer('frontend.shop.layouts.header', \App\View\Composers\ShopMegaMenuComposer::class);
         View::composer('frontend.shop.layouts.footer', \App\View\Composers\ShopFooterComposer::class);
 
@@ -76,5 +78,52 @@ class AppServiceProvider extends ServiceProvider
                 $entry['model']::observe(\App\Observers\AutomatableModelObserver::class);
             }
         }
+    }
+
+    /**
+     * Cualquier cambio que altere lo que el catálogo público muestra (productos,
+     * categorías, marcas, reglas de envío, filtros técnicos y los ajustes
+     * ecommerce.* y catalog.*, p. ej. tipo de cambio o IVA) sube la versión de la
+     * caché de CatalogIndex/BadgeResolver. Cambios sin evento de modelo (stock
+     * por pedidos, importaciones masivas) los cubre el TTL.
+     */
+    private function registerCatalogCacheInvalidation(): void
+    {
+        $bump = function (): void {
+            try {
+                \App\Services\Catalog\CatalogCache::bump();
+            } catch (\Throwable $e) {
+                // Sin caché disponible (p. ej. migraciones/seeders): no debe romper el guardado.
+            }
+        };
+
+        foreach ([
+            \App\Models\Products::class,
+            \App\Models\Category::class,
+            \App\Models\Brand::class,
+            \App\Models\CategoryFilterGroup::class,
+            \App\Models\CategoryFilterOption::class,
+        ] as $model) {
+            $model::saved($bump);
+            $model::deleted($bump);
+        }
+
+        // Las reglas activas de envío se memorizan por request (ver Products::shippingInfo()).
+        $shipping = function () use ($bump): void {
+            try {
+                \Illuminate\Support\Facades\Cache::driver('array')->forget('shipping_rules.active');
+            } catch (\Throwable $e) {
+            }
+            $bump();
+        };
+        \App\Models\ShippingRule::saved($shipping);
+        \App\Models\ShippingRule::deleted($shipping);
+
+        \App\Models\Setting::saved(function (\App\Models\Setting $setting) use ($bump): void {
+            $key = (string) $setting->key;
+            if (str_starts_with($key, 'ecommerce.') || str_starts_with($key, 'catalog.')) {
+                $bump();
+            }
+        });
     }
 }

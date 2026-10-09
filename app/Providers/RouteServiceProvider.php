@@ -39,6 +39,15 @@ class RouteServiceProvider extends ServiceProvider
             );
         });
 
+        // Catálogo público (/catalogo, /catalogo/{categoría}): las peticiones
+        // AJAX de filtros (Accept: application/json) tienen un tope por IP más
+        // bajo que la navegación normal.
+        RateLimiter::for('catalog', function (Request $request) {
+            return $request->wantsJson()
+                ? Limit::perMinute(90)->by($request->ip())
+                : Limit::perMinute(240)->by($request->ip());
+        });
+
         $this->routes(function () {
             Route::middleware('api')
                 ->prefix('api')

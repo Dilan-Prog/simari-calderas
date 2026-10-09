@@ -1,7 +1,9 @@
 @extends('frontend.shop.layouts.master')
 
 @php
+    // Variables: $result (App\Services\Catalog\CatalogResult) y $category (?Category).
     $shopVite = ['resources/css/frontend/shop/catalog.css', 'resources/js/frontend/shop/catalog.js'];
+    $products = $result->paginator;
 
     $categoryChain = [];
     $chainCat = $category;
@@ -12,12 +14,11 @@
 @endphp
 
 @php
-    // Canonical siempre apunta a la URL limpia de la categoría/catálogo
-    // (sin querystring de filtros/orden/paginación) — así todas las
-    // variantes con ?categoria=&marca=&orden=&q=&precio_min=&precio_max=
-    // consolidan en una sola página canónica en vez de que Google las
-    // trate como páginas separadas.
+    // Canonical: lo calcula el servicio (URL limpia de la categoría/catálogo,
+    // o ?page=N autorreferenciada). Las variantes filtradas/ordenadas/con q
+    // vienen con meta['noindex'] y se marcan noindex,follow más abajo.
     $catalogUrl = $category ? route('catalog.category', $category->slug) : route('catalog.index');
+    $canonicalUrl = $result->meta['canonicalUrl'] ?? $catalogUrl;
     $catalogTitle = ($category->name ?? 'Catálogo') . ' — Equiterm Industries';
     $catalogDescription = $category?->seo_description
         ?: \Illuminate\Support\Str::limit(strip_tags($category?->description ?? ''), 160)
@@ -26,10 +27,10 @@
 
 @section('title', $catalogTitle)
 @section('description', $catalogDescription)
-@section('canonical', $catalogUrl)
+@section('canonical', $canonicalUrl)
 @section('og_title', $catalogTitle)
 @section('og_description', $catalogDescription)
-@section('og_url', $catalogUrl)
+@section('og_url', $canonicalUrl)
 @if ($category?->image_url)
     @section('og_image', $category->image_url)
 @endif
@@ -70,7 +71,7 @@
         '@context' => 'https://schema.org',
         '@type' => 'CollectionPage',
         'name' => $category->name ?? 'Catálogo',
-        'url' => $catalogUrl,
+        'url' => $canonicalUrl,
         'mainEntity' => [
             '@type' => 'ItemList',
             'numberOfItems' => $products->total(),
@@ -89,6 +90,9 @@
 @endphp
 
 @section('schema')
+    @if (! empty($result->meta['noindex']))
+        <meta name="robots" content="noindex,follow" data-catalog-robots>
+    @endif
     <script type="application/ld+json">
         {!! json_encode($breadcrumbSchema, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_PRETTY_PRINT) !!}
     </script>
@@ -114,6 +118,8 @@
 @endsection
 
 @section('content')
+{{-- Marca temprana de JS (antes de pintar el sidebar): los estilos del drawer y de "Mostrar más" solo aplican con JS, así sin JS todo queda visible y usable. --}}
+<script>document.documentElement.classList.add('catalog-js');</script>
 <div class="eq-shop-catalog">
     <section class="catalog-hero">
         <h1 class="catalog-hero__title">{{ $category->name ?? 'Catálogo' }}</h1>
@@ -129,37 +135,42 @@
     @endif
 
     <div class="catalog-layout">
-        @include('frontend.shop.catalog.partials.filters-sidebar')
+        <div class="catalog-overlay" data-catalog-overlay hidden></div>
 
-        <div class="catalog-results">
-            <div class="catalog-results__toolbar">
-                <form method="GET" action="{{ $category ? route('catalog.category', $category->slug) : route('catalog.index') }}" class="catalog-results__sort">
-                    @foreach (request()->except('orden') as $key => $value)
-                        @foreach ((array) $value as $v)
-                            <input type="hidden" name="{{ is_array($value) ? $key.'[]' : $key }}" value="{{ $v }}">
-                        @endforeach
-                    @endforeach
-                    <label>Ordenar:</label>
-                    <select name="orden" onchange="this.form.submit()">
-                        <option value="relevancia" @selected(request('orden', 'relevancia') === 'relevancia')>Relevancia</option>
-                        <option value="descuento" @selected(request('orden') === 'descuento')>Mayor descuento</option>
-                        <option value="precio_asc" @selected(request('orden') === 'precio_asc')>Precio: menor a mayor</option>
-                        <option value="precio_desc" @selected(request('orden') === 'precio_desc')>Precio: mayor a menor</option>
-                    </select>
-                </form>
+        {{-- Sidebar: en escritorio es una columna sticky; en <900px es el drawer (JS le pone role=dialog/aria-modal al abrirlo). --}}
+        <aside id="catalog-sidebar" class="catalog-sidebar" aria-labelledby="catalog-sidebar-title">
+            <div class="catalog-sidebar__head">
+                <h2 id="catalog-sidebar-title" class="catalog-sidebar__title">Filtros</h2>
+                <button type="button" class="catalog-sidebar__close" data-catalog-drawer-close aria-label="Cerrar filtros">&#10005;</button>
             </div>
-
-            @if ($products->count() > 0)
-                @foreach ($productsByCategory as $categoryName => $categoryProducts)
-                    <x-frontend.shop.product-carousel :title="$categoryName" :products="$categoryProducts" />
-                @endforeach
-
-                <div class="catalog-results__pagination">
-                    {{ $products->links('frontend.shop.partials.pagination') }}
+            <div class="catalog-sidebar__body" data-catalog-scroll>
+                <div data-catalog-region="sidebar">
+                    @include('frontend.shop.catalog.partials.sidebar')
                 </div>
-            @else
-                <div class="catalog-results__empty">No hay productos que coincidan con estos filtros.</div>
-            @endif
+            </div>
+            <div class="catalog-sidebar__foot">
+                <button type="button" class="catalog-sidebar__apply" data-catalog-drawer-close>
+                    <span data-catalog-view-count>Ver {{ number_format($result->total) }} {{ $result->total === 1 ? 'resultado' : 'resultados' }}</span>
+                </button>
+            </div>
+        </aside>
+
+        <div id="catalog-results" class="catalog-results" data-catalog-page="{{ (int) ($result->meta['page'] ?? 1) }}">
+            <h2 id="catalog-results-heading" class="sr-only" tabindex="-1">Resultados{{ $category ? ' de ' . $category->name : '' }}</h2>
+            <div id="catalog-live" role="status" aria-live="polite" class="sr-only">{{ $result->meta['liveMessage'] ?? '' }}</div>
+
+            <div data-catalog-region="toolbar">
+                @include('frontend.shop.catalog.partials.toolbar')
+            </div>
+            <div data-catalog-region="chips">
+                @include('frontend.shop.catalog.partials.chips')
+            </div>
+            <div data-catalog-region="products">
+                @include('frontend.shop.catalog.partials.grid')
+            </div>
+            <div class="catalog-results__pagination" data-catalog-region="pagination">
+                {{ $result->paginator->links('frontend.shop.partials.pagination') }}
+            </div>
         </div>
     </div>
 
