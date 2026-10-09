@@ -978,3 +978,27 @@ body.eq-no-scroll { overflow: hidden; }
 
 /* Con el menú móvil abierto el botón flotante de WhatsApp taparía filas del menú. */
 body.eq-no-scroll .wa-float-btn { display: none; }
+
+/* Carruseles de producto en teléfono: 2 tarjetas completas + un asomo de la
+   3ª (señal de que se desliza), con scroll-snap. Sin flechas ni puntos de
+   imagen (se navega con el dedo); los botones de la tarjeta se conservan. */
+@media (max-width: 720px) {
+    .product-carousel__track {
+        gap: 12px;
+        scroll-snap-type: x mandatory;
+        scroll-padding-left: 0;
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior-x: contain;
+    }
+    .product-carousel__item {
+        flex: 0 0 calc((100% - 12px) / 2.15);
+        scroll-snap-align: start;
+    }
+    .product-carousel__nav { display: none; }
+    .product-carousel .product-card { padding: 10px; width: 100%; }
+    .product-carousel .product-card__img-nav,
+    .product-carousel .product-card__img-dots { display: none; }
+    .product-carousel .product-card__name { min-height: 34px; -webkit-line-clamp: 2; font-size: 13px; }
+    .product-carousel .product-card__price { font-size: 16px; }
+    .product-carousel .product-card__add-btn { font-size: 13px; padding: 10px 6px; }
+}
