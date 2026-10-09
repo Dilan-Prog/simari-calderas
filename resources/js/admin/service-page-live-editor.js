@@ -42,6 +42,7 @@ import Sortable from 'sortablejs';
         product_carousel_banner: 'Carrusel con Banner',
         category_grid: 'Grid de Categorías',
         brand_carousel: 'Carrusel de Marcas',
+        brand_logos: 'Bloque de Marcas',
         html_block: 'Bloque HTML',
         faq: 'Preguntas Frecuentes',
         rich_header: 'Encabezado enriquecido',
@@ -64,6 +65,7 @@ import Sortable from 'sortablejs';
         product_carousel_banner: '<rect width="18" height="12" x="3" y="6" rx="2"/><circle cx="9" cy="12" r="2"/>',
         category_grid: '<rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/>',
         brand_carousel: '<path d="M12 2 2 7l10 5 10-5-10-5Z"/><path d="m2 17 10 5 10-5"/><path d="m2 12 10 5 10-5"/>',
+        brand_logos: '<rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/><path d="M14 17.5h7"/><path d="M17.5 14v7"/>',
         html_block: '<polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>',
         faq: '<circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" x2="12.01" y1="17" y2="17"/>',
         rich_header: '<rect width="20" height="14" x="2" y="3" rx="2"/><line x1="2" x2="22" y1="9" y2="9"/>',
@@ -116,6 +118,8 @@ import Sortable from 'sortablejs';
                 return { category_ids: [] };
             case 'brand_carousel':
                 return {};
+            case 'brand_logos':
+                return { logos: [], grayscale: false };
             case 'html_block':
                 return { html: '' };
             case 'faq':
@@ -1758,7 +1762,7 @@ import Sortable from 'sortablejs';
     // Tipos cuyo título de bloque (section.title) se renderiza públicamente
     // como encabezado (<h2> por defecto) -- ganan el control de tipografía
     // compartido justo debajo del campo Título.
-    const TITLE_STYLE_TYPES = ['benefits_grid', 'process_steps', 'content_tabs', 'gallery_carousel', 'faq'];
+    const TITLE_STYLE_TYPES = ['benefits_grid', 'process_steps', 'content_tabs', 'gallery_carousel', 'faq', 'brand_logos'];
 
     function renderTypeFields(container, section) {
         const cfg = section.config = section.config || {};
@@ -1794,6 +1798,9 @@ import Sortable from 'sortablejs';
                 break;
             case 'brand_carousel':
                 container.innerHTML = '<p class="hs-config-note">Este bloque muestra automáticamente todas las marcas activas. No requiere configuración adicional.</p>';
+                break;
+            case 'brand_logos':
+                renderBrandLogosFields(container, cfg);
                 break;
             case 'html_block':
                 renderHtmlBlockFields(container, cfg);
@@ -2302,6 +2309,86 @@ import Sortable from 'sortablejs';
             markDirty();
             renderProcessStepsFields(container, cfg);
             schedulePreview();
+        });
+    }
+
+    // ── brand_logos ("Bloque de Marcas"): logotipos propios del servicio ──
+    // Cada logo se agrega con el picker global de medios (galería existente,
+    // subir desde el equipo o URL) -- mismo window.openImagePicker que usa la
+    // Galería -- y puede llevar nombre (alt) y enlace opcional.
+    function renderBrandLogosFields(container, cfg) {
+        cfg.logos = Array.isArray(cfg.logos) ? cfg.logos : [];
+        container.innerHTML = `
+            <p class="hs-config-note">Logotipos de las marcas con las que trabajas en este servicio. Usa imágenes con fondo transparente (PNG/SVG/WebP) para que se vean parejas.</p>
+            <div id="leBlRows" class="hs-repeat-rows"></div>
+            <button type="button" class="button-secondary size-adjustment" id="leBlAdd" style="margin-top:10px;">+ Agregar logotipo</button>
+            <label style="display:flex;align-items:center;gap:8px;font-weight:400;font-size:13px;color:#374151;margin-top:14px;">
+                <input type="checkbox" id="leBlGray" ${cfg.grayscale ? 'checked' : ''}> Mostrar en escala de grises (a color al pasar el cursor)
+            </label>
+        `;
+        const rows = container.querySelector('#leBlRows');
+
+        const rerender = () => { renderBrandLogosFields(container, cfg); schedulePreview(); };
+
+        cfg.logos.forEach((logo, i) => {
+            const row = document.createElement('div');
+            row.className = 'hs-repeat-row';
+            row.innerHTML = `
+                <div class="hs-repeat-row-head">
+                    <span class="hs-repeat-row-num">${i + 1}</span>
+                    <span style="margin-left:auto;display:flex;gap:4px;">
+                        <button type="button" class="hs-faq-btn le-bl-up" title="Subir" ${i === 0 ? 'disabled' : ''}>&uarr;</button>
+                        <button type="button" class="hs-faq-btn le-bl-down" title="Bajar" ${i === cfg.logos.length - 1 ? 'disabled' : ''}>&darr;</button>
+                        <button type="button" class="hs-faq-btn hs-repeat-remove" title="Eliminar">&times;</button>
+                    </span>
+                </div>
+                <div style="display:flex;gap:10px;align-items:center;">
+                    <div style="width:84px;height:56px;flex-shrink:0;border:1px solid #e5e7eb;border-radius:8px;background:#f9fafb;display:flex;align-items:center;justify-content:center;overflow:hidden;">
+                        ${logo.url ? `<img src="${escHtml(logo.url)}" alt="" style="max-width:100%;max-height:100%;object-fit:contain;">` : '<span style="font-size:11px;color:#9ca3af;">Sin imagen</span>'}
+                    </div>
+                    <button type="button" class="button-secondary size-adjustment le-bl-pick">${logo.url ? 'Cambiar logotipo' : 'Seleccionar logotipo'}</button>
+                </div>
+                <input type="text" class="users-manager-input le-bl-alt" placeholder="Nombre de la marca (texto alternativo)" style="margin-top:6px;" value="${escHtml(logo.alt)}">
+                <input type="text" class="users-manager-input le-bl-link" placeholder="Enlace (opcional): https://… o /servicios/…" style="margin-top:6px;" value="${escHtml(logo.link_url)}">
+            `;
+            row.querySelector('.le-bl-alt').addEventListener('input', (e) => { logo.alt = e.target.value; markDirty(); schedulePreview(); });
+            row.querySelector('.le-bl-link').addEventListener('input', (e) => { logo.link_url = e.target.value; markDirty(); schedulePreview(); });
+            row.querySelector('.le-bl-pick').addEventListener('click', () => {
+                if (typeof window.openImagePicker !== 'function') return;
+                window.openImagePicker(null, {
+                    onSelect: (url) => { logo.url = url; markDirty(); rerender(); },
+                });
+            });
+            row.querySelector('.le-bl-up').addEventListener('click', () => {
+                if (i === 0) return;
+                [cfg.logos[i - 1], cfg.logos[i]] = [cfg.logos[i], cfg.logos[i - 1]];
+                markDirty(); rerender();
+            });
+            row.querySelector('.le-bl-down').addEventListener('click', () => {
+                if (i === cfg.logos.length - 1) return;
+                [cfg.logos[i + 1], cfg.logos[i]] = [cfg.logos[i], cfg.logos[i + 1]];
+                markDirty(); rerender();
+            });
+            row.querySelector('.hs-repeat-remove').addEventListener('click', () => {
+                cfg.logos.splice(i, 1);
+                markDirty(); rerender();
+            });
+            rows.appendChild(row);
+        });
+
+        container.querySelector('#leBlAdd').addEventListener('click', () => {
+            if (typeof window.openImagePicker !== 'function') return;
+            window.openImagePicker(null, {
+                onSelect: (url) => {
+                    cfg.logos.push({ url, alt: '', link_url: '' });
+                    markDirty(); rerender();
+                },
+            });
+        });
+
+        container.querySelector('#leBlGray').addEventListener('change', (e) => {
+            cfg.grayscale = e.target.checked;
+            markDirty(); schedulePreview();
         });
     }
 

@@ -28,7 +28,7 @@
                             <select class="cat-combobox-native-select" id="categoryParent" name="parent_id">
                                 <option value="">Ninguna (Categoría Principal)</option>
                                 @foreach ($allCategories as $cat)
-                                    <option value="{{ $cat->id }}" data-level="{{ $cat->level }}">
+                                    <option value="{{ $cat->id }}" data-level="{{ $cat->level }}" data-slug="{{ $cat->slug }}">
                                         {{ str_repeat('— ', $cat->level - 1) }}{{ $cat->name }}
                                     </option>
                                 @endforeach

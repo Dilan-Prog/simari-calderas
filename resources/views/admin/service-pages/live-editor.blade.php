@@ -99,6 +99,7 @@
                     <option value="product_carousel_banner">Carrusel con Banner</option>
                     <option value="category_grid">Grid de Categorías</option>
                     <option value="brand_carousel">Carrusel de Marcas</option>
+                    <option value="brand_logos">Bloque de Marcas (logotipos propios)</option>
                     <option value="html_block">Bloque HTML</option>
                     <option value="faq">Preguntas Frecuentes</option>
                     <option value="rich_header">Encabezado enriquecido</option>

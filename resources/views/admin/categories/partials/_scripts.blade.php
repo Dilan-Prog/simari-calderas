@@ -149,6 +149,13 @@
                 return;
             }
 
+            // Slug completo ya guardado del padre (incluye a sus ancestros):
+            // así el nivel 3 hereda "abuelo/padre/" sin recalcularlo.
+            if (parentOption.dataset.slug) {
+                document.getElementById('categorySlug').value = `${parentOption.dataset.slug}/${nameSlug}`;
+                return;
+            }
+
             const parentName = parentOption.text.replace(/^[—\s]+/, '').trim();
             const parentSlug = toSlugSegment(parentName);
 
@@ -162,18 +169,24 @@
         }
 
         document.getElementById('categoryName').addEventListener('input', function() {
-            if (!isEditMode) {
-                const slug = this.value.toLowerCase()
-                    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-                    .replace(/[^a-z0-9\s-]/g, '')
-                    .trim().replace(/\s+/g, '-');
-                document.getElementById('categorySlug').value = slug;
-            }
+            // buildSlug() conserva el prefijo del padre (nivel 2/3); antes
+            // aquí se calculaba solo el slug del nombre y lo pisaba.
+            if (!isEditMode) buildSlug();
+            clearFieldError(this);
         });
+
+        // Quita el error rojo de un campo en cuanto se corrige (antes se
+        // quedaba pegado hasta el siguiente envío, aunque ya estuviera bien).
+        function clearFieldError(el) {
+            el.classList.remove('is-invalid');
+            const container = el.closest('.mb-3') || el.closest('.mb-4') || el.parentElement;
+            if (container) container.querySelectorAll('.field-error-msg').forEach(n => n.remove());
+        }
 
         document.getElementById('categoryParent').addEventListener('change', function() {
             syncCategoryParentDisplay();
             buildSlug();
+            clearFieldError(document.getElementById('categoryParentSearch'));
         });
 
         document.getElementById('categoryLevel').addEventListener('change', function() {
@@ -196,6 +209,7 @@
 
             syncCategoryParentDisplay();
             buildSlug();
+            clearFieldError(document.getElementById('categoryParentSearch'));
         });
 
         // Combobox de búsqueda para "Categoría Padre": el <select> original
@@ -420,6 +434,9 @@
 
                         parentSelect.value = cat.parent_id ?? '';
                         syncCategoryParentDisplay();
+                        // El 'change' del nivel recalculó el slug sin padre aún
+                        // seleccionado -- se restaura el guardado.
+                        document.getElementById('categorySlug').value = cat.slug ?? '';
 
                         errorsContainer.style.display = 'none';
                         categoryModal.style.display = 'flex';

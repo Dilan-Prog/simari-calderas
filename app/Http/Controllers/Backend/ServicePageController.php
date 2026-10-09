@@ -26,6 +26,7 @@ class ServicePageController extends Controller
         'category_grid', 'brand_carousel', 'html_block', 'faq',
         'rich_header', 'content_tabs', 'benefits_grid', 'process_steps',
         'gallery_carousel', 'rating_reviews', 'cta_final', 'button', 'table_block',
+        'brand_logos',
     ];
 
     /**
