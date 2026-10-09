@@ -10,7 +10,12 @@
     $quoteWhatsappUrl = 'https://wa.me/' . \App\Models\Setting::get('footer.phone_link', '5214494577320') . '?text=' . urlencode($quoteMessage);
 @endphp
 <div class="product-price-box">
-    <div class="product-price-box__eyebrow">{{ $product->availability_label }} &nbsp;|&nbsp; SKU {{ $product->sku }}</div>
+    @php $showStockInEyebrow = $product->availability !== 'on_order' && (int) $product->stock > 0; @endphp
+    {{-- Teléfono: "Disponibles: N" sustituye a la etiqueta y el contador sale de la fila de cantidad (ver product-detail.css). --}}
+    <div class="product-price-box__eyebrow {{ $showStockInEyebrow ? 'has-stock' : '' }}">
+        <span class="product-price-box__eyebrow-label">{{ $product->availability_label }}</span>@if ($showStockInEyebrow)<span class="product-price-box__eyebrow-stock">Disponibles: {{ $product->stock }}</span>@endif
+        &nbsp;|&nbsp; SKU {{ $product->sku }}
+    </div>
     <h1 class="product-price-box__title">{{ $resolvedName }}</h1>
 
     @if ($product->availability === 'on_order' && $product->lead_time_text)
@@ -41,7 +46,10 @@
     @else
         <div class="product-price-box__shipping-note">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7h11l4 4v6h-2M3 7v10h2M3 7l2-3h7l2 3M7 21a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM17 21a2 2 0 1 0 0-4 2 2 0 0 0 0 4z"/></svg>
-            Envío gratis en compras desde ${{ number_format($product->free_shipping_threshold, 2) }} MXN. Antes de eso, el envío tiene un costo de ${{ number_format($product->shipping_cost, 2) }}.
+            <span class="product-price-box__shipping-text">
+                <strong>Envío gratis</strong> en compras desde ${{ number_format($product->free_shipping_threshold, 2) }} MXN.
+                <span class="product-price-box__shipping-sub">Antes de eso, el envío tiene un costo de ${{ number_format($product->shipping_cost, 2) }}.</span>
+            </span>
         </div>
     @endif
 

@@ -276,3 +276,52 @@
     .eq-shop-product .product-accordion { display: block; }
     .eq-shop-product .home-faq { display: none; } /* evita duplicar las FAQ ya presentes en el acordeón nuevo */
 }
+
+/* Flechas de la imagen principal: solo teléfono (en escritorio hay miniaturas). */
+.eq-shop-product .product-gallery__arrow { display: none; }
+
+/* Teléfono: migas -> imagen (con flechas) -> caja de compra completa (título,
+   precio, cantidad, datos clave, ficha corta, pagos) -> descripción -> ficha
+   técnica/FAQ -> documentos. .product-main__left pasa a display: contents para
+   que sus bloques se reordenen en el mismo grid que la caja de compra. */
+@media (max-width: 720px) {
+    .eq-shop-product .product-main { gap: 20px; padding-top: 12px; }
+    .eq-shop-product .product-main__left { display: contents; }
+    .eq-shop-product .product-gallery { order: 1; min-width: 0; }
+    .eq-shop-product .product-main__right { order: 2; }
+    .eq-shop-product .product-description { order: 3; margin: 4px 0 0; }
+    .eq-shop-product .product-accordion { order: 4; }
+    .eq-shop-product .product-documents { order: 5; }
+
+    .eq-shop-product .product-gallery__arrow {
+        display: flex; align-items: center; justify-content: center; position: absolute; top: 50%;
+        transform: translateY(-50%); z-index: 3; width: 40px; height: 40px; padding: 0; border-radius: 50%;
+        background: rgba(255, 255, 255, 0.92); border: 1px solid rgba(0, 0, 0, 0.12); color: #141516;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15); cursor: pointer;
+    }
+    .eq-shop-product .product-gallery__arrow--prev { left: 8px; }
+    .eq-shop-product .product-gallery__arrow--next { right: 8px; }
+    .eq-shop-product .product-gallery__arrow:focus-visible { outline: 2px solid var(--secondary-color); outline-offset: 2px; }
+    .eq-shop-product .product-price-box__title { font-size: 22px; margin-bottom: 12px; }
+    .eq-shop-product .product-price-box__price { font-size: 30px; }
+}
+
+/* Escritorio: el contador "Disponibles: N" del eyebrow no se usa (queda en la fila de cantidad). */
+.eq-shop-product .product-price-box__eyebrow-stock { display: none; }
+.eq-shop-product .product-price-box__shipping-text { min-width: 0; }
+.eq-shop-product .product-price-box__shipping-sub { display: block; font-weight: 600; }
+
+@media (max-width: 720px) {
+    /* "Disponibles: 100 | SKU ..." arriba; sin el contador suelto junto a la cantidad. */
+    .eq-shop-product .product-price-box__eyebrow.has-stock .product-price-box__eyebrow-label { display: none; }
+    .eq-shop-product .product-price-box__eyebrow.has-stock .product-price-box__eyebrow-stock { display: inline; }
+    .eq-shop-product .product-price-box__eyebrow.has-stock ~ .product-qty-row .product-qty-available { display: none; }
+
+    /* Aviso de envío: icono arriba-izquierda, texto en dos niveles, en una tarjeta suave. */
+    .eq-shop-product .product-price-box__shipping-note {
+        align-items: flex-start; gap: 8px; margin: 0 0 12px; padding: 10px 12px; font-size: 13px; line-height: 1.4;
+        background: #fff7f2; border-radius: 8px;
+    }
+    .eq-shop-product .product-price-box__shipping-note svg { flex-shrink: 0; margin-top: 2px; }
+    .eq-shop-product .product-price-box__shipping-sub { margin-top: 2px; color: #4b5563; font-size: 12.5px; font-weight: 500; }
+}

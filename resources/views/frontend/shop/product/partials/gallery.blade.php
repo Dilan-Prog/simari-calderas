@@ -30,6 +30,13 @@
                 <img :src="images[active]" :alt="'{{ addslashes($resolvedName) }}'" class="product-gallery__main-img">
             </template>
             <div class="product-gallery__zoom-lens" x-show="isZooming" x-cloak :style="lensStyle"></div>
+            {{-- Flechas (solo móvil, ver product-detail.css): cambiar de imagen sin abrir el lightbox. --}}
+            <button type="button" class="product-gallery__arrow product-gallery__arrow--prev" x-show="images.length > 1" @click.stop="prev()" aria-label="Imagen anterior">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M15 5l-7 7 7 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <button type="button" class="product-gallery__arrow product-gallery__arrow--next" x-show="images.length > 1" @click.stop="next()" aria-label="Imagen siguiente">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
         </div>
     </div>
 
