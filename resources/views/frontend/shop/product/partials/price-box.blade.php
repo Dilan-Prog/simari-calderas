@@ -12,9 +12,15 @@
 <div class="product-price-box">
     @php $showStockInEyebrow = $product->availability !== 'on_order' && (int) $product->stock > 0; @endphp
     {{-- Teléfono: "Disponibles: N" sustituye a la etiqueta y el contador sale de la fila de cantidad (ver product-detail.css). --}}
+    {{-- Barra superior: estado/SKU + botón Compartir. Teléfono con Web Share API -> hoja nativa; si no existe,
+         o en escritorio, menú (hoja inferior en móvil). Ver productShare() en product-detail.js. --}}
+    <div class="product-price-box__topbar">
     <div class="product-price-box__eyebrow {{ $showStockInEyebrow ? 'has-stock' : '' }}">
-        <span class="product-price-box__eyebrow-label">{{ $product->availability_label }}</span>@if ($showStockInEyebrow)<span class="product-price-box__eyebrow-stock">Disponibles: {{ $product->stock }}</span>@endif
-        &nbsp;|&nbsp; SKU {{ $product->sku }}
+            <span class="product-price-box__eyebrow-label">{{ $product->availability_label }}</span>@if ($showStockInEyebrow)<span class="product-price-box__eyebrow-stock">Disponibles: {{ $product->stock }}</span>@endif
+            &nbsp;|&nbsp; SKU {{ $product->sku }}
+        </div>
+    
+        @include('frontend.shop.partials.share-button', ['url' => route('product.show', $product->slug), 'title' => $resolvedName])
     </div>
     <h1 class="product-price-box__title">{{ $resolvedName }}</h1>
 

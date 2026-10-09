@@ -186,6 +186,7 @@
                  partial -- evita dos estados de acordeón independientes sobre
                  las mismas preguntas. --}}
             <div class="product-accordion" x-data="{ open: null }">
+                @if ($specifications->count() > 0)
                 <div class="product-accordion__item">
                     <button type="button" class="product-accordion__question" @click="open = open === 0 ? null : 0">
                         <span>Ficha técnica</span>
@@ -195,6 +196,7 @@
                         @include('frontend.shop.product.partials.specs-table')
                     </div>
                 </div>
+                @endif
 
                 <div class="product-accordion__item">
                     <button type="button" class="product-accordion__question" @click="open = open === 1 ? null : 1">
@@ -217,18 +219,23 @@
                     </div>
                 </div>
 
-                <div class="product-accordion__item">
-                    <button type="button" class="product-accordion__question" @click="open = open === 2 ? null : 2">
-                        <span>Garantía y servicio</span>
-                        <span x-text="open === 2 ? '−' : '+'">+</span>
-                    </button>
-                    <div class="product-accordion__answer" x-show="open === 2" x-cloak>
-                        <p>Este equipo cuenta con garantía de fábrica. Nuestro equipo técnico está disponible para dar seguimiento a cualquier solicitud de servicio.</p>
-                        @if ($product->documents->where('type', 'garantia')->isNotEmpty())
-                            <p>Consulta el documento de garantía descargable más abajo, en la sección de documentos.</p>
-                        @endif
+                @php $hasWarrantyDoc = $product->documents->where('type', 'garantia')->isNotEmpty(); @endphp
+                @if (filled($product->warranty_text) || $hasWarrantyDoc)
+                    <div class="product-accordion__item">
+                        <button type="button" class="product-accordion__question" @click="open = open === 2 ? null : 2">
+                            <span>Garantía y servicio</span>
+                            <span x-text="open === 2 ? '−' : '+'">+</span>
+                        </button>
+                        <div class="product-accordion__answer" x-show="open === 2" x-cloak>
+                            @if (filled($product->warranty_text))
+                                <p>{!! nl2br(e($product->resolveVariables($product->warranty_text))) !!}</p>
+                            @endif
+                            @if ($hasWarrantyDoc)
+                                <p>Consulta el documento de garantía descargable más abajo, en la sección de documentos.</p>
+                            @endif
+                        </div>
                     </div>
-                </div>
+                @endif
 
                 @if ($schemaFaqs->isNotEmpty())
                     <div class="product-accordion__item">

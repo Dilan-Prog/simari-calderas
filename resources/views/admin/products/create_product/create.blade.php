@@ -638,6 +638,16 @@
                                         <p class="pform-error-msg">{{ $message }}</p>
                                     @enderror
                                 </div>
+
+                                <div class="pform-field" style="margin-top:12px;">
+                                    <label class="pform-label" for="pformWarranty">Garantía</label>
+                                    <textarea name="warranty_text" id="pformWarranty" class="pform-input" rows="3" maxlength="1000"
+                                        placeholder="Ej. 12 meses contra defectos de fábrica. Incluye mano de obra.">{{ old('warranty_text') }}</textarea>
+                                    <p class="pform-hint">Se muestra en la ficha del producto (sección "Garantía y servicio"). Si lo dejas vacío, esa sección no aparece.</p>
+                                    @error('warranty_text')
+                                        <p class="pform-error-msg">{{ $message }}</p>
+                                    @enderror
+                                </div>
                             </div>
                         </div>
 

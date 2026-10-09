@@ -1035,3 +1035,44 @@ body.eq-no-scroll .wa-float-btn { display: none; }
         font-size: 18px; font-weight: 600; min-height: 56px; border-top: 1px solid rgba(0, 0, 0, 0.08); letter-spacing: 0;
     }
 }
+
+/* Barra superior (estado/SKU + Compartir) y menú de compartir */
+.product-share { position: relative; flex-shrink: 0; }
+.product-share__btn {
+    display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 0 12px; background: #fff;
+    color: #141516; border: 1px solid rgba(0, 0, 0, 0.15); border-radius: 999px; font-family: inherit;
+    font-size: 13px; font-weight: 700; cursor: pointer; transition: background .15s ease, border-color .15s ease;
+}
+.product-share__btn:hover { background: #f7f7f8; border-color: rgba(0, 0, 0, 0.3); }
+.product-share__btn:focus-visible,
+.product-share__menu a:focus-visible,
+.product-share__menu button:focus-visible { outline: 2px solid var(--secondary-color); outline-offset: 2px; }
+.product-share__backdrop { display: none; }
+.product-share__sheet-title { display: none; }
+.product-share__menu {
+    position: absolute; top: calc(100% + 8px); right: 0; z-index: 60; min-width: 220px; padding: 6px;
+    background: #fff; border: 1px solid rgba(0, 0, 0, 0.1); border-radius: 12px; box-shadow: 0 16px 40px rgba(0, 0, 0, 0.18);
+}
+.product-share__menu a,
+.product-share__menu button {
+    display: flex; align-items: center; gap: 12px; width: 100%; min-height: 44px; padding: 0 12px; background: none;
+    border: 0; border-radius: 8px; color: #141516; font-family: inherit; font-size: 14px; font-weight: 600;
+    text-align: left; text-decoration: none; cursor: pointer;
+}
+.product-share__menu a:hover,
+.product-share__menu button:hover { background: #f4f4f5; }
+.product-share__menu svg { flex-shrink: 0; color: #4b5563; }
+
+/* Teléfono: botón solo con icono y menú como hoja inferior (si no hay hoja nativa del sistema). */
+@media (max-width: 720px) {
+    .product-share__btn { width: 44px; min-height: 44px; padding: 0; justify-content: center; }
+    .product-share__label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+    .product-share__backdrop { display: block; position: fixed; inset: 0; z-index: 1100; background: rgba(20, 21, 22, 0.5); }
+    .product-share__menu {
+        position: fixed; top: auto; left: 0; right: 0; bottom: 0; z-index: 1101; min-width: 0; padding: 8px 12px calc(16px + env(safe-area-inset-bottom));
+        border: 0; border-radius: 16px 16px 0 0; box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.25);
+    }
+    .product-share__sheet-title { display: block; padding: 10px 12px 8px; font-size: 16px; font-weight: 800; }
+    .product-share__menu a,
+    .product-share__menu button { min-height: 52px; font-size: 16px; }
+}

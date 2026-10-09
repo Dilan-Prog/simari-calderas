@@ -149,15 +149,18 @@
 
 @section('content')
 <div class="eq-shop-service" @if ($servicePage->background_color) style="background:{{ e($servicePage->background_color) }};" @endif>
-    <div class="collection-breadcrumb">
-        <a href="{{ route('home') }}">Inicio</a>
-        @if ($servicePage->page_type !== \App\Models\ServicePage::TYPE_HUB)
-            &nbsp;›&nbsp; <a href="{{ route('service-pages.hub') }}">Servicios</a>
-        @endif
-        @foreach ($ancestors as $ancestor)
-            &nbsp;›&nbsp; <a href="{{ url($ancestor->publicPath()) }}">{{ $ancestor->name }}</a>
-        @endforeach
-        &nbsp;›&nbsp; <span>{{ $servicePage->name }}</span>
+    <div class="svc-topbar">
+        <div class="collection-breadcrumb">
+            <a href="{{ route('home') }}">Inicio</a>
+            @if ($servicePage->page_type !== \App\Models\ServicePage::TYPE_HUB)
+                &nbsp;›&nbsp; <a href="{{ route('service-pages.hub') }}">Servicios</a>
+            @endif
+            @foreach ($ancestors as $ancestor)
+                &nbsp;›&nbsp; <a href="{{ url($ancestor->publicPath()) }}">{{ $ancestor->name }}</a>
+            @endforeach
+            &nbsp;›&nbsp; <span>{{ $servicePage->name }}</span>
+        </div>
+        @include('frontend.shop.partials.share-button', ['url' => $canonicalUrl, 'title' => $servicePage->name])
     </div>
 
     @unless ($hasRichHeader)
@@ -221,5 +224,14 @@
             </div>
         </section>
     @endif
+
+    {{-- Barra fija inferior (solo teléfono, ver service-page.css): cotizar este servicio por WhatsApp. --}}
+    @php
+        $svcQuoteMessage = 'Hola, me interesa cotizar el servicio: ' . $servicePage->name . ' - ' . $canonicalUrl;
+        $svcQuoteUrl = 'https://wa.me/' . \App\Models\Setting::get('footer.phone_link', '5214494577320') . '?text=' . urlencode($svcQuoteMessage);
+    @endphp
+    <div class="svc-quote-bar">
+        <a href="{{ $svcQuoteUrl }}" target="_blank" rel="noopener nofollow" class="svc-quote-bar__btn" data-ad-track="quote_start">Cotizar servicio<span class="sr-only"> (se abre en una pestaña nueva)</span></a>
+    </div>
 </div>
 @endsection

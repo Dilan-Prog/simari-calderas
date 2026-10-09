@@ -13,7 +13,7 @@
     @endif
     <div class="svc-tabs__nav" role="tablist">
         @foreach ($tabs as $i => $tab)
-            <button type="button" class="svc-tabs__tab" :class="{ 'is-active': active === {{ $i }} }" @click="active = {{ $i }}" role="tab" :aria-selected="active === {{ $i }}">{{ \App\Support\LinkText::plain($tab['label']) }}</button>
+            <button type="button" class="svc-tabs__tab" :class="{ 'is-active': active === {{ $i }} }" @click="active = {{ $i }}; $el.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' })" role="tab" :aria-selected="active === {{ $i }}">{{ \App\Support\LinkText::plain($tab['label']) }}</button>
         @endforeach
     </div>
 

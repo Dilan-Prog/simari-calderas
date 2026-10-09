@@ -996,6 +996,7 @@ class ProductController extends Controller
             'accepts_msi'       => 'nullable|boolean',
             'availability'      => 'nullable|in:available,on_order,out_of_stock',
             'lead_time_text'    => 'nullable|string|max:150',
+            'warranty_text'     => 'nullable|string|max:1000',
             'images'            => 'nullable|array',
             'images.*'          => 'image|mimes:jpeg,jpg,png|max:2048',
             'image_urls'        => 'nullable|array',
@@ -1096,6 +1097,7 @@ class ProductController extends Controller
         $product->lead_time_text    = $product->availability === 'on_order'
             ? ($request->lead_time_text ?: null)
             : null;
+        $product->warranty_text     = filled($request->warranty_text) ? trim($request->warranty_text) : null;
         // Save specifications
         if ($request->filled('spec_key')) {
             $specs = [];
@@ -1265,6 +1267,7 @@ class ProductController extends Controller
             'accepts_msi'       => 'nullable|boolean',
             'availability'      => 'nullable|in:available,on_order,out_of_stock',
             'lead_time_text'    => 'nullable|string|max:150',
+            'warranty_text'     => 'nullable|string|max:1000',
             'images'            => 'nullable|array',
             'images.*'          => 'image|mimes:jpeg,jpg,png|max:2048',
             'image_urls'        => 'nullable|array',
@@ -1360,6 +1363,7 @@ class ProductController extends Controller
         $product->lead_time_text    = $product->availability === 'on_order'
             ? ($request->lead_time_text ?: null)
             : null;
+        $product->warranty_text     = filled($request->warranty_text) ? trim($request->warranty_text) : null;
 
         // Save specifications
         if ($request->filled('spec_key')) {

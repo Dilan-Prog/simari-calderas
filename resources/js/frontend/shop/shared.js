@@ -363,3 +363,52 @@ Alpine.data('carouselTrack', () => ({
         this.scrollBy(400);
     },
 }));
+
+// Botón Compartir (ficha de producto y páginas de servicio): ver partials/share-button.blade.php.
+Alpine.data('shareMenu', (url, title) => ({
+    open: false,
+    copied: false,
+    // Hoja nativa solo en táctil (teléfono/tablet); en escritorio se muestra el menú.
+    canNative: typeof navigator.share === 'function' && window.matchMedia('(pointer: coarse)').matches,
+
+    get links() {
+        const u = encodeURIComponent(url);
+        const t = encodeURIComponent(title);
+        return {
+            whatsapp: `https://wa.me/?text=${t}%20${u}`,
+            facebook: `https://www.facebook.com/sharer/sharer.php?u=${u}`,
+            x: `https://twitter.com/intent/tweet?text=${t}&url=${u}`,
+            email: `mailto:?subject=${t}&body=${t}%0A${u}`,
+        };
+    },
+
+    async toggle() {
+        if (this.canNative) {
+            try {
+                await navigator.share({ title, text: title, url });
+            } catch (e) {
+                // Cancelar la hoja nativa lanza AbortError: no es un error real.
+            }
+            return;
+        }
+        this.open = !this.open;
+    },
+
+    async copy() {
+        try {
+            await navigator.clipboard.writeText(url);
+        } catch (e) {
+            const ta = document.createElement('textarea');
+            ta.value = url;
+            ta.setAttribute('readonly', '');
+            ta.style.position = 'fixed';
+            ta.style.opacity = '0';
+            document.body.appendChild(ta);
+            ta.select();
+            try { document.execCommand('copy'); } catch (err) { /* sin portapapeles */ }
+            document.body.removeChild(ta);
+        }
+        this.copied = true;
+        setTimeout(() => { this.copied = false; this.open = false; }, 1400);
+    },
+}));

@@ -306,22 +306,26 @@
     .eq-shop-product .product-price-box__price { font-size: 30px; }
 }
 
+/* Aviso de envío (todos los anchos): icono arriba-izquierda, texto en dos niveles, tarjeta suave. */
+.eq-shop-product .product-price-box__shipping-note {
+    align-items: flex-start; gap: 8px; margin: 0 0 14px; padding: 10px 12px; font-size: 13.5px; line-height: 1.45;
+    background: #fff7f2; border-radius: 8px;
+}
+.eq-shop-product .product-price-box__shipping-note svg { flex-shrink: 0; width: 17px; height: 17px; margin-top: 2px; }
+.eq-shop-product .product-price-box__shipping-sub { display: block; margin-top: 2px; color: #4b5563; font-size: 13px; font-weight: 500; }
+
 /* Escritorio: el contador "Disponibles: N" del eyebrow no se usa (queda en la fila de cantidad). */
 .eq-shop-product .product-price-box__eyebrow-stock { display: none; }
 .eq-shop-product .product-price-box__shipping-text { min-width: 0; }
-.eq-shop-product .product-price-box__shipping-sub { display: block; font-weight: 600; }
 
 @media (max-width: 720px) {
     /* "Disponibles: 100 | SKU ..." arriba; sin el contador suelto junto a la cantidad. */
     .eq-shop-product .product-price-box__eyebrow.has-stock .product-price-box__eyebrow-label { display: none; }
     .eq-shop-product .product-price-box__eyebrow.has-stock .product-price-box__eyebrow-stock { display: inline; }
-    .eq-shop-product .product-price-box__eyebrow.has-stock ~ .product-qty-row .product-qty-available { display: none; }
+    .eq-shop-product .product-price-box__topbar:has(.has-stock) ~ .product-qty-row .product-qty-available { display: none; }
 
-    /* Aviso de envío: icono arriba-izquierda, texto en dos niveles, en una tarjeta suave. */
-    .eq-shop-product .product-price-box__shipping-note {
-        align-items: flex-start; gap: 8px; margin: 0 0 12px; padding: 10px 12px; font-size: 13px; line-height: 1.4;
-        background: #fff7f2; border-radius: 8px;
-    }
-    .eq-shop-product .product-price-box__shipping-note svg { flex-shrink: 0; margin-top: 2px; }
-    .eq-shop-product .product-price-box__shipping-sub { margin-top: 2px; color: #4b5563; font-size: 12.5px; font-weight: 500; }
 }
+
+/* Barra superior de la ficha: estado/SKU + botón Compartir (estilos del botón en shared.css). */
+.eq-shop-product .product-price-box__topbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+.eq-shop-product .product-price-box__topbar .product-price-box__eyebrow { margin-bottom: 0; min-width: 0; }
