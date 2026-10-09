@@ -3,8 +3,8 @@
     "file": "assets/_commonjsHelpers-Cpj98o6Y.js",
     "name": "_commonjsHelpers"
   },
-  "_alpine-init-DN7Y9L3-.js": {
-    "file": "assets/alpine-init-DN7Y9L3-.js",
+  "_alpine-init-CvA_QR7z.js": {
+    "file": "assets/alpine-init-CvA_QR7z.js",
     "name": "alpine-init"
   },
   "_charts-BFPyHK5v.js": {
@@ -206,32 +206,32 @@
     "isEntry": true
   },
   "resources/css/frontend/shop/account.css": {
-    "file": "assets/account-BBSa9hJ-.css",
+    "file": "assets/account-YMaTuVwQ.css",
     "src": "resources/css/frontend/shop/account.css",
     "isEntry": true
   },
   "resources/css/frontend/shop/catalog.css": {
-    "file": "assets/catalog-CRE3BdUI.css",
+    "file": "assets/catalog-DjENBs_U.css",
     "src": "resources/css/frontend/shop/catalog.css",
     "isEntry": true
   },
   "resources/css/frontend/shop/checkout.css": {
-    "file": "assets/checkout-BPt8Shgx.css",
+    "file": "assets/checkout-D_AdFaA6.css",
     "src": "resources/css/frontend/shop/checkout.css",
     "isEntry": true
   },
   "resources/css/frontend/shop/collection.css": {
-    "file": "assets/collection-DRX-k9IX.css",
+    "file": "assets/collection-DS0GS9nQ.css",
     "src": "resources/css/frontend/shop/collection.css",
     "isEntry": true
   },
   "resources/css/frontend/shop/home.css": {
-    "file": "assets/home-C5hapQUI.css",
+    "file": "assets/home-Ck-aDlGv.css",
     "src": "resources/css/frontend/shop/home.css",
     "isEntry": true
   },
   "resources/css/frontend/shop/legal.css": {
-    "file": "assets/legal-Ccoh9yOr.css",
+    "file": "assets/legal-tcLZWhpr.css",
     "src": "resources/css/frontend/shop/legal.css",
     "isEntry": true
   },
@@ -241,12 +241,12 @@
     "isEntry": true
   },
   "resources/css/frontend/shop/product-detail.css": {
-    "file": "assets/product-detail-DySUOlkl.css",
+    "file": "assets/product-detail-CPaEnURM.css",
     "src": "resources/css/frontend/shop/product-detail.css",
     "isEntry": true
   },
   "resources/css/frontend/shop/service-page.css": {
-    "file": "assets/service-page-JqPWUGVo.css",
+    "file": "assets/service-page-DgVwZX3E.css",
     "src": "resources/css/frontend/shop/service-page.css",
     "isEntry": true
   },
@@ -491,12 +491,12 @@
     "isEntry": true
   },
   "resources/js/frontend/shop/account.js": {
-    "file": "assets/account-CT94DNT2.js",
+    "file": "assets/account-B4s21w49.js",
     "name": "account",
     "src": "resources/js/frontend/shop/account.js",
     "isEntry": true,
     "imports": [
-      "_alpine-init-DN7Y9L3-.js"
+      "_alpine-init-CvA_QR7z.js"
     ]
   },
   "resources/js/frontend/shop/ad-tracking.js": {
@@ -506,12 +506,12 @@
     "isEntry": true
   },
   "resources/js/frontend/shop/catalog.js": {
-    "file": "assets/catalog-BnrAv8i7.js",
+    "file": "assets/catalog--GGXG9JQ.js",
     "name": "catalog",
     "src": "resources/js/frontend/shop/catalog.js",
     "isEntry": true,
     "imports": [
-      "_alpine-init-DN7Y9L3-.js"
+      "_alpine-init-CvA_QR7z.js"
     ]
   },
   "resources/js/frontend/shop/checkout-accordion.js": {
@@ -527,57 +527,57 @@
     "isEntry": true
   },
   "resources/js/frontend/shop/collection.js": {
-    "file": "assets/collection-DujXpxCz.js",
+    "file": "assets/collection-IEYdAxHo.js",
     "name": "collection",
     "src": "resources/js/frontend/shop/collection.js",
     "isEntry": true,
     "imports": [
-      "_alpine-init-DN7Y9L3-.js"
+      "_alpine-init-CvA_QR7z.js"
     ]
   },
   "resources/js/frontend/shop/home.js": {
-    "file": "assets/home-BkExeVv3.js",
+    "file": "assets/home-CFZxBjOX.js",
     "name": "home",
     "src": "resources/js/frontend/shop/home.js",
     "isEntry": true,
     "imports": [
-      "_alpine-init-DN7Y9L3-.js"
+      "_alpine-init-CvA_QR7z.js"
     ]
   },
   "resources/js/frontend/shop/mercadopago-checkout.js": {
-    "file": "assets/mercadopago-checkout-BGAcORP4.js",
+    "file": "assets/mercadopago-checkout-DNnLhv2X.js",
     "name": "mercadopago-checkout",
     "src": "resources/js/frontend/shop/mercadopago-checkout.js",
     "isEntry": true,
     "imports": [
-      "_alpine-init-DN7Y9L3-.js"
+      "_alpine-init-CvA_QR7z.js"
     ]
   },
   "resources/js/frontend/shop/pool-calculator.js": {
-    "file": "assets/pool-calculator-CsRzI8Wu.js",
+    "file": "assets/pool-calculator-Cgi4Z3AE.js",
     "name": "pool-calculator",
     "src": "resources/js/frontend/shop/pool-calculator.js",
     "isEntry": true,
     "imports": [
-      "_alpine-init-DN7Y9L3-.js"
+      "_alpine-init-CvA_QR7z.js"
     ]
   },
   "resources/js/frontend/shop/product-detail.js": {
-    "file": "assets/product-detail-Dn3vFAIK.js",
+    "file": "assets/product-detail-u9hcG9DY.js",
     "name": "product-detail",
     "src": "resources/js/frontend/shop/product-detail.js",
     "isEntry": true,
     "imports": [
-      "_alpine-init-DN7Y9L3-.js"
+      "_alpine-init-CvA_QR7z.js"
     ]
   },
   "resources/js/frontend/shop/service-page.js": {
-    "file": "assets/service-page-DujXpxCz.js",
+    "file": "assets/service-page-IEYdAxHo.js",
     "name": "service-page",
     "src": "resources/js/frontend/shop/service-page.js",
     "isEntry": true,
     "imports": [
-      "_alpine-init-DN7Y9L3-.js"
+      "_alpine-init-CvA_QR7z.js"
     ]
   }
 }
