@@ -7,29 +7,33 @@
 @endphp
 
 @if ($tabs->isNotEmpty())
-<section class="svc-tabs" x-data="{ active: 0 }" @if ($previewMode) data-section-id="{{ $section->id }}" @endif>
+<section class="svc-tabs" x-data="{ active: 0 }" @if ($previewMode ?? false) data-section-id="{{ $section->id }}" @endif>
     @if ($section->title)
-        <{{ $titleTag }} class="svc-tabs__title"{!! \App\Support\TextStyle::attr($titleStyle) !!}>{{ $section->title }}</{{ $titleTag }}>
+        <{{ $titleTag }} class="svc-tabs__title"{!! \App\Support\TextStyle::attr($titleStyle) !!}>{!! \App\Support\LinkText::render($section->title) !!}</{{ $titleTag }}>
     @endif
     <div class="svc-tabs__nav" role="tablist">
         @foreach ($tabs as $i => $tab)
-            <button type="button" class="svc-tabs__tab" :class="{ 'is-active': active === {{ $i }} }" @click="active = {{ $i }}" role="tab" :aria-selected="active === {{ $i }}">{{ $tab['label'] }}</button>
+            <button type="button" class="svc-tabs__tab" :class="{ 'is-active': active === {{ $i }} }" @click="active = {{ $i }}" role="tab" :aria-selected="active === {{ $i }}">{{ \App\Support\LinkText::plain($tab['label']) }}</button>
         @endforeach
     </div>
 
     @foreach ($tabs as $i => $tab)
         @php
             $tabImageUrl = !empty($tab['image_id'])
-                ? $servicePage->images->firstWhere('id', $tab['image_id'])?->url
+                ? (isset($servicePage) ? $servicePage->images->firstWhere('id', $tab['image_id'])?->url : null)
                 : null;
+            // Colecciones (sin $servicePage): imagen directa por URL en la config.
+            if (!$tabImageUrl && !empty($tab['image_url'])) {
+                $tabImageUrl = \App\Support\UploadPath::url($tab['image_url']);
+            }
         @endphp
         <div class="svc-tabs__panel" x-show="active === {{ $i }}" x-cloak role="tabpanel">
-            @if (!empty($tab['subtitle']))<h3{!! \App\Support\TextStyle::attr($tab['style'] ?? null) !!}>{{ $tab['subtitle'] }}</h3>@endif
-            @if (!empty($tab['body']))<p{!! \App\Support\TextStyle::attr($tab['style'] ?? null) !!}>{{ $tab['body'] }}</p>@endif
+            @if (!empty($tab['subtitle']))<h3{!! \App\Support\TextStyle::attr($tab['style'] ?? null) !!}>{!! \App\Support\LinkText::render($tab['subtitle']) !!}</h3>@endif
+            @if (!empty($tab['body']))<p{!! \App\Support\TextStyle::attr($tab['style'] ?? null) !!}>{!! \App\Support\LinkText::render($tab['body']) !!}</p>@endif
             @if (!empty($tab['bullets']))
                 <ul>
                     @foreach ($tab['bullets'] as $bullet)
-                        <li>{{ $bullet }}</li>
+                        <li>{!! \App\Support\LinkText::render($bullet) !!}</li>
                     @endforeach
                 </ul>
             @endif

@@ -7,7 +7,7 @@
 @endphp
 
 @if ($hasStats || $hasReviews)
-<section class="svc-rating" @if($previewMode) data-section-id="{{ $section->id }}" @endif>
+<section class="svc-rating" @if($previewMode ?? false) data-section-id="{{ $section->id }}" @endif>
 
     @if ($hasStats)
         @php
@@ -85,7 +85,7 @@
             }
         @endphp
         <div x-data="{ filter: 'todas', showAll: false }">
-            <h2 class="svc-rating__list-title">{{ $section->title ?: 'Lo que dicen nuestros clientes' }}</h2>
+            <h2 class="svc-rating__list-title">{!! \App\Support\LinkText::render($section->title ?: 'Lo que dicen nuestros clientes') !!}</h2>
 
             @if ($availableCategories->isNotEmpty())
                 <div class="svc-rating__filters">

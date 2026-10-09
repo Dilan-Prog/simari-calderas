@@ -156,7 +156,7 @@
 
     {{-- Secciones administrables desde Admin > Secciones del Sitio > Colecciones --}}
     @foreach ($sections as $section)
-        @include('frontend.shop.home.sections.' . str_replace('_', '-', $section->type), ['section' => $section])
+        @include('frontend.shop.home.sections.' . str_replace('_', '-', $section->type), ['section' => $section, 'previewMode' => $previewMode ?? false])
     @endforeach
 </div>
 @endsection

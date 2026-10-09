@@ -21,10 +21,10 @@
 @if ($items->isNotEmpty())
 <section class="home-faq">
     @if ($section->title)
-        <{{ $titleTag }} class="home-faq__title"{!! \App\Support\TextStyle::attr($titleStyle) !!}>{{ $section->resolveText($section->title, $faqOwner) }}</{{ $titleTag }}>
+        <{{ $titleTag }} class="home-faq__title"{!! \App\Support\TextStyle::attr($titleStyle) !!}>{!! \App\Support\LinkText::render($section->resolveText($section->title, $faqOwner)) !!}</{{ $titleTag }}>
     @endif
     @if (!empty($config['description']))
-        <p class="home-faq__description">{{ $section->resolveText($config['description'], $faqOwner) }}</p>
+        <p class="home-faq__description">{!! \App\Support\LinkText::render($section->resolveText($config['description'], $faqOwner)) !!}</p>
     @endif
 
     <div class="home-faq__list" x-data="{ open: null }">
@@ -32,7 +32,7 @@
             <div class="home-faq__item">
                 <button type="button" class="home-faq__question"
                     @click="open = open === {{ $i }} ? null : {{ $i }}">
-                    <span>{{ $item['question'] }}</span>
+                    <span>{{ \App\Support\LinkText::plain($item['question']) }}</span>
                     <span x-text="open === {{ $i }} ? '−' : '+'">+</span>
                 </button>
                 <div class="home-faq__answer" x-show="open === {{ $i }}" x-cloak>

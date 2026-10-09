@@ -27,9 +27,9 @@
     @if ($headingTitle)
         <h2 class="home-block-heading">
             @if ($headingUrl)
-                <a href="{{ $headingUrl }}" rel="noopener" @if ($headingNewTab) target="_blank" @endif>{{ $headingTitle }}</a>
+                <a href="{{ $headingUrl }}" rel="noopener" @if ($headingNewTab) target="_blank" @endif>{{ \App\Support\LinkText::plain($headingTitle) }}</a>
             @else
-                {{ $headingTitle }}
+                {!! \App\Support\LinkText::render($headingTitle) !!}
             @endif
         </h2>
     @endif

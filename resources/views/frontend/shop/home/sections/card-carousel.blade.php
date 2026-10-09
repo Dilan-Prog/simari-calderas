@@ -39,9 +39,9 @@
     @if ($headingTitle)
         <h2 class="card-carousel__title">
             @if ($headingUrl)
-                <a href="{{ $headingUrl }}" rel="noopener" @if ($headingNewTab) target="_blank" @endif>{{ $headingTitle }}</a>
+                <a href="{{ $headingUrl }}" rel="noopener" @if ($headingNewTab) target="_blank" @endif>{{ \App\Support\LinkText::plain($headingTitle) }}</a>
             @else
-                {{ $headingTitle }}
+                {!! \App\Support\LinkText::render($headingTitle) !!}
             @endif
         </h2>
     @endif
@@ -51,12 +51,12 @@
                 @if ($card['url'])
                     <a href="{{ $card['url'] }}" class="card-carousel__card" @if ($card['new_tab']) target="_blank" rel="noopener" @endif>
                         <span class="card-carousel__img-wrap"><img src="{{ $card['src'] }}" alt="{{ $card['text'] }}" loading="lazy"></span>
-                        <span class="card-carousel__text">{{ $card['text'] }}</span>
+                        <span class="card-carousel__text">{{ \App\Support\LinkText::plain($card['text']) }}</span>
                     </a>
                 @else
                     <div class="card-carousel__card">
                         <span class="card-carousel__img-wrap"><img src="{{ $card['src'] }}" alt="{{ $card['text'] }}" loading="lazy"></span>
-                        <span class="card-carousel__text">{{ $card['text'] }}</span>
+                        <span class="card-carousel__text">{{ \App\Support\LinkText::plain($card['text']) }}</span>
                     </div>
                 @endif
             @endforeach

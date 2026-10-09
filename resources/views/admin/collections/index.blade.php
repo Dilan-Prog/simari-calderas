@@ -154,6 +154,11 @@
                                     </a>
                                 @endif
                                 @permiso('collections','edit')
+                                <a href="{{ route('admin.collections.live-editor', $collection->id) }}" class="table-users-manager-action-btn edit" title="Editor en vivo">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/><path d="m14 9 3 3-3 3"/></svg>
+                                </a>
+                                @endpermiso
+                                @permiso('collections','edit')
                                 <button type="button" class="table-users-manager-action-btn edit btn-edit-collection" data-id="{{ $collection->id }}">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg>
                                 </button>

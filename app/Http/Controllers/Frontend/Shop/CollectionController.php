@@ -31,10 +31,16 @@ class CollectionController extends Controller
             ->paginate(24)
             ->withQueryString();
 
-        $sections = HomeSection::where('page', 'collection')
-            ->where('is_active', true)
-            ->orderBy('sort_order')
-            ->get();
+        // Bloques propios de la colección; si no tiene ninguno, respaldo en
+        // los bloques globales (HomeSection page='collection').
+        if ($collection->sections()->exists()) {
+            $sections = $collection->sections()->where('is_active', true)->get();
+        } else {
+            $sections = HomeSection::where('page', 'collection')
+                ->where('is_active', true)
+                ->orderBy('sort_order')
+                ->get();
+        }
 
         return view('frontend.shop.collection.show', compact('collection', 'products', 'sections'));
     }

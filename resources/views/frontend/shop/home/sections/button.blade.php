@@ -11,7 +11,7 @@
         : (!empty($config['text']) && !empty($config['url']) ? [$config] : []);
 @endphp
 @if (!empty($buttons))
-<section class="svc-button svc-button--{{ $align }}" @if ($previewMode) data-section-id="{{ $section->id }}" @endif>
+<section class="svc-button svc-button--{{ $align }}" @if ($previewMode ?? false) data-section-id="{{ $section->id }}" @endif>
     <div class="svc-button__row">
         @foreach ($buttons as $btn)
             @continue(empty($btn['text']) || empty($btn['url']))
@@ -22,7 +22,7 @@
             <a href="{{ $btn['url'] }}" class="svc-btn svc-btn--{{ $style }}"
                style="{{ $style === 'solid' ? 'background:'.e($color).';border-color:'.e($color) : 'color:'.e($color).';border-color:'.e($color) }}"
                @if (!str_starts_with($btn['url'], '/')) target="_blank" rel="noopener" @endif>
-                {{ $btn['text'] }}
+                {{ \App\Support\LinkText::plain($btn['text']) }}
             </a>
         @endforeach
     </div>

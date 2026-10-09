@@ -15,9 +15,9 @@
     $titleTag = \App\Support\TextStyle::tag($titleStyle, 'h2', ['h2', 'h3']);
 @endphp
 @if ($logos->isNotEmpty())
-<section class="svc-brand-logos {{ !empty($section->config['grayscale']) ? 'svc-brand-logos--gray' : '' }}" aria-label="{{ $section->title ?: 'Marcas' }}" @if($previewMode) data-section-id="{{ $section->id }}" @endif>
+<section class="svc-brand-logos {{ !empty($section->config['grayscale']) ? 'svc-brand-logos--gray' : '' }}" aria-label="{{ \App\Support\LinkText::plain($section->title) ?: 'Marcas' }}" @if($previewMode ?? false) data-section-id="{{ $section->id }}" @endif>
     @if ($section->title)
-        <{{ $titleTag }} class="svc-brand-logos__title"{!! \App\Support\TextStyle::attr($titleStyle) !!}>{{ $section->title }}</{{ $titleTag }}>
+        <{{ $titleTag }} class="svc-brand-logos__title"{!! \App\Support\TextStyle::attr($titleStyle) !!}>{!! \App\Support\LinkText::render($section->title) !!}</{{ $titleTag }}>
     @endif
     <div class="svc-brand-logos__grid">
         @foreach ($logos as $logo)

@@ -12,7 +12,7 @@
 @if ($categories->count() > 0)
 <section class="category-grid">
     @if ($section->title)
-        <h2 class="category-grid__title">{{ $section->title }}</h2>
+        <h2 class="category-grid__title">{!! \App\Support\LinkText::render($section->title) !!}</h2>
     @endif
     <div class="category-grid__items">
         @foreach ($categories as $category)

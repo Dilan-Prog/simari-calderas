@@ -11,17 +11,20 @@
         ])->filter(fn ($i) => $i->url !== '')->values();
     } else {
         $imgIds = $section->config['image_ids'] ?? [];
-        $images = empty($imgIds)
-            ? $servicePage->images
-            : $servicePage->images->whereIn('id', $imgIds)->values();
+        // Sin $servicePage (colecciones) solo aplica config['images'].
+        $images = !isset($servicePage)
+            ? collect()
+            : (empty($imgIds)
+                ? $servicePage->images
+                : $servicePage->images->whereIn('id', $imgIds)->values());
     }
     $titleStyle = $section->config['title_style'] ?? null;
     $titleTag = \App\Support\TextStyle::tag($titleStyle, 'h2', ['h2', 'h3']);
 @endphp
 @if ($images->isNotEmpty())
-<section class="svc-gallery" x-data="{ active: 0 }" @if($previewMode) data-section-id="{{ $section->id }}" @endif>
+<section class="svc-gallery" x-data="{ active: 0 }" @if($previewMode ?? false) data-section-id="{{ $section->id }}" @endif>
     @if ($section->title)
-        <{{ $titleTag }} class="svc-gallery__title"{!! \App\Support\TextStyle::attr($titleStyle) !!}>{{ $section->title }}</{{ $titleTag }}>
+        <{{ $titleTag }} class="svc-gallery__title"{!! \App\Support\TextStyle::attr($titleStyle) !!}>{!! \App\Support\LinkText::render($section->title) !!}</{{ $titleTag }}>
     @endif
     <div class="svc-gallery__main">
         @foreach ($images as $i => $img)

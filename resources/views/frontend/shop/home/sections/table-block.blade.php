@@ -6,21 +6,21 @@
     $align = in_array($config['align'] ?? 'left', ['left', 'center', 'right'], true) ? $config['align'] : 'left';
 @endphp
 @if (!empty($headers) && !empty($rows))
-<section class="svc-table-block" @if ($previewMode) data-section-id="{{ $section->id }}" @endif>
+<section class="svc-table-block" @if ($previewMode ?? false) data-section-id="{{ $section->id }}" @endif>
     @if ($section->title)
-        <h2 class="svc-table-block__title">{{ $section->title }}</h2>
+        <h2 class="svc-table-block__title">{!! \App\Support\LinkText::render($section->title) !!}</h2>
     @endif
     @if (!empty($config['description']))
-        <p class="svc-table-block__desc">{{ $config['description'] }}</p>
+        <p class="svc-table-block__desc">{!! \App\Support\LinkText::render($config['description']) !!}</p>
     @endif
 
     <div class="svc-table-block__scroll">
         <table class="svc-table-block__table">
-            <caption class="sr-only">{{ $section->title ?: 'Tabla de información del servicio' }}</caption>
+            <caption class="sr-only">{{ \App\Support\LinkText::plain($section->title) ?: 'Tabla de información del servicio' }}</caption>
             <thead>
                 <tr>
                     @foreach ($headers as $header)
-                        <th>{{ $header }}</th>
+                        <th>{!! \App\Support\LinkText::render($header) !!}</th>
                     @endforeach
                 </tr>
             </thead>
@@ -28,7 +28,7 @@
                 @foreach ($rows as $cells)
                     <tr>
                         @foreach ($headers as $i => $header)
-                            <td>{{ $cells[$i] ?? '' }}</td>
+                            <td>{!! \App\Support\LinkText::render($cells[$i] ?? '') !!}</td>
                         @endforeach
                     </tr>
                 @endforeach
@@ -47,7 +47,7 @@
                 <a href="{{ $btn['url'] }}" class="svc-btn svc-btn--{{ $style }}"
                    style="{{ $style === 'solid' ? 'background:'.e($color).';border-color:'.e($color) : 'color:'.e($color).';border-color:'.e($color) }}"
                    @if (!str_starts_with($btn['url'], '/')) target="_blank" rel="noopener" @endif>
-                    {{ $btn['text'] }}
+                    {{ \App\Support\LinkText::plain($btn['text']) }}
                 </a>
             @endforeach
         </div>

@@ -28,10 +28,16 @@
  *    product_carousel_banner más abajo).
  */
 import Sortable from 'sortablejs';
+import { mountLinkTools } from './live-editor-links.js';
+import { renderCollectionGeneralPanel, renderCollectionProductsPanel } from './live-editor-collection-panels.js';
 
 (function () {
     const DATA = window.__LIVE_EDITOR__;
     if (!DATA) return;
+
+    // 'service' (editor original) | 'collection' (mismo editor para Colecciones).
+    const KIND = DATA.kind || 'service';
+    const IS_COLLECTION = KIND === 'collection';
 
     const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
 
@@ -193,6 +199,7 @@ import Sortable from 'sortablejs';
     const generalInfoBtn = document.getElementById('leGeneralInfoBtn');
     const galleryBtn = document.getElementById('leGalleryBtn');
     const reviewsBtn = document.getElementById('leReviewsBtn');
+    const productsBtn = document.getElementById('leProductsBtn');
     const pageHeading = document.querySelector('.live-editor-heading-row__left h1');
 
     // ── Modal de confirmación al eliminar (reemplaza confirm()) — genérico:
@@ -229,6 +236,12 @@ import Sortable from 'sortablejs';
         closeDeleteModal();
         if (typeof action === 'function') action();
     });
+
+    // Quita el marcado de enlaces [texto](destino) para mostrar solo el texto
+    // (nombres en la lista de bloques y encabezados del panel).
+    function plainLabel(text) {
+        return String(text ?? '').replace(/\[([^\]]+)\]\(((?:\/(?!\/)|https?:\/\/)[^\s)]*)\)/g, '$1');
+    }
 
     function escHtml(s) {
         return String(s ?? '').replace(/&/g, '&amp;').replace(/"/g, '&quot;')
@@ -725,7 +738,7 @@ import Sortable from 'sortablejs';
         if (!draftSections.length) {
             const empty = document.createElement('div');
             empty.className = 'live-editor-blocks-empty';
-            empty.textContent = 'Este servicio todavía no tiene bloques. Agrega uno abajo.';
+            empty.textContent = (IS_COLLECTION ? 'Esta colección' : 'Este servicio') + ' todavía no tiene bloques. Agrega uno abajo.';
             blocksList.appendChild(empty);
             return;
         }
@@ -747,7 +760,7 @@ import Sortable from 'sortablejs';
                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${iconPath}</svg>
                 </span>
                 <span class="live-editor-block-info">
-                    <span class="live-editor-block-name">${escHtml(section.title || TYPE_LABELS[section.type] || section.type)}</span>
+                    <span class="live-editor-block-name">${escHtml(plainLabel(section.title) || TYPE_LABELS[section.type] || section.type)}</span>
                     <span class="live-editor-block-type">${escHtml(TYPE_LABELS[section.type] || section.type)}</span>
                 </span>
                 <span class="live-editor-block-actions">
@@ -773,7 +786,7 @@ import Sortable from 'sortablejs';
 
             row.querySelector('.live-editor-block-delete').addEventListener('click', (e) => {
                 e.stopPropagation();
-                const label = section.title || TYPE_LABELS[section.type] || section.type;
+                const label = plainLabel(section.title) || TYPE_LABELS[section.type] || section.type;
                 openDeleteModal(label, () => {
                     const idx = draftSections.findIndex((s) => s._uid === section._uid);
                     if (idx !== -1) draftSections.splice(idx, 1);
@@ -827,8 +840,9 @@ import Sortable from 'sortablejs';
     // -- de ahí este helper compartido por los 3 select*() de abajo.
     function clearSidebarSelection() {
         generalInfoBtn.classList.remove('is-selected');
-        galleryBtn.classList.remove('is-selected');
-        reviewsBtn.classList.remove('is-selected');
+        if (galleryBtn) galleryBtn.classList.remove('is-selected');
+        if (reviewsBtn) reviewsBtn.classList.remove('is-selected');
+        if (productsBtn) productsBtn.classList.remove('is-selected');
     }
 
     function selectSection(uid) {
@@ -866,9 +880,19 @@ import Sortable from 'sortablejs';
         renderPanel();
     }
 
+    function selectProducts() {
+        selectedUid = null;
+        panelMode = 'products';
+        clearSidebarSelection();
+        if (productsBtn) productsBtn.classList.add('is-selected');
+        renderBlocksList();
+        renderPanel();
+    }
+
     generalInfoBtn.addEventListener('click', selectGeneral);
-    galleryBtn.addEventListener('click', selectGallery);
-    reviewsBtn.addEventListener('click', selectReviews);
+    if (galleryBtn) galleryBtn.addEventListener('click', selectGallery);
+    if (reviewsBtn) reviewsBtn.addEventListener('click', selectReviews);
+    if (productsBtn) productsBtn.addEventListener('click', selectProducts);
 
     addBtn.addEventListener('click', () => {
         const type = addTypeSelect.value;
@@ -1695,7 +1719,28 @@ import Sortable from 'sortablejs';
         }
     }
 
+    // Contexto que consumen los paneles propios de Colecciones
+    // (live-editor-collection-panels.js).
+    const collectionState = DATA.collectionState || { type: 'manual', match_type: 'all', rules: [], products: [] };
+    function collectionCtx() {
+        return {
+            editPanel, DATA, csrfToken, escHtml, field, markDirty, schedulePreview,
+            generalData, collectionState, pageHeading,
+            showToast: (msg) => { if (window.showCenterToast) window.showCenterToast(msg); },
+            openDeleteModal,
+            openImagePicker: (...args) => window.openImagePicker && window.openImagePicker(...args),
+        };
+    }
+
     function renderPanel() {
+        if (IS_COLLECTION && panelMode === 'general') {
+            renderCollectionGeneralPanel(collectionCtx());
+            return;
+        }
+        if (IS_COLLECTION && panelMode === 'products') {
+            renderCollectionProductsPanel(collectionCtx());
+            return;
+        }
         if (panelMode === 'general') {
             renderGeneralPanel();
             return;
@@ -1712,7 +1757,7 @@ import Sortable from 'sortablejs';
         const section = findSection(selectedUid);
 
         if (!section) {
-            editPanel.innerHTML = '<div class="live-editor-panel-empty">Selecciona un bloque de la izquierda para editarlo aquí, o "Información general" para nombre, slug, precio y SEO.</div>';
+            editPanel.innerHTML = `<div class="live-editor-panel-empty">Selecciona un bloque de la izquierda para editarlo aquí, o "Información general" para ${IS_COLLECTION ? 'nombre, slug y SEO' : 'nombre, slug, precio y SEO'}.</div>`;
             return;
         }
 
@@ -1725,13 +1770,13 @@ import Sortable from 'sortablejs';
                         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${iconPath}</svg>
                     </span>
                     <span>
-                        <strong>${escHtml(section.title || TYPE_LABELS[section.type] || section.type)}</strong>
+                        <strong>${escHtml(plainLabel(section.title) || TYPE_LABELS[section.type] || section.type)}</strong>
                         <small>Editando bloque</small>
                     </span>
                 </span>
                 <button type="button" class="live-editor-panel-close" id="lePanelClose" title="Cerrar">&times;</button>
             </div>
-            ${field('Título (opcional, puedes usar {servicio})', `<input type="text" class="users-manager-input" id="leTitle" value="${escHtml(section.title)}" placeholder="Ej: Beneficios del servicio">`)}
+            ${field(IS_COLLECTION ? 'Título (opcional, puedes usar {coleccion})' : 'Título (opcional, puedes usar {servicio})', `<input type="text" class="users-manager-input" id="leTitle" value="${escHtml(section.title)}" placeholder="${IS_COLLECTION ? 'Ej: Por qué elegir esta colección' : 'Ej: Beneficios del servicio'}">`)}
             ${TITLE_STYLE_TYPES.includes(section.type) ? '<div id="leTitleStyle"></div>' : ''}
             <div class="show-user-divider" style="margin:10px 0;"></div>
             <div id="leTypeFields"></div>
@@ -2200,17 +2245,17 @@ import Sortable from 'sortablejs';
                 <input type="text" class="users-manager-input le-subtitle" placeholder="Subtítulo (opcional)" style="margin-top:6px;" value="${escHtml(tab.subtitle)}">
                 <textarea class="users-manager-input client-modal-textarea le-body" rows="2" placeholder="Párrafo" style="margin-top:6px;">${escHtml(tab.body)}</textarea>
                 <textarea class="users-manager-input client-modal-textarea le-bullets" rows="2" placeholder="Viñetas, una por línea" style="margin-top:6px;">${escHtml((tab.bullets || []).join('\n'))}</textarea>
-                <select class="users-manager-select le-image" style="margin-top:6px;">
+                ${IS_COLLECTION ? '' : `<select class="users-manager-select le-image" style="margin-top:6px;">
                     <option value="">Sin imagen</option>
                     ${imagesOptionsHtml(tab.image_id ? [tab.image_id] : [], DATA.images)}
-                </select>
+                </select>`}
                 <div class="le-tab-style" style="margin-top:6px;"></div>
             `;
             row.querySelector('.le-label').addEventListener('input', (e) => { tab.label = e.target.value; markDirty(); renderBlocksList(); schedulePreview(); });
             row.querySelector('.le-subtitle').addEventListener('input', (e) => { tab.subtitle = e.target.value; markDirty(); schedulePreview(); });
             row.querySelector('.le-body').addEventListener('input', (e) => { tab.body = e.target.value; markDirty(); schedulePreview(); });
             row.querySelector('.le-bullets').addEventListener('input', (e) => { tab.bullets = e.target.value.split('\n').map((v) => v.trim()).filter(Boolean); markDirty(); schedulePreview(); });
-            row.querySelector('.le-image').addEventListener('change', (e) => { tab.image_id = e.target.value || null; markDirty(); schedulePreview(); });
+            row.querySelector('.le-image')?.addEventListener('change', (e) => { tab.image_id = e.target.value || null; markDirty(); schedulePreview(); });
             row.querySelector('.hs-repeat-remove').addEventListener('click', () => {
                 cfg.tabs.splice(i, 1);
                 markDirty();
@@ -2392,7 +2437,52 @@ import Sortable from 'sortablejs';
         });
     }
 
+    // Galería de una COLECCIÓN: no hay galería propia como en un servicio, así que
+    // las imágenes se eligen con el selector general (biblioteca, subir o URL) y
+    // se guardan como config.images = [{url, alt}] (lo que ya lee gallery-carousel).
+    function renderCollectionGalleryFields(container, cfg) {
+        cfg.images = Array.isArray(cfg.images) ? cfg.images : [];
+        container.innerHTML = `
+            <p class="hs-config-note">Imágenes de la galería de esta colección.</p>
+            <div id="leCgRows" class="hs-repeat-rows"></div>
+            <button type="button" class="button-secondary size-adjustment" id="leCgAdd" style="margin-top:10px;">+ Agregar imagen</button>
+        `;
+        const rows = container.querySelector('#leCgRows');
+        const rerender = () => { renderCollectionGalleryFields(container, cfg); schedulePreview(); };
+
+        cfg.images.forEach((img, i) => {
+            const row = document.createElement('div');
+            row.className = 'hs-repeat-row';
+            row.innerHTML = `
+                <div class="hs-repeat-row-head"><span class="hs-repeat-row-num">${i + 1}</span><button type="button" class="hs-faq-btn hs-repeat-remove" title="Eliminar">&times;</button></div>
+                <div style="display:flex;gap:10px;align-items:center;">
+                    <div style="width:84px;height:56px;flex-shrink:0;border:1px solid #e5e7eb;border-radius:8px;background:#f9fafb;display:flex;align-items:center;justify-content:center;overflow:hidden;">
+                        ${img.url ? `<img src="${escHtml(img.url)}" alt="" style="max-width:100%;max-height:100%;object-fit:cover;">` : '<span style="font-size:11px;color:#9ca3af;">Sin imagen</span>'}
+                    </div>
+                    <button type="button" class="button-secondary size-adjustment le-cg-pick">${img.url ? 'Cambiar imagen' : 'Seleccionar imagen'}</button>
+                </div>
+                <input type="text" class="users-manager-input le-cg-alt" placeholder="Texto alternativo" style="margin-top:6px;" value="${escHtml(img.alt)}">
+            `;
+            row.querySelector('.le-cg-alt').addEventListener('input', (e) => { img.alt = e.target.value; markDirty(); schedulePreview(); });
+            row.querySelector('.le-cg-pick').addEventListener('click', () => {
+                if (typeof window.openImagePicker !== 'function') return;
+                window.openImagePicker(null, { onSelect: (url) => { img.url = url; markDirty(); rerender(); } });
+            });
+            row.querySelector('.hs-repeat-remove').addEventListener('click', () => { cfg.images.splice(i, 1); markDirty(); rerender(); });
+            rows.appendChild(row);
+        });
+
+        container.querySelector('#leCgAdd').addEventListener('click', () => {
+            if (typeof window.openImagePicker !== 'function') return;
+            window.openImagePicker(null, { onSelect: (url) => { cfg.images.push({ url, alt: '' }); markDirty(); rerender(); } });
+        });
+    }
+
     function renderGalleryCarouselFields(container, cfg) {
+        if (IS_COLLECTION) {
+            renderCollectionGalleryFields(container, cfg);
+            return;
+        }
         container.innerHTML = field('Imágenes a mostrar (vacío = toda la galería)', `<div id="leGcImages"></div>`);
         renderImagePickerGrid(container.querySelector('#leGcImages'), cfg.image_ids, DATA.images, (ids) => {
             cfg.image_ids = ids;
@@ -2420,7 +2510,7 @@ import Sortable from 'sortablejs';
             <div class="show-user-divider" style="margin:10px 0;"></div>
             ${field('Texto del botón', `<input type="text" class="users-manager-input" id="leCtaWhatsapp" value="${escHtml(cfg.whatsapp_text || 'Cotizar por WhatsApp')}">`)}
             <p class="hs-config-note">Deja este campo vacío para ocultar el botón de WhatsApp.</p>
-            ${field('Imagen de fondo (opcional)', `<select class="users-manager-select" id="leCtaBg"><option value="">Sin imagen</option>${imagesOptionsHtml(cfg.background_image_id ? [cfg.background_image_id] : [], DATA.images)}</select>`)}
+            ${IS_COLLECTION ? '' : field('Imagen de fondo (opcional)', `<select class="users-manager-select" id="leCtaBg"><option value="">Sin imagen</option>${imagesOptionsHtml(cfg.background_image_id ? [cfg.background_image_id] : [], DATA.images)}</select>`)}
             <div class="show-user-divider" style="margin:10px 0;"></div>
             <p class="live-editor-col-title">Botón secundario (opcional)</p>
             <p class="hs-config-note">Se muestra junto al de WhatsApp (o solo, si dejaste ese campo vacío) — útil para un enlace que no sea WhatsApp.</p>
@@ -2429,7 +2519,8 @@ import Sortable from 'sortablejs';
         container.querySelector('#leCtaHeadline').addEventListener('input', (e) => { cfg.headline = e.target.value; markDirty(); schedulePreview(); });
         container.querySelector('#leCtaSubtext').addEventListener('input', (e) => { cfg.subtext = e.target.value; markDirty(); schedulePreview(); });
         container.querySelector('#leCtaWhatsapp').addEventListener('input', (e) => { cfg.whatsapp_text = e.target.value; markDirty(); schedulePreview(); });
-        container.querySelector('#leCtaBg').addEventListener('change', (e) => { cfg.background_image_id = e.target.value || null; markDirty(); schedulePreview(); });
+        const ctaBg = container.querySelector('#leCtaBg');
+        if (ctaBg) ctaBg.addEventListener('change', (e) => { cfg.background_image_id = e.target.value || null; markDirty(); schedulePreview(); });
 
         cfg.headline_style = cfg.headline_style || {};
         cfg.subtext_style = cfg.subtext_style || {};
@@ -2528,7 +2619,15 @@ import Sortable from 'sortablejs';
         // "Descripción corta" y luego pulsar el botón grande (lo más
         // intuitivo) no guardaba nada ahí, pareciendo que el campo "no deja
         // actualizarse".
-        if (editPanel.querySelector('#leGenSaveBtn')) {
+        if (IS_COLLECTION) {
+            // Los paneles de Colecciones guardan con su propio botón; si hay uno
+            // abierto se dispara antes, para no perder lo capturado ahí.
+            const colBtn = editPanel.querySelector('#leColSaveBtn') || editPanel.querySelector('#leColSettingsSave');
+            if (colBtn) {
+                colBtn.click();
+                await new Promise((resolve) => setTimeout(resolve, 900));
+            }
+        } else if (editPanel.querySelector('#leGenSaveBtn')) {
             await saveGeneralInfo();
         } else if (editPanel.querySelector('#leFaqSaveBtn')) {
             await saveGeneralInfo({ btnId: 'leFaqSaveBtn', errorsBoxId: 'leFaqErrors' });
@@ -2557,6 +2656,11 @@ import Sortable from 'sortablejs';
             markDirty();
         }
     });
+
+    // ── Enlaces en cualquier texto (botón 🔗 por campo) ──────────────
+    if (DATA.linkSearchUrl) {
+        mountLinkTools(editPanel, { searchUrl: DATA.linkSearchUrl, csrfToken });
+    }
 
     // ── Arranque ───────────────────────────────────────────────────
     // Si el servicio no tiene bloques todavía (recién creado desde "+ Nuevo

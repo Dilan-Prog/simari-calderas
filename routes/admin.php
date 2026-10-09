@@ -1042,6 +1042,10 @@ Route::controller(MenuController::class)
         Route::post('/menus/{menu}/items/reordenar', 'reorderItems')->name('menus.items.reorder')->middleware('permission:menu,edit');
     });
 
+// Buscador de destinos internos para el botón 🔗 de los editores en vivo
+// (Servicios y Colecciones): solo lee contenido público activo.
+Route::get('/enlaces/buscar', [\App\Http\Controllers\Backend\LinkSearchController::class, 'search'])->name('links.search');
+
 // ============================================================
 // Colecciones (manuales y automáticas, estilo Shopify)
 // ============================================================
@@ -1061,6 +1065,12 @@ Route::controller(CollectionController::class)
         // un usuario con permiso de collections pero no de products no debe
         // depender del permiso ajeno solo para ver sugerencias de etiqueta.
         Route::get('/etiquetas/buscar', [ProductController::class, 'tagSuggestions'])->name('tags.suggestions');
+        // Editor en vivo (segmentos estáticos distintos de /productos: sin sombra)
+        Route::get('/{collection}/editor-en-vivo', 'liveEditor')->name('live-editor')->middleware('permission:collections,edit');
+        Route::post('/{collection}/editor-en-vivo/preview', 'liveEditorPreview')->name('live-editor.preview')->middleware('permission:collections,edit');
+        Route::put('/{collection}/editor-en-vivo', 'liveEditorSave')->name('live-editor.save')->middleware('permission:collections,edit');
+        Route::put('/{collection}/editor-en-vivo/general', 'liveEditorGeneral')->name('live-editor.general')->middleware('permission:collections,edit');
+        Route::put('/{collection}/editor-en-vivo/ajustes', 'liveEditorSettings')->name('live-editor.settings')->middleware('permission:collections,edit');
         Route::get('/{collection}/productos', 'show')->name('show');
         Route::post('/{collection}/productos', 'addProduct')->name('products.add')->middleware('permission:collections,edit');
         Route::delete('/{collection}/productos/{product}', 'removeProduct')->name('products.remove')->middleware('permission:collections,delete');

@@ -30,6 +30,12 @@ class Collection extends Model
         return $this->hasMany(CollectionRule::class);
     }
 
+    /** Bloques propios de la página pública (editor en vivo). */
+    public function sections()
+    {
+        return $this->hasMany(CollectionSection::class)->orderBy('sort_order');
+    }
+
     public function manualProducts()
     {
         return $this->belongsToMany(Products::class, 'collection_products', 'collection_id', 'product_id')

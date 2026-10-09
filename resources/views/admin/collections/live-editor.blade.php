@@ -5,7 +5,7 @@
 @endpush
 
 @section('title')
-    Editor en vivo - {{ $servicePage->name }} - Admin
+    Editor en vivo - {{ $collection->name }} - Admin
 @endsection
 
 @section('content')
@@ -13,15 +13,16 @@
 
     <div class="live-editor-topbar">
         <p class="live-editor-breadcrumb">
-            <a href="{{ route('admin.service-pages.index') }}">Servicios</a>
+            <a href="{{ route('admin.collections.index') }}">Colecciones</a>
             <span>&rsaquo;</span> Editor en vivo
         </p>
 
         <div class="live-editor-heading-row">
             <div class="live-editor-heading-row__left">
-                <h1>{{ $servicePage->name }}</h1>
-                <span class="live-editor-badge" title="El editor en vivo está disponible solo en el módulo Servicios por ahora.">BETA · SOLO SERVICIOS</span>
+                <h1>{{ $collection->name }}</h1>
+                <span class="live-editor-badge" title="El editor en vivo de colecciones está en beta.">BETA · COLECCIONES</span>
             </div>
+
 
             <div class="live-editor-heading-row__right">
                 <div class="live-editor-viewport-toggle" id="leViewportToggle">
@@ -41,7 +42,7 @@
 
                 <span class="live-editor-toolbar-divider"></span>
 
-                <a href="{{ url($servicePage->publicPath()) }}" target="_blank" rel="noopener" class="live-editor-btn live-editor-btn--outline" id="leViewLiveLink">
+                <a href="{{ url('/coleccion/'.$collection->slug) }}" target="_blank" rel="noopener" class="live-editor-btn live-editor-btn--outline" id="leViewLiveLink">
                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
                     Ver página en vivo
                 </a>
@@ -51,7 +52,6 @@
             </div>
         </div>
     </div>
-
     <div class="live-editor-layout">
 
         {{-- Columna izquierda: info general + lista de bloques --}}
@@ -62,27 +62,17 @@
                 </span>
                 <span class="live-editor-block-info">
                     <span class="live-editor-block-name">Información general</span>
-                    <span class="live-editor-block-type">Nombre, slug, precio, SEO, rating</span>
+                    <span class="live-editor-block-type">Nombre, slug, SEO, FAQs</span>
                 </span>
             </button>
 
-            <button type="button" id="leGalleryBtn" class="live-editor-general-row">
+            <button type="button" id="leProductsBtn" class="live-editor-general-row">
                 <span class="live-editor-block-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
                 </span>
                 <span class="live-editor-block-info">
-                    <span class="live-editor-block-name">Galería</span>
-                    <span class="live-editor-block-type">Imágenes del servicio</span>
-                </span>
-            </button>
-
-            <button type="button" id="leReviewsBtn" class="live-editor-general-row">
-                <span class="live-editor-block-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                </span>
-                <span class="live-editor-block-info">
-                    <span class="live-editor-block-name">Reseñas</span>
-                    <span class="live-editor-block-type">Reseñas capturadas</span>
+                    <span class="live-editor-block-name">Productos y tipo</span>
+                    <span class="live-editor-block-type">Manual o automática, reglas</span>
                 </span>
             </button>
 
@@ -102,15 +92,14 @@
                     <option value="brand_logos">Bloque de Marcas (logotipos propios)</option>
                     <option value="html_block">Bloque HTML</option>
                     <option value="faq">Preguntas Frecuentes</option>
-                    <option value="rich_header">Encabezado enriquecido</option>
                     <option value="content_tabs">Descripción por secciones</option>
                     <option value="benefits_grid">Beneficios / características</option>
                     <option value="process_steps">Proceso / cómo funciona</option>
                     <option value="gallery_carousel">Galería / carrusel</option>
-                    <option value="rating_reviews">Rating y reseñas</option>
                     <option value="cta_final">CTA final</option>
                     <option value="button">Botón</option>
                     <option value="table_block">Tabla</option>
+                    <option value="pool_calculator">Calculadora de alberca</option>
                 </select>
                 <button type="button" id="leAddBlockBtn" class="live-editor-btn live-editor-btn--outline live-editor-btn--block">
                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
@@ -132,7 +121,7 @@
                 <span class="live-editor-browser-dot" style="background:#ff5f57;"></span>
                 <span class="live-editor-browser-dot" style="background:#ffbd2e;"></span>
                 <span class="live-editor-browser-dot" style="background:#28c840;"></span>
-                <span class="live-editor-browser-url" id="leBrowserUrl">equitermindustries.com.mx{{ $servicePage->publicPath() }}</span>
+                <span class="live-editor-browser-url" id="leBrowserUrl">equitermindustries.com.mx/coleccion/{{ $collection->slug }}</span>
             </div>
             <div class="live-editor-iframe-wrap">
                 <iframe id="leIframe" class="live-editor-iframe" title="Vista previa"></iframe>
@@ -182,44 +171,44 @@
 @push('scripts')
     <script>
         window.__LIVE_EDITOR__ = {!! \Illuminate\Support\Js::from([
-            'previewUrl' => route('admin.service-pages.live-editor.preview', $servicePage),
-            'saveUrl' => route('admin.service-pages.live-editor.save', $servicePage),
+            'kind' => 'collection',
+            'previewUrl' => route('admin.collections.live-editor.preview', $collection),
+            'saveUrl' => route('admin.collections.live-editor.save', $collection),
+            'generalUrl' => route('admin.collections.live-editor.general', $collection),
+            'settingsUrl' => route('admin.collections.live-editor.settings', $collection),
+            'productsSearchUrl' => route('admin.collections.products.search'),
+            'productsAddUrl' => route('admin.collections.products.add', $collection),
+            'productsRemoveUrlTemplate' => route('admin.collections.products.remove', [$collection, '__ID__']),
+            'productsReorderUrl' => route('admin.collections.products.reorder', $collection),
             'linkSearchUrl' => route('admin.links.search'),
-            'generalUrl' => route('admin.service-pages.update-general', $servicePage),
-            'productsSearchUrl' => route('admin.service-pages.products.search'),
-            'general' => [
-                'name' => $servicePage->name,
-                'slug' => $servicePage->slug,
-                'page_type' => $servicePage->page_type,
-                'parent_id' => $servicePage->parent_id,
-                'sort_order' => $servicePage->sort_order,
-                'short_description' => $servicePage->short_description,
-                'price' => $servicePage->price,
-                'currency' => $servicePage->currency ?: 'MXN',
-                'show_price' => (bool) $servicePage->show_price,
-                'background_color' => $servicePage->background_color,
-                'seo_title' => $servicePage->seo_title,
-                'seo_description' => $servicePage->seo_description,
-                'is_active' => (bool) $servicePage->is_active,
-                'public_path' => $servicePage->publicPath(),
-                'faqs' => $servicePage->faqs ?? [],
-                'canonical_url' => $servicePage->canonical_url,
-                // Estadísticas de marketing (pestaña "Rating y reseñas —
-                // Promedio mostrado" del formulario clásico) -- portadas al
-                // panel "Información general" del editor en vivo. Nunca
-                // alimentan el JSON-LD, ver ServicePageController::fillRatingStats().
-                'rating_average_displayed' => $servicePage->rating_average_displayed,
-                'rating_total_rated' => $servicePage->rating_total_rated,
-                'rating_recommend_percent' => $servicePage->rating_recommend_percent,
-                'rating_punctuality_average' => $servicePage->rating_punctuality_average,
-                'rating_recurring_clients' => $servicePage->rating_recurring_clients,
-                'rating_since_year' => $servicePage->rating_since_year,
-                'rating_distribution' => $servicePage->rating_distribution,
+            'ruleOptions' => [
+                'categories' => $categories->map(fn ($c) => ['id' => $c->id, 'name' => $c->name])->values(),
+                'brands' => $brands->map(fn ($b) => ['id' => $b->id, 'name' => $b->name])->values(),
             ],
-            'eligibleParents' => $eligibleParents->map(fn ($p) => [
-                'id' => $p->id, 'name' => $p->name, 'page_type' => $p->page_type,
-            ])->values(),
-            'sections' => $servicePage->sections->map(fn ($s) => [
+            'general' => [
+                'name' => $collection->name,
+                'slug' => $collection->slug,
+                'description' => $collection->description,
+                'image_url' => $collection->image_url,
+                'sort_order' => $collection->sort_order,
+                'is_active' => (bool) $collection->is_active,
+                'seo_title' => $collection->seo_title,
+                'seo_description' => $collection->seo_description,
+                'og_image_url' => $collection->og_image_url,
+                'faqs' => $collection->faqs ?? [],
+                'public_path' => '/coleccion/' . $collection->slug,
+            ],
+            'collectionState' => [
+                'type' => $collection->type,
+                'match_type' => $collection->match_type,
+                'rules' => $collection->rules->map(fn ($r) => [
+                    'field' => $r->field, 'operator' => $r->operator, 'value' => $r->value,
+                ])->values(),
+                'products' => $collection->manualProducts->map(fn ($p) => [
+                    'id' => $p->id, 'name' => $p->name, 'sku' => $p->sku, 'thumb' => $p->cover_image_url,
+                ])->values(),
+            ],
+            'sections' => $collection->sections->sortBy('sort_order')->map(fn ($s) => [
                 'id' => $s->id,
                 'type' => $s->type,
                 'title' => $s->title,
@@ -229,43 +218,6 @@
             'categories' => $categories->map(fn ($c) => ['id' => $c->id, 'name' => $c->name])->values(),
             'brands' => $brands->map(fn ($b) => ['id' => $b->id, 'name' => $b->name])->values(),
             'collections' => $collections->map(fn ($c) => ['id' => $c->id, 'name' => $c->name])->values(),
-            'images' => $servicePage->images->map(fn ($img) => [
-                'id' => $img->id,
-                'url' => $img->url,
-                'alt_text' => $img->alt_text,
-            ])->values(),
-            // Panel "Reseñas" del editor en vivo -- se pasa el set completo de
-            // columnas (igual criterio que 'sections'/'images') para no
-            // depender de reviews.edit (GET) al abrir el formulario de edición.
-            'reviews' => $servicePage->reviews->map(fn ($r) => [
-                'id' => $r->id,
-                'customer_name' => $r->customer_name,
-                'customer_role' => $r->customer_role,
-                'customer_company' => $r->customer_company,
-                'customer_city' => $r->customer_city,
-                'customer_state' => $r->customer_state,
-                'review_date' => $r->review_date?->format('Y-m-d'),
-                'rating' => $r->rating,
-                'comment' => $r->comment,
-                'categories' => $r->categories ?? [],
-                'is_verified' => (bool) $r->is_verified,
-                'is_visible' => (bool) $r->is_visible,
-                'business_response' => $r->business_response,
-                'business_response_date' => $r->business_response_date?->format('Y-m-d'),
-            ])->values(),
-            'reviewCategories' => \App\Models\ServicePageReview::CATEGORIES,
-            'imagesStoreUrl' => route('admin.service-pages.images.store', $servicePage),
-            'imagesReorderUrl' => route('admin.service-pages.images.reorder', $servicePage),
-            // Placeholders sustituidos en JS (String.replace) -- mismo truco
-            // que url() con un parámetro de ruta que todavía no se conoce en
-            // el momento de generar la URL (el id de imagen/reseña se sabe
-            // solo hasta que el usuario hace click en un item ya persistido).
-            'imageUpdateUrlTemplate' => route('admin.service-pages.images.update', [$servicePage, '__IMAGE_ID__']),
-            'imageDestroyUrlTemplate' => route('admin.service-pages.images.destroy', [$servicePage, '__IMAGE_ID__']),
-            'reviewsStoreUrl' => route('admin.service-pages.reviews.store', $servicePage),
-            'reviewsReorderUrl' => route('admin.service-pages.reviews.reorder', $servicePage),
-            'reviewUpdateUrlTemplate' => route('admin.service-pages.reviews.update', [$servicePage, '__REVIEW_ID__']),
-            'reviewDestroyUrlTemplate' => route('admin.service-pages.reviews.destroy', [$servicePage, '__REVIEW_ID__']),
         ]) !!};
     </script>
     @vite('resources/js/admin/service-page-live-editor.js')
