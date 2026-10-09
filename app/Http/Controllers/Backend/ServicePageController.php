@@ -566,6 +566,8 @@ class ServicePageController extends Controller
             'sections.*.title'  => 'nullable|string|max:255',
             'sections.*.config' => 'nullable|array',
             'sections.*.is_active' => 'nullable|boolean',
+            'deleted_ids'          => 'nullable|array',
+            'deleted_ids.*'        => 'integer',
         ]);
 
         DB::transaction(function () use ($request, $servicePage) {
@@ -597,7 +599,11 @@ class ServicePageController extends Controller
 
             // No borra secciones que el editor en vivo no mandó de vuelta —
             // solo actualiza/crea las recibidas, mismo criterio conservador
-            // que reorderSections() (nunca borra por omisión).
+            // que reorderSections() (nunca borra por omisión). Solo borra los
+            // bloques que el editor pide borrar de forma explícita.
+            if ($ids = $request->input('deleted_ids')) {
+                $servicePage->sections()->whereIn('id', $ids)->delete();
+            }
         });
 
         return response()->json(['success' => true]);

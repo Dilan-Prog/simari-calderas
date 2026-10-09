@@ -157,6 +157,40 @@ class CollectionLiveEditorTest extends TestCase
         ])->assertOk()->assertJsonPath('match_type', null);
     }
 
+    public function test_deleted_ids_borra_solo_lo_pedido_y_de_esa_coleccion(): void
+    {
+        $admin = $this->adminUser();
+        $c = $this->makeCollection();
+        $other = $this->makeCollection(['name' => 'Otra', 'slug' => 'otra']);
+        $a = $c->sections()->create(['type' => 'faq', 'title' => 'A', 'config' => [], 'sort_order' => 0]);
+        $b = $c->sections()->create(['type' => 'faq', 'title' => 'B', 'config' => [], 'sort_order' => 1]);
+        $x = $other->sections()->create(['type' => 'faq', 'title' => 'X', 'config' => [], 'sort_order' => 0]);
+
+        $this->actingAs($admin)->putJson(route('admin.collections.live-editor.save', $c->id), [
+            'sections' => [['id' => $a->id, 'type' => 'faq', 'title' => 'A']],
+            'deleted_ids' => [$b->id, $x->id],
+        ])->assertOk();
+
+        $this->assertSame(['A'], $c->sections()->pluck('title')->all());
+        $this->assertSame(1, $other->sections()->count());
+    }
+
+    public function test_reglas_con_campo_u_operador_invalido_se_rechazan(): void
+    {
+        $c = $this->makeCollection();
+        $admin = $this->adminUser();
+
+        $this->actingAs($admin)->putJson(route('admin.collections.live-editor.settings', $c->id), [
+            'type' => 'automatic', 'match_type' => 'all',
+            'rules' => [['field' => 'cost', 'operator' => 'equals', 'value' => '1']],
+        ])->assertStatus(422);
+
+        $this->actingAs($admin)->putJson(route('admin.collections.live-editor.settings', $c->id), [
+            'type' => 'automatic', 'match_type' => 'all',
+            'rules' => [['field' => 'tag', 'operator' => 'equals', 'value' => ['x']]],
+        ])->assertStatus(422);
+    }
+
     public function test_preview_devuelve_html_con_borrador_en_memoria(): void
     {
         $c = $this->makeCollection();

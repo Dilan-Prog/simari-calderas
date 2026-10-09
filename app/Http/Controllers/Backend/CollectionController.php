@@ -320,6 +320,8 @@ class CollectionController extends Controller
             'sections.*.title'     => 'nullable|string|max:255',
             'sections.*.config'    => 'nullable|array',
             'sections.*.is_active' => 'nullable|boolean',
+            'deleted_ids'          => 'nullable|array',
+            'deleted_ids.*'        => 'integer',
         ]);
 
         DB::transaction(function () use ($request, $collection) {
@@ -345,7 +347,11 @@ class CollectionController extends Controller
                 $collection->sections()->create($attrs);
             }
 
-            // Nunca borra por omisión (mismo criterio que Servicios).
+            // Solo borra los bloques que el editor pide borrar de forma explícita
+            // (nunca por omisión).
+            if ($ids = $request->input('deleted_ids')) {
+                $collection->sections()->whereIn('id', $ids)->delete();
+            }
         });
 
         return response()->json(['success' => true]);
@@ -415,6 +421,12 @@ class CollectionController extends Controller
             'type'       => 'required|in:manual,automatic',
             'match_type' => 'required_if:type,automatic|nullable|in:all,any',
             'rules'      => 'nullable|array',
+            'rules.*.field'    => 'nullable|in:tag,category_id,brand_id,price',
+            'rules.*.operator' => 'nullable|in:equals,greater_than,less_than',
+            'rules.*.value'    => 'nullable|string|max:255',
+            'rule_field.*'    => 'nullable|in:tag,category_id,brand_id,price',
+            'rule_operator.*' => 'nullable|in:equals,greater_than,less_than',
+            'rule_value.*'    => 'nullable|string|max:255',
         ]);
 
         $collection->type       = $request->type;

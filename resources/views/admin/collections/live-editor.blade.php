@@ -181,6 +181,7 @@
             'productsRemoveUrlTemplate' => route('admin.collections.products.remove', [$collection, '__ID__']),
             'productsReorderUrl' => route('admin.collections.products.reorder', $collection),
             'linkSearchUrl' => route('admin.links.destinations'),
+            'tagsSuggestUrl' => route('admin.collections.tags.suggestions'),
             'ruleOptions' => [
                 'categories' => $categories->map(fn ($c) => ['id' => $c->id, 'name' => $c->name])->values(),
                 'brands' => $brands->map(fn ($b) => ['id' => $b->id, 'name' => $b->name])->values(),

@@ -214,6 +214,9 @@ import { renderCollectionGeneralPanel, renderCollectionProductsPanel } from './l
     const deleteModalConfirm = document.getElementById('leDeleteModalConfirm');
     let pendingDeleteAction = null;
 
+    // Ids de bloques ya guardados que el admin quitó; se mandan al guardar.
+    const deletedIds = [];
+
     function openDeleteModal(label, onConfirm) {
         pendingDeleteAction = onConfirm;
         deleteModalTitle.textContent = label;
@@ -790,6 +793,7 @@ import { renderCollectionGeneralPanel, renderCollectionProductsPanel } from './l
                 openDeleteModal(label, () => {
                     const idx = draftSections.findIndex((s) => s._uid === section._uid);
                     if (idx !== -1) draftSections.splice(idx, 1);
+                    if (section.id) deletedIds.push(section.id);
                     if (selectedUid === section._uid) {
                         selectedUid = null;
                         renderPanel();
@@ -2644,6 +2648,7 @@ import { renderCollectionGeneralPanel, renderCollectionProductsPanel } from './l
                 headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
                 body: JSON.stringify({
                     sections: draftSections.map((s, i) => ({ ...s, sort_order: i })),
+                    deleted_ids: deletedIds,
                 }),
             });
 
