@@ -7,9 +7,9 @@
                 <h2 class="product-carousel__title">
                     @if ($headingUrl)
                         {{-- Texto ancla = título (SEO). Solo se pinta <a> si el destino resuelve. --}}
-                        <a href="{{ $headingUrl }}" rel="noopener" @if ($headingNewTab) target="_blank" @endif>{{ $title }}</a>
+                        <a href="{{ $headingUrl }}" rel="noopener" @if ($headingNewTab) target="_blank" @endif>{{ \App\Support\LinkText::plain($title) }}</a>
                     @else
-                        {{ $title }}
+                        {{ \App\Support\LinkText::plain($title) }}
                     @endif
                 </h2>
             @endif

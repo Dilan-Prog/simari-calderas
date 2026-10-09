@@ -1044,7 +1044,7 @@ Route::controller(MenuController::class)
 
 // Buscador de destinos internos para el botón 🔗 de los editores en vivo
 // (Servicios y Colecciones): solo lee contenido público activo.
-Route::get('/enlaces/buscar', [\App\Http\Controllers\Backend\LinkSearchController::class, 'search'])->name('links.search');
+Route::get('/enlaces/destinos', [\App\Http\Controllers\Backend\LinkSearchController::class, 'search'])->name('links.destinations');
 
 // ============================================================
 // Colecciones (manuales y automáticas, estilo Shopify)

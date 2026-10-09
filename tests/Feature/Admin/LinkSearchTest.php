@@ -11,7 +11,7 @@ use Tests\TestCase;
 
 /**
  * Buscador de destinos internos para enlaces en los editores en vivo.
- * Requiere que la ruta admin.links.search (GET /admin/enlaces/buscar) esté
+ * Requiere que la ruta admin.links.destinations (GET /admin/enlaces/destinos) esté
  * registrada en routes/admin.php.
  */
 class LinkSearchTest extends TestCase
@@ -37,13 +37,13 @@ class LinkSearchTest extends TestCase
 
     public function test_requires_authentication(): void
     {
-        $this->getJson(route('admin.links.search', ['q' => 'cal']))->assertUnauthorized();
+        $this->getJson(route('admin.links.destinations', ['q' => 'cal']))->assertUnauthorized();
     }
 
     public function test_short_query_returns_empty(): void
     {
         $this->actingAs($this->adminUser())
-            ->getJson(route('admin.links.search', ['q' => 'a']))
+            ->getJson(route('admin.links.destinations', ['q' => 'a']))
             ->assertOk()->assertExactJson([]);
     }
 
@@ -54,7 +54,7 @@ class LinkSearchTest extends TestCase
         ServicePage::create(['name' => 'Mantenimiento de calderas', 'slug' => 'mant-calderas', 'page_type' => ServicePage::TYPE_SERVICE, 'is_active' => true]);
 
         $res = $this->actingAs($this->adminUser())
-            ->getJson(route('admin.links.search', ['q' => 'calderas']))
+            ->getJson(route('admin.links.destinations', ['q' => 'calderas']))
             ->assertOk()->json();
 
         $byType = collect($res)->groupBy('type');
@@ -73,7 +73,7 @@ class LinkSearchTest extends TestCase
         ServicePage::create(['name' => 'Calderas serv', 'slug' => 'calderas-serv', 'page_type' => ServicePage::TYPE_SERVICE, 'is_active' => true]);
 
         $res = $this->actingAs($this->adminUser())
-            ->getJson(route('admin.links.search', ['q' => 'calderas', 'types' => 'coleccion']))
+            ->getJson(route('admin.links.destinations', ['q' => 'calderas', 'types' => 'coleccion']))
             ->assertOk()->json();
 
         $this->assertSame(['coleccion'], array_values(array_unique(array_column($res, 'type'))));

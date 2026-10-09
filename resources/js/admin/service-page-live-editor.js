@@ -2625,7 +2625,12 @@ import { renderCollectionGeneralPanel, renderCollectionProductsPanel } from './l
             const colBtn = editPanel.querySelector('#leColSaveBtn') || editPanel.querySelector('#leColSettingsSave');
             if (colBtn) {
                 colBtn.click();
-                await new Promise((resolve) => setTimeout(resolve, 900));
+                // Espera a que el botón del panel termine (se deshabilita mientras guarda)
+                // en lugar de un retraso fijo; tope de 10 s.
+                await new Promise((r) => setTimeout(r, 120));
+                for (let i = 0; i < 80 && colBtn.disabled; i++) {
+                    await new Promise((r) => setTimeout(r, 125));
+                }
             }
         } else if (editPanel.querySelector('#leGenSaveBtn')) {
             await saveGeneralInfo();
@@ -2659,7 +2664,13 @@ import { renderCollectionGeneralPanel, renderCollectionProductsPanel } from './l
 
     // ── Enlaces en cualquier texto (botón 🔗 por campo) ──────────────
     if (DATA.linkSearchUrl) {
-        mountLinkTools(editPanel, { searchUrl: DATA.linkSearchUrl, csrfToken });
+        mountLinkTools(editPanel, {
+            searchUrl: DATA.linkSearchUrl,
+            csrfToken,
+            // Nombre/descripción/SEO se imprimen como texto plano (title, meta, JSON-LD):
+            // ahí un enlace aparecería literal.
+            exclude: (f) => /^le(Col|Gen)(Name|Desc|ShortDesc|Seo)/.test(f.id || ''),
+        });
     }
 
     // ── Arranque ───────────────────────────────────────────────────

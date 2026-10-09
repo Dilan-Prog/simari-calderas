@@ -184,7 +184,7 @@
         window.__LIVE_EDITOR__ = {!! \Illuminate\Support\Js::from([
             'previewUrl' => route('admin.service-pages.live-editor.preview', $servicePage),
             'saveUrl' => route('admin.service-pages.live-editor.save', $servicePage),
-            'linkSearchUrl' => route('admin.links.search'),
+            'linkSearchUrl' => route('admin.links.destinations'),
             'generalUrl' => route('admin.service-pages.update-general', $servicePage),
             'productsSearchUrl' => route('admin.service-pages.products.search'),
             'general' => [

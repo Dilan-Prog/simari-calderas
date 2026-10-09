@@ -50,12 +50,12 @@
             @foreach ($cards as $card)
                 @if ($card['url'])
                     <a href="{{ $card['url'] }}" class="card-carousel__card" @if ($card['new_tab']) target="_blank" rel="noopener" @endif>
-                        <span class="card-carousel__img-wrap"><img src="{{ $card['src'] }}" alt="{{ $card['text'] }}" loading="lazy"></span>
+                        <span class="card-carousel__img-wrap"><img src="{{ $card['src'] }}" alt="{{ \App\Support\LinkText::plain($card['text']) }}" loading="lazy"></span>
                         <span class="card-carousel__text">{{ \App\Support\LinkText::plain($card['text']) }}</span>
                     </a>
                 @else
                     <div class="card-carousel__card">
-                        <span class="card-carousel__img-wrap"><img src="{{ $card['src'] }}" alt="{{ $card['text'] }}" loading="lazy"></span>
+                        <span class="card-carousel__img-wrap"><img src="{{ $card['src'] }}" alt="{{ \App\Support\LinkText::plain($card['text']) }}" loading="lazy"></span>
                         <span class="card-carousel__text">{{ \App\Support\LinkText::plain($card['text']) }}</span>
                     </div>
                 @endif

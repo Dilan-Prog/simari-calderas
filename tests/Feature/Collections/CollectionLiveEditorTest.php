@@ -187,7 +187,7 @@ class CollectionLiveEditorTest extends TestCase
         $res->assertSee('leProductsBtn', false);
         $res->assertSee('brand_logos', false);
         // Js::from escapa las diagonales dentro del JSON de arranque.
-        $this->assertStringContainsString('buscar', $res->getContent());
+        $this->assertStringContainsString('destinos', $res->getContent());
         $this->assertStringContainsString('enlaces', $res->getContent());
         $res->assertDontSee('leGalleryBtn', false);
         $res->assertDontSee('rating_reviews', false);

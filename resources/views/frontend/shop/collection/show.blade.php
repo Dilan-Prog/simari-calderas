@@ -16,6 +16,16 @@
         );
     }
 
+    // Los bloques de estilo "Servicios" (beneficios, pasos, pestañas, tabla,
+    // botón, CTA final, logotipos, galería) tienen sus estilos .svc-* en
+    // service-page.css; sin esto, una colección con esos bloques los
+    // mostraría como texto plano. Su JS (service-page.js) solo arranca
+    // Alpine, que collection.js ya arranca.
+    $svcBlockTypes = ['benefits_grid', 'process_steps', 'content_tabs', 'gallery_carousel', 'cta_final', 'button', 'table_block', 'brand_logos'];
+    if (isset($sections) && $sections->contains(fn ($s) => in_array($s->type, $svcBlockTypes, true))) {
+        $shopVite = array_merge(['resources/css/frontend/shop/service-page.css'], $shopVite);
+    }
+
     $metaTitle = $collection->seo_title ?: ($collection->name . ' — Equiterm Industries');
     $metaDescription = $collection->seo_description
         ?: \Illuminate\Support\Str::limit(strip_tags($collection->description ?? ''), 160)
