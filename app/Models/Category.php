@@ -35,6 +35,15 @@ class Category extends Model
         return $this->belongsTo(Category::class, 'parent_id');
     }
 
+    /**
+     * Grupos de filtro técnico definidos EN esta categoría (los de sus
+     * ancestros se heredan: ver App\Services\Catalog\CatalogIndex).
+     */
+    public function filterGroups()
+    {
+        return $this->hasMany(CategoryFilterGroup::class, 'category_id')->orderBy('sort_order')->orderBy('id');
+    }
+
     public function children()
     {
         return $this->hasMany(Category::class, 'parent_id');
