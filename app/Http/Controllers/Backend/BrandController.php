@@ -67,6 +67,8 @@ class BrandController extends Controller
             'slug'        => 'required|string|max:150|unique:brands,slug',
             'description' => 'nullable|string',
             'logo_url'    => 'nullable|string|max:255',
+            // Solo http(s) o ruta relativa del sitio -- nunca javascript: u otros esquemas.
+            'redirect_url' => ['nullable', 'string', 'max:500', 'regex:#^(https?://|/)#i'],
             'is_active'   => 'nullable|boolean',
         ]);
 
@@ -75,6 +77,7 @@ class BrandController extends Controller
         $brand->slug        = $request->slug;
         $brand->description = $request->description ?? null;
         $brand->logo_url    = $request->logo_url    ?? null;
+        $brand->redirect_url = trim((string) $request->redirect_url) ?: null;
         $brand->is_active   = $request->boolean('is_active', true);
         $brand->save();
 
@@ -103,6 +106,8 @@ class BrandController extends Controller
             'slug'        => 'required|string|max:150|unique:brands,slug,' . $id,
             'description' => 'nullable|string',
             'logo_url'    => 'nullable|string|max:255',
+            // Solo http(s) o ruta relativa del sitio -- nunca javascript: u otros esquemas.
+            'redirect_url' => ['nullable', 'string', 'max:500', 'regex:#^(https?://|/)#i'],
             'is_active'   => 'nullable|boolean',
         ]);
 
@@ -110,6 +115,7 @@ class BrandController extends Controller
         $brand->slug        = $request->slug;
         $brand->description = $request->description ?? null;
         $brand->logo_url    = $request->logo_url    ?? null;
+        $brand->redirect_url = trim((string) $request->redirect_url) ?: null;
         $brand->is_active   = $request->boolean('is_active', true);
         $brand->save();
 

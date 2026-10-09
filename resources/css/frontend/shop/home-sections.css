@@ -172,3 +172,11 @@ a.card-carousel__card:hover { box-shadow: 0 8px 18px rgba(0,0,0,0.1); transform:
 .pc-compact__dot.is-active { background: #141516; }
 @container (min-width: 380px) { .pc-compact__track { --pc-cols: 3; } }
 @container (min-width: 560px) { .pc-compact__track { --pc-cols: 4; } }
+
+/* Marca con URL de redirección (Gestión de Marcas): el logo es un enlace. */
+:is(.eq-shop-home, .eq-shop-product, .eq-shop-collection, .eq-shop-catalog, .eq-shop-service) a.brand-carousel__item--link {
+    text-decoration: none; color: inherit; transition: box-shadow .2s, border-color .2s, transform .2s;
+}
+:is(.eq-shop-home, .eq-shop-product, .eq-shop-collection, .eq-shop-catalog, .eq-shop-service) a.brand-carousel__item--link:hover {
+    border-color: rgba(0,0,0,0.2); box-shadow: 0 6px 16px rgba(0,0,0,0.1); transform: translateY(-2px);
+}

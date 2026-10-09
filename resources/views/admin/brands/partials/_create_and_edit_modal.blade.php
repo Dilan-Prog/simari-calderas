@@ -46,6 +46,21 @@
                         </div>
                     </div>
 
+                    <div class="users-manager-email-camp" style="margin-top:12px;">
+                        <label class="supliers-manager-slider-label">URL de redirección (opcional)</label>
+                        <div class="img-picker-field">
+                            <input type="text" class="users-manager-input" name="redirect_url" id="brandRedirectUrl"
+                                maxlength="500" placeholder="https://... o /catalogo/mi-marca">
+                            <button type="button" class="img-picker-trigger-btn" id="brandRedirectPick">
+                                Elegir destino
+                            </button>
+                        </div>
+                        <p style="margin:4px 0 0;font-size:12px;color:#9ca3af;">
+                            A dónde lleva el logo de la marca en el carrusel de marcas. Si lo dejas vacío, el logo no es un enlace.
+                            Puedes pegar cualquier URL o elegir una página del sitio (producto, colección, categoría, servicio…).
+                        </p>
+                    </div>
+
                     <div class="user-manager-form" style="margin-top:12px;">
                         <div>
                             <label class="supliers-manager-slider-label">

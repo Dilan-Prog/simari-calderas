@@ -209,6 +209,7 @@
                         document.getElementById('brandSlug').value = brand.slug ?? '';
                         document.getElementById('brandDescription').value = brand.description ?? '';
                         document.getElementById('brandLogoUrl').value = brand.logo_url ?? '';
+                        document.getElementById('brandRedirectUrl').value = brand.redirect_url ?? '';
                         document.getElementById('brandIsActive').value = brand.is_active ? '1' : '0';
                         brandErrors.style.display = 'none';
                         brandModal.style.display = 'flex';
@@ -286,5 +287,21 @@
 
         brandSearch.addEventListener('input', filterBrands);
         brandStatusFilter.addEventListener('change', filterBrands);
+
+        // "Elegir destino": mismo selector de enlaces del resto del admin
+        // (producto, colección, categoría, servicio, página...). Rellena la
+        // URL de redirección, que sigue siendo editable a mano.
+        const brandRedirectPick = document.getElementById('brandRedirectPick');
+        if (brandRedirectPick) {
+            brandRedirectPick.addEventListener('click', function () {
+                if (!window.LinkPicker) return;
+                window.LinkPicker.open({
+                    anchorEl: brandRedirectPick,
+                    onSelect: function (url) {
+                        if (url) document.getElementById('brandRedirectUrl').value = url;
+                    },
+                });
+            });
+        }
     </script>
 @endpush
