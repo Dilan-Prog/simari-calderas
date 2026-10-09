@@ -928,7 +928,7 @@ body.eq-no-scroll { overflow: hidden; }
     .eq-header__action:focus-visible,
     .eq-mnav a:focus-visible,
     .eq-mnav button:focus-visible,
-    .eq-mnav summary:focus-visible { outline: 2px solid var(--secondary-color); outline-offset: -2px; }
+    .eq-mnav__screen:focus-visible { outline: 2px solid var(--secondary-color); outline-offset: -2px; }
 
     .eq-mnav {
         display: block;
@@ -946,69 +946,44 @@ body.eq-no-scroll { overflow: hidden; }
         padding: 0 16px 32px;
         font-family: var(--font-family);
     }
-    .eq-mnav__summary {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        min-height: 52px;
-        font-size: 17px;
-        font-weight: 700;
-        list-style: none;
-        cursor: pointer;
-        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    /* Pantallas (estilo Samsung): filas grandes con flecha, un nivel por pantalla. */
+    .eq-mnav__screen { padding-top: 8px; }
+    .eq-mnav button { font-family: inherit; }
+    .eq-mnav__searchpill {
+        display: flex; align-items: center; gap: 10px; width: 100%; min-height: 44px; margin: 8px 0 12px;
+        padding: 0 16px; background: #f4f4f5; color: #4b5563; border: 1px solid rgba(0, 0, 0, 0.35);
+        border-radius: 999px; font-size: 15px; cursor: pointer; text-align: left;
     }
-    .eq-mnav__summary::-webkit-details-marker { display: none; }
-    .eq-mnav__chev { flex-shrink: 0; transition: transform .2s ease; }
-    .eq-mnav details[open] > .eq-mnav__summary > .eq-mnav__chev { transform: rotate(180deg); }
-
-    .eq-mnav a {
-        display: flex;
-        align-items: center;
-        min-height: 48px;
-        color: #141516;
-        text-decoration: none;
-        font-size: 15px;
+    .eq-mnav a.eq-mnav__big, .eq-mnav button.eq-mnav__big {
+        display: flex; align-items: center; justify-content: space-between; width: 100%; min-height: 56px;
+        padding: 0; background: none; border: 0; color: #141516; font-size: 22px; font-weight: 700;
+        letter-spacing: -0.2px; text-align: left; text-decoration: none; cursor: pointer;
     }
-    .eq-mnav__row,
-    .eq-mnav__group > .eq-mnav__summary + .eq-mnav__panel .eq-mnav__row {
-        font-size: 17px;
-        font-weight: 700;
-        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    .eq-mnav__chev { flex-shrink: 0; color: #141516; }
+    .eq-mnav__back {
+        display: inline-flex; align-items: center; gap: 4px; min-height: 48px; padding: 0 8px 0 0;
+        background: none; border: 0; color: #141516; font-size: 15px; font-weight: 600; cursor: pointer;
     }
-    .eq-mnav a.eq-mnav__row { min-height: 52px; font-size: 17px; font-weight: 700; border-bottom: 1px solid rgba(0, 0, 0, 0.1); }
-
-    .eq-mnav__group--l2 { background: #f7f7f8; }
-    .eq-mnav__group--l2 > .eq-mnav__summary { font-size: 16px; font-weight: 600; padding-left: 14px; padding-right: 4px; min-height: 50px; }
-    .eq-mnav__group--l3 { background: #efeff1; }
-    .eq-mnav__group--l3 > .eq-mnav__summary { font-size: 15px; font-weight: 500; padding-left: 28px; padding-right: 4px; min-height: 48px; }
-    .eq-mnav__group--l2 > .eq-mnav__panel > a { padding-left: 28px; font-weight: 400; border-bottom: 1px solid rgba(0, 0, 0, 0.06); }
-    .eq-mnav__group--l3 > .eq-mnav__panel > a { padding-left: 42px; font-weight: 400; font-size: 14.5px; border-bottom: 1px solid rgba(0, 0, 0, 0.06); }
-    .eq-mnav a.eq-mnav__sublink { padding-left: 14px; }
-    .eq-mnav a.eq-mnav__all { color: var(--secondary-color); font-weight: 700; }
-
-    .eq-mnav__empty { margin: 0; padding: 14px; font-size: 14px; color: #6b7280; background: #f7f7f8; }
-
-    .eq-mnav__account { margin-top: 12px; border-top: 1px solid rgba(0, 0, 0, 0.1); padding-top: 4px; }
-    .eq-mnav__account form { margin: 0; }
-    .eq-mnav button.eq-mnav__row {
-        display: flex;
-        align-items: center;
-        width: 100%;
-        min-height: 52px;
-        background: none;
-        border: none;
-        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-        font-family: inherit;
-        font-size: 17px;
-        font-weight: 700;
-        text-align: left;
-        cursor: pointer;
+    .eq-mnav__title { margin: 4px 0 8px; font-size: 26px; font-weight: 800; letter-spacing: -0.3px; line-height: 1.2; }
+    .eq-mnav a.eq-mnav__item, .eq-mnav button.eq-mnav__item {
+        display: flex; align-items: center; justify-content: space-between; width: 100%; min-height: 52px;
+        padding: 0; background: none; border: 0; border-top: 1px solid rgba(0, 0, 0, 0.08);
+        color: #141516; font-size: 17px; font-weight: 600; text-align: left; text-decoration: none; cursor: pointer;
     }
-    .eq-mnav .eq-mnav__row--danger { color: #d93025; }
-    .eq-mnav a.eq-mnav__row--wa { color: #128c4a; }
-}
-@media (prefers-reduced-motion: reduce) {
-    .eq-mnav__chev { transition: none; }
+    .eq-mnav a.eq-mnav__all {
+        display: flex; align-items: center; min-height: 48px; color: var(--secondary-color);
+        font-size: 15px; font-weight: 700; text-decoration: none;
+    }
+    .eq-mnav__empty { margin: 0; padding: 14px 0; font-size: 15px; color: #6b7280; }
+
+    .eq-mnav__secondary { margin-top: 12px; padding-top: 8px; border-top: 1px solid rgba(0, 0, 0, 0.1); }
+    .eq-mnav__secondary form { margin: 0; }
+    .eq-mnav__secondary a, .eq-mnav__secondary button {
+        display: flex; align-items: center; width: 100%; min-height: 48px; padding: 0; background: none; border: 0;
+        color: #141516; font-size: 15px; font-weight: 500; text-align: left; text-decoration: none; cursor: pointer;
+    }
+    .eq-mnav__secondary .eq-mnav__danger { color: #d93025; }
+    .eq-mnav__secondary a.eq-mnav__wa { color: #128c4a; font-weight: 600; }
 }
 
 /* Con el menú móvil abierto el botón flotante de WhatsApp taparía filas del menú. */
@@ -1036,4 +1011,27 @@ body.eq-no-scroll .wa-float-btn { display: none; }
     .product-carousel .product-card__name { min-height: 34px; -webkit-line-clamp: 2; font-size: 13px; }
     .product-carousel .product-card__price { font-size: 16px; }
     .product-carousel .product-card__add-btn { font-size: 13px; padding: 10px 6px; }
+}
+
+/* Resultados de la búsqueda en vivo en teléfono: cuadrícula de 2 tarjetas. */
+@media (max-width: 720px) {
+    .eq-search-overlay__main { padding: 18px 12px; }
+    .eq-search-overlay__main-header { margin-bottom: 12px; flex-wrap: wrap; gap: 6px 12px; }
+    .eq-search-overlay__main-header h2 { font-size: 16px; }
+    .eq-search-overlay__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    .eq-search-overlay__grid .product-card { padding: 8px; min-width: 0; }
+    .eq-search-overlay__grid .product-card__img-nav,
+    .eq-search-overlay__grid .product-card__img-dots { display: none; }
+    .eq-search-overlay__grid .product-card__name { min-height: 32px; -webkit-line-clamp: 2; font-size: 12.5px; }
+    .eq-search-overlay__grid .product-card__price { font-size: 15px; }
+    .eq-search-overlay__grid .product-card__add-btn { font-size: 12.5px; padding: 9px 4px; }
+}
+@media (max-width: 720px) {
+    .eq-search-overlay__sidebar { padding: 16px 48px 12px 16px; scrollbar-width: none; }
+    .eq-search-overlay__sidebar::-webkit-scrollbar { display: none; }
+}
+@media (max-width: 899px) {
+    .eq-mnav__title ~ a.eq-mnav__big, .eq-mnav__title ~ button.eq-mnav__big {
+        font-size: 18px; font-weight: 600; min-height: 56px; border-top: 1px solid rgba(0, 0, 0, 0.08); letter-spacing: 0;
+    }
 }

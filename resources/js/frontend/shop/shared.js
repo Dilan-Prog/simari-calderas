@@ -141,6 +141,34 @@ Alpine.data('megaMenu', () => ({
     closeTimer: null,
     mobileNav: false,
     mobileSearch: false,
+    // Pila de pantallas del menú móvil ([] = raíz; ej. ['cat','cat-3']).
+    mnavPath: [],
+
+    get mnavScreen() {
+        return this.mnavPath.length ? this.mnavPath[this.mnavPath.length - 1] : 'root';
+    },
+
+    mnavGo(key) {
+        this.mnavPath.push(key);
+        this.mnavFocus();
+    },
+
+    mnavBack() {
+        this.mnavPath.pop();
+        this.mnavFocus();
+    },
+
+    // Cada pantalla arranca arriba del todo y con el foco en su primer control.
+    mnavFocus() {
+        this.$nextTick(() => {
+            const nav = document.getElementById('eqMobileNav');
+            if (!nav) return;
+            nav.scrollTop = 0;
+            const first = [...nav.querySelectorAll('.eq-mnav__screen')].find((el) => el.offsetParent !== null);
+            const target = first && first.querySelector('button, a');
+            if (target) target.focus();
+        });
+    },
 
     init() {
         // Al pasar a escritorio (>= 900px) se cierran los paneles móviles.
@@ -149,6 +177,7 @@ Alpine.data('megaMenu', () => ({
             if (e.matches) {
                 this.mobileNav = false;
                 this.mobileSearch = false;
+                this.mnavPath = [];
             }
         };
         if (mq.addEventListener) mq.addEventListener('change', onChange);
@@ -166,17 +195,16 @@ Alpine.data('megaMenu', () => ({
             return;
         }
         this.mobileSearch = false;
+        this.mnavPath = [];
         this.mobileNav = true;
-        this.$nextTick(() => {
-            window.dispatchEvent(new Event('resize'));
-            const first = document.querySelector('#eqMobileNav summary');
-            if (first) first.focus();
-        });
+        this.$nextTick(() => window.dispatchEvent(new Event('resize')));
+        this.mnavFocus();
     },
 
     closeMobileNav() {
         if (!this.mobileNav) return;
         this.mobileNav = false;
+        this.mnavPath = [];
         this.$nextTick(() => {
             const burger = this.$root.querySelector('.eq-header__burger');
             if (burger) burger.focus();

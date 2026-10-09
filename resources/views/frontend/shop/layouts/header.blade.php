@@ -369,95 +369,113 @@
     </nav>
   </div>
 
-  {{-- MENÚ MÓVIL (< 900px): panel a pantalla completa con acordeones --}}
-  @php $mnavCustomer = Auth::guard('customer')->user(); @endphp
+  {{-- MENÚ MÓVIL (< 900px): navegación por pantallas (estilo Samsung). Cada fila con flecha ›
+       abre su propio nivel; "‹ volver" regresa un nivel. Estado: mnavPath en megaMenu(). --}}
+  @php
+      $mnavCustomer = Auth::guard('customer')->user();
+      $mnavChev = '<svg class="eq-mnav__chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+      $mnavBack = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M15 5l-7 7 7 7" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  @endphp
   <div id="eqMobileNav" class="eq-mnav" x-show="mobileNav" x-cloak @keydown.escape.window="closeMobileNav()" role="dialog" aria-label="Menú de navegación">
-    <details class="eq-mnav__group">
-      <summary class="eq-mnav__summary">
-        <span>Categorías</span>
-        <svg class="eq-mnav__chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </summary>
-      <div class="eq-mnav__panel">
-        @foreach ($megaMenuCategories as $category)
-          <details class="eq-mnav__group eq-mnav__group--l2">
-            <summary class="eq-mnav__summary">
-              <span>{{ $category->name }}</span>
-              <svg class="eq-mnav__chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </summary>
-            <div class="eq-mnav__panel">
-              <a href="{{ route('catalog.category', $category->slug) }}" class="eq-mnav__all" @click="closeMobileNav()">Ver todo en {{ $category->name }}</a>
-              @foreach ($category->children as $sub)
-                @if ($sub->children->isNotEmpty())
-                  <details class="eq-mnav__group eq-mnav__group--l3">
-                    <summary class="eq-mnav__summary">
-                      <span>{{ $sub->name }}</span>
-                      <svg class="eq-mnav__chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                    </summary>
-                    <div class="eq-mnav__panel">
-                      <a href="{{ route('catalog.category', $sub->slug) }}" class="eq-mnav__all" @click="closeMobileNav()">Ver todo</a>
-                      @foreach ($sub->children as $child)
-                        <a href="{{ route('catalog.category', $child->slug) }}" @click="closeMobileNav()">{{ $child->name }}</a>
-                      @endforeach
-                    </div>
-                  </details>
-                @else
-                  <a href="{{ route('catalog.category', $sub->slug) }}" class="eq-mnav__sublink" @click="closeMobileNav()">{{ $sub->name }}</a>
-                @endif
+
+    {{-- Pantalla raíz --}}
+    <div class="eq-mnav__screen" x-show="mnavScreen === 'root'">
+      <button type="button" class="eq-mnav__searchpill" @click="toggleMobileSearch()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3" stroke-linecap="round"/></svg>
+        <span>Búsqueda</span>
+      </button>
+
+      <button type="button" class="eq-mnav__big" @click="mnavGo('cat')"><span>Categorías</span>{!! $mnavChev !!}</button>
+      <button type="button" class="eq-mnav__big" @click="mnavGo('svc')"><span>Servicios</span>{!! $mnavChev !!}</button>
+      @foreach ($headerMainItems as $item)
+        <a href="{{ $item->resolved_url }}" target="{{ $item->target }}" class="eq-mnav__big" @click="closeMobileNav()"><span>{{ $item->title }}</span></a>
+      @endforeach
+
+      <div class="eq-mnav__secondary">
+        @if ($mnavCustomer)
+          <a href="{{ route('shop.account') }}" @click="closeMobileNav()">Mi perfil</a>
+          <a href="{{ route('shop.account') }}#pedidos" @click="closeMobileNav()">Mis pedidos</a>
+          <a href="{{ route('shop.account') }}#direcciones" @click="closeMobileNav()">Direcciones</a>
+          <a href="{{ route('shop.account') }}#pagos" @click="closeMobileNav()">Métodos de pago</a>
+          <a href="{{ route('shop.account') }}#favoritos" @click="closeMobileNav()">Favoritos</a>
+          @if ($mnavCustomer->portal_access)
+            <a href="{{ route('customer.dashboard') }}" @click="closeMobileNav()">Portal de servicios</a>
+          @endif
+          <form method="POST" action="{{ route('shop.logout') }}">
+            @csrf
+            <button type="submit" class="eq-mnav__danger">Cerrar sesión</button>
+          </form>
+        @else
+          <a href="{{ route('shop.login') }}" @click="closeMobileNav()">Iniciar sesión / Registrarme</a>
+          <a href="#" @click="closeMobileNav()">Favoritos</a>
+        @endif
+        <a href="https://wa.me/{{ \App\Models\Setting::get('footer.phone_link', '5214494577320') }}" target="_blank" rel="noopener" class="eq-mnav__wa">WhatsApp</a>
+      </div>
+    </div>
+
+    {{-- Categorías --}}
+    <div class="eq-mnav__screen" x-show="mnavScreen === 'cat'" x-cloak>
+      <button type="button" class="eq-mnav__back" @click="mnavBack()">{!! $mnavBack !!}<span>Menú</span></button>
+      <h2 class="eq-mnav__title">Categorías</h2>
+      @foreach ($megaMenuCategories as $category)
+        @if ($category->children->isNotEmpty())
+          <button type="button" class="eq-mnav__big" @click="mnavGo('cat-{{ $category->id }}')"><span>{{ $category->name }}</span>{!! $mnavChev !!}</button>
+        @else
+          <a href="{{ route('catalog.category', $category->slug) }}" class="eq-mnav__big" @click="closeMobileNav()"><span>{{ $category->name }}</span></a>
+        @endif
+      @endforeach
+    </div>
+
+    @foreach ($megaMenuCategories as $category)
+      @if ($category->children->isNotEmpty())
+        <div class="eq-mnav__screen" x-show="mnavScreen === 'cat-{{ $category->id }}'" x-cloak>
+          <button type="button" class="eq-mnav__back" @click="mnavBack()">{!! $mnavBack !!}<span>Categorías</span></button>
+          <h2 class="eq-mnav__title">{{ $category->name }}</h2>
+          <a href="{{ route('catalog.category', $category->slug) }}" class="eq-mnav__all" @click="closeMobileNav()">Ver todo en {{ $category->name }}</a>
+          @foreach ($category->children as $sub)
+            @if ($sub->children->isNotEmpty())
+              <button type="button" class="eq-mnav__item" @click="mnavGo('sub-{{ $sub->id }}')"><span>{{ $sub->name }}</span>{!! $mnavChev !!}</button>
+            @else
+              <a href="{{ route('catalog.category', $sub->slug) }}" class="eq-mnav__item" @click="closeMobileNav()"><span>{{ $sub->name }}</span></a>
+            @endif
+          @endforeach
+        </div>
+
+        @foreach ($category->children as $sub)
+          @if ($sub->children->isNotEmpty())
+            <div class="eq-mnav__screen" x-show="mnavScreen === 'sub-{{ $sub->id }}'" x-cloak>
+              <button type="button" class="eq-mnav__back" @click="mnavBack()">{!! $mnavBack !!}<span>{{ $category->name }}</span></button>
+              <h2 class="eq-mnav__title">{{ $sub->name }}</h2>
+              <a href="{{ route('catalog.category', $sub->slug) }}" class="eq-mnav__all" @click="closeMobileNav()">Ver todo</a>
+              @foreach ($sub->children as $child)
+                <a href="{{ route('catalog.category', $child->slug) }}" class="eq-mnav__item" @click="closeMobileNav()"><span>{{ $child->name }}</span></a>
               @endforeach
             </div>
-          </details>
+          @endif
         @endforeach
-      </div>
-    </details>
-
-    <details class="eq-mnav__group">
-      <summary class="eq-mnav__summary">
-        <span>Servicios</span>
-        <svg class="eq-mnav__chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </summary>
-      <div class="eq-mnav__panel">
-        @forelse ($megaMenuServiceCategories as $category)
-          <details class="eq-mnav__group eq-mnav__group--l2">
-            <summary class="eq-mnav__summary">
-              <span>{{ $category->name }}</span>
-              <svg class="eq-mnav__chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </summary>
-            <div class="eq-mnav__panel">
-              <a href="{{ url($category->publicPath()) }}" class="eq-mnav__all" @click="closeMobileNav()">Ver todos los servicios</a>
-              @foreach ($category->activeChildren as $child)
-                <a href="{{ url($child->publicPath()) }}" @click="closeMobileNav()">{{ $child->name }}</a>
-              @endforeach
-            </div>
-          </details>
-        @empty
-          <p class="eq-mnav__empty">Próximamente</p>
-        @endforelse
-      </div>
-    </details>
-
-    @foreach ($headerMainItems as $item)
-      <a href="{{ $item->resolved_url }}" target="{{ $item->target }}" class="eq-mnav__row" @click="closeMobileNav()">{{ $item->title }}</a>
+      @endif
     @endforeach
 
-    <div class="eq-mnav__account">
-      @if ($mnavCustomer)
-        <a href="{{ route('shop.account') }}" class="eq-mnav__row" @click="closeMobileNav()">Mi perfil</a>
-        <a href="{{ route('shop.account') }}#pedidos" class="eq-mnav__row" @click="closeMobileNav()">Mis pedidos</a>
-        <a href="{{ route('shop.account') }}#direcciones" class="eq-mnav__row" @click="closeMobileNav()">Direcciones</a>
-        <a href="{{ route('shop.account') }}#pagos" class="eq-mnav__row" @click="closeMobileNav()">Métodos de pago</a>
-        <a href="{{ route('shop.account') }}#favoritos" class="eq-mnav__row" @click="closeMobileNav()">Favoritos</a>
-        @if ($mnavCustomer->portal_access)
-          <a href="{{ route('customer.dashboard') }}" class="eq-mnav__row" @click="closeMobileNav()">Portal de servicios</a>
-        @endif
-        <form method="POST" action="{{ route('shop.logout') }}">
-          @csrf
-          <button type="submit" class="eq-mnav__row eq-mnav__row--danger">Cerrar sesión</button>
-        </form>
-      @else
-        <a href="{{ route('shop.login') }}" class="eq-mnav__row" @click="closeMobileNav()">Iniciar sesión</a>
-        <a href="#" class="eq-mnav__row" @click="closeMobileNav()">Favoritos</a>
-      @endif
-      <a href="https://wa.me/{{ \App\Models\Setting::get('footer.phone_link', '5214494577320') }}" target="_blank" rel="noopener" class="eq-mnav__row eq-mnav__row--wa">WhatsApp</a>
+    {{-- Servicios --}}
+    <div class="eq-mnav__screen" x-show="mnavScreen === 'svc'" x-cloak>
+      <button type="button" class="eq-mnav__back" @click="mnavBack()">{!! $mnavBack !!}<span>Menú</span></button>
+      <h2 class="eq-mnav__title">Servicios</h2>
+      @forelse ($megaMenuServiceCategories as $category)
+        <button type="button" class="eq-mnav__big" @click="mnavGo('svc-{{ $category->id }}')"><span>{{ $category->name }}</span>{!! $mnavChev !!}</button>
+      @empty
+        <p class="eq-mnav__empty">Próximamente</p>
+      @endforelse
     </div>
+
+    @foreach ($megaMenuServiceCategories as $category)
+      <div class="eq-mnav__screen" x-show="mnavScreen === 'svc-{{ $category->id }}'" x-cloak>
+        <button type="button" class="eq-mnav__back" @click="mnavBack()">{!! $mnavBack !!}<span>Servicios</span></button>
+        <h2 class="eq-mnav__title">{{ $category->name }}</h2>
+        <a href="{{ url($category->publicPath()) }}" class="eq-mnav__all" @click="closeMobileNav()">Ver todos los servicios</a>
+        @foreach ($category->activeChildren as $child)
+          <a href="{{ url($child->publicPath()) }}" class="eq-mnav__item" @click="closeMobileNav()"><span>{{ $child->name }}</span></a>
+        @endforeach
+      </div>
+    @endforeach
   </div>
 </header>
