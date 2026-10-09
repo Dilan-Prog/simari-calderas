@@ -139,6 +139,64 @@ Alpine.data('megaMenu', () => ({
     activeServiceCategoryId: null,
     activeServiceId: null,
     closeTimer: null,
+    mobileNav: false,
+    mobileSearch: false,
+
+    init() {
+        // Al pasar a escritorio (>= 900px) se cierran los paneles móviles.
+        const mq = window.matchMedia('(min-width: 900px)');
+        const onChange = (e) => {
+            if (e.matches) {
+                this.mobileNav = false;
+                this.mobileSearch = false;
+            }
+        };
+        if (mq.addEventListener) mq.addEventListener('change', onChange);
+        else if (mq.addListener) mq.addListener(onChange);
+    },
+
+    // Recalcula --eq-header-height (lo hace searchOverlay.syncHeaderHeight en 'resize').
+    syncMobileLayout() {
+        this.$nextTick(() => window.dispatchEvent(new Event('resize')));
+    },
+
+    toggleMobileNav() {
+        if (this.mobileNav) {
+            this.closeMobileNav();
+            return;
+        }
+        this.mobileSearch = false;
+        this.mobileNav = true;
+        this.$nextTick(() => {
+            window.dispatchEvent(new Event('resize'));
+            const first = document.querySelector('#eqMobileNav summary');
+            if (first) first.focus();
+        });
+    },
+
+    closeMobileNav() {
+        if (!this.mobileNav) return;
+        this.mobileNav = false;
+        this.$nextTick(() => {
+            const burger = this.$root.querySelector('.eq-header__burger');
+            if (burger) burger.focus();
+        });
+    },
+
+    toggleMobileSearch() {
+        if (this.mobileSearch) {
+            this.mobileSearch = false;
+            this.syncMobileLayout();
+            return;
+        }
+        this.mobileNav = false;
+        this.mobileSearch = true;
+        this.$nextTick(() => {
+            window.dispatchEvent(new Event('resize'));
+            const input = document.querySelector('#eqMobileSearch input');
+            if (input) input.focus();
+        });
+    },
 
     open(name) {
         this.cancelClose();

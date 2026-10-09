@@ -1,4 +1,4 @@
-<header class="eq-header" x-data="megaMenu()">
+<header class="eq-header" x-data="megaMenu()" x-effect="document.body.classList.toggle('eq-no-scroll', mobileNav)">
   <div class="eq-header__topbar">
     <span>Envío a toda la República Mexicana</span>
   </div>
@@ -9,7 +9,7 @@
         <img src="{{ asset('images/logo/equiterm-logo-blanco-color-3x.png') }}" alt="Equiterm Industries" width="140" height="40">
       </a>
 
-      <div class="eq-search" x-data="searchOverlay()" @keydown.escape.window="close()">
+      <div class="eq-search" id="eqMobileSearch" :class="{ 'is-open-mobile': mobileSearch }" x-data="searchOverlay()" @keydown.escape.window="close()">
         <form class="eq-header__search" @submit.prevent="submit()">
           <input type="text" x-model="query" @input="onInput()" @focus="onFocus()" placeholder="Buscar calderas, calentadores, refacciones..." autocomplete="off">
           <button type="submit" aria-label="Buscar">
@@ -68,12 +68,15 @@
       </div>
 
       <div class="eq-header__actions">
+        <button type="button" class="eq-header__action eq-header__mobile-only eq-header__search-toggle" @click="toggleMobileSearch()" :aria-expanded="mobileSearch" aria-controls="eqMobileSearch" aria-label="Buscar">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3" stroke-linecap="round"/></svg>
+        </button>
         @if (Auth::guard('customer')->check())
           @php $headerCustomer = Auth::guard('customer')->user(); @endphp
           <div class="eq-header__user" x-data="{ userOpen: false, logoutOpen: false }" @click.outside="userOpen = false">
-            <button type="button" class="eq-header__action eq-header__user-btn" @click="userOpen = !userOpen">
+            <button type="button" class="eq-header__action eq-header__user-btn" @click="userOpen = !userOpen" aria-label="Mi Cuenta" :aria-expanded="userOpen">
               <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.5-6 8-6s8 2 8 6" stroke-linecap="round"/></svg>
-              <span>Mi Cuenta</span>
+              <span class="eq-header__action-label">Mi Cuenta</span>
             </button>
             <div class="eq-header__user-menu" x-show="userOpen" x-cloak>
               <div class="eq-header__user-menu-head">
@@ -134,20 +137,24 @@
             </template>
           </div>
         @else
-          <a href="{{ route('shop.login') }}" class="eq-header__action">
+          <a href="{{ route('shop.login') }}" class="eq-header__action" aria-label="Iniciar sesión">
             <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.5-6 8-6s8 2 8 6" stroke-linecap="round"/></svg>
-            <span>Iniciar sesión</span>
+            <span class="eq-header__action-label">Iniciar sesión</span>
           </a>
         @endif
-        <a href="#" class="eq-header__action">
+        <a href="#" class="eq-header__action eq-header__desktop-only" aria-label="Favoritos">
           <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20s-8-4.5-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 9c0 6.5-8 11-8 11z" stroke-linejoin="round"/></svg>
-          <span>Favoritos</span>
+          <span class="eq-header__action-label">Favoritos</span>
         </a>
-        <a href="{{ route('checkout.index') }}" class="eq-header__action eq-header__cart">
+        <a href="{{ route('checkout.index') }}" class="eq-header__action eq-header__cart" aria-label="Carrito">
           <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3h2l2.4 12.4a2 2 0 0 0 2 1.6h8.6a2 2 0 0 0 2-1.6L22 8H6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="9" cy="21" r="1.4" fill="currentColor" stroke="none"/><circle cx="18" cy="21" r="1.4" fill="currentColor" stroke="none"/></svg>
-          <span>Carrito</span>
+          <span class="eq-header__action-label">Carrito</span>
           <span class="eq-header__cart-badge" x-text="$store.shop.cartCount">0</span>
         </a>
+        <button type="button" class="eq-header__action eq-header__mobile-only eq-header__burger" @click="toggleMobileNav()" :aria-expanded="mobileNav" aria-controls="eqMobileNav" aria-label="Menú">
+          <svg x-show="!mobileNav" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+          <svg x-show="mobileNav" x-cloak width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+        </button>
       </div>
     </div>
   </div>
@@ -360,5 +367,97 @@
         </div>
       </div>
     </nav>
+  </div>
+
+  {{-- MENÚ MÓVIL (< 900px): panel a pantalla completa con acordeones --}}
+  @php $mnavCustomer = Auth::guard('customer')->user(); @endphp
+  <div id="eqMobileNav" class="eq-mnav" x-show="mobileNav" x-cloak @keydown.escape.window="closeMobileNav()" role="dialog" aria-label="Menú de navegación">
+    <details class="eq-mnav__group">
+      <summary class="eq-mnav__summary">
+        <span>Categorías</span>
+        <svg class="eq-mnav__chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </summary>
+      <div class="eq-mnav__panel">
+        @foreach ($megaMenuCategories as $category)
+          <details class="eq-mnav__group eq-mnav__group--l2">
+            <summary class="eq-mnav__summary">
+              <span>{{ $category->name }}</span>
+              <svg class="eq-mnav__chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </summary>
+            <div class="eq-mnav__panel">
+              <a href="{{ route('catalog.category', $category->slug) }}" class="eq-mnav__all" @click="closeMobileNav()">Ver todo en {{ $category->name }}</a>
+              @foreach ($category->children as $sub)
+                @if ($sub->children->isNotEmpty())
+                  <details class="eq-mnav__group eq-mnav__group--l3">
+                    <summary class="eq-mnav__summary">
+                      <span>{{ $sub->name }}</span>
+                      <svg class="eq-mnav__chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </summary>
+                    <div class="eq-mnav__panel">
+                      <a href="{{ route('catalog.category', $sub->slug) }}" class="eq-mnav__all" @click="closeMobileNav()">Ver todo</a>
+                      @foreach ($sub->children as $child)
+                        <a href="{{ route('catalog.category', $child->slug) }}" @click="closeMobileNav()">{{ $child->name }}</a>
+                      @endforeach
+                    </div>
+                  </details>
+                @else
+                  <a href="{{ route('catalog.category', $sub->slug) }}" class="eq-mnav__sublink" @click="closeMobileNav()">{{ $sub->name }}</a>
+                @endif
+              @endforeach
+            </div>
+          </details>
+        @endforeach
+      </div>
+    </details>
+
+    <details class="eq-mnav__group">
+      <summary class="eq-mnav__summary">
+        <span>Servicios</span>
+        <svg class="eq-mnav__chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </summary>
+      <div class="eq-mnav__panel">
+        @forelse ($megaMenuServiceCategories as $category)
+          <details class="eq-mnav__group eq-mnav__group--l2">
+            <summary class="eq-mnav__summary">
+              <span>{{ $category->name }}</span>
+              <svg class="eq-mnav__chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </summary>
+            <div class="eq-mnav__panel">
+              <a href="{{ url($category->publicPath()) }}" class="eq-mnav__all" @click="closeMobileNav()">Ver todos los servicios</a>
+              @foreach ($category->activeChildren as $child)
+                <a href="{{ url($child->publicPath()) }}" @click="closeMobileNav()">{{ $child->name }}</a>
+              @endforeach
+            </div>
+          </details>
+        @empty
+          <p class="eq-mnav__empty">Próximamente</p>
+        @endforelse
+      </div>
+    </details>
+
+    @foreach ($headerMainItems as $item)
+      <a href="{{ $item->resolved_url }}" target="{{ $item->target }}" class="eq-mnav__row" @click="closeMobileNav()">{{ $item->title }}</a>
+    @endforeach
+
+    <div class="eq-mnav__account">
+      @if ($mnavCustomer)
+        <a href="{{ route('shop.account') }}" class="eq-mnav__row" @click="closeMobileNav()">Mi perfil</a>
+        <a href="{{ route('shop.account') }}#pedidos" class="eq-mnav__row" @click="closeMobileNav()">Mis pedidos</a>
+        <a href="{{ route('shop.account') }}#direcciones" class="eq-mnav__row" @click="closeMobileNav()">Direcciones</a>
+        <a href="{{ route('shop.account') }}#pagos" class="eq-mnav__row" @click="closeMobileNav()">Métodos de pago</a>
+        <a href="{{ route('shop.account') }}#favoritos" class="eq-mnav__row" @click="closeMobileNav()">Favoritos</a>
+        @if ($mnavCustomer->portal_access)
+          <a href="{{ route('customer.dashboard') }}" class="eq-mnav__row" @click="closeMobileNav()">Portal de servicios</a>
+        @endif
+        <form method="POST" action="{{ route('shop.logout') }}">
+          @csrf
+          <button type="submit" class="eq-mnav__row eq-mnav__row--danger">Cerrar sesión</button>
+        </form>
+      @else
+        <a href="{{ route('shop.login') }}" class="eq-mnav__row" @click="closeMobileNav()">Iniciar sesión</a>
+        <a href="#" class="eq-mnav__row" @click="closeMobileNav()">Favoritos</a>
+      @endif
+      <a href="https://wa.me/{{ \App\Models\Setting::get('footer.phone_link', '5214494577320') }}" target="_blank" rel="noopener" class="eq-mnav__row eq-mnav__row--wa">WhatsApp</a>
+    </div>
   </div>
 </header>

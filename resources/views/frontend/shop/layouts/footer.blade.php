@@ -6,8 +6,8 @@
         <p>{{ \App\Models\Setting::get('footer.description', 'Ingeniería térmica industrial: calderas, calentamiento y tratamiento de agua, con proyectos llave en mano en toda la República Mexicana.') }}</p>
       </div>
       @foreach ($footerMenus as $footerMenu)
-        <div>
-          <div class="eq-footer__col-title">{{ $footerMenu['menu']->name }}</div>
+        <details class="eq-footer__col" open>
+          <summary class="eq-footer__col-title"><span>{{ $footerMenu['menu']->name }}</span><svg class="eq-footer__col-chevron" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
           @foreach ($footerMenu['items'] as $item)
             @if ($item->children->isNotEmpty())
               <details class="eq-footer__item-group">
@@ -25,15 +25,15 @@
               <a href="{{ $item->resolved_url }}" target="{{ $item->target }}">{{ $item->title }}</a>
             @endif
           @endforeach
-        </div>
+        </details>
       @endforeach
-      <div>
-        <div class="eq-footer__col-title">Contacto</div>
+      <details class="eq-footer__col" open>
+        <summary class="eq-footer__col-title"><span>Contacto</span><svg class="eq-footer__col-chevron" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
         <div class="eq-footer__contact">
           <a href="https://wa.me/{{ \App\Models\Setting::get('footer.phone_link', '5214494577320') }}" target="_blank" rel="noopener nofollow">WhatsApp: {{ \App\Models\Setting::get('footer.phone', '+52 1 449 457 7320') }}</a><br>
           <a href="mailto:{{ \App\Models\Setting::get('footer.email', 'administracion@equitermindustries.com.mx') }}">{{ \App\Models\Setting::get('footer.email', 'administracion@equitermindustries.com.mx') }}</a>
         </div>
-      </div>
+      </details>
     </div>
     <div class="eq-footer__payment-logos" aria-label="Métodos de pago aceptados">
       <img src="{{ asset('images/payment-logos/visa.jpg') }}" alt="Visa" loading="lazy">
@@ -71,3 +71,23 @@
     </div>
   </div>
 </footer>
+<script>
+(function () {
+  var cols = document.querySelectorAll('.eq-footer__col');
+  if (!cols.length || !window.matchMedia) return;
+  var mq = window.matchMedia('(min-width: 721px)');
+  function sync() {
+    cols.forEach(function (d) { d.open = mq.matches; });
+  }
+  cols.forEach(function (d) {
+    var summary = d.querySelector(':scope > summary');
+    if (!summary) return;
+    summary.addEventListener('click', function (e) {
+      if (mq.matches) e.preventDefault();
+    });
+  });
+  sync();
+  if (mq.addEventListener) mq.addEventListener('change', sync);
+  else if (mq.addListener) mq.addListener(sync);
+})();
+</script>
