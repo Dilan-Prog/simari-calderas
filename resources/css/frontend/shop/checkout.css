@@ -1515,3 +1515,30 @@
         grid-template-columns: 1fr;
     }
 }
+
+/* Móvil/tablet: el resumen va arriba, en el flujo normal. La regla sticky de
+   escritorio (más arriba en este archivo) anulaba el `position: static` del
+   media query de 900px y la tarjeta se quedaba pegada encima del carrito. */
+@media (max-width: 900px) {
+    .checkout-summary { position: static; top: auto; }
+}
+
+/* Método de pago en teléfono: antes el radio, el texto y los logos de tarjeta
+   competían en una sola fila y el texto quedaba en una columna de ~90px. Los
+   logos bajan a su propia fila y se recorta el relleno de las tarjetas anidadas. */
+@media (max-width: 640px) {
+    .checkout-payment { padding: 16px 12px; }
+    .checkout-payment__head { flex-wrap: wrap; gap: 6px 12px; }
+    .checkout-payment-method { padding: 14px 12px; gap: 10px; }
+    .checkout-payment-method--split { flex-wrap: wrap; }
+    .checkout-payment-method--split > .mp-brand-logos-row {
+        flex: 0 0 100%; order: 3; margin: 2px 0 0; padding-left: 30px; gap: 8px;
+    }
+    .checkout-payment-method__name-row { gap: 6px 8px; }
+    .checkout-payment-method__name { font-size: 15px; }
+    .checkout-payment-method__description { font-size: 13px; }
+    .checkout-payment-method__bullets { gap: 8px 12px; margin-top: 10px; }
+    .mp-msi-breakdown { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; padding: 8px; }
+    .mp-msi-breakdown__item { padding: 8px 10px; }
+    .mp-secure-badge--inline { flex-wrap: wrap; gap: 4px 6px; }
+}
