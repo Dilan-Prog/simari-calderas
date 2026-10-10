@@ -74,7 +74,9 @@
                         Importar Productos
                     </button>
                     @permiso('products','edit')
-                    <a href="{{ route('admin.products.bulk-edit') }}" class="prod-btn-outline">
+                    {{-- Lleva los filtros/búsqueda actuales (sin la página): el editor por lotes usa la
+                         misma consulta filtrada (ProductFilters), así que abre justo el mismo conjunto. --}}
+                    <a href="{{ route('admin.products.bulk-edit', request()->except(['page'])) }}" class="prod-btn-outline">
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M12 20h9" />

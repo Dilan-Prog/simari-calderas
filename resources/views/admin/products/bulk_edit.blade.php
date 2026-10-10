@@ -114,7 +114,8 @@
                         productos a la vez</p>
                 </div>
                 <div class="prod-header-actions">
-                    <a href="{{ route('admin.products.index') }}" class="prod-btn-outline">
+                    {{-- Vuelve al listado conservando los filtros/búsqueda con los que se abrió el editor. --}}
+                    <a href="{{ route('admin.products.index', request()->except(['page'])) }}" class="prod-btn-outline">
                         ← Volver a Productos
                     </a>
                 </div>

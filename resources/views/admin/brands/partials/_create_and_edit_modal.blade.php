@@ -44,6 +44,15 @@
                                 Seleccionar
                             </button>
                         </div>
+                        {{-- Medida sacada del CSS real: el recuadro del logo mide 80 px de alto con 12 px de
+                             relleno (carrusel de marcas) o 88 px con 16 px (bloque de marcas de Servicios),
+                             así que el logo se ve a ~56 px de alto y ~110-180 px de ancho, con object-fit:
+                             contain (se reduce sin recortarse). 360×120 px es 2x de ese espacio. --}}
+                        <p style="margin:4px 0 0;font-size:12px;color:#9ca3af;">
+                            <strong style="color:#6b7280;">Medida recomendada: 360 × 120 px</strong> (horizontal, proporción 3:1),
+                            PNG con fondo transparente o SVG, de máximo ~100 KB. En el sitio se muestra a unos 56 px de alto
+                            dentro de un recuadro, sin recortarse: deja un margen pequeño alrededor y evita logos muy cuadrados o muy largos.
+                        </p>
                     </div>
 
                     <div class="users-manager-email-camp" style="margin-top:12px;">
