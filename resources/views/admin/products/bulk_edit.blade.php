@@ -143,12 +143,14 @@
                     <option value="all">Todo el stock</option>
                     <option value="in_stock" @selected(request('stock') === 'in_stock')>En stock</option>
                     <option value="out_of_stock" @selected(request('stock') === 'out_of_stock')>Agotados</option>
+                    <option value="low" @selected(request('stock') === 'low')>Stock bajo</option>
                 </select>
                 <select name="status" id="bulkEditStatusFilter" class="prod-filter-select">
                     <option value="all">Todos los estados</option>
                     <option value="active" @selected(request('status') === 'active')>Activos</option>
                     <option value="inactive" @selected(request('status') === 'inactive')>Inactivos</option>
                 </select>
+                @include('admin.products.partials._advanced_filters', ['filtersKey' => 'bulkEdit'])
                 <select name="per_page" id="bulkEditPerPage" class="prod-filter-select">
                     @foreach ($perPageOptions as $option)
                         <option value="{{ $option }}" @selected((string) request('per_page', 25) === (string) $option)>

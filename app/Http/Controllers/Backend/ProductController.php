@@ -172,28 +172,7 @@ class ProductController extends Controller
     {
         $query = Products::query()->select($columns);
 
-        if ($search = $request->input('search')) {
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('sku', 'like', "%{$search}%")
-                    ->orWhere('supplier_sku', 'like', "%{$search}%")
-                    ->orWhereHas('suppliers', fn($s) => $s->where('suppliers_products.sku', 'like', "%{$search}%"));
-            });
-        }
-
-        if (in_array($request->input('status'), ['active', 'inactive'], true)) {
-            $query->where('is_active', $request->input('status') === 'active');
-        }
-
-        if (in_array($request->input('stock'), ['in_stock', 'out_of_stock'], true)) {
-            $request->input('stock') === 'out_of_stock'
-                ? $query->where('stock', '<=', 0)
-                : $query->where('stock', '>', 0);
-        }
-
-        if ($categoryId = $request->input('category_id')) {
-            $query->where('category_id', $categoryId);
-        }
+        \App\Services\Products\ProductFilters::apply($query, $request);
 
         return $query;
     }
