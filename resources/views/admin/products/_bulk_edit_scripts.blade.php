@@ -610,6 +610,18 @@
             const specsCancelBtn = document.getElementById('bulkSpecsCancelBtn');
             const specsSaveBtn = document.getElementById('bulkSpecsSaveBtn');
             let specsEditingTrigger = null;
+            // true mientras el modal de Especificaciones/FAQ está abierto desde la
+            // barra "Aplicar a seleccionados" (REEMPLAZA en todas las filas marcadas).
+            let specsApplyMode = false;
+            let faqApplyMode = false;
+
+            // Texto del modal según sea edición de una fila o aplicación masiva.
+            function setModalApplyText(modal, apply, applyText) {
+                const desc = modal.querySelector('.del-confirm-desc');
+                if (!desc) return;
+                if (desc.dataset.original === undefined) desc.dataset.original = desc.textContent;
+                desc.textContent = apply ? applyText : desc.dataset.original;
+            }
 
             function specsAddRow(key = '', value = '') {
                 specsEmpty.style.display = 'none';
@@ -1067,6 +1079,8 @@
 
                 if (trigger.dataset.field === 'faqs') {
                     faqEditingTrigger = trigger;
+                    faqApplyMode = false;
+                    setModalApplyText(faqModal, false);
                     faqList.innerHTML = '';
 
                     let items = [];
@@ -1144,6 +1158,8 @@
                 }
 
                 specsEditingTrigger = trigger;
+                specsApplyMode = false;
+                setModalApplyText(specsModal, false);
                 specsList.innerHTML = '';
 
                 let rows = [];
@@ -1165,12 +1181,13 @@
                 specsModal.classList.add('active');
             });
 
-            specsCancelBtn.addEventListener('click', () => specsModal.classList.remove('active'));
+            specsCancelBtn.addEventListener('click', () => { specsApplyMode = false; specsModal.classList.remove('active'); });
             specsModal.addEventListener('click', (e) => {
-                if (e.target === specsModal) specsModal.classList.remove('active');
+                if (e.target === specsModal) { specsApplyMode = false; specsModal.classList.remove('active'); }
             });
 
             specsSaveBtn.addEventListener('click', () => {
+                if (specsApplyMode) { applySpecsToSelectedRows(); return; }
                 if (!specsEditingTrigger) return;
 
                 const rows = Array.from(specsList.querySelectorAll('.pform-spec-row')).map(row => ({
@@ -1185,12 +1202,13 @@
                 specsModal.classList.remove('active');
             });
 
-            faqCancelBtn.addEventListener('click', () => faqModal.classList.remove('active'));
+            faqCancelBtn.addEventListener('click', () => { faqApplyMode = false; faqModal.classList.remove('active'); });
             faqModal.addEventListener('click', (e) => {
-                if (e.target === faqModal) faqModal.classList.remove('active');
+                if (e.target === faqModal) { faqApplyMode = false; faqModal.classList.remove('active'); }
             });
 
             faqSaveBtn.addEventListener('click', () => {
+                if (faqApplyMode) { applyFaqsToSelectedRows(); return; }
                 if (!faqEditingTrigger) return;
 
                 const items = Array.from(faqList.querySelectorAll('.pform-faq-row')).map(row => ({
@@ -1399,6 +1417,144 @@
                 });
             }
 
+            // ── A2. Especificaciones / FAQ: el modal de la fila se reutiliza en modo
+            // "aplicar" y, al guardar, REEMPLAZA el contenido en TODAS las filas
+            // seleccionadas (a diferencia de Tags, que suma). ──
+            function applySpecsToSelectedRows() {
+                const rows = Array.from(specsList.querySelectorAll('.pform-spec-row')).map(row => ({
+                    key: row.querySelector('.bulk-spec-key').value.trim(),
+                    value: row.querySelector('.bulk-spec-value').value.trim(),
+                })).filter(r => r.key !== '');
+                if (!rows.length) {
+                    showToast('Agrega al menos una especificación para aplicar.', 'error');
+                    return;
+                }
+                const json = JSON.stringify(rows);
+                let n = 0;
+                bulkApplySelectedRowCheckboxes().forEach(cb => {
+                    const trigger = cb.closest('tr').querySelector('[data-field="specifications"]');
+                    if (!trigger) return;
+                    trigger.dataset.specs = json;
+                    trigger.textContent = `Especificaciones (${rows.length})`;
+                    setPendingChange(trigger.dataset.id, 'specifications', json, trigger);
+                    n++;
+                });
+                specsApplyMode = false;
+                specsModal.classList.remove('active');
+                showToast(`Especificaciones aplicadas a ${n} producto(s). Guarda los cambios para confirmarlas.`);
+            }
+
+            function applyFaqsToSelectedRows() {
+                const items = Array.from(faqList.querySelectorAll('.pform-faq-row')).map(row => ({
+                    question: row.querySelector('.bulk-faq-question').value.trim(),
+                    answer: row.querySelector('.bulk-faq-answer').value.trim(),
+                })).filter(it => it.question !== '' && it.answer !== '');
+                if (!items.length) {
+                    showToast('Agrega al menos una pregunta con su respuesta para aplicar.', 'error');
+                    return;
+                }
+                const json = JSON.stringify(items);
+                let n = 0;
+                bulkApplySelectedRowCheckboxes().forEach(cb => {
+                    const trigger = cb.closest('tr').querySelector('[data-field="faqs"]');
+                    if (!trigger) return;
+                    trigger.dataset.faqs = json;
+                    trigger.textContent = `FAQ (${items.length})`;
+                    setPendingChange(trigger.dataset.id, 'faqs', json, trigger);
+                    n++;
+                });
+                faqApplyMode = false;
+                faqModal.classList.remove('active');
+                showToast(`FAQ aplicadas a ${n} producto(s). Guarda los cambios para confirmarlas.`);
+            }
+
+            // ── A3. ALT de la galería: escribe la plantilla en cada imagen de
+            // cada fila seleccionada; con "solo vacíos" respeta los ALT ya
+            // escritos. Un cambio `gallery_alts` por producto, con SOLO las
+            // imágenes que cambian: [{id, alt_text}] (mismo formato del modal). ──
+            function applyGalleryAltsToSelectedRows(template, onlyEmpty) {
+                const text = (template || '').trim();
+                let products = 0, images = 0;
+                bulkApplySelectedRowCheckboxes().forEach(cb => {
+                    const trigger = cb.closest('tr').querySelector('[data-field="gallery_alts"]');
+                    if (!trigger) return;
+                    let original = [];
+                    try { original = JSON.parse(trigger.dataset.gallery || '[]'); } catch (err) { original = []; }
+                    const items = [];
+                    const merged = original.map(o => {
+                        const has = (o.alt_text || '').trim() !== '';
+                        if (onlyEmpty && has) return o;
+                        if ((o.alt_text || '') === text) return o;
+                        items.push({ id: o.id, alt_text: text });
+                        return { ...o, alt_text: text };
+                    });
+                    if (!items.length) return;
+                    trigger.dataset.gallery = JSON.stringify(merged);
+                    const filled = merged.filter(m => (m.alt_text || '').trim() !== '').length;
+                    trigger.textContent = `ALT de imágenes (${filled}/${merged.length})`;
+                    setPendingChange(trigger.dataset.id, 'gallery_alts', items, trigger);
+                    products++;
+                    images += items.length;
+                });
+                showToast(products
+                    ? `ALT aplicado a ${images} imagen(es) de ${products} producto(s). Guarda los cambios para confirmarlos.`
+                    : 'Ningún producto seleccionado tenía imágenes por actualizar.');
+            }
+
+            // Control de texto con contador de caracteres y "{ } Insertar variable".
+            function buildTextApplyControl(col) {
+                const isGallery = col.type === 'gallery-alts';
+                const isLong = col.type === 'textarea';
+                const allowVars = col.key !== 'og_image'; // es una URL: no admite variables
+                const max = isGallery ? 255 : (col.maxlength || null);
+
+                const field = document.createElement(isLong ? 'textarea' : 'input');
+                if (!isLong) field.type = 'text';
+                else field.rows = 2;
+                field.id = 'prodBulkApplyValueInput';
+                if (max) field.maxLength = max;
+                field.placeholder = isGallery
+                    ? 'Texto ALT para todas las imágenes, ej. {nombre_producto} - {marca}'
+                    : (col.key === 'og_image' ? 'https://...' : (col.placeholder || (allowVars ? 'Texto o plantilla, ej. {marca} {modelo} | Equiterm' : '')));
+                prodBulkApplyValueWrap.appendChild(field);
+
+                const counter = document.createElement('span');
+                counter.id = 'prodBulkApplyCounter';
+                counter.className = 'prod-bulk-apply-counter';
+                prodBulkApplyValueWrap.appendChild(counter);
+                const updateCounter = () => {
+                    counter.textContent = max ? `${field.value.length}/${max}` : `${field.value.length}`;
+                };
+                updateCounter();
+
+                if (allowVars) {
+                    const varBtn = document.createElement('button');
+                    varBtn.type = 'button';
+                    varBtn.className = 'pform-insert-variable-btn';
+                    varBtn.dataset.variableTarget = 'prodBulkApplyValueInput';
+                    varBtn.textContent = '{ } Insertar variable';
+                    prodBulkApplyValueWrap.appendChild(varBtn);
+                }
+
+                if (isGallery) {
+                    const label = document.createElement('label');
+                    label.className = 'prod-bulk-apply-check';
+                    label.innerHTML = '<input type="checkbox" id="prodBulkApplyOnlyEmpty" checked> Solo imágenes sin ALT';
+                    prodBulkApplyValueWrap.appendChild(label);
+                }
+
+                const help = document.createElement('small');
+                help.className = 'prod-bulk-apply-help';
+                help.textContent = isGallery
+                    ? 'Se aplica a todas las imágenes de galería de cada producto. Las variables se guardan como plantilla y se resuelven por producto en el sitio.'
+                    : (allowVars
+                        ? 'Se guarda la plantilla tal cual (ej. {marca}); el sitio la resuelve por producto.'
+                        : 'URL completa de la imagen (no admite variables).');
+                prodBulkApplyValueWrap.appendChild(help);
+
+                field.addEventListener('input', () => { updateCounter(); syncBulkApplyBar(); });
+            }
+
             // ── B. Categoría en cascada — REEMPLAZA los 3 niveles de golpe.
             // Mismo flujo que el listener de fila (ver más arriba, sección
             // "Categoría en cascada"), pero fijando los 3 valores directamente
@@ -1596,7 +1752,45 @@
                     return;
                 }
 
-                // text / number (default)
+                if (col.type === 'specs' || col.type === 'faq') {
+                    const isSpecs = col.type === 'specs';
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.id = isSpecs ? 'prodBulkApplySpecsBtn' : 'prodBulkApplyFaqBtn';
+                    btn.textContent = isSpecs ? 'Definir especificaciones...' : 'Definir preguntas frecuentes...';
+                    prodBulkApplyValueWrap.appendChild(btn);
+                    const help = document.createElement('small');
+                    help.className = 'prod-bulk-apply-help';
+                    help.textContent = 'Reemplaza el contenido actual de todos los seleccionados.';
+                    prodBulkApplyValueWrap.appendChild(help);
+                    btn.addEventListener('click', () => {
+                        if (isSpecs) {
+                            specsApplyMode = true;
+                            specsEditingTrigger = null;
+                            specsList.innerHTML = '';
+                            specsList.style.display = 'none';
+                            specsEmpty.style.display = 'block';
+                            setModalApplyText(specsModal, true, 'Estas especificaciones REEMPLAZARÁN las de todos los productos seleccionados.');
+                            specsModal.classList.add('active');
+                        } else {
+                            faqApplyMode = true;
+                            faqEditingTrigger = null;
+                            faqList.innerHTML = '';
+                            faqList.style.display = 'none';
+                            faqEmpty.style.display = 'block';
+                            setModalApplyText(faqModal, true, 'Estas preguntas REEMPLAZARÁN las de todos los productos seleccionados. Puedes usar variables y enlaces.');
+                            faqModal.classList.add('active');
+                        }
+                    });
+                    return;
+                }
+
+                if (col.type === 'text' || col.type === 'textarea' || col.type === 'gallery-alts') {
+                    buildTextApplyControl(col);
+                    return;
+                }
+
+                // number / otros (default)
                 const input = document.createElement('input');
                 input.type = (col.type === 'number') ? 'number' : 'text';
                 input.id = 'prodBulkApplyValueInput';
@@ -1622,7 +1816,7 @@
                 if (col.type === 'select' || col.type === 'select-brand' || col.type === 'select-supplier') {
                     return document.getElementById('prodBulkApplyValueSelect')?.value ?? '';
                 }
-                if (col.type === 'tags' || col.type === 'canonical-picker') {
+                if (col.type === 'tags' || col.type === 'canonical-picker' || col.type === 'specs' || col.type === 'faq') {
                     // Se aplican al guardar sus propios modales (D/E), no
                     // desde acá — ver el listener de prodBulkApplyBtn abajo.
                     return undefined;
@@ -1648,6 +1842,8 @@
                 if (col) {
                     if (col.type === 'select-category-main') {
                         hasValue = !!document.getElementById(PROD_BULK_APPLY_CAT_MAIN_ID)?.value;
+                    } else if (col.type === 'gallery-alts') {
+                        hasValue = !!(document.getElementById('prodBulkApplyValueInput')?.value || '').trim();
                     } else if (col.type === 'select-supplier') {
                         // A diferencia de otros selects, aquí vacío no tiene
                         // sentido — "aplicar ningún proveedor" no es una
@@ -1680,13 +1876,22 @@
                     // (ver buildApplyValueControl, sección C).
                     return;
                 }
-                if (col.type === 'tags' || col.type === 'canonical-picker') {
+                if (col.type === 'tags' || col.type === 'canonical-picker' || col.type === 'specs' || col.type === 'faq') {
                     // No-op: ya se aplicó al guardar el modal correspondiente
                     // (tagsSaveBtn/canonicalSaveBtn en modo "aplicar").
                     return;
                 }
                 if (col.type === 'select-supplier') {
                     applySupplierToSelectedRows(getApplyValue(colKey));
+                    syncBulkApplyBar();
+                    return;
+                }
+
+                if (col.type === 'gallery-alts') {
+                    applyGalleryAltsToSelectedRows(
+                        getApplyValue(colKey),
+                        !!document.getElementById('prodBulkApplyOnlyEmpty')?.checked
+                    );
                     syncBulkApplyBar();
                     return;
                 }

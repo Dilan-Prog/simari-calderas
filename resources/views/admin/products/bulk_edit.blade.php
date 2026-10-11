@@ -67,12 +67,16 @@
 
         // Whitelist de columnas aplicables de un jalón a todas las filas
         // seleccionadas ("Aplicar a seleccionados") — subconjunto de
-        // $bulkEditColumns de arriba, ver el plan aprobado. Deja fuera texto
-        // libre no repetible (Nombre/Modelo/Slug/Descripciones/SEO/Social) y
-        // los campos complejos Especificaciones/FAQ.
-        $bulkApplyKeys = ['price','price_includes_tax','compare_price','cost','shipping_cost','free_shipping_threshold',
+        // $bulkEditColumns de arriba. Quedan fuera SOLO: Nombre (columna fija
+        // de la tabla), URL Slug (debe ser único por producto: aplicar el mismo
+        // valor a varios siempre fallaría) y Subcategoría/Categoría Hija (la
+        // cascada completa ya se aplica desde Categoría Principal).
+        $bulkApplyKeys = ['model','short_description','description','redirect_old_slug',
+            'price','price_includes_tax','compare_price','cost','shipping_cost','free_shipping_threshold',
             'stock','stock_unit','currency','availability','lead_time_text','category_id','brand_id','is_active','publish_on_website',
-            'is_featured','is_new','is_recommended','show_in_merchant_center','accepts_msi','tags','canonical'];
+            'is_featured','is_new','is_recommended','show_in_merchant_center','accepts_msi','tags','specifications',
+            'seo_title','seo_description','seo_keywords','og_title','og_description','og_image','og_image_alt',
+            'cover_image_alt','gallery_alts','canonical','faqs'];
         $bulkApplyColumns = collect($bulkEditColumns)->whereIn('key', $bulkApplyKeys)->values();
 
         // "Proveedor" no es una columna real de $bulkEditColumns (no tiene
@@ -90,7 +94,8 @@
         // expresión multilínea con un fn() adentro confundía al compilador
         // de directivas de Blade y truncaba el HTML/JS generado).
         $bulkApplyColumnsForJs = $bulkApplyColumns->map(function ($c) {
-            return ['key' => $c['key'], 'type' => $c['type'], 'options' => $c['options'] ?? null];
+            return ['key' => $c['key'], 'label' => $c['label'], 'type' => $c['type'], 'options' => $c['options'] ?? null,
+                'maxlength' => $c['maxlength'] ?? null, 'placeholder' => $c['placeholder'] ?? null];
         })->values();
 
         // $brands ya llega a esta vista desde ProductController::bulkEditIndex()
@@ -684,6 +689,7 @@
                 data-url="{{ route('admin.products.bulk.fill-alt') }}">Rellenar ALT vacíos con el nombre</button>
         </div>
         <p class="prod-bulk-apply-bar-hint">Solo afecta lo seleccionado en esta página — no a todos los productos filtrados. Si necesitas cubrir todo el filtro, cambia primero el selector de página a "Todos".</p>
+        <p class="prod-bulk-apply-bar-hint">Nombre y URL Slug no se aplican en lote (el slug debe ser único por producto). En los campos de texto puedes usar variables como {marca} o {modelo}: se guardan como plantilla y el sitio las resuelve por producto (no aplican en la URL de imagen social).</p>
     </div>
 
     {{-- Datos para la barra de "Aplicar a seleccionados" (window.PROD_BULK_APPLY_*) —

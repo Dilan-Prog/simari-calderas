@@ -398,7 +398,8 @@ class Products extends Model
 
         foreach ($candidates as $alt) {
             if (is_string($alt) && trim($alt) !== '') {
-                return trim($alt);
+                // El ALT guardado admite variables ({marca}, {modelo}...), igual que el SEO.
+                return (string) $this->resolveVariables(trim($alt));
             }
         }
 
@@ -409,7 +410,7 @@ class Products extends Model
     public function ogImageAlt(): string
     {
         return (is_string($this->og_image_alt) && trim($this->og_image_alt) !== '')
-            ? trim($this->og_image_alt)
+            ? (string) $this->resolveVariables(trim($this->og_image_alt))
             : (string) $this->resolveVariables($this->name);
     }
 

@@ -44,6 +44,7 @@
         '.pform-faq-answer',
         '.bulk-faq-question',
         '.bulk-faq-answer',
+        '#prodBulkApplyValueInput',
         '#hsTitle',
         '#hsFaqDescription',
     ].join(', ');
