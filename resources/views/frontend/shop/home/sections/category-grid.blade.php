@@ -2,11 +2,15 @@
     $config = $section->config ?? [];
     $categoryIds = $config['category_ids'] ?? [];
 
-    $query = \App\Models\Category::where('is_active', true)->whereNull('parent_id');
-    if (!empty($categoryIds)) {
-        $query->whereIn('id', $categoryIds);
+    // Con categorías elegidas a mano: exactamente esas (de cualquier nivel) y en el orden
+    // que el admin les dio. Sin selección: todas las principales activas.
+    $categoryIds = collect($categoryIds)->map(fn ($id) => (int) $id)->filter()->unique()->values();
+    if ($categoryIds->isNotEmpty()) {
+        $byId = \App\Models\Category::where('is_active', true)->whereIn('id', $categoryIds)->get()->keyBy('id');
+        $categories = $categoryIds->map(fn ($id) => $byId->get($id))->filter()->values();
+    } else {
+        $categories = \App\Models\Category::where('is_active', true)->whereNull('parent_id')->orderBy('sort_order')->get();
     }
-    $categories = $query->orderBy('sort_order')->get();
 @endphp
 
 @if ($categories->count() > 0)

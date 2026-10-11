@@ -266,7 +266,7 @@ class CollectionController extends Controller
         $collection->load(['sections', 'rules', 'manualProducts' => function ($q) {
             $q->with(['category:id,name', 'brand:id,name']);
         }]);
-        $categories   = Category::where('is_active', true)->orderBy('name')->get(['id', 'name']);
+        $categories   = Category::where('is_active', true)->orderBy('name')->get(['id', 'name', 'parent_id', 'image_url']);
         $brands       = Brand::orderBy('name')->get(['id', 'name']);
         $collections  = Collection::where('is_active', true)->orderBy('name')->get(['id', 'name']);
         $sectionTypes = self::SECTION_TYPES;

@@ -218,7 +218,7 @@
                 'config' => $s->config ?: (object) [],
                 'is_active' => (bool) $s->is_active,
             ])->values(),
-            'categories' => $categories->map(fn ($c) => ['id' => $c->id, 'name' => $c->name])->values(),
+            'categories' => $categories->map(fn ($c) => ['id' => $c->id, 'name' => $c->name, 'parent_id' => $c->parent_id, 'image_url' => $c->image_url])->values(),
             'brands' => $brands->map(fn ($b) => ['id' => $b->id, 'name' => $b->name])->values(),
             'collections' => $collections->map(fn ($c) => ['id' => $c->id, 'name' => $c->name])->values(),
         ]) !!};

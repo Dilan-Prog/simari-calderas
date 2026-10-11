@@ -502,7 +502,7 @@ class ServicePageController extends Controller
     public function liveEditor(ServicePage $servicePage)
     {
         $servicePage->load(['sections', 'images', 'reviews']);
-        $categories = Category::where('is_active', true)->orderBy('name')->get(['id', 'name']);
+        $categories = Category::where('is_active', true)->orderBy('name')->get(['id', 'name', 'parent_id', 'image_url']);
         $brands = Brand::orderBy('name')->get(['id', 'name']);
         $collections = Collection::where('is_active', true)->orderBy('name')->get(['id', 'name']);
 

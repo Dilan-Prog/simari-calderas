@@ -2209,17 +2209,91 @@ import { renderCollectionGeneralPanel, renderCollectionProductsPanel } from './l
         }
     }
 
+    // Grid de categorías: el admin elige EXACTAMENTE qué categorías mostrar (de cualquier nivel)
+    // y en qué orden. Sin ninguna elegida se muestran todas las principales activas.
     function renderCategoryGridFields(container, cfg) {
-        container.innerHTML = field('Categorías a mostrar (vacío = todas las principales activas)', `
-            <select class="users-manager-select" id="leCategoryIds" multiple size="6">
-                ${(DATA.categories || []).map((c) => `<option value="${c.id}" ${(cfg.category_ids || []).map(String).includes(String(c.id)) ? 'selected' : ''}>${escHtml(c.name)}</option>`).join('')}
-            </select>
-        `);
-        container.querySelector('#leCategoryIds').addEventListener('change', (e) => {
-            cfg.category_ids = Array.from(e.target.selectedOptions).map((o) => parseInt(o.value, 10));
-            markDirty();
-            schedulePreview();
+        const all = DATA.categories || [];
+        const byId = new Map(all.map((c) => [String(c.id), c]));
+        const pathOf = (c) => {
+            const parts = [];
+            let node = c;
+            for (let i = 0; node && i < 6; i++) {
+                parts.unshift(node.name);
+                node = node.parent_id ? byId.get(String(node.parent_id)) : null;
+            }
+            return parts.join(' › ');
+        };
+        const entries = all.map((c) => ({ id: Number(c.id), path: pathOf(c) })).sort((x, y) => x.path.localeCompare(y.path, 'es'));
+        cfg.category_ids = Array.isArray(cfg.category_ids) ? cfg.category_ids.map(Number).filter((n) => n > 0) : [];
+
+        container.innerHTML = `
+            <p class="hs-config-note">Elige qué categorías se muestran y en qué orden. Si no eliges ninguna, se muestran todas las categorías principales activas.</p>
+            <div class="live-editor-field">
+                <label>Categorías elegidas <span id="leCatCount" style="font-weight:400;color:#6b7280;"></span></label>
+                <div id="leCatSel"></div>
+            </div>
+            <div class="live-editor-field">
+                <label for="leCatSearch">Agregar categoría</label>
+                <input type="text" class="users-manager-input" id="leCatSearch" placeholder="Buscar categoría…" autocomplete="off" data-no-link="1">
+                <div id="leCatList" style="max-height:220px;overflow:auto;border:1px solid #e5e7eb;border-radius:8px;margin-top:6px;background:#fff;"></div>
+            </div>
+        `;
+        const selBox = container.querySelector('#leCatSel');
+        const listBox = container.querySelector('#leCatList');
+        const search = container.querySelector('#leCatSearch');
+        const count = container.querySelector('#leCatCount');
+        const label = (id) => (entries.find((e) => e.id === id) || { path: 'Categoría #' + id }).path;
+        const commit = () => { markDirty(); schedulePreview(); renderSelected(); renderList(); };
+        const rowStyle = 'display:flex;align-items:center;gap:8px;padding:7px 10px;border-bottom:1px solid #f3f4f6;font-size:13px;';
+        const btnStyle = 'border:1px solid #d1d5db;background:#fff;border-radius:6px;padding:2px 8px;cursor:pointer;line-height:1.4;';
+
+        function renderSelected() {
+            count.textContent = cfg.category_ids.length ? `(${cfg.category_ids.length})` : '(todas las principales)';
+            if (!cfg.category_ids.length) {
+                selBox.innerHTML = '<div style="padding:10px;border:1px dashed #d1d5db;border-radius:8px;font-size:12.5px;color:#6b7280;">Ninguna elegida: se muestran todas las categorías principales activas.</div>';
+                return;
+            }
+            selBox.innerHTML = `<div style="border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;background:#fff;">${cfg.category_ids.map((id, i) => `
+                <div style="${rowStyle}" data-i="${i}">
+                    <span style="color:#9ca3af;width:18px;text-align:right;">${i + 1}</span>
+                    <span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${escHtml(label(id))}">${escHtml(label(id))}</span>
+                    <button type="button" data-act="up" style="${btnStyle}" ${i === 0 ? 'disabled' : ''} aria-label="Subir">↑</button>
+                    <button type="button" data-act="down" style="${btnStyle}" ${i === cfg.category_ids.length - 1 ? 'disabled' : ''} aria-label="Bajar">↓</button>
+                    <button type="button" data-act="rm" style="${btnStyle}color:#b91c1c;" aria-label="Quitar">×</button>
+                </div>`).join('')}</div>
+                <button type="button" class="button-secondary size-adjustment" id="leCatClear" style="margin-top:8px;">Quitar todas</button>`;
+        }
+
+        function renderList() {
+            const q = search.value.trim().toLowerCase();
+            const rows = entries.filter((e) => !cfg.category_ids.includes(e.id) && (!q || e.path.toLowerCase().includes(q))).slice(0, 80);
+            listBox.innerHTML = rows.length
+                ? rows.map((e) => `<button type="button" data-add="${e.id}" style="${rowStyle}width:100%;border:0;border-bottom:1px solid #f3f4f6;background:#fff;text-align:left;cursor:pointer;"><span style="color:#f97316;font-weight:700;">+</span><span style="flex:1;">${escHtml(e.path)}</span></button>`).join('')
+                : '<div style="padding:10px;font-size:12.5px;color:#6b7280;">Sin resultados.</div>';
+        }
+
+        selBox.addEventListener('click', (ev) => {
+            const clear = ev.target.closest('#leCatClear');
+            if (clear) { cfg.category_ids = []; commit(); return; }
+            const btn = ev.target.closest('button[data-act]');
+            if (!btn) return;
+            const i = Number(btn.closest('[data-i]').dataset.i);
+            const ids = cfg.category_ids;
+            if (btn.dataset.act === 'rm') ids.splice(i, 1);
+            else if (btn.dataset.act === 'up' && i > 0) [ids[i - 1], ids[i]] = [ids[i], ids[i - 1]];
+            else if (btn.dataset.act === 'down' && i < ids.length - 1) [ids[i + 1], ids[i]] = [ids[i], ids[i + 1]];
+            commit();
         });
+        listBox.addEventListener('click', (ev) => {
+            const btn = ev.target.closest('button[data-add]');
+            if (!btn) return;
+            cfg.category_ids.push(Number(btn.dataset.add));
+            commit();
+        });
+        search.addEventListener('input', renderList);
+
+        renderSelected();
+        renderList();
     }
 
     function renderHtmlBlockFields(container, cfg) {
