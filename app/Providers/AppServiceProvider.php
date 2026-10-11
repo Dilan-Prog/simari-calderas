@@ -59,6 +59,7 @@ class AppServiceProvider extends ServiceProvider
         }
 
         $this->registerCatalogCacheInvalidation();
+        \App\Support\QuoteSales::registerInvalidation();
 
         View::composer('frontend.shop.layouts.header', \App\View\Composers\ShopMegaMenuComposer::class);
         View::composer('frontend.shop.layouts.footer', \App\View\Composers\ShopFooterComposer::class);

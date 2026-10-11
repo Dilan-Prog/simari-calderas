@@ -496,6 +496,15 @@ class Products extends Model
         };
     }
 
+    /**
+     * Unidades de este producto en cotizaciones ACEPTADAS (insignia "+N unidades
+     * vendidas" de la ficha). Ver App\Support\QuoteSales.
+     */
+    public function getAcceptedQuoteUnitsAttribute(): int
+    {
+        return \App\Support\QuoteSales::unitsFor((int) $this->id);
+    }
+
     public function getAvailabilityLabelAttribute(): string
     {
         if ($this->availability === 'on_order') {

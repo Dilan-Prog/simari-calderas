@@ -8,6 +8,14 @@
     // su scope) -- no se recalcula aquí.
     $quoteMessage = "Hola, me interesa cotizar este producto: {$resolvedName} (SKU: {$product->sku}) - " . route('product.show', $product->slug);
     $quoteWhatsappUrl = 'https://wa.me/' . \App\Models\Setting::get('footer.phone_link', '5214494577320') . '?text=' . urlencode($quoteMessage);
+    // Etiquetas manuales del producto (interruptores "Destacados y Badges" del
+    // formulario de edición), junto al estado/SKU de la barra superior.
+    // OCULTAS por ahora "Destacado" y "Recomendado" (quitar el // para volver a mostrarlas).
+    $flagBadges = collect([
+        // ['key' => 'featured', 'label' => 'Destacado', 'on' => $product->is_featured],
+        ['key' => 'new', 'label' => 'Nuevo', 'on' => $product->is_new],
+        // ['key' => 'recommended', 'label' => 'Recomendado', 'on' => $product->is_recommended],
+    ])->where('on', true)->values();
 @endphp
 <div class="product-price-box">
     @php $showStockInEyebrow = $product->availability !== 'on_order' && (int) $product->stock > 0; @endphp
@@ -16,8 +24,16 @@
          o en escritorio, menú (hoja inferior en móvil). Ver productShare() en product-detail.js. --}}
     <div class="product-price-box__topbar">
     <div class="product-price-box__eyebrow {{ $showStockInEyebrow ? 'has-stock' : '' }}">
+            {{-- Unidades vendidas = cantidades de este producto en cotizaciones ACEPTADAS (App\Support\QuoteSales). --}}
+            @php $soldUnits = $product->accepted_quote_units; @endphp
+            @if ($soldUnits > 0)
+                <span class="product-price-box__sold" title="Unidades de este producto en cotizaciones aceptadas"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l3.1 6.3 6.9 1-5 4.9 1.2 6.9L12 17.8 5.8 21l1.2-6.9-5-4.9 6.9-1z"/></svg> {{ \App\Support\QuoteSales::label($soldUnits) }}</span>
+            @endif
+            @foreach ($flagBadges as $flag)
+                <span class="product-price-box__flag product-price-box__flag--{{ $flag['key'] }}">{{ $flag['label'] }}</span><span class="product-price-box__sep" aria-hidden="true">|</span>
+            @endforeach
             <span class="product-price-box__eyebrow-label">{{ $product->availability_label }}</span>@if ($showStockInEyebrow)<span class="product-price-box__eyebrow-stock">Disponibles: {{ $product->stock }}</span>@endif
-            &nbsp;|&nbsp; SKU {{ $product->sku }}
+            <span class="product-price-box__sep" aria-hidden="true">|</span><span class="product-price-box__sku">SKU {{ $product->sku }}</span>
         </div>
     
         @include('frontend.shop.partials.share-button', ['url' => route('product.show', $product->slug), 'title' => $resolvedName])

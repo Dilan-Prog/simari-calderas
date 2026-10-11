@@ -142,6 +142,16 @@
 
 /* Price box */
 .eq-shop-product .product-price-box__eyebrow { font-size: 13px; color: #4b5563; margin-bottom: 14px; }
+/* Línea de estado: [insignia de ventas] Etiquetas manuales | Estado | SKU. Las etiquetas
+   (Destacado, Nuevo, Recomendado) van como texto simple separado por barras. */
+.eq-shop-product .product-price-box__eyebrow { display: flex; flex-wrap: wrap; align-items: center; row-gap: 6px; }
+.eq-shop-product .product-price-box__sep { margin: 0 9px; color: #c3c8ce; font-weight: 300; }
+/* Insignia naranja "+1000 UNIDADES VENDIDAS" (su marcado está comentado en price-box.blade.php hasta que se active). */
+.eq-shop-product .product-price-box__sold {
+    display: inline-flex; align-items: center; gap: 6px; margin-right: 12px; padding: 5px 12px; border-radius: 6px;
+    background: var(--secondary-color, #ff6213); color: #fff; font-size: 12px; font-weight: 800; letter-spacing: .03em;
+    text-transform: uppercase; white-space: nowrap; line-height: 1.2;
+}
 .eq-shop-product .product-price-box__title { font-size: 26px; font-weight: 800; margin: 0 0 16px; line-height: 1.25; }
 .eq-shop-product .product-price-box__discount-row { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
 .eq-shop-product .product-price-box__discount-badge { background: var(--secondary-color); color: #fff; font-size: 12px; font-weight: 800; padding: 3px 8px; border-radius: 4px; }
