@@ -28,8 +28,10 @@
                 'options' => ['pieza' => 'Pieza', 'juego' => 'Juego', 'kit' => 'Kit', 'metro' => 'Metro', 'kg' => 'Kg', 'litro' => 'Litro']],
             ['key' => 'currency', 'label' => 'Moneda', 'group' => 'Precios / Inventario', 'type' => 'select',
                 'options' => ['MXN' => 'MXN', 'USD' => 'USD']],
-            ['key' => 'availability', 'label' => 'Disponibilidad', 'group' => 'Precios / Inventario', 'type' => 'select',
-                'options' => ['available' => 'Disponible', 'out_of_stock' => 'Agotado', 'on_order' => 'Sobre pedido']],
+            ['key' => 'availability', 'label' => 'Estado de disponibilidad', 'group' => 'Precios / Inventario', 'type' => 'select',
+                'options' => ['available' => 'Disponible', 'out_of_stock' => 'Agotado', 'on_order' => 'Bajo pedido']],
+            ['key' => 'lead_time_text', 'label' => 'Tiempo de entrega estimado', 'group' => 'Precios / Inventario', 'type' => 'text', 'maxlength' => 150,
+                'placeholder' => 'Solo con "Bajo pedido"'],
 
             ['key' => 'category_id', 'label' => 'Categoría Principal', 'group' => 'Organización', 'type' => 'select-category-main'],
             ['key' => 'category_sub', 'label' => 'Subcategoría', 'group' => 'Organización', 'type' => 'select-category-sub'],
@@ -66,7 +68,7 @@
         // libre no repetible (Nombre/Modelo/Slug/Descripciones/SEO/Social) y
         // los campos complejos Especificaciones/FAQ.
         $bulkApplyKeys = ['price','price_includes_tax','compare_price','cost','shipping_cost','free_shipping_threshold',
-            'stock','stock_unit','currency','availability','category_id','brand_id','is_active','publish_on_website',
+            'stock','stock_unit','currency','availability','lead_time_text','category_id','brand_id','is_active','publish_on_website',
             'is_featured','is_new','is_recommended','show_in_merchant_center','accepts_msi','tags','canonical'];
         $bulkApplyColumns = collect($bulkEditColumns)->whereIn('key', $bulkApplyKeys)->values();
 
@@ -321,7 +323,8 @@
                                             @case('text')
                                                 <input type="text" class="prod-bulk-input" data-id="{{ $product->id }}"
                                                     data-field="{{ $col['key'] }}" value="{{ $product->{$col['key']} }}"
-                                                    @if (!empty($col['maxlength'])) maxlength="{{ $col['maxlength'] }}" @endif>
+                                                    @if (!empty($col['maxlength'])) maxlength="{{ $col['maxlength'] }}" @endif
+                                                    @if (!empty($col['placeholder'])) placeholder="{{ $col['placeholder'] }}" @endif>
                                             @break
 
                                             @case('number')

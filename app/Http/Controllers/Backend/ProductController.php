@@ -244,7 +244,7 @@ class ProductController extends Controller
 
     private const BULK_EDIT_FIELDS = [
         'name', 'model', 'short_description', 'description', 'slug',
-        'price', 'compare_price', 'price_includes_tax', 'cost', 'shipping_cost', 'free_shipping_threshold', 'stock', 'stock_unit', 'currency', 'availability',
+        'price', 'compare_price', 'price_includes_tax', 'cost', 'shipping_cost', 'free_shipping_threshold', 'stock', 'stock_unit', 'currency', 'availability', 'lead_time_text',
         'category_id', 'brand_id', 'is_active', 'publish_on_website', 'is_featured', 'is_new', 'is_recommended', 'show_in_merchant_center', 'accepts_msi',
         'tags', 'specifications', 'faqs',
         'seo_title', 'seo_description', 'seo_keywords', 'og_title', 'og_description', 'og_image', 'canonical_url',
@@ -263,7 +263,7 @@ class ProductController extends Controller
     // ocultar dentro de una vista guardada.
     private const BULK_EDIT_VIEW_COLUMNS = [
         'model', 'short_description', 'description', 'slug',
-        'price', 'compare_price', 'price_includes_tax', 'cost', 'shipping_cost', 'free_shipping_threshold', 'stock', 'stock_unit', 'currency', 'availability',
+        'price', 'compare_price', 'price_includes_tax', 'cost', 'shipping_cost', 'free_shipping_threshold', 'stock', 'stock_unit', 'currency', 'availability', 'lead_time_text',
         'category_id', 'category_sub', 'category_child', 'brand_id', 'is_active', 'publish_on_website', 'is_featured', 'is_new', 'is_recommended', 'show_in_merchant_center', 'accepts_msi',
         'tags', 'specifications', 'faqs',
         'seo_title', 'seo_description', 'seo_keywords', 'og_title', 'og_description', 'og_image', 'canonical',
@@ -321,7 +321,7 @@ class ProductController extends Controller
     {
         $query = $this->filteredProductsQuery($request, [
             'id', 'name', 'sku', 'model', 'supplier_sku', 'short_description', 'description',
-            'price', 'compare_price', 'price_includes_tax', 'cost', 'shipping_cost', 'free_shipping_threshold', 'stock', 'stock_unit', 'currency', 'availability',
+            'price', 'compare_price', 'price_includes_tax', 'cost', 'shipping_cost', 'free_shipping_threshold', 'stock', 'stock_unit', 'currency', 'availability', 'lead_time_text',
             'category_id', 'brand_id', 'is_active', 'publish_on_website', 'is_featured', 'is_new', 'is_recommended', 'show_in_merchant_center', 'accepts_msi',
             'tags', 'specifications', 'faqs',
             'seo_title', 'seo_description', 'seo_keywords', 'og_title', 'og_description', 'og_image',
@@ -406,6 +406,8 @@ class ProductController extends Controller
         'og_title' => 255,
         'og_image' => 255,
         'canonical_url' => 255,
+        // Tiempo de entrega estimado (solo aplica con disponibilidad "Bajo pedido", ver bulkEditSave).
+        'lead_time_text' => 150,
     ];
 
     /**
@@ -660,6 +662,35 @@ class ProductController extends Controller
             $results[] = ['id' => $id, 'field' => $field, 'ok' => $ok, 'error' => $error];
         }
 
+        // "Tiempo de entrega estimado" solo tiene sentido con disponibilidad
+        // "Bajo pedido" (mismo criterio que store()/update(), que lo limpian si
+        // no lo es). Un valor NO vacío para un producto que no quedará "Bajo
+        // pedido" se rechaza con aviso en su celda en vez de descartarse en silencio.
+        $leadIds = array_keys(array_filter(
+            $validByProductId,
+            fn ($f) => array_key_exists('lead_time_text', $f) && $f['lead_time_text'] !== null
+        ));
+        if ($leadIds) {
+            $currentAvailability = Products::whereIn('id', $leadIds)->pluck('availability', 'id');
+            foreach ($leadIds as $id) {
+                $final = $validByProductId[$id]['availability'] ?? ($currentAvailability[$id] ?? 'available');
+                if ($final === 'on_order') {
+                    continue;
+                }
+
+                unset($validByProductId[$id]['lead_time_text']);
+                foreach ($results as $i => $r) {
+                    if ($r['id'] === $id && $r['field'] === 'lead_time_text') {
+                        $results[$i]['ok'] = false;
+                        $results[$i]['error'] = 'El tiempo de entrega solo aplica a productos "Bajo pedido": cambia primero su disponibilidad.';
+                    }
+                }
+                if (empty($validByProductId[$id])) {
+                    unset($validByProductId[$id]);
+                }
+            }
+        }
+
         if (!empty($validByProductId)) {
             DB::transaction(function () use ($validByProductId) {
                 foreach ($validByProductId as $id => $fields) {
@@ -712,6 +743,12 @@ class ProductController extends Controller
                         );
                         SupplierProduct::demoteOtherPrimaries($product->id, $row->id);
                         unset($fields['supplier_id']);
+                    }
+
+                    // Igual que el formulario individual: si la disponibilidad deja
+                    // de ser "Bajo pedido", el tiempo de entrega se limpia.
+                    if (array_key_exists('availability', $fields) && $fields['availability'] !== 'on_order') {
+                        $fields['lead_time_text'] = null;
                     }
 
                     foreach ($fields as $field => $value) {

@@ -124,6 +124,16 @@
 
             function onCellChange(input) {
                 setPendingChange(input.dataset.id, input.dataset.field, readValue(input), input);
+
+                // "Tiempo de entrega" solo aplica con "Bajo pedido": si la fila deja de
+                // estarlo se limpia la celda (el servidor hace lo mismo al guardar).
+                if (input.dataset.field === 'availability' && input.value !== 'on_order') {
+                    const lead = input.closest('tr')?.querySelector('[data-field="lead_time_text"]');
+                    if (lead && lead.value !== '') {
+                        lead.value = '';
+                        setPendingChange(lead.dataset.id, 'lead_time_text', readValue(lead), lead);
+                    }
+                }
             }
 
             saveBtn.addEventListener('click', async () => {
@@ -314,7 +324,7 @@
                 _select: 40, name: 180, sku: 130, supplier_sku: 160, suppliers: 200,
                 model: 160, short_description: 200, description: 200,
                 price: 120, price_includes_tax: 120, compare_price: 120, cost: 120, shipping_cost: 120, free_shipping_threshold: 140,
-                stock: 100, stock_unit: 140, currency: 100, availability: 140,
+                stock: 100, stock_unit: 140, currency: 100, availability: 140, lead_time_text: 200,
                 category_id: 160, category_sub: 160, category_child: 160, brand_id: 160,
                 is_active: 90, publish_on_website: 110, is_featured: 100, is_new: 90, is_recommended: 120,
                 tags: 160, specifications: 160,
