@@ -15,40 +15,33 @@
         return $p ? ['product_id' => $p->id, 'name' => $p->name, 'sku' => $p->sku, 'quantity' => (int) ($l['quantity'] ?? 1), 'available' => null] : null;
     })->filter()->values()->all() : $initialLines;
 @endphp
-<div class="container user-manager">
-<section class="clients-manager-section wh-page">
-    <div class="erp-page-head">
-        <div>
-            <p class="breadcrumb-clients-manager" style="margin-bottom:4px;">
-                Panel de Control &gt; <a href="{{ route('admin.warehouse-transfers.index') }}">Traspasos</a> &gt; <strong>{{ $transfer ? $transfer->number : 'Nuevo' }}</strong>
-            </p>
-            <h1 class="erp-title">{{ $transfer ? 'Editar ' . $transfer->number : 'Nuevo traspaso' }}</h1>
-            <p class="erp-subtitle">El traspaso se guarda como borrador; el inventario se mueve hasta enviarlo.</p>
-        </div>
-    </div>
+<div class="erp-page">
+    <x-erp.page-header :title="$transfer ? 'Editar ' . $transfer->number : 'Nuevo traspaso'" code="ALM1"
+        desc="El traspaso se guarda como borrador; el inventario se mueve hasta enviarlo."
+        :crumbs="[['Almacén', null], ['Traspasos', route('admin.warehouse-transfers.index')], [$transfer ? $transfer->number : 'Nuevo', null]]" />
 
-    @if (session('error')) <div class="wh-alert wh-alert-error">{{ session('error') }}</div> @endif
-    @if ($errors->any()) <div class="wh-alert wh-alert-error">@foreach ($errors->all() as $e) <div>{{ $e }}</div> @endforeach</div> @endif
+    @if (session('error')) <div class="wh-alert wh-alert-error" role="alert">{{ session('error') }}</div> @endif
+    @if ($errors->any()) <div class="wh-alert wh-alert-error" role="alert">@foreach ($errors->all() as $e) <div>{{ $e }}</div> @endforeach</div> @endif
 
     <form method="POST" action="{{ $transfer ? route('admin.warehouse-transfers.update', $transfer) : route('admin.warehouse-transfers.store') }}"
           data-wh-transfer-form data-products-url="{{ route('admin.warehouse-transfers.products') }}" data-initial="{{ json_encode($initial) }}">
         @csrf
         @if ($transfer) @method('PUT') @endif
 
-        <div class="wh-card">
-            <div class="wh-form-grid">
-                <div>
+        <x-erp.card title="Origen y destino">
+            <div class="erp-form-grid">
+                <div class="erp-field">
                     <label for="from_warehouse_id">Almacén origen</label>
-                    <select name="from_warehouse_id" id="from_warehouse_id" class="users-manager-input" required>
+                    <select name="from_warehouse_id" id="from_warehouse_id" class="erp-select" required>
                         <option value="">Selecciona...</option>
                         @foreach ($warehouses as $w)
                             <option value="{{ $w->id }}" @selected((string) old('from_warehouse_id', $transfer?->from_warehouse_id) === (string) $w->id)>{{ $w->name }}</option>
                         @endforeach
                     </select>
                 </div>
-                <div>
+                <div class="erp-field">
                     <label for="to_warehouse_id">Almacén destino</label>
-                    <select name="to_warehouse_id" id="to_warehouse_id" class="users-manager-input" required>
+                    <select name="to_warehouse_id" id="to_warehouse_id" class="erp-select" required>
                         <option value="">Selecciona...</option>
                         @foreach ($warehouses as $w)
                             <option value="{{ $w->id }}" @selected((string) old('to_warehouse_id', $transfer?->to_warehouse_id) === (string) $w->id)>{{ $w->name }}</option>
@@ -56,32 +49,30 @@
                     </select>
                 </div>
             </div>
-            <div class="wh-field">
+            <div class="erp-field" style="margin-top:14px;">
                 <label for="notes">Notas</label>
-                <textarea name="notes" id="notes" rows="2" class="users-manager-input" maxlength="1000">{{ old('notes', $transfer?->notes) }}</textarea>
+                <textarea name="notes" id="notes" rows="2" class="erp-input" maxlength="1000">{{ old('notes', $transfer?->notes) }}</textarea>
             </div>
-        </div>
+        </x-erp.card>
 
-        <div class="wh-card">
-            <h2>Productos</h2>
+        <x-erp.card title="Material a traspasar" sub="Busca por nombre o SKU; el disponible se calcula contra el almacén origen.">
             <div class="wh-search">
-                <input type="text" class="users-manager-input" data-product-search placeholder="Buscar producto por nombre o SKU..." autocomplete="off">
+                <input type="search" class="erp-input" data-product-search placeholder="Buscar producto por nombre o SKU..." autocomplete="off" aria-label="Buscar producto">
                 <div class="wh-search-results" data-product-results></div>
             </div>
-            <div class="wh-table-wrap">
-                <table class="wh-table wh-stack">
-                    <thead><tr><th>Producto</th><th class="num">Disponible en origen</th><th class="num">Cantidad</th><th></th></tr></thead>
+            <div class="erp-table-wrap">
+                <table class="erp-table wh-stack">
+                    <thead><tr><th>Producto</th><th class="is-right">Disponible en origen</th><th class="is-right">Cantidad</th><th></th></tr></thead>
                     <tbody data-lines-body></tbody>
                 </table>
-                <div class="wh-empty" data-lines-empty>Aún no agregas productos.</div>
+                <div class="wh-muted" data-lines-empty style="padding:20px;text-align:center;">Aún no agregas productos.</div>
             </div>
-        </div>
+        </x-erp.card>
 
-        <div class="wh-actions">
-            <button type="submit" class="wh-btn wh-btn-primary">{{ $transfer ? 'Guardar cambios' : 'Crear borrador' }}</button>
-            <a href="{{ $transfer ? route('admin.warehouse-transfers.show', $transfer) : route('admin.warehouse-transfers.index') }}" class="wh-btn">Cancelar</a>
+        <div class="erp-form-actions">
+            <a href="{{ $transfer ? route('admin.warehouse-transfers.show', $transfer) : route('admin.warehouse-transfers.index') }}" class="erp-btn">Cancelar</a>
+            <button type="submit" class="erp-btn erp-btn--primary">{{ $transfer ? 'Guardar cambios' : 'Crear borrador' }}</button>
         </div>
     </form>
-</section>
 </div>
 @endsection

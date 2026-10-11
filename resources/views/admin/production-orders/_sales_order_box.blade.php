@@ -20,7 +20,7 @@
                 <div class="prd-box-row">
                     <a href="{{ route('admin.production-orders.show', $p) }}" class="prd-link">{{ $p->number }}</a>
                     <span>{{ $p->product->name ?? '' }}</span>
-                    <span class="erp-chip erp-tone-{{ \App\Models\ProductionOrder::statusTone($p->status) }}">{{ \App\Models\ProductionOrder::statusLabel($p->status) }}</span>
+                    <x-erp.chip :tone="\App\Support\ErpUi::tone($p->status)" :label="\App\Models\ProductionOrder::statusLabel($p->status)" />
                     <span class="prd-muted">{{ $p->progress }}%</span>
                 </div>
             @endforeach

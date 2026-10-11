@@ -1,4 +1,4 @@
-{{-- Panel 8: Lista de materiales (ERP Fase 2A). Solo lectura + enlaces al módulo. --}}
+{{-- Panel 8: Lista de materiales (ERP Fase 2A). Solo lectura + enlaces al módulo. Usa el sistema de componentes ERP. --}}
 @php
     $bomSvc = app(\App\Services\BomService::class);
     $activeBom = $product->activeBom()->withCount('lines')->first();
@@ -15,27 +15,29 @@
             @if ($activeBom)<span class="pform-supplier-badge">Producto fabricado</span>@endif
         </h2>
         @if ($activeBom)
-            <p class="pform-hint">
-                Receta vigente: <strong>v{{ $activeBom->version }}{{ $activeBom->name ? ' · ' . $activeBom->name : '' }}</strong>
-                · {{ $activeBom->lines_count }} componente(s) · {{ $bomVersions }} versión(es) en total.
-            </p>
-            <p class="pform-hint">
-                Costo estándar: <strong>${{ number_format($bomCost, 2) }}</strong>
-                · Precio sin IVA: <strong>${{ number_format($bomPrice, 2) }}</strong>
-                @if ($bomMargin !== null)· Margen: <strong>{{ $bomMargin }}%</strong>@endif
-            </p>
+            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 14px;">
+                <x-erp.status value="Vigente" tone="ok" />
+                <span class="pform-hint" style="margin: 0;">Receta vigente: <strong>v{{ $activeBom->version }}{{ $activeBom->name ? ' · ' . $activeBom->name : '' }}</strong></span>
+            </div>
+            <x-erp.facts :items="[
+                ['label' => 'Componentes', 'value' => $activeBom->lines_count],
+                ['label' => 'Versiones', 'value' => $bomVersions],
+                ['label' => 'Costo estándar', 'value' => $bomCost > 0 ? '$' . number_format($bomCost, 2) : '—'],
+                ['label' => 'Precio (s/IVA)', 'value' => $bomPrice > 0 ? '$' . number_format($bomPrice, 2) : '—'],
+                ['label' => 'Margen', 'value' => $bomMargin !== null ? $bomMargin . '%' : '—'],
+            ]" />
             @if ($bomCanView)
-                <p>
-                    <a class="pform-btn-secondary" href="{{ route('admin.boms.show', $activeBom) }}">Ver receta y árbol</a>
+                <p style="display: flex; gap: 8px; flex-wrap: wrap; margin: 16px 0 0;">
+                    <a class="erp-btn" href="{{ route('admin.boms.show', $activeBom) }}">Ver estructura y versiones</a>
                     @if (auth()->user()->isAdmin() || auth()->user()->hasPermission('boms', 'edit'))
-                        <a class="pform-btn-secondary" href="{{ route('admin.boms.edit', $activeBom) }}">Editar receta</a>
+                        <a class="erp-btn" href="{{ route('admin.boms.edit', $activeBom) }}">Editar lista de materiales</a>
                     @endif
                 </p>
             @endif
         @else
-            <p class="pform-hint">Este producto no tiene una receta vigente (no se considera fabricado).</p>
+            <p class="pform-hint">Este producto no tiene una lista de materiales vigente (no se considera fabricado).</p>
             @if ($bomCanCreate)
-                <p><a class="pform-btn-secondary" href="{{ route('admin.boms.create', ['product_id' => $product->id]) }}">Crear lista de materiales</a></p>
+                <p><a class="erp-btn erp-btn--primary" href="{{ route('admin.boms.create', ['product_id' => $product->id]) }}">Crear lista de materiales</a></p>
             @endif
         @endif
     </div>

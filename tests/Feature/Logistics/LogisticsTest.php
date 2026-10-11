@@ -206,4 +206,19 @@ class LogisticsTest extends TestCase
         $this->assertTrue(DocumentFlow::flow($order) !== [] && collect(DocumentFlow::flow($order))->contains('type', 'material_delivery'));
         $this->assertNotNull($report->id);
     }
+
+    public function test_pantallas_nuevas_de_logistica_responden(): void
+    {
+        $admin = $this->admin();
+        $order = $this->b2bOrder($admin);
+        $svc = app(PickupService::class);
+        $p = $svc->create(['type' => 'pedidos', 'customer_id' => $order->customer_id, 'address' => 'Calle 5', 'scheduled_date' => today(), 'driver_user_id' => $admin->id], [['description' => 'Caldera', 'quantity' => 1, 'unit' => 'pza']], $admin->id);
+
+        $this->actingAs($admin);
+        $this->get(route('admin.pickups.create'))->assertOk()->assertSee('Datos generales');
+        $this->get(route('admin.pickups.edit', $p))->assertOk()->assertSee('Partidas por recolectar');
+        $this->get(route('admin.pickups.mobile', $p))->assertOk()->assertSee('Foto de evidencia', false)->assertSee('lg-sign-canvas', false);
+        $this->get(route('admin.pickups.show', $p))->assertOk()->assertSee('Evidencia')->assertSee('Bitácora');
+        $this->get(route('admin.shipments.create'))->assertOk()->assertSee('Documento de origen');
+    }
 }

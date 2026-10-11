@@ -34,13 +34,13 @@ function initCreate(root) {
         row.className = 'mrp-line';
         row.innerHTML = `
             <div class="mrp-picker">
-                <input type="search" class="mrp-input" placeholder="Buscar producto o SKU…" data-picker-input autocomplete="off">
+                <input type="search" class="erp-input" placeholder="Buscar producto o SKU…" data-picker-input autocomplete="off">
                 <input type="hidden" name="lines[${i}][product_id]">
                 <div class="mrp-picker-list" hidden></div>
             </div>
-            <input type="number" class="mrp-input" name="lines[${i}][quantity]" min="0.0001" step="any" placeholder="Cantidad">
-            <input type="text" class="mrp-input mrp-unit" name="lines[${i}][unit]" maxlength="30" placeholder="Unidad">
-            <button type="button" class="mrp-icon-btn" title="Quitar" data-remove>✕</button>`;
+            <input type="number" class="erp-input" name="lines[${i}][quantity]" min="0.0001" step="any" placeholder="Cantidad">
+            <input type="text" class="erp-input mrp-unit" name="lines[${i}][unit]" maxlength="30" placeholder="Unidad">
+            <button type="button" class="erp-btn erp-btn--sm mrp-icon-btn" title="Quitar" aria-label="Quitar material" data-remove>✕</button>`;
         box.appendChild(row);
 
         const input = row.querySelector('[data-picker-input]');
@@ -103,7 +103,38 @@ function initShow() {
     });
 }
 
+/** Detalle: «Generar orden de compra» de una tarjeta de proveedor envía solo las líneas de esa tarjeta. */
+function initPoGroups() {
+    document.querySelectorAll('[data-po-only]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+            const form = btn.closest('form');
+            const group = btn.closest('[data-po-group]');
+            if (!form || !group) return;
+            form.querySelectorAll('[data-po-check]').forEach((cb) => { cb.checked = group.contains(cb); });
+            if (form.requestSubmit) form.requestSubmit(); else form.submit();
+        });
+    });
+}
+
+/** Listado: la acción en lote envía los requerimientos marcados (erp-ui.js expone window.erpSelectedIds). */
+function initBatch() {
+    const form = document.querySelector('[data-mrp-batch-form]');
+    if (!form) return;
+    form.addEventListener('submit', (e) => {
+        const ids = (window.erpSelectedIds ? window.erpSelectedIds() : []);
+        if (!ids.length) { e.preventDefault(); return; }
+        form.querySelectorAll('input[name="ids[]"]').forEach((i) => i.remove());
+        ids.forEach((id) => {
+            const h = document.createElement('input');
+            h.type = 'hidden'; h.name = 'ids[]'; h.value = id;
+            form.appendChild(h);
+        });
+    });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
+    initPoGroups();
+    initBatch();
     const create = document.querySelector('[data-mrp-create]');
     if (create) initCreate(create);
     initShow();

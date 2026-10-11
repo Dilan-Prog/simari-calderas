@@ -39,6 +39,17 @@ class PickupStatus
         return self::META[$status]['tone'] ?? 'neutral';
     }
 
+    /** Tono del chip del sistema de diseño ERP (ok|warn|bad|info|neu|acc). */
+    public static function chipTone(string $status): string
+    {
+        return match ($status) {
+            'en_ruta' => 'acc',
+            'recolectada', 'entregada' => 'ok',
+            'cancelada', 'incidencia' => 'bad',
+            default => 'neu',
+        };
+    }
+
     /** @return string[] */
     public static function allowedTransitions(string $current): array
     {

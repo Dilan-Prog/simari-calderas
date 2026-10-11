@@ -12,6 +12,7 @@ Route::controller(MrpController::class)
         Route::get('/', 'index')->name('index');
         Route::get('/crear', 'create')->name('create')->middleware('permission:mrp,create');
         Route::post('/', 'store')->name('store')->middleware('permission:mrp,create');
+        Route::post('/ordenes-compra-lote', 'generatePurchaseOrdersBatch')->name('generate-purchase-orders-batch')->middleware('permission:mrp,create');
         Route::get('/buscar-productos', 'searchProducts')->name('search-products');
         Route::post('/desde-pedido/{salesOrder}', 'fromSalesOrder')->name('from-sales-order')->middleware('permission:mrp,create')->whereNumber('salesOrder');
         Route::get('/{requirement}', 'show')->name('show')->whereNumber('requirement');

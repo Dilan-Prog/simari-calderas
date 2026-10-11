@@ -28,6 +28,16 @@ class StockReservation extends Model
         return $this->belongsTo(Products::class, 'product_id');
     }
 
+    public function warehouse(): BelongsTo
+    {
+        return $this->belongsTo(Warehouse::class, 'warehouse_id');
+    }
+
+    public function project(): BelongsTo
+    {
+        return $this->belongsTo(Project::class, 'project_id');
+    }
+
     public function requirement(): BelongsTo
     {
         return $this->belongsTo(MaterialRequirement::class, 'requirement_id');

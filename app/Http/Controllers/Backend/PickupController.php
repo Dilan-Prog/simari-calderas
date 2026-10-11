@@ -31,7 +31,7 @@ class PickupController extends Controller
     {
         $counts = Pickup::selectRaw('status, count(*) as c')->groupBy('status')->pluck('c', 'status');
 
-        $query = Pickup::with(['customer', 'supplier', 'driver', 'carrier'])
+        $query = Pickup::with(['customer', 'supplier', 'driver', 'carrier'])->withCount('evidences')
             ->when($request->filled('status'), fn ($q) => $q->where('status', $request->status))
             ->when($request->filled('type'), fn ($q) => $q->where('type', $request->type))
             ->when($request->filled('driver_user_id'), fn ($q) => $q->where('driver_user_id', $request->driver_user_id))

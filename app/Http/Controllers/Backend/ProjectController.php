@@ -33,7 +33,7 @@ class ProjectController extends Controller
 
     public function index(Request $request)
     {
-        $query = Project::with(['customer', 'manager'])->withCount('phases');
+        $query = Project::with(['customer', 'manager', 'phases:id,project_id,name,status,progress,sort_order,start_date,end_date', 'quotes:id,project_id,total,currency,exchange_rate,status'])->withCount('phases');
 
         if ($request->filled('search')) {
             $s = $request->search;
@@ -65,22 +65,29 @@ class ProjectController extends Controller
             $all = $query->orderByRaw('due_date is null')->orderBy('due_date')->get();
             $projects = null;
             $columns = collect(Project::STATUSES)->map(fn ($label, $key) => $all->where('status', $key)->values());
+            $shown = $all;
         } else {
             $projects = $query->latest()->paginate(15)->withQueryString();
             $columns = null;
+            $shown = $projects->getCollection();
         }
+        $progress = $shown->mapWithKeys(fn ($p) => [$p->id => $this->projects->progress($p)]);
 
         $stats = [
             'total'    => Project::count(),
             'running'  => Project::where('status', 'en_ejecucion')->count(),
             'overdue'  => Project::where('status', '!=', 'cerrado')->whereDate('due_date', '<', now()->toDateString())->count(),
             'closed'   => Project::where('status', 'cerrado')->count(),
+            'active'   => Project::whereIn('status', ['levantamiento', 'planeado', 'en_ejecucion'])->count(),
+            'soon'     => Project::where('status', '!=', 'cerrado')
+                ->whereDate('due_date', '>=', now()->toDateString())
+                ->whereDate('due_date', '<=', now()->addDays(21)->toDateString())->count(),
         ];
 
         $managers = User::orderBy('first_name')->get(['id', 'first_name', 'last_name']);
         $filterCustomer = $request->filled('customer_id') ? Customer::find((int) $request->customer_id) : null;
 
-        return view('admin.projects.index', compact('projects', 'columns', 'view', 'stats', 'managers', 'filterCustomer'));
+        return view('admin.projects.index', compact('projects', 'columns', 'view', 'stats', 'managers', 'filterCustomer', 'progress'));
     }
 
     public function create()
@@ -111,6 +118,18 @@ class ProjectController extends Controller
         $project->load(['customer', 'manager', 'createdBy', 'phases.assignees', 'quotes.customer', 'salesOrders', 'technicalServices.customer', 'serviceReports']);
 
         $progress = $this->projects->progress($project);
+        $requirements = \Illuminate\Support\Facades\Schema::hasTable('material_requirements')
+            ? \App\Models\MaterialRequirement::withCount('lines')->where('project_id', $project->id)->latest('id')->get()
+            : collect();
+        // Etapa Plan-to-Produce (0 Levantamiento … 5 Cierre) derivada del estado y de los documentos ligados.
+        $hasProduction = \Illuminate\Support\Facades\Schema::hasTable('production_orders')
+            && \App\Models\ProductionOrder::where('project_id', $project->id)->where('status', '!=', 'cancelada')->exists();
+        $stage = match ($project->status) {
+            'levantamiento' => 0,
+            'planeado'      => 1,
+            'cerrado'       => 5,
+            default         => $project->technicalServices->isNotEmpty() ? 4 : ($hasProduction ? 3 : ($requirements->isNotEmpty() ? 2 : 1)),
+        };
         $logs = SystemLog::with('performedBy')
             ->where('entity_type', 'project')->where('entity_id', $project->id)
             ->latest('performed_at')->limit(100)->get();
@@ -118,6 +137,8 @@ class ProjectController extends Controller
         return view('admin.projects.show', [
             'project'  => $project,
             'progress' => $progress,
+            'requirements' => $requirements,
+            'stage'    => $stage,
             'logs'     => $logs,
             'timeline' => $this->timeline($project),
         ]);

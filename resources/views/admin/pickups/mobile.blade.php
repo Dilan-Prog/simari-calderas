@@ -7,63 +7,87 @@
 @endpush
 
 @section('content')
+@php
+    $qty = fn ($n) => rtrim(rtrim(number_format($n, 2, '.', ''), '0'), '.');
+    $hasPhoto = $pickup->evidences->count() > 0;
+    $hasSign = ! empty($pickup->signature_data);
+    $addr = $pickup->address;
+@endphp
 <div class="lg-mobile">
-    <a href="{{ route('admin.pickups.show', $pickup) }}" class="erp-objhead-back">← Detalle</a>
-    <h1 style="font-size:22px;margin:6px 0;">{{ $pickup->number }}
-        <span class="erp-chip erp-tone-{{ \App\Support\PickupStatus::tone($pickup->status) }}">{{ $pickup->statusLabel() }}</span>
-    </h1>
+    <header class="lg-m-top">
+        <a href="{{ route('admin.pickups.show', $pickup) }}" class="lg-m-back">‹ Detalle</a>
+        <small>App de campo · {{ \App\Support\PickupStatus::TYPES[$pickup->type] ?? $pickup->type }}</small>
+        <h1>{{ $pickup->number }} <x-erp.chip :tone="\App\Support\PickupStatus::chipTone($pickup->status)" :label="$pickup->statusLabel()" /></h1>
+    </header>
 
-    <div class="lg-card">
-        <strong>{{ $pickup->counterpartLabel() }}</strong>
-        <div>{{ $pickup->address }}</div>
-        @if ($pickup->contact_phone)
-            <a href="tel:{{ preg_replace('/[^0-9+]/', '', $pickup->contact_phone) }}">{{ $pickup->contact_phone }}</a>
-        @endif
-        <ul style="margin:10px 0 0;padding-left:18px;">
-            @foreach ($pickup->items as $it)
-                <li>{{ $it->description }} ({{ rtrim(rtrim(number_format($it->quantity, 2, '.', ''), '0'), '.') }} {{ $it->unit }})</li>
-            @endforeach
-        </ul>
+    @if (session('success')) <div class="lg-alert lg-alert--ok" role="status">{{ session('success') }}</div> @endif
+    @if (session('error')) <div class="lg-alert" role="alert">{{ session('error') }}</div> @endif
+
+    <div class="lg-m-steps" aria-label="Avance de la captura">
+        <span class="lg-m-step {{ $hasPhoto ? 'is-done' : '' }}">{{ $hasPhoto ? '✓ ' : '' }}Foto</span>
+        <span class="lg-m-step {{ $hasSign ? 'is-done' : '' }}">{{ $hasSign ? '✓ ' : '' }}Firma</span>
+        <span class="lg-m-step {{ $pickup->status === 'entregada' ? 'is-done' : '' }}">{{ $pickup->status === 'entregada' ? '✓ ' : '' }}Estatus</span>
     </div>
 
-    <div class="lg-card lg-form">
+    <section class="lg-m-card">
+        <div class="lg-m-name">{{ $pickup->counterpartLabel() }}</div>
+        <div class="lg-m-addr">{{ $addr }}</div>
+        @if ($pickup->time_window)<div class="lg-muted" style="margin-top:3px;">Ventana {{ $pickup->time_window }}</div>@endif
+        <div class="lg-m-grid">
+            <a class="lg-m-btn lg-m-btn--sm" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query={{ urlencode((string) $addr) }}">Abrir en mapas</a>
+            @if ($pickup->contact_phone)
+                <a class="lg-m-btn lg-m-btn--sm" href="tel:{{ preg_replace('/[^0-9+]/', '', $pickup->contact_phone) }}">Llamar · {{ $pickup->contact_phone }}</a>
+            @else
+                <span class="lg-m-btn lg-m-btn--sm" aria-disabled="true" style="opacity:.5;">Sin teléfono</span>
+            @endif
+        </div>
+    </section>
+
+    <section class="lg-m-card">
+        <h2>Contenido</h2>
+        <ul class="lg-m-list">
+            @foreach ($pickup->items as $it)
+                <li>{{ $it->description }} ({{ $qty($it->quantity) }} {{ $it->unit }})</li>
+            @endforeach
+        </ul>
+    </section>
+
+    <section class="lg-m-card">
         <h2>1. Foto de evidencia</h2>
         <form method="POST" action="{{ route('admin.pickups.evidences.store', $pickup) }}" enctype="multipart/form-data">
             @csrf
-            <input type="file" name="photo" accept="image/*" capture="environment" required style="margin-bottom:8px;">
-            <input type="text" name="caption" placeholder="Descripción (opcional)" maxlength="255" style="margin-bottom:8px;">
-            <button class="lg-btn lg-btn-primary">Subir foto</button>
+            <input type="file" name="photo" accept="image/*" capture="environment" required aria-label="Tomar foto del material">
+            <input type="text" name="caption" class="erp-input" placeholder="Descripción (opcional)" maxlength="255">
+            <button class="lg-m-btn lg-m-btn--primary">Subir foto</button>
         </form>
         @error('photo') <div class="lg-err">{{ $message }}</div> @enderror
         <div class="lg-muted">{{ $pickup->evidences->count() }} foto(s) cargada(s)</div>
-    </div>
+    </section>
 
-    <div class="lg-card lg-form">
+    <section class="lg-m-card">
         <h2>2. Firma de quien recibe</h2>
         <form method="POST" action="{{ route('admin.pickups.sign', $pickup) }}" id="lg-sign-form">
             @csrf
-            <input type="text" name="signed_by_name" placeholder="Nombre de quien firma" maxlength="160" style="margin-bottom:8px;" value="{{ $pickup->signed_by_name }}">
-            <canvas id="lg-sign-canvas" class="lg-sign-canvas"></canvas>
+            <input type="text" name="signed_by_name" class="erp-input" placeholder="Nombre de quien recibe" maxlength="160" value="{{ $pickup->signed_by_name }}">
+            <div class="lg-m-sign-head"><strong style="font-size:12.5px;">Firma</strong><button type="button" id="lg-sign-clear" class="erp-btn erp-btn--link">Limpiar</button></div>
+            <canvas id="lg-sign-canvas" class="lg-sign-canvas" aria-label="Área de firma"></canvas>
             <input type="hidden" name="signature_data" id="lg-sign-data">
             @error('signature_data') <div class="lg-err">{{ $message }}</div> @enderror
-            <div style="display:flex;gap:8px;margin-top:8px;">
-                <button type="button" id="lg-sign-clear" class="lg-btn">Borrar</button>
-                <button class="lg-btn lg-btn-primary">Guardar firma</button>
-            </div>
+            <button class="lg-m-btn lg-m-btn--primary" style="margin-top:10px;">Guardar firma</button>
         </form>
         @if ($pickup->signature_data)
             <div class="lg-muted">Firma guardada el {{ $pickup->signed_at?->format('d/m/Y H:i') }}.</div>
         @endif
-    </div>
+    </section>
 
     @if ($allowed)
-        <div class="lg-card lg-form">
+        <section class="lg-m-card">
             <h2>3. Estatus</h2>
             @foreach (array_intersect(['en_ruta', 'recolectada', 'entregada'], $allowed) as $st)
                 <form method="POST" action="{{ route('admin.pickups.update-status', $pickup) }}">
                     @csrf @method('PATCH')
                     <input type="hidden" name="status" value="{{ $st }}">
-                    <button class="lg-btn {{ $st === 'entregada' ? 'lg-btn-primary' : '' }}">
+                    <button class="lg-m-btn {{ $st === 'entregada' ? 'lg-m-btn--primary' : '' }}">
                         {{ $st === 'entregada' ? 'Marcar entregada' : ($st === 'recolectada' ? 'Marcar recolectada' : 'Salir en ruta') }}
                     </button>
                 </form>
@@ -72,12 +96,12 @@
                 <form method="POST" action="{{ route('admin.pickups.update-status', $pickup) }}">
                     @csrf @method('PATCH')
                     <input type="hidden" name="status" value="incidencia">
-                    <input type="text" name="note" placeholder="Describe la incidencia" required style="margin-bottom:8px;">
-                    <button class="lg-btn lg-btn-danger">Reportar incidencia</button>
+                    <input type="text" name="note" class="erp-input" placeholder="Describe la incidencia" required>
+                    <button class="lg-m-btn lg-m-btn--danger">Reportar incidencia</button>
                 </form>
             @endif
             @error('status') <div class="lg-err">{{ $message }}</div> @enderror
-        </div>
+        </section>
     @endif
 </div>
 @endsection

@@ -1,6 +1,7 @@
 // ERP Almacén: formulario de traspaso, captura de conteo físico, ubicaciones.
 const csrf = () => document.querySelector('meta[name="csrf-token"]')?.content || '';
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const money = (v) => (v < 0 ? '-' : '') + '$' + Math.abs(v).toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const debounce = (fn, ms = 250) => { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; };
 
 /** Buscador genérico: input + contenedor de resultados. */
@@ -44,9 +45,9 @@ function initTransferForm(root) {
             tr.innerHTML = `
                 <td data-label="Producto">${esc(l.name)}<br><small class="wh-muted">${esc(l.sku || '')}</small>
                     <input type="hidden" name="lines[${i}][product_id]" value="${l.product_id}"></td>
-                <td data-label="Disponible en origen" class="num">${l.available ?? '—'}</td>
-                <td data-label="Cantidad" class="num"><input type="number" min="1" step="1" class="wh-input-qty" name="lines[${i}][quantity]" value="${l.quantity || 1}"></td>
-                <td><button type="button" class="wh-btn wh-btn-danger" data-remove="${l.product_id}">Quitar</button></td>`;
+                <td data-label="Disponible en origen" class="is-num">${l.available ?? '—'}</td>
+                <td data-label="Cantidad" class="is-num"><input type="number" min="1" step="1" class="wh-input-qty" name="lines[${i}][quantity]" value="${l.quantity || 1}"></td>
+                <td data-label=""><button type="button" class="erp-btn erp-btn--danger erp-btn--sm" data-remove="${l.product_id}">Quitar</button></td>`;
             body.appendChild(tr);
             i++;
         });
@@ -131,6 +132,26 @@ function initCountSheet(root) {
                     diffEl.textContent = d === null ? '—' : (d > 0 ? `+${d}` : `${d}`);
                     diffEl.className = d === null || d === 0 ? 'wh-muted' : (d > 0 ? 'wh-pos' : 'wh-neg');
                 }
+                // Valor de la diferencia a costo y totales de la hoja.
+                const valEl = root.querySelector(`[data-value-for="${input.dataset.line}"]`);
+                if (valEl) {
+                    const d = data.difference;
+                    const val = d === null ? 0 : d * parseFloat(input.dataset.cost || '0');
+                    const prev = parseFloat(valEl.dataset.value || '0');
+                    let neg = parseFloat(root.dataset.neg || '0');
+                    let pos = parseFloat(root.dataset.pos || '0');
+                    if (prev < 0) neg -= prev; else pos -= prev;
+                    if (val < 0) neg += val; else pos += val;
+                    root.dataset.neg = neg;
+                    root.dataset.pos = pos;
+                    valEl.dataset.value = val;
+                    valEl.textContent = val === 0 ? '—' : money(val);
+                    valEl.className = val === 0 ? 'wh-muted' : (val > 0 ? 'wh-pos' : 'wh-neg');
+                    const set = (sel, v) => { const el = root.querySelector(sel); if (el) el.textContent = money(v); };
+                    set('[data-total-neg]', neg);
+                    set('[data-total-pos]', pos);
+                    set('[data-total-net]', neg + pos);
+                }
                 if (bar) bar.style.width = `${data.total ? Math.round((data.counted / data.total) * 100) : 0}%`;
                 if (label) label.textContent = `${data.counted} de ${data.total} contados`;
             } catch (e) {
@@ -178,7 +199,28 @@ function initConfirms() {
     });
 }
 
+/* ── Reservas: liberar las seleccionadas en lote ── */
+function initReservations() {
+    const btn = document.querySelector('[data-release-selected]');
+    const form = document.getElementById('release-form');
+    if (!btn || !form) return;
+    btn.addEventListener('click', () => {
+        const ids = typeof window.erpSelectedIds === 'function' ? window.erpSelectedIds() : [];
+        if (!ids.length) return;
+        form.querySelectorAll('input[name="ids[]"]').forEach((i) => i.remove());
+        ids.forEach((id) => {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'ids[]';
+            input.value = id;
+            form.appendChild(input);
+        });
+        form.requestSubmit();
+    });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
+    initReservations();
     document.querySelector('[data-wh-transfer-form]') && initTransferForm(document.querySelector('[data-wh-transfer-form]'));
     document.querySelector('[data-wh-count-form]') && initCountForm(document.querySelector('[data-wh-count-form]'));
     document.querySelector('[data-wh-count-sheet]') && initCountSheet(document.querySelector('[data-wh-count-sheet]'));

@@ -7,24 +7,7 @@
         return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); };
     };
 
-    // ── Pestañas del show ────────────────────────────────────────────────
-    document.querySelectorAll('[data-prj-tabs]').forEach((nav) => {
-        const show = (key) => {
-            nav.querySelectorAll('[data-tab]').forEach((b) => b.classList.toggle('is-active', b.dataset.tab === key));
-            document.querySelectorAll('[data-panel]').forEach((p) => {
-                const on = p.dataset.panel === key;
-                p.hidden = !on;
-                p.classList.toggle('is-active', on);
-            });
-            try { history.replaceState(null, '', '#' + key); } catch (e) { /* noop */ }
-        };
-        nav.addEventListener('click', (e) => {
-            const b = e.target.closest('[data-tab]');
-            if (b) show(b.dataset.tab);
-        });
-        const initial = (location.hash || '').replace('#', '');
-        if (initial && nav.querySelector('[data-tab="' + initial + '"]')) show(initial);
-    });
+    // Las pestañas del show las maneja resources/js/admin/erp-ui.js ([data-erp-tabs]).
 
     // ── Autocompletado de cliente ────────────────────────────────────────
     document.querySelectorAll('[data-customer-picker]').forEach((box) => {

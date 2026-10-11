@@ -1,6 +1,6 @@
 @extends('admin.layouts.master')
 
-@section('title', ($isEdit ? 'Editar receta' : 'Nueva receta') . ' - Admin')
+@section('title', ($isEdit ? 'Editar lista de materiales' : 'Nueva lista de materiales') . ' - Admin')
 
 @push('styles')
     @vite(['resources/css/admin/pages/erp-core.css', 'resources/css/admin/pages/erp-boms.css'])
@@ -26,19 +26,18 @@
         ])->values();
     $action = $isEdit ? route('admin.boms.update', $bom) : route('admin.boms.store');
     $productId = old('product_id', $product?->id);
+    $backUrl = $isEdit ? route('admin.boms.show', $bom) : route('admin.boms.index');
 @endphp
 
 @section('content')
 <div class="erp-page bom-page">
-    <div class="erp-page-head">
-        <div>
-            <a href="{{ $isEdit ? route('admin.boms.show', $bom) : route('admin.boms.index') }}" class="erp-objhead-back">← Volver</a>
-            <h1 class="erp-title">{{ $isEdit ? 'Editar receta v' . $bom->version : 'Nueva receta' }}</h1>
-        </div>
-    </div>
+    <x-erp.page-header :title="$isEdit ? 'Editar lista de materiales v' . $bom->version : 'Nueva lista de materiales'" code="PLA3"
+        :crumbs="[['Planeación', null], ['Listas de materiales', route('admin.boms.index')], [$isEdit ? 'Editar v' . $bom->version : 'Nueva', null]]">
+        <a href="{{ $backUrl }}" class="erp-btn">← Volver</a>
+    </x-erp.page-header>
 
     @if ($errors->any())
-        <div class="bom-alert">
+        <div class="bom-alert" role="alert">
             <ul>@foreach ($errors->all() as $e)<li>{{ $e }}</li>@endforeach</ul>
         </div>
     @endif
@@ -49,55 +48,54 @@
         @csrf
         @if ($isEdit) @method('PUT') @endif
 
-        <div class="bom-card bom-pad">
-            <div class="bom-grid">
-                <div class="bom-field bom-field-wide">
-                    <label>Producto fabricado</label>
+        <x-erp.card title="Datos generales">
+            <div class="erp-form-grid">
+                <div class="erp-field bom-field-wide">
+                    <label for="bom-product">Producto fabricado</label>
                     @if ($isEdit)
                         <div class="bom-static">{{ $product->name }} <span class="bom-muted">{{ $product->sku }}</span></div>
                     @else
                         <div class="bom-picker" data-product-picker>
                             <input type="hidden" name="product_id" value="{{ $productId }}" data-picker-id>
-                            <input type="text" class="bom-input" autocomplete="off" placeholder="Busca por nombre o SKU…"
+                            <input type="text" id="bom-product" class="erp-input" autocomplete="off" placeholder="Busca por nombre o SKU…"
                                    value="{{ $product ? $product->name . ($product->sku ? ' (' . $product->sku . ')' : '') : '' }}" data-picker-input>
                             <div class="bom-picker-list" hidden></div>
                         </div>
                     @endif
                 </div>
-                <div class="bom-field">
-                    <label>Nombre de la versión (opcional)</label>
-                    <input type="text" name="name" class="bom-input" maxlength="255" value="{{ old('name', $bom->name) }}" placeholder="Ej. Con quemador importado">
+                <div class="erp-field">
+                    <label for="bom-name">Nombre de la versión (opcional)</label>
+                    <input type="text" id="bom-name" name="name" class="erp-input" maxlength="255" value="{{ old('name', $bom->name) }}" placeholder="Ej. Con quemador importado">
                 </div>
-                <div class="bom-field">
-                    <label>Cantidad que produce la receta</label>
-                    <input type="number" name="yield_quantity" class="bom-input" step="0.0001" min="0.0001" value="{{ old('yield_quantity', rtrim(rtrim(number_format((float) $bom->yield_quantity, 4, '.', ''), '0'), '.') ?: 1) }}">
+                <div class="erp-field">
+                    <label for="bom-yield">Cantidad que produce la receta</label>
+                    <input type="number" id="bom-yield" name="yield_quantity" class="erp-input" step="0.0001" min="0.0001" value="{{ old('yield_quantity', rtrim(rtrim(number_format((float) $bom->yield_quantity, 4, '.', ''), '0'), '.') ?: 1) }}">
                 </div>
-                <div class="bom-field bom-check">
-                    <label><input type="checkbox" name="is_active" value="1" @checked(old('is_active', $bom->is_active))> Marcar como receta vigente</label>
-                    <small class="bom-muted">Al activarla se desactivan las demás versiones del producto.</small>
+                <div class="erp-field bom-field-wide">
+                    <label class="bom-check"><input type="checkbox" name="is_active" value="1" @checked(old('is_active', $bom->is_active))> Marcar como receta vigente</label>
+                    <small>Al activarla se desactivan las demás versiones del producto.</small>
                 </div>
-                <div class="bom-field bom-field-wide">
-                    <label>Notas</label>
-                    <textarea name="notes" rows="2" class="bom-input" maxlength="5000">{{ old('notes', $bom->notes) }}</textarea>
+                <div class="erp-field bom-field-wide">
+                    <label for="bom-notes">Notas</label>
+                    <textarea id="bom-notes" name="notes" rows="2" class="erp-input" maxlength="5000">{{ old('notes', $bom->notes) }}</textarea>
                 </div>
             </div>
-        </div>
+        </x-erp.card>
 
-        <div class="bom-card bom-pad">
-            <div class="bom-section-head">
-                <h2>Componentes</h2>
-                <button type="button" class="bom-btn" data-add-line>+ Agregar componente</button>
-            </div>
+        <x-erp.card title="Componentes" sub="Los subensambles se explotan con su propia receta vigente.">
+            <x-slot:actions>
+                <button type="button" class="erp-btn erp-btn--sm" data-add-line>+ Agregar componente</button>
+            </x-slot:actions>
             <div class="bom-lines-head">
                 <span>Componente</span><span>Cantidad</span><span>Unidad</span><span>Merma %</span><span>Notas</span><span></span>
             </div>
             <div data-lines></div>
             <p class="bom-muted" data-lines-empty>Sin componentes. Usa «Agregar componente».</p>
-        </div>
+        </x-erp.card>
 
-        <div class="bom-actions">
-            <a href="{{ $isEdit ? route('admin.boms.show', $bom) : route('admin.boms.index') }}" class="bom-btn">Cancelar</a>
-            <button type="submit" class="bom-btn bom-btn-primary">{{ $isEdit ? 'Guardar cambios' : 'Crear receta' }}</button>
+        <div class="erp-form-actions" style="border-top: 0;">
+            <a href="{{ $backUrl }}" class="erp-btn">Cancelar</a>
+            <button type="submit" class="erp-btn erp-btn--primary">{{ $isEdit ? 'Guardar cambios' : 'Crear lista de materiales' }}</button>
         </div>
     </form>
 </div>

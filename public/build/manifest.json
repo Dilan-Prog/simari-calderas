@@ -101,42 +101,42 @@
     "isEntry": true
   },
   "resources/css/admin/pages/erp-boms.css": {
-    "file": "assets/erp-boms-CJJjah1A.css",
+    "file": "assets/erp-boms-BNbydHOQ.css",
     "src": "resources/css/admin/pages/erp-boms.css",
     "isEntry": true
   },
   "resources/css/admin/pages/erp-core.css": {
-    "file": "assets/erp-core-BqIRVYE7.css",
+    "file": "assets/erp-core-BMTvTYV3.css",
     "src": "resources/css/admin/pages/erp-core.css",
     "isEntry": true
   },
   "resources/css/admin/pages/erp-crm.css": {
-    "file": "assets/erp-crm-CgEFqxh_.css",
+    "file": "assets/erp-crm-CrbIpeNu.css",
     "src": "resources/css/admin/pages/erp-crm.css",
     "isEntry": true
   },
   "resources/css/admin/pages/erp-finance.css": {
-    "file": "assets/erp-finance-NWh8VA_k.css",
+    "file": "assets/erp-finance-CJWBNaS3.css",
     "src": "resources/css/admin/pages/erp-finance.css",
     "isEntry": true
   },
   "resources/css/admin/pages/erp-logistics.css": {
-    "file": "assets/erp-logistics-DEjx4xCz.css",
+    "file": "assets/erp-logistics-BnBEZbp6.css",
     "src": "resources/css/admin/pages/erp-logistics.css",
     "isEntry": true
   },
   "resources/css/admin/pages/erp-mrp.css": {
-    "file": "assets/erp-mrp-Bo5oiCXF.css",
+    "file": "assets/erp-mrp-DDbJeXvN.css",
     "src": "resources/css/admin/pages/erp-mrp.css",
     "isEntry": true
   },
   "resources/css/admin/pages/erp-production.css": {
-    "file": "assets/erp-production-CB-f2sM9.css",
+    "file": "assets/erp-production-CnOu0J4E.css",
     "src": "resources/css/admin/pages/erp-production.css",
     "isEntry": true
   },
   "resources/css/admin/pages/erp-projects.css": {
-    "file": "assets/erp-projects-Bx392TTB.css",
+    "file": "assets/erp-projects-CQTEygdc.css",
     "src": "resources/css/admin/pages/erp-projects.css",
     "isEntry": true
   },
@@ -146,7 +146,7 @@
     "isEntry": true
   },
   "resources/css/admin/pages/erp-warehouse.css": {
-    "file": "assets/erp-warehouse-B6FcpnlV.css",
+    "file": "assets/erp-warehouse-BEn_VgIJ.css",
     "src": "resources/css/admin/pages/erp-warehouse.css",
     "isEntry": true
   },
@@ -286,7 +286,7 @@
     "isEntry": true
   },
   "resources/css/frontend/shop/product-detail.css": {
-    "file": "assets/product-detail-D0EBH0aA.css",
+    "file": "assets/product-detail-BA-S3unv.css",
     "src": "resources/css/frontend/shop/product-detail.css",
     "isEntry": true
   },
@@ -363,7 +363,7 @@
     ]
   },
   "resources/js/admin/erp-boms.js": {
-    "file": "assets/erp-boms-rNmhTK0m.js",
+    "file": "assets/erp-boms-C3wIYhRZ.js",
     "name": "erp-boms",
     "src": "resources/js/admin/erp-boms.js",
     "isEntry": true
@@ -375,7 +375,7 @@
     "isEntry": true
   },
   "resources/js/admin/erp-finance.js": {
-    "file": "assets/erp-finance-CYxUuZBF.js",
+    "file": "assets/erp-finance-B6PR2B8s.js",
     "name": "erp-finance",
     "src": "resources/js/admin/erp-finance.js",
     "isEntry": true
@@ -387,7 +387,7 @@
     "isEntry": true
   },
   "resources/js/admin/erp-mrp.js": {
-    "file": "assets/erp-mrp-OolynpdQ.js",
+    "file": "assets/erp-mrp-DGhCyt9W.js",
     "name": "erp-mrp",
     "src": "resources/js/admin/erp-mrp.js",
     "isEntry": true
@@ -399,13 +399,13 @@
     "isEntry": true
   },
   "resources/js/admin/erp-production.js": {
-    "file": "assets/erp-production-Dm5IxkVa.js",
+    "file": "assets/erp-production-Dcjqcglb.js",
     "name": "erp-production",
     "src": "resources/js/admin/erp-production.js",
     "isEntry": true
   },
   "resources/js/admin/erp-projects.js": {
-    "file": "assets/erp-projects-CwEgGMow.js",
+    "file": "assets/erp-projects-DH6LozPA.js",
     "name": "erp-projects",
     "src": "resources/js/admin/erp-projects.js",
     "isEntry": true
@@ -417,7 +417,7 @@
     "isEntry": true
   },
   "resources/js/admin/erp-warehouse.js": {
-    "file": "assets/erp-warehouse-BU4gJsmB.js",
+    "file": "assets/erp-warehouse-BJeuaHr4.js",
     "name": "erp-warehouse",
     "src": "resources/js/admin/erp-warehouse.js",
     "isEntry": true

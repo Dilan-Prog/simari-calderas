@@ -12,133 +12,111 @@
     $v = fn ($f) => old($f, $shipment->{$f});
     $dateVal = fn ($f) => old($f, optional($shipment->{$f})->format('Y-m-d'));
 @endphp
-<div class="lg-page">
-    <div class="lg-head">
-        <div>
-            <a href="{{ route('admin.shipments.index') }}" class="erp-objhead-back">← Envíos</a>
-            <h1>{{ $mode === 'create' ? 'Nuevo envío B2B' : 'Editar envío ' . $shipment->guia }}</h1>
-            <p>Envío a cliente ligado a un pedido B2B o a una cotización.</p>
-        </div>
-    </div>
+<div class="erp-page">
+    <x-erp.page-header :title="$mode === 'create' ? 'Nuevo envío B2B' : 'Editar envío ' . $shipment->guia" code="LOG1"
+        desc="Envío a cliente ligado a un pedido B2B o a una cotización."
+        :crumbs="[['Logística', null], ['Envíos', route('admin.shipments.index')], [$mode === 'create' ? 'Nuevo envío B2B' : $shipment->guia, null]]" />
 
     @if ($errors->any())
-        <div class="lg-card" style="border-color:#fecaca;background:#fef2f2;">
-            <strong>Revisa los campos marcados.</strong>
-        </div>
+        <div class="lg-alert" role="alert">Revisa los campos marcados.</div>
     @endif
 
-    <form method="POST" action="{{ $action }}" class="lg-form">
+    <form method="POST" action="{{ $action }}">
         @csrf
         @if ($mode === 'edit') @method('PUT') @endif
 
         @if ($mode === 'create')
-            <div class="lg-card">
-                <h2>Documento de origen</h2>
-                <label for="lg-source">Pedido B2B o cotización</label>
-                <select id="lg-source" name="source" data-create-url="{{ route('admin.shipments.create') }}">
-                    <option value="">Selecciona…</option>
-                    <optgroup label="Pedidos B2B">
-                        @foreach (($orders ?? []) as $o)
-                            <option value="sales_order:{{ $o->id }}" @selected($shipment->shippable_type === 'sales_order' && (int) $shipment->shippable_id === $o->id)>{{ $o->order_number }}</option>
-                        @endforeach
-                    </optgroup>
-                    <optgroup label="Cotizaciones">
-                        @foreach (($quotes ?? []) as $q)
-                            <option value="quote:{{ $q->id }}" @selected($shipment->shippable_type === 'quote' && (int) $shipment->shippable_id === $q->id)>{{ $q->quote_number }}</option>
-                        @endforeach
-                    </optgroup>
-                </select>
+            <x-erp.card title="Documento de origen" sub="Al elegirlo se precargan cliente, destinatario y dirección.">
+                <label class="erp-field" style="max-width:420px;">Pedido B2B o cotización
+                    <select id="lg-source" name="source" class="erp-select" data-create-url="{{ route('admin.shipments.create') }}">
+                        <option value="">Selecciona…</option>
+                        <optgroup label="Pedidos B2B">
+                            @foreach (($orders ?? []) as $o)
+                                <option value="sales_order:{{ $o->id }}" @selected($shipment->shippable_type === 'sales_order' && (int) $shipment->shippable_id === $o->id)>{{ $o->order_number }}</option>
+                            @endforeach
+                        </optgroup>
+                        <optgroup label="Cotizaciones">
+                            @foreach (($quotes ?? []) as $q)
+                                <option value="quote:{{ $q->id }}" @selected($shipment->shippable_type === 'quote' && (int) $shipment->shippable_id === $q->id)>{{ $q->quote_number }}</option>
+                            @endforeach
+                        </optgroup>
+                    </select>
+                </label>
                 @error('shippable_type') <div class="lg-err">Selecciona el pedido o cotización de origen.</div> @enderror
                 @error('shippable_id') <div class="lg-err">Selecciona el pedido o cotización de origen.</div> @enderror
                 <input type="hidden" name="shippable_type" value="{{ $v('shippable_type') }}">
                 <input type="hidden" name="shippable_id" value="{{ $v('shippable_id') }}">
                 <input type="hidden" name="customer_id" value="{{ $v('customer_id') }}">
                 <input type="hidden" name="quote_id" value="{{ $v('quote_id') }}">
-            </div>
+            </x-erp.card>
         @endif
 
-        <div class="lg-card">
-            <h2>Guía y paquetería</h2>
-            <div class="lg-form-grid">
-                <div>
-                    <label>Guía *</label>
-                    <input type="text" name="guia" value="{{ $v('guia') }}" maxlength="80" required>
-                    @error('guia') <div class="lg-err">{{ $message }}</div> @enderror
-                </div>
-                <div>
-                    <label>Paquetería</label>
-                    <select name="carrier_id">
+        <x-erp.card title="Guía y paquetería">
+            <div class="erp-form-grid">
+                <label class="erp-field">Guía *
+                    <input type="text" name="guia" class="erp-input" value="{{ $v('guia') }}" maxlength="80" required>
+                    @error('guia') <span class="lg-err">{{ $message }}</span> @enderror
+                </label>
+                <label class="erp-field">Paquetería
+                    <select name="carrier_id" class="erp-select">
                         <option value="">Sin paquetería (entrega propia)</option>
                         @foreach ($carriers as $c)
                             <option value="{{ $c->id }}" @selected((string) $v('carrier_id') === (string) $c->id)>{{ $c->name }}</option>
                         @endforeach
                     </select>
-                </div>
-                <div>
-                    <label>Número de pedido / referencia</label>
-                    <input type="text" name="order_number_ref" value="{{ $v('order_number_ref') }}" maxlength="60">
-                </div>
-                <div>
-                    <label>Fecha de envío *</label>
-                    <input type="date" name="fecha_envio" value="{{ $dateVal('fecha_envio') }}" required>
-                    @error('fecha_envio') <div class="lg-err">{{ $message }}</div> @enderror
-                </div>
-                <div>
-                    <label>Entrega estimada</label>
-                    <input type="date" name="eta" value="{{ $dateVal('eta') }}">
-                    @error('eta') <div class="lg-err">{{ $message }}</div> @enderror
-                </div>
-                <div>
-                    <label>Bultos *</label>
-                    <input type="number" name="bultos" min="1" value="{{ old('bultos', $shipment->bultos ?? 1) }}" required>
-                </div>
-                <div>
-                    <label>Peso (kg)</label>
-                    <input type="number" step="0.01" min="0" name="peso" value="{{ $v('peso') }}">
-                </div>
-                <div>
-                    <label>Costo</label>
-                    <input type="number" step="0.01" min="0" name="costo" value="{{ $v('costo') }}">
-                </div>
+                </label>
+                <label class="erp-field">Número de pedido / referencia
+                    <input type="text" name="order_number_ref" class="erp-input" value="{{ $v('order_number_ref') }}" maxlength="60">
+                </label>
+                <label class="erp-field">Fecha de envío *
+                    <input type="date" name="fecha_envio" class="erp-input" value="{{ $dateVal('fecha_envio') }}" required>
+                    @error('fecha_envio') <span class="lg-err">{{ $message }}</span> @enderror
+                </label>
+                <label class="erp-field">Entrega estimada
+                    <input type="date" name="eta" class="erp-input" value="{{ $dateVal('eta') }}">
+                    @error('eta') <span class="lg-err">{{ $message }}</span> @enderror
+                </label>
+                <label class="erp-field">Bultos *
+                    <input type="number" name="bultos" class="erp-input" min="1" value="{{ old('bultos', $shipment->bultos ?? 1) }}" required>
+                </label>
+                <label class="erp-field">Peso (kg)
+                    <input type="number" step="0.01" min="0" name="peso" class="erp-input" value="{{ $v('peso') }}">
+                </label>
+                <label class="erp-field">Costo
+                    <input type="number" step="0.01" min="0" name="costo" class="erp-input" value="{{ $v('costo') }}">
+                </label>
             </div>
-        </div>
+        </x-erp.card>
 
-        <div class="lg-card">
-            <h2>Destinatario</h2>
-            <div class="lg-form-grid">
-                <div>
-                    <label>Persona que recibe *</label>
-                    <input type="text" name="recipient_name" value="{{ $v('recipient_name') }}" maxlength="160" required>
-                    @error('recipient_name') <div class="lg-err">{{ $message }}</div> @enderror
-                </div>
-                <div>
-                    <label>Empresa que recibe</label>
-                    <input type="text" name="recipient_company" value="{{ $v('recipient_company') }}" maxlength="160">
-                </div>
-                <div>
-                    <label>Teléfono</label>
-                    <input type="text" name="recipient_phone" value="{{ $v('recipient_phone') }}" maxlength="40">
-                </div>
-                <div>
-                    <label>Correo</label>
-                    <input type="email" name="recipient_email" value="{{ $v('recipient_email') }}" maxlength="160">
-                    @error('recipient_email') <div class="lg-err">{{ $message }}</div> @enderror
-                </div>
-                <div class="span-2">
-                    <label>Dirección de salida</label>
-                    <textarea name="origin_address" rows="2">{{ $v('origin_address') }}</textarea>
-                </div>
-                <div class="span-2">
-                    <label>Dirección de entrega *</label>
-                    <textarea name="delivery_address" rows="2" required>{{ $v('delivery_address') }}</textarea>
-                    @error('delivery_address') <div class="lg-err">{{ $message }}</div> @enderror
-                </div>
+        <x-erp.card title="Destinatario">
+            <div class="erp-form-grid">
+                <label class="erp-field">Persona que recibe *
+                    <input type="text" name="recipient_name" class="erp-input" value="{{ $v('recipient_name') }}" maxlength="160" required>
+                    @error('recipient_name') <span class="lg-err">{{ $message }}</span> @enderror
+                </label>
+                <label class="erp-field">Empresa que recibe
+                    <input type="text" name="recipient_company" class="erp-input" value="{{ $v('recipient_company') }}" maxlength="160">
+                </label>
+                <label class="erp-field">Teléfono
+                    <input type="text" name="recipient_phone" class="erp-input" value="{{ $v('recipient_phone') }}" maxlength="40">
+                </label>
+                <label class="erp-field">Correo
+                    <input type="email" name="recipient_email" class="erp-input" value="{{ $v('recipient_email') }}" maxlength="160">
+                    @error('recipient_email') <span class="lg-err">{{ $message }}</span> @enderror
+                </label>
+                <label class="erp-field lg-span-2">Dirección de salida
+                    <textarea name="origin_address" rows="2" class="erp-input">{{ $v('origin_address') }}</textarea>
+                </label>
+                <label class="erp-field lg-span-2">Dirección de entrega *
+                    <textarea name="delivery_address" rows="2" class="erp-input" required>{{ $v('delivery_address') }}</textarea>
+                    @error('delivery_address') <span class="lg-err">{{ $message }}</span> @enderror
+                </label>
             </div>
-        </div>
+        </x-erp.card>
 
-        <div class="lg-actions">
-            <button type="submit" class="lg-btn lg-btn-primary">{{ $mode === 'create' ? 'Registrar envío' : 'Guardar cambios' }}</button>
-            <a href="{{ $mode === 'create' ? route('admin.shipments.index') : route('admin.shipments.show', $shipment) }}" class="lg-btn">Cancelar</a>
+        <div class="erp-form-actions">
+            <a href="{{ $mode === 'create' ? route('admin.shipments.index') : route('admin.shipments.show', $shipment) }}" class="erp-btn">Cancelar</a>
+            <button type="submit" class="erp-btn erp-btn--primary">{{ $mode === 'create' ? 'Registrar envío' : 'Guardar cambios' }}</button>
         </div>
     </form>
 </div>

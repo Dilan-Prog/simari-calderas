@@ -261,5 +261,32 @@ class WarehouseExpansionTest extends TestCase
         $this->post(route('admin.stock-counts.close', $count), ['apply' => 1])->assertSessionHas('success');
         $this->assertSame(5, $this->bal($this->a, $this->p1));
         $this->get(route('admin.stock-counts.export', $count))->assertOk();
+        // Pantallas de documentos ya recibidos / cerrados (rutas de render distintas al borrador).
+        $this->get(route('admin.warehouse-transfers.show', $t))->assertOk()->assertSee('Recibido');
+        $this->get(route('admin.stock-counts.show', $count))->assertOk()->assertSee('Reporte de diferencias');
+    }
+    public function test_reservas_por_proyecto_lista_agrupa_y_libera(): void
+    {
+        $this->withoutVite();
+        $project = \App\Models\Project::forceCreate(['project_number' => 'PRY-TEST-1', 'name' => 'Caldera Hotel']);
+        $r1 = \App\Models\StockReservation::create([
+            'product_id' => $this->p1->id, 'warehouse_id' => $this->a->id, 'quantity' => 3, 'project_id' => $project->id, 'status' => 'activa',
+        ]);
+        $r2 = \App\Models\StockReservation::create([
+            'product_id' => $this->p2->id, 'warehouse_id' => $this->a->id, 'quantity' => 1, 'project_id' => $project->id, 'status' => 'activa',
+        ]);
+        \App\Models\StockReservation::create(['product_id' => $this->p2->id, 'quantity' => 9, 'project_id' => $project->id, 'status' => 'liberada']);
+
+        $this->get(route('admin.stock-reservations.index'))->assertOk()
+            ->assertSee('Reservas por proyecto')->assertSee('PRY-TEST-1')->assertSee('Bomba')->assertSee('Válvula')->assertSee('2 reservas activas', false)
+            ->assertDontSee('9 uds');
+
+        $this->get(route('admin.stock-reservations.index', ['project_id' => $project->id, 'search' => 'Bomba']))->assertOk()
+            ->assertSee('Bomba')->assertDontSee('Válvula');
+
+        $this->post(route('admin.stock-reservations.release'), ['ids' => [$r1->id]])->assertSessionHas('success');
+        $this->assertSame('liberada', $r1->fresh()->status);
+        $this->assertSame('activa', $r2->fresh()->status);
+        $this->post(route('admin.stock-reservations.release'), [])->assertSessionHasErrors('ids');
     }
 }

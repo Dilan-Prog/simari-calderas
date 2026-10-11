@@ -3,135 +3,169 @@
     @vite(['resources/css/admin/pages/erp-core.css', 'resources/css/admin/pages/erp-projects.css'])
 @endpush
 @section('title')
-    Proyectos - Admin
+    {{ $view === 'board' ? 'Tablero de proyectos' : 'Proyectos' }} - Admin
 @endsection
 @section('content')
 @php
-    $statuses = \App\Models\Project::STATUSES;
+    use App\Models\Project;
+    $statuses = Project::STATUSES;
+    $q = request()->query();
+    $url = fn (array $extra = [], array $except = []) => route('admin.projects.index', array_filter(
+        array_merge(collect($q)->except(array_merge($except, ['page']))->all(), $extra), fn ($v) => $v !== null && $v !== ''));
+
+    // Chips de filtros activos (cada uno quita su filtro).
     $chips = [];
-    if (request('search')) $chips[] = ['label' => 'Búsqueda: ' . request('search'), 'remove' => 'search'];
-    if (request('status') && isset($statuses[request('status')])) $chips[] = ['label' => 'Estado: ' . $statuses[request('status')], 'remove' => 'status'];
-    if ($filterCustomer) $chips[] = ['label' => 'Cliente: ' . trim($filterCustomer->first_name . ' ' . $filterCustomer->last_name), 'remove' => 'customer_id'];
-    if (request('manager_id')) { $m = $managers->firstWhere('id', (int) request('manager_id')); $chips[] = ['label' => 'Responsable: ' . ($m ? $m->first_name . ' ' . $m->last_name : '—'), 'remove' => 'manager_id']; }
-    if (request('due') === 'vencido') $chips[] = ['label' => 'Fecha límite vencida', 'remove' => 'due'];
-    $without = fn ($key) => route('admin.projects.index', collect(request()->query())->except([$key, 'page'])->all());
-    $dueLabel = function ($p) {
+    if (request('search')) $chips[] = ['label' => 'Búsqueda: ' . request('search'), 'url' => $url([], ['search'])];
+    if (request('status') && isset($statuses[request('status')])) $chips[] = ['label' => 'Estado: ' . $statuses[request('status')], 'url' => $url([], ['status'])];
+    if ($filterCustomer) $chips[] = ['label' => 'Cliente: ' . trim($filterCustomer->first_name . ' ' . $filterCustomer->last_name), 'url' => $url([], ['customer_id'])];
+    if (request('manager_id')) {
+        $m = $managers->firstWhere('id', (int) request('manager_id'));
+        $chips[] = ['label' => 'Responsable: ' . ($m ? $m->first_name . ' ' . $m->last_name : '—'), 'url' => $url([], ['manager_id'])];
+    }
+    if (request('due') === 'vencido') $chips[] = ['label' => 'Fecha límite vencida', 'url' => $url([], ['due'])];
+
+    // Vistas guardadas (píldoras).
+    $mine = (string) auth()->id();
+    $hasFilter = request()->hasAny(['status', 'manager_id', 'due']);
+    $views = [
+        ['label' => 'Todos', 'url' => $url([], ['status', 'manager_id', 'due']), 'active' => !$hasFilter],
+        ['label' => 'En ejecución', 'url' => $url(['status' => 'en_ejecucion'], ['manager_id', 'due']),
+            'active' => request('status') === 'en_ejecucion' && !request('manager_id') && !request('due')],
+        ['label' => 'Mis proyectos', 'url' => $url(['manager_id' => $mine], ['status', 'due']),
+            'active' => request('manager_id') === $mine && !request('status') && !request('due')],
+        ['label' => 'Pausados', 'url' => $url(['status' => 'pausado'], ['manager_id', 'due']),
+            'active' => request('status') === 'pausado' && !request('manager_id') && !request('due')],
+        ['label' => 'Vencidos', 'url' => $url(['due' => 'vencido'], ['status', 'manager_id']),
+            'active' => request('due') === 'vencido' && !request('status') && !request('manager_id')],
+    ];
+
+    $dueHint = function ($p) {
         $d = $p->daysToDue();
         if ($d === null || $p->status === 'cerrado') return null;
         return $d < 0 ? 'Vencido hace ' . abs($d) . ' d' : ($d === 0 ? 'Vence hoy' : 'Faltan ' . $d . ' d');
     };
+    $fmtUser = fn ($u) => $u ? trim($u->first_name . ' ' . $u->last_name) : '—';
+    $isBoard = $view === 'board';
 @endphp
-<div class="container user-manager">
-<section class="clients-manager-section prj-page">
+<div class="erp-page prj-page">
 
-    <div class="erp-page-head">
-        <div>
-            <p class="breadcrumb-clients-manager" style="margin-bottom:4px;">Panel de Control &gt; <strong>Proyectos</strong></p>
-            <h1 class="erp-title">Proyectos</h1>
-            <p class="erp-subtitle">Planeación, fases y documentos asociados</p>
+    <x-erp.page-header
+        :title="$isBoard ? 'Tablero de proyectos' : 'Proyectos'"
+        :code="$isBoard ? 'PRJ1' : 'PRJ2'"
+        :desc="$isBoard ? 'Estado de cada proyecto con semáforo de fecha límite.' : 'Levantamiento, fases, responsables y avance de proyectos de instalación y servicio.'"
+        :crumbs="[['Planeación', null], [$isBoard ? 'Tablero de proyectos' : 'Proyectos', null]]">
+        <div class="prj-viewtoggle" role="group" aria-label="Vista">
+            <a href="{{ $url(['view' => 'board']) }}" class="{{ $isBoard ? 'is-active' : '' }}">Tarjetas</a>
+            <a href="{{ $url(['view' => 'list']) }}" class="{{ !$isBoard ? 'is-active' : '' }}">Lista</a>
         </div>
-        <div class="prj-head-actions">
-            <div class="prj-viewtoggle" role="group" aria-label="Vista">
-                <a href="{{ route('admin.projects.index', array_merge(request()->query(), ['view' => 'list'])) }}" class="{{ $view === 'list' ? 'is-active' : '' }}">Lista</a>
-                <a href="{{ route('admin.projects.index', array_merge(request()->query(), ['view' => 'board'])) }}" class="{{ $view === 'board' ? 'is-active' : '' }}">Tablero</a>
-            </div>
-            @if (auth()->user()->hasPermission('projects', 'create'))
-                <a href="{{ route('admin.projects.create') }}" class="prj-btn prj-btn-primary">+ Nuevo proyecto</a>
-            @endif
-        </div>
+        @if (auth()->user()->hasPermission('projects', 'create'))
+            <a href="{{ route('admin.projects.create') }}" class="erp-btn erp-btn--primary">+ Nuevo proyecto</a>
+        @endif
+    </x-erp.page-header>
+
+    <div class="prj-kpis">
+        <a class="prj-kpi" href="{{ $url(['status' => 'en_ejecucion'], ['due', 'manager_id']) }}"><i class="erp-dot erp-dot--info"></i><b>{{ $stats['active'] }}</b><span>Activos</span></a>
+        <a class="prj-kpi" href="{{ $url(['due' => 'vencido'], ['status', 'manager_id']) }}"><i class="erp-dot erp-dot--bad"></i><b>{{ $stats['overdue'] }}</b><span>Con fecha vencida</span></a>
+        <div class="prj-kpi"><i class="erp-dot erp-dot--warn"></i><b>{{ $stats['soon'] }}</b><span>Por vencer (≤ 3 sem.)</span></div>
+        <a class="prj-kpi" href="{{ $url(['status' => 'cerrado'], ['due', 'manager_id']) }}"><i class="erp-dot erp-dot--ok"></i><b>{{ $stats['closed'] }}</b><span>Cerrados</span></a>
+        <div class="prj-kpi prj-kpi--plain"><b>{{ $stats['total'] }}</b><span>Proyectos en total ({{ $stats['running'] }} en ejecución)</span></div>
     </div>
 
-    <div class="prj-stats">
-        <div class="prj-stat"><strong>{{ $stats['total'] }}</strong><span>Proyectos</span></div>
-        <div class="prj-stat"><strong>{{ $stats['running'] }}</strong><span>En ejecución</span></div>
-        <a class="prj-stat {{ $stats['overdue'] ? 'is-bad' : '' }}" href="{{ route('admin.projects.index', ['due' => 'vencido']) }}"><strong>{{ $stats['overdue'] }}</strong><span>Con fecha vencida</span></a>
-        <div class="prj-stat"><strong>{{ $stats['closed'] }}</strong><span>Cerrados</span></div>
-    </div>
-
-    <form method="GET" class="prj-filters">
-        <input type="hidden" name="view" value="{{ $view }}">
-        @if (request('customer_id')) <input type="hidden" name="customer_id" value="{{ request('customer_id') }}"> @endif
-        <input type="text" name="search" class="users-manager-input" placeholder="Buscar por folio, nombre o cliente..." value="{{ request('search') }}">
-        <select name="status" class="users-manager-input" onchange="this.form.submit()">
-            <option value="">Todos los estados</option>
-            @foreach ($statuses as $k => $label)
-                <option value="{{ $k }}" @selected(request('status') === $k)>{{ $label }}</option>
-            @endforeach
-        </select>
-        <select name="manager_id" class="users-manager-input" onchange="this.form.submit()">
-            <option value="">Todos los responsables</option>
-            @foreach ($managers as $m)
-                <option value="{{ $m->id }}" @selected((int) request('manager_id') === $m->id)>{{ $m->first_name }} {{ $m->last_name }}</option>
-            @endforeach
-        </select>
-        <button type="submit" class="prj-btn">Filtrar</button>
-    </form>
-
-    @if (count($chips))
-        <div class="prj-chips">
-            @foreach ($chips as $c)
-                <a href="{{ $without($c['remove']) }}" class="prj-chip">{{ $c['label'] }} <span aria-hidden="true">×</span></a>
-            @endforeach
-            <a href="{{ route('admin.projects.index', ['view' => $view]) }}" class="prj-chip-clear">Limpiar todo</a>
-        </div>
-    @endif
-
-    @if ($view === 'board')
-        <div class="prj-board">
-            @foreach ($statuses as $key => $label)
-                <div class="prj-col">
-                    <div class="prj-col-head"><span>{{ $label }}</span><em>{{ $columns[$key]->count() }}</em></div>
-                    @forelse ($columns[$key] as $p)
-                        <a href="{{ route('admin.projects.show', $p) }}" class="prj-card">
-                            <span class="prj-card-num">{{ $p->project_number }}</span>
-                            <strong>{{ $p->name }}</strong>
-                            <span class="prj-card-sub">{{ $p->display_customer }}</span>
-                            @if ($p->due_date)
-                                <span class="prj-due prj-due-{{ $p->dueTone() }}"><i></i>{{ $p->due_date->format('d/m/Y') }}@if ($dueLabel($p)) · {{ $dueLabel($p) }}@endif</span>
-                            @endif
-                        </a>
-                    @empty
-                        <p class="prj-col-empty">Sin proyectos</p>
-                    @endforelse
+    <x-erp.worklist :views="$views" :chips="$chips">
+        <x-slot:toolbar>
+            <form method="GET" class="prj-toolbar-form">
+                <input type="hidden" name="view" value="{{ $view }}">
+                @if (request('customer_id')) <input type="hidden" name="customer_id" value="{{ request('customer_id') }}"> @endif
+                <div class="erp-search">
+                    <input type="search" name="search" placeholder="Buscar por folio, nombre o cliente…" value="{{ request('search') }}" aria-label="Buscar proyectos">
                 </div>
-            @endforeach
-        </div>
-    @else
-        <main class="table-container-clients-manager">
-            <div class="table-scroll">
-                <table class="clients-manager-table prj-table">
+                <select name="status" class="erp-select" onchange="this.form.submit()" aria-label="Estado">
+                    <option value="">Todos los estados</option>
+                    @foreach ($statuses as $k => $label)
+                        <option value="{{ $k }}" @selected(request('status') === $k)>{{ $label }}</option>
+                    @endforeach
+                </select>
+                <select name="manager_id" class="erp-select" onchange="this.form.submit()" aria-label="Responsable">
+                    <option value="">Todos los responsables</option>
+                    @foreach ($managers as $m)
+                        <option value="{{ $m->id }}" @selected((int) request('manager_id') === $m->id)>{{ $m->first_name }} {{ $m->last_name }}</option>
+                    @endforeach
+                </select>
+                <button type="submit" class="erp-btn">Filtrar</button>
+            </form>
+        </x-slot:toolbar>
+
+        @unless ($isBoard)
+            <div class="erp-table-wrap">
+                <table class="erp-table prj-table">
                     <thead>
                         <tr>
-                            <th>FOLIO</th><th>PROYECTO</th><th>CLIENTE</th><th>RESPONSABLE</th>
-                            <th>ESTADO</th><th>FECHA LÍMITE</th><th>FASES</th><th>ACCIONES</th>
+                            <th>Folio</th><th>Proyecto / cliente</th><th>Persona a cargo</th><th>Fase actual</th>
+                            <th>Avance</th><th>Fecha límite</th><th>Estado</th><th class="is-num">Monto (MXN)</th>
                         </tr>
                     </thead>
                     <tbody>
                     @forelse ($projects as $p)
                         <tr>
-                            <td><a href="{{ route('admin.projects.show', $p) }}"><strong>{{ $p->project_number }}</strong></a></td>
-                            <td>{{ $p->name }}</td>
-                            <td>{{ $p->display_customer }}</td>
-                            <td>{{ $p->manager ? $p->manager->first_name . ' ' . $p->manager->last_name : '—' }}</td>
-                            <td><span class="erp-chip erp-tone-{{ \App\Models\Project::statusTone($p->status) }}">{{ \App\Models\Project::statusLabel($p->status) }}</span></td>
+                            <td class="erp-cell-folio"><a href="{{ route('admin.projects.show', $p) }}">{{ $p->project_number }}</a></td>
+                            <td>
+                                <div class="erp-cell-main"><a href="{{ route('admin.projects.show', $p) }}" class="prj-plain-link">{{ $p->name }}</a></div>
+                                <div class="erp-cell-sub">{{ $p->display_customer }}</div>
+                            </td>
+                            <td>{{ $fmtUser($p->manager) }}</td>
+                            <td>{{ $p->currentPhaseLabel() ?? '—' }}</td>
+                            <td><x-erp.progress :value="$progress[$p->id] ?? 0" /></td>
                             <td>
                                 @if ($p->due_date)
-                                    <span class="prj-due prj-due-{{ $p->dueTone() }}"><i></i>{{ $p->due_date->format('d/m/Y') }}</span>
-                                    @if ($dueLabel($p)) <small class="prj-muted">{{ $dueLabel($p) }}</small> @endif
+                                    <x-erp.due :date="$p->due_date" :closed="$p->status === 'cerrado'" />
+                                    @if ($dueHint($p))<div class="erp-cell-sub">{{ $dueHint($p) }}</div>@endif
                                 @else — @endif
                             </td>
-                            <td>{{ $p->phases_count }}</td>
-                            <td><a href="{{ route('admin.projects.show', $p) }}" class="prj-link">Ver</a></td>
+                            <td><x-erp.status :value="$p->status" :label="Project::statusLabel($p->status)" /></td>
+                            <td class="is-num">{{ ($amt = $p->quotesTotalMxn()) > 0 ? '$' . number_format($amt, 2) : '—' }}</td>
                         </tr>
                     @empty
-                        <tr><td colspan="8" class="prj-empty">No hay proyectos que coincidan.</td></tr>
+                        <tr><td colspan="8"><x-erp.empty title="No hay proyectos que coincidan" text="Ajusta los filtros o crea un proyecto nuevo." /></td></tr>
                     @endforelse
                     </tbody>
                 </table>
             </div>
-        </main>
-        <div style="margin-top:16px;">{{ $projects->links() }}</div>
+            <x-slot:footer>
+                <span>{{ $projects->total() }} {{ $projects->total() === 1 ? 'proyecto' : 'proyectos' }}</span>
+                @if ($projects->hasPages())<div>{{ $projects->links() }}</div>@endif
+            </x-slot:footer>
+        @endunless
+    </x-erp.worklist>
+
+    @if ($isBoard)
+        <div class="erp-board prj-board" aria-label="Tablero de proyectos por estado">
+            @foreach ($statuses as $key => $label)
+                @php $tone = \App\Support\ErpUi::tone($key); @endphp
+                <section class="erp-col">
+                    <div class="erp-col-head">
+                        <span class="prj-col-title"><i class="erp-dot erp-dot--{{ $tone }}"></i>{{ $label }}</span>
+                        <span class="erp-col-count">{{ $columns[$key]->count() }}</span>
+                    </div>
+                    @forelse ($columns[$key] as $p)
+                        @php $pct = $progress[$p->id] ?? 0; $tag = $p->dueTone() === 'bad' ? 'Vencido' : ($p->dueTone() === 'warn' ? 'Por vencer' : 'En tiempo'); @endphp
+                        <a href="{{ route('admin.projects.show', $p) }}" class="erp-kcard">
+                            <div class="erp-kcard-top"><span>{{ $p->project_number }}</span><span>{{ $p->currentPhaseLabel() }}</span></div>
+                            <div class="erp-kcard-title">{{ $p->name }}</div>
+                            <div class="erp-cell-sub">{{ $p->display_customer }}</div>
+                            <x-erp.progress :value="$pct" class="prj-kcard-progress" />
+                            <div class="erp-kcard-foot">
+                                <span class="prj-kcard-resp">{{ $fmtUser($p->manager) }}</span>
+                                @if ($p->due_date)
+                                    <x-erp.due :date="$p->due_date" :closed="$p->status === 'cerrado'" :title="$p->status === 'cerrado' ? 'Cerrado' : $tag" />
+                                @endif
+                            </div>
+                        </a>
+                    @empty
+                        <p class="prj-col-empty">Sin proyectos</p>
+                    @endforelse
+                </section>
+            @endforeach
+        </div>
     @endif
-</section>
 </div>
 @endsection

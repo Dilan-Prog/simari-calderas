@@ -25,11 +25,11 @@
         <div class="prd-prj-bars">
             <div>
                 <div class="prd-prj-bar-label"><span>Producción ({{ $__prd->count() }} orden(es){{ $__late ? ' · ' . $__late . ' vencida(s)' : '' }})</span><strong>{{ $__prodPct !== null ? $__prodPct . '%' : '—' }}</strong></div>
-                <div class="prd-bar prd-bar-lg"><span style="width: {{ $__prodPct ?? 0 }}%"></span></div>
+                <x-erp.progress :value="$__prodPct ?? 0" />
             </div>
             <div>
                 <div class="prd-prj-bar-label"><span>Servicios ({{ $__svc->where('status', 'completed')->count() }} de {{ $__svc->count() }} completados)</span><strong>{{ $__svcPct !== null ? $__svcPct . '%' : '—' }}</strong></div>
-                <div class="prd-bar prd-bar-lg"><span style="width: {{ $__svcPct ?? 0 }}%"></span></div>
+                <x-erp.progress :value="$__svcPct ?? 0" />
             </div>
         </div>
         @if ($__canView && $__prd->isNotEmpty())
@@ -38,7 +38,7 @@
                     <div class="prd-box-row">
                         <a href="{{ route('admin.production-orders.show', $p) }}" class="prd-link">{{ $p->number }}</a>
                         <span>{{ $p->product->name ?? '' }}</span>
-                        <span class="erp-chip erp-tone-{{ \App\Models\ProductionOrder::statusTone($p->status) }}">{{ \App\Models\ProductionOrder::statusLabel($p->status) }}</span>
+                        <x-erp.chip :tone="\App\Support\ErpUi::tone($p->status)" :label="\App\Models\ProductionOrder::statusLabel($p->status)" />
                         <span class="prd-muted">{{ $p->progress }}%@if ($p->due_date) · {{ $p->due_date->format('d/m/Y') }}@endif</span>
                     </div>
                 @endforeach

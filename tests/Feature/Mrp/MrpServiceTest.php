@@ -340,6 +340,24 @@ class MrpServiceTest extends TestCase
         $this->assertContains($project->project_number, array_column(DocumentFlow::flow($req), 'number'));
     }
 
+    public function test_lote_del_listado_genera_oc_de_faltantes_con_proveedor(): void
+    {
+        $this->withoutVite();
+        $admin = $this->admin();
+        $f = $this->calderaFixture();
+        $prov = $this->supplier('Aceros SA');
+        $this->link($prov, $f['acero'], 12, true);
+        $order = $this->order([[$f['caldera'], 2]]);
+        $this->actingAs($admin)->post(route('admin.mrp.from-sales-order', $order))->assertRedirect();
+        $req = MaterialRequirement::firstOrFail();
+
+        $this->post(route('admin.mrp.generate-purchase-orders-batch'), [])->assertSessionHasErrors('ids');
+        $this->post(route('admin.mrp.generate-purchase-orders-batch'), ['ids' => [$req->id]])
+            ->assertRedirect(route('admin.mrp.index'))->assertSessionHas('success');
+        $this->assertSame(1, PurchaseOrder::count());
+        $this->get(route('admin.mrp.index'))->assertOk()->assertSee('Generar órdenes de compra');
+    }
+
     public function test_pantallas_y_atajo_desde_pedido(): void
     {
         $this->withoutVite();

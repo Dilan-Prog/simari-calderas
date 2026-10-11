@@ -21,6 +21,7 @@ class StockCountController extends Controller
     {
         $query = StockCount::with('warehouse')->withCount([
             'lines', 'lines as counted_lines_count' => fn ($q) => $q->whereNotNull('counted_quantity'),
+            'lines as diff_lines_count' => fn ($q) => $q->whereNotNull('counted_quantity')->whereColumn('counted_quantity', '!=', 'system_quantity'),
         ]);
 
         if ($s = trim((string) $request->input('search'))) {

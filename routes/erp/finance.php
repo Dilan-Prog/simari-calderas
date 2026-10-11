@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Backend\Finance\FinanceDashboardController;
 use App\Http\Controllers\Backend\Finance\PayableController;
 use App\Http\Controllers\Backend\Finance\PaymentController;
 use App\Http\Controllers\Backend\Finance\ReceivableController;
@@ -7,6 +8,9 @@ use Illuminate\Support\Facades\Route;
 
 // Finanzas (gestión interna). Heredan prefijo admin y nombres admin.*
 // Las rutas estáticas van antes de /{id} para que no se interpreten como comodín.
+
+// ── Panel de finanzas (FIN1) ────────────────────────────────
+Route::get('finanzas', FinanceDashboardController::class)->name('finance.dashboard');
 
 // ── Cuentas por cobrar ──────────────────────────────────────
 Route::controller(ReceivableController::class)
@@ -57,6 +61,7 @@ Route::controller(PaymentController::class)
         Route::get('/', 'index')->name('index');
         Route::get('/exportar', 'export')->name('export');
         Route::get('/documentos-abiertos', 'openDocuments')->name('open-documents');
+        Route::get('/conciliacion', 'reconciliation')->name('reconciliation');
         Route::get('/nuevo', 'create')->name('create')->middleware('permission:payments,create');
         Route::post('/', 'store')->name('store')->middleware('permission:payments,create');
         Route::get('/{id}', 'show')->whereNumber('id')->name('show');

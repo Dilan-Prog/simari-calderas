@@ -220,6 +220,39 @@ class MrpController extends Controller
             ->with('success', 'Se generó ' . ($pos->count() === 1 ? '1 orden de compra' : $pos->count() . ' órdenes de compra') . ': ' . $pos->pluck('po_number')->implode(', ') . '.');
     }
 
+    /** Acción en lote desde el listado: genera OC con los faltantes que ya tienen proveedor de cada requerimiento marcado. */
+    public function generatePurchaseOrdersBatch(Request $request)
+    {
+        $data = $request->validate([
+            'ids'   => 'required|array|min:1',
+            'ids.*' => 'integer',
+        ], ['ids.required' => 'Selecciona al menos un requerimiento.']);
+
+        abort_unless(auth()->user()->isAdmin() || auth()->user()->hasPermission('purchase-orders', 'create'), 403, 'No tienes permiso para crear órdenes de compra.');
+
+        $created = collect();
+        $skipped = 0;
+        foreach (MaterialRequirement::whereIn('id', $data['ids'])->where('status', '!=', 'cancelado')->get() as $req) {
+            $selection = collect($this->service->suggestPurchases($req))
+                ->filter(fn ($g) => $g['has_supplier'])
+                ->flatMap(fn ($g) => collect($g['lines'])->map(fn ($it) => $it['line']->id))
+                ->all();
+            if (!$selection) {
+                $skipped++;
+
+                continue;
+            }
+            $created = $created->merge($this->service->generatePurchaseOrders($req, $selection));
+        }
+
+        $msg = $created->isEmpty()
+            ? 'Ningún requerimiento seleccionado tenía faltantes con proveedor asignado.'
+            : 'Se generó ' . ($created->count() === 1 ? '1 orden de compra' : $created->count() . ' órdenes de compra') . ': ' . $created->pluck('po_number')->implode(', ') . '.'
+              . ($skipped ? " {$skipped} requerimiento(s) sin faltantes con proveedor se omitieron." : '');
+
+        return redirect()->route('admin.mrp.index')->with('success', $msg);
+    }
+
     public function searchProducts(Request $request)
     {
         $q = trim((string) $request->get('q', ''));

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Backend\StockCountController;
+use App\Http\Controllers\Backend\StockReservationController;
 use App\Http\Controllers\Backend\WarehouseLocationController;
 use App\Http\Controllers\Backend\WarehouseTransferController;
 use Illuminate\Support\Facades\Route;
@@ -55,4 +56,14 @@ Route::controller(WarehouseLocationController::class)
         Route::post('/asignar', 'assign')->name('assign')->middleware('permission:inventory,edit');
         Route::put('/{location}', 'update')->name('update')->middleware('permission:inventory,edit');
         Route::delete('/{location}', 'destroy')->name('destroy')->middleware('permission:inventory,delete');
+    });
+
+// Reservas de material por proyecto (permiso del módulo Inventario)
+Route::controller(StockReservationController::class)
+    ->middleware('permission:inventory')
+    ->prefix('reservas-stock')
+    ->name('stock-reservations.')
+    ->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::post('/liberar', 'release')->name('release')->middleware('permission:inventory,edit');
     });

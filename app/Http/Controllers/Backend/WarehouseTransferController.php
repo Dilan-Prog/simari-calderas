@@ -18,7 +18,7 @@ class WarehouseTransferController extends Controller
 
     public function index(Request $request)
     {
-        $query = WarehouseTransfer::with(['fromWarehouse', 'toWarehouse'])->withCount('lines');
+        $query = WarehouseTransfer::with(['fromWarehouse', 'toWarehouse', 'requestedBy'])->withCount('lines');
 
         if ($s = trim((string) $request->input('search'))) {
             $query->where('number', 'like', "%{$s}%");

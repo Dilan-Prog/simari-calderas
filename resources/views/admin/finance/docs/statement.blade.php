@@ -7,70 +7,65 @@
 @endsection
 @section('content')
 @php $r = $cfg['route']; @endphp
-<div class="container user-manager">
-<section class="clients-manager-section fin-page">
+<div class="erp-page fin-page">
 
-    <div class="erp-page-head">
-        <div>
-            <p class="breadcrumb-clients-manager fin-noprint" style="margin-bottom:4px;">Panel de Control &gt; Finanzas &gt; <a href="{{ route($r . '.index') }}">{{ $cfg['title'] }}</a> &gt; <strong>Estado de cuenta</strong></p>
-            <h1 class="erp-title">Estado de cuenta</h1>
-            <p class="erp-subtitle"><strong>{{ $partyName }}</strong> · emitido el {{ now()->format('d/m/Y') }}@if ($from || $to) · periodo {{ $from ?: 'inicio' }} a {{ $to ?: 'hoy' }}@endif</p>
-        </div>
-        <div class="fin-head-actions fin-noprint">
-            <a href="{{ route($r . '.index', [$cfg['party_col'] => $partyId]) }}" class="fin-btn">Ver documentos</a>
-            <button type="button" class="fin-btn fin-btn-primary" onclick="window.print()">Imprimir</button>
-        </div>
-    </div>
+    <x-erp.page-header
+        title="Estado de cuenta"
+        :desc="$partyName . ' · emitido el ' . now()->format('d/m/Y') . (($from || $to) ? ' · periodo ' . ($from ?: 'inicio') . ' a ' . ($to ?: 'hoy') : '')"
+        :crumbs="[['Finanzas', route('admin.finance.dashboard')], [$cfg['title'], route($r . '.index')], ['Estado de cuenta', null]]">
+        <a href="{{ route($r . '.index', [$cfg['party_col'] => $partyId]) }}" class="erp-btn fin-noprint">Ver documentos</a>
+        <button type="button" class="erp-btn erp-btn--primary fin-noprint" onclick="window.print()">Imprimir</button>
+    </x-erp.page-header>
 
-    <form method="GET" class="fin-filters fin-noprint">
-        <label>Desde <input type="date" name="from" class="users-manager-input" value="{{ $from }}"></label>
-        <label>Hasta <input type="date" name="to" class="users-manager-input" value="{{ $to }}"></label>
-        <button type="submit" class="fin-btn">Aplicar</button>
-        @if ($from || $to)
-            <a href="{{ route($r . '.statement', $partyId) }}" class="fin-chip-clear">Limpiar</a>
-        @endif
-    </form>
+    <x-erp.card class="fin-noprint">
+        <form method="GET" class="fin-filterform">
+            <label>Desde <input type="date" name="from" class="erp-input" value="{{ $from }}"></label>
+            <label>Hasta <input type="date" name="to" class="erp-input" value="{{ $to }}"></label>
+            <button type="submit" class="erp-btn">Aplicar</button>
+            @if ($from || $to)
+                <a href="{{ route($r . '.statement', $partyId) }}" class="erp-pill erp-pill--ghost">Limpiar</a>
+            @endif
+        </form>
+    </x-erp.card>
 
     @forelse ($groups as $currency => $g)
-        <div class="fin-card">
-            <h2>Moneda {{ $currency }}</h2>
-            <div class="fin-scroll">
-                <table class="fin-table">
+        <x-erp.card :title="'Moneda ' . $currency" :sub="'Saldo final $' . number_format($g['closing'], 2)">
+            <div class="erp-table-wrap">
+                <table class="erp-table">
                     <thead>
-                        <tr><th>FECHA</th><th>DOCUMENTO</th><th>CONCEPTO</th><th class="num">CARGOS</th><th class="num">ABONOS</th><th class="num">SALDO</th></tr>
+                        <tr><th>Fecha</th><th>Documento</th><th>Concepto</th><th class="is-num">Cargos</th><th class="is-num">Abonos</th><th class="is-num">Saldo</th></tr>
                     </thead>
                     <tbody>
                         @if ($from)
-                            <tr><td colspan="5"><em>Saldo inicial</em></td><td class="num">${{ number_format($g['opening'], 2) }}</td></tr>
+                            <tr><td colspan="5"><em>Saldo inicial</em></td><td class="is-num">${{ number_format($g['opening'], 2) }}</td></tr>
                         @endif
                         @forelse ($g['lines'] as $l)
                             <tr>
                                 <td>{{ $l['date']->format('d/m/Y') }}</td>
-                                <td><a class="fin-link" href="{{ route($l['route'], $l['id']) }}">{{ $l['number'] }}</a></td>
+                                <td class="erp-cell-folio"><a href="{{ route($l['route'], $l['id']) }}">{{ $l['number'] }}</a></td>
                                 <td>{{ $l['concept'] }}</td>
-                                <td class="num">{{ $l['charge'] > 0 ? '$' . number_format($l['charge'], 2) : '' }}</td>
-                                <td class="num">{{ $l['credit'] > 0 ? '$' . number_format($l['credit'], 2) : '' }}</td>
-                                <td class="num">${{ number_format($l['balance'], 2) }}</td>
+                                <td class="is-num">{{ $l['charge'] > 0 ? '$' . number_format($l['charge'], 2) : '' }}</td>
+                                <td class="is-num">{{ $l['credit'] > 0 ? '$' . number_format($l['credit'], 2) : '' }}</td>
+                                <td class="is-num"><strong>${{ number_format($l['balance'], 2) }}</strong></td>
                             </tr>
                         @empty
-                            <tr><td colspan="6" class="fin-empty">Sin movimientos en el periodo.</td></tr>
+                            <tr><td colspan="6" style="padding: 0;"><x-erp.empty title="Sin movimientos en el periodo" /></td></tr>
                         @endforelse
                     </tbody>
                     <tfoot>
                         <tr>
                             <td colspan="3">Totales del periodo · saldo final</td>
-                            <td class="num">${{ number_format($g['charges'], 2) }}</td>
-                            <td class="num">${{ number_format($g['credits'], 2) }}</td>
-                            <td class="num">${{ number_format($g['closing'], 2) }}</td>
+                            <td class="is-num">${{ number_format($g['charges'], 2) }}</td>
+                            <td class="is-num">${{ number_format($g['credits'], 2) }}</td>
+                            <td class="is-num">${{ number_format($g['closing'], 2) }}</td>
                         </tr>
                     </tfoot>
                 </table>
             </div>
-        </div>
+        </x-erp.card>
     @empty
-        <div class="fin-card fin-empty">Sin movimientos para {{ $partyName }}.</div>
+        <x-erp.empty :title="'Sin movimientos para ' . $partyName" text="Cuando existan documentos o pagos de esta contraparte aparecerán aquí." />
     @endforelse
 
-</section>
 </div>
 @endsection

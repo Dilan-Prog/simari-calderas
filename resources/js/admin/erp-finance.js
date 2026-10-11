@@ -70,7 +70,8 @@ function initPaymentCreate() {
         const tr = document.createElement('tr');
         const td = document.createElement('td');
         td.colSpan = 5;
-        td.className = 'fin-empty';
+        td.className = 'erp-empty';
+        td.style.border = '0';
         td.textContent = text;
         tr.appendChild(td);
         body.appendChild(tr);
@@ -93,25 +94,25 @@ function initPaymentCreate() {
             const tr = document.createElement('tr');
             const cells = [
                 () => { const a = document.createElement('strong'); a.textContent = d.number; return a; },
-                () => { const s = document.createElement('span'); s.className = 'fin-due fin-due-' + d.tone; s.innerHTML = '<i></i>'; s.appendChild(document.createTextNode(d.due_date + (d.days_overdue > 0 ? ' (+' + d.days_overdue + ' d)' : ''))); return s; },
+                () => { const s = document.createElement('span'); s.className = 'erp-due' + (d.tone === 'bad' ? ' is-overdue' : ''); s.innerHTML = '<i class="erp-dot erp-dot--' + (['ok','warn','bad'].includes(d.tone) ? d.tone : 'neu') + '"></i>'; s.appendChild(document.createTextNode(d.due_date + (d.days_overdue > 0 ? ' (+' + d.days_overdue + ' d)' : ''))); return s; },
                 () => document.createTextNode(d.currency),
                 () => document.createTextNode(money(d.balance)),
             ];
             cells.forEach((make, idx) => {
                 const td = document.createElement('td');
-                if (idx === 3) td.className = 'num';
+                if (idx === 3) td.className = 'is-num';
                 td.appendChild(make());
                 tr.appendChild(td);
             });
             const td = document.createElement('td');
-            td.className = 'num';
+            td.className = 'is-num';
             const input = document.createElement('input');
             input.type = 'number';
             input.step = '0.01';
             input.min = '0';
             input.max = d.balance;
             input.name = 'alloc[' + d.id + ']';
-            input.className = 'users-manager-input fin-apply-input';
+            input.className = 'erp-input fin-apply-input';
             input.dataset.doc = d.id;
             input.dataset.rate = d.rate;
             input.dataset.balance = d.balance;
@@ -226,7 +227,51 @@ function initPaymentApply() {
     update();
 }
 
+/* ── Acciones en lote (barra oscura de erp-ui.js) ── */
+function initBatchActions() {
+    // CXC/CXP: registrar cobro/pago para los documentos marcados (misma contraparte).
+    document.querySelectorAll('[data-fin-batch-pay]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+            const checked = Array.from(document.querySelectorAll('.erp-row-check:checked'));
+            if (!checked.length) return;
+            const parties = new Set(checked.map((c) => c.dataset.party));
+            if (parties.size > 1) {
+                window.alert('Selecciona documentos de una sola contraparte para registrar el pago.');
+                return;
+            }
+            const params = new URLSearchParams({ direction: btn.dataset.direction, [btn.dataset.partyParam]: checked[0].dataset.party, doc: checked[0].value });
+            window.location.href = btn.dataset.url + '?' + params.toString();
+        });
+    });
+
+    // Pagos: PATCH por cada id marcado sobre las rutas existentes (conciliar / desconciliar) y recarga.
+    document.querySelectorAll('[data-fin-batch-patch]').forEach((btn) => {
+        btn.addEventListener('click', async () => {
+            const ids = typeof window.erpSelectedIds === 'function' ? window.erpSelectedIds() : [];
+            if (!ids.length) return;
+            if (btn.dataset.confirm && !window.confirm(btn.dataset.confirm)) return;
+            const token = document.querySelector('meta[name="csrf-token"]')?.content || document.querySelector('input[name="_token"]')?.value || '';
+            document.querySelectorAll('[data-fin-batch-patch]').forEach((b) => { b.disabled = true; });
+            let failed = 0;
+            for (const id of ids) {
+                try {
+                    const body = new URLSearchParams({ _method: 'PATCH', _token: token });
+                    const res = await fetch(btn.dataset.urlTemplate.replace('__ID__', id), {
+                        method: 'POST', body, credentials: 'same-origin', headers: { 'X-Requested-With': 'XMLHttpRequest', Accept: 'text/html' },
+                    });
+                    if (!res.ok) failed++;
+                } catch (e) {
+                    failed++;
+                }
+            }
+            if (failed) window.alert('No se pudieron procesar ' + failed + ' de ' + ids.length + ' pagos.');
+            window.location.reload();
+        });
+    });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
+    initBatchActions();
     initDocForm();
     initPaymentCreate();
     initPaymentApply();

@@ -79,6 +79,34 @@ class PaymentController extends Controller
         ]);
     }
 
+    /** Conciliación (FIN5): pagos aplicados por conciliar / ya conciliados. Las acciones usan reconcile/unreconcile. */
+    public function reconciliation(Request $request)
+    {
+        $view = in_array($request->input('view'), ['pendientes', 'conciliados', 'todos'], true) ? $request->input('view') : 'pendientes';
+
+        $filters = clone $request;
+        $filters->query->remove('status');
+        $filters->request->remove('status');
+        $q = $this->filtered($filters)
+            ->whereIn('status', $view === 'pendientes' ? ['aplicado'] : ($view === 'conciliados' ? ['conciliado'] : ['aplicado', 'conciliado']));
+        $payments = $q->with('applications')->latest('payment_date')->latest('id')->paginate(25)->withQueryString();
+        $payments->getCollection()->each(function ($p) {
+            $p->setRelation('docs', $p->applications->map(fn ($a) => $a->document())->filter()->values());
+        });
+
+        return view('admin.finance.payments.reconciliation', [
+            'payments' => $payments,
+            'view'     => $view,
+            'methods'  => PaymentMethod::orderBy('name')->pluck('name', 'id'),
+            'stats'    => [
+                'to_reconcile'  => Payment::where('status', 'aplicado')->count(),
+                'to_reconcile_amount' => (float) Payment::where('status', 'aplicado')->sum(DB::raw('amount * exchange_rate')),
+                'reconciled_month' => Payment::where('status', 'conciliado')->whereYear('reconciled_at', now()->year)->whereMonth('reconciled_at', now()->month)->count(),
+                'pending'       => Payment::where('status', 'pendiente')->count(),
+            ],
+        ]);
+    }
+
     public function export(Request $request): StreamedResponse
     {
         $rows = $this->filtered($request)->latest('payment_date')->get();

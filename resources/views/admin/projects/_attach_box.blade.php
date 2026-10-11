@@ -3,9 +3,9 @@
     @csrf
     <input type="hidden" name="type" value="{{ $type }}">
     <input type="hidden" name="id" value="" data-attach-id>
-    <label>{{ $label }}
-        <input type="text" class="users-manager-input" placeholder="Buscar por folio..." autocomplete="off" data-attach-input>
+    <label class="erp-field">{{ $label }}
+        <input type="text" class="erp-input" placeholder="Buscar por folio..." autocomplete="off" data-attach-input>
     </label>
     <div class="prj-suggest" data-attach-list hidden></div>
-    <button type="submit" class="prj-btn prj-btn-primary" data-attach-submit disabled>Asociar</button>
+    <button type="submit" class="erp-btn erp-btn--primary" data-attach-submit disabled>Asociar</button>
 </form>

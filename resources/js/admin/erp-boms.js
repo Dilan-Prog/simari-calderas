@@ -79,17 +79,17 @@ function initForm(form) {
             <div class="bom-picker">
                 <input type="hidden" data-field="component_product_id">
                 <input type="hidden" data-field="component_name">
-                <input type="text" class="bom-input" autocomplete="off" placeholder="Buscar componente…" data-picker-input>
+                <input type="text" class="erp-input" autocomplete="off" placeholder="Buscar componente…" data-picker-input>
                 <div class="bom-picker-list" hidden></div>
             </div>
-            <input type="number" class="bom-input" data-field="quantity" step="0.0001" min="0.0001" required>
-            <input type="text" class="bom-input" data-field="unit" maxlength="30" placeholder="pieza">
-            <input type="number" class="bom-input" data-field="scrap_percent" step="0.01" min="0" max="999.99">
-            <input type="text" class="bom-input" data-field="notes" maxlength="255">
+            <input type="number" class="erp-input" data-field="quantity" step="0.0001" min="0.0001" required>
+            <input type="text" class="erp-input" data-field="unit" maxlength="30" placeholder="pieza">
+            <input type="number" class="erp-input" data-field="scrap_percent" step="0.01" min="0" max="999.99">
+            <input type="text" class="erp-input" data-field="notes" maxlength="255">
             <div class="bom-line-actions">
-                <button type="button" class="bom-icon-btn" data-up title="Subir">↑</button>
-                <button type="button" class="bom-icon-btn" data-down title="Bajar">↓</button>
-                <button type="button" class="bom-icon-btn" data-remove title="Quitar">✕</button>
+                <button type="button" class="erp-btn erp-btn--sm bom-icon-btn" data-up title="Subir" aria-label="Subir renglón">↑</button>
+                <button type="button" class="erp-btn erp-btn--sm bom-icon-btn" data-down title="Bajar" aria-label="Bajar renglón">↓</button>
+                <button type="button" class="erp-btn erp-btn--sm bom-icon-btn" data-remove title="Quitar" aria-label="Quitar renglón">✕</button>
             </div>`;
         const set = (f, v) => { row.querySelector(`[data-field="${f}"]`).value = v ?? ''; };
         set('component_product_id', data.component_product_id);
@@ -137,7 +137,7 @@ function initForm(form) {
 function initTree(root) {
     const setAll = (collapsed) => root.querySelectorAll('.bom-node.is-assembly').forEach((n) => {
         n.classList.toggle('is-collapsed', collapsed);
-        const b = n.querySelector(':scope > .bom-node-row > [data-toggle]');
+        const b = n.querySelector(':scope > .erp-tree-row [data-toggle]');
         if (b) { b.textContent = collapsed ? '▸' : '▾'; b.setAttribute('aria-expanded', String(!collapsed)); }
     });
     root.addEventListener('click', (e) => {

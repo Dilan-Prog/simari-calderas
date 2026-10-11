@@ -107,6 +107,27 @@ class Project extends Model
         return $days < 0 ? 'bad' : ($days <= 7 ? 'warn' : 'ok');
     }
 
+    /** Fase actual para listados: "3/5 · Suministro" (primera fase no completada; null si no hay fases). */
+    public function currentPhaseLabel(): ?string
+    {
+        $phases = $this->phases;
+        if ($phases->isEmpty()) {
+            return null;
+        }
+        $idx = $phases->search(fn ($ph) => $ph->status !== 'completada');
+        $idx = $idx === false ? $phases->count() - 1 : $idx;
+
+        return ($idx + 1) . '/' . $phases->count() . ' · ' . $phases[$idx]->name;
+    }
+
+    /** Monto de las cotizaciones asociadas (excluye rechazadas), convertido a MXN. Requiere quotes cargadas. */
+    public function quotesTotalMxn(): float
+    {
+        return (float) $this->quotes
+            ->reject(fn ($q) => $q->status === 'rejected')
+            ->sum(fn ($q) => (float) $q->total * (($q->currency ?? 'MXN') === 'MXN' ? 1 : (float) ($q->exchange_rate ?: 1)));
+    }
+
     public function getDisplayCustomerAttribute(): string
     {
         if ($this->customer) {

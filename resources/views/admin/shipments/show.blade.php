@@ -9,104 +9,116 @@
 @section('content')
 @php
     $meta = $statusMeta[$shipment->status] ?? [];
-    $tone = match ($shipment->status) { 'entregado' => 'ok', 'incidencia' => 'bad', 'preparando' => 'neutral', default => 'warn' };
+    $tone = match ($shipment->status) { 'entregado' => 'ok', 'incidencia' => 'bad', 'preparando' => 'neu', 'en_transito' => 'info', default => 'warn' };
+    $flow = \App\Support\ShipmentStatus::FLOW;
+    $steps = array_map(fn ($k) => $statusMeta[$k]['label'] ?? $k, $flow);
+    $stepIdx = array_search($shipment->status, $flow, true);
+    $canEdit = auth()->user()->isAdmin() || auth()->user()->hasPermission('shipments', 'edit');
 @endphp
-<div class="lg-page">
+<div class="erp-page">
     <x-erp.object-header
         :title="'Envío ' . $shipment->guia"
+        :eyebrow="'ENVÍO B2B' . ($shipment->documentNumber() ? ' · ' . $shipment->documentNumber() : '')"
         :subtitle="$shipment->recipientLabel()"
         :status="$meta['label'] ?? $shipment->status"
         :tone="$tone"
         :back="route('admin.shipments.index')"
+        process="Envío"
+        :steps="$stepIdx === false ? [] : $steps"
+        :current="$stepIdx === false ? null : $stepIdx"
         :facts="[
             ['label' => 'Pedido / referencia', 'value' => $shipment->order_number_ref],
             ['label' => 'Paquetería', 'value' => $shipment->carrier?->name ?? 'Entrega propia'],
             ['label' => 'Fecha de envío', 'value' => $shipment->fecha_envio?->format('d/m/Y')],
             ['label' => 'Entrega estimada', 'value' => $shipment->eta?->format('d/m/Y')],
         ]">
-        @if (auth()->user()->isAdmin() || auth()->user()->hasPermission('shipments', 'edit'))
-            <a href="{{ route('admin.shipments.edit', $shipment) }}" class="lg-btn">Editar</a>
+        @if ($canEdit)
+            <a href="{{ route('admin.shipments.edit', $shipment) }}" class="erp-btn">Editar</a>
         @endif
         @if (in_array($shipment->status, ['preparando', 'enviado'], true))
-            <form method="POST" action="{{ route('admin.shipments.destroy', $shipment) }}" onsubmit="return confirm('¿Eliminar este envío?')">
+            <form method="POST" action="{{ route('admin.shipments.destroy', $shipment) }}" class="lg-inline-form" onsubmit="return confirm('¿Eliminar este envío?')">
                 @csrf @method('DELETE')
-                <button type="submit" class="lg-btn lg-btn-danger">Eliminar</button>
+                <button type="submit" class="erp-btn erp-btn--danger">Eliminar</button>
             </form>
         @endif
     </x-erp.object-header>
 
-    <x-erp.document-flow :document="$shipment" />
+    @if (session('success')) <div class="lg-alert lg-alert--ok" role="status">{{ session('success') }}</div> @endif
+    @if (session('error')) <div class="lg-alert" role="alert">{{ session('error') }}</div> @endif
 
-    <div class="lg-card">
-        <h2>Destinatario y direcciones</h2>
-        <div class="lg-form-grid">
-            <div><div class="lg-muted">Persona que recibe</div>{{ $shipment->recipient_name ?: '—' }}</div>
-            <div><div class="lg-muted">Empresa</div>{{ $shipment->recipient_company ?: '—' }}</div>
-            <div><div class="lg-muted">Teléfono</div>{{ $shipment->recipient_phone ?: '—' }}</div>
-            <div><div class="lg-muted">Correo</div>{{ $shipment->recipient_email ?: '—' }}</div>
-            <div><div class="lg-muted">Dirección de salida</div>{{ $shipment->origin_address ?: '—' }}</div>
-            <div><div class="lg-muted">Dirección de entrega</div>{{ $shipment->delivery_address ?: '—' }}</div>
-            <div><div class="lg-muted">Cotización de referencia</div>
+    <div class="erp-split">
+        <div>
+            <x-erp.card title="Destinatario y direcciones">
+                <x-erp.facts :items="[
+                    ['label' => 'Persona que recibe', 'value' => $shipment->recipient_name ?: '—'],
+                    ['label' => 'Empresa', 'value' => $shipment->recipient_company ?: '—'],
+                    ['label' => 'Teléfono', 'value' => $shipment->recipient_phone ?: '—'],
+                    ['label' => 'Correo', 'value' => $shipment->recipient_email ?: '—'],
+                    ['label' => 'Dirección de salida', 'value' => $shipment->origin_address ?: '—'],
+                    ['label' => 'Dirección de entrega', 'value' => $shipment->delivery_address ?: '—'],
+                    ['label' => 'Bultos / peso / costo', 'value' => $shipment->bultos . ' · ' . ($shipment->peso ?? '—') . ' kg · ' . ($shipment->costo !== null ? '$' . number_format($shipment->costo, 2) : '—')],
+                ]" />
                 @if ($shipment->quote)
-                    <a href="{{ route('admin.quotes.show', $shipment->quote) }}">{{ $shipment->quote->quote_number }}</a>
-                @else — @endif
-            </div>
-            <div><div class="lg-muted">Bultos / peso / costo</div>{{ $shipment->bultos }} · {{ $shipment->peso ?? '—' }} kg · {{ $shipment->costo !== null ? '$' . number_format($shipment->costo, 2) : '—' }}</div>
-        </div>
-        @if ($shipment->carrier?->tracking_url_template)
-            <p style="margin:12px 0 0;"><a href="{{ str_replace('{guia}', urlencode($shipment->guia), $shipment->carrier->tracking_url_template) }}" target="_blank" rel="noopener">Rastrear en la paquetería ↗</a></p>
-        @endif
-    </div>
+                    <p style="margin:14px 0 0;font-size:13px;"><span class="erp-fact-label">Cotización de referencia</span><br>
+                        <a href="{{ route('admin.quotes.show', $shipment->quote) }}">{{ $shipment->quote->quote_number }}</a></p>
+                @endif
+                @if ($shipment->carrier?->tracking_url_template)
+                    <p style="margin:12px 0 0;"><a href="{{ str_replace('{guia}', urlencode($shipment->guia), $shipment->carrier->tracking_url_template) }}" target="_blank" rel="noopener">Rastrear en la paquetería ↗</a></p>
+                @endif
+            </x-erp.card>
 
-    @if ($allowed)
-        <div class="lg-card">
-            <h2>Cambiar estatus</h2>
-            <form method="POST" action="{{ route('admin.shipments.update-status', $shipment) }}" class="lg-form">
-                @csrf @method('PATCH')
-                <div class="lg-form-grid">
-                    <div>
-                        <label>Nuevo estatus</label>
-                        <select name="status" required>
-                            @foreach ($allowed as $st)
-                                <option value="{{ $st }}">{{ $statusMeta[$st]['label'] ?? $st }}</option>
-                            @endforeach
-                        </select>
-                        @error('status') <div class="lg-err">{{ $message }}</div> @enderror
-                    </div>
-                    <div>
-                        <label>Motivo (solo incidencia)</label>
-                        <select name="motivo">
-                            <option value="">—</option>
-                            @foreach ($motivos as $k => $label)
-                                <option value="{{ $k }}">{{ $label }}</option>
-                            @endforeach
-                        </select>
-                        @error('motivo') <div class="lg-err">{{ $message }}</div> @enderror
-                    </div>
-                    <div class="span-2">
-                        <label>Nota</label>
-                        <input type="text" name="note" maxlength="2000">
-                        @error('note') <div class="lg-err">{{ $message }}</div> @enderror
-                    </div>
-                </div>
-                <div class="lg-actions" style="margin-top:12px;"><button type="submit" class="lg-btn lg-btn-primary">Actualizar estatus</button></div>
-            </form>
-        </div>
-    @endif
+            @if ($allowed)
+                <x-erp.card title="Cambiar estatus">
+                    <form method="POST" action="{{ route('admin.shipments.update-status', $shipment) }}">
+                        @csrf @method('PATCH')
+                        <div class="erp-form-grid">
+                            <label class="erp-field">Nuevo estatus
+                                <select name="status" class="erp-select" required>
+                                    @foreach ($allowed as $st)
+                                        <option value="{{ $st }}">{{ $statusMeta[$st]['label'] ?? $st }}</option>
+                                    @endforeach
+                                </select>
+                                @error('status') <span class="lg-err">{{ $message }}</span> @enderror
+                            </label>
+                            <label class="erp-field">Motivo (solo incidencia)
+                                <select name="motivo" class="erp-select">
+                                    <option value="">—</option>
+                                    @foreach ($motivos as $k => $label)
+                                        <option value="{{ $k }}">{{ $label }}</option>
+                                    @endforeach
+                                </select>
+                                @error('motivo') <span class="lg-err">{{ $message }}</span> @enderror
+                            </label>
+                            <label class="erp-field lg-span-2">Nota
+                                <input type="text" name="note" class="erp-input" maxlength="2000">
+                                @error('note') <span class="lg-err">{{ $message }}</span> @enderror
+                            </label>
+                        </div>
+                        <div class="erp-form-actions"><button type="submit" class="erp-btn erp-btn--primary">Actualizar estatus</button></div>
+                    </form>
+                </x-erp.card>
+            @endif
 
-    <div class="lg-card">
-        <h2>Línea de tiempo</h2>
-        <ul class="lg-timeline">
-            @foreach ($shipment->statusLogs as $log)
-                <li>
-                    <div class="lg-t-title">{{ $statusMeta[$log->to_status]['label'] ?? $log->to_status }}
-                        @if ($log->motivo) <span class="lg-muted">· {{ $motivos[$log->motivo] ?? $log->motivo }}</span> @endif
-                    </div>
-                    @if ($log->note) <div>{{ $log->note }}</div> @endif
-                    <div class="lg-muted">{{ $log->created_at?->format('d/m/Y H:i') }} · {{ $log->changedBy?->first_name ?? 'Sistema' }}</div>
-                </li>
-            @endforeach
-        </ul>
+            <x-erp.card title="Línea de tiempo">
+                <ul class="lg-timeline">
+                    @forelse ($shipment->statusLogs as $log)
+                        <li>
+                            <div class="lg-t-title">{{ $statusMeta[$log->to_status]['label'] ?? $log->to_status }}
+                                @if ($log->motivo) <span class="lg-muted">· {{ $motivos[$log->motivo] ?? $log->motivo }}</span> @endif
+                            </div>
+                            @if ($log->note) <div>{{ $log->note }}</div> @endif
+                            <div class="lg-muted">{{ $log->created_at?->format('d/m/Y H:i') }} · {{ $log->changedBy?->first_name ?? 'Sistema' }}</div>
+                        </li>
+                    @empty
+                        <li class="lg-muted">Sin movimientos.</li>
+                    @endforelse
+                </ul>
+            </x-erp.card>
+        </div>
+
+        <aside>
+            <x-erp.document-flow :document="$shipment" />
+        </aside>
     </div>
 </div>
 @endsection

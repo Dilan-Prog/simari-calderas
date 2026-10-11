@@ -7,80 +7,78 @@
 @endsection
 @section('content')
 @php
-    $statusLabels = ['abierto' => 'Abierto', 'en_conteo' => 'En conteo', 'cerrado' => 'Cerrado', 'ajustado' => 'Ajustado'];
-    $chips = [];
-    if (request('search')) $chips[] = ['Folio: ' . request('search'), 'search'];
-    if (request('status') && isset($statusLabels[request('status')])) $chips[] = ['Estado: ' . $statusLabels[request('status')], 'status'];
-    if (request('warehouse_id')) $chips[] = ['Almacén: ' . ($warehouses->firstWhere('id', (int) request('warehouse_id'))?->name ?? '—'), 'warehouse_id'];
+    $statusLabels = ['abierto' => 'Abierto', 'en_conteo' => 'En conteo', 'cerrado' => 'Por ajustar', 'ajustado' => 'Ajustado'];
+    $tones = ['abierto' => 'neu', 'en_conteo' => 'info', 'cerrado' => 'warn', 'ajustado' => 'ok'];
     $without = fn ($key) => route('admin.stock-counts.index', collect(request()->query())->except([$key, 'page'])->all());
+    $withStatus = fn ($st) => route('admin.stock-counts.index', collect(request()->query())->except(['page', 'status'])->when($st, fn ($c) => $c->put('status', $st))->all());
+    $cur = request('status');
+    $views = [
+        ['label' => 'Todos', 'url' => $withStatus(null), 'active' => ! $cur],
+        ['label' => 'En conteo ' . $stats['abiertos'], 'url' => $withStatus('en_conteo'), 'active' => $cur === 'en_conteo'],
+        ['label' => 'Por ajustar ' . $stats['por_ajustar'], 'url' => $withStatus('cerrado'), 'active' => $cur === 'cerrado'],
+        ['label' => 'Ajustados ' . $stats['ajustados'], 'url' => $withStatus('ajustado'), 'active' => $cur === 'ajustado'],
+    ];
+    $chips = [];
+    if (request('search')) $chips[] = ['label' => 'Folio: ' . request('search'), 'url' => $without('search')];
+    if ($cur && isset($statusLabels[$cur])) $chips[] = ['label' => 'Estado: ' . $statusLabels[$cur], 'url' => $without('status')];
+    if (request('warehouse_id')) $chips[] = ['label' => 'Almacén: ' . ($warehouses->firstWhere('id', (int) request('warehouse_id'))?->name ?? '—'), 'url' => $without('warehouse_id')];
 @endphp
-<div class="container user-manager">
-<section class="clients-manager-section wh-page">
-    <div class="erp-page-head">
-        <div>
-            <p class="breadcrumb-clients-manager" style="margin-bottom:4px;">Panel de Control &gt; <strong>Conteos físicos</strong></p>
-            <h1 class="erp-title">Conteos físicos</h1>
-            <p class="erp-subtitle">Compara el inventario del sistema contra el conteo real y ajusta las diferencias</p>
+<div class="erp-page">
+    <x-erp.page-header title="Conteo físico" code="ALM2"
+        desc="Conteos cíclicos con diferencias contra sistema y ajuste."
+        :crumbs="[['Almacén', null], ['Conteo físico', null]]">
+        @if (auth()->user()->hasPermission('stock-counts', 'create'))
+            <a href="{{ route('admin.stock-counts.create') }}" class="erp-btn erp-btn--primary">+ Nuevo conteo</a>
+        @endif
+    </x-erp.page-header>
+
+    @if (session('error')) <div class="wh-alert wh-alert-error" role="alert">{{ session('error') }}</div> @endif
+    @if (session('success')) <div class="wh-alert wh-alert-ok" role="status">{{ session('success') }}</div> @endif
+
+    <x-erp.worklist :views="$views" :chips="$chips">
+        <x-slot:toolbar>
+            <form method="GET" class="erp-toolbar" style="padding:0;border:0;flex:1;">
+                @if ($cur) <input type="hidden" name="status" value="{{ $cur }}"> @endif
+                <div class="erp-search"><input type="search" name="search" placeholder="Buscar por folio…" value="{{ request('search') }}" aria-label="Buscar por folio"></div>
+                <select name="warehouse_id" class="erp-select" aria-label="Almacén" onchange="this.form.submit()">
+                    <option value="">Todos los almacenes</option>
+                    @foreach ($warehouses as $w) <option value="{{ $w->id }}" @selected((string) request('warehouse_id') === (string) $w->id)>{{ $w->name }}</option> @endforeach
+                </select>
+                <button type="submit" class="erp-btn">Filtrar</button>
+            </form>
+        </x-slot:toolbar>
+
+        <div class="erp-table-wrap">
+            <table class="erp-table wh-stack">
+                <thead><tr><th>Folio</th><th>Almacén</th><th>Inicio</th><th>Avance</th><th class="is-right">Diferencias</th><th>Estado</th></tr></thead>
+                <tbody>
+                    @forelse ($counts as $c)
+                        @php $pct = $c->lines_count ? round($c->counted_lines_count / $c->lines_count * 100) : 0; @endphp
+                        <tr>
+                            <td data-label="Folio" class="erp-cell-folio"><a href="{{ route('admin.stock-counts.show', $c) }}">{{ $c->number }}</a></td>
+                            <td data-label="Almacén"><div class="erp-cell-main">{{ $c->warehouse->name }}</div></td>
+                            <td data-label="Inicio">{{ $c->started_at?->format('d/m/Y') }}</td>
+                            <td data-label="Avance">
+                                <x-erp.progress :value="$pct" />
+                                <div class="erp-cell-sub">{{ $c->counted_lines_count }} / {{ $c->lines_count }} partidas</div>
+                            </td>
+                            <td data-label="Diferencias" class="is-num">
+                                @if ($c->counted_lines_count)
+                                    <span class="{{ $c->diff_lines_count ? 'wh-neg' : 'wh-muted' }}">{{ $c->diff_lines_count }}</span>
+                                @else <span class="wh-muted">—</span> @endif
+                            </td>
+                            <td data-label="Estado"><x-erp.chip :tone="$tones[$c->status] ?? 'neu'" :label="$statusLabels[$c->status] ?? $c->status" /></td>
+                        </tr>
+                    @empty
+                        <tr><td colspan="6"><x-erp.empty title="Sin conteos" text="No hay conteos con estos filtros." style="border:0;" /></td></tr>
+                    @endforelse
+                </tbody>
+            </table>
         </div>
-        <div class="wh-actions">
-            @if (auth()->user()->hasPermission('stock-counts', 'create'))
-                <a href="{{ route('admin.stock-counts.create') }}" class="wh-btn wh-btn-primary">+ Nuevo conteo</a>
-            @endif
-        </div>
-    </div>
-
-    @if (session('error')) <div class="wh-alert wh-alert-error">{{ session('error') }}</div> @endif
-
-    <div class="wh-stats">
-        <a class="wh-stat" href="{{ route('admin.stock-counts.index', ['status' => 'en_conteo']) }}"><strong>{{ $stats['abiertos'] }}</strong><span>Abiertos / en conteo</span></a>
-        <a class="wh-stat" href="{{ route('admin.stock-counts.index', ['status' => 'cerrado']) }}"><strong>{{ $stats['por_ajustar'] }}</strong><span>Cerrados sin ajustar</span></a>
-        <a class="wh-stat" href="{{ route('admin.stock-counts.index', ['status' => 'ajustado']) }}"><strong>{{ $stats['ajustados'] }}</strong><span>Ajustados</span></a>
-    </div>
-
-    <form method="GET" class="wh-filters">
-        <input type="text" name="search" class="users-manager-input" placeholder="Buscar por folio..." value="{{ request('search') }}">
-        <select name="status" class="users-manager-input" onchange="this.form.submit()">
-            <option value="">Todos los estados</option>
-            @foreach ($statusLabels as $k => $label) <option value="{{ $k }}" @selected(request('status') === $k)>{{ $label }}</option> @endforeach
-        </select>
-        <select name="warehouse_id" class="users-manager-input" onchange="this.form.submit()">
-            <option value="">Todos los almacenes</option>
-            @foreach ($warehouses as $w) <option value="{{ $w->id }}" @selected((string) request('warehouse_id') === (string) $w->id)>{{ $w->name }}</option> @endforeach
-        </select>
-        <button type="submit" class="wh-btn">Filtrar</button>
-    </form>
-
-    @if ($chips)
-        <div class="wh-chips">
-            @foreach ($chips as [$label, $key]) <a class="wh-chip-filter" href="{{ $without($key) }}">{{ $label }} ✕</a> @endforeach
-        </div>
-    @endif
-
-    <div class="wh-card wh-table-wrap">
-        <table class="wh-table wh-stack">
-            <thead><tr><th>Folio</th><th>Almacén</th><th>Avance</th><th>Estado</th><th>Inicio</th></tr></thead>
-            <tbody>
-                @forelse ($counts as $c)
-                    @php $pct = $c->lines_count ? round($c->counted_lines_count / $c->lines_count * 100) : 0; @endphp
-                    <tr>
-                        <td data-label="Folio"><a href="{{ route('admin.stock-counts.show', $c) }}">{{ $c->number }}</a></td>
-                        <td data-label="Almacén">{{ $c->warehouse->name }}</td>
-                        <td data-label="Avance">
-                            <div style="display:flex; gap:8px; align-items:center;">
-                                <div class="wh-progress"><span style="width: {{ $pct }}%"></span></div>
-                                <small>{{ $c->counted_lines_count }}/{{ $c->lines_count }}</small>
-                            </div>
-                        </td>
-                        <td data-label="Estado"><span class="erp-chip erp-tone-{{ \App\Models\StockCount::statusTone($c->status) }}">{{ \App\Models\StockCount::statusLabel($c->status) }}</span></td>
-                        <td data-label="Inicio">{{ $c->started_at?->format('d/m/Y') }}</td>
-                    </tr>
-                @empty
-                    <tr><td colspan="5" class="wh-empty">No hay conteos con estos filtros.</td></tr>
-                @endforelse
-            </tbody>
-        </table>
-    </div>
-    {{ $counts->links() }}
-</section>
+        <x-slot:footer>
+            <span>{{ $counts->total() }} conteos</span>
+            <div>{{ $counts->links('admin.components.pagination') }}</div>
+        </x-slot:footer>
+    </x-erp.worklist>
 </div>
 @endsection
