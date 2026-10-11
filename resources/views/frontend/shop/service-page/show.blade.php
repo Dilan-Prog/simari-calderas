@@ -16,6 +16,12 @@
     $canonicalTagUrl = $servicePage->canonical_url ?: $canonicalUrl;
 
     $ogImage = $servicePage->og_image_url ?: $servicePage->cover_image_url;
+    // ALT de OG: el de la imagen OG propia > el de la portada (si la OG cae a
+    // la portada) > nombre del servicio.
+    $ogImageAlt = ($servicePage->og_image_url
+        ? trim((string) $servicePage->og_image_alt)
+        : trim((string) $servicePage->cover_image_alt)) ?: ($servicePage->name . ' — Equiterm Industries');
+    $coverImageAlt = trim((string) $servicePage->cover_image_alt) ?: $servicePage->name;
     if ($ogImage && !str_starts_with($ogImage, 'http')) {
         $ogImage = \App\Support\UploadPath::url($ogImage);
     }
@@ -29,7 +35,7 @@
 @section('og_url', $canonicalUrl)
 @if ($ogImage)
     @section('og_image', $ogImage)
-    @section('og_image_alt', $servicePage->name . ' — Equiterm Industries')
+    @section('og_image_alt', $ogImageAlt)
 @endif
 
 @php
@@ -178,7 +184,7 @@
             </div>
             @if ($servicePage->cover_image_url)
                 <div class="collection-hero__image">
-                    <img src="{{ $servicePage->cover_image_url }}" alt="{{ $servicePage->name }}">
+                    <img src="{{ $servicePage->cover_image_url }}" alt="{{ $coverImageAlt }}">
                 </div>
             @endif
         </section>

@@ -45,8 +45,8 @@ const IMG_ICON = '<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15"
 export function collectionPanelsDefaults() {
     return {
         generalData: {
-            name: '', slug: '', description: '', image_url: '', sort_order: 0, is_active: true,
-            seo_title: '', seo_description: '', og_image_url: '', faqs: [], public_path: '',
+            name: '', slug: '', description: '', image_url: '', image_alt: '', sort_order: 0, is_active: true,
+            seo_title: '', seo_description: '', og_image_url: '', og_image_alt: '', faqs: [], public_path: '',
         },
         collectionState: {
             type: 'manual',           // 'manual' | 'automatic'
@@ -109,6 +109,7 @@ export function renderCollectionGeneralPanel(ctx) {
             </div>`)}
         ${field('Descripción', `<textarea class="users-manager-input client-modal-textarea" id="leColDesc" rows="3">${escHtml(generalData.description)}</textarea>`)}
         ${field('URL de imagen', imgField('leColImage', generalData.image_url, 'https://...'))}
+        ${field('ALT de la imagen principal', `<input type="text" class="users-manager-input" id="leColImageAlt" maxlength="255" value="${escHtml(generalData.image_alt ?? '')}" placeholder="Describe la imagen (accesibilidad y SEO)">`)}
         ${field('Orden', `<input type="number" min="0" step="1" class="users-manager-input" id="leColSort" value="${escHtml(generalData.sort_order ?? 0)}">`)}
         ${field('Estado', `
             <label style="display:flex;align-items:center;gap:8px;font-weight:400;font-size:13px;color:#374151;">
@@ -122,6 +123,7 @@ export function renderCollectionGeneralPanel(ctx) {
             <textarea class="users-manager-input client-modal-textarea" id="leColSeoDesc" rows="2" maxlength="500">${escHtml(generalData.seo_description)}</textarea>
             <div class="pform-char-row"><span class="pform-char-count" id="leColSeoDescCount">0/500</span></div>`)}
         ${field('Imagen para redes (Open Graph, 1200x630 recomendado)', imgField('leColOg', generalData.og_image_url, 'https://...'))}
+        ${field('ALT de la imagen OG', `<input type="text" class="users-manager-input" id="leColOgAlt" maxlength="255" value="${escHtml(generalData.og_image_alt ?? '')}" placeholder="Describe la imagen que se muestra al compartir">`)}
         <div class="show-user-divider" style="margin:10px 0;"></div>
         ${field('Preguntas frecuentes de la colección', `
             <div id="leColFaqRows" class="hs-faq-items"></div>
@@ -200,11 +202,13 @@ async function saveCollectionGeneral(ctx) {
         slug: $('leColSlug').value,
         description: $('leColDesc').value,
         image_url: $('leColImage').value,
+        image_alt: $('leColImageAlt').value,
         sort_order: $('leColSort').value,
         is_active: $('leColActive').checked,
         seo_title: $('leColSeoTitle').value,
         seo_description: $('leColSeoDesc').value,
         og_image_url: $('leColOg').value,
+        og_image_alt: $('leColOgAlt').value,
         faq_items: generalData.faqs || [],
     };
 

@@ -23,11 +23,11 @@
         @foreach ($logos as $logo)
             @if ($logo['link'])
                 <a class="svc-brand-logos__item" href="{{ $logo['link'] }}" @if(preg_match('#^https?://#i', $logo['link'])) target="_blank" rel="noopener" @endif title="{{ $logo['alt'] }}">
-                    <img src="{{ $logo['url'] }}" alt="{{ $logo['alt'] }}" loading="lazy">
+                    <img src="{{ $logo['url'] }}" alt="{{ $logo['alt'] ?: ($servicePage->name ?? '') }}" loading="lazy">
                 </a>
             @else
                 <div class="svc-brand-logos__item" title="{{ $logo['alt'] }}">
-                    <img src="{{ $logo['url'] }}" alt="{{ $logo['alt'] }}" loading="lazy">
+                    <img src="{{ $logo['url'] }}" alt="{{ $logo['alt'] ?: ($servicePage->name ?? '') }}" loading="lazy">
                 </div>
             @endif
         @endforeach

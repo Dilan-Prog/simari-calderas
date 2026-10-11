@@ -175,6 +175,7 @@ import { renderCollectionGeneralPanel, renderCollectionProductsPanel } from './l
         name: '', slug: '', sort_order: 0, short_description: '', price: '', currency: 'MXN', show_price: true,
         background_color: null,
         seo_title: '', seo_description: '', canonical_url: '', is_active: false, faqs: [],
+        cover_image_alt: '', og_image_url: '', og_image_alt: '',
         // Estadísticas de marketing (ver ServicePageController::fillRatingStats).
         rating_average_displayed: '', rating_total_rated: '', rating_recommend_percent: '',
         rating_punctuality_average: '', rating_recurring_clients: '', rating_since_year: '',
@@ -1054,6 +1055,26 @@ import { renderCollectionGeneralPanel, renderCollectionProductsPanel } from './l
                 <button type="button" id="leGenBgColorClear" class="live-editor-btn live-editor-btn--outline" style="margin-top:8px;" ${generalData.background_color ? '' : 'disabled'}>Quitar color (usar blanco)</button>
             `)}
             <div class="show-user-divider" style="margin:10px 0;"></div>
+            ${field('ALT de la portada', `
+                <input type="text" class="users-manager-input" id="leGenCoverAlt" maxlength="255" value="${escHtml(generalData.cover_image_alt)}" placeholder="Describe la portada (vacío = nombre del servicio)">
+                <p class="hs-config-note" id="leGenCoverAltCount" style="margin-top:4px;"></p>
+            `)}
+            ${field('Imagen OG (redes sociales, 1200×630)', `
+                <div class="img-picker-field">
+                    <input type="text" class="users-manager-input" id="leGenOgImage" value="${escHtml(generalData.og_image_url)}" placeholder="Vacío = se usa la portada">
+                    <button type="button" class="img-picker-trigger-btn" data-target="leGenOgImage">Seleccionar</button>
+                </div>
+                <div id="leGenOgPreview" style="margin-top:8px;width:100%;max-width:300px;aspect-ratio:1200/630;background:#f3f4f6;border:1px solid #e5e7eb;border-radius:6px;overflow:hidden;display:${generalData.og_image_url ? 'block' : 'none'};">
+                    <img id="leGenOgPreviewImg" src="${escHtml(ogPreviewSrc(generalData.og_image_url))}" alt="" style="width:100%;height:100%;object-fit:cover;">
+                </div>
+                <p class="hs-config-note" style="margin-top:4px;">Medida recomendada: 1200×630 px.</p>
+            `)}
+            <div id="leGenOgAltWrap" style="${generalData.og_image_url ? '' : 'display:none;'}">
+                ${field('ALT de la imagen OG', `
+                    <input type="text" class="users-manager-input" id="leGenOgAlt" maxlength="255" value="${escHtml(generalData.og_image_alt)}" placeholder="Describe la imagen OG">
+                    <p class="hs-config-note" id="leGenOgAltCount" style="margin-top:4px;"></p>
+                `)}
+            </div>
             ${field('Título SEO', `<input type="text" class="users-manager-input" id="leGenSeoTitle" value="${escHtml(generalData.seo_title)}" maxlength="160">`)}
             ${field('Descripción SEO', `<textarea class="users-manager-input client-modal-textarea" id="leGenSeoDesc" rows="2" maxlength="500">${escHtml(generalData.seo_description)}</textarea>`)}
             ${field('', `
@@ -1097,6 +1118,35 @@ import { renderCollectionGeneralPanel, renderCollectionProductsPanel } from './l
         `;
 
         editPanel.querySelector('#leGenSaveBtn').addEventListener('click', () => saveGeneralInfo());
+
+        // ALT de portada / imagen OG: contador (recomendado hasta 125) y vista previa.
+        const bindAltCount = (inputId, countId) => {
+            const input = editPanel.querySelector('#' + inputId);
+            const count = editPanel.querySelector('#' + countId);
+            if (!input || !count) return;
+            const update = () => {
+                const n = input.value.length;
+                count.textContent = n + ' caracteres (recomendado: hasta 125)';
+                count.style.color = n > 125 ? '#b45309' : '';
+            };
+            input.addEventListener('input', update);
+            update();
+        };
+        bindAltCount('leGenCoverAlt', 'leGenCoverAltCount');
+        bindAltCount('leGenOgAlt', 'leGenOgAltCount');
+
+        const ogInput = editPanel.querySelector('#leGenOgImage');
+        const refreshOg = () => {
+            const has = ogInput.value.trim() !== '';
+            editPanel.querySelector('#leGenOgPreview').style.display = has ? 'block' : 'none';
+            if (has) editPanel.querySelector('#leGenOgPreviewImg').src = ogPreviewSrc(ogInput.value.trim());
+            editPanel.querySelector('#leGenOgAltWrap').style.display = has ? '' : 'none';
+        };
+        ogInput.addEventListener('input', refreshOg);
+        ogInput.addEventListener('change', refreshOg);
+        editPanel.querySelector('.img-picker-trigger-btn[data-target="leGenOgImage"]').addEventListener('click', () => {
+            if (typeof window.openImagePicker === 'function') window.openImagePicker('leGenOgImage');
+        });
 
         editPanel.querySelector('#leGenSlugGenerate').addEventListener('click', () => {
             const nameInput = editPanel.querySelector('#leGenName');
@@ -1207,6 +1257,9 @@ import { renderCollectionGeneralPanel, renderCollectionProductsPanel } from './l
             seo_description: val('leGenSeoDesc', generalData.seo_description),
             is_canonical: checked('leGenIsCanonical', !generalData.canonical_url),
             canonical_url: val('leGenCanonicalUrl', generalData.canonical_url),
+            cover_image_alt: val('leGenCoverAlt', generalData.cover_image_alt),
+            og_image_url: val('leGenOgImage', generalData.og_image_url),
+            og_image_alt: val('leGenOgAlt', generalData.og_image_alt),
             faq_items: generalData.faqs || [],
             // Estadísticas de marketing — ver ServicePageController::fillRatingStats().
             // NO se marca isDirty/markDirty() por estos campos, mismo criterio
@@ -1259,6 +1312,7 @@ import { renderCollectionGeneralPanel, renderCollectionProductsPanel } from './l
                     name: 'leGenName', slug: 'leGenSlug', page_type: 'leGenPageType', parent_id: 'leGenParentId',
                     short_description: 'leGenShortDesc', price: 'leGenPrice', currency: 'leGenCurrency',
                     seo_title: 'leGenSeoTitle', seo_description: 'leGenSeoDesc', canonical_url: 'leGenCanonicalUrl',
+                    cover_image_alt: 'leGenCoverAlt', og_image_url: 'leGenOgImage', og_image_alt: 'leGenOgAlt',
                     rating_average_displayed: 'leGenRatingAvg', rating_total_rated: 'leGenRatingTotal',
                     rating_recommend_percent: 'leGenRatingRecommend', rating_punctuality_average: 'leGenRatingPunctuality',
                     rating_recurring_clients: 'leGenRatingRecurring', rating_since_year: 'leGenRatingSince',
@@ -1290,6 +1344,13 @@ import { renderCollectionGeneralPanel, renderCollectionProductsPanel } from './l
     //    (mismo array ya leído por imagesOptionsHtml() en rich_header/
     //    content_tabs/cta_final/gallery_carousel) para que esos otros
     //    pickers vean el cambio la próxima vez que se rendericen, sin reload. ──
+
+    // Vista previa de la imagen OG: las rutas relativas se sirven bajo /media/
+    // (mismo criterio que UploadPath::url()).
+    function ogPreviewSrc(u) {
+        if (!u) return '';
+        return /^https?:/i.test(u) || u.startsWith('/') ? u : '/media/' + u.replace(/^\/+/, '');
+    }
 
     function renderGalleryPanel() {
         editPanel.innerHTML = `
@@ -1325,7 +1386,11 @@ import { renderCollectionGeneralPanel, renderCollectionProductsPanel } from './l
                 ${i === 0 ? '<span class="service-gallery-item__badge">PORTADA</span>' : ''}
                 <button type="button" class="service-gallery-item__remove" title="Quitar">&times;</button>
                 <img src="${img.url}" alt="${escHtml(img.alt_text || '')}">
-                <input type="text" class="users-manager-input service-gallery-item__alt" placeholder="Texto alternativo" value="${escHtml(img.alt_text || '')}">
+                <input type="text" class="users-manager-input service-gallery-item__alt" maxlength="255" placeholder="Texto alternativo" value="${escHtml(img.alt_text || '')}">
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;margin-top:4px;">
+                    <small class="service-gallery-item__count" style="font-size:11px;color:#6b7280;"></small>
+                    <button type="button" class="hs-faq-btn service-gallery-item__use-name" style="font-size:11px;width:auto;padding:2px 6px;" title="Rellena el ALT con el nombre del servicio si está vacío">Usar nombre del servicio</button>
+                </div>
             `;
 
             item.querySelector('.service-gallery-item__remove').addEventListener('click', () => {
@@ -1333,10 +1398,25 @@ import { renderCollectionGeneralPanel, renderCollectionProductsPanel } from './l
             });
 
             let altDebounce = null;
-            item.querySelector('.service-gallery-item__alt').addEventListener('input', (e) => {
+            const altInput = item.querySelector('.service-gallery-item__alt');
+            const altCount = item.querySelector('.service-gallery-item__count');
+            const refreshAltCount = () => {
+                const n = altInput.value.length;
+                altCount.textContent = n + '/125';
+                altCount.style.color = n > 125 ? '#b45309' : '#6b7280';
+            };
+            refreshAltCount();
+            altInput.addEventListener('input', (e) => {
                 img.alt_text = e.target.value;
+                refreshAltCount();
                 clearTimeout(altDebounce);
                 altDebounce = setTimeout(() => updateGalleryImageAlt(img.id, img.alt_text), 500);
+            });
+            item.querySelector('.service-gallery-item__use-name').addEventListener('click', () => {
+                // Solo rellena si está vacío: nunca pisa un ALT ya escrito.
+                if (altInput.value.trim() !== '') return;
+                altInput.value = generalData.name || '';
+                altInput.dispatchEvent(new Event('input'));
             });
 
             grid.appendChild(item);
@@ -2189,6 +2269,7 @@ import { renderCollectionGeneralPanel, renderCollectionProductsPanel } from './l
             <p class="hs-config-note">El CTA siempre abre WhatsApp; no existe botón de llamada.</p>
             ${field('Precio mostrado (opcional)', `<input type="text" class="users-manager-input" id="leRhPriceLabel" value="${escHtml(cfg.price_label)}" placeholder="$8,500 MXN + IVA">`)}
             ${field('Imagen de fondo (galería del servicio)', `<div id="leRhBgImages"></div><p class="hs-config-note" style="margin-top:6px;">Si marcas varias, solo se usa la primera.</p>`)}
+            ${field('ALT de la imagen de fondo', `<input type="text" class="users-manager-input" id="leRhBgAlt" maxlength="255" value="${escHtml(cfg.background_alt)}" placeholder="Vacío = ALT de la galería">`)}
             <div class="show-user-divider" style="margin:10px 0;"></div>
             <p class="hs-config-note">El título y la descripción corta se editan en "Información general" — aquí solo se controla su estilo.</p>
             <p class="live-editor-col-title" style="margin:6px 0 0;">Estilo del título (H1, fijo)</p>
@@ -2217,6 +2298,7 @@ import { renderCollectionGeneralPanel, renderCollectionProductsPanel } from './l
             markDirty();
             schedulePreview();
         });
+        container.querySelector('#leRhBgAlt').addEventListener('input', (e) => { cfg.background_alt = e.target.value; markDirty(); schedulePreview(); });
         renderImagePickerGrid(container.querySelector('#leRhBgImages'), cfg.background_image_ids, DATA.images, (ids) => {
             cfg.background_image_ids = ids;
             markDirty();
@@ -2252,7 +2334,8 @@ import { renderCollectionGeneralPanel, renderCollectionProductsPanel } from './l
                 ${IS_COLLECTION ? '' : `<select class="users-manager-select le-image" style="margin-top:6px;">
                     <option value="">Sin imagen</option>
                     ${imagesOptionsHtml(tab.image_id ? [tab.image_id] : [], DATA.images)}
-                </select>`}
+                </select>
+                <input type="text" class="users-manager-input le-image-alt" maxlength="255" placeholder="ALT de la imagen (vacío = ALT de la galería)" style="margin-top:6px;" value="${escHtml(tab.image_alt)}">`}
                 <div class="le-tab-style" style="margin-top:6px;"></div>
             `;
             row.querySelector('.le-label').addEventListener('input', (e) => { tab.label = e.target.value; markDirty(); renderBlocksList(); schedulePreview(); });
@@ -2260,6 +2343,7 @@ import { renderCollectionGeneralPanel, renderCollectionProductsPanel } from './l
             row.querySelector('.le-body').addEventListener('input', (e) => { tab.body = e.target.value; markDirty(); schedulePreview(); });
             row.querySelector('.le-bullets').addEventListener('input', (e) => { tab.bullets = e.target.value.split('\n').map((v) => v.trim()).filter(Boolean); markDirty(); schedulePreview(); });
             row.querySelector('.le-image')?.addEventListener('change', (e) => { tab.image_id = e.target.value || null; markDirty(); schedulePreview(); });
+            row.querySelector('.le-image-alt')?.addEventListener('input', (e) => { tab.image_alt = e.target.value; markDirty(); schedulePreview(); });
             row.querySelector('.hs-repeat-remove').addEventListener('click', () => {
                 cfg.tabs.splice(i, 1);
                 markDirty();
@@ -2515,6 +2599,7 @@ import { renderCollectionGeneralPanel, renderCollectionProductsPanel } from './l
             ${field('Texto del botón', `<input type="text" class="users-manager-input" id="leCtaWhatsapp" value="${escHtml(cfg.whatsapp_text || 'Cotizar por WhatsApp')}">`)}
             <p class="hs-config-note">Deja este campo vacío para ocultar el botón de WhatsApp.</p>
             ${IS_COLLECTION ? '' : field('Imagen de fondo (opcional)', `<select class="users-manager-select" id="leCtaBg"><option value="">Sin imagen</option>${imagesOptionsHtml(cfg.background_image_id ? [cfg.background_image_id] : [], DATA.images)}</select>`)}
+            ${IS_COLLECTION ? '' : field('ALT de la imagen de fondo', `<input type="text" class="users-manager-input" id="leCtaBgAlt" maxlength="255" value="${escHtml(cfg.background_alt)}" placeholder="Vacío = ALT de la galería">`)}
             <div class="show-user-divider" style="margin:10px 0;"></div>
             <p class="live-editor-col-title">Botón secundario (opcional)</p>
             <p class="hs-config-note">Se muestra junto al de WhatsApp (o solo, si dejaste ese campo vacío) — útil para un enlace que no sea WhatsApp.</p>
@@ -2525,6 +2610,8 @@ import { renderCollectionGeneralPanel, renderCollectionProductsPanel } from './l
         container.querySelector('#leCtaWhatsapp').addEventListener('input', (e) => { cfg.whatsapp_text = e.target.value; markDirty(); schedulePreview(); });
         const ctaBg = container.querySelector('#leCtaBg');
         if (ctaBg) ctaBg.addEventListener('change', (e) => { cfg.background_image_id = e.target.value || null; markDirty(); schedulePreview(); });
+        const ctaBgAlt = container.querySelector('#leCtaBgAlt');
+        if (ctaBgAlt) ctaBgAlt.addEventListener('input', (e) => { cfg.background_alt = e.target.value; markDirty(); schedulePreview(); });
 
         cfg.headline_style = cfg.headline_style || {};
         cfg.subtext_style = cfg.subtext_style || {};

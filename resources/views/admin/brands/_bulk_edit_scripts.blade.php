@@ -225,7 +225,7 @@
             const MIN_COL_WIDTH = 50;
             const MAX_COL_WIDTH = 800;
             const DEFAULT_COL_WIDTHS = {
-                name: 180, slug: 150, description: 200, logo_url: 160, is_active: 90,
+                name: 180, slug: 150, description: 200, logo_url: 160, logo_alt: 180, is_active: 90,
                 seo_title: 160, seo_description: 200,
             };
 
@@ -483,6 +483,38 @@
                     viewDeleteBtn.disabled = false;
                 }
             });
+
+            // ── Acción masiva: rellenar ALT vacíos con el nombre de la marca ──
+            const fillAltBtn = document.getElementById('bulkFillLogoAltBtn');
+            if (fillAltBtn) {
+                fillAltBtn.addEventListener('click', async () => {
+                    if (changes.size) {
+                        showToast('Guarda o descarta los cambios pendientes antes de rellenar los ALT.', 'error');
+                        return;
+                    }
+                    if (!confirm('Se rellenará con el nombre de la marca el ALT vacío de las marcas que tienen logotipo. No se sobrescribe ningún ALT existente. ¿Continuar?')) return;
+
+                    fillAltBtn.disabled = true;
+                    try {
+                        const response = await fetch('{{ route('admin.brands.bulk.fill-alt') }}', {
+                            method: 'POST',
+                            headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
+                        });
+                        const data = await response.json();
+                        if (!response.ok || !data.success) {
+                            showToast(data.message ?? 'No se pudieron rellenar los ALT.', 'error');
+                            return;
+                        }
+                        showToast(`${data.filled} ALT rellenado(s).`);
+                        if (data.filled > 0) setTimeout(() => window.location.reload(), 900);
+                    } catch (err) {
+                        console.error('Error filling logo ALT:', err);
+                        showToast('Error de conexión. Intenta de nuevo.', 'error');
+                    } finally {
+                        fillAltBtn.disabled = false;
+                    }
+                });
+            }
 
             syncUnsavedBar();
         })();

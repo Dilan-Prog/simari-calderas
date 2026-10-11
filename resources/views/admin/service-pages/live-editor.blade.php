@@ -204,6 +204,9 @@
                 'public_path' => $servicePage->publicPath(),
                 'faqs' => $servicePage->faqs ?? [],
                 'canonical_url' => $servicePage->canonical_url,
+                'cover_image_alt' => $servicePage->cover_image_alt,
+                'og_image_url' => $servicePage->og_image_url,
+                'og_image_alt' => $servicePage->og_image_alt,
                 // Estadísticas de marketing (pestaña "Rating y reseñas —
                 // Promedio mostrado" del formulario clásico) -- portadas al
                 // panel "Información general" del editor en vivo. Nunca

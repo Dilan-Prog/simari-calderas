@@ -359,10 +359,12 @@
                             <div id="pformImageUrlInputs" style="display:none"></div>
                             <div id="pformImageOrderInputs" style="display:none"></div>
 
+                            @include('admin.products.partials._alt_cover_field', ['coverAltValue' => $product->cover_image_alt ?? optional($product->images->first())->alt_text ?? ''])
+
                             {{-- Imágenes existentes — arrastra para reordenar; el orden se
                                  guarda al instante (AJAX), sin esperar a "Guardar Cambios". --}}
                             @if($product->images->count())
-                            <div id="pformExistingGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:12px;margin-top:16px;">
+                            <div id="pformExistingGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px;margin-top:16px;">
                                 @foreach($product->images as $img)
                                 <div class="pform-img-item pform-existing-img" data-id="{{ $img->id }}" draggable="true" title="Arrastra para reordenar">
                                     <img src="{{ $img->url }}" alt="" class="pform-img-item-thumb">
@@ -370,6 +372,15 @@
                                         <span class="pform-img-item-badge">Portada</span>
                                     @endif
                                     <div class="pform-img-item-info">Imagen #{{ $loop->iteration }}</div>
+                                    <div class="pform-alt-field" data-limit="125" style="padding:6px;border-top:1px solid #e5e7eb;cursor:auto;">
+                                        <label style="display:block;font-size:11px;font-weight:600;color:#374151;margin-bottom:3px;" for="existingAlt{{ $img->id }}">Texto alternativo (ALT)</label>
+                                        <input type="text" id="existingAlt{{ $img->id }}" class="pform-input pform-alt-input" name="existing_alts[{{ $img->id }}]" maxlength="255"
+                                            value="{{ old('existing_alts.' . $img->id, $img->alt_text) }}" style="width:100%;font-size:12px;padding:5px 7px;">
+                                        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:3px;gap:6px;">
+                                            <span class="pform-alt-count" style="font-size:10px;color:#6b7280;"></span>
+                                            <button type="button" class="pform-alt-use-name" style="font-size:10px;background:none;border:none;color:var(--secondary-color,#ff6213);cursor:pointer;padding:0;text-align:right;">Usar nombre del producto</button>
+                                        </div>
+                                    </div>
                                     <input type="checkbox" name="delete_images[]" value="{{ $img->id }}" id="delImg{{ $img->id }}" style="display:none">
                                     <button type="button" class="pform-img-item-remove pform-del-existing"
                                         onclick="toggleDeleteImg({{ $img->id }})">✕</button>
@@ -379,7 +390,7 @@
                             @endif
 
                             {{-- Grid de nuevas imágenes a subir --}}
-                            <div id="pformImageGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:12px;margin-top:16px;"></div>
+                            <div id="pformImageGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px;margin-top:16px;"></div>
 
                             <div class="pform-placeholder" id="pformImagePlaceholder" style="padding:40px 32px;{{ $product->images->count() ? 'display:none' : '' }}">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="56" height="56"
@@ -1302,6 +1313,7 @@
                             @enderror
                             <p class="pform-hint">Recomendado: 1200x630px &bull; Máximo: 5MB &bull; Formato: JPG o PNG
                             </p>
+                            @include('admin.products.partials._alt_og_field', ['formId' => 'productEditForm', 'ogAltValue' => $product->og_image_alt ?? ''])
                         </div>
                     </div>
 
@@ -1384,5 +1396,6 @@
     @include('admin.products.partials._image_source_modal')
     @include('admin.products.edit_product._modal_supplier_link')
     @include('admin.products.edit_product._scripts')
+    @include('admin.products.partials._alt_scripts')
     @include('admin.products.edit_product._blocks_scripts')
 @endsection

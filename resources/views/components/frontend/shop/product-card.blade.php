@@ -16,6 +16,11 @@
         ?? $galleryUrls->first()
         ?? asset('images/logo/equiterm-logo-blanco-color-3x.png');
     $resolvedName = $product->resolveVariables($product->name);
+    // ALT guardado en el admin: la portada usa cover_image_alt y cada imagen de
+    // la galería su alt_text; si están vacíos cae al nombre del producto.
+    $galleryAlts = $product->images->filter(fn ($i) => $i->url)->values()
+        ->map(fn ($img, $i) => $product->imageAlt($img, $i === 0));
+    $coverAlt = $product->imageAlt($product->images->first(), true);
     $quoteMessage = "Hola, me interesa cotizar este producto: {$resolvedName} (SKU: {$product->sku}) - " . route('product.show', $product->slug);
     $quoteWhatsappUrl = 'https://wa.me/' . \App\Models\Setting::get('footer.phone_link', '5214494577320') . '?text=' . urlencode($quoteMessage);
 @endphp
@@ -32,7 +37,7 @@
         @if ($hasGallery)
             <div class="product-card__img-wrap" x-data="productCardGallery({{ $galleryUrls->count() }})">
                 @foreach ($galleryUrls as $i => $url)
-                    <img src="{{ $url }}" alt="{{ $resolvedName }}" class="product-card__img product-card__img--slide" :class="{ 'is-active': active === {{ $i }} }" loading="lazy">
+                    <img src="{{ $url }}" alt="{{ $galleryAlts[$i] ?? $resolvedName }}" class="product-card__img product-card__img--slide" :class="{ 'is-active': active === {{ $i }} }" loading="lazy">
                 @endforeach
                 <button type="button" class="product-card__img-nav product-card__img-nav--prev" @click.stop.prevent="prev()" aria-label="Imagen anterior">‹</button>
                 <button type="button" class="product-card__img-nav product-card__img-nav--next" @click.stop.prevent="next()" aria-label="Imagen siguiente">›</button>
@@ -44,7 +49,7 @@
             </div>
         @else
             <div class="product-card__img-wrap">
-                <img src="{{ $imageUrl }}" alt="{{ $resolvedName }}" class="product-card__img" loading="lazy">
+                <img src="{{ $imageUrl }}" alt="{{ $coverAlt }}" class="product-card__img" loading="lazy">
             </div>
         @endif
         <div class="product-card__name">{{ $resolvedName }}</div>

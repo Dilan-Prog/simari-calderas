@@ -114,6 +114,7 @@ class Products extends Model
         'width',
         'length',
         'cover_image_url',
+        'cover_image_alt',
         'is_active',
         'is_featured',
         'is_new',
@@ -140,6 +141,7 @@ class Products extends Model
         'og_title',
         'og_description',
         'og_image',
+        'og_image_alt',
         'canonical_url',
         'canonical_product_id',
         // FIX BUG 9: currency + stock_unit columns added via
@@ -381,6 +383,34 @@ class Products extends Model
     public function images()
     {
         return $this->hasMany(ProductImage::class, 'product_id')->orderBy('sort_order');
+    }
+
+    /**
+     * ALT público de una imagen de este producto: el guardado en la imagen
+     * (o, si es la portada, cover_image_alt) y, si está vacío, el nombre del
+     * producto. $isCover = true para la portada (primera imagen / cover_image_url).
+     */
+    public function imageAlt(?ProductImage $image = null, bool $isCover = false): string
+    {
+        $candidates = $isCover
+            ? [$this->cover_image_alt, $image?->alt_text]
+            : [$image?->alt_text];
+
+        foreach ($candidates as $alt) {
+            if (is_string($alt) && trim($alt) !== '') {
+                return trim($alt);
+            }
+        }
+
+        return (string) $this->resolveVariables($this->name);
+    }
+
+    /** ALT de la imagen Open Graph (og_image_alt o, si falta, el nombre del producto). */
+    public function ogImageAlt(): string
+    {
+        return (is_string($this->og_image_alt) && trim($this->og_image_alt) !== '')
+            ? trim($this->og_image_alt)
+            : (string) $this->resolveVariables($this->name);
     }
 
     /**

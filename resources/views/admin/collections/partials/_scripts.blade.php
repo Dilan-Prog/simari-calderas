@@ -302,6 +302,7 @@
                         document.getElementById('collectionSlug').value = col.slug ?? '';
                         document.getElementById('collectionDescription').value = col.description ?? '';
                         document.getElementById('collectionImageUrl').value = col.image_url ?? '';
+                        document.getElementById('collectionImageAlt').value = col.image_alt ?? '';
                         document.getElementById('collectionSortOrder').value = col.sort_order ?? 0;
                         document.getElementById('collectionIsActive').value = col.is_active ? '1' : '0';
                         document.getElementById('collectionType').value = col.type ?? 'manual';
@@ -309,6 +310,7 @@
                         document.getElementById('collectionSeoTitle').value = col.seo_title ?? '';
                         document.getElementById('collectionSeoDescription').value = col.seo_description ?? '';
                         document.getElementById('collectionOgImageUrl').value = col.og_image_url ?? '';
+                        document.getElementById('collectionOgImageAlt').value = col.og_image_alt ?? '';
                         updateCollectionSeoCounters();
                         updateCollectionGooglePreview();
                         collectionFaqRows.innerHTML = '';

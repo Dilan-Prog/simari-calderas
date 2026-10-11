@@ -7,7 +7,7 @@
     // Normaliza cada lado: `link` (LinkTarget) tiene prioridad; si no existe
     // se usa el campo legado link_url. Un destino roto deja el lado sin
     // enlace (nunca href vacío ni '#').
-    $bannerSide = function (?array $side): ?array {
+    $bannerSide = function (?array $side) use ($section): ?array {
         if (!$side || empty($side['image_url'])) {
             return null;
         }
@@ -21,7 +21,7 @@
 
         return [
             'src'     => \App\Support\UploadPath::url($side['image_url']),
-            'alt'     => $side['alt'] ?? '',
+            'alt'     => ($side['alt'] ?? '') !== '' ? $side['alt'] : \App\Support\LinkText::plain($section->title ?? ''),
             'url'     => empty($side['no_link']) && !empty($url) ? $url : null,
             'new_tab' => $newTab,
         ];
@@ -50,11 +50,11 @@
         @foreach ($sides as $side)
             @if ($side['url'])
                 <a href="{{ $side['url'] }}" class="home-dual-banner__item" @if ($side['new_tab']) target="_blank" rel="noopener" @endif>
-                    <img src="{{ $side['src'] }}" alt="{{ $side['alt'] }}" loading="lazy">
+                    <img src="{{ $side['src'] }}" alt="{{ $side['alt'] ?: ($servicePage->name ?? '') }}" loading="lazy">
                 </a>
             @else
                 <div class="home-dual-banner__item">
-                    <img src="{{ $side['src'] }}" alt="{{ $side['alt'] }}" loading="lazy">
+                    <img src="{{ $side['src'] }}" alt="{{ $side['alt'] ?: ($servicePage->name ?? '') }}" loading="lazy">
                 </div>
             @endif
         @endforeach

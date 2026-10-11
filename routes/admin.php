@@ -193,6 +193,7 @@ Route::controller(ProductController::class)
         Route::post('/productos/bulk', 'bulkUpdate')->name('products.bulk')->middleware('permission:products,edit');
         Route::get('/productos/edicion-masiva', 'bulkEditIndex')->name('products.bulk-edit');
         Route::post('/productos/edicion-masiva/guardar', 'bulkEditSave')->name('products.bulk.save')->middleware('permission:products,edit');
+        Route::post('/productos/edicion-masiva/rellenar-alt', 'bulkFillAlt')->name('products.bulk.fill-alt')->middleware('permission:products,edit');
         Route::post('/productos/edicion-masiva/vistas', 'storeBulkEditView')->name('products.bulk-edit.views.store')->middleware('permission:products,create');
         Route::put('/productos/edicion-masiva/vistas/{id}', 'updateBulkEditView')->name('products.bulk-edit.views.update')->middleware('permission:products,edit');
         Route::delete('/productos/edicion-masiva/vistas/{id}', 'destroyBulkEditView')->name('products.bulk-edit.views.destroy')->middleware('permission:products,delete');
@@ -299,7 +300,8 @@ Route::controller(BrandController::class)
         Route::delete('/marcas/eliminar/{id}', 'destroy')->name('brands.destroy')->middleware('permission:brands,delete');
         Route::get('/marcas/edicion-masiva', 'bulkEditIndex')->name('brands.bulk-edit');
         Route::post('/marcas/edicion-masiva/guardar', 'bulkEditSave')->name('brands.bulk.save')->middleware('permission:brands,edit');
-        Route::post('/marcas/edicion-masiva/vistas', 'storeBulkEditView')->name('brands.bulk-edit.views.store')->middleware('permission:brands,create');
+        Route::post('/marcas/edicion-masiva/rellenar-alt', 'bulkFillLogoAlt')->name('brands.bulk.fill-alt')->middleware('permission:brands,edit');
+        Route::post('/marcas/edicion-masiva/vistas','storeBulkEditView')->name('brands.bulk-edit.views.store')->middleware('permission:brands,create');
         Route::put('/marcas/edicion-masiva/vistas/{id}', 'updateBulkEditView')->name('brands.bulk-edit.views.update')->middleware('permission:brands,edit');
         Route::delete('/marcas/edicion-masiva/vistas/{id}', 'destroyBulkEditView')->name('brands.bulk-edit.views.destroy')->middleware('permission:brands,delete');
     });

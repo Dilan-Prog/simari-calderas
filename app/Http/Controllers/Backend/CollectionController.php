@@ -60,6 +60,8 @@ class CollectionController extends Controller
             'seo_title'       => 'nullable|string|max:160',
             'seo_description' => 'nullable|string|max:500',
             'og_image_url'    => 'nullable|string|max:255',
+            'image_alt'       => 'nullable|string|max:255',
+            'og_image_alt'    => 'nullable|string|max:255',
             'faq_items'       => 'nullable|array',
         ]);
 
@@ -70,6 +72,7 @@ class CollectionController extends Controller
         $collection->type        = $request->type;
         $collection->match_type  = $request->type === 'automatic' ? $request->match_type : null;
         $collection->image_url   = $request->image_url ?? null;
+        $collection->image_alt   = trim((string) $request->input('image_alt', '')) ?: null;
         $collection->sort_order  = $request->sort_order ?? 0;
         $collection->is_active   = $request->boolean('is_active', true);
         $this->fillSeoAndFaqs($collection, $request);
@@ -99,6 +102,9 @@ class CollectionController extends Controller
         $collection->seo_title       = $request->input('seo_title') ?: null;
         $collection->seo_description = $request->input('seo_description') ?: null;
         $collection->og_image_url    = $request->input('og_image_url') ?: null;
+        $collection->og_image_alt    = $collection->og_image_url
+            ? (trim((string) $request->input('og_image_alt', '')) ?: null)
+            : null;
 
         $faqs = collect((array) $request->input('faq_items', []))
             ->map(fn ($item) => [
@@ -130,6 +136,8 @@ class CollectionController extends Controller
             'seo_title'       => 'nullable|string|max:160',
             'seo_description' => 'nullable|string|max:500',
             'og_image_url'    => 'nullable|string|max:255',
+            'image_alt'       => 'nullable|string|max:255',
+            'og_image_alt'    => 'nullable|string|max:255',
             'faq_items'       => 'nullable|array',
         ]);
 
@@ -139,6 +147,7 @@ class CollectionController extends Controller
         $collection->type        = $request->type;
         $collection->match_type  = $request->type === 'automatic' ? $request->match_type : null;
         $collection->image_url   = $request->image_url ?? null;
+        $collection->image_alt   = trim((string) $request->input('image_alt', '')) ?: null;
         $collection->sort_order  = $request->sort_order ?? 0;
         $collection->is_active   = $request->boolean('is_active', true);
         $this->fillSeoAndFaqs($collection, $request);
@@ -372,6 +381,8 @@ class CollectionController extends Controller
             'seo_title'       => 'nullable|string|max:160',
             'seo_description' => 'nullable|string|max:500',
             'og_image_url'    => 'nullable|string|max:255',
+            'image_alt'       => 'nullable|string|max:255',
+            'og_image_alt'    => 'nullable|string|max:255',
             'faq_items'       => 'nullable|array',
         ]);
 
@@ -379,6 +390,7 @@ class CollectionController extends Controller
         $collection->slug        = $request->slug;
         $collection->description = $request->description ?? null;
         $collection->image_url   = $request->image_url ?? null;
+        $collection->image_alt   = trim((string) $request->input('image_alt', '')) ?: null;
         $collection->sort_order  = $request->sort_order ?? 0;
         $collection->is_active   = $request->boolean('is_active', true);
         $this->fillSeoAndFaqs($collection, $request);
@@ -392,11 +404,13 @@ class CollectionController extends Controller
                 'slug'            => $collection->slug,
                 'description'     => $collection->description,
                 'image_url'       => $collection->image_url,
+                'image_alt'       => $collection->image_alt,
                 'sort_order'      => $collection->sort_order,
                 'is_active'       => $collection->is_active,
                 'seo_title'       => $collection->seo_title,
                 'seo_description' => $collection->seo_description,
                 'og_image_url'    => $collection->og_image_url,
+                'og_image_alt'    => $collection->og_image_alt,
                 'faqs'            => $collection->faqs ?? [],
                 'public_path'     => '/coleccion/' . $collection->slug,
             ],

@@ -82,12 +82,13 @@ class ProductController extends Controller
             return;
         }
 
+        $alts        = array_values((array) $request->input('image_alts', []));
         $sortOrder   = $startingSortOrder;
         $fileIdx     = 0;
         $urlIdx      = 0;
         $existingIdx = 0;
 
-        foreach ($request->input('image_source_order', []) as $type) {
+        foreach (array_values($request->input('image_source_order', [])) as $orderIdx => $type) {
             $path = null;
             if ($type === 'file' && array_key_exists($fileIdx, $uploadedPaths)) {
                 $path = $uploadedPaths[$fileIdx++];
@@ -97,7 +98,13 @@ class ProductController extends Controller
                 $path = $existingPaths[$existingIdx++];
             }
             if ($path !== null) {
-                ProductImage::create(['product_id' => $product->id, 'image_url' => $path, 'sort_order' => $sortOrder++]);
+                // image_alts[] va alineado posición a posición con image_source_order[].
+                ProductImage::create([
+                    'product_id' => $product->id,
+                    'image_url'  => $path,
+                    'alt_text'   => $this->cleanAlt($alts[$orderIdx] ?? null),
+                    'sort_order' => $sortOrder++,
+                ]);
             }
         }
 
@@ -112,6 +119,43 @@ class ProductController extends Controller
         }
         foreach (array_slice($existingPaths, $existingIdx) as $path) {
             ProductImage::create(['product_id' => $product->id, 'image_url' => $path, 'sort_order' => $sortOrder++]);
+        }
+    }
+
+    /** Trim + vacío -> null, tope de 255 caracteres (columna string). */
+    private function cleanAlt($value): ?string
+    {
+        $value = trim((string) $value);
+
+        return $value === '' ? null : mb_substr($value, 0, 255);
+    }
+
+    /**
+     * Regla portada <-> galería: la portada es la PRIMERA imagen de la galería
+     * (sort_order más bajo). cover_image_alt y product_images.alt_text de esa
+     * primera imagen deben decir lo mismo:
+     *  - si llega cover_image_alt con texto, GANA y se copia al alt_text de la
+     *    primera imagen (el formulario los refleja el uno en el otro, así que
+     *    solo difieren en peticiones sin JS);
+     *  - si llega vacío y la primera imagen tiene alt_text, cover_image_alt se
+     *    rellena con ese texto;
+     *  - sin imágenes de galería, cover_image_alt se queda como se guardó.
+     */
+    private function syncCoverAlt(Products $product): void
+    {
+        $first = $product->images()->orderBy('sort_order')->orderBy('id')->first();
+        if (!$first) {
+            return;
+        }
+
+        $cover = $this->cleanAlt($product->cover_image_alt);
+
+        if ($cover !== null) {
+            if ($first->alt_text !== $cover) {
+                $first->update(['alt_text' => $cover]);
+            }
+        } elseif ($first->alt_text !== null && trim($first->alt_text) !== '') {
+            $product->forceFill(['cover_image_alt' => $this->cleanAlt($first->alt_text)])->saveQuietly();
         }
     }
 
@@ -248,6 +292,7 @@ class ProductController extends Controller
         'category_id', 'brand_id', 'is_active', 'publish_on_website', 'is_featured', 'is_new', 'is_recommended', 'show_in_merchant_center', 'accepts_msi',
         'tags', 'specifications', 'faqs',
         'seo_title', 'seo_description', 'seo_keywords', 'og_title', 'og_description', 'og_image', 'canonical_url',
+        'cover_image_alt', 'og_image_alt', 'gallery_alts',
         'canonical_product_id', 'is_canonical', 'redirect_old_slug', 'supplier_id',
     ];
 
@@ -267,6 +312,7 @@ class ProductController extends Controller
         'category_id', 'category_sub', 'category_child', 'brand_id', 'is_active', 'publish_on_website', 'is_featured', 'is_new', 'is_recommended', 'show_in_merchant_center', 'accepts_msi',
         'tags', 'specifications', 'faqs',
         'seo_title', 'seo_description', 'seo_keywords', 'og_title', 'og_description', 'og_image', 'canonical',
+        'cover_image_alt', 'og_image_alt', 'gallery_alts',
         'redirect_old_slug',
     ];
     private const BULK_EDIT_VIEWS_MAX_PER_USER = 10;
@@ -325,6 +371,7 @@ class ProductController extends Controller
             'category_id', 'brand_id', 'is_active', 'publish_on_website', 'is_featured', 'is_new', 'is_recommended', 'show_in_merchant_center', 'accepts_msi',
             'tags', 'specifications', 'faqs',
             'seo_title', 'seo_description', 'seo_keywords', 'og_title', 'og_description', 'og_image',
+            'cover_image_url', 'cover_image_alt', 'og_image_alt',
             // FIX (bug de URL Canónica): estas 3 columnas faltaban en el
             // select() — $product->canonical_url y $product->slug llegaban
             // null en PHP sin importar el valor real en BD, así que
@@ -335,7 +382,10 @@ class ProductController extends Controller
         ])->with(['category.parent.parent', 'suppliers', 'canonicalProduct:id,name,model,sku,slug',
             // Columna informativa "Plantillas" (bloques dinámicos): solo las
             // asignaciones a plantillas product_template, para listar sus nombres.
-            'sectionAssignments.section:id,name,title,type,page']);
+            'sectionAssignments.section:id,name,title,type,page',
+            // Columna "ALT de imágenes" (galería): una sola consulta extra
+            // para toda la página, sin N+1.
+            'images:id,product_id,image_url,alt_text,sort_order']);
 
         $totalFiltered = (clone $query)->count();
         $perPageInput  = $request->input('per_page', 25);
@@ -405,6 +455,8 @@ class ProductController extends Controller
         'seo_keywords' => 255,
         'og_title' => 255,
         'og_image' => 255,
+        'cover_image_alt' => 255,
+        'og_image_alt' => 255,
         'canonical_url' => 255,
         // Tiempo de entrega estimado (solo aplica con disponibilidad "Bajo pedido", ver bulkEditSave).
         'lead_time_text' => 150,
@@ -435,6 +487,36 @@ class ProductController extends Controller
         }
 
         switch ($field) {
+            case 'gallery_alts':
+                // Arreglo [{id, alt_text}, ...] (o su JSON string). Cada id
+                // debe pertenecer a este producto; si alguno es ajeno se
+                // rechaza todo el cambio. Valor limpio: [imageId => alt|null].
+                $items = is_string($value) ? json_decode($value, true) : $value;
+                if (!is_array($items)) {
+                    return [false, null, 'Formato de ALT de imágenes inválido.'];
+                }
+                $cleanAlts = [];
+                foreach ($items as $item) {
+                    if (!is_array($item) || !isset($item['id']) || !is_numeric($item['id'])) {
+                        return [false, null, 'Formato de ALT de imágenes inválido.'];
+                    }
+                    $alt = trim((string) ($item['alt_text'] ?? ''));
+                    if (mb_strlen($alt) > 255) {
+                        return [false, null, 'Máximo 255 caracteres por ALT.'];
+                    }
+                    $cleanAlts[(int) $item['id']] = $alt === '' ? null : $alt;
+                }
+                if ($cleanAlts) {
+                    $owned = ProductImage::where('product_id', $productId)
+                        ->whereIn('id', array_keys($cleanAlts))
+                        ->count();
+                    if ($owned !== count($cleanAlts)) {
+                        return [false, null, 'Alguna imagen no pertenece a este producto.'];
+                    }
+                }
+
+                return [true, $cleanAlts, null];
+
             case 'price':
             case 'compare_price':
             case 'cost':
@@ -751,15 +833,74 @@ class ProductController extends Controller
                         $fields['lead_time_text'] = null;
                     }
 
+                    // 'gallery_alts' tampoco es columna de products: actualiza
+                    // alt_text de las filas de product_images (ya validadas
+                    // como propias del producto).
+                    if (array_key_exists('gallery_alts', $fields)) {
+                        foreach ($fields['gallery_alts'] as $imageId => $alt) {
+                            ProductImage::where('id', $imageId)
+                                ->where('product_id', $product->id)
+                                ->update(['alt_text' => $alt]);
+                        }
+                        unset($fields['gallery_alts']);
+                    }
+
                     foreach ($fields as $field => $value) {
                         $product->{$field} = $value;
                     }
-                    $product->save();
+                    if ($fields) {
+                        $product->save();
+                    }
                 }
             });
         }
 
         return response()->json(['success' => true, 'results' => $results]);
+    }
+
+    /**
+     * Acción masiva: rellena los ALT vacíos (portada y galería) con el nombre
+     * del producto, solo para los productos indicados. Nunca sobrescribe un
+     * ALT que ya tenga texto.
+     */
+    public function bulkFillAlt(Request $request)
+    {
+        $data = $request->validate([
+            'ids' => 'required|array|min:1',
+            'ids.*' => 'integer|exists:products,id',
+        ]);
+
+        $coverFilled = 0;
+        $galleryFilled = 0;
+
+        DB::transaction(function () use ($data, &$coverFilled, &$galleryFilled) {
+            Products::whereIn('id', $data['ids'])
+                ->with('images:id,product_id,alt_text')
+                ->get(['id', 'name', 'cover_image_alt'])
+                ->each(function ($product) use (&$coverFilled, &$galleryFilled) {
+                    $name = mb_substr(trim((string) $product->name), 0, 255);
+                    if ($name === '') {
+                        return;
+                    }
+                    if (trim((string) $product->cover_image_alt) === '') {
+                        $product->cover_image_alt = $name;
+                        $product->save();
+                        $coverFilled++;
+                    }
+                    $emptyIds = $product->images
+                        ->filter(fn ($img) => trim((string) $img->alt_text) === '')
+                        ->pluck('id');
+                    if ($emptyIds->isNotEmpty()) {
+                        $galleryFilled += ProductImage::whereIn('id', $emptyIds)->update(['alt_text' => $name]);
+                    }
+                });
+        });
+
+        return response()->json([
+            'success' => true,
+            'cover_filled' => $coverFilled,
+            'gallery_filled' => $galleryFilled,
+        ]);
     }
 
     private function bulkEditViewValidationRules(): array
@@ -992,6 +1133,14 @@ class ProductController extends Controller
             'og_title'          => 'nullable|string|max:255',
             'og_description'    => 'nullable|string',
             'og_image'          => 'nullable|url|max:255',
+            // Texto ALT (accesibilidad/SEO): portada, imagen OG y cada imagen
+            // de la galería. Ver syncCoverAlt() para la regla portada<->galería.
+            'og_image_alt'      => 'nullable|string|max:255',
+            'cover_image_alt'   => 'nullable|string|max:255',
+            'image_alts'        => 'nullable|array',
+            'image_alts.*'      => 'nullable|string|max:255',
+            'existing_alts'     => 'nullable|array',
+            'existing_alts.*'   => 'nullable|string|max:255',
             'canonical_url'     => 'nullable|url|max:255',
             // Selector de producto canónico — reemplaza el input de texto
             // libre; no hay chequeo de auto-referencia aquí porque el
@@ -1072,6 +1221,9 @@ class ProductController extends Controller
         $product->og_title          = $request->og_title       ?? null;
         $product->og_description    = $request->og_description ?? null;
         $product->og_image          = $request->og_image       ?? null;
+        // Sin imagen OG no hay a qué describir: el ALT se guarda null.
+        $product->og_image_alt      = $product->og_image ? $this->cleanAlt($request->og_image_alt) : null;
+        $product->cover_image_alt   = $this->cleanAlt($request->cover_image_alt);
         // Selector de producto canónico: si se eligió un producto destino,
         // canonical_url NUNCA se toma tal cual del cliente — se recalcula
         // aquí en servidor a partir del slug real del producto elegido, para
@@ -1167,6 +1319,7 @@ class ProductController extends Controller
         $product->save();
 
         $this->saveProductImages($product, $request, 0);
+        $this->syncCoverAlt($product);
 
         // FIX (Documentación tab): save each uploaded document slot.
         foreach (self::DOCUMENT_FIELDS as $field => $type) {
@@ -1254,6 +1407,14 @@ class ProductController extends Controller
             'og_title'          => 'nullable|string|max:255',
             'og_description'    => 'nullable|string',
             'og_image'          => 'nullable|url|max:255',
+            // Texto ALT (accesibilidad/SEO): portada, imagen OG y cada imagen
+            // de la galería. Ver syncCoverAlt() para la regla portada<->galería.
+            'og_image_alt'      => 'nullable|string|max:255',
+            'cover_image_alt'   => 'nullable|string|max:255',
+            'image_alts'        => 'nullable|array',
+            'image_alts.*'      => 'nullable|string|max:255',
+            'existing_alts'     => 'nullable|array',
+            'existing_alts.*'   => 'nullable|string|max:255',
             'canonical_url'     => 'nullable|url|max:255',
             // Selector de producto canónico — a diferencia de store(), aquí
             // SÍ existe un producto propio con el que podría colisionar
@@ -1337,6 +1498,9 @@ class ProductController extends Controller
         $product->og_title          = $request->og_title       ?? null;
         $product->og_description    = $request->og_description ?? null;
         $product->og_image          = $request->og_image       ?? null;
+        // Sin imagen OG no hay a qué describir: el ALT se guarda null.
+        $product->og_image_alt      = $product->og_image ? $this->cleanAlt($request->og_image_alt) : null;
+        $product->cover_image_alt   = $this->cleanAlt($request->cover_image_alt);
         // Selector de producto canónico: mismo criterio que store() — si se
         // eligió un producto destino, canonical_url NUNCA se toma tal cual
         // del cliente, se recalcula en servidor a partir del slug real del
@@ -1459,7 +1623,15 @@ class ProductController extends Controller
             }
         }
 
+        // ALT editado de las imágenes que ya existían (clave = id de product_images).
+        foreach ((array) $request->input('existing_alts', []) as $imageId => $alt) {
+            ProductImage::where('id', (int) $imageId)
+                ->where('product_id', $product->id)
+                ->update(['alt_text' => $this->cleanAlt($alt)]);
+        }
+
         $this->saveProductImages($product, $request, $product->images()->count());
+        $this->syncCoverAlt($product);
 
         // FIX (Documentación tab): save/replace each uploaded document slot.
         foreach (self::DOCUMENT_FIELDS as $field => $type) {
@@ -1585,7 +1757,11 @@ class ProductController extends Controller
             $images[$imageId]->update(['sort_order' => $i]);
         }
 
-        return response()->json(['success' => true]);
+        // La portada cambió de imagen: su ALT es el de la nueva primera.
+        $firstId = array_values($request->order)[0];
+        $product->forceFill(['cover_image_alt' => $this->cleanAlt($images[$firstId]->alt_text)])->saveQuietly();
+
+        return response()->json(['success' => true, 'cover_image_alt' => $product->cover_image_alt]);
     }
 
     /**

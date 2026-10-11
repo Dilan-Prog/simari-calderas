@@ -25,7 +25,7 @@
                 <div class="brand-carousel__item">
             @endif
                 @if ($brand->logo_url)
-                    <img src="{{ $brand->logo_url }}" alt="{{ $brand->name }}" loading="lazy">
+                    <img src="{{ $brand->logo_url }}" alt="{{ trim((string) $brand->logo_alt) !== '' ? trim($brand->logo_alt) : $brand->name }}" loading="lazy">
                 @else
                     <span class="brand-carousel__name">{{ $brand->name }}</span>
                 @endif

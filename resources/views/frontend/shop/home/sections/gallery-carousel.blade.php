@@ -7,7 +7,7 @@
     if (!empty($section->config['images'])) {
         $images = collect($section->config['images'])->map(fn ($i) => (object) [
             'url' => $i['url'] ?? '',
-            'alt_text' => $i['alt'] ?? '',
+            'alt_text' => trim((string) ($i['alt'] ?? '')) !== '' ? $i['alt'] : \App\Support\LinkText::plain($section->title ?? ''),
         ])->filter(fn ($i) => $i->url !== '')->values();
     } else {
         $imgIds = $section->config['image_ids'] ?? [];
@@ -28,7 +28,7 @@
     @endif
     <div class="svc-gallery__main">
         @foreach ($images as $i => $img)
-            <img src="{{ $img->url }}" alt="{{ $img->alt_text ?? '' }}" x-show="active === {{ $i }}" @if($i > 0) x-cloak @endif>
+            <img src="{{ $img->url }}" alt="{{ $img->alt_text ?: ($servicePage->name ?? '') }}" x-show="active === {{ $i }}" @if($i > 0) x-cloak @endif>
         @endforeach
     </div>
     @if ($images->count() > 1)

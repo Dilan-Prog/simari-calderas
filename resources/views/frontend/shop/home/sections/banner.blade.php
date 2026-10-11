@@ -12,7 +12,7 @@
     }
     $hasLink = empty($config['no_link']) && !empty($linkUrl);
 
-    $bannerAlt = $config['alt'] ?? $section->title ?? '';
+    $bannerAlt = trim((string) ($config['alt'] ?? '')) ?: ($section->title ?: ($servicePage->name ?? ''));
 
     // Encabezado opcional sobre el banner: solo en bloques dinámicos de
     // producto (los banners del Home usan `title` solo como alt de reserva y

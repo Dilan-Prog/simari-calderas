@@ -8,17 +8,23 @@
     $imageLabels = $galleryImages->count() > 0
         ? $galleryImages->map(fn ($img) => (string) ($img->alt_text ?? ''))->values()
         : collect(['']);
+    // ALT de cada imagen (la primera = portada). Aparte de $imageLabels, que
+    // son los pies de foto visibles del lightbox: aquí siempre hay texto
+    // (ALT guardado o, si falta, el nombre del producto).
+    $imageAlts = $galleryImages->count() > 0
+        ? $galleryImages->map(fn ($img, $i) => $product->imageAlt($img, $i === 0))->values()
+        : collect([$product->imageAlt(null, true)]);
 @endphp
-<div class="product-gallery" x-data="productGallery({{ $imageUrls->toJson() }}, {{ $imageLabels->toJson() }})">
+<div class="product-gallery" data-alts="{{ $imageAlts->toJson() }}" x-data="productGallery({{ $imageUrls->toJson() }}, {{ $imageLabels->toJson() }})">
     <div class="product-gallery__main-row">
         <div class="product-gallery__thumbs">
             @forelse ($galleryImages as $i => $image)
                 <button type="button" :class="{ 'is-active': active === {{ $i }} }" @click="select({{ $i }})">
-                    <img src="{{ $image->url }}" alt="{{ $image->alt_text ?? $resolvedName }}">
+                    <img src="{{ $image->url }}" alt="{{ $imageAlts[$i] }}">
                 </button>
             @empty
                 <button type="button" class="is-active">
-                    <img src="{{ $coverFallback }}" alt="{{ $resolvedName }}">
+                    <img src="{{ $coverFallback }}" alt="{{ $imageAlts[0] }}">
                 </button>
             @endforelse
         </div>
@@ -27,7 +33,7 @@
                 <div class="product-gallery__discount-badge">{{ $discountPct }}% OFF</div>
             @endif
             <template x-if="images.length">
-                <img :src="images[active]" :alt="'{{ addslashes($resolvedName) }}'" class="product-gallery__main-img">
+                <img :src="images[active]" :alt="JSON.parse($root.dataset.alts)[active] || ''" class="product-gallery__main-img">
             </template>
             <div class="product-gallery__zoom-lens" x-show="isZooming" x-cloak :style="lensStyle"></div>
             {{-- Flechas (solo móvil, ver product-detail.css): cambiar de imagen sin abrir el lightbox. --}}
@@ -58,14 +64,14 @@
                 <div class="product-gallery__lightbox-thumbs" x-show="images.length > 1">
                     <template x-for="(img, i) in images" :key="i">
                         <button type="button" :class="{ 'is-active': active === i }" @click="select(i)">
-                            <span class="product-gallery__lightbox-thumb-img"><img :src="img" :alt="labels[i] || ''" loading="lazy"></span>
+                            <span class="product-gallery__lightbox-thumb-img"><img :src="img" :alt="JSON.parse($root.dataset.alts)[i] || ''" loading="lazy"></span>
                             <span class="product-gallery__lightbox-thumb-label" x-show="labels[i]" x-text="labels[i]"></span>
                         </button>
                     </template>
                 </div>
                 <div class="product-gallery__lightbox-stage">
                     <button type="button" class="product-gallery__lightbox-nav product-gallery__lightbox-nav--prev" @click="prev()" x-show="images.length > 1" aria-label="Anterior">‹</button>
-                    <img :src="images[active]" :alt="labels[active] || '{{ addslashes($resolvedName) }}'" loading="lazy">
+                    <img :src="images[active]" :alt="JSON.parse($root.dataset.alts)[active] || ''" loading="lazy">
                     <button type="button" class="product-gallery__lightbox-nav product-gallery__lightbox-nav--next" @click="next()" x-show="images.length > 1" aria-label="Siguiente">›</button>
                 </div>
             </div>

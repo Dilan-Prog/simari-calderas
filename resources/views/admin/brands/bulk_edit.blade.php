@@ -10,6 +10,7 @@
             ['key' => 'slug', 'label' => 'Slug', 'group' => 'Básicos', 'type' => 'text', 'maxlength' => 150],
             ['key' => 'description', 'label' => 'Descripción', 'group' => 'Básicos', 'type' => 'textarea'],
             ['key' => 'logo_url', 'label' => 'Logo', 'group' => 'Básicos', 'type' => 'image-picker'],
+            ['key' => 'logo_alt', 'label' => 'ALT del logotipo', 'group' => 'Básicos', 'type' => 'text', 'maxlength' => 255],
             ['key' => 'is_active', 'label' => 'Activa', 'group' => 'Básicos', 'type' => 'checkbox'],
 
             ['key' => 'seo_title', 'label' => 'Título SEO', 'group' => 'SEO', 'type' => 'text', 'maxlength' => 60],
@@ -29,6 +30,10 @@
                     <p class="prod-subtitle">Edita nombre, slug, descripción, logo y SEO de varias marcas a la vez</p>
                 </div>
                 <div class="prod-header-actions">
+                    <button type="button" class="prod-btn-outline" id="bulkFillLogoAltBtn"
+                        title="Rellena con el nombre de la marca el ALT vacío de las marcas que tienen logotipo. No sobrescribe ALT existentes.">
+                        Rellenar ALT vacíos con el nombre de la marca
+                    </button>
                     <a href="{{ route('admin.brands.index') }}" class="prod-btn-outline">
                         ← Volver a Marcas
                     </a>

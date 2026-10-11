@@ -1,9 +1,12 @@
 @php
     $config = $section->config ?? [];
 
-    $ctaBgUrl = (!empty($config['background_image_id']) && isset($servicePage))
-        ? $servicePage->images->firstWhere('id', $config['background_image_id'])?->url
+    $ctaBgImage = (!empty($config['background_image_id']) && isset($servicePage))
+        ? $servicePage->images->firstWhere('id', $config['background_image_id'])
         : null;
+    $ctaBgUrl = $ctaBgImage?->url;
+    // ALT: el propio del bloque > el de la galería > nombre del servicio.
+    $ctaBgAlt = trim((string) ($config['background_alt'] ?? '')) ?: ($ctaBgImage?->alt_text ?: ($servicePage->name ?? ''));
     // Colecciones (sin $servicePage): fondo solo por URL en la config.
     if (!$ctaBgUrl && !empty($config['background_image_url'])) {
         $ctaBgUrl = \App\Support\UploadPath::url($config['background_image_url']);
@@ -23,7 +26,7 @@
 <section class="svc-cta-final" @if ($previewMode ?? false) data-section-id="{{ $section->id }}" @endif>
     @if ($ctaBgUrl)
         <div class="svc-cta-final__bg">
-            <img src="{{ $ctaBgUrl }}" alt="">
+            <img src="{{ $ctaBgUrl }}" alt="{{ $ctaBgAlt }}">
         </div>
     @endif
     <div class="svc-cta-final__inner">

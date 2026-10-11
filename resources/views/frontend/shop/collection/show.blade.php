@@ -46,6 +46,7 @@
 @section('og_url', $canonicalUrl)
 @if ($ogImage)
     @section('og_image', $ogImage)
+    @section('og_image_alt', ($collection->og_image_url ? $collection->og_image_alt : null) ?: ($collection->image_alt ?: $collection->name))
 @endif
 
 @php
@@ -140,7 +141,7 @@
         @if ($collection->image_url)
             <div class="collection-hero__image">
                 <img src="{{ str_starts_with($collection->image_url, 'http') ? $collection->image_url : \App\Support\UploadPath::url($collection->image_url) }}"
-                    alt="{{ $collection->name }}">
+                    alt="{{ $collection->image_alt ?: $collection->name }}">
             </div>
         @endif
     </section>

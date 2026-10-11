@@ -67,7 +67,7 @@
                                 <div class="checkout-cart-item">
                                     <div class="checkout-cart-item__img">
                                         @if ($item->product && $item->product->images->first())
-                                            <img src="{{ $item->product->images->first()->url }}" alt="{{ $item->product->name }}">
+                                            <img src="{{ $item->product->images->first()->url }}" alt="{{ $item->product->imageAlt($item->product->images->first(), true) }}">
                                         @endif
                                     </div>
                                     <div class="checkout-cart-item__info">

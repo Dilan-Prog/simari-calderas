@@ -16,6 +16,9 @@
     $ogTitle = $product->resolveVariables($product->og_title) ?: $metaTitle;
     $ogDescription = $product->resolveVariables($product->og_description) ?: $metaDescription;
     $ogImage = $product->og_image ?: $product->cover_image_url;
+    // ALT de la imagen compartida: el de la imagen OG; si se usa la portada
+    // como respaldo, el de la portada. Ambos caen al nombre del producto.
+    $ogImageAlt = $product->og_image ? $product->ogImageAlt() : $product->imageAlt(null, true);
 
     $categoryChain = [];
     $chainCat = $product->category;
@@ -39,6 +42,7 @@
 @section('og_url', $canonicalUrl)
 @if ($ogImage)
     @section('og_image', $ogImage)
+    @section('og_image_alt', $ogImageAlt)
 @endif
 
 @php

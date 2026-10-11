@@ -40,6 +40,24 @@
             document.getElementById('brandSubmitBtn').textContent = 'Crear Marca';
         };
 
+        // ALT del logotipo: contador y botón "Usar nombre de la marca" (solo rellena si está vacío)
+        const brandLogoAltInput = document.getElementById('brandLogoAlt');
+        const updateBrandLogoAltCount = () => {
+            document.getElementById('brandLogoAltCount').textContent = brandLogoAltInput.value.length;
+        };
+        brandLogoAltInput.addEventListener('input', updateBrandLogoAltCount);
+        brandLogoAltInput.addEventListener('blur', () => {
+            brandLogoAltInput.value = brandLogoAltInput.value.trim();
+            updateBrandLogoAltCount();
+        });
+        document.getElementById('brandLogoAltUseName').addEventListener('click', () => {
+            if (brandLogoAltInput.value.trim() === '') {
+                brandLogoAltInput.value = document.getElementById('brandName').value.trim().slice(0, 255);
+                updateBrandLogoAltCount();
+            }
+        });
+        brandForm.addEventListener('reset', () => setTimeout(updateBrandLogoAltCount, 0));
+
         // Open create
         document.getElementById('btnNewBrand').addEventListener('click', () => {
             resetBrandForm();
@@ -209,6 +227,8 @@
                         document.getElementById('brandSlug').value = brand.slug ?? '';
                         document.getElementById('brandDescription').value = brand.description ?? '';
                         document.getElementById('brandLogoUrl').value = brand.logo_url ?? '';
+                        brandLogoAltInput.value = brand.logo_alt ?? '';
+                        updateBrandLogoAltCount();
                         document.getElementById('brandRedirectUrl').value = brand.redirect_url ?? '';
                         document.getElementById('brandIsActive').value = brand.is_active ? '1' : '0';
                         brandErrors.style.display = 'none';

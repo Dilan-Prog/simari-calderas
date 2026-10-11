@@ -329,7 +329,8 @@
                 is_active: 90, publish_on_website: 110, is_featured: 100, is_new: 90, is_recommended: 120,
                 tags: 160, specifications: 160,
                 seo_title: 160, seo_description: 200, seo_keywords: 160,
-                og_title: 160, og_description: 200, og_image: 160, canonical_url: 160, faqs: 160,
+                og_title: 160, og_description: 200, og_image: 160, og_image_alt: 200, cover_image_alt: 200, gallery_alts: 160,
+                canonical_url: 160, faqs: 160,
             };
 
             function getCol(key) {
@@ -686,6 +687,106 @@
 
             faqAddBtn.addEventListener('click', () => faqAddRow());
 
+            // ── Popover de ALT de la galería (miniatura + input ALT por imagen).
+            // Un solo cambio pendiente por producto: gallery_alts = [{id, alt_text}]. ──
+            const galleryModal = document.getElementById('bulkGalleryAltModal');
+            const galleryList = document.getElementById('bulkGalleryAltList');
+            const galleryEmpty = document.getElementById('bulkGalleryAltEmpty');
+            const galleryCancelBtn = document.getElementById('bulkGalleryAltCancelBtn');
+            const gallerySaveBtn = document.getElementById('bulkGalleryAltSaveBtn');
+            let galleryEditingTrigger = null;
+
+            function galleryAddRow(img) {
+                const row = document.createElement('div');
+                row.className = 'pform-spec-row';
+                row.dataset.imageId = img.id;
+
+                const thumb = document.createElement('img');
+                thumb.src = img.image_url || '';
+                thumb.alt = '';
+                thumb.loading = 'lazy';
+                thumb.style.cssText = 'width:48px;height:48px;object-fit:cover;border-radius:6px;flex:none';
+
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.className = 'pform-input bulk-gallery-alt';
+                input.maxLength = 255;
+                input.placeholder = 'Texto ALT de la imagen';
+                input.value = img.alt_text || '';
+
+                row.appendChild(thumb);
+                row.appendChild(input);
+                galleryList.appendChild(row);
+            }
+
+            galleryCancelBtn.addEventListener('click', () => galleryModal.classList.remove('active'));
+            galleryModal.addEventListener('click', (e) => {
+                if (e.target === galleryModal) galleryModal.classList.remove('active');
+            });
+            gallerySaveBtn.addEventListener('click', () => {
+                if (!galleryEditingTrigger) return;
+
+                const items = Array.from(galleryList.querySelectorAll('.pform-spec-row')).map(row => ({
+                    id: Number(row.dataset.imageId),
+                    alt_text: row.querySelector('.bulk-gallery-alt').value.trim(),
+                }));
+                let original = [];
+                try {
+                    original = JSON.parse(galleryEditingTrigger.dataset.gallery || '[]');
+                } catch (err) {
+                    original = [];
+                }
+                const merged = original.map(o => {
+                    const it = items.find(i => i.id === o.id);
+                    return { ...o, alt_text: it ? it.alt_text : o.alt_text };
+                });
+                galleryEditingTrigger.dataset.gallery = JSON.stringify(merged);
+                const filled = merged.filter(m => (m.alt_text || '').trim() !== '').length;
+                galleryEditingTrigger.textContent = `ALT de imágenes (${filled}/${merged.length})`;
+                setPendingChange(galleryEditingTrigger.dataset.id, 'gallery_alts', items, galleryEditingTrigger);
+                galleryModal.classList.remove('active');
+            });
+
+            // ── Acción masiva: rellenar ALT vacíos con el nombre del producto ──
+            const fillAltBtn = document.getElementById('prodBulkFillAltBtn');
+            if (fillAltBtn) {
+                fillAltBtn.addEventListener('click', async () => {
+                    const ids = Array.from(document.querySelectorAll('.prod-bulk-row-select'))
+                        .filter(cb => cb.checked).map(cb => Number(cb.value));
+                    if (!ids.length) return;
+                    if (changes.size) {
+                        showToast('Guarda o descarta los cambios pendientes antes de rellenar los ALT.', 'error');
+                        return;
+                    }
+                    if (!confirm(`Se rellenarán con el nombre del producto los ALT vacíos (portada y galería) de ${ids.length} producto(s). No se sobrescribe ningún ALT existente. ¿Continuar?`)) return;
+
+                    fillAltBtn.disabled = true;
+                    try {
+                        const response = await fetch(fillAltBtn.dataset.url, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': csrfToken,
+                                'Accept': 'application/json',
+                            },
+                            body: JSON.stringify({ ids }),
+                        });
+                        const data = await response.json();
+                        if (!response.ok || !data.success) {
+                            showToast(data.message ?? 'No se pudieron rellenar los ALT.', 'error');
+                            return;
+                        }
+                        showToast(`ALT rellenados: ${data.cover_filled} de portada, ${data.gallery_filled} de galería.`);
+                        setTimeout(() => window.location.reload(), 900);
+                    } catch (err) {
+                        console.error('Error filling ALT:', err);
+                        showToast('Error de conexión. Intenta de nuevo.', 'error');
+                    } finally {
+                        fillAltBtn.disabled = false;
+                    }
+                });
+            }
+
             // ── Popover de Tags (chips + autocompletado de tags ya usados
             // en otros productos) — mismo widget de Crear/Editar producto,
             // adaptado al patrón de popover reutilizable de esta pantalla. ──
@@ -985,6 +1086,30 @@
                     }
 
                     faqModal.classList.add('active');
+                    return;
+                }
+
+                if (trigger.dataset.field === 'gallery_alts') {
+                    galleryEditingTrigger = trigger;
+                    galleryList.innerHTML = '';
+
+                    let imgs = [];
+                    try {
+                        imgs = JSON.parse(trigger.dataset.gallery || '[]');
+                    } catch (err) {
+                        imgs = [];
+                    }
+
+                    if (imgs.length) {
+                        galleryEmpty.style.display = 'none';
+                        galleryList.style.display = 'flex';
+                        imgs.forEach(img => galleryAddRow(img));
+                    } else {
+                        galleryList.style.display = 'none';
+                        galleryEmpty.style.display = 'block';
+                    }
+
+                    galleryModal.classList.add('active');
                     return;
                 }
 

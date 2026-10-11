@@ -19,9 +19,12 @@
 
     @foreach ($tabs as $i => $tab)
         @php
-            $tabImageUrl = !empty($tab['image_id'])
-                ? (isset($servicePage) ? $servicePage->images->firstWhere('id', $tab['image_id'])?->url : null)
+            $tabGalleryImage = (!empty($tab['image_id']) && isset($servicePage))
+                ? $servicePage->images->firstWhere('id', $tab['image_id'])
                 : null;
+            $tabImageUrl = $tabGalleryImage?->url;
+            // ALT: el propio de la pestaña > el de la galería > nombre del servicio.
+            $tabImageAlt = trim((string) ($tab['image_alt'] ?? '')) ?: ($tabGalleryImage?->alt_text ?: ($servicePage->name ?? ''));
             // Colecciones (sin $servicePage): imagen directa por URL en la config.
             if (!$tabImageUrl && !empty($tab['image_url'])) {
                 $tabImageUrl = \App\Support\UploadPath::url($tab['image_url']);
@@ -39,7 +42,7 @@
             @endif
             @if ($tabImageUrl)
                 <div class="svc-tabs__panel-media">
-                    <img src="{{ $tabImageUrl }}" alt="">
+                    <img src="{{ $tabImageUrl }}" alt="{{ $tabImageAlt }}">
                 </div>
             @endif
         </div>

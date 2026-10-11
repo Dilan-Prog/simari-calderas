@@ -89,7 +89,7 @@
 
                                     <td class="logo-cell">
                                         @if ($brand->logo_url)
-                                            <img src="{{ $brand->logo_url }}" alt="{{ $brand->name }}"
+                                            <img src="{{ $brand->logo_url }}" alt="{{ $brand->logo_alt ?: $brand->name }}"
                                                 class="brand-logo-img">
                                         @else
                                             <div class="brand-logo-placeholder">

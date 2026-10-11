@@ -16,8 +16,8 @@ class Collection extends Model
 
     protected $fillable = [
         'name', 'slug', 'description', 'type', 'match_type',
-        'image_url', 'sort_order', 'is_active',
-        'seo_title', 'seo_description', 'og_image_url', 'faqs',
+        'image_url', 'image_alt', 'sort_order', 'is_active',
+        'seo_title', 'seo_description', 'og_image_url', 'og_image_alt', 'faqs',
     ];
 
     protected $casts = [

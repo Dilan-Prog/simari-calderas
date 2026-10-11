@@ -152,6 +152,9 @@ class ServicePageController extends Controller
             'seo_title'         => 'nullable|string|max:160',
             'seo_description'   => 'nullable|string|max:500',
             'canonical_url'     => 'nullable|url|max:255',
+            'cover_image_alt'   => 'nullable|string|max:255',
+            'og_image_url'      => 'nullable|string|max:255',
+            'og_image_alt'      => 'nullable|string|max:255',
             'is_active'         => 'nullable|boolean',
             'faq_items'         => 'nullable|array',
             // Estadísticas de marketing (panel "Información general" del
@@ -224,6 +227,12 @@ class ServicePageController extends Controller
         // canónica y el campo se limpia aunque el input tuviera texto viejo.
         $servicePage->canonical_url = $request->boolean('is_canonical', true) ? null : ($validated['canonical_url'] ?: null);
         $servicePage->is_active = $request->boolean('is_active');
+        $servicePage->cover_image_alt = trim((string) ($validated['cover_image_alt'] ?? '')) ?: null;
+        $servicePage->og_image_url = trim((string) ($validated['og_image_url'] ?? '')) ?: null;
+        // El ALT de OG solo tiene sentido si hay imagen OG propia.
+        $servicePage->og_image_alt = $servicePage->og_image_url
+            ? (trim((string) ($validated['og_image_alt'] ?? '')) ?: null)
+            : null;
         // Guarda por 'has()', no siempre: si algún llamado futuro a este
         // endpoint omite faq_items, no debe borrar las FAQs existentes por
         // accidente.
@@ -250,6 +259,9 @@ class ServicePageController extends Controller
             'seo_title' => $servicePage->seo_title,
             'seo_description' => $servicePage->seo_description,
             'canonical_url' => $servicePage->canonical_url,
+            'cover_image_alt' => $servicePage->cover_image_alt,
+            'og_image_url' => $servicePage->og_image_url,
+            'og_image_alt' => $servicePage->og_image_alt,
             'is_active' => $servicePage->is_active,
             'faqs' => $servicePage->faqs,
             'rating_average_displayed' => $servicePage->rating_average_displayed,
@@ -323,7 +335,7 @@ class ServicePageController extends Controller
 
         $image = $servicePage->images()->create([
             'image_url'  => $request->image_url,
-            'alt_text'   => $request->alt_text ?: null,
+            'alt_text'   => trim((string) $request->alt_text) ?: null,
             'sort_order' => $servicePage->images()->count(),
         ]);
 
@@ -343,7 +355,7 @@ class ServicePageController extends Controller
 
         $request->validate(['alt_text' => 'nullable|string|max:255']);
 
-        $image->update(['alt_text' => $request->alt_text ?: null]);
+        $image->update(['alt_text' => trim((string) $request->alt_text) ?: null]);
 
         return response()->json(['success' => true, 'image' => $image->append('url')]);
     }

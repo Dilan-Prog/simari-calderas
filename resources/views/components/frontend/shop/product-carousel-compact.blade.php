@@ -54,10 +54,11 @@
                 $itemImage = $item->cover_image_url
                     ?? $item->images->pluck('url')->filter()->first()
                     ?? asset('images/logo/equiterm-logo-blanco-color-3x.png');
+                $itemAlt = $item->imageAlt($item->images->first(), true);
             @endphp
             <article class="pc-compact__card">
                 <a href="{{ route('product.show', $item->slug) }}" class="pc-compact__link">
-                    <span class="pc-compact__img-wrap"><img src="{{ $itemImage }}" alt="{{ $itemName }}" loading="lazy"></span>
+                    <span class="pc-compact__img-wrap"><img src="{{ $itemImage }}" alt="{{ $itemAlt }}" loading="lazy"></span>
                     @if ($item->sku)
                         <span class="pc-compact__sku">{{ $item->sku }}</span>
                     @endif

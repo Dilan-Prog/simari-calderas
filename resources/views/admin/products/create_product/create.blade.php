@@ -337,8 +337,10 @@
                             <div id="pformImageUrlInputs" style="display:none"></div>
                             <div id="pformImageOrderInputs" style="display:none"></div>
 
+                            @include('admin.products.partials._alt_cover_field', ['coverAltValue' => ''])
+
                             <div id="pformImageGrid"
-                                style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:12px;margin-top:16px;">
+                                style="display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px;margin-top:16px;">
                             </div>
 
                             <div class="pform-placeholder" id="pformImagePlaceholder" style="padding:40px 32px">
@@ -1334,6 +1336,7 @@
                             @enderror
                             <p class="pform-hint">Recomendado: 1200x630px &bull; Máximo: 5MB &bull; Formato: JPG o PNG
                             </p>
+                            @include('admin.products.partials._alt_og_field', ['formId' => 'productCreateForm', 'ogAltValue' => ''])
                         </div>
                     </div>
 
@@ -1436,4 +1439,5 @@
     </div>
     @include('admin.products.partials._image_source_modal')
     @include('admin.products.create_product._scripts_create')
+    @include('admin.products.partials._alt_scripts')
 @endsection

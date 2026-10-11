@@ -56,6 +56,21 @@
                     </div>
 
                     <div class="users-manager-email-camp" style="margin-top:12px;">
+                        <label class="supliers-manager-slider-label" for="brandLogoAlt">ALT del logotipo</label>
+                        <div class="img-picker-field">
+                            <input type="text" class="users-manager-input" name="logo_alt" id="brandLogoAlt"
+                                maxlength="255" placeholder="Ej. Logotipo de Honeywell">
+                            <button type="button" class="img-picker-trigger-btn" id="brandLogoAltUseName">
+                                Usar nombre de la marca
+                            </button>
+                        </div>
+                        <p style="margin:4px 0 0;font-size:12px;color:#9ca3af;">
+                            Texto alternativo del logo para accesibilidad y SEO. Si lo dejas vacío, el sitio usa el nombre de la marca.
+                            <span id="brandLogoAltCount">0</span>/255
+                        </p>
+                    </div>
+
+                    <div class="users-manager-email-camp" style="margin-top:12px;">
                         <label class="supliers-manager-slider-label">URL de redirección (opcional)</label>
                         <div class="img-picker-field">
                             <input type="text" class="users-manager-input" name="redirect_url" id="brandRedirectUrl"

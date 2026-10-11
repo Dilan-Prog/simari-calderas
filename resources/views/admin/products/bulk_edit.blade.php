@@ -53,6 +53,9 @@
             ['key' => 'og_title', 'label' => 'Título Social', 'group' => 'SEO / Social', 'type' => 'text', 'maxlength' => 255],
             ['key' => 'og_description', 'label' => 'Descripción Social', 'group' => 'SEO / Social', 'type' => 'textarea'],
             ['key' => 'og_image', 'label' => 'Imagen Social (URL)', 'group' => 'SEO / Social', 'type' => 'text', 'maxlength' => 255],
+            ['key' => 'og_image_alt', 'label' => 'ALT de imagen OG', 'group' => 'SEO / Social', 'type' => 'text', 'maxlength' => 255],
+            ['key' => 'cover_image_alt', 'label' => 'ALT de portada', 'group' => 'SEO / Social', 'type' => 'text', 'maxlength' => 255],
+            ['key' => 'gallery_alts', 'label' => 'ALT de imágenes', 'group' => 'SEO / Social', 'type' => 'gallery-alts'],
             ['key' => 'canonical', 'label' => 'URL Canónica', 'group' => 'SEO / Social', 'type' => 'canonical-picker'],
             ['key' => 'faqs', 'label' => 'FAQ', 'group' => 'SEO / Social', 'type' => 'faq'],
         ];
@@ -439,6 +442,21 @@
                                                 </button>
                                             @break
 
+                                            @case('gallery-alts')
+                                                @php
+                                                    $galleryItems = $product->images->map(fn ($img) => [
+                                                        'id' => $img->id,
+                                                        'image_url' => $img->image_url,
+                                                        'alt_text' => $img->alt_text,
+                                                    ])->values();
+                                                @endphp
+                                                <button type="button" class="prod-bulk-popover-trigger"
+                                                    data-id="{{ $product->id }}" data-field="gallery_alts"
+                                                    data-gallery="{{ json_encode($galleryItems) }}">
+                                                    ALT de imágenes ({{ $galleryItems->filter(fn ($i) => filled($i['alt_text']))->count() }}/{{ $galleryItems->count() }})
+                                                </button>
+                                            @break
+
                                             @case('canonical-picker')
                                                 @php
                                                     $canonicalSummary = $product->canonical_product_id
@@ -525,6 +543,25 @@
             <div class="del-confirm-actions">
                 <button type="button" class="button-secondary size-adjustment" id="bulkFaqCancelBtn">Cancelar</button>
                 <button type="button" class="button-primary size-adjustment" id="bulkFaqSaveBtn">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    {{-- Popover de ALT de la galería — una sola instancia reutilizada por
+         cualquier fila: miniatura + input ALT por imagen del producto. --}}
+    <div id="bulkGalleryAltModal" class="del-confirm-overlay">
+        <div class="del-confirm-box prod-bulk-specs-modal-box">
+            <h2 class="del-confirm-title">ALT de imágenes</h2>
+            <p class="del-confirm-desc">Texto alternativo de cada imagen de la galería del producto (máx. 255 caracteres).</p>
+
+            <div class="pform-placeholder" id="bulkGalleryAltEmpty">
+                <p class="pform-placeholder-title">Este producto no tiene imágenes en la galería</p>
+            </div>
+            <div id="bulkGalleryAltList" class="pform-spec-list" style="display:none"></div>
+
+            <div class="del-confirm-actions">
+                <button type="button" class="button-secondary size-adjustment" id="bulkGalleryAltCancelBtn">Cancelar</button>
+                <button type="button" class="button-primary size-adjustment" id="bulkGalleryAltSaveBtn">Guardar</button>
             </div>
         </div>
     </div>
@@ -641,6 +678,10 @@
                  esta acción se guarda en BD al confirmar (con vista previa), no
                  queda como "cambio sin guardar". --}}
             <button type="button" id="prodBulkBlocksBtn">Plantillas de bloques</button>
+            {{-- Rellena ALT vacíos (portada y galería) con el nombre del producto
+                 para los seleccionados; no sobrescribe. Guarda en BD al confirmar. --}}
+            <button type="button" id="prodBulkFillAltBtn"
+                data-url="{{ route('admin.products.bulk.fill-alt') }}">Rellenar ALT vacíos con el nombre</button>
         </div>
         <p class="prod-bulk-apply-bar-hint">Solo afecta lo seleccionado en esta página — no a todos los productos filtrados. Si necesitas cubrir todo el filtro, cambia primero el selector de página a "Todos".</p>
     </div>

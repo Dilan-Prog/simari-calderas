@@ -43,6 +43,12 @@
                     </div>
                 </div>
 
+                <div class="users-manager-email-camp">
+                    <label class="supliers-manager-slider-label">ALT de la imagen principal</label>
+                    <input type="text" class="users-manager-input" name="image_alt" id="collectionImageAlt"
+                        maxlength="255" placeholder="Describe la imagen (accesibilidad y SEO)">
+                </div>
+
                 <div class="user-manager-form">
                     <div>
                         <label class="supliers-manager-slider-label">Tipo de Colección <span style="color:red">*</span></label>
@@ -171,6 +177,12 @@
                             Seleccionar
                         </button>
                     </div>
+                </div>
+
+                <div class="users-manager-email-camp">
+                    <label class="supliers-manager-slider-label">ALT de la imagen OG</label>
+                    <input type="text" class="users-manager-input" name="og_image_alt" id="collectionOgImageAlt"
+                        maxlength="255" placeholder="Describe la imagen que se muestra al compartir">
                 </div>
 
                 <div class="users-manager-email-camp">

@@ -4,8 +4,11 @@
     $bgImageUrl = null;
     if (!empty($config['background_image_ids'])) {
         $bgImageId = collect($config['background_image_ids'])->first();
-        $bgImageUrl = $servicePage->images->firstWhere('id', $bgImageId)?->url;
+        $bgImage = $servicePage->images->firstWhere('id', $bgImageId);
+        $bgImageUrl = $bgImage?->url;
     }
+    // ALT: el propio del bloque > el de la galería > nombre del servicio.
+    $bgImageAlt = trim((string) ($config['background_alt'] ?? '')) ?: (($bgImage ?? null)?->alt_text ?: $servicePage->name);
 
     $whatsappMessage = "Hola, me interesa cotizar el servicio: {$servicePage->name} - " . url($servicePage->publicPath());
     $whatsappUrl = 'https://wa.me/' . \App\Models\Setting::get('footer.phone_link', '5214494577320') . '?text=' . urlencode($whatsappMessage);
@@ -14,7 +17,7 @@
 <section class="svc-header" @if ($previewMode ?? false) data-section-id="{{ $section->id }}" @endif>
     @if ($bgImageUrl)
         <div class="svc-header__bg">
-            <img src="{{ $bgImageUrl }}" alt="">
+            <img src="{{ $bgImageUrl }}" alt="{{ $bgImageAlt }}">
         </div>
     @endif
     <div class="svc-header__inner">

@@ -17,12 +17,12 @@ class BrandController extends Controller
 
     // Campos editables desde la edición masiva — 'name' no está aquí porque
     // va fijo/pinneado en la tabla (ver BULK_EDIT_VIEW_COLUMNS más abajo).
-    private const BULK_EDIT_FIELDS = ['name', 'slug', 'description', 'logo_url', 'is_active', 'seo_title', 'seo_description'];
+    private const BULK_EDIT_FIELDS = ['name', 'slug', 'description', 'logo_url', 'logo_alt', 'is_active', 'seo_title', 'seo_description'];
 
     // Copiada a mano (no derivada de BULK_EDIT_FIELDS) para que un cambio
     // futuro a una lista no afecte silenciosamente a la otra: son las
     // columnas que el usuario puede mostrar/ocultar en el editor en lote.
-    private const BULK_EDIT_VIEW_COLUMNS = ['slug', 'description', 'logo_url', 'is_active', 'seo_title', 'seo_description'];
+    private const BULK_EDIT_VIEW_COLUMNS = ['slug', 'description', 'logo_url', 'logo_alt', 'is_active', 'seo_title', 'seo_description'];
 
     // Columna fija/pegada de la tabla (nunca ocultable, por eso no vive en
     // BULK_EDIT_VIEW_COLUMNS) — sí necesita poder guardar un ancho ajustado,
@@ -34,6 +34,7 @@ class BrandController extends Controller
         'slug' => 150,
         'seo_title' => 60,
         'seo_description' => 160,
+        'logo_alt' => 255,
     ];
 
     private const BULK_EDIT_VIEWS_MAX_PER_USER = 10;
@@ -67,6 +68,7 @@ class BrandController extends Controller
             'slug'        => 'required|string|max:150|unique:brands,slug',
             'description' => 'nullable|string',
             'logo_url'    => 'nullable|string|max:255',
+            'logo_alt'    => 'nullable|string|max:255',
             // Solo http(s) o ruta relativa del sitio -- nunca javascript: u otros esquemas.
             'redirect_url' => ['nullable', 'string', 'max:500', 'regex:#^(https?://|/)#i'],
             'is_active'   => 'nullable|boolean',
@@ -77,6 +79,8 @@ class BrandController extends Controller
         $brand->slug        = $request->slug;
         $brand->description = $request->description ?? null;
         $brand->logo_url    = $request->logo_url    ?? null;
+        // El ALT solo tiene sentido con logotipo: sin logo_url se guarda null.
+        $brand->logo_alt    = $brand->logo_url ? (trim((string) $request->logo_alt) ?: null) : null;
         $brand->redirect_url = trim((string) $request->redirect_url) ?: null;
         $brand->is_active   = $request->boolean('is_active', true);
         $brand->save();
@@ -106,6 +110,7 @@ class BrandController extends Controller
             'slug'        => 'required|string|max:150|unique:brands,slug,' . $id,
             'description' => 'nullable|string',
             'logo_url'    => 'nullable|string|max:255',
+            'logo_alt'    => 'nullable|string|max:255',
             // Solo http(s) o ruta relativa del sitio -- nunca javascript: u otros esquemas.
             'redirect_url' => ['nullable', 'string', 'max:500', 'regex:#^(https?://|/)#i'],
             'is_active'   => 'nullable|boolean',
@@ -115,6 +120,7 @@ class BrandController extends Controller
         $brand->slug        = $request->slug;
         $brand->description = $request->description ?? null;
         $brand->logo_url    = $request->logo_url    ?? null;
+        $brand->logo_alt    = $brand->logo_url ? (trim((string) $request->logo_alt) ?: null) : null;
         $brand->redirect_url = trim((string) $request->redirect_url) ?: null;
         $brand->is_active   = $request->boolean('is_active', true);
         $brand->save();
@@ -291,12 +297,38 @@ class BrandController extends Controller
                     foreach ($fields as $field => $value) {
                         $brand->{$field} = $value;
                     }
+                    // Sin logotipo no hay ALT que conservar.
+                    if (!$brand->getRawOriginal('logo_url')) {
+                        $brand->logo_alt = null;
+                    }
                     $brand->save();
                 }
             });
         }
 
         return response()->json(['success' => true, 'results' => $results]);
+    }
+
+    /**
+     * Acción masiva: rellena con el nombre de la marca el ALT del logotipo
+     * de las marcas que tienen logo y ALT vacío. Nunca sobrescribe un ALT existente.
+     */
+    public function bulkFillLogoAlt()
+    {
+        $filled = 0;
+
+        Brand::whereNotNull('logo_url')->where('logo_url', '!=', '')
+            ->where(function ($q) {
+                $q->whereNull('logo_alt')->orWhere('logo_alt', '');
+            })
+            ->get()
+            ->each(function (Brand $brand) use (&$filled) {
+                $brand->logo_alt = mb_substr($brand->name, 0, 255);
+                $brand->save();
+                $filled++;
+            });
+
+        return response()->json(['success' => true, 'filled' => $filled]);
     }
 
     private function bulkEditViewValidationRules(): array

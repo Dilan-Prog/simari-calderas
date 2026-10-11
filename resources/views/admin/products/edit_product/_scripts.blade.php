@@ -929,6 +929,9 @@
                 btn.textContent = '✕';
                 btn.title = 'Eliminar imagen';
             }
+
+            // La portada es la primera imagen que NO se va a eliminar.
+            if (window.pformAlt) window.pformAlt.syncCoverFromFirst();
         }
 
         /* ── Small self-contained toast for image actions on this page ── */
@@ -960,6 +963,7 @@
             // Combined, orderable list: {type:'file', file:File} | {type:'url', url:string} | {type:'existing', id:number, url:string}
             let items = [];
             let dragSrcIndex = null;
+            let altReordering = false;
 
             function syncFormInputs() {
                 const newDt = new DataTransfer();
@@ -1029,12 +1033,21 @@
                     }
                     el.appendChild(info);
 
+                    // ALT de la imagen nueva: image_alts[] viaja en el mismo orden
+                    // que image_source_order[] (el grid se vuelve a pintar en ese orden).
+                    if (window.pformAlt) {
+                        el.appendChild(window.pformAlt.buildField(item.alt, 'image_alts[]', function(v) {
+                            item.alt = v;
+                        }));
+                    }
+
                     const btn = document.createElement('button');
                     btn.type = 'button';
                     btn.className = 'pform-img-item-remove';
                     btn.textContent = '✕';
                     btn.addEventListener('click', function() {
                         items.splice(index, 1);
+                        altReordering = true;
                         renderPreviews();
                     });
                     el.appendChild(btn);
@@ -1062,6 +1075,7 @@
                         const moved = items.splice(dragSrcIndex, 1)[0];
                         items.splice(index, 0, moved);
                         dragSrcIndex = null;
+                        altReordering = true;
                         renderPreviews();
                     });
 
@@ -1069,6 +1083,13 @@
                 });
 
                 syncFormInputs();
+
+                // Portada <-> primera imagen: ver ProductController::syncCoverAlt().
+                if (window.pformAlt) {
+                    if (!altReordering) window.pformAlt.adoptCoverIntoFirst();
+                    window.pformAlt.syncCoverFromFirst();
+                }
+                altReordering = false;
             }
 
             input.addEventListener('change', function() {
@@ -1407,6 +1428,7 @@
 
                     existingGrid.insertBefore(srcEl, el);
                     refreshCoverBadge();
+                    if (window.pformAlt) window.pformAlt.syncCoverFromFirst();
                     persistOrder();
                 });
             });
