@@ -18,6 +18,7 @@ class LaunchpadController extends Controller
         return view('admin.erp.launchpad', [
             'areas' => $nav->tilesFor($user),
             'kpis'  => $nav->kpis($user),
+            'strips' => $nav->processStrips(),
         ]);
     }
 

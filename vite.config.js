@@ -43,6 +43,7 @@ export default defineConfig({
                 'resources/css/admin/pages/inventory.css',
                 'resources/css/admin/pages/erp-core.css',
                 'resources/js/admin/erp-palette.js',
+                'resources/js/admin/erp-ui.js',
                 'resources/css/admin/pages/erp-projects.css',
                 'resources/js/admin/erp-projects.js',
                 'resources/css/admin/pages/erp-boms.css',

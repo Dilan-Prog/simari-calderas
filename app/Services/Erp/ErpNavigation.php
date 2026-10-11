@@ -72,6 +72,54 @@ class ErpNavigation
         return $out;
     }
 
+    /**
+     * Tiras de proceso del Launchpad (Order-to-Cash, Procure-to-Pay, Plan-to-Produce) con el
+     * número de documentos abiertos en cada paso. Cada conteo es tolerante: si la tabla o el
+     * modelo aún no existe devuelve 0.
+     *
+     * @return array<int, array{key:string,label:string,caption:string,steps:array<int,array{label:string,count:int}>}>
+     */
+    public function processStrips(): array
+    {
+        $c = function (string $model, callable $q): int {
+            try {
+                if (!class_exists($model)) {
+                    return 0;
+                }
+
+                return (int) $q($model::query())->count();
+            } catch (\Throwable $e) {
+                return 0;
+            }
+        };
+        $M = 'App\\Models\\';
+
+        return [
+            ['key' => 'O2C', 'label' => 'Order-to-Cash', 'caption' => 'documentos en cada paso · ventas', 'steps' => [
+                ['label' => 'Cotización', 'count' => $c($M . 'Quote', fn ($q) => $q->whereIn('status', ['draft', 'sent']))],
+                ['label' => 'Pedido', 'count' => $c($M . 'SalesOrder', fn ($q) => $q->whereIn('status', ['pendiente', 'en_preparacion']))],
+                ['label' => 'Entrega', 'count' => $c($M . 'Shipment', fn ($q) => $q->whereNotIn('status', ['entregado', 'cancelado']))],
+                ['label' => 'Factura', 'count' => $c($M . 'Receivable', fn ($q) => $q->whereIn('status', ['pendiente', 'parcial', 'vencida']))],
+                ['label' => 'Cobro', 'count' => $c($M . 'Payment', fn ($q) => $q->where('direction', 'in')->where('status', 'pendiente'))],
+            ]],
+            ['key' => 'P2P', 'label' => 'Procure-to-Pay', 'caption' => 'documentos en cada paso · compras', 'steps' => [
+                ['label' => 'Requisición', 'count' => $c($M . 'MaterialRequirement', fn ($q) => $q->whereIn('status', ['borrador', 'calculado']))],
+                ['label' => 'Orden de compra', 'count' => $c($M . 'PurchaseOrder', fn ($q) => $q->where('status', 'pending'))],
+                ['label' => 'Recepción', 'count' => $c($M . 'MaterialRequirement', fn ($q) => $q->where('status', 'en_compra'))],
+                ['label' => 'Factura proveedor', 'count' => $c($M . 'Payable', fn ($q) => $q->whereIn('status', ['pendiente', 'parcial', 'vencida']))],
+                ['label' => 'Pago', 'count' => $c($M . 'Payment', fn ($q) => $q->where('direction', 'out')->where('status', 'pendiente'))],
+            ]],
+            ['key' => 'P2Pr', 'label' => 'Plan-to-Produce', 'caption' => 'proyectos en cada paso', 'steps' => [
+                ['label' => 'Levantamiento', 'count' => $c($M . 'Project', fn ($q) => $q->where('status', 'levantamiento'))],
+                ['label' => 'Planeación', 'count' => $c($M . 'Project', fn ($q) => $q->where('status', 'planeado'))],
+                ['label' => 'MRP', 'count' => $c($M . 'MaterialRequirement', fn ($q) => $q->whereIn('status', ['calculado', 'en_compra']))],
+                ['label' => 'Fabricación', 'count' => $c($M . 'ProductionOrder', fn ($q) => $q->whereIn('status', ['liberada', 'en_proceso']))],
+                ['label' => 'Instalación', 'count' => $c($M . 'Project', fn ($q) => $q->where('status', 'en_ejecucion'))],
+                ['label' => 'Cierre', 'count' => $c($M . 'Project', fn ($q) => $q->where('status', 'cerrado')->where('updated_at', '>=', now()->subDays(30)))],
+            ]],
+        ];
+    }
+
     public function searchModules(User $user, string $q): array
     {
         $needle = mb_strtolower($q);

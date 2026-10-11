@@ -24,7 +24,7 @@
     @vite(['resources/js/admin/rule-value-picker.js'])
     @if (\Illuminate\Support\Facades\Route::has('admin.launchpad.search'))
         <meta name="erp-search-url" content="{{ route('admin.launchpad.search') }}">
-        @vite(['resources/css/admin/pages/erp-core.css', 'resources/js/admin/erp-palette.js'])
+        @vite(['resources/css/admin/pages/erp-core.css', 'resources/js/admin/erp-palette.js', 'resources/js/admin/erp-ui.js'])
     @endif
     @stack('styles')
     <style>

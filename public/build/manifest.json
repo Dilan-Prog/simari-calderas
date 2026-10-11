@@ -106,7 +106,7 @@
     "isEntry": true
   },
   "resources/css/admin/pages/erp-core.css": {
-    "file": "assets/erp-core-CzUGjtay.css",
+    "file": "assets/erp-core-BqIRVYE7.css",
     "src": "resources/css/admin/pages/erp-core.css",
     "isEntry": true
   },
@@ -286,7 +286,7 @@
     "isEntry": true
   },
   "resources/css/frontend/shop/product-detail.css": {
-    "file": "assets/product-detail-CPaEnURM.css",
+    "file": "assets/product-detail-D0EBH0aA.css",
     "src": "resources/css/frontend/shop/product-detail.css",
     "isEntry": true
   },
@@ -408,6 +408,12 @@
     "file": "assets/erp-projects-CwEgGMow.js",
     "name": "erp-projects",
     "src": "resources/js/admin/erp-projects.js",
+    "isEntry": true
+  },
+  "resources/js/admin/erp-ui.js": {
+    "file": "assets/erp-ui-Da-xTKg3.js",
+    "name": "erp-ui",
+    "src": "resources/js/admin/erp-ui.js",
     "isEntry": true
   },
   "resources/js/admin/erp-warehouse.js": {
