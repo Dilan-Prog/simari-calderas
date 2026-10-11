@@ -83,6 +83,8 @@
             request()->routeIs('admin.dashboards.*') => 'dashboards',
             request()->routeIs('admin.reports.*') => 'reportes',
             request()->routeIs('admin.goals.*') => 'metas',
+            request()->routeIs('admin.launchpad*') => 'operaciones-launchpad',
+            request()->routeIs('admin.projects.*', 'admin.boms.*', 'admin.mrp.*', 'admin.production-orders.*', 'admin.service-calendar.*', 'admin.pickups.*', 'admin.receivables.*', 'admin.payables.*', 'admin.payments.*', 'admin.warehouse-transfers.*', 'admin.stock-counts.*', 'admin.leads-inbox.*', 'admin.google-conversions.*') => 'operaciones-modulo',
             request()->routeIs('admin.statistics.*') => 'estadisticas-' . $statisticsSection,
             default => '',
         };
@@ -94,6 +96,7 @@
             'servicios' => ['reportes-servicio', 'servicios-tecnicos'],
             'erp' => ['cotizaciones', 'proveedores', 'ordenes-compra', 'pedidos', 'entrega-material', 'planeacion-quimicos', 'erp-configuracion', 'clientes', 'pipelines', 'embudo-de-venta', 'negocios', 'automatizaciones'],
             'administracion' => ['roles', 'usuarios', 'google-ads', 'ad-tracking', 'pool-calculator-leads', 'devops', 'audit', 'email-marketing', 'dashboards', 'reportes', 'metas'],
+            'operaciones' => ['operaciones-launchpad', 'operaciones-modulo'],
             'estadisticas' => ['estadisticas-resumen', 'estadisticas-ventas', 'estadisticas-embudo', 'estadisticas-compras', 'estadisticas-servicios', 'estadisticas-reportes', 'estadisticas-inventario', 'estadisticas-tienda'],
         ];
         $activeGroup = collect($groupSections)->search(fn ($sections) => in_array($activeSection, $sections));
@@ -146,6 +149,8 @@
         // de Servicio, Inventario, Tienda pública y Embudo de ventas) — no se
         // anida en ninguno de esos grupos, va en el suyo propio.
         $statisticsVisible = $authUser->hasPermission('statistics');
+        $erpNavItems = app(\App\Services\Erp\ErpNavigation::class)->items($authUser);
+        $operacionesVisible = count($erpNavItems) > 0;
     @endphp
     <nav class="sidebar-nav" id="sidebarNav">
 
@@ -764,6 +769,41 @@
                     </a>
                 @endif
 
+            </div>
+        </div>
+        @endif
+
+        {{-- ══════════════ GRUPO: OPERACIONES (módulos nuevos del ERP) ══════════════ --}}
+        @if ($operacionesVisible)
+        <div class="sidebar-nav-group {{ $activeGroup === 'operaciones' ? 'has-active' : '' }}" data-group="operaciones">
+            <button type="button" class="sidebar-nav-group-header" data-group-toggle="operaciones">
+                <div class="sidebar-nav-item-left">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="3" width="7" height="7" rx="1" /><rect x="14" y="3" width="7" height="7" rx="1" /><rect x="3" y="14" width="7" height="7" rx="1" /><rect x="14" y="14" width="7" height="7" rx="1" />
+                    </svg>
+                    <span class="sidebar-nav-item-label">Operaciones</span>
+                </div>
+                <svg class="sidebar-nav-group-chevron" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="m9 18 6-6-6-6" />
+                </svg>
+            </button>
+            <div class="sidebar-nav-group-body" data-group-body="operaciones">
+                <a class="sidebar-nav-item {{ $activeSection === 'operaciones-launchpad' ? 'active' : '' }}" data-section="operaciones-launchpad"
+                    href="{{ route('admin.launchpad') }}" data-label="Launchpad">
+                    <div class="sidebar-nav-item-left">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><path d="M9 22V12h6v10" /></svg>
+                        <span class="sidebar-nav-item-label">Launchpad</span>
+                    </div>
+                </a>
+                @foreach ($erpNavItems as $erpItem)
+                    <a class="sidebar-nav-item {{ request()->routeIs(\Illuminate\Support\Str::beforeLast($erpItem['route'], '.') . '.*') ? 'active' : '' }}" data-section="operaciones-modulo"
+                        href="{{ $erpItem['url'] }}" data-label="{{ $erpItem['label'] }}">
+                        <div class="sidebar-nav-item-left">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">{!! $erpItem['icon'] !!}</svg>
+                            <span class="sidebar-nav-item-label">{{ $erpItem['label'] }}</span>
+                        </div>
+                    </a>
+                @endforeach
             </div>
         </div>
         @endif

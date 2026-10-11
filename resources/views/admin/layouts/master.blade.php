@@ -22,6 +22,10 @@
     @vite(['resources/js/admin/canonical-picker.js'])
     @vite(['resources/js/admin/variable-picker.js'])
     @vite(['resources/js/admin/rule-value-picker.js'])
+    @if (\Illuminate\Support\Facades\Route::has('admin.launchpad.search'))
+        <meta name="erp-search-url" content="{{ route('admin.launchpad.search') }}">
+        @vite(['resources/css/admin/pages/erp-core.css', 'resources/js/admin/erp-palette.js'])
+    @endif
     @stack('styles')
     <style>
     .val-error-input,.val-error-select{border-color:#e3342f!important;box-shadow:0 0 0 2px rgba(227,52,47,.18)!important;}

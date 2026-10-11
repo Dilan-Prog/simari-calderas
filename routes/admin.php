@@ -1266,3 +1266,9 @@ Route::controller(GoalController::class)
     });
 
     // sig module
+
+// ── Módulos ERP nuevos (Operaciones): un archivo por módulo en routes/erp/ ──
+// Heredan el prefijo/nombre/middleware de este grupo (admin.*).
+foreach (glob(base_path('routes/erp/*.php')) as $erpRouteFile) {
+    require $erpRouteFile;
+}
