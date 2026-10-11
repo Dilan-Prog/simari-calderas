@@ -49,6 +49,40 @@ class RefreshSalesStatsTest extends TestCase
         }
     }
 
+    public function test_suma_cotizaciones_aceptadas_dentro_de_la_ventana(): void
+    {
+        $user = \App\Models\User::create([
+            'first_name' => 'A', 'last_name' => 'B', 'position' => 'X', 'phone' => '5555555555',
+            'email' => 'q-' . uniqid() . '@example.com', 'password' => bcrypt('x'), 'status' => 'active',
+            'rfc' => 'XAXX010101000', 'role_id' => \App\Models\Role::create(['name_role' => 'r', 'name_role_es' => 'r'])->id,
+        ]);
+        $product = $this->makeProduct();
+        $this->makeOrder('pagado', $product, 2);
+
+        $mk = function (string $status, $acceptedAt, int $qty) use ($user, $product) {
+            $q = \App\Models\Quote::create(['quote_number' => 'COT-' . uniqid(), 'status' => $status, 'created_by_user_id' => $user->id,
+                'guest_name' => 'C', 'guest_email' => 'c@example.com', 'accepted_at' => $acceptedAt]);
+            \Illuminate\Support\Facades\DB::table('quote_items')->insert([
+                'quote_id' => $q->id, 'product_id' => $product->id, 'quantity' => $qty, 'created_at' => now(), 'updated_at' => now(),
+            ] + $this->quoteItemDefaults());
+        };
+        $mk('accepted', now()->subDays(5), 10);   // cuenta
+        $mk('accepted', now()->subDays(200), 99); // fuera de la ventana
+        $mk('sent', null, 50);                    // no aceptada
+
+        $this->artisan('catalog:refresh-sales')->assertSuccessful();
+
+        $this->assertSame([$product->id => 12], $this->units());
+    }
+
+    private function quoteItemDefaults(): array
+    {
+        $cols = \Illuminate\Support\Facades\Schema::getColumnListing('quote_items');
+        $defaults = ['product_name' => 'Item', 'product_sku' => 'SKU', 'name' => 'Item', 'description' => 'Item', 'unit_price' => 1, 'unit' => 'pza', 'line_total' => 1, 'subtotal' => 1, 'total' => 1, 'type' => 'product', 'sort_order' => 0, 'discount_percent' => 0];
+
+        return array_intersect_key($defaults, array_flip($cols));
+    }
+
     public function test_suma_cantidades_de_varias_partidas_y_pedidos_por_producto(): void
     {
         $a = $this->makeProduct();

@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\DB;
 
 /**
  * Recalcula product_sales_stats: unidades vendidas por producto en pedidos
- * PAGADOS de la tienda dentro de la ventana catalog.best_seller_days. Alimenta
+ * PAGADOS de la tienda y en cotizaciones ACEPTADAS dentro de la ventana catalog.best_seller_days. Alimenta
  * la etiqueta "Más vendido" (BadgeResolver) y el orden "vendidos" del catálogo.
  * Se programa cada hora en App\Console\Kernel.
  */
@@ -25,7 +25,7 @@ class RefreshSalesStats extends Command
 
     protected $signature = 'catalog:refresh-sales {--dry-run : Calcula y muestra el resumen sin escribir en la base de datos}';
 
-    protected $description = 'Recalcula las unidades vendidas por producto (pedidos pagados en la ventana configurada) para las etiquetas y el orden del catálogo';
+    protected $description = 'Recalcula las unidades vendidas por producto (pedidos pagados de la tienda y cotizaciones aceptadas en la ventana configurada) para las etiquetas y el orden del catálogo';
 
     public function handle(): int
     {
@@ -39,8 +39,24 @@ class RefreshSalesStats extends Command
             ->groupBy('store_order_items.product_id')
             ->selectRaw('store_order_items.product_id as product_id, SUM(store_order_items.quantity) as units')
             ->pluck('units', 'product_id')
-            ->map(fn ($value) => max(0, (int) $value))
-            ->filter(fn (int $value) => $value > 0);
+            ->map(fn ($value) => max(0, (int) $value));
+
+        // Cotizaciones ACEPTADAS dentro de la misma ventana: venta B2B por cotizacion
+        // (las mismas que alimentan "+N unidades vendidas" en la ficha, ver QuoteSales).
+        $quoteUnits = DB::table('quote_items')
+            ->join('quotes', 'quotes.id', '=', 'quote_items.quote_id')
+            ->where('quotes.status', 'accepted')
+            ->whereNotNull('quote_items.product_id')
+            ->whereRaw('COALESCE(quotes.accepted_at, quotes.updated_at) >= ?', [$since])
+            ->groupBy('quote_items.product_id')
+            ->selectRaw('quote_items.product_id as product_id, SUM(quote_items.quantity) as units')
+            ->pluck('units', 'product_id');
+
+        foreach ($quoteUnits as $productId => $qty) {
+            $units[$productId] = ($units[$productId] ?? 0) + max(0, (int) $qty);
+        }
+
+        $units = $units->filter(fn ($value) => $value > 0);
 
         $existing = ProductSalesStat::query()->pluck('product_id')->all();
         $obsolete = array_values(array_diff($existing, $units->keys()->all()));
