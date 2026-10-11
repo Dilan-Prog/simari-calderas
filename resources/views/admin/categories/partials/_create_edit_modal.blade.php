@@ -68,6 +68,9 @@
                             Seleccionar
                         </button>
                     </div>
+                    <p style="margin:6px 0 0;font-size:12.5px;line-height:1.5;color:#6b7280;">
+                        Medida recomendada: <strong>800×400px</strong> (horizontal, proporción 2:1). En el sitio se recorta para llenar la tarjeta de categoría (≈210×110px), así que deja el producto o motivo centrado.
+                    </p>
                 </div>
 
                 <div class="user-manager-form">
