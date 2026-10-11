@@ -8,7 +8,7 @@
     {{-- Header --}}
     <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-bottom:20px;">
         <div>
-            <p class="shipments-eyebrow">Ecommerce · Envíos</p>
+            <p class="shipments-eyebrow">Logística · Envíos</p>
             <h1 class="shipments-title">Envíos</h1>
             <p class="shipments-subtitle" style="margin-bottom:0;">
                 Rastrea la guía, paquetería y estatus de entrega de cada orden de tienda (<strong>StoreOrder</strong>)
