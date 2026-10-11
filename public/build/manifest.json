@@ -100,9 +100,54 @@
     "src": "resources/css/admin/pages/email-marketing.css",
     "isEntry": true
   },
+  "resources/css/admin/pages/erp-boms.css": {
+    "file": "assets/erp-boms-CJJjah1A.css",
+    "src": "resources/css/admin/pages/erp-boms.css",
+    "isEntry": true
+  },
+  "resources/css/admin/pages/erp-core.css": {
+    "file": "assets/erp-core-CzUGjtay.css",
+    "src": "resources/css/admin/pages/erp-core.css",
+    "isEntry": true
+  },
+  "resources/css/admin/pages/erp-crm.css": {
+    "file": "assets/erp-crm-CgEFqxh_.css",
+    "src": "resources/css/admin/pages/erp-crm.css",
+    "isEntry": true
+  },
+  "resources/css/admin/pages/erp-finance.css": {
+    "file": "assets/erp-finance-NWh8VA_k.css",
+    "src": "resources/css/admin/pages/erp-finance.css",
+    "isEntry": true
+  },
+  "resources/css/admin/pages/erp-logistics.css": {
+    "file": "assets/erp-logistics-DEjx4xCz.css",
+    "src": "resources/css/admin/pages/erp-logistics.css",
+    "isEntry": true
+  },
+  "resources/css/admin/pages/erp-mrp.css": {
+    "file": "assets/erp-mrp-Bo5oiCXF.css",
+    "src": "resources/css/admin/pages/erp-mrp.css",
+    "isEntry": true
+  },
+  "resources/css/admin/pages/erp-production.css": {
+    "file": "assets/erp-production-CB-f2sM9.css",
+    "src": "resources/css/admin/pages/erp-production.css",
+    "isEntry": true
+  },
+  "resources/css/admin/pages/erp-projects.css": {
+    "file": "assets/erp-projects-Bx392TTB.css",
+    "src": "resources/css/admin/pages/erp-projects.css",
+    "isEntry": true
+  },
   "resources/css/admin/pages/erp-settings.css": {
     "file": "assets/erp-settings-C6WBE0J3.css",
     "src": "resources/css/admin/pages/erp-settings.css",
+    "isEntry": true
+  },
+  "resources/css/admin/pages/erp-warehouse.css": {
+    "file": "assets/erp-warehouse-B6FcpnlV.css",
+    "src": "resources/css/admin/pages/erp-warehouse.css",
     "isEntry": true
   },
   "resources/css/admin/pages/gallery.css": {
@@ -316,6 +361,60 @@
       "_client-wKI0Igq7.js",
       "__commonjsHelpers-Cpj98o6Y.js"
     ]
+  },
+  "resources/js/admin/erp-boms.js": {
+    "file": "assets/erp-boms-rNmhTK0m.js",
+    "name": "erp-boms",
+    "src": "resources/js/admin/erp-boms.js",
+    "isEntry": true
+  },
+  "resources/js/admin/erp-crm.js": {
+    "file": "assets/erp-crm-4DK8Q4z8.js",
+    "name": "erp-crm",
+    "src": "resources/js/admin/erp-crm.js",
+    "isEntry": true
+  },
+  "resources/js/admin/erp-finance.js": {
+    "file": "assets/erp-finance-CYxUuZBF.js",
+    "name": "erp-finance",
+    "src": "resources/js/admin/erp-finance.js",
+    "isEntry": true
+  },
+  "resources/js/admin/erp-logistics.js": {
+    "file": "assets/erp-logistics-CVjRp27_.js",
+    "name": "erp-logistics",
+    "src": "resources/js/admin/erp-logistics.js",
+    "isEntry": true
+  },
+  "resources/js/admin/erp-mrp.js": {
+    "file": "assets/erp-mrp-OolynpdQ.js",
+    "name": "erp-mrp",
+    "src": "resources/js/admin/erp-mrp.js",
+    "isEntry": true
+  },
+  "resources/js/admin/erp-palette.js": {
+    "file": "assets/erp-palette-Dj-TjHT5.js",
+    "name": "erp-palette",
+    "src": "resources/js/admin/erp-palette.js",
+    "isEntry": true
+  },
+  "resources/js/admin/erp-production.js": {
+    "file": "assets/erp-production-Dm5IxkVa.js",
+    "name": "erp-production",
+    "src": "resources/js/admin/erp-production.js",
+    "isEntry": true
+  },
+  "resources/js/admin/erp-projects.js": {
+    "file": "assets/erp-projects-CwEgGMow.js",
+    "name": "erp-projects",
+    "src": "resources/js/admin/erp-projects.js",
+    "isEntry": true
+  },
+  "resources/js/admin/erp-warehouse.js": {
+    "file": "assets/erp-warehouse-BU4gJsmB.js",
+    "name": "erp-warehouse",
+    "src": "resources/js/admin/erp-warehouse.js",
+    "isEntry": true
   },
   "resources/js/admin/google-ads.js": {
     "file": "assets/google-ads-fB6yucmF.js",

@@ -347,6 +347,9 @@ class WhatsappService
             'unread_count'    => $conversation->unread_count + 1,
         ]);
 
+        // Fase 7: todo mensaje entrante alimenta la bandeja de leads (dedupe por teléfono).
+        rescue(fn () => app(\App\Services\LeadService::class)->captureFromWhatsapp($conversation, $message), null, true);
+
         return $message;
     }
 

@@ -21,6 +21,23 @@ class DealStageHistory extends Model
         'moved_at' => 'datetime',
     ];
 
+    protected static function booted(): void
+    {
+        // Fase 7: Cotizado / Venta ganada disparan la conversión a Google (nunca rompe el movimiento de etapa).
+        static::created(function (DealStageHistory $history) {
+            rescue(function () use ($history) {
+                $deal = Deal::withTrashed()->find($history->deal_id);
+                if ($deal && $history->to_stage_id) {
+                    app(\App\Services\GoogleConversionService::class)->handleStageMove(
+                        $deal,
+                        $history->from_stage_id ? PipelineStage::find($history->from_stage_id) : null,
+                        PipelineStage::find($history->to_stage_id)
+                    );
+                }
+            }, null, true);
+        });
+    }
+
     public function deal()
     {
         return $this->belongsTo(Deal::class);

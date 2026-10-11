@@ -50,6 +50,13 @@ class Deal extends Model
                 $deal->folio = self::generateFolio();
             }
         });
+
+        // Fase 7: cambio de monto/moneda de una venta ya subida a Google -> RESTATEMENT.
+        static::updated(function (Deal $deal) {
+            if ($deal->wasChanged(['amount', 'currency'])) {
+                rescue(fn () => app(\App\Services\GoogleConversionService::class)->handleAmountChange($deal), null, true);
+            }
+        });
     }
 
     public function pipeline()

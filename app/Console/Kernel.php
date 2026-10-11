@@ -115,6 +115,12 @@ class Kernel extends ConsoleKernel
             ->daily()
             ->withoutOverlapping();
 
+        // Finanzas: marca como vencidas las CXC/CXP abiertas cuya fecha de
+        // vencimiento ya pasó. Una vez al día basta.
+        $schedule->command('finance:mark-overdue')
+            ->dailyAt('00:10')
+            ->withoutOverlapping();
+
         // Catálogo: recalcula las unidades vendidas por producto (pedidos
         // pagados en la ventana catalog.best_seller_days) para la etiqueta
         // "Más vendido" y el orden "vendidos". El comando se autodescubre
@@ -124,6 +130,11 @@ class Kernel extends ConsoleKernel
             ->hourly()
             ->withoutOverlapping()
             ->runInBackground();
+
+        // Producción: crea una tarea por orden vencida y no terminada (no duplica).
+        $schedule->command('production:alert-delays')
+            ->dailyAt('07:00')
+            ->withoutOverlapping();
     }
 
     /**

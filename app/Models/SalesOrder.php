@@ -17,7 +17,7 @@ class SalesOrder extends Model
     }
 
     protected $fillable = [
-        'order_number', 'quote_id', 'customer_id', 'created_by_user_id',
+        'order_number', 'quote_id', 'project_id', 'customer_id', 'created_by_user_id',
         'status', 'notes',
     ];
 
@@ -29,6 +29,11 @@ class SalesOrder extends Model
     public function customer(): BelongsTo
     {
         return $this->belongsTo(Customer::class);
+    }
+
+    public function project(): BelongsTo
+    {
+        return $this->belongsTo(Project::class);
     }
 
     public function createdBy(): BelongsTo

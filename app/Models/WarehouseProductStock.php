@@ -12,7 +12,13 @@ class WarehouseProductStock extends Model
     // migración) — sin esto Eloquent adivinaría 'warehouse_product_stocks'.
     protected $table = 'warehouse_product_stock';
 
-    protected $fillable = ['warehouse_id', 'product_id', 'quantity'];
+    protected $fillable = ['warehouse_id', 'product_id', 'quantity', 'location_id'];
+
+    // Ubicación opcional dentro del almacén (null = sin ubicación asignada).
+    public function location()
+    {
+        return $this->belongsTo(WarehouseLocation::class, 'location_id');
+    }
 
     public function warehouse()
     {

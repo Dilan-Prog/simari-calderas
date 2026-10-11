@@ -25,6 +25,7 @@ return [
         'deals:read'   => 'Leer negocios (deals)',
         'deals:write'  => 'Crear/editar negocios y mover de etapa',
         'tasks:write'  => 'Crear tareas',
+        'leads:write'  => 'Registrar llamadas y leads (bandeja de leads)',
     ],
 
     'Cotizaciones y Pedidos' => [

@@ -1,0 +1,26 @@
+<?php
+
+use App\Http\Controllers\Backend\Crm\GoogleConversionUploadController;
+use App\Http\Controllers\Backend\Crm\LeadInboxController;
+use Illuminate\Support\Facades\Route;
+
+// Fase 7 — CRM propio. Se cargan dentro del grupo admin (prefijo admin/, nombres admin.*).
+
+// Bandeja unificada de leads
+Route::prefix('leads')->name('leads-inbox.')->middleware('permission:leads-inbox')->group(function () {
+    Route::get('/', [LeadInboxController::class, 'index'])->name('index');
+    Route::post('/', [LeadInboxController::class, 'store'])->name('store')->middleware('permission:leads-inbox,create');
+    Route::get('/{lead}', [LeadInboxController::class, 'show'])->whereNumber('lead')->name('show');
+    Route::put('/{lead}', [LeadInboxController::class, 'update'])->whereNumber('lead')->name('update')->middleware('permission:leads-inbox,edit');
+    Route::post('/{lead}/asignar', [LeadInboxController::class, 'assign'])->whereNumber('lead')->name('assign')->middleware('permission:leads-inbox,edit');
+    Route::post('/{lead}/convertir', [LeadInboxController::class, 'convert'])->whereNumber('lead')->name('convert')->middleware('permission:leads-inbox,edit');
+    Route::post('/{lead}/llamadas', [LeadInboxController::class, 'storeCall'])->whereNumber('lead')->name('calls.store')->middleware('permission:leads-inbox,create');
+});
+
+// Conversiones a Google (Data Manager API) — convive con el panel legado admin.google-ads.*
+Route::prefix('conversiones-google')->name('google-conversions.')->middleware('permission:google-conversions')->group(function () {
+    Route::get('/', [GoogleConversionUploadController::class, 'index'])->name('index');
+    Route::post('/reintentar-fallidas', [GoogleConversionUploadController::class, 'retryFailed'])->name('retry-failed')->middleware('permission:google-conversions,edit');
+    Route::get('/{upload}', [GoogleConversionUploadController::class, 'show'])->whereNumber('upload')->name('show');
+    Route::post('/{upload}/reintentar', [GoogleConversionUploadController::class, 'retry'])->whereNumber('upload')->name('retry')->middleware('permission:google-conversions,edit');
+});

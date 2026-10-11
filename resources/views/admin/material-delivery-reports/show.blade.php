@@ -14,6 +14,8 @@
         <div class="mdr-flash-err">{{ session('error') }}</div>
     @endif
 
+    <x-erp.document-flow :document="$report" />
+
     {{-- Steps progress banner (only while editing) --}}
     @if($report->isEditable() && $report->current_step < 5)
         @php

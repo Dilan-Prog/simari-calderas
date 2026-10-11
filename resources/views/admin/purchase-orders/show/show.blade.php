@@ -239,6 +239,26 @@
                     </div>
                 </div>
 
+                {{-- Finanzas: generar cuenta por pagar desde la OC aceptada/recibida --}}
+                @if (in_array($order->status, ['accepted', 'received'], true) && Route::has('admin.payables.from-purchase-order') && auth()->user()->hasPermission('payables', 'view'))
+                    @php
+                        $existingCxp = \App\Models\Payable::where('purchase_order_id', $order->id)->where('status', '!=', 'cancelada')->first();
+                    @endphp
+                    @if ($existingCxp)
+                        <a href="{{ route('admin.payables.show', $existingCxp->id) }}" class="po-btn-draft"
+                            style="display:block;text-align:center;text-decoration:none;">
+                            Cuenta por pagar {{ $existingCxp->number }}
+                        </a>
+                    @elseif (auth()->user()->hasPermission('payables', 'create'))
+                        <form method="POST" action="{{ route('admin.payables.from-purchase-order', $order->id) }}">
+                            @csrf
+                            <button type="submit" class="po-btn-draft" style="display:block;width:100%;text-align:center;cursor:pointer;">
+                                Generar cuenta por pagar
+                            </button>
+                        </form>
+                    @endif
+                @endif
+
                 {{-- Actions --}}
                 <a href="{{ route('admin.purchase-orders.edit', $order->id) }}" class="po-btn-save"
                     style="display:block;text-align:center;text-decoration:none;">

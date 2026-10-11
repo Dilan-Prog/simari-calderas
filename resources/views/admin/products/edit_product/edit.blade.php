@@ -187,6 +187,15 @@
                     </svg>
                     Bloques
                 </button>
+                <button class="pform-tab" data-tab="pformPanel8" type="button" role="tab">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M8 6h13" /><path d="M8 12h13" /><path d="M8 18h13" />
+                        <path d="M3 6h.01" /><path d="M3 12h.01" /><path d="M3 18h.01" />
+                    </svg>
+                    Lista de materiales{{ $product->activeBom()->exists() ? ' ✓' : '' }}
+                </button>
             </div>
         </div>
 
@@ -1109,6 +1118,9 @@
 
                     {{-- Panel 7: Bloques dinámicos (se guarda por AJAX, no con el form) --}}
                     @include('admin.products.edit_product._blocks_panel')
+
+                    {{-- Panel 8: Lista de materiales (ERP Fase 2A) --}}
+                    @include('admin.products.edit_product._boms_panel')
 
                 </div>
             </form>

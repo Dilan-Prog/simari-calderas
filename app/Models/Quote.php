@@ -18,6 +18,7 @@ class Quote extends Model
 
     protected $fillable = [
         'quote_number',
+        'project_id',
         'created_by_user_id',
         'customer_id',
         'visitor_uuid',
@@ -71,6 +72,11 @@ class Quote extends Model
     public function customer(): BelongsTo
     {
         return $this->belongsTo(Customer::class);
+    }
+
+    public function project(): BelongsTo
+    {
+        return $this->belongsTo(Project::class);
     }
 
     // Visita de anuncio (gclid/wbraid/UTM) conectada a esta cotización --

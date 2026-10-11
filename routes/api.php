@@ -70,4 +70,5 @@ Route::prefix('v1')
         require __DIR__ . '/api/quotes.php';
         require __DIR__ . '/api/catalog.php';
         require __DIR__ . '/api/whatsapp-marketing.php';
+        require __DIR__ . '/api/leads.php';
     });

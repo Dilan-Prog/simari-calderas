@@ -26,6 +26,7 @@ class ServiceReport extends Model
 
     protected $fillable = [
         'report_number',
+        'project_id',
         'created_by_user_id',
         'assigned_user_id',
         'service_id',
@@ -77,6 +78,11 @@ class ServiceReport extends Model
     public function customer(): BelongsTo
     {
         return $this->belongsTo(Customer::class);
+    }
+
+    public function project(): BelongsTo
+    {
+        return $this->belongsTo(Project::class);
     }
 
     public function service(): BelongsTo

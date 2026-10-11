@@ -132,6 +132,8 @@
                             <th data-col="quantity">Stock ({{ $warehouses->firstWhere('id', $warehouseId)?->name }})
                                 <span class="prod-bulk-resize-handle" data-resize-col="quantity"></span>
                             </th>
+                            <th title="Reservas activas de proyectos (MRP)">Reservado</th>
+                            <th title="Stock menos reservado">Disponible</th>
                             @foreach ($bulkEditColumns as $col)
                                 <th data-col="{{ $col['key'] }}">{{ $col['label'] }}
                                     <span class="prod-bulk-resize-handle" data-resize-col="{{ $col['key'] }}"></span>
@@ -149,6 +151,9 @@
                                         data-field="quantity" min="0" step="1"
                                         value="{{ $stockMap[$product->id] ?? 0 }}">
                                 </td>
+                                @php $reserved = $reservedMap[$product->id] ?? 0; @endphp
+                                <td>{{ $reserved }}</td>
+                                <td>{{ ($stockMap[$product->id] ?? 0) - $reserved }}</td>
                                 @foreach ($bulkEditColumns as $col)
                                     <td data-col="{{ $col['key'] }}">
                                         {{ $col['key'] === 'category' ? ($product->category->name ?? '—') : ($product->brand->name ?? '—') }}
@@ -157,7 +162,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="{{ count($bulkEditColumns) + 3 }}">
+                                <td colspan="{{ count($bulkEditColumns) + 5 }}">
                                     <p class="prod-empty">No se encontraron productos con los filtros actuales.</p>
                                 </td>
                             </tr>

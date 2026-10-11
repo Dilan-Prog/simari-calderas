@@ -63,7 +63,7 @@ class ShipmentController extends Controller
             ->where('table_key', 'shipments.index')
             ->value('columns');
 
-        $filters = $request->only(['q', 'carrier_id', 'tab']);
+        $filters = $request->only(['q', 'carrier_id', 'tab', 'tipo']);
 
         return view('admin.shipments.index', compact(
             'shipments',
@@ -170,8 +170,13 @@ class ShipmentController extends Controller
             ]);
         });
 
-        if ($validated['status'] === 'entregado') {
+        if ($validated['status'] === 'entregado' && $shipment->storeOrder) {
             (new AdvanceStoreOrderStatus)($shipment->storeOrder, 'entregado', 'Avance automático: envío entregado');
+        }
+
+        if ($shipment->isB2b()) {
+            return redirect()->route('admin.shipments.show', $shipment)
+                ->with('success', 'Estatus del envío actualizado.');
         }
 
         return redirect()->route('admin.orders.show', $shipment->store_order_id)
@@ -187,6 +192,10 @@ class ShipmentController extends Controller
         $orderId = $shipment->store_order_id;
         $shipment->delete();
 
+        if (! $orderId) {
+            return redirect()->route('admin.shipments.index')->with('success', 'Envío eliminado correctamente.');
+        }
+
         return redirect()->route('admin.orders.show', $orderId)
             ->with('success', 'Envío eliminado correctamente.');
     }
@@ -196,8 +205,8 @@ class ShipmentController extends Controller
         $shipments = $this->filteredShipmentsQuery($request)->get();
 
         $rows = $shipments->map(fn (Shipment $s) => [
-            'orden'          => $s->storeOrder?->order_number,
-            'cliente'        => $s->storeOrder?->contact_name,
+            'orden'          => $s->documentNumber(),
+            'cliente'        => $s->storeOrder?->contact_name ?? $s->recipientLabel(),
             'transportista'  => $s->carrier?->name,
             'guia'           => $s->guia,
             'estatus'        => ShipmentStatus::meta($s->status)['label'] ?? $s->status,
@@ -220,6 +229,9 @@ class ShipmentController extends Controller
             $q = $request->q;
             $query->where(function ($sub) use ($q) {
                 $sub->where('guia', 'like', "%{$q}%")
+                    ->orWhere('order_number_ref', 'like', "%{$q}%")
+                    ->orWhere('recipient_name', 'like', "%{$q}%")
+                    ->orWhere('recipient_company', 'like', "%{$q}%")
                     ->orWhereHas('storeOrder', function ($sq) use ($q) {
                         $sq->where('order_number', 'like', "%{$q}%")
                             ->orWhere('contact_name', 'like', "%{$q}%")
@@ -230,6 +242,12 @@ class ShipmentController extends Controller
 
         if ($request->filled('carrier_id')) {
             $query->where('carrier_id', $request->carrier_id);
+        }
+
+        if ($request->input('tipo') === 'tienda') {
+            $query->whereNotNull('store_order_id');
+        } elseif ($request->input('tipo') === 'b2b') {
+            $query->whereNull('store_order_id');
         }
 
         if ($request->filled('tab') && $request->tab !== 'todos') {

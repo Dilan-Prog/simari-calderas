@@ -19,6 +19,11 @@
                     <p class="breadcrumb-clients-manager main">Catálogo de ubicaciones de almacenamiento</p>
                 </div>
                 <div style="display:flex; align-items:center; gap:10px;">
+                    @if (\Illuminate\Support\Facades\Route::has('admin.warehouse-locations.index'))
+                    <a href="{{ route('admin.warehouse-locations.index') }}" class="prod-btn-outline">
+                        Ubicaciones y saldos
+                    </a>
+                    @endif
                     <a href="{{ route('admin.inventory.index') }}" class="prod-btn-outline">
                         ← Volver a Movimientos
                     </a>

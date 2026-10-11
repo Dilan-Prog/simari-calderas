@@ -23,6 +23,7 @@ class SalesOrderService
             $order = SalesOrder::create([
                 'order_number'       => SalesOrder::generateOrderNumber(),
                 'quote_id'           => $quote->id,
+                'project_id'         => $quote->project_id,
                 'customer_id'        => $quote->customer_id,
                 // created_by_user_id tiene FK a `users` -- auth()->id() a
                 // secas asume un App\Models\User. Con auth:sanctum,
@@ -44,6 +45,19 @@ class SalesOrderService
                     'quantity_ordered' => $item->quantity,
                     'sort_order'   => $i,
                 ]);
+            }
+
+            // Flujo del documento: cotización → pedido y (si la cotización
+            // pertenece a un proyecto) proyecto → pedido. Nunca debe romper
+            // la creación del pedido.
+            try {
+                \App\Services\Erp\DocumentFlow::link($quote, $order);
+                if ($quote->project_id && ($project = \App\Models\Project::find($quote->project_id))) {
+                    \App\Services\Erp\DocumentFlow::link($quote, $project);
+                    \App\Services\Erp\DocumentFlow::link($project, $order);
+                }
+            } catch (\Throwable $e) {
+                report($e);
             }
 
             return $order;

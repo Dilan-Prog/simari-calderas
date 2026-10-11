@@ -42,11 +42,50 @@
         </span>
     </div>
 
+    @if ($order->status !== 'cancelado')
+        <div style="margin-bottom:12px;display:flex;gap:8px;flex-wrap:wrap;">
+            @if (Route::has('admin.shipments.create'))
+                <a href="{{ route('admin.shipments.create', ['sales_order' => $order->id]) }}" class="button-secondary size-adjustment">Crear envío</a>
+            @endif
+            @if (Route::has('admin.pickups.create'))
+                <a href="{{ route('admin.pickups.create', ['sales_order' => $order->id]) }}" class="button-secondary size-adjustment">Crear recolección</a>
+            @endif
+            @if (Route::has('admin.mrp.from-sales-order') && (auth()->user()->isAdmin() || auth()->user()->hasPermission('mrp', 'create')))
+                <form method="POST" action="{{ route('admin.mrp.from-sales-order', $order) }}" style="display:inline;">
+                    @csrf
+                    <button type="submit" class="button-secondary size-adjustment">Calcular materiales (MRP)</button>
+                </form>
+            @endif
+        </div>
+    @endif
+
     @if ($order->status !== 'cancelado' && $order->status !== 'entregado')
         <div style="margin-bottom:20px;">
             <button type="button" class="button-secondary size-adjustment" id="btnCancelOrder">Cancelar pedido</button>
         </div>
     @endif
+
+    {{-- Finanzas: generar cuenta por cobrar desde el pedido --}}
+    @if ($order->status !== 'cancelado' && Route::has('admin.receivables.from-sales-order') && auth()->user()->hasPermission('receivables', 'view'))
+        @php
+            $existingCxc = \App\Models\Receivable::where('source_type', 'sales_order')->where('source_id', $order->id)->where('status', '!=', 'cancelada')->first();
+        @endphp
+        <div style="margin-bottom:16px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+            @if ($existingCxc)
+                <a href="{{ route('admin.receivables.show', $existingCxc->id) }}" class="button-secondary size-adjustment">Cuenta por cobrar {{ $existingCxc->number }}</a>
+            @elseif (auth()->user()->hasPermission('receivables', 'create'))
+                <form method="POST" action="{{ route('admin.receivables.from-sales-order', $order->id) }}" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                    @csrf
+                    <label style="font-size:13px;color:#374151;">Días de crédito
+                        <input type="number" name="credit_days" min="0" max="3650" value="0" class="users-manager-input" style="width:90px;display:inline-block;">
+                    </label>
+                    <button type="submit" class="button-secondary size-adjustment">Generar cuenta por cobrar</button>
+                </form>
+            @endif
+        </div>
+    @endif
+
+    @include('admin.production-orders._sales_order_box')
 
     <main class="table-container-clients-manager">
         <table class="clients-manager-table brand-table">

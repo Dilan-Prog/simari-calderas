@@ -15,7 +15,12 @@
                 una vez que sale de almacén.
             </p>
         </div>
-        <a href="{{ route('admin.shipments.export', request()->query()) }}" class="button-secondary size-adjustment">Exportar</a>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            @if (Route::has('admin.shipments.create'))
+                <a href="{{ route('admin.shipments.create') }}" class="button-primary size-adjustment">Nuevo envío B2B</a>
+            @endif
+            <a href="{{ route('admin.shipments.export', request()->query()) }}" class="button-secondary size-adjustment">Exportar</a>
+        </div>
     </div>
 
     {{-- KPIs --}}
@@ -79,6 +84,12 @@
             @endforeach
         </select>
 
+        <select name="tipo" class="shipments-filter-select">
+            <option value="">Tienda y B2B</option>
+            <option value="tienda" @selected(($filters['tipo'] ?? null) === 'tienda')>Solo tienda</option>
+            <option value="b2b" @selected(($filters['tipo'] ?? null) === 'b2b')>Solo B2B</option>
+        </select>
+
         <button type="submit" class="button-secondary size-adjustment">Filtrar</button>
 
         @include('admin.components._column_visibility_menu', [
@@ -120,12 +131,12 @@
             <div class="shipments-table-body">
                 @foreach ($shipments as $shipment)
                     @php $rowMeta = $statusMeta[$shipment->status] ?? []; @endphp
-                    <div class="shipments-table-row" onclick="window.location.href='{{ route('admin.orders.show', $shipment->store_order_id) }}'">
-                        <span class="shipments-table-cell shipments-table-folio">{{ $shipment->storeOrder->order_number ?? '—' }}</span>
+                    <div class="shipments-table-row" onclick="window.location.href='{{ $shipment->detailUrl() }}'">
+                        <span class="shipments-table-cell shipments-table-folio">{{ $shipment->documentNumber() ?? '—' }}@if ($shipment->isB2b()) <small style="color:#9ca3af;">B2B</small>@endif</span>
 
                         <span class="shipments-table-cell" data-col="cliente">
-                            <div class="shipments-table-customer-name">{{ $shipment->storeOrder->contact_name ?? '—' }}</div>
-                            <div class="shipments-table-customer-email">{{ $shipment->storeOrder->contact_email ?? '' }}</div>
+                            <div class="shipments-table-customer-name">{{ $shipment->recipientLabel() }}</div>
+                            <div class="shipments-table-customer-email">{{ $shipment->storeOrder->contact_email ?? $shipment->recipient_email ?? '' }}</div>
                         </span>
 
                         <span class="shipments-table-cell" data-col="transportista">
@@ -155,7 +166,7 @@
                         </span>
 
                         <span class="shipments-table-cell shipments-table-actions">
-                            <a href="{{ route('admin.orders.show', $shipment->store_order_id) }}" class="shipments-status-trigger" title="Ver envío" onclick="event.stopPropagation()">
+                            <a href="{{ $shipment->detailUrl() }}" class="shipments-status-trigger" title="Ver envío" onclick="event.stopPropagation()">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/></svg>
                             </a>
                         </span>

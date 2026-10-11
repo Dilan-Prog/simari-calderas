@@ -524,6 +524,23 @@ class Products extends Model
     // items before deleting — purchase_order_items.product_id has an
     // onDelete('restrict') FK, so deleting a referenced product previously
     // crashed with an uncaught QueryException.
+    // ERP Fase 2A: listas de materiales (BOM) del producto fabricado.
+    public function boms()
+    {
+        return $this->hasMany(Bom::class, 'product_id')->orderByDesc('version');
+    }
+
+    public function activeBom()
+    {
+        return $this->hasOne(Bom::class, 'product_id')->where('is_active', true);
+    }
+
+    /** Producto fabricado = tiene una receta vigente. */
+    public function isManufactured(): bool
+    {
+        return $this->activeBom()->exists();
+    }
+
     public function purchaseOrderItems()
     {
         return $this->hasMany(PurchaseOrderItem::class, 'product_id');

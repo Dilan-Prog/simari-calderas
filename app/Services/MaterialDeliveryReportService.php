@@ -47,7 +47,7 @@ class MaterialDeliveryReportService
             // $data directamente — así no se puede falsear desde el request.
             $salesOrder = SalesOrder::findOrFail($data['sales_order_id']);
 
-            return MaterialDeliveryReport::create([
+            $report = MaterialDeliveryReport::create([
                 'report_number'      => $this->generateReportNumber(),
                 'created_by_user_id' => $userId,
                 'sales_order_id'     => $salesOrder->id,
@@ -57,6 +57,11 @@ class MaterialDeliveryReportService
                 'delivery_location'  => $data['delivery_location'] ?? null,
                 'current_step'       => 1,
             ]);
+
+            // Document Flow: pedido → entrega de material.
+            \App\Services\Erp\DocumentFlow::link($salesOrder, $report);
+
+            return $report;
         });
     }
 

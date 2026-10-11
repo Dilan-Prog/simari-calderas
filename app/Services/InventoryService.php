@@ -9,6 +9,7 @@ use App\Models\Setting;
 use App\Models\Warehouse;
 use App\Models\WarehouseProductStock;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 /**
  * Único punto del sistema que debe tocar `products.stock` de aquí en
@@ -99,6 +100,31 @@ class InventoryService
 
             return $movement;
         });
+    }
+
+    /**
+     * Cantidad reservada (reservas activas) por producto. Tolerante: la tabla
+     * `stock_reservations` la crea el módulo MRP; si aún no existe devuelve 0.
+     * Las reservas sin almacén (warehouse_id null) cuentan para cualquier almacén.
+     *
+     * @param  array<int,int>  $productIds
+     * @return array<int,int>  [product_id => reservado]
+     */
+    public function reservedQuantities(array $productIds, ?int $warehouseId = null): array
+    {
+        if (!$productIds || !Schema::hasTable('stock_reservations')) {
+            return [];
+        }
+
+        return DB::table('stock_reservations')
+            ->whereIn('product_id', $productIds)
+            ->where('status', 'activa')
+            ->when($warehouseId, fn ($q) => $q->where(fn ($w) => $w->where('warehouse_id', $warehouseId)->orWhereNull('warehouse_id')))
+            ->groupBy('product_id')
+            ->selectRaw('product_id, SUM(quantity) as reserved')
+            ->pluck('reserved', 'product_id')
+            ->map(fn ($v) => (int) $v)
+            ->all();
     }
 
     /**

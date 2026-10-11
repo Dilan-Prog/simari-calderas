@@ -237,11 +237,14 @@ class InventoryController extends Controller
 
         $warehouses = Warehouse::orderBy('name')->get();
 
+        // Reservas activas (MRP) — tolerante si la tabla aún no existe.
+        $reservedMap = $this->inventoryService->reservedQuantities($productIds->all(), $warehouseId);
+
         $savedViews = InventoryBulkEditView::where('user_id', auth()->id())
             ->orderBy('id')
             ->get(['id', 'name', 'columns', 'widths']);
 
-        return view('admin.inventory.bulk_edit', compact('products', 'totalFiltered', 'warehouseId', 'warehouses', 'stockMap', 'savedViews'))
+        return view('admin.inventory.bulk_edit', compact('products', 'totalFiltered', 'warehouseId', 'warehouses', 'stockMap', 'reservedMap', 'savedViews'))
             ->with('perPageOptions', self::PER_PAGE_OPTIONS);
     }
 

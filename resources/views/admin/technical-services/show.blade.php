@@ -55,6 +55,7 @@
                     </span>
                 </div>
                 <h1 class="ts-show-title">{{ $service->service_type_label }}</h1>
+                @include('admin.projects._doc_picker', ['doc' => $service, 'type' => 'service'])
             </div>
         </div>
 

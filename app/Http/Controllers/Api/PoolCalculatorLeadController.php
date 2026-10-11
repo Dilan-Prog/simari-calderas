@@ -47,13 +47,16 @@ class PoolCalculatorLeadController extends Controller
 
         $ref = $this->generateUniqueRef();
 
-        PoolCalculatorLead::create([
+        $poolLead = PoolCalculatorLead::create([
             'ref'             => $ref,
             'visitor_uuid'    => $visitorUuid,
             'home_section_id' => $validated['home_section_id'] ?? null,
             'payload'         => $validated['payload'],
             'status'          => 'nuevo',
         ]);
+
+        // Fase 7: el lead de la calculadora también entra a la bandeja unificada.
+        rescue(fn () => app(\App\Services\LeadService::class)->captureFromPoolCalculator($poolLead), null, true);
 
         return response()->json(['ref' => $ref]);
     }

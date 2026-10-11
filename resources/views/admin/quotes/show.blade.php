@@ -24,9 +24,13 @@
                 </span>
             </h1>
             <p class="quotes-header__subtitle">Creada el {{ $quote->created_at->format('d/m/Y H:i') }}</p>
+            @include('admin.projects._doc_picker', ['doc' => $quote, 'type' => 'quote'])
         </div>
 
         <div class="quick-actions">
+            @if(Route::has('admin.shipments.create'))
+            <a href="{{ route('admin.shipments.create', ['quote' => $quote->id]) }}" class="btn-action btn-action--secondary">Crear envío</a>
+            @endif
             @if($quote->isEditable())
             <a href="{{ route('admin.quotes.edit', $quote) }}" class="btn-action btn-action--secondary">
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
