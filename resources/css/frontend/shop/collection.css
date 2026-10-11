@@ -104,3 +104,12 @@
     .eq-shop-collection .collection-hero--with-image { grid-template-columns: 1fr; }
     .eq-shop-collection .collection-hero { padding: 24px 20px; }
 }
+
+/* Bloques estilo "Servicios" (beneficios, pasos, pestañas, tabla, botón, CTA final, logotipos, galería…)
+   dentro de la colección: respetan el mismo margen lateral (95%) que el hero y el grid de productos. */
+.eq-shop-collection > [class^="svc-"] {
+    width: 95%;
+    margin-left: auto;
+    margin-right: auto;
+    box-sizing: border-box;
+}
