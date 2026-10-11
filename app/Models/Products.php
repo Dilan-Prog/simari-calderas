@@ -65,14 +65,21 @@ class Products extends Model
                 return;
             }
 
+            $oldSlug = $product->getOriginal('slug');
+            if (!$oldSlug) {
+                return;
+            }
+
+            // Los productos que tienen a ESTE como canónico guardan una copia
+            // de su URL: se refrescan siempre (aunque no se pida redirect), si
+            // no apuntarían a la URL vieja. Ver App\Support\CanonicalUrls.
+            \App\Support\CanonicalUrls::syncDependents($product, $oldSlug);
+
             if ($product->redirectOldSlug === false) {
                 return;
             }
 
-            $oldSlug = $product->getOriginal('slug');
-            if ($oldSlug) {
-                \App\Models\Redirect::record('/producto/' . $oldSlug, '/producto/' . $product->slug);
-            }
+            \App\Models\Redirect::record('/producto/' . $oldSlug, '/producto/' . $product->slug);
         });
     }
 
