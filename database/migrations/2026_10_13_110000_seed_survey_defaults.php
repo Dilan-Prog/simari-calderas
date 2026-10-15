@@ -21,15 +21,15 @@ return new class extends Migration
 
         if (DB::table('survey_cards')->count() === 0) {
             $cards = [
-                ['Malo', '😞', 1, '#ef4444'],
-                ['Regular', '😐', 2, '#f97316'],
-                ['Bueno', '🙂', 3, '#eab308'],
-                ['Muy bueno', '😀', 4, '#84cc16'],
-                ['Excelente', '🤩', 5, '#22c55e'],
+                ['Malo', 1, '#ef4444'],
+                ['Regular', 2, '#f97316'],
+                ['Bueno', 3, '#eab308'],
+                ['Muy bueno', 4, '#84cc16'],
+                ['Excelente', 5, '#22c55e'],
             ];
-            foreach ($cards as $i => [$label, $emoji, $stars, $color]) {
+            foreach ($cards as $i => [$label, $stars, $color]) {
                 DB::table('survey_cards')->insert([
-                    'label' => $label, 'emoji' => $emoji, 'stars' => $stars, 'color' => $color,
+                    'label' => $label, 'stars' => $stars, 'color' => $color,
                     'is_active' => true, 'sort_order' => $i + 1, 'created_at' => $now, 'updated_at' => $now,
                 ]);
             }

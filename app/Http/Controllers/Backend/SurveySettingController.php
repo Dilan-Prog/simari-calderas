@@ -31,7 +31,6 @@ class SurveySettingController extends Controller
     {
         return [
             'label' => 'required|string|max:60',
-            'emoji' => 'nullable|string|max:16',
             'stars' => 'required|integer|between:1,5',
             'color' => ['required', 'regex:/^#[0-9a-fA-F]{6}$/'],
         ];

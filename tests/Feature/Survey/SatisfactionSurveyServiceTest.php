@@ -41,7 +41,7 @@ class SatisfactionSurveyServiceTest extends TestCase
     public function test_seed_es_idempotente_y_no_pisa_datos_existentes(): void
     {
         SurveyCard::query()->delete();
-        SurveyCard::create(['label' => 'Única', 'emoji' => '👍', 'stars' => 5, 'color' => '#00ff00', 'sort_order' => 1]);
+        SurveyCard::create(['label' => 'Única', 'stars' => 5, 'color' => '#00ff00', 'sort_order' => 1]);
         $migration = require base_path('database/migrations/2026_10_13_110000_seed_survey_defaults.php');
         $migration->up();
         $migration->up();

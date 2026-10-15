@@ -22,12 +22,11 @@
     <div class="table-scroll" style="margin-bottom:14px;">
         <table class="clients-manager-table">
             <thead>
-                <tr><th style="width:70px;">EMOJI</th><th>TEXTO</th><th style="width:100px;">ESTRELLAS</th><th style="width:80px;">COLOR</th><th style="width:110px;">ESTADO</th><th style="width:260px;">ACCIONES</th></tr>
+                <tr><th>TEXTO</th><th style="width:100px;">ESTRELLAS</th><th style="width:80px;">COLOR</th><th style="width:110px;">ESTADO</th><th style="width:260px;">ACCIONES</th></tr>
             </thead>
             <tbody>
                 @forelse ($sv['cards'] as $card)
                     <tr>
-                        <td><input type="text" class="pform-input" name="emoji" value="{{ $card->emoji }}" maxlength="16" form="svCard{{ $card->id }}" aria-label="Emoji"></td>
                         <td><input type="text" class="pform-input" name="label" value="{{ $card->label }}" maxlength="60" required form="svCard{{ $card->id }}" aria-label="Texto"></td>
                         <td>
                             <select class="pform-select" name="stars" form="svCard{{ $card->id }}" aria-label="Estrellas">
@@ -46,7 +45,7 @@
                         </td>
                     </tr>
                 @empty
-                    <tr><td colspan="6" style="text-align:center;padding:20px;color:#6b7280;">Sin tarjetas. Agrega al menos una para que la encuesta aparezca.</td></tr>
+                    <tr><td colspan="5" style="text-align:center;padding:20px;color:#6b7280;">Sin tarjetas. Agrega al menos una para que la encuesta aparezca.</td></tr>
                 @endforelse
             </tbody>
         </table>
@@ -60,7 +59,6 @@
 
     <form method="POST" action="{{ route('admin.erp-settings.survey.cards.store') }}" style="display:flex;align-items:flex-end;gap:10px;flex-wrap:wrap;margin-bottom:26px;">
         @csrf
-        <div class="pform-field" style="margin-bottom:0;width:90px;"><label class="pform-label" for="svNewEmoji">Emoji</label><input type="text" id="svNewEmoji" class="pform-input" name="emoji" maxlength="16" placeholder="🙂"></div>
         <div class="pform-field" style="margin-bottom:0;flex:1;min-width:160px;"><label class="pform-label" for="svNewLabel">Nueva tarjeta</label><input type="text" id="svNewLabel" class="pform-input" name="label" maxlength="60" placeholder="Ej. Muy bueno" required></div>
         <div class="pform-field" style="margin-bottom:0;width:110px;"><label class="pform-label" for="svNewStars">Estrellas</label>
             <select id="svNewStars" class="pform-select" name="stars">@foreach (range(1, 5) as $n)<option value="{{ $n }}">{{ $n }} ★</option>@endforeach</select></div>

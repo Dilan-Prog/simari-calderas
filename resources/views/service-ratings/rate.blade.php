@@ -20,10 +20,9 @@
         .sv-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px}
         .sv-opt{position:relative;display:block;cursor:pointer}
         .sv-opt input{position:absolute;opacity:0;inset:0;width:100%;height:100%;cursor:pointer;margin:0}
-        .sv-opt-body{display:flex;flex-direction:column;align-items:center;gap:6px;padding:18px 10px;min-height:150px;border:2px solid var(--line);border-radius:16px;background:var(--surface);transition:transform .12s,border-color .12s,background .12s,box-shadow .12s;text-align:center}
-        .sv-opt-emoji{font-size:46px;line-height:1}
+        .sv-opt-body{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:18px 10px;min-height:116px;border:2px solid var(--line);border-radius:16px;background:var(--surface);transition:transform .12s,border-color .12s,background .12s,box-shadow .12s;text-align:center}
         .sv-opt-label{font-weight:700}
-        .sv-opt-stars{color:var(--star);letter-spacing:2px;font-size:15px}
+        .sv-opt-stars{color:var(--star);letter-spacing:3px;font-size:24px;line-height:1}
         .sv-opt:hover .sv-opt-body{transform:translateY(-2px)}
         .sv-opt input:focus-visible+.sv-opt-body{outline:3px solid var(--brand);outline-offset:2px}
         .sv-opt input:checked+.sv-opt-body{border-color:var(--c,var(--brand));background:color-mix(in srgb,var(--c,var(--brand)) 14%,var(--surface));box-shadow:0 0 0 3px color-mix(in srgb,var(--c,var(--brand)) 35%,transparent);transform:scale(1.03)}
@@ -78,7 +77,7 @@
     <div class="sv-card">
         @if ($done)
             <div class="sv-thanks" role="status">
-                <div class="big">{{ $rating->card?->emoji ?: '⭐' }}</div>
+                <div class="big" aria-hidden="true" style="color:var(--star);letter-spacing:4px">{{ str_repeat('★', max(1, (int) $rating->rating)) }}</div>
                 <h1>{{ $justSubmitted ? '¡Gracias!' : 'Tu calificación' }}</h1>
                 @if ($justSubmitted)<p class="sv-sub">{{ $texts['survey.thanks_message'] }}</p>@endif
 
@@ -109,7 +108,6 @@
                         <label class="sv-opt" style="--c: {{ $card->color }}">
                             <input type="radio" name="card_id" value="{{ $card->id }}" @checked((int) old('card_id') === $card->id)>
                             <span class="sv-opt-body">
-                                <span class="sv-opt-emoji" aria-hidden="true">{{ $card->emoji ?: '⭐' }}</span>
                                 <span class="sv-opt-label">{{ $card->label }}</span>
                                 <span class="sv-opt-stars" aria-hidden="true">{{ str_repeat('★', $card->stars) }}</span>
                             </span>

@@ -36,13 +36,13 @@ class SurveyHttpTest extends TestCase
     {
         $this->actingAs($this->adminUser());
 
-        $this->post(route('admin.erp-settings.survey.cards.store'), ['label' => 'Increíble', 'emoji' => '🤯', 'stars' => 5, 'color' => '#112233'])
+        $this->post(route('admin.erp-settings.survey.cards.store'), ['label' => 'Increíble', 'stars' => 5, 'color' => '#112233'])
             ->assertRedirect();
         $card = SurveyCard::where('label', 'Increíble')->firstOrFail();
         $this->assertSame(6, $card->sort_order);
         $this->assertTrue($card->is_active);
 
-        $this->put(route('admin.erp-settings.survey.cards.update', $card), ['label' => 'Increíble!', 'emoji' => '🤯', 'stars' => 4, 'color' => '#445566'])
+        $this->put(route('admin.erp-settings.survey.cards.update', $card), ['label' => 'Increíble!', 'stars' => 4, 'color' => '#445566'])
             ->assertRedirect();
         $card->refresh();
         $this->assertSame(4, $card->stars);
