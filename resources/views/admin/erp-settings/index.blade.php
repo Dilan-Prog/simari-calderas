@@ -327,6 +327,44 @@
 
 @push('scripts')
     <script>
+        // Paneles desplegables (como el footer): el encabezado de cada panel abre/cierra su contenido.
+        // En teléfono arrancan cerrados; en escritorio abiertos. Se abre solo el panel del #hash o con avisos/errores.
+        (function () {
+            var phone = window.matchMedia('(max-width: 720px)').matches;
+            var hash = (location.hash || '').replace('#', '');
+            document.querySelectorAll('.pform-panel').forEach(function (panel, idx) {
+                var header = panel.querySelector(':scope > .erp-panel-header');
+                if (!header || panel.dataset.accordion) return;
+                panel.dataset.accordion = '1';
+                var body = document.createElement('div');
+                body.className = 'erp-panel-body';
+                body.id = 'erpPanelBody' + idx;
+                while (header.nextSibling) body.appendChild(header.nextSibling);
+                panel.appendChild(body);
+
+                var chevron = document.createElement('span');
+                chevron.className = 'erp-panel-chevron';
+                chevron.setAttribute('aria-hidden', 'true');
+                chevron.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>';
+                header.appendChild(chevron);
+                header.setAttribute('role', 'button');
+                header.setAttribute('tabindex', '0');
+                header.setAttribute('aria-controls', body.id);
+
+                var forceOpen = (panel.id && panel.id === hash) || !!body.querySelector('.alert, .user-manager-errors, .is-invalid, .field-error-msg');
+                function set(open) {
+                    panel.classList.toggle('is-collapsed', !open);
+                    header.setAttribute('aria-expanded', open ? 'true' : 'false');
+                }
+                set(forceOpen || !phone);
+                function toggle() { set(panel.classList.contains('is-collapsed')); }
+                header.addEventListener('click', toggle);
+                header.addEventListener('keydown', function (e) {
+                    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }
+                });
+            });
+        })();
+
         // Teléfono: cada tabla se apila como tarjetas; la etiqueta de cada celda sale del encabezado (CSS en erp-settings.css).
         document.querySelectorAll('.table-scroll > .clients-manager-table').forEach(function (table) {
             var labels = Array.from(table.querySelectorAll('thead th')).map(function (th) { return th.textContent.trim(); });

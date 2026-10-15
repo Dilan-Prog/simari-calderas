@@ -120,3 +120,11 @@
     .erp-stack-table .actions-container { display: flex; flex-wrap: wrap; gap: 8px; }
     .erp-stack-table td:has(> .actions-container) { padding-top: 10px; border-top: 1px solid #f3f4f6; margin-top: 6px; }
 }
+
+/* ── Paneles desplegables (como el footer público): el encabezado abre/cierra el contenido ── */
+.pform-panel > .erp-panel-header[role="button"] { cursor: pointer; align-items: center; margin-bottom: 0; user-select: none; }
+.pform-panel > .erp-panel-header[role="button"]:focus-visible { outline: 2px solid #ff6213; outline-offset: 4px; border-radius: 8px; }
+.pform-panel > .erp-panel-body { margin-top: 20px; }
+.erp-panel-chevron { margin-left: auto; flex: 0 0 auto; color: #6b7280; display: inline-flex; transition: transform .2s ease; }
+.pform-panel.is-collapsed > .erp-panel-header .erp-panel-chevron { transform: rotate(-90deg); }
+.pform-panel.is-collapsed > .erp-panel-body { display: none; }
