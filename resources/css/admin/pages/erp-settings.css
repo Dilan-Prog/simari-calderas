@@ -99,3 +99,24 @@
     color: #b45309;
     border-color: #b4530940;
 }
+
+/* ── Teléfono: las tablas de Configuración ERP (tipos de servicio/reporte, encuesta) pasan a tarjetas
+   apiladas en vez de desbordar. El JS de la vista pone .erp-stack-table y data-label en cada celda. ── */
+@media (max-width: 720px) {
+    .erp-stack-table thead { display: none; }
+    .erp-stack-table,
+    .erp-stack-table tbody,
+    .erp-stack-table tr,
+    .erp-stack-table td { display: block; width: 100%; box-sizing: border-box; }
+    .erp-stack-table tr { border: 1px solid #e5e7eb; border-radius: 10px; padding: 10px 12px; margin-bottom: 12px; background: #fff; }
+    .erp-stack-table td { border: 0; padding: 6px 0; width: 100% !important; }
+    .erp-stack-table td::before {
+        content: attr(data-label); display: block; margin-bottom: 4px;
+        font-size: 11px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: #6b7280;
+    }
+    .erp-stack-table td[colspan]::before { display: none; }
+    .erp-stack-table td .pform-input { width: 100%; }
+    .erp-stack-table td code { word-break: break-all; }
+    .erp-stack-table .actions-container { display: flex; flex-wrap: wrap; gap: 8px; }
+    .erp-stack-table td:has(> .actions-container) { padding-top: 10px; border-top: 1px solid #f3f4f6; margin-top: 6px; }
+}

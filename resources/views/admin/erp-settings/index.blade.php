@@ -324,3 +324,18 @@
         </section>
     </div>
 @endsection
+
+@push('scripts')
+    <script>
+        // Teléfono: cada tabla se apila como tarjetas; la etiqueta de cada celda sale del encabezado (CSS en erp-settings.css).
+        document.querySelectorAll('.table-scroll > .clients-manager-table').forEach(function (table) {
+            var labels = Array.from(table.querySelectorAll('thead th')).map(function (th) { return th.textContent.trim(); });
+            table.classList.add('erp-stack-table');
+            table.querySelectorAll('tbody tr').forEach(function (tr) {
+                Array.from(tr.children).filter(function (c) { return c.tagName === 'TD'; }).forEach(function (td, i) {
+                    if (labels[i] && !td.hasAttribute('data-label')) td.setAttribute('data-label', labels[i]);
+                });
+            });
+        });
+    </script>
+@endpush

@@ -1439,7 +1439,9 @@
     .pform-panel { padding: 20px; }
     .pform-grid-3,
     .pform-grid-2 { grid-template-columns: 1fr; }
-    .pform-btn.outline:not(#pformBtnPublish) { display: none; }
+    /* Solo los botones secundarios del ENCABEZADO del formulario de producto se ocultan en teléfono
+       (antes la regla era global y escondía "Guardar/Eliminar" en Configuración ERP, Integraciones, etc.). */
+    .pform-page-header .pform-btn.outline:not(#pformBtnPublish) { display: none; }
     .pform-seo-content { padding: 16px; }
     .pform-seo-header { padding: 16px; }
     .pform-spec-row { grid-template-columns: 1fr; }
