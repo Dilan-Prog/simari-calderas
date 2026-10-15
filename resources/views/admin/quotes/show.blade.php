@@ -25,6 +25,7 @@
             </h1>
             <p class="quotes-header__subtitle">Creada el {{ $quote->created_at->format('d/m/Y H:i') }}</p>
             @include('admin.projects._doc_picker', ['doc' => $quote, 'type' => 'quote'])
+            @include('admin.quotes.partials._service_id', ['quote' => $quote])
         </div>
 
         <div class="quick-actions">

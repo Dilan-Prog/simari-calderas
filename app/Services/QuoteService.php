@@ -39,6 +39,8 @@ class QuoteService
                 'quote_number'      => $this->generateQuoteNumber(),
                 'created_by_user_id'=> $userId,
                 'customer_id'       => $data['customer_id'],
+                // Servicio ID: página de servicio web a la que corresponde la cotización.
+                'service_page_id'   => $data['service_page_id'] ?? null,
                 'status'            => 'draft',
                 'guest_name'        => $data['guest_name'],
                 'guest_email'       => $data['guest_email'] ?? null,
@@ -95,6 +97,8 @@ class QuoteService
 
             $quote->update([
                 'customer_id'      => $data['customer_id'] ?? $quote->customer_id,
+                // Solo se toca si el formulario lo envía (otros llamadores no lo borran).
+                'service_page_id'  => array_key_exists('service_page_id', $data) ? ($data['service_page_id'] ?: null) : $quote->service_page_id,
                 'guest_name'       => $data['guest_name'],
                 'guest_email'      => $data['guest_email'] ?? null,
                 'guest_phone'      => $data['guest_phone'] ?? null,

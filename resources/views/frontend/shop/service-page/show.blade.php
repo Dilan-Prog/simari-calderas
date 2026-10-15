@@ -50,7 +50,9 @@
     // (rating_average_displayed/rating_total_rated/etc.), que son solo copy
     // visual. Ver comentario en la migración add_rating_stats_to_service_pages_table.
     $ratingSectionActive = $sections->contains(fn ($s) => $s->type === 'rating_reviews');
-    $visibleReviews = $ratingSectionActive ? $servicePage->visibleReviews()->get() : collect();
+    $visibleReviews = $ratingSectionActive
+        ? \App\Models\ServicePageReview::forBlock($servicePage, (array) ($sections->firstWhere('type', 'rating_reviews')->config ?? []))
+        : collect();
 @endphp
 
 @php

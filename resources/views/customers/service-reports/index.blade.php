@@ -78,6 +78,14 @@
         </form>
     </div>
 
+    {{-- ── Califica este servicio ── --}}
+    @if (!empty($pendingRatingIds))
+        <div class="sr-filters" role="status" style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:space-between;border-left:4px solid #f59e0b;">
+            <span><strong>Califica este servicio</strong> · Tienes {{ count($pendingRatingIds) }} {{ count($pendingRatingIds) === 1 ? 'servicio' : 'servicios' }} firmado{{ count($pendingRatingIds) === 1 ? '' : 's' }} por calificar. Tu opinión nos ayuda a mejorar.</span>
+            <a href="{{ route('customer.service-reports.rate', $pendingRatingIds[0]) }}" class="sr-btn sr-btn-sign">Calificar ahora</a>
+        </div>
+    @endif
+
     {{-- ── TABLE CARD ── --}}
     <div class="sr-table-card">
         <div class="sr-table-scroll">
@@ -142,6 +150,13 @@
                                                 <path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/>
                                             </svg>
                                         </a>
+
+                                        {{-- Calificar --}}
+                                        @if (in_array($report->id, $pendingRatingIds ?? [], true))
+                                            <a href="{{ route('customer.service-reports.rate', $report) }}" class="sr-action-btn" title="Califica este servicio" aria-label="Califica este servicio" style="color:#f59e0b;">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 2 3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1z"/></svg>
+                                            </a>
+                                        @endif
 
                                         {{-- Descargar PDF --}}
                                         <a href="{{ route('customer.service-reports.download-pdf', $report) }}" class="sr-action-btn" title="Descargar PDF" target="_blank">

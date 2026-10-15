@@ -99,9 +99,9 @@ class TechnicalServiceController extends Controller
     {
         return Quote::where('status', 'accepted')
             ->whereNotNull('customer_id')
-            ->with('customer:id,first_name,last_name,company')
+            ->with('customer:id,first_name,last_name,company', 'servicePage:id,name')
             ->latest()
-            ->get(['id', 'quote_number', 'customer_id', 'total']);
+            ->get(['id', 'quote_number', 'customer_id', 'total', 'service_page_id']);
     }
 
     // ── Store (Paso 1 — AJAX) ──────────────────────────────────────────────────
@@ -117,6 +117,7 @@ class TechnicalServiceController extends Controller
                     fn ($q) => $q->where('status', 'accepted')->whereNotNull('customer_id')
                 ),
             ],
+            'service_page_id'    => ['nullable', ServiceMigrationController::servicePageRule()],
             'service_type_id'    => 'required|exists:service_types,id',
             'service_date'       => 'required|date',
             'service_time'       => 'nullable|date_format:H:i',
@@ -225,7 +226,7 @@ class TechnicalServiceController extends Controller
                 ->with('error', 'Este servicio no puede ser modificado.');
         }
 
-        $this->validateStep($request, $step);
+        $this->validateStep($request, $step, $service);
 
         // Step 4: final confirmation — change status to scheduled
         if ($step === 4) {
@@ -400,6 +401,8 @@ class TechnicalServiceController extends Controller
         $service->update([
             'from_quote_id' => $quote->id,
             'customer_id'   => $quote->customer_id,
+            // Hereda el Servicio ID de la cotización si el servicio aún no tiene uno.
+            'service_page_id' => $service->service_page_id ?: $quote->service_page_id,
         ]);
 
         return redirect()->route('admin.technical-services.show', $service)
@@ -452,7 +455,7 @@ class TechnicalServiceController extends Controller
 
     // ── Validation per step ────────────────────────────────────────────────────
 
-    private function validateStep(Request $request, int $step): void
+    private function validateStep(Request $request, int $step, ?TechnicalService $service = null): void
     {
         $rules = match ($step) {
             1 => [
@@ -464,6 +467,7 @@ class TechnicalServiceController extends Controller
                         fn ($q) => $q->where('status', 'accepted')->whereNotNull('customer_id')
                     ),
                 ],
+                'service_page_id'    => ['nullable', ServiceMigrationController::servicePageRule($service?->service_page_id)],
                 'service_type_id'    => 'required|exists:service_types,id',
                 'service_date'       => 'required|date',
                 'service_time'       => 'nullable|date_format:H:i',

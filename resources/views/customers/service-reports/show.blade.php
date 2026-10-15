@@ -39,6 +39,19 @@
         </div>
     </div>
 
+    {{-- Califica este servicio --}}
+    @if (!empty($canRate))
+        <div class="sr-doc-card" role="status" style="margin-bottom:14px;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;border-left:4px solid #f59e0b;">
+            <span><strong>Califica este servicio</strong> · Cuéntanos qué te pareció, solo toma un momento.</span>
+            <a href="{{ route('customer.service-reports.rate', $report) }}" class="sr-btn sr-btn-sign">Calificar ahora</a>
+        </div>
+    @elseif (!empty($myRating))
+        <div class="sr-doc-card" style="margin-bottom:14px;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+            <span><strong>Tu calificación:</strong> <span style="color:#f59e0b;">{{ str_repeat('★', (int) $myRating->rating) }}{{ str_repeat('☆', 5 - (int) $myRating->rating) }}</span> {{ $myRating->card_label }}</span>
+            <a href="{{ route('customer.service-reports.rate', $report) }}" class="sr-btn sr-btn-outline">Ver mi calificación</a>
+        </div>
+    @endif
+
     {{-- Two-column grid --}}
     <div class="sr-show-grid">
         {{-- ══ LEFT — Document card ══ --}}

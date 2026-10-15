@@ -87,9 +87,9 @@ class ServiceReportController extends Controller
     private function getAvailableServices()
     {
         return TechnicalService::whereIn('status', ['scheduled', 'in_progress', 'completed'])
-            ->with('customer:id,first_name,last_name,company,rfc,phone')
+            ->with('customer:id,first_name,last_name,company,rfc,phone', 'servicePage:id,name')
             ->latest('service_date')
-            ->get(['id', 'service_number', 'customer_id', 'service_date']);
+            ->get(['id', 'service_number', 'customer_id', 'service_date', 'service_page_id']);
     }
 
     // ── Store (step 1) ─────────────────────────────────────────────────────────
@@ -101,6 +101,7 @@ class ServiceReportController extends Controller
                 'required',
                 Rule::exists('services', 'id')->whereIn('status', ['scheduled', 'in_progress', 'completed']),
             ],
+            'service_page_id'     => ['nullable', ServiceMigrationController::servicePageRule()],
             'service_date'        => 'required|date',
             'customer_name'       => 'required|string|max:200',
             'customer_company'    => 'nullable|string|max:200',
@@ -117,6 +118,8 @@ class ServiceReportController extends Controller
         // del request, así customer_id y service_id nunca quedan desalineados.
         $technicalService = TechnicalService::findOrFail($validated['service_id']);
         $validated['customer_id'] = $technicalService->customer_id;
+        // Servicio ID: el elegido, o el heredado del servicio técnico.
+        $validated['service_page_id'] = $validated['service_page_id'] ?? $technicalService->service_page_id;
 
         $report = $this->service->store($validated, auth()->id());
 
@@ -334,6 +337,12 @@ class ServiceReportController extends Controller
             'signature_phone',
         ]));
 
+        // "Califica este servicio": el técnico entrega el dispositivo al cliente.
+        if (app(\App\Services\SatisfactionSurveyService::class)->isRateable($report)) {
+            return redirect()->route('admin.service-reports.rate', $report)
+                ->with('success', "Reporte {$report->report_number} firmado y completado exitosamente.");
+        }
+
         return redirect()->route('admin.service-reports.show', $report)
             ->with('success', "Reporte {$report->report_number} firmado y completado exitosamente.");
     }
@@ -375,6 +384,8 @@ class ServiceReportController extends Controller
         $report->update([
             'service_id'  => $technicalService->id,
             'customer_id' => $technicalService->customer_id,
+            // Hereda el Servicio ID del servicio técnico si el reporte aún no tiene uno.
+            'service_page_id' => $report->service_page_id ?: $technicalService->service_page_id,
         ]);
 
         return redirect()->route('admin.service-reports.show', $report)
@@ -419,6 +430,7 @@ class ServiceReportController extends Controller
                     'required',
                     Rule::exists('services', 'id')->whereIn('status', ['scheduled', 'in_progress', 'completed']),
                 ],
+                'service_page_id'     => ['nullable', ServiceMigrationController::servicePageRule($report->service_page_id)],
                 'service_date'        => 'required|date',
                 'customer_name'       => 'required|string|max:200',
                 'customer_company'    => 'nullable|string|max:200',

@@ -37,6 +37,7 @@ class ServiceReportService
                 'created_by_user_id' => $userId,
                 'assigned_user_id'   => $data['assigned_user_id'],
                 'service_id'         => $data['service_id'],
+                'service_page_id'    => $data['service_page_id'] ?? null,
                 'customer_id'        => $data['customer_id'] ?? null,
                 'customer_name'      => $data['customer_name'],
                 'customer_company'   => $data['customer_company'] ?? null,
@@ -79,6 +80,10 @@ class ServiceReportService
             1 => $report->fill([
                     'assigned_user_id'   => $data['assigned_user_id'],
                     'service_id'         => $data['service_id'],
+                    // Servicio ID: el enviado; si queda vacío, el del servicio técnico.
+                    'service_page_id'    => !empty($data['service_page_id'])
+                        ? $data['service_page_id']
+                        : \App\Models\TechnicalService::whereKey($data['service_id'])->value('service_page_id'),
                     'customer_id'        => $data['customer_id'] ?? null,
                     'customer_name'      => $data['customer_name'],
                     'customer_company'   => $data['customer_company'] ?? null,

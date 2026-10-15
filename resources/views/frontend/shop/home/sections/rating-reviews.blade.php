@@ -1,6 +1,9 @@
 @php
     $config = $section->config ?? [];
-    $reviews = $servicePage->visibleReviews()->get();
+    $reviews = \App\Models\ServicePageReview::forBlock($servicePage, $config);
+    $breakdown = !empty($config['show_breakdown'])
+        ? \App\Models\ServicePageReview::breakdownFor($reviews)
+        : collect();
 
     $hasStats = !is_null($servicePage->rating_average_displayed);
     $hasReviews = $reviews->isNotEmpty();
@@ -75,6 +78,23 @@
         </div>
     @endif
 
+    @if ($breakdown->isNotEmpty())
+        <div class="svc-rating__panel svc-rating__breakdown" aria-label="Promedio por variable">
+            <div>
+                <div class="svc-rating__eyebrow">Promedio por aspecto</div>
+            </div>
+            <div>
+                @foreach ($breakdown as $row)
+                    <div class="svc-rating__dist-row">
+                        <span>{{ $row['label'] }}</span>
+                        <span class="svc-rating__dist-bar" role="img" aria-label="{{ $row['label'] }}: {{ number_format($row['average'], 1) }} de 5"><span class="svc-rating__dist-bar-fill" style="width: {{ round(($row['average'] / 5) * 100) }}%"></span></span>
+                        <span>{{ number_format($row['average'], 1) }}</span>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+    @endif
+
     @if ($hasReviews)
         @php
             $availableCategories = collect(\App\Models\ServicePageReview::CATEGORIES)
@@ -126,7 +146,7 @@
                             </div>
                         </div>
                         <div style="text-align: right;">
-                            <div class="svc-review__stars">
+                            <div class="svc-review__stars" role="img" aria-label="{{ $review->rating }} de 5 estrellas">
                                 @for ($i = 1; $i <= 5; $i++)
                                     {{ $i <= $review->rating ? '★' : '☆' }}
                                 @endfor
@@ -137,7 +157,9 @@
                         </div>
                     </div>
 
-                    <p class="svc-review__comment">&ldquo;{{ $review->comment }}&rdquo;</p>
+                    @if (trim((string) $review->comment) !== '')
+                        <p class="svc-review__comment">&ldquo;{{ $review->comment }}&rdquo;</p>
+                    @endif
 
                     @if (!empty($reviewCategories) || $photoCount > 0)
                         <div class="svc-review__tags">

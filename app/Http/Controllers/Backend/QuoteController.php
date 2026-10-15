@@ -10,6 +10,8 @@ use App\Models\ServicePage;
 use App\Services\EmailTemplateService;
 use App\Services\EmailTrackingService;
 use App\Services\QuoteService;
+use App\Services\ServiceMigration\ServiceIdService;
+use App\Support\ServiceProductDetector;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -72,6 +74,7 @@ class QuoteController extends Controller
     {
         $request->validate([
             'customer_id'      => 'required|exists:customers,id',
+            'service_page_id'  => ['nullable', ServiceMigrationController::servicePageRule()],
             'guest_name'       => 'required|string|max:180',
             'guest_email'      => 'nullable|email|max:255',
             'guest_phone'      => 'nullable|string|max:30',
@@ -100,9 +103,14 @@ class QuoteController extends Controller
         $data = $request->only([
             'customer_id', 'guest_name', 'guest_email', 'guest_phone', 'guest_company',
             'guest_rfc', 'valid_until', 'tax_rate', 'discount_total', 'isr_retention_rate',
-            'currency', 'exchange_rate', 'notes', 'terms_conditions',
+            'currency', 'exchange_rate', 'notes', 'terms_conditions', 'service_page_id',
         ]);
         $data['items'] = $items;
+
+        // Modo nuevo: los servicios salen de las páginas de servicio y exigen Servicio ID.
+        if ($errors = app(ServiceIdService::class)->newModeItemErrors($items, $data['service_page_id'] ?? null)) {
+            return back()->withErrors(['items_json' => implode(' ', $errors)])->withInput();
+        }
 
         $quote = $this->quoteService->store($data, auth()->id());
         $this->resolveVisitorUuidForQuote($quote);
@@ -170,7 +178,7 @@ class QuoteController extends Controller
 
     public function show(Quote $quote)
     {
-        $quote->load('items', 'createdBy', 'customer');
+        $quote->load('items', 'createdBy', 'customer', 'servicePage');
 
         $customers = $quote->customer_id ? collect() : \App\Models\Customer::select('id', 'first_name', 'last_name', 'company')
             ->where('status', 'active')
@@ -254,7 +262,7 @@ class QuoteController extends Controller
      */
     public function previewManualEmail(Quote $quote)
     {
-        $quote->load('items', 'createdBy', 'customer');
+        $quote->load('items', 'createdBy', 'customer', 'servicePage');
 
         return $this->renderQuoteManualEmail($quote)['html'];
     }
@@ -361,6 +369,7 @@ class QuoteController extends Controller
 
         $request->validate([
             'customer_id'      => 'nullable|exists:customers,id',
+            'service_page_id'  => ['nullable', ServiceMigrationController::servicePageRule($quote->service_page_id)],
             'guest_name'       => 'required|string|max:180',
             'guest_email'      => 'nullable|email|max:255',
             'guest_phone'      => 'nullable|string|max:30',
@@ -386,9 +395,15 @@ class QuoteController extends Controller
         $data = $request->only([
             'customer_id', 'guest_name', 'guest_email', 'guest_phone', 'guest_company',
             'guest_rfc', 'valid_until', 'tax_rate', 'discount_total', 'isr_retention_rate',
-            'currency', 'exchange_rate', 'notes', 'terms_conditions',
+            'currency', 'exchange_rate', 'notes', 'terms_conditions', 'service_page_id',
         ]);
         $data['items'] = $items;
+
+        // Modo nuevo: los servicios salen de las páginas de servicio y exigen Servicio ID.
+        $effectiveServiceId = $request->has('service_page_id') ? ($data['service_page_id'] ?? null) : $quote->service_page_id;
+        if ($errors = app(ServiceIdService::class)->newModeItemErrors($items, $effectiveServiceId ? (int) $effectiveServiceId : null, $quote)) {
+            return back()->withErrors(['items_json' => implode(' ', $errors)])->withInput();
+        }
 
         $this->quoteService->update($quote, $data);
         $this->resolveVisitorUuidForQuote($quote->fresh());
@@ -427,6 +442,7 @@ class QuoteController extends Controller
                       ->orWhereHas('brand', fn($b) => $b->where('name', 'like', "%{$q}%"))
                       ->orWhereHas('category', fn($c) => $c->where('name', 'like', "%{$q}%"));
             })
+            ->when(ServiceIdService::newMode(), fn ($query) => ServiceProductDetector::scopeExcludeServiceProducts($query, 'products.name', 'products.category_id'))
             ->select('id', 'name', 'sku', 'price', 'price_includes_tax', 'stock', 'cover_image_url', 'brand_id', 'category_id', 'currency')
             ->take(12)
             ->get()
@@ -483,6 +499,7 @@ class QuoteController extends Controller
         $q = $request->get('q', '');
 
         $services = ServicePage::where('is_active', 1)
+            ->where('page_type', ServicePage::TYPE_SERVICE)
             ->where('name', 'like', "%{$q}%")
             ->select('id', 'name', 'price', 'cover_image_url')
             ->take(12)
@@ -517,7 +534,7 @@ class QuoteController extends Controller
 
     public function sendEmail(Quote $quote)
     {
-        $quote->load('items', 'createdBy', 'customer');
+        $quote->load('items', 'createdBy', 'customer', 'servicePage');
 
         $recipient = $quote->customer?->email ?: $quote->guest_email;
 

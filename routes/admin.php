@@ -1107,6 +1107,11 @@ Route::controller(ServicePageController::class)
         Route::delete('/{servicePage}/resenas/{review}', 'destroyReview')->name('reviews.destroy')->middleware('permission:service-pages,delete');
         Route::post('/{servicePage}/resenas/reordenar', 'reorderReviews')->name('reviews.reorder')->middleware('permission:service-pages,edit');
 
+        Route::get('/{servicePage}/opiniones-clientes', 'clientRatings')->name('client-ratings.index')->middleware('permission:service-pages,edit');
+        Route::post('/{servicePage}/opiniones-clientes/reordenar', 'reorderClientRatings')->name('client-ratings.reorder')->middleware('permission:service-pages,edit');
+        Route::post('/{servicePage}/opiniones-clientes/{rating}/publicar', 'publishClientRating')->name('client-ratings.publish')->middleware('permission:service-pages,edit');
+        Route::post('/{servicePage}/opiniones-clientes/{rating}/ocultar', 'hideClientRating')->name('client-ratings.hide')->middleware('permission:service-pages,edit');
+
         Route::get('/{servicePage}/editor-en-vivo', 'liveEditor')->name('live-editor')->middleware('permission:service-pages,edit');
         Route::post('/{servicePage}/editor-en-vivo/preview', 'liveEditorPreview')->name('live-editor.preview')->middleware('permission:service-pages,edit');
         Route::put('/{servicePage}/editor-en-vivo', 'liveEditorSave')->name('live-editor.save')->middleware('permission:service-pages,edit');

@@ -158,6 +158,14 @@
             <div class="quotes-card">
                 <h2 class="quotes-card__header">Configuración</h2>
 
+                {{-- Servicio ID: servicio web (página de servicio) al que corresponde la cotización. --}}
+                <div class="form-group">
+                    <label class="form-label">Servicio (web)</label>
+                    @include('admin.service-migration._picker', ['value' => old('service_page_id', $quote->service_page_id)])
+                    @error('service_page_id')<span class="form-error">{{ $message }}</span>@enderror
+                    <span class="form-hint" style="font-size:11px;color:#6B7280;">Opcional. Es el Servicio ID que enlaza la cotización con la página de servicio.</span>
+                </div>
+
                 {{-- Moneda del documento + tipo de cambio USD→MXN editable
                      por cotización. Si esta cotización ya tenía un
                      exchange_rate guardado, ese es el que se muestra (no

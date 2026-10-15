@@ -29,6 +29,7 @@ class TechnicalService extends Model
     protected $fillable = [
         'service_number',
         'project_id',
+        'service_page_id',
         'service_code',
         'draft_token',
         'customer_id',
@@ -64,6 +65,12 @@ class TechnicalService extends Model
     public function customer(): BelongsTo
     {
         return $this->belongsTo(Customer::class);
+    }
+
+    /** El "Servicio ID": el servicio web (página de servicio) al que corresponde este documento. */
+    public function servicePage(): BelongsTo
+    {
+        return $this->belongsTo(ServicePage::class);
     }
 
     public function project(): BelongsTo

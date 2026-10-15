@@ -27,6 +27,7 @@ class ServiceReport extends Model
     protected $fillable = [
         'report_number',
         'project_id',
+        'service_page_id',
         'created_by_user_id',
         'assigned_user_id',
         'service_id',
@@ -78,6 +79,18 @@ class ServiceReport extends Model
     public function customer(): BelongsTo
     {
         return $this->belongsTo(Customer::class);
+    }
+
+    /** El "Servicio ID": el servicio web (página de servicio) al que corresponde este documento. */
+    public function servicePage(): BelongsTo
+    {
+        return $this->belongsTo(ServicePage::class);
+    }
+
+    /** Calificación del cliente ("Califica este servicio"): una por reporte. */
+    public function rating(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(ServiceRating::class, 'service_report_id');
     }
 
     public function project(): BelongsTo

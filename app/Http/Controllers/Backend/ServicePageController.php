@@ -10,6 +10,7 @@ use App\Models\Products;
 use App\Models\ServicePage;
 use App\Models\ServicePageImage;
 use App\Models\ServicePageReview;
+use App\Models\ServiceRating;
 use App\Models\ServiceSection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -456,6 +457,22 @@ class ServicePageController extends Controller
     {
         abort_unless($review->service_page_id === $servicePage->id, 404);
 
+        // Reseñas de origen cliente: nombre, calificación y comentario son
+        // un snapshot de la encuesta y NO se editan; solo la respuesta del
+        // negocio, la visibilidad (y el orden vía reorder). Cualquier otro
+        // campo del payload se ignora.
+        if ($review->source === 'client') {
+            $data = $request->validate([
+                'business_response'      => 'nullable|string',
+                'business_response_date' => 'nullable|date',
+                'is_visible'             => 'nullable|boolean',
+            ]);
+            $data['is_visible'] = $request->boolean('is_visible', (bool) $review->is_visible);
+            $review->update($data);
+
+            return response()->json(['success' => true, 'review' => $review->fresh()]);
+        }
+
         $data = $this->validateReview($request);
         $data['is_verified'] = $request->boolean('is_verified');
         $data['is_visible'] = $request->boolean('is_visible', true);
@@ -469,7 +486,169 @@ class ServicePageController extends Controller
     {
         abort_unless($review->service_page_id === $servicePage->id, 404);
 
+        // Si venía de una opinión de cliente, libera el enlace (la opinión
+        // queda disponible para volver a publicarse).
+        ServiceRating::where('service_page_review_id', $review->id)->update(['service_page_review_id' => null]);
+
         $review->delete();
+
+        return response()->json(['success' => true]);
+    }
+
+    // ── Opiniones de clientes (calificaciones de ServiceRating) ─────────────
+    // Se publican como ServicePageReview enlazada (source='client'); ocultar
+    // solo apaga is_visible, nunca borra.
+
+    public static function clientRatingPayload(ServiceRating $rating): array
+    {
+        $review = $rating->review;
+
+        return [
+            'id'            => $rating->id,
+            'customer_name' => $rating->customer_name,
+            'rating'        => $rating->rating,
+            'card_label'    => $rating->card_label,
+            'comment'       => $rating->comment,
+            'date'          => ($rating->submitted_at ?? $rating->created_at)?->format('Y-m-d'),
+            'answers'       => $rating->answers->map(fn ($a) => [
+                'label' => $a->question_label,
+                'score' => (int) $a->score,
+            ])->values()->all(),
+            'review_id'    => $review?->id,
+            'is_published' => (bool) ($review && $review->is_visible),
+        ];
+    }
+
+    public static function clientRatingsFor(ServicePage $servicePage)
+    {
+        return ServiceRating::submitted()
+            ->where('service_page_id', $servicePage->id)
+            ->with(['answers', 'review'])
+            ->orderByDesc('submitted_at')
+            ->orderByDesc('id')
+            ->get()
+            ->map(fn ($r) => static::clientRatingPayload($r))
+            ->values();
+    }
+
+    public function clientRatings(ServicePage $servicePage)
+    {
+        return response()->json(['ratings' => static::clientRatingsFor($servicePage)]);
+    }
+
+    protected function resolveClientRating(ServicePage $servicePage, ServiceRating $rating): ServiceRating
+    {
+        abort_unless(
+            (int) $rating->service_page_id === (int) $servicePage->id
+                && $rating->status === ServiceRating::STATUS_SUBMITTED
+                && ! is_null($rating->rating),
+            404
+        );
+
+        return $rating;
+    }
+
+    public function publishClientRating(ServicePage $servicePage, ServiceRating $rating)
+    {
+        $rating = $this->resolveClientRating($servicePage, $rating);
+
+        $review = $rating->review
+            ?? ServicePageReview::where('service_rating_id', $rating->id)->first();
+
+        $comment = trim((string) $rating->comment);
+        if (mb_strlen($comment) > 240) {
+            $comment = mb_substr($comment, 0, 239) . '…';
+        }
+
+        if ($review) {
+            // Reactiva la misma reseña (no duplica); refresca el snapshot.
+            $review->update([
+                'service_page_id' => $servicePage->id,
+                'customer_name'   => $rating->customer_name,
+                'rating'          => $rating->rating,
+                'comment'         => $comment,
+                'review_date'     => ($rating->submitted_at ?? $rating->created_at)?->toDateString(),
+                'is_verified'     => true,
+                'is_visible'      => true,
+            ]);
+        } else {
+            $review = ServicePageReview::create([
+                'service_page_id'   => $servicePage->id,
+                'service_rating_id' => $rating->id,
+                'source'            => 'client',
+                'customer_name'     => $rating->customer_name,
+                'rating'            => $rating->rating,
+                'comment'           => $comment,
+                'review_date'       => ($rating->submitted_at ?? $rating->created_at)?->toDateString(),
+                'is_verified'       => true,
+                'is_visible'        => true,
+                'sort_order'        => (int) $servicePage->reviews()->max('sort_order') + 1,
+            ]);
+        }
+
+        if ((int) $rating->service_page_review_id !== (int) $review->id) {
+            $rating->update(['service_page_review_id' => $review->id]);
+        }
+
+        return $this->clientRatingResponse($rating, $review);
+    }
+
+    public function hideClientRating(ServicePage $servicePage, ServiceRating $rating)
+    {
+        $rating = $this->resolveClientRating($servicePage, $rating);
+
+        $review = $rating->review
+            ?? ServicePageReview::where('service_rating_id', $rating->id)->first();
+        if ($review) {
+            $review->update(['is_visible' => false]);
+        }
+
+        return $this->clientRatingResponse($rating, $review);
+    }
+
+    protected function clientRatingResponse(ServiceRating $rating, ?ServicePageReview $review)
+    {
+        $rating = $rating->fresh(['answers', 'review']);
+
+        return response()->json([
+            'success'       => true,
+            'review'        => $review?->fresh(),
+            'client_rating' => static::clientRatingPayload($rating),
+        ]);
+    }
+
+    /**
+     * Reordena las reseñas de origen cliente: reparte los sort_order que ya
+     * ocupaban (ordenados) según el nuevo orden, para no desplazar a las
+     * reseñas manuales intercaladas.
+     */
+    public function reorderClientRatings(Request $request, ServicePage $servicePage)
+    {
+        $request->validate([
+            'order'   => 'required|array|min:1',
+            'order.*' => 'integer|exists:service_page_reviews,id',
+        ]);
+
+        $reviews = ServicePageReview::whereIn('id', $request->order)
+            ->where('service_page_id', $servicePage->id)
+            ->where('source', 'client')
+            ->get()
+            ->keyBy('id');
+
+        if ($reviews->count() !== count($request->order)) {
+            return response()->json(['success' => false, 'message' => 'El orden recibido no coincide con las opiniones de clientes de este servicio.'], 422);
+        }
+
+        $slots = $reviews->pluck('sort_order')->sort()->values()->all();
+        // Si hay empates (p. ej. todas en 0), usa posiciones consecutivas.
+        if (count(array_unique($slots)) !== count($slots)) {
+            $base = (int) min($slots);
+            $slots = range($base, $base + count($slots) - 1);
+        }
+
+        foreach (array_values($request->order) as $i => $reviewId) {
+            $reviews[$reviewId]->update(['sort_order' => $slots[$i]]);
+        }
 
         return response()->json(['success' => true]);
     }

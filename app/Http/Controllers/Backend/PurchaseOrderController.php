@@ -152,6 +152,8 @@ class PurchaseOrderController extends Controller
 
         $products = Products::where('is_active', true)
             ->whereHas('suppliers', fn ($q) => $q->where('suppliers.id', $request->supplier_id))
+            // Modo nuevo de servicios: los productos-servicio ya no se ofrecen.
+            ->when(\App\Services\ServiceMigration\ServiceIdService::newMode(), fn ($q) => \App\Support\ServiceProductDetector::scopeExcludeServiceProducts($q, 'products.name', 'products.category_id'))
             ->with(['suppliers' => fn ($q) => $q->where('suppliers.id', $request->supplier_id)])
             ->get(['id', 'name', 'sku', 'cost', 'currency'])
             ->map(function ($p) use ($exchangeRate, $documentCurrency) {

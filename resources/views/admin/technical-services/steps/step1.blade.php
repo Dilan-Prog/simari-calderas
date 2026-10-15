@@ -101,7 +101,9 @@ window.__tsConfig = {
                                  data-id="{{ $quote->id }}"
                                  data-quote-number="{{ $quote->quote_number }}"
                                  data-customer-id="{{ $quote->customer_id }}"
-                                 data-customer-label="{{ $qCustomerLabel }}">
+                                 data-customer-label="{{ $qCustomerLabel }}"
+                                 data-service-page-id="{{ $quote->service_page_id }}"
+                                 data-service-page-label="{{ $quote->servicePage ? '#' . $quote->servicePage->id . ' · ' . $quote->servicePage->name : '' }}">
                                 <span class="client-dropdown__name">{{ $quote->quote_number }}</span>
                                 <span class="client-dropdown__company">{{ $qCustomerLabel }}</span>
                             </div>
@@ -115,6 +117,13 @@ window.__tsConfig = {
                     <button type="button" id="ts-quote-unlink" class="ts-btn ts-btn--ghost" style="padding:2px 10px">Quitar vínculo</button>
                 </div>
                 <input type="hidden" name="from_quote_id" id="tsFromQuoteId" value="{{ $linkedQuoteId }}">
+                <span class="ts-field-error"></span>
+            </div>
+
+            {{-- Servicio (web) = Servicio ID. Se hereda de la cotización de origen si ella ya lo tiene. --}}
+            <div class="ts-field">
+                <label class="ts-label">Servicio (web)</label>
+                @include('admin.service-migration._picker', ['value' => old('service_page_id', $service?->service_page_id ?? $fromQuote?->service_page_id), 'inputId' => 'tsServicePageInput'])
                 <span class="ts-field-error"></span>
             </div>
 
@@ -288,6 +297,12 @@ window.__tsConfig = {
 
     function linkQuote(item) {
         fromQuoteInput.value = item.dataset.id;
+
+        // Hereda el Servicio ID de la cotización si el servicio aún no tiene uno.
+        if (item.dataset.servicePageId && window.SMPicker) {
+            const spInput = document.getElementById('tsServicePageInput');
+            window.SMPicker.set(spInput ? spInput.closest('[data-smp]') : null, item.dataset.servicePageId, item.dataset.servicePageLabel, true);
+        }
 
         linkedNumber.textContent   = item.dataset.quoteNumber;
         linkedCustomer.textContent = item.dataset.customerLabel;

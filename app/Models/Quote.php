@@ -19,6 +19,7 @@ class Quote extends Model
     protected $fillable = [
         'quote_number',
         'project_id',
+        'service_page_id',
         'created_by_user_id',
         'customer_id',
         'visitor_uuid',
@@ -72,6 +73,12 @@ class Quote extends Model
     public function customer(): BelongsTo
     {
         return $this->belongsTo(Customer::class);
+    }
+
+    /** El "Servicio ID": el servicio web (página de servicio) al que corresponde este documento. */
+    public function servicePage(): BelongsTo
+    {
+        return $this->belongsTo(ServicePage::class);
     }
 
     public function project(): BelongsTo

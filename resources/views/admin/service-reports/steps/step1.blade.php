@@ -92,7 +92,9 @@
                                          data-customer-name="{{ $svcCustomerLabel }}"
                                          data-customer-company="{{ $svc->customer->company ?? '' }}"
                                          data-customer-rfc="{{ $svc->customer->rfc ?? '' }}"
-                                         data-customer-phone="{{ $svc->customer->phone ?? '' }}">
+                                         data-customer-phone="{{ $svc->customer->phone ?? '' }}"
+                                         data-service-page-id="{{ $svc->service_page_id }}"
+                                         data-service-page-label="{{ $svc->servicePage ? '#' . $svc->servicePage->id . ' · ' . $svc->servicePage->name : '' }}">
                                         <span class="sr-client-dropdown__name">{{ $svc->service_number }}</span>
                                         <span class="sr-client-dropdown__company">{{ $svcCustomerLabel }}</span>
                                     </div>
@@ -170,6 +172,13 @@
                         <input type="text" id="location" name="location" class="sr-input"
                                value="{{ old('location', $report->location) }}"
                                placeholder="Ej: Planta Monterrey" maxlength="200">
+                    </div>
+
+                    <div class="sr-field">
+                        <label class="sr-label">Servicio (web)</label>
+                        @include('admin.service-migration._picker', ['value' => old('service_page_id', $report->service_page_id ?: $linkedService?->service_page_id), 'inputId' => 'srServicePageInput'])
+                        <span class="sr-hint">Servicio ID: página de servicio web. Se hereda del servicio técnico.</span>
+                        @error('service_page_id')<span class="sr-error">{{ $message }}</span>@enderror
                     </div>
                 </div>
 
@@ -267,6 +276,11 @@
     allItems.forEach(function (item) {
         item.addEventListener('click', function () {
             serviceIdInput.value = item.dataset.id;
+            // Hereda el Servicio ID del servicio técnico si el reporte aún no tiene uno.
+            if (item.dataset.servicePageId && window.SMPicker) {
+                var spInput = document.getElementById('srServicePageInput');
+                window.SMPicker.set(spInput ? spInput.closest('[data-smp]') : null, item.dataset.servicePageId, item.dataset.servicePageLabel, true);
+            }
             serviceIdError.style.display = 'none';
             document.getElementById('customer_name').value    = item.dataset.customerName;
             document.getElementById('customer_company').value = item.dataset.customerCompany;

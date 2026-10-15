@@ -15,6 +15,8 @@ Route::controller(ServiceReportController::class)
         Route::get('/{report}', 'show')->name('show');
         Route::get('/{report}/pdf', 'downloadPdf')->name('download-pdf');
         Route::get('/{report}/pdf-preview', 'previewPdf')->name('pdf-preview');
+        Route::match(['get', 'post'], '/{report}/calificar', 'rate')->name('rate');
+        Route::post('/{report}/calificar/omitir', 'skipRating')->name('rate.skip');
     });
 
 Route::controller(TechnicalServiceController::class)

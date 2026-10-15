@@ -317,6 +317,9 @@
                     @endif
                 </div>
 
+                {{-- ── 4. Encuesta de satisfacción (Califica este servicio) ───────────── --}}
+                @include('admin.erp-settings._survey')
+
             </div>
         </section>
     </div>

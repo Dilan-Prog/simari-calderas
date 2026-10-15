@@ -22,7 +22,7 @@ class ServicePageReview extends Model
         'service_page_id', 'customer_name', 'customer_role', 'customer_company',
         'customer_city', 'customer_state', 'review_date', 'rating', 'comment',
         'categories', 'is_verified', 'photo_urls', 'business_response',
-        'business_response_date', 'is_visible', 'sort_order',
+        'business_response_date', 'is_visible', 'sort_order', 'service_rating_id', 'source',
     ];
 
     protected $casts = [
@@ -38,6 +38,53 @@ class ServicePageReview extends Model
     public function servicePage(): BelongsTo
     {
         return $this->belongsTo(ServicePage::class);
+    }
+
+    /**
+     * Reseñas que muestra el bloque "rating_reviews" según su config:
+     * mode 'selected' = solo review_ids, en ese orden (ocultas o borradas se
+     * ignoran); cualquier otro valor = todas las visibles por sort_order.
+     */
+    public static function forBlock(ServicePage $servicePage, array $config = [])
+    {
+        $visible = $servicePage->visibleReviews()->get();
+
+        if (($config['mode'] ?? 'auto') !== 'selected') {
+            return $visible;
+        }
+
+        $byId = $visible->keyBy('id');
+
+        return collect((array) ($config['review_ids'] ?? []))
+            ->map(fn ($id) => $byId->get((int) $id))
+            ->filter()
+            ->unique('id')
+            ->values();
+    }
+
+    /**
+     * Promedio por variable de la encuesta (Limpieza, Ordenado…) de las
+     * opiniones de cliente entre las reseñas dadas.
+     *
+     * @return \Illuminate\Support\Collection  [{label, average, count}]
+     */
+    public static function breakdownFor($reviews)
+    {
+        $ratingIds = collect($reviews)->pluck('service_rating_id')->filter()->unique()->values();
+        if ($ratingIds->isEmpty()) {
+            return collect();
+        }
+
+        return ServiceRatingAnswer::whereIn('service_rating_id', $ratingIds)
+            ->orderBy('id')
+            ->get()
+            ->groupBy('question_label')
+            ->map(fn ($g, $label) => [
+                'label'   => $label,
+                'average' => round($g->avg('score'), 1),
+                'count'   => $g->count(),
+            ])
+            ->values();
     }
 
     public function getCustomerInitialsAttribute(): string

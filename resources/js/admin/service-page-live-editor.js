@@ -141,7 +141,7 @@ import { renderCollectionGeneralPanel, renderCollectionProductsPanel } from './l
             case 'gallery_carousel':
                 return { image_ids: [] };
             case 'rating_reviews':
-                return { description: '', reviews_per_page: 3 };
+                return { description: '', reviews_per_page: 3, mode: 'auto', review_ids: [], show_breakdown: false };
             case 'cta_final':
                 return { headline: '', subtext: '', whatsapp_text: 'Cotizar por WhatsApp', background_image_id: null, secondary_button: { text: '', url: '', style: 'outline', color: '#ff6213' } };
             case 'button':
@@ -187,6 +187,9 @@ import { renderCollectionGeneralPanel, renderCollectionProductsPanel } from './l
     //    draftSections, estos cambios NO esperan al botón "Guardar cambios":
     //    mismo criterio inmediato que la galería). ──
     const reviewsData = (DATA.reviews || []).map((r) => Object.assign({}, r));
+    // Opiniones de clientes (ServiceRating enviadas) de esta página; publicar/
+    // ocultar/reordenar también es inmediato (no espera "Guardar cambios").
+    const clientRatingsData = (DATA.clientRatings || []).map((r) => Object.assign({}, r));
 
     // ── Elementos ────────────────────────────────────────────────────
     const blocksList = document.getElementById('leBlocksList');
@@ -1555,12 +1558,185 @@ import { renderCollectionGeneralPanel, renderCollectionProductsPanel } from './l
                     </span>
                 </span>
             </div>
+            <div id="leClientRatings"></div>
+            <p class="live-editor-col-title" style="margin-top:14px;">Reseñas capturadas</p>
             <div id="leReviewsList" class="hs-repeat-rows"></div>
             <button type="button" id="leReviewAddBtn" class="live-editor-btn live-editor-btn--outline live-editor-btn--block" style="margin-top:10px;">+ Agregar reseña</button>
             <div id="leReviewFormWrap"></div>
         `;
+        renderClientRatings();
         renderReviewsList();
         editPanel.querySelector('#leReviewAddBtn').addEventListener('click', () => openReviewForm(null));
+    }
+
+    // ── Opiniones de clientes: lista con interruptor "Mostrar en el sitio" ──
+
+    function syncClientRatingsFromReviews() {
+        clientRatingsData.forEach((cr) => {
+            const rev = reviewsData.find((r) => String(r.service_rating_id) === String(cr.id));
+            cr.review_id = rev ? rev.id : null;
+            cr.is_published = !!(rev && rev.is_visible);
+        });
+    }
+
+    function clientRatingOrderIndex(cr) {
+        return reviewsData.findIndex((r) => String(r.id) === String(cr.review_id));
+    }
+
+    function clientRatingRowHtml(cr, opts) {
+        const stars = `${'★'.repeat(cr.rating || 0)}${'☆'.repeat(5 - (cr.rating || 0))}`;
+        const comment = cr.comment || '';
+        const chips = (cr.answers || []).map((a) => `<span class="users-manager-badge status" style="font-size:10px;margin:2px 3px 0 0;">${escHtml(a.label)} ${a.score}</span>`).join('');
+        return `
+            ${opts.shown ? `<div class="service-review-row__drag" title="Arrastrar para reordenar">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="5" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="9" cy="19" r="1"/><circle cx="15" cy="5" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="19" r="1"/></svg>
+            </div>` : ''}
+            <div class="service-review-row__body">
+                <div class="service-review-row__head">
+                    <strong>${escHtml(cr.customer_name)}</strong>
+                    <span class="service-review-row__stars" role="img" aria-label="${cr.rating || 0} de 5 estrellas">${stars}</span>
+                    ${cr.card_label ? `<span class="users-manager-badge status" style="font-size:10px;">${escHtml(cr.card_label)}</span>` : ''}
+                    ${cr.date ? `<small>${escHtml(cr.date)}</small>` : ''}
+                </div>
+                ${comment ? `<p class="service-review-row__comment">${escHtml(comment.length > 140 ? comment.slice(0, 140) + '…' : comment)}</p>` : ''}
+                ${chips ? `<div>${chips}</div>` : ''}
+                <label style="display:flex;align-items:center;gap:8px;font-weight:400;font-size:13px;color:#374151;margin-top:6px;">
+                    <input type="checkbox" class="le-cr-toggle" ${cr.is_published ? 'checked' : ''}> Mostrar en el sitio
+                </label>
+            </div>
+            ${opts.shown ? `<div class="header-right-user-manager">
+                <button type="button" class="table-users-manager-action-btn le-cr-up" title="Subir" ${opts.index === 0 ? 'disabled' : ''}>↑</button>
+                <button type="button" class="table-users-manager-action-btn le-cr-down" title="Bajar" ${opts.index === opts.total - 1 ? 'disabled' : ''}>↓</button>
+            </div>` : ''}
+        `;
+    }
+
+    function renderClientRatings() {
+        const box = editPanel.querySelector('#leClientRatings');
+        if (!box) return;
+        syncClientRatingsFromReviews();
+
+        const shown = clientRatingsData.filter((cr) => cr.is_published)
+            .sort((a, b) => clientRatingOrderIndex(a) - clientRatingOrderIndex(b));
+        const others = clientRatingsData.filter((cr) => !cr.is_published);
+
+        box.innerHTML = `
+            <p class="live-editor-col-title">Opiniones de clientes</p>
+            <p class="hs-config-note">Calificaciones enviadas por clientes de este servicio. Activa "Mostrar en el sitio" para publicarlas como reseña verificada; el nombre y el comentario no se editan.</p>
+            <div id="leClientShown" class="hs-repeat-rows"></div>
+            <div id="leClientOthers" class="hs-repeat-rows"></div>
+        `;
+
+        if (!clientRatingsData.length) {
+            box.querySelector('#leClientShown').innerHTML = '<p class="hs-config-note">Todavía no hay opiniones de clientes para este servicio.</p>';
+            return;
+        }
+
+        const bind = (row, cr) => {
+            row.querySelector('.le-cr-toggle').addEventListener('change', (e) => toggleClientRating(cr, e.target.checked, e.target));
+        };
+
+        const shownList = box.querySelector('#leClientShown');
+        shown.forEach((cr, index) => {
+            const row = document.createElement('div');
+            row.className = 'service-review-row';
+            row.dataset.reviewId = cr.review_id;
+            row.innerHTML = clientRatingRowHtml(cr, { shown: true, index, total: shown.length });
+            bind(row, cr);
+            const move = (delta) => {
+                const ids = shown.map((s) => s.review_id);
+                const j = index + delta;
+                if (j < 0 || j >= ids.length) return;
+                [ids[index], ids[j]] = [ids[j], ids[index]];
+                persistClientRatingsOrder(ids);
+            };
+            row.querySelector('.le-cr-up').addEventListener('click', () => move(-1));
+            row.querySelector('.le-cr-down').addEventListener('click', () => move(1));
+            shownList.appendChild(row);
+        });
+
+        if (shown.length > 1) {
+            new Sortable(shownList, {
+                animation: 150,
+                handle: '.service-review-row__drag',
+                forceFallback: true,
+                ghostClass: 'service-review-row--ghost',
+                dragClass: 'service-review-row--dragging',
+                onEnd(evt) {
+                    if (evt.oldIndex === evt.newIndex) return;
+                    const ids = shown.map((s) => s.review_id);
+                    const [moved] = ids.splice(evt.oldIndex, 1);
+                    ids.splice(evt.newIndex, 0, moved);
+                    persistClientRatingsOrder(ids);
+                },
+            });
+        }
+
+        const othersList = box.querySelector('#leClientOthers');
+        others.forEach((cr) => {
+            const row = document.createElement('div');
+            row.className = 'service-review-row';
+            row.innerHTML = clientRatingRowHtml(cr, { shown: false });
+            bind(row, cr);
+            othersList.appendChild(row);
+        });
+    }
+
+    async function toggleClientRating(cr, on, checkbox) {
+        const tpl = on ? DATA.clientRatingPublishUrlTemplate : DATA.clientRatingHideUrlTemplate;
+        if (checkbox) checkbox.disabled = true;
+        try {
+            const res = await fetch(tpl.replace('__RATING_ID__', cr.id), {
+                method: 'POST',
+                headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
+            });
+            const data = await res.json().catch(() => ({}));
+            if (res.ok && data.success) {
+                if (data.review) {
+                    const idx = reviewsData.findIndex((r) => String(r.id) === String(data.review.id));
+                    if (idx !== -1) reviewsData[idx] = Object.assign({}, reviewsData[idx], data.review);
+                    else reviewsData.push(data.review);
+                }
+                if (data.client_rating) Object.assign(cr, data.client_rating);
+                renderReviewsPanel();
+                if (window.showCenterToast) showCenterToast(on ? 'Opinión publicada en el sitio.' : 'Opinión oculta del sitio.');
+                schedulePreview();
+            } else {
+                throw new Error('toggle-client-rating-failed');
+            }
+        } catch (err) {
+            if (checkbox) { checkbox.disabled = false; checkbox.checked = !on; }
+            if (window.showCenterToast) showCenterToast('No se pudo actualizar la opinión.', 'error');
+        }
+    }
+
+    async function persistClientRatingsOrder(ids) {
+        try {
+            const res = await fetch(DATA.clientRatingsReorderUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
+                body: JSON.stringify({ order: ids }),
+            });
+            if (!res.ok) throw new Error('reorder-failed');
+            // Misma lógica que el servidor: reparte los sort_order que ya ocupaban.
+            const involved = ids.map((id) => reviewsData.find((r) => String(r.id) === String(id))).filter(Boolean);
+            let slots = involved.map((r) => r.sort_order || 0).sort((a, b) => a - b);
+            if (new Set(slots).size !== slots.length) {
+                const base = Math.min(...slots);
+                slots = slots.map((_, i) => base + i);
+            }
+            ids.forEach((id, i) => {
+                const r = reviewsData.find((x) => String(x.id) === String(id));
+                if (r) r.sort_order = slots[i];
+            });
+            reviewsData.sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
+            renderReviewsPanel();
+            if (window.showCenterToast) showCenterToast('Orden de opiniones actualizado.');
+            schedulePreview();
+        } catch (err) {
+            if (window.showCenterToast) showCenterToast('No se pudo guardar el nuevo orden.', 'error');
+            renderReviewsPanel();
+        }
     }
 
     function renderReviewsList() {
@@ -1587,6 +1763,7 @@ import { renderCollectionGeneralPanel, renderCollectionProductsPanel } from './l
                         <strong>${escHtml(review.customer_name)}</strong>
                         <span class="service-review-row__stars">${'★'.repeat(review.rating || 0)}${'☆'.repeat(5 - (review.rating || 0))}</span>
                         ${review.is_verified ? '<span class="users-manager-badge status" style="font-size:10px;">Verificado</span>' : ''}
+                        ${review.source === 'client' ? '<span class="users-manager-badge status" style="font-size:10px;">Cliente</span>' : ''}
                         <span class="users-manager-badge ${review.is_visible ? 'status' : 'status-inactive'}" style="font-size:10px;">${review.is_visible ? 'Visible' : 'Oculta'}</span>
                     </div>
                     <p class="service-review-row__comment">${escHtml(comment.length > 140 ? comment.slice(0, 140) + '…' : comment)}</p>
@@ -1623,6 +1800,7 @@ import { renderCollectionGeneralPanel, renderCollectionProductsPanel } from './l
                 const [moved] = reviewsData.splice(evt.oldIndex, 1);
                 reviewsData.splice(evt.newIndex, 0, moved);
                 renderReviewsList();
+                renderClientRatings();
                 persistReviewsOrder();
             },
         });
@@ -1697,6 +1875,17 @@ import { renderCollectionGeneralPanel, renderCollectionProductsPanel } from './l
             wrap.querySelector('#leRevCommentCount').textContent = this.value.length;
         });
 
+        // Reseña de origen cliente: solo se editan respuesta y visibilidad.
+        if (draft.source === 'client') {
+            wrap.querySelectorAll('#leRevName, #leRevRole, #leRevCompany, #leRevCity, #leRevState, #leRevDate, #leRevComment, #leRevVerified, .le-rev-category')
+                .forEach((el) => { el.disabled = true; });
+            starsWrap.style.pointerEvents = 'none';
+            const note = document.createElement('p');
+            note.className = 'hs-config-note';
+            note.textContent = 'Opinión de un cliente: el nombre, la calificación y el comentario no se pueden editar. Solo puedes responder, ocultarla o reordenarla.';
+            wrap.querySelector('.live-editor-col-title').after(note);
+        }
+
         wrap.querySelector('#leRevCancel').addEventListener('click', () => { wrap.innerHTML = ''; });
         wrap.querySelector('#leRevSave').addEventListener('click', () => saveReview(isEdit ? review.id : null, wrap));
 
@@ -1723,6 +1912,12 @@ import { renderCollectionGeneralPanel, renderCollectionProductsPanel } from './l
             business_response: wrap.querySelector('#leRevResponse').value || null,
             business_response_date: wrap.querySelector('#leRevResponseDate').value || null,
         };
+
+        const editedReview = id ? reviewsData.find((r) => String(r.id) === String(id)) : null;
+        if (editedReview && editedReview.source === 'client') {
+            ['customer_name', 'customer_role', 'customer_company', 'customer_city', 'customer_state', 'review_date', 'rating', 'comment', 'categories', 'is_verified']
+                .forEach((k) => { delete payload[k]; });
+        }
 
         const saveBtn = wrap.querySelector('#leRevSave');
         saveBtn.disabled = true;
@@ -1794,6 +1989,7 @@ import { renderCollectionGeneralPanel, renderCollectionProductsPanel } from './l
                 body: JSON.stringify({ order }),
             });
             if (res.ok) {
+                reviewsData.forEach((r, i) => { r.sort_order = i; });
                 if (window.showCenterToast) showCenterToast('Orden de reseñas actualizado.');
             } else if (window.showCenterToast) {
                 showCenterToast('No se pudo guardar el nuevo orden.', 'error');
@@ -2657,10 +2853,80 @@ import { renderCollectionGeneralPanel, renderCollectionProductsPanel } from './l
         container.innerHTML = `
             ${field('Texto descriptivo (opcional)', `<textarea class="users-manager-input client-modal-textarea" id="leRrDescription" rows="2">${escHtml(cfg.description)}</textarea>`)}
             ${field('Reseñas visibles antes de "Ver más"', `<input type="number" class="users-manager-input" id="leRrPerPage" min="1" max="20" value="${cfg.reviews_per_page ?? 3}">`)}
-            <p class="hs-config-note">Las reseñas se capturan en el panel <strong>Reseñas</strong> del sidebar, y las estadísticas de "Promedio mostrado" en <strong>Información general</strong>. Esta sección solo define dónde aparecen y su texto descriptivo.</p>
+            ${field('Qué opiniones mostrar', `
+                <select class="users-manager-input" id="leRrMode">
+                    <option value="auto" ${cfg.mode !== 'selected' ? 'selected' : ''}>Todas las visibles (automático)</option>
+                    <option value="selected" ${cfg.mode === 'selected' ? 'selected' : ''}>Elegir opiniones</option>
+                </select>
+            `)}
+            <div id="leRrPicker"></div>
+            <label style="display:flex;align-items:center;gap:8px;font-weight:400;font-size:13px;color:#374151;margin:8px 0;">
+                <input type="checkbox" id="leRrBreakdown" ${cfg.show_breakdown ? 'checked' : ''}> Mostrar promedio por variable (Limpieza, Ordenado…)
+            </label>
+            <p class="hs-config-note">Las reseñas se capturan en el panel <strong>Reseñas</strong> del sidebar (ahí también publicas las opiniones de clientes), y las estadísticas de "Promedio mostrado" en <strong>Información general</strong>. El promedio por variable se calcula con las opiniones de clientes publicadas.</p>
         `;
         container.querySelector('#leRrDescription').addEventListener('input', (e) => { cfg.description = e.target.value; markDirty(); schedulePreview(); });
         container.querySelector('#leRrPerPage').addEventListener('input', (e) => { cfg.reviews_per_page = parseInt(e.target.value, 10) || 3; markDirty(); schedulePreview(); });
+        container.querySelector('#leRrBreakdown').addEventListener('change', (e) => { cfg.show_breakdown = e.target.checked; markDirty(); schedulePreview(); });
+        container.querySelector('#leRrMode').addEventListener('change', (e) => {
+            cfg.mode = e.target.value === 'selected' ? 'selected' : 'auto';
+            markDirty(); renderPicker(); schedulePreview();
+        });
+
+        function renderPicker() {
+            const picker = container.querySelector('#leRrPicker');
+            if (cfg.mode !== 'selected') { picker.innerHTML = ''; return; }
+            if (!Array.isArray(cfg.review_ids)) cfg.review_ids = [];
+            // Descarta ids de reseñas que ya no existen.
+            cfg.review_ids = cfg.review_ids.filter((id) => reviewsData.some((r) => String(r.id) === String(id)));
+            const selected = cfg.review_ids.map((id) => reviewsData.find((r) => String(r.id) === String(id)));
+            const rest = reviewsData.filter((r) => !cfg.review_ids.some((id) => String(id) === String(r.id)));
+            picker.innerHTML = `<p class="live-editor-col-title">Opiniones elegidas (${selected.length})</p><div id="leRrPickList" class="hs-repeat-rows"></div>`;
+            if (!reviewsData.length) {
+                picker.querySelector('#leRrPickList').innerHTML = '<p class="hs-config-note">Todavía no hay reseñas ni opiniones para elegir.</p>';
+                return;
+            }
+            const list = picker.querySelector('#leRrPickList');
+            const rows = selected.map((r, i) => ({ r, i, on: true })).concat(rest.map((r) => ({ r, i: -1, on: false })));
+            rows.forEach(({ r, i, on }) => {
+                const row = document.createElement('div');
+                row.className = 'service-review-row';
+                const comment = r.comment || '';
+                row.innerHTML = `
+                    <div class="service-review-row__body">
+                        <label style="display:flex;align-items:flex-start;gap:8px;font-weight:400;cursor:pointer;">
+                            <input type="checkbox" class="le-rr-pick" ${on ? 'checked' : ''}>
+                            <span>
+                                <strong>${escHtml(r.customer_name)}</strong>
+                                <span class="service-review-row__stars" role="img" aria-label="${r.rating || 0} de 5 estrellas">${'★'.repeat(r.rating || 0)}${'☆'.repeat(5 - (r.rating || 0))}</span>
+                                ${r.source === 'client' ? '<span class="users-manager-badge status" style="font-size:10px;">Cliente</span>' : ''}
+                                ${r.is_visible ? '' : '<span class="users-manager-badge status-inactive" style="font-size:10px;">Oculta (no se mostrará)</span>'}
+                                <br><small>${escHtml(comment.length > 90 ? comment.slice(0, 90) + '…' : comment)}</small>
+                            </span>
+                        </label>
+                    </div>
+                    ${on ? `<div class="header-right-user-manager">
+                        <button type="button" class="table-users-manager-action-btn le-rr-up" title="Subir" ${i === 0 ? 'disabled' : ''}>↑</button>
+                        <button type="button" class="table-users-manager-action-btn le-rr-down" title="Bajar" ${i === selected.length - 1 ? 'disabled' : ''}>↓</button>
+                    </div>` : ''}
+                `;
+                row.querySelector('.le-rr-pick').addEventListener('change', (e) => {
+                    if (e.target.checked) cfg.review_ids.push(r.id);
+                    else cfg.review_ids = cfg.review_ids.filter((id) => String(id) !== String(r.id));
+                    markDirty(); renderPicker(); schedulePreview();
+                });
+                const move = (delta) => {
+                    const j = i + delta;
+                    if (j < 0 || j >= cfg.review_ids.length) return;
+                    [cfg.review_ids[i], cfg.review_ids[j]] = [cfg.review_ids[j], cfg.review_ids[i]];
+                    markDirty(); renderPicker(); schedulePreview();
+                };
+                row.querySelector('.le-rr-up')?.addEventListener('click', () => move(-1));
+                row.querySelector('.le-rr-down')?.addEventListener('click', () => move(1));
+                list.appendChild(row);
+            });
+        }
+        renderPicker();
     }
 
     function renderCtaFinalFields(container, cfg) {

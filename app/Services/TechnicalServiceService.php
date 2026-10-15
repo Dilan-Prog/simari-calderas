@@ -77,6 +77,10 @@ class TechnicalServiceService
                         'location'           => $data['location'] ?? null,
                         'week_number'        => $data['week_number'] ?? null,
                         'from_quote_id'      => $data['from_quote_id'] ?? null,
+                        // Servicio ID: el elegido, o el heredado de la cotización de origen.
+                        'service_page_id'    => !empty($data['service_page_id'])
+                            ? $data['service_page_id']
+                            : (!empty($data['from_quote_id']) ? Quote::whereKey($data['from_quote_id'])->value('service_page_id') : null),
                         'status'             => 'draft',
                         'current_step'       => 1,
                         'requested_at'       => now(),
@@ -162,9 +166,16 @@ class TechnicalServiceService
             }
         }
 
+        // Servicio ID: el enviado; si queda vacío, el heredado de la cotización de origen.
+        $servicePageId = array_key_exists('service_page_id', $data) ? ($data['service_page_id'] ?: null) : $service->service_page_id;
+        if (!$servicePageId && $fromQuoteId) {
+            $servicePageId = Quote::whereKey($fromQuoteId)->value('service_page_id');
+        }
+
         $service->fill([
             'customer_id'        => $customerId,
             'from_quote_id'      => $fromQuoteId,
+            'service_page_id'    => $servicePageId,
             'service_type_id'    => $data['service_type_id'],
             'service_date'       => $data['service_date'],
             'service_time'       => $data['service_time'] ?? null,
