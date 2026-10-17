@@ -833,3 +833,20 @@
 @media (min-width: 1024px) {
     .sr-show-wrap .sr-show-mobile-actions { display: none !important; }
 }
+
+/* Detalle del reporte: el selector de "Vincular Servicio" usa .sr-select, que solo tenía estilos dentro del
+   asistente de creación (.sr-create-wrap); aquí salía como un <select> nativo diminuto. */
+.sr-show-wrap .sr-select {
+    width: 100%; box-sizing: border-box; height: 44px; padding: 0 38px 0 12px;
+    border: 1px solid #D1D5DB; border-radius: 8px; background-color: #fff;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 12px center;
+    font-family: var(--font-family); font-size: 14px; color: #111827;
+    appearance: none; -webkit-appearance: none; cursor: pointer; text-overflow: ellipsis;
+}
+.sr-show-wrap .sr-select:focus { outline: none; border-color: #ff6213; box-shadow: 0 0 0 3px rgba(255, 98, 19, .15); }
+@media (max-width: 1023px) {
+    .sr-show-wrap .sr-select { height: 48px; font-size: 16px; }
+}
+.sr-show-wrap form[action*="attach-service"] .sr-btn { height: 44px; }
+@media (max-width: 1023px) { .sr-show-wrap form[action*="attach-service"] .sr-btn { height: 48px; font-size: 15px; } }
