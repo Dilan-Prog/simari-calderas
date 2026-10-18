@@ -863,3 +863,8 @@
     .sr-show-wrap .sr-show-mobile-actions > :first-child .sr-btn,
     .sr-show-wrap .sr-show-mobile-actions > .sr-btn:first-child { height: 56px; font-size: 17px; }
 }
+
+/* Teléfono: sin el panel "Acciones rápidas" (la barra fija inferior ya trae las acciones principales). */
+@media (max-width: 639px) {
+    .sr-show-wrap .sr-quick-actions { display: none !important; }
+}
