@@ -319,7 +319,7 @@ class LeadService
                 'name'   => $data['name'] ?? null,
                 'email'  => $data['email'],
                 'phone'  => $data['phone'] ?? null,
-                'notes'  => 'Correo' . ($subject !== '' ? ': ' . $subject : '') . ($excerpt !== '' ? "\n" . mb_substr($excerpt, 0, 500) : ''),
+                'notes'  => 'Correo' . ($subject !== '' ? ': ' . $subject : '') . ($excerpt !== '' ? "\n" . mb_substr($excerpt, 0, 1500) : ''),
                 'at'     => $at,
             ]);
             $isNew = $lead->id > $maxBefore;
@@ -348,7 +348,7 @@ class LeadService
                 'from_email'  => self::normalizeEmail($data['email']),
                 'from_name'   => $data['name'] ?? null,
                 'subject'     => $subject !== '' ? mb_substr($subject, 0, 255) : null,
-                'excerpt'     => $excerpt !== '' ? mb_substr($excerpt, 0, 2000) : null,
+                'excerpt'     => $excerpt !== '' ? mb_substr($excerpt, 0, 5000) : null,
                 'received_at' => $at,
                 'task_id'     => $task?->id,
                 'is_new_lead' => $isNew,
