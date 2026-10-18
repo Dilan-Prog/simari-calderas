@@ -3,7 +3,7 @@
   "nodes": [
     {
       "parameters": {
-        "content": "## Recepción de correos -> Leads + tarea al vendedor\n**Antes de activar:**\n1. Crea la credencial **IMAP** (Hostinger: imap.hostinger.com, puerto 993, SSL) y la **SMTP** (smtp.hostinger.com, puerto 465, SSL). Las contraseñas solo se escriben dentro de n8n.\n2. Crea una credencial **Header/Bearer Auth** con el token del ApiClient (habilidad `leads:write`) y asígnala al nodo HTTP.\n3. En el nodo **Preparar datos** edita la lista de vendedores (ID de usuario y correo) y el filtro.\n4. En el nodo HTTP cambia `TU-DOMINIO` por el dominio real.\n\nEl sistema ignora el mismo correo si n8n lo reenvía (Message-ID) y no duplica leads con el mismo correo.",
+        "content": "## Recepción de correos -> Leads + tarea al vendedor\n**Antes de activar:**\n1. Crea la credencial **IMAP** (Hostinger: imap.hostinger.com, puerto 993, SSL) y la **SMTP** (smtp.hostinger.com, puerto 465, SSL). Las contraseñas solo se escriben dentro de n8n.\n2. Crea una credencial **Header/Bearer Auth** con el token del ApiClient (habilidad `leads:write`) y asígnala al nodo HTTP.\n3. En el nodo **Preparar datos** pon el ID de usuario de la persona administrativa (responsable de la tarea) y tu nombre y correo (a quien se avisa).\n4. En el nodo HTTP cambia `TU-DOMINIO` por el dominio real.\n\nEl sistema ignora el mismo correo si n8n lo reenvía (Message-ID) y no duplica leads con el mismo correo.",
         "height": 300,
         "width": 520,
         "color": 4
@@ -39,7 +39,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// ===== CONFIGURACIÓN (edita aquí) =====\nconst VENDEDORES = [\n  // id = ID del usuario en el sistema (Admin > Usuarios), email = a donde llega el aviso\n  { id: 1, nombre: 'Vendedor 1', email: 'vendedor1@equiterm.com' },\n  { id: 2, nombre: 'Vendedor 2', email: 'vendedor2@equiterm.com' },\n];\nconst IGNORAR_REMITENTES = /(no-?reply|noreply|mailer-daemon|postmaster|notifications?@|@equiterm\\.)/i;\nconst SOLO_SI_ASUNTO_O_TEXTO_CONTIENE = null; // ej: /cotiz|precio|caldera|presupuesto/i  (null = todos los correos)\n// ======================================\n\nconst j = $json;\nconst fromObj = (j.from && j.from.value && j.from.value[0]) || {};\nconst email = (fromObj.address || '').trim().toLowerCase();\nconst name = (fromObj.name || '').trim();\nconst subject = (j.subject || '').trim();\nconst body = (j.textPlain || j.text || '').replace(/\\s+\\n/g, '\\n').trim().slice(0, 5000);\nconst messageId = (j.messageId || j.headers?.['message-id'] || (email + '|' + subject + '|' + (j.date || ''))).toString();\n\nconst autoReply = /auto(matic)?[- ]?(reply|respuesta)|out of office|fuera de la oficina/i.test(subject);\nlet valido = !!email && !IGNORAR_REMITENTES.test(email) && !autoReply;\nif (valido && SOLO_SI_ASUNTO_O_TEXTO_CONTIENE) valido = SOLO_SI_ASUNTO_O_TEXTO_CONTIENE.test(subject + ' ' + body);\n\n// Reparto equitativo (round robin) entre vendedores\nconst sd = $getWorkflowStaticData('global');\nlet vendedor = null;\nif (valido && VENDEDORES.length) {\n  sd.rr = ((sd.rr ?? -1) + 1) % VENDEDORES.length;\n  vendedor = VENDEDORES[sd.rr];\n}\n\nreturn {\n  json: {\n    valido,\n    vendedor,\n    payload: {\n      message_id: messageId,\n      email,\n      name: name || null,\n      subject,\n      message: body,\n      received_at: j.date ? new Date(j.date).toISOString() : new Date().toISOString(),\n      assigned_to: vendedor ? vendedor.id : null,\n      create_task: true,\n    },\n  },\n};",
+        "jsCode": "// ===== CONFIGURACIÓN (edita aquí) =====\nconst RESPONSABLE = { id: 2, nombre: 'Nombre del area administrativa' }; // ID de usuario en el sistema: a quien se le asigna la tarea\nconst AVISAR_A = { nombre: 'Tu nombre', email: 'tu-correo@equiterm.com' };      // a quien le llega el aviso de cada correo entrante\nconst IGNORAR_REMITENTES = /(no-?reply|noreply|mailer-daemon|postmaster|notifications?@|@equiterm\\.)/i;\nconst SOLO_SI_ASUNTO_O_TEXTO_CONTIENE = null; // ej: /cotiz|precio|caldera|presupuesto/i  (null = todos los correos)\n// ======================================\n\nconst j = $json;\nconst fromObj = (j.from && j.from.value && j.from.value[0]) || {};\nconst email = (fromObj.address || '').trim().toLowerCase();\nconst name = (fromObj.name || '').trim();\nconst subject = (j.subject || '').trim();\nconst body = (j.textPlain || j.text || '').replace(/\\s+\\n/g, '\\n').trim().slice(0, 5000);\nconst messageId = (j.messageId || j.headers?.['message-id'] || (email + '|' + subject + '|' + (j.date || ''))).toString();\n\nconst autoReply = /auto(matic)?[- ]?(reply|respuesta)|out of office|fuera de la oficina/i.test(subject);\nlet valido = !!email && !IGNORAR_REMITENTES.test(email) && !autoReply;\nif (valido && SOLO_SI_ASUNTO_O_TEXTO_CONTIENE) valido = SOLO_SI_ASUNTO_O_TEXTO_CONTIENE.test(subject + ' ' + body);\n\nconst vendedor = valido ? { ...AVISAR_A, responsable: RESPONSABLE.nombre } : null;\n\nreturn {\n  json: {\n    valido,\n    vendedor,\n    payload: {\n      message_id: messageId,\n      email,\n      name: name || null,\n      subject,\n      message: body,\n      received_at: j.date ? new Date(j.date).toISOString() : new Date().toISOString(),\n      assigned_to: valido ? RESPONSABLE.id : null,\n      create_task: true,\n    },\n  },\n};",
         "mode": "runOnceForEachItem"
       },
       "name": "Preparar datos",
@@ -150,12 +150,12 @@
       "parameters": {
         "fromEmail": "ventas@TU-DOMINIO",
         "toEmail": "={{ $('Preparar datos').item.json.vendedor.email }}",
-        "subject": "={{ 'Nueva solicitud de cotización: ' + $('Preparar datos').item.json.payload.subject }}",
+        "subject": "={{ 'Correo entrante: ' + $('Preparar datos').item.json.payload.subject }}",
         "emailFormat": "text",
-        "text": "={{ 'Hola ' + $('Preparar datos').item.json.vendedor.nombre + ',\\n\\n' + 'Llegó una solicitud por correo y te fue asignada.\\n\\n' + 'De: ' + ($('Preparar datos').item.json.payload.name || '') + ' <' + $('Preparar datos').item.json.payload.email + '>\\n' + 'Asunto: ' + $('Preparar datos').item.json.payload.subject + '\\n\\n' + $('Preparar datos').item.json.payload.message + '\\n\\n' + '----\\n' + 'Ya creamos la tarea en el sistema (Tareas > Mis tareas) y el lead en la Bandeja de leads. ' + 'Por favor prepara la cotización y respóndele al cliente.' }}",
+        "text": "={{ 'Hola ' + $('Preparar datos').item.json.vendedor.nombre + ',\\n\\n' + 'Llegó un correo de un cliente. Quedó registrado como tarea para ' + $('Preparar datos').item.json.vendedor.responsable + '.\\n\\n' + 'De: ' + ($('Preparar datos').item.json.payload.name || '') + ' <' + $('Preparar datos').item.json.payload.email + '>\\n' + 'Asunto: ' + $('Preparar datos').item.json.payload.subject + '\\n\\n' + $('Preparar datos').item.json.payload.message + '\\n\\n' + '----\\n' + 'Puedes ver si ya fue atendida en Tareas (filtra por Abiertas / Cerradas) y el cliente en la Bandeja de leads.' }}",
         "options": {}
       },
-      "name": "Avisar al vendedor",
+      "name": "Avisar al dueño",
       "type": "n8n-nodes-base.emailSend",
       "typeVersion": 2.1,
       "position": [
@@ -220,7 +220,7 @@
       "main": [
         [
           {
-            "node": "Avisar al vendedor",
+            "node": "Avisar al dueño",
             "type": "main",
             "index": 0
           }

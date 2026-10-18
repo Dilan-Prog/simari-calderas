@@ -336,7 +336,9 @@ class LeadService
                     'taskable_id'   => $lead->id,
                     'assigned_to'   => $lead->assigned_to,
                     'title'         => 'Atender solicitud por correo' . ($subject !== '' ? ': ' . mb_substr($subject, 0, 120) : '') . ' · ' . $lead->display_name,
-                    'description'   => 'Correo de ' . $data['email'] . ' recibido el ' . $at->format('d/m/Y H:i') . '.',
+                    'description'   => 'De: ' . ($data['name'] ? $data['name'] . ' <' . $data['email'] . '>' : $data['email'])
+                        . ' · ' . $at->format('d/m/Y H:i')
+                        . ($excerpt !== '' ? "\n\n" . mb_substr($excerpt, 0, 1500) : ''),
                     'due_at'        => now()->addHours(4),
                     'status'        => 'open',
                 ]);

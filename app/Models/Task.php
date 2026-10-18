@@ -92,6 +92,7 @@ class Task extends Model
             \App\Models\Quote::class => 'Cotización ' . $this->taskable->quote_number,
             \App\Models\Deal::class  => 'Negocio ' . $this->taskable->name,
             \App\Models\Cart::class  => 'Carrito #' . $this->taskable->id,
+            \App\Models\Lead::class  => 'Lead ' . $this->taskable->display_name,
             default                  => class_basename($this->taskable_type) . ' #' . $this->taskable->getKey(),
         };
     }
@@ -110,6 +111,7 @@ class Task extends Model
         return match ($this->taskable_type) {
             \App\Models\Quote::class => route('admin.quotes.show', $this->taskable_id),
             \App\Models\Deal::class  => route('admin.deals.show', $this->taskable_id),
+            \App\Models\Lead::class  => route('admin.leads-inbox.show', $this->taskable_id),
             default                  => null,
         };
     }
