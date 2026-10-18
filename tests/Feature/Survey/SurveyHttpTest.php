@@ -75,15 +75,22 @@ class SurveyHttpTest extends TestCase
     {
         $this->actingAs($this->adminUser());
 
-        $this->post(route('admin.erp-settings.survey.questions.store'), ['label' => 'Puntualidad'])->assertRedirect();
-        $q = SurveyQuestion::where('label', 'Puntualidad')->firstOrFail();
+        $this->post(route('admin.erp-settings.survey.questions.store'), ['label' => 'Amabilidad', 'kind' => 'positive'])->assertRedirect();
+        $q = SurveyQuestion::where('label', 'Amabilidad')->firstOrFail();
+        $this->assertSame('positive', $q->kind);
 
-        $this->put(route('admin.erp-settings.survey.questions.update', $q), ['label' => 'Puntualidad del técnico', 'is_active' => 1])->assertRedirect();
-        $this->assertSame('Puntualidad del técnico', $q->fresh()->label);
+        $this->post(route('admin.erp-settings.survey.questions.store'), ['label' => 'Ruido excesivo', 'kind' => 'negative'])->assertRedirect();
+        $this->assertSame('negative', SurveyQuestion::where('label', 'Ruido excesivo')->value('kind'));
+        $this->post(route('admin.erp-settings.survey.questions.store'), ['label' => 'Otro', 'kind' => 'raro'])->assertSessionHasErrors('kind');
+
+        $this->put(route('admin.erp-settings.survey.questions.update', $q), ['label' => 'Amabilidad del técnico', 'kind' => 'negative', 'is_active' => 1])->assertRedirect();
+        $this->assertSame('Amabilidad del técnico', $q->fresh()->label);
+        $this->assertSame('negative', $q->fresh()->kind);
         $this->assertTrue($q->fresh()->is_active);
 
-        $this->put(route('admin.erp-settings.survey.questions.update', $q), ['label' => 'Puntualidad del técnico'])->assertRedirect();
+        $this->put(route('admin.erp-settings.survey.questions.update', $q), ['label' => 'Amabilidad del técnico'])->assertRedirect();
         $this->assertFalse($q->fresh()->is_active);
+        $this->assertSame('negative', $q->fresh()->kind, 'sin tipo en la petición conserva el actual');
 
         $this->post(route('admin.erp-settings.survey.questions.store'), ['label' => ''])->assertSessionHasErrors('label');
 
@@ -100,6 +107,8 @@ class SurveyHttpTest extends TestCase
             'survey_enabled' => 0,
             'survey_title' => 'Evalúa tu servicio', 'survey_subtitle' => 'Sub', 'survey_comment_label' => 'Comentario',
             'survey_submit_label' => 'Mandar', 'survey_thanks_message' => 'Gracias totales', 'survey_name_label' => 'Nombre',
+            'survey_good_title' => 'Lo bueno', 'survey_bad_title' => 'A corregir',
+            'survey_thanks_good' => 'Gracias {tecnico}', 'survey_thanks_bad' => 'Lo sentimos',
             'service_by_type' => ['cleaning' => $page->id, 'inspection' => '', 'tipo_falso' => $page->id],
         ])->assertRedirect();
 
@@ -107,6 +116,10 @@ class SurveyHttpTest extends TestCase
         $this->assertFalse($svc->enabled());
         $this->assertSame('Evalúa tu servicio', $svc->text('survey.title'));
         $this->assertSame('Gracias totales', $svc->text('survey.thanks_message'));
+        $this->assertSame('Lo bueno', $svc->text('survey.good_title'));
+        $this->assertSame('A corregir', $svc->text('survey.bad_title'));
+        $this->assertSame('Gracias {tecnico}', $svc->text('survey.thanks_good'));
+        $this->assertSame('Lo sentimos', $svc->text('survey.thanks_bad'));
         $this->assertSame(['cleaning' => $page->id], $svc->defaultServiceMap());
     }
 
@@ -157,10 +170,10 @@ class SurveyHttpTest extends TestCase
         $admin = $this->adminUser();
         $report = $this->makeReport($admin);
         $card = SurveyCard::where('stars', 5)->first();
-        $q = SurveyQuestion::first();
+        $q = SurveyQuestion::where('kind', 'positive')->first();
 
         $this->actingAs($admin)->post(route('admin.service-reports.rate', $report), [
-            'card_id' => $card->id, 'answers' => [$q->id => 4], 'comment' => 'Todo bien', 'customer_name' => 'Otro Nombre',
+            'card_id' => $card->id, 'chips' => [$q->id], 'comment' => 'Todo bien', 'customer_name' => 'Otro Nombre',
         ])->assertRedirect(route('admin.service-reports.rate', $report));
 
         $rating = ServiceRating::where('service_report_id', $report->id)->firstOrFail();
@@ -170,7 +183,53 @@ class SurveyHttpTest extends TestCase
         $this->get(route('admin.service-reports.rate', $report))
             ->assertOk()->assertSee('Gracias')->assertSee('Todo bien');
 
-        // un segundo envío se rechaza y conserva el primero
+        // el nombre sigue siendo el del reporte aunque se edite con otro nombre
+        $this->post(route('admin.service-reports.rate', $report) . '?editar=1', [
+            'card_id' => SurveyCard::where('stars', 5)->first()->id, 'comment' => 'Editado', 'customer_name' => 'Intruso',
+        ])->assertRedirect();
+        $this->assertSame('Planta Norte S.A.', $rating->fresh()->customer_name);
+        $this->assertSame('Editado', $rating->fresh()->comment);
+    }
+
+    public function test_pantalla_muestra_chips_por_nivel_y_datos_del_panel_izquierdo(): void
+    {
+        $admin = $this->adminUser();
+        $report = $this->makeReport($admin, null, ['location' => 'Planta Querétaro']);
+
+        $html = $this->actingAs($admin)->get(route('admin.service-reports.rate', $report))->assertOk()
+            ->assertSee('Servicio concluido')->assertSee('Técnico de servicio')
+            ->assertSee('Planta Querétaro')->assertSee('¿Qué fue lo mejor?')->assertSee('¿Qué podemos mejorar?')
+            ->assertSee('Puntualidad')->assertSee('Llegó tarde')
+            ->assertDontSee('Duración')->getContent();
+        $this->assertStringContainsString('name="chips[]"', $html);
+        $this->assertStringNotContainsString('name="answers[', $html);
+    }
+
+    public function test_editar_precarga_lo_enviado_y_se_bloquea_al_publicar(): void
+    {
+        $admin = $this->adminUser();
+        $report = $this->makeReport($admin);
+        $chip = SurveyQuestion::where('kind', 'positive')->where('label', 'Rapidez')->first();
+        $svc = app(\App\Services\SatisfactionSurveyService::class);
+        $rating = $svc->submit($report, ['card_id' => SurveyCard::where('stars', 5)->first()->id, 'chips' => [$chip->id], 'comment' => 'Texto previo']);
+
+        $this->actingAs($admin);
+        $this->get(route('admin.service-reports.rate', $report))->assertOk()
+            ->assertSee('Editar calificación')->assertSee('Ver reporte')->assertSee(route('admin.service-reports.show', $report), false);
+
+        $form = $this->get(route('admin.service-reports.rate', $report) . '?editar=1')->assertOk()
+            ->assertSee('Texto previo')->assertSee('checked', false)->getContent();
+        $this->assertMatchesRegularExpression('/name="chips\[\]" value="' . $chip->id . '" checked/', $form);
+
+        $page = $this->makeServicePage('Pub');
+        $review = \App\Models\ServicePageReview::create([
+            'service_page_id' => $page->id, 'customer_name' => 'X', 'review_date' => now(), 'rating' => 5,
+            'is_visible' => true, 'comment' => 'x', 'service_rating_id' => $rating->id, 'source' => 'client',
+        ]);
+        $rating->update(['service_page_review_id' => $review->id]);
+
+        $this->get(route('admin.service-reports.rate', $report))->assertOk()->assertDontSee('Editar calificación');
+        $this->get(route('admin.service-reports.rate', $report) . '?editar=1')->assertOk()->assertDontSee('name="chips[]"', false);
         $this->post(route('admin.service-reports.rate', $report), ['card_id' => SurveyCard::where('stars', 1)->first()->id])
             ->assertSessionHasErrors('report');
         $this->assertSame(5, $rating->fresh()->rating);
@@ -266,8 +325,8 @@ class SurveyHttpTest extends TestCase
 
         $r1 = $this->makeReport($admin, $this->makeCustomer(), ['customer_name' => 'Cliente Cinco', 'service_page_id' => $page->id]);
         $r2 = $this->makeReport($admin, $this->makeCustomer(), ['customer_name' => '=HYPERLINK("x")']);
-        $q = SurveyQuestion::first();
-        $svc->submit($r1, ['card_id' => SurveyCard::where('stars', 5)->first()->id, 'answers' => [$q->id => 5], 'comment' => 'Genial']);
+        $q = SurveyQuestion::where('kind', 'positive')->first();
+        $svc->submit($r1, ['card_id' => SurveyCard::where('stars', 5)->first()->id, 'chips' => [$q->id], 'comment' => 'Genial']);
         $svc->submit($r2, ['card_id' => SurveyCard::where('stars', 2)->first()->id]);
 
         $this->actingAs($admin);

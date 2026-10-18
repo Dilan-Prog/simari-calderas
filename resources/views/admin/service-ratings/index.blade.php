@@ -65,7 +65,7 @@
                 <div class="erp-table-wrap">
                     <table class="erp-table">
                         <thead>
-                            <tr><th>Cliente</th><th>Reporte</th><th>Servicio web</th><th>Calificación</th><th>Tarjeta</th><th>Prom. variables</th><th>Fecha</th><th>Estado</th></tr>
+                            <tr><th>Cliente</th><th>Reporte</th><th>Servicio web</th><th>Calificación</th><th>Tarjeta</th><th>Opciones</th><th>Fecha</th><th>Estado</th></tr>
                         </thead>
                         <tbody>
                             @foreach ($ratings as $r)
@@ -75,7 +75,7 @@
                                     <td>{{ $r->servicePage?->name ?? '—' }}</td>
                                     <td>@if ($r->rating)<span style="color:#f59e0b;" title="{{ $r->rating }} de 5">{{ $stars($r->rating) }}</span>@else — @endif</td>
                                     <td>{{ $r->card_label ?? '—' }}</td>
-                                    <td>{{ $r->answers_avg !== null ? number_format($r->answers_avg, 1) : '—' }}</td>
+                                    <td>@if ($r->chips_good || $r->chips_bad)<span title="Lo mejor" style="color:#15803d;font-weight:600;">+{{ $r->chips_good }}</span> <span title="A mejorar" style="color:#b45309;font-weight:600;">&minus;{{ $r->chips_bad }}</span>@else — @endif</td>
                                     <td>{{ ($r->submitted_at ?? $r->created_at)?->format('d/m/Y H:i') }}</td>
                                     <td><x-erp.chip :tone="$tones[$r->status] ?? 'neu'" :label="$statusLabels[$r->status] ?? $r->status" /></td>
                                 </tr>

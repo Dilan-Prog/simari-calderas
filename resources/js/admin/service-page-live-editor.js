@@ -1586,7 +1586,9 @@ import { renderCollectionGeneralPanel, renderCollectionProductsPanel } from './l
     function clientRatingRowHtml(cr, opts) {
         const stars = `${'★'.repeat(cr.rating || 0)}${'☆'.repeat(5 - (cr.rating || 0))}`;
         const comment = cr.comment || '';
-        const chips = (cr.answers || []).map((a) => `<span class="users-manager-badge status" style="font-size:10px;margin:2px 3px 0 0;">${escHtml(a.label)} ${a.score}</span>`).join('');
+        const chips = (cr.answers || []).map((a) => (a.kind === 'negative'
+            ? `<span class="users-manager-badge status" style="font-size:10px;margin:2px 3px 0 0;background:#fffbeb;color:#b45309;border:1px solid #fcd34d;" title="A mejorar">&minus; ${escHtml(a.label)}</span>`
+            : `<span class="users-manager-badge status" style="font-size:10px;margin:2px 3px 0 0;" title="Lo mejor">${escHtml(a.label)}</span>`)).join('');
         return `
             ${opts.shown ? `<div class="service-review-row__drag" title="Arrastrar para reordenar">
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="5" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="9" cy="19" r="1"/><circle cx="15" cy="5" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="19" r="1"/></svg>

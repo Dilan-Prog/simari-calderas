@@ -63,8 +63,9 @@ class ServicePageReview extends Model
     }
 
     /**
-     * Promedio por variable de la encuesta (Limpieza, Ordenado…) de las
-     * opiniones de cliente entre las reseñas dadas.
+     * Promedio por aspecto de la encuesta (Limpieza, Puntualidad…) de las
+     * opiniones de cliente entre las reseñas dadas. Solo cuenta las respuestas
+     * `positive`; las "a mejorar" son internas (admin).
      *
      * @return \Illuminate\Support\Collection  [{label, average, count}]
      */
@@ -76,6 +77,7 @@ class ServicePageReview extends Model
         }
 
         return ServiceRatingAnswer::whereIn('service_rating_id', $ratingIds)
+            ->where('kind', 'positive') // las opciones "a mejorar" nunca se publican como promedio
             ->orderBy('id')
             ->get()
             ->groupBy('question_label')

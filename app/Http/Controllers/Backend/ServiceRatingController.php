@@ -30,17 +30,17 @@ class ServiceRatingController extends Controller
             try {
                 $this->survey->submit($report, [
                     'card_id' => $request->input('card_id'),
-                    'answers' => (array) $request->input('answers', []),
+                    'chips'   => (array) $request->input('chips', []),
                     'comment' => $request->input('comment'),
                 ]);
             } catch (ValidationException $e) {
-                return redirect()->route('admin.service-reports.rate', $report)->withInput()->withErrors($e->errors());
+                return redirect(route('admin.service-reports.rate', $report) . ($request->boolean('editar') ? '?editar=1' : ''))->withInput()->withErrors($e->errors());
             }
 
             return redirect()->route('admin.service-reports.rate', $report)->with('rated', true);
         }
 
-        $data = $this->survey->screenData($report, (bool) session('rated'));
+        $data = $this->survey->screenData($report, (bool) session('rated'), $request->boolean('editar'));
         if ($data === null) {
             return redirect($show)->with('error', 'Este reporte no se puede calificar (debe estar firmado y la encuesta activa).');
         }
@@ -49,6 +49,8 @@ class ServiceRatingController extends Controller
             'action'     => route('admin.service-reports.rate', $report),
             'skipAction' => route('admin.service-reports.rate.skip', $report),
             'backUrl'    => $show,
+            'reportUrl'  => $show,
+            'editUrl'    => route('admin.service-reports.rate', $report) . '?editar=1',
         ]);
     }
 
@@ -67,7 +69,10 @@ class ServiceRatingController extends Controller
     private function filtered(Request $request)
     {
         $q = ServiceRating::query()->with(['report', 'servicePage', 'card'])
-            ->withAvg('answers as answers_avg', 'score');
+            ->withCount([
+                'answers as chips_good' => fn ($a) => $a->where('kind', 'positive'),
+                'answers as chips_bad'  => fn ($a) => $a->where('kind', 'negative'),
+            ]);
 
         if ($request->filled('service_page_id')) {
             $request->service_page_id === 'none'
@@ -160,7 +165,7 @@ class ServiceRatingController extends Controller
         return response()->streamDownload(function () use ($rows) {
             $out = fopen('php://output', 'w');
             fwrite($out, "\xEF\xBB\xBF");
-            fputcsv($out, ['Cliente', 'Reporte', 'Servicio web', 'Estrellas', 'Tarjeta', 'Promedio variables', 'Comentario', 'Estado', 'Fecha']);
+            fputcsv($out, ['Cliente', 'Reporte', 'Servicio web', 'Estrellas', 'Tarjeta', 'Opciones destacadas', 'Opciones a mejorar', 'Comentario', 'Estado', 'Fecha']);
             foreach ($rows as $r) {
                 fputcsv($out, [
                     $this->csvSafe($r->customer_name),
@@ -168,7 +173,8 @@ class ServiceRatingController extends Controller
                     $r->servicePage?->name,
                     $r->rating,
                     $r->card_label,
-                    $r->answers_avg !== null ? round($r->answers_avg, 2) : '',
+                    (int) $r->chips_good,
+                    (int) $r->chips_bad,
                     $this->csvSafe($r->comment),
                     ['pending' => 'Pendiente', 'submitted' => 'Enviada', 'skipped' => 'Omitida'][$r->status] ?? $r->status,
                     ($r->submitted_at ?? $r->created_at)?->format('Y-m-d H:i'),

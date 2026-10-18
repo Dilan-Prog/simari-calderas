@@ -112,7 +112,7 @@ class ServiceRatingsPublishTest extends TestCase
         $res = $this->actingAs($this->admin)->getJson(route('admin.service-pages.client-ratings.index', $a))->assertOk();
         $this->assertCount(1, $res->json('ratings'));
         $this->assertSame($mine->id, $res->json('ratings.0.id'));
-        $this->assertSame([['label' => 'Limpieza', 'score' => 5]], $res->json('ratings.0.answers'));
+        $this->assertSame([['label' => 'Limpieza', 'kind' => 'positive', 'score' => 5]], $res->json('ratings.0.answers'));
         $this->assertFalse($res->json('ratings.0.is_published'));
     }
 
@@ -237,6 +237,27 @@ class ServiceRatingsPublishTest extends TestCase
 
         $off = $this->blockHtml($page, ['show_breakdown' => false]);
         $this->assertStringNotContainsString('Promedio por aspecto', $off);
+    }
+
+    public function test_desglose_publico_ignora_las_respuestas_a_mejorar(): void
+    {
+        $page = $this->page();
+        $r1 = $this->rating($page, [], ['Puntualidad' => 5]);
+        $r2 = $this->rating($page, ['rating' => 2], []);
+        ServiceRatingAnswer::create(['service_rating_id' => $r2->id, 'question_label' => 'Llegó tarde', 'kind' => 'negative', 'score' => 1]);
+        ServiceRatingAnswer::create(['service_rating_id' => $r2->id, 'question_label' => 'Puntualidad', 'kind' => 'positive', 'score' => 5]);
+        $this->publish($page, $r1);
+        $this->publish($page, $r2);
+
+        $breakdown = ServicePageReview::breakdownFor($page->visibleReviews()->get());
+        $this->assertSame(['Puntualidad' => 5.0], $breakdown->pluck('average', 'label')->all());
+        $this->assertSame(2, $breakdown->first()['count']);
+        $this->assertStringNotContainsString('Llegó tarde', $this->blockHtml($page, ['show_breakdown' => true]));
+
+        // el admin sí recibe los chips a mejorar, etiquetados
+        $res = $this->actingAs($this->admin)->getJson(route('admin.service-pages.client-ratings.index', $page))->assertOk();
+        $kinds = collect($res->json('ratings'))->flatMap(fn ($r) => $r['answers'])->pluck('kind', 'label')->all();
+        $this->assertSame('negative', $kinds['Llegó tarde']);
     }
 
     public function test_resena_de_cliente_no_permite_editar_nombre_ni_comentario(): void

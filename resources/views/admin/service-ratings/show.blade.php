@@ -30,18 +30,26 @@
             <p style="margin:12px 0 0;"><x-erp.chip :tone="$tones[$rating->status] ?? 'neu'" :label="$statusLabels[$rating->status] ?? $rating->status" /></p>
         </x-erp.card>
 
-        <x-erp.card title="Respuestas por variable" style="margin-top:14px;">
+        <x-erp.card title="Opciones elegidas" style="margin-top:14px;">
             @if ($rating->answers->isEmpty())
-                <x-erp.empty title="Sin respuestas" text="El cliente no calificó variables individuales." />
+                <x-erp.empty title="Sin opciones" text="El cliente no eligió opciones adicionales." />
             @else
-                <div class="erp-table-wrap"><table class="erp-table">
-                    <thead><tr><th>Variable</th><th>Puntaje</th></tr></thead>
-                    <tbody>
-                        @foreach ($rating->answers as $a)
-                            <tr><td>{{ $a->question_label }}</td><td><span style="color:#f59e0b;">{{ $stars($a->score) }}</span> ({{ $a->score }}/5)</td></tr>
-                        @endforeach
-                    </tbody>
-                </table></div>
+                @php
+                    $good = $rating->answers->where('kind', '!=', 'negative');
+                    $bad = $rating->answers->where('kind', 'negative');
+                @endphp
+                @if ($good->isNotEmpty())
+                    <p style="margin:0 0 6px;font-size:12.5px;font-weight:600;color:#6b7280;">Lo mejor</p>
+                    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;">
+                        @foreach ($good as $a)<span class="erp-chip" style="background:#ecfdf5;color:#047857;border:1px solid #a7f3d0;border-radius:999px;padding:3px 10px;font-size:12.5px;font-weight:600;">{{ $a->question_label }}</span>@endforeach
+                    </div>
+                @endif
+                @if ($bad->isNotEmpty())
+                    <p style="margin:0 0 6px;font-size:12.5px;font-weight:600;color:#b45309;">A mejorar</p>
+                    <div style="display:flex;flex-wrap:wrap;gap:6px;">
+                        @foreach ($bad as $a)<span class="erp-chip" style="background:#fffbeb;color:#b45309;border:1px solid #fcd34d;border-radius:999px;padding:3px 10px;font-size:12.5px;font-weight:600;">{{ $a->question_label }}</span>@endforeach
+                    </div>
+                @endif
             @endif
         </x-erp.card>
 

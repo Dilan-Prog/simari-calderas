@@ -804,12 +804,14 @@
     .sr-show-wrap .sr-show-topbar { flex-direction: column; gap: 8px; margin-bottom: 16px; }
     .sr-show-wrap .sr-show-title { font-size: 20px; }
     .sr-show-wrap .sr-doc-meas-wrap { -webkit-overflow-scrolling: touch; }
-    /* Barra inferior compacta: la acción principal (Firmar) en una fila completa y las secundarias
-       (PDF / Editar / Eliminar) en una sola fila de 3 columnas, en vez de 4 botones apilados que
-       tapaban media pantalla. box-sizing evita que los botones se salgan del ancho. */
+    /* Barra de acciones PEGADA al fondo de la pantalla (fija) en teléfono y tablet. Tablet: acción
+       principal en una fila y PDF / Editar / Eliminar en 3 columnas. Teléfono (< 640px): 4 botones
+       verticales grandes (las pantallas son chicas). El espacio inferior de la página
+       (.sr-show-wrap padding-bottom) evita que la barra tape el contenido. */
     .sr-show-wrap .sr-show-mobile-actions {
-        position: sticky; bottom: 0; background: #fff; z-index: 20; padding: 10px 12px;
-        border-top: 1px solid #E5E7EB; box-shadow: 0 -4px 12px rgba(0,0,0,0.08);
+        position: fixed; left: 0; right: 0; bottom: 0; z-index: 60; background: #fff;
+        padding: 10px 12px calc(10px + env(safe-area-inset-bottom, 0px));
+        border-top: 1px solid #E5E7EB; box-shadow: 0 -4px 12px rgba(0,0,0,0.10);
         display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px;
         box-sizing: border-box; width: 100%;
     }
@@ -817,11 +819,12 @@
     .sr-show-wrap .sr-show-mobile-actions > form { margin: 0; display: block; }
     .sr-show-wrap .sr-show-mobile-actions .sr-btn,
     .sr-show-wrap .sr-show-mobile-actions .sr-btn-danger-link {
-        width: 100%; box-sizing: border-box; height: 42px; padding: 0 6px; justify-content: center; text-align: center;
-        font-size: 13px; display: flex; align-items: center; gap: 5px; line-height: 1.1; white-space: normal; margin: 0;
+        width: 100%; box-sizing: border-box; height: 46px; padding: 0 8px; justify-content: center; text-align: center;
+        font-size: 14px; display: flex; align-items: center; gap: 6px; line-height: 1.1; white-space: normal; margin: 0;
     }
     .sr-show-wrap .sr-show-mobile-actions > :first-child .sr-btn,
-    .sr-show-wrap .sr-show-mobile-actions > .sr-btn:first-child { height: 48px; font-size: 15px; }
+    .sr-show-wrap .sr-show-mobile-actions > .sr-btn:first-child { height: 52px; font-size: 16px; }
+    .sr-show-wrap { padding-bottom: 150px; }
     .sr-show-wrap .sr-btn-danger-link {
         height: 40px; padding: 0 16px; border-radius: 6px; font-size: 13px; font-weight: 500;
         font-family: var(--font-family); cursor: pointer; display: inline-flex; align-items: center;
@@ -850,3 +853,13 @@
 }
 .sr-show-wrap form[action*="attach-service"] .sr-btn { height: 44px; }
 @media (max-width: 1023px) { .sr-show-wrap form[action*="attach-service"] .sr-btn { height: 48px; font-size: 15px; } }
+
+/* Teléfono: 4 botones verticales, uno por fila, grandes y fáciles de tocar. */
+@media (max-width: 639px) {
+    .sr-show-wrap { padding-bottom: 290px; }
+    .sr-show-wrap .sr-show-mobile-actions { grid-template-columns: 1fr; gap: 8px; }
+    .sr-show-wrap .sr-show-mobile-actions .sr-btn,
+    .sr-show-wrap .sr-show-mobile-actions .sr-btn-danger-link { height: 52px; font-size: 16px; }
+    .sr-show-wrap .sr-show-mobile-actions > :first-child .sr-btn,
+    .sr-show-wrap .sr-show-mobile-actions > .sr-btn:first-child { height: 56px; font-size: 17px; }
+}

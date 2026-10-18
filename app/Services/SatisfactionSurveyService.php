@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 /**
- * "Califica este servicio": tarjetas de calificación + encuesta de satisfacción.
+ * "Califica este servicio": tarjetas de calificación + chips de satisfacción.
  * Todo el comportamiento vive aquí; los controladores solo delegan.
  */
 class SatisfactionSurveyService
@@ -22,16 +22,20 @@ class SatisfactionSurveyService
     public const DEFAULT_SETTINGS = [
         'survey.enabled'                 => ['1', 'boolean'],
         'survey.title'                   => ['Califica este servicio', 'string'],
-        'survey.subtitle'                => ['¿Qué te pareció el servicio que recibiste?', 'string'],
+        'survey.subtitle'                => ['¿Qué te pareció la atención que recibiste? Toma menos de un minuto.', 'string'],
         'survey.questions_title'         => ['Ayúdanos con una encuesta rápida', 'string'],
-        'survey.comment_label'           => ['Cuéntanos más (opcional)', 'string'],
+        'survey.comment_label'           => ['Comentarios', 'string'],
         'survey.submit_label'            => ['Enviar calificación', 'string'],
         'survey.thanks_message'          => ['¡Gracias por tu opinión! Nos ayuda a mejorar cada servicio.', 'string'],
-        'survey.name_label'              => ['Cliente', 'string'],
+        'survey.name_label'              => ['Calificación a nombre de', 'string'],
+        'survey.good_title'              => ['¿Qué fue lo mejor?', 'string'],
+        'survey.bad_title'               => ['¿Qué podemos mejorar?', 'string'],
+        'survey.thanks_good'             => ['Compartiremos tus comentarios con {tecnico} y el equipo de servicio de Equiterm.', 'string'],
+        'survey.thanks_bad'              => ['Lamentamos tu experiencia. Un coordinador de servicio revisará tu caso y te contactará en menos de 24 horas.', 'string'],
         'survey.default_service_by_type' => ['{}', 'json'],
     ];
 
-    public const COMMENT_MAX = 1000;
+    public const COMMENT_MAX = 500;
 
     public function text(string $key): string
     {
@@ -51,9 +55,31 @@ class SatisfactionSurveyService
         return SurveyCard::active()->get();
     }
 
+    /** Chips activos (ambos tipos). */
     public function questions(): Collection
     {
         return SurveyQuestion::active()->get();
+    }
+
+    /** Chips activos de un tipo: positive (>= 4 estrellas) o negative (< 4). */
+    public function chipsFor(string $kind): Collection
+    {
+        return SurveyQuestion::active()->where('kind', $kind)->get();
+    }
+
+    /** Un nivel de 4 o 5 estrellas muestra "lo mejor"; menos, "a mejorar". */
+    public static function kindForStars(int $stars): string
+    {
+        return $stars >= 4 ? SurveyQuestion::KIND_POSITIVE : SurveyQuestion::KIND_NEGATIVE;
+    }
+
+    /** Una calificación enviada se puede editar mientras no se haya publicado como reseña. */
+    public function isEditable(?ServiceRating $rating): bool
+    {
+        return $rating !== null
+            && $rating->status === ServiceRating::STATUS_SUBMITTED
+            && empty($rating->service_page_review_id)
+            && $this->enabled();
     }
 
     /** @return array<string,int> tipo de reporte => service_page_id */
@@ -157,9 +183,12 @@ class SatisfactionSurveyService
     }
 
     /**
-     * Guarda la calificación. El nombre del cliente NUNCA se toma de $data.
+     * Guarda (o edita, si aún no se publica como reseña) la calificación.
+     * El nombre del cliente NUNCA se toma de $data.
+     * Los chips son opcionales: con >= 4 estrellas solo valen los `positive` (score 5);
+     * con menos, solo los `negative` (score 1).
      *
-     * @param array{card_id:int|string|null, answers?:array<int|string,mixed>|null, comment?:?string} $data
+     * @param array{card_id:int|string|null, chips?:array<int|string>|null, comment?:?string} $data
      * @throws ValidationException
      */
     public function submit(ServiceReport $report, array $data): ServiceRating
@@ -181,27 +210,28 @@ class SatisfactionSurveyService
             throw ValidationException::withMessages(['comment' => 'El comentario no puede pasar de ' . self::COMMENT_MAX . ' caracteres.']);
         }
 
-        $answers = [];
-        foreach ((array) ($data['answers'] ?? []) as $questionId => $score) {
-            if ($score === null || $score === '') {
-                continue; // responder cada variable es opcional
+        $kind = self::kindForStars((int) $card->stars);
+        $chips = [];
+        foreach (array_unique((array) ($data['chips'] ?? [])) as $chipId) {
+            if (filter_var($chipId, FILTER_VALIDATE_INT) === false) {
+                throw ValidationException::withMessages(['chips' => 'Una de las opciones elegidas no es válida.']);
             }
-            $question = SurveyQuestion::active()->where('id', (int) $questionId)->first();
-            if (!$question) {
-                throw ValidationException::withMessages(['answers' => 'Una de las variables de la encuesta ya no está disponible.']);
+            $chip = SurveyQuestion::active()->where('id', (int) $chipId)->first();
+            if (!$chip) {
+                throw ValidationException::withMessages(['chips' => 'Una de las opciones de la encuesta ya no está disponible.']);
             }
-            if (filter_var($score, FILTER_VALIDATE_INT) === false || (int) $score < 1 || (int) $score > 5) {
-                throw ValidationException::withMessages(['answers' => "La calificación de «{$question->label}» debe estar entre 1 y 5."]);
+            if ($chip->kind !== $kind) {
+                throw ValidationException::withMessages(['chips' => 'Las opciones elegidas no corresponden a la calificación seleccionada.']);
             }
-            $answers[$question->id] = ['question' => $question, 'score' => (int) $score];
+            $chips[$chip->id] = $chip;
         }
 
-        return DB::transaction(function () use ($report, $card, $comment, $answers) {
+        return DB::transaction(function () use ($report, $card, $comment, $chips, $kind) {
             $this->ratingFor($report); // asegura la fila
             $rating = ServiceRating::where('service_report_id', $report->id)->lockForUpdate()->first();
 
-            if ($rating->status === ServiceRating::STATUS_SUBMITTED) {
-                throw ValidationException::withMessages(['report' => 'Este servicio ya fue calificado.']);
+            if ($rating->status === ServiceRating::STATUS_SUBMITTED && !$this->isEditable($rating)) {
+                throw ValidationException::withMessages(['report' => 'Esta calificación ya se publicó en el sitio web y no se puede modificar.']);
             }
 
             $rating->update([
@@ -214,11 +244,12 @@ class SatisfactionSurveyService
             ]);
 
             $rating->answers()->delete();
-            foreach ($answers as $a) {
+            foreach ($chips as $chip) {
                 $rating->answers()->create([
-                    'survey_question_id' => $a['question']->id,
-                    'question_label'     => $a['question']->label,
-                    'score'              => $a['score'],
+                    'survey_question_id' => $chip->id,
+                    'question_label'     => $chip->label,
+                    'kind'               => $kind,
+                    'score'              => $kind === SurveyQuestion::KIND_POSITIVE ? 5 : 1,
                 ]);
             }
 
@@ -238,11 +269,27 @@ class SatisfactionSurveyService
         return $rating;
     }
 
+    /** Técnico del servicio: usuario asignado o, si no, quien creó el reporte. */
+    public function technicianFor(ServiceReport $report): array
+    {
+        $user = $report->assignedUser ?: $report->createdBy;
+        $name = $user ? trim(($user->first_name ?? '') . ' ' . ($user->last_name ?? '')) : '';
+        $words = preg_split('/\s+/', $name, -1, PREG_SPLIT_NO_EMPTY) ?: [];
+        $initials = mb_strtoupper(collect($words)->map(fn ($w) => mb_substr($w, 0, 1))->take(2)->implode(''));
+
+        return [
+            'name'     => $name !== '' ? $name : 'Equipo de servicio',
+            'first'    => $words[0] ?? 'el técnico',
+            'initials' => $initials !== '' ? $initials : 'ES',
+        ];
+    }
+
     /**
      * Datos de la pantalla "Califica este servicio" (compartida por admin y portal).
      * Devuelve null si el reporte no puede calificarse ni tiene calificación enviada.
+     * $editing: abre el formulario precargado con lo ya enviado (solo si aún es editable).
      */
-    public function screenData(ServiceReport $report, bool $justSubmitted = false): ?array
+    public function screenData(ServiceReport $report, bool $justSubmitted = false, bool $editing = false): ?array
     {
         $submitted = $this->submittedFor($report);
 
@@ -252,21 +299,46 @@ class SatisfactionSurveyService
 
         $rating = $submitted ?: $this->ratingFor($report);
         $rating->loadMissing('card');
+        $report->loadMissing(['servicePage', 'assignedUser', 'createdBy']);
+
+        $canEdit = $submitted ? $this->isEditable($submitted) : false;
+        $editing = $editing && $canEdit;
 
         $texts = [];
         foreach (array_keys(self::DEFAULT_SETTINGS) as $key) {
             $texts[$key] = $this->text($key);
         }
 
+        $tech = $this->technicianFor($report);
+        $title = $report->servicePage?->name ?: ($report->service_type_label ?: 'Servicio');
+
+        $chips = $this->questions()
+            ->map(fn ($q) => ['id' => $q->id, 'label' => $q->label, 'kind' => $q->kind])
+            ->values()->all();
+
         return [
             'report'        => $report,
             'rating'        => $rating,
-            'done'          => (bool) $submitted,
+            'done'          => (bool) $submitted && !$editing,
+            'editing'       => $editing,
+            'canEdit'       => $canEdit,
             'justSubmitted' => $justSubmitted,
             'cards'         => $this->cards(),
-            'questions'     => $this->questions(),
+            'chips'         => $chips,
             'texts'         => $texts,
             'commentMax'    => self::COMMENT_MAX,
+            'serviceTitle'  => $title,
+            'tech'          => $tech,
+            'prefill'       => $submitted ? [
+                'card_id' => $submitted->survey_card_id,
+                'chips'   => $submitted->answers->pluck('survey_question_id')->filter()->values()->all(),
+                'comment' => (string) $submitted->comment,
+            ] : null,
+            'thanksMessage' => str_replace(
+                '{tecnico}',
+                $tech['first'],
+                $this->text(((int) $rating->rating) >= 4 ? 'survey.thanks_good' : 'survey.thanks_bad')
+            ),
         ];
     }
 

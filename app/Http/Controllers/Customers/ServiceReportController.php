@@ -88,17 +88,17 @@ class ServiceReportController extends Controller
             try {
                 $this->survey->submit($report, [
                     'card_id' => $request->input('card_id'),
-                    'answers' => (array) $request->input('answers', []),
+                    'chips'   => (array) $request->input('chips', []),
                     'comment' => $request->input('comment'),
                 ]);
             } catch (ValidationException $e) {
-                return redirect()->route('customer.service-reports.rate', $report)->withInput()->withErrors($e->errors());
+                return redirect(route('customer.service-reports.rate', $report) . ($request->boolean('editar') ? '?editar=1' : ''))->withInput()->withErrors($e->errors());
             }
 
             return redirect()->route('customer.service-reports.rate', $report)->with('rated', true);
         }
 
-        $data = $this->survey->screenData($report, (bool) session('rated'));
+        $data = $this->survey->screenData($report, (bool) session('rated'), $request->boolean('editar'));
         if ($data === null) {
             return redirect($show)->with('error', 'Este reporte no se puede calificar por ahora.');
         }
@@ -107,6 +107,8 @@ class ServiceReportController extends Controller
             'action'     => route('customer.service-reports.rate', $report),
             'skipAction' => route('customer.service-reports.rate.skip', $report),
             'backUrl'    => $show,
+            'reportUrl'  => $show,
+            'editUrl'    => route('customer.service-reports.rate', $report) . '?editar=1',
         ]);
     }
 

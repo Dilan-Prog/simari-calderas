@@ -73,7 +73,8 @@ class SurveySettingController extends Controller
 
     public function storeQuestion(Request $request): RedirectResponse
     {
-        $data = $request->validate(['label' => 'required|string|max:120']);
+        $data = $request->validate(['label' => 'required|string|max:120', 'kind' => 'nullable|in:positive,negative']);
+        $data['kind'] = $data['kind'] ?? SurveyQuestion::KIND_POSITIVE;
         SurveyQuestion::create($data + ['is_active' => true, 'sort_order' => (int) SurveyQuestion::max('sort_order') + 1]);
 
         return $this->back('Variable agregada.');
@@ -81,7 +82,10 @@ class SurveySettingController extends Controller
 
     public function updateQuestion(Request $request, SurveyQuestion $question): RedirectResponse
     {
-        $data = $request->validate(['label' => 'required|string|max:120']);
+        $data = $request->validate(['label' => 'required|string|max:120', 'kind' => 'nullable|in:positive,negative']);
+        if (empty($data['kind'])) {
+            unset($data['kind']); // sin tipo en la petición: conserva el actual
+        }
         $question->update($data + ['is_active' => $request->boolean('is_active')]);
 
         return $this->back('Variable actualizada.');
@@ -134,6 +138,10 @@ class SurveySettingController extends Controller
             'survey_comment_label' => 'required|string|max:120',
             'survey_submit_label'  => 'required|string|max:60',
             'survey_thanks_message' => 'required|string|max:500',
+            'survey_good_title'    => 'nullable|string|max:120',
+            'survey_bad_title'     => 'nullable|string|max:120',
+            'survey_thanks_good'   => 'nullable|string|max:500',
+            'survey_thanks_bad'    => 'nullable|string|max:500',
             'survey_name_label'    => 'required|string|max:60',
             'service_by_type'      => 'nullable|array',
             'service_by_type.*'    => 'nullable|integer|exists:service_pages,id',
@@ -155,6 +163,10 @@ class SurveySettingController extends Controller
             'survey.submit_label'            => [$request->input('survey_submit_label'), 'string'],
             'survey.thanks_message'          => [$request->input('survey_thanks_message'), 'string'],
             'survey.name_label'              => [$request->input('survey_name_label'), 'string'],
+            'survey.good_title'              => [$request->input('survey_good_title') ?? '', 'string'],
+            'survey.bad_title'               => [$request->input('survey_bad_title') ?? '', 'string'],
+            'survey.thanks_good'             => [$request->input('survey_thanks_good') ?? '', 'string'],
+            'survey.thanks_bad'              => [$request->input('survey_thanks_bad') ?? '', 'string'],
             'survey.default_service_by_type' => [json_encode($map), 'json'],
         ];
 

@@ -66,31 +66,42 @@
         <button type="submit" class="pform-btn primary">+ Agregar</button>
     </form>
 
-    {{-- ── Variables ────────────────────────────────────────────────────── --}}
-    <h3 class="pform-label" style="font-size:14px; margin:6px 0 8px;">Variables de la encuesta</h3>
-    <div class="table-scroll" style="margin-bottom:14px;">
-        <table class="clients-manager-table">
-            <thead><tr><th>VARIABLE</th><th style="width:110px;">ESTADO</th><th style="width:260px;">ACCIONES</th></tr></thead>
-            <tbody>
-                @forelse ($sv['questions'] as $q)
-                    <tr>
-                        <td><input type="text" class="pform-input" name="label" value="{{ $q->label }}" maxlength="120" required form="svQ{{ $q->id }}" aria-label="Variable"></td>
-                        <td><label style="display:flex;align-items:center;gap:6px;font-size:13px;"><input type="checkbox" name="is_active" value="1" form="svQ{{ $q->id }}" @checked($q->is_active)> {{ $q->is_active ? 'Activa' : 'Inactiva' }}</label></td>
-                        <td>
-                            <div class="actions-container">
-                                <button type="submit" form="svQ{{ $q->id }}" class="pform-btn outline" style="padding:6px 10px;">Guardar</button>
-                                <button type="submit" form="svQUp{{ $q->id }}" class="pform-btn outline" style="padding:6px 10px;" title="Subir" aria-label="Subir">↑</button>
-                                <button type="submit" form="svQDown{{ $q->id }}" class="pform-btn outline" style="padding:6px 10px;" title="Bajar" aria-label="Bajar">↓</button>
-                                <button type="submit" form="svQDel{{ $q->id }}" class="pform-btn outline" style="padding:6px 10px;color:#dc2626;border-color:#fca5a5;">Eliminar</button>
-                            </div>
-                        </td>
-                    </tr>
-                @empty
-                    <tr><td colspan="3" style="text-align:center;padding:20px;color:#6b7280;">Sin variables. La encuesta mostrará solo las tarjetas y el comentario.</td></tr>
-                @endforelse
-            </tbody>
-        </table>
-    </div>
+    {{-- ── Variables (chips) ────────────────────────────────────────────── --}}
+    <h3 class="pform-label" style="font-size:14px; margin:6px 0 4px;">Variables de la encuesta</h3>
+    <p class="pform-hint" style="margin-bottom:10px;">Se muestran como chips seleccionables según el nivel que elija el cliente: con 4 o 5 estrellas aparecen las de “Lo mejor”; con menos, las de “A mejorar”. Elegir un chip es opcional.</p>
+    @foreach (['positive' => 'Lo mejor', 'negative' => 'A mejorar'] as $kind => $kindLabel)
+        @php $group = $sv['questions']->where('kind', $kind); @endphp
+        <h4 class="pform-label" style="font-size:13px; margin:10px 0 6px;">{{ $kindLabel }} <span style="font-weight:400;color:#6b7280;">({{ $kind === 'positive' ? '4 y 5 estrellas' : '1 a 3 estrellas' }})</span></h4>
+        <div class="table-scroll" style="margin-bottom:10px;">
+            <table class="clients-manager-table">
+                <thead><tr><th>VARIABLE</th><th style="width:150px;">TIPO</th><th style="width:110px;">ESTADO</th><th style="width:260px;">ACCIONES</th></tr></thead>
+                <tbody>
+                    @forelse ($group as $q)
+                        <tr>
+                            <td><input type="text" class="pform-input" name="label" value="{{ $q->label }}" maxlength="120" required form="svQ{{ $q->id }}" aria-label="Variable"></td>
+                            <td>
+                                <select class="pform-select" name="kind" form="svQ{{ $q->id }}" aria-label="Tipo">
+                                    <option value="positive" @selected($q->kind === 'positive')>Lo mejor</option>
+                                    <option value="negative" @selected($q->kind === 'negative')>A mejorar</option>
+                                </select>
+                            </td>
+                            <td><label style="display:flex;align-items:center;gap:6px;font-size:13px;"><input type="checkbox" name="is_active" value="1" form="svQ{{ $q->id }}" @checked($q->is_active)> {{ $q->is_active ? 'Activa' : 'Inactiva' }}</label></td>
+                            <td>
+                                <div class="actions-container">
+                                    <button type="submit" form="svQ{{ $q->id }}" class="pform-btn outline" style="padding:6px 10px;">Guardar</button>
+                                    <button type="submit" form="svQUp{{ $q->id }}" class="pform-btn outline" style="padding:6px 10px;" title="Subir" aria-label="Subir">↑</button>
+                                    <button type="submit" form="svQDown{{ $q->id }}" class="pform-btn outline" style="padding:6px 10px;" title="Bajar" aria-label="Bajar">↓</button>
+                                    <button type="submit" form="svQDel{{ $q->id }}" class="pform-btn outline" style="padding:6px 10px;color:#dc2626;border-color:#fca5a5;">Eliminar</button>
+                                </div>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr><td colspan="4" style="text-align:center;padding:16px;color:#6b7280;">Sin variables de “{{ $kindLabel }}”. Ese nivel mostrará solo el comentario.</td></tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    @endforeach
     @foreach ($sv['questions'] as $q)
         <form id="svQ{{ $q->id }}" method="POST" action="{{ route('admin.erp-settings.survey.questions.update', $q) }}">@csrf @method('PUT')</form>
         <form id="svQUp{{ $q->id }}" method="POST" action="{{ route('admin.erp-settings.survey.questions.move', $q) }}">@csrf <input type="hidden" name="direction" value="up"></form>
@@ -98,9 +109,11 @@
         <form id="svQDel{{ $q->id }}" method="POST" action="{{ route('admin.erp-settings.survey.questions.destroy', $q) }}" onsubmit="return confirm('¿Eliminar la variable &quot;{{ $q->label }}&quot;? Las calificaciones ya enviadas conservan su texto.');">@csrf @method('DELETE')</form>
     @endforeach
 
-    <form method="POST" action="{{ route('admin.erp-settings.survey.questions.store') }}" style="display:flex;align-items:flex-end;gap:10px;margin-bottom:26px;">
+    <form method="POST" action="{{ route('admin.erp-settings.survey.questions.store') }}" style="display:flex;align-items:flex-end;gap:10px;flex-wrap:wrap;margin-bottom:26px;">
         @csrf
-        <div class="pform-field" style="margin-bottom:0;flex:1;"><label class="pform-label" for="svNewQ">Nueva variable</label><input type="text" id="svNewQ" class="pform-input" name="label" maxlength="120" placeholder="Ej. Limpieza" required></div>
+        <div class="pform-field" style="margin-bottom:0;flex:1;min-width:180px;"><label class="pform-label" for="svNewQ">Nueva variable</label><input type="text" id="svNewQ" class="pform-input" name="label" maxlength="120" placeholder="Ej. Puntualidad" required></div>
+        <div class="pform-field" style="margin-bottom:0;width:160px;"><label class="pform-label" for="svNewKind">Tipo</label>
+            <select id="svNewKind" class="pform-select" name="kind"><option value="positive">Lo mejor</option><option value="negative">A mejorar</option></select></div>
         <button type="submit" class="pform-btn primary">+ Agregar</button>
     </form>
 
@@ -119,6 +132,8 @@
                 ['survey_comment_label', 'survey.comment_label', 'Etiqueta del comentario', 120],
                 ['survey_submit_label', 'survey.submit_label', 'Texto del botón', 60],
                 ['survey_name_label', 'survey.name_label', 'Etiqueta del nombre del cliente', 60],
+                ['survey_good_title', 'survey.good_title', 'Título de “Lo mejor” (4 y 5 estrellas)', 120],
+                ['survey_bad_title', 'survey.bad_title', 'Título de “A mejorar” (1 a 3 estrellas)', 120],
             ] as [$name, $key, $label, $max])
                 <div class="pform-field" style="margin-bottom:0;">
                     <label class="pform-label" for="{{ $name }}">{{ $label }}</label>
@@ -128,6 +143,17 @@
             <div class="pform-field" style="margin-bottom:0;grid-column:1/-1;">
                 <label class="pform-label" for="survey_thanks_message">Mensaje de gracias</label>
                 <input type="text" id="survey_thanks_message" class="pform-input" name="survey_thanks_message" value="{{ old('survey_thanks_message', $sv['texts']['survey.thanks_message']) }}" maxlength="500">
+                <p class="pform-hint">Respaldo general. Los dos mensajes de abajo se muestran según el nivel elegido.</p>
+            </div>
+            <div class="pform-field" style="margin-bottom:0;grid-column:1/-1;">
+                <label class="pform-label" for="survey_thanks_good">Mensaje de gracias · 4 y 5 estrellas</label>
+                <input type="text" id="survey_thanks_good" class="pform-input" name="survey_thanks_good" value="{{ old('survey_thanks_good', $sv['texts']['survey.thanks_good']) }}" maxlength="500">
+                <p class="pform-hint">Usa <code>{tecnico}</code> para insertar el nombre del técnico.</p>
+            </div>
+            <div class="pform-field" style="margin-bottom:0;grid-column:1/-1;">
+                <label class="pform-label" for="survey_thanks_bad">Mensaje de gracias · 1 a 3 estrellas</label>
+                <input type="text" id="survey_thanks_bad" class="pform-input" name="survey_thanks_bad" value="{{ old('survey_thanks_bad', $sv['texts']['survey.thanks_bad']) }}" maxlength="500">
+                <p class="pform-hint">Admite <code>{tecnico}</code>.</p>
             </div>
         </div>
 

@@ -512,6 +512,7 @@ class ServicePageController extends Controller
             'date'          => ($rating->submitted_at ?? $rating->created_at)?->format('Y-m-d'),
             'answers'       => $rating->answers->map(fn ($a) => [
                 'label' => $a->question_label,
+                'kind'  => $a->kind ?: 'positive',
                 'score' => (int) $a->score,
             ])->values()->all(),
             'review_id'    => $review?->id,
