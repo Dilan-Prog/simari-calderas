@@ -289,6 +289,82 @@ class LeadService
         });
     }
 
+    /**
+     * Solicitud llegada por correo (n8n). Idempotente por message_id.
+     *
+     * @return array{duplicate:bool,lead_id:?int,task_id:?int,is_new_lead:bool,customer_id:?int,assigned_to:?int}
+     */
+    public function captureFromEmail(array $data): array
+    {
+        $existing = \App\Models\LeadInboundEmail::where('message_id', $data['message_id'])->first();
+        if ($existing) {
+            return [
+                'duplicate'   => true,
+                'lead_id'     => $existing->lead_id,
+                'task_id'     => $existing->task_id,
+                'is_new_lead' => $existing->is_new_lead,
+                'customer_id' => $existing->lead?->customer_id,
+                'assigned_to' => $existing->lead?->assigned_to,
+            ];
+        }
+
+        return DB::transaction(function () use ($data) {
+            $subject = trim((string) ($data['subject'] ?? ''));
+            $excerpt = trim((string) ($data['message'] ?? ''));
+            $at = isset($data['received_at']) ? Carbon::parse($data['received_at']) : now();
+            $maxBefore = (int) Lead::max('id');
+
+            $lead = $this->capture([
+                'source' => 'correo',
+                'name'   => $data['name'] ?? null,
+                'email'  => $data['email'],
+                'phone'  => $data['phone'] ?? null,
+                'notes'  => 'Correo' . ($subject !== '' ? ': ' . $subject : '') . ($excerpt !== '' ? "\n" . mb_substr($excerpt, 0, 500) : ''),
+                'at'     => $at,
+            ]);
+            $isNew = $lead->id > $maxBefore;
+
+            if (! empty($data['assigned_to']) && ! $lead->assigned_to) {
+                $lead->assigned_to = (int) $data['assigned_to'];
+                $lead->save();
+            }
+
+            $task = null;
+            if (($data['create_task'] ?? true) !== false) {
+                $task = Task::create([
+                    'taskable_type' => Lead::class,
+                    'taskable_id'   => $lead->id,
+                    'assigned_to'   => $lead->assigned_to,
+                    'title'         => 'Atender solicitud por correo' . ($subject !== '' ? ': ' . mb_substr($subject, 0, 120) : '') . ' · ' . $lead->display_name,
+                    'description'   => 'Correo de ' . $data['email'] . ' recibido el ' . $at->format('d/m/Y H:i') . '.',
+                    'due_at'        => now()->addHours(4),
+                    'status'        => 'open',
+                ]);
+            }
+
+            \App\Models\LeadInboundEmail::create([
+                'message_id'  => $data['message_id'],
+                'lead_id'     => $lead->id,
+                'from_email'  => self::normalizeEmail($data['email']),
+                'from_name'   => $data['name'] ?? null,
+                'subject'     => $subject !== '' ? mb_substr($subject, 0, 255) : null,
+                'excerpt'     => $excerpt !== '' ? mb_substr($excerpt, 0, 2000) : null,
+                'received_at' => $at,
+                'task_id'     => $task?->id,
+                'is_new_lead' => $isNew,
+            ]);
+
+            return [
+                'duplicate'   => false,
+                'lead_id'     => $lead->id,
+                'task_id'     => $task?->id,
+                'is_new_lead' => $isNew,
+                'customer_id' => $lead->customer_id,
+                'assigned_to' => $lead->assigned_to,
+            ];
+        });
+    }
+
     public function captureFromWhatsapp(WhatsappConversation $conversation, ?WhatsappMessage $message = null): Lead
     {
         $data = [
