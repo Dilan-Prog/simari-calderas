@@ -92,7 +92,7 @@
         // ni estructura de carpetas, solo cómo se muestran los módulos.
         $groupSections = [
             'ecommerce' => ['productos', 'categorias', 'marcas', 'colecciones', 'paginas-servicio', 'galeria', 'inicio-secciones', 'menus', 'configuracion-sitio', 'integraciones', 'metodos-de-pago', 'reglas-de-envio', 'carritos-abandonados', 'ordenes'],
-            'ventas' => ['cotizaciones', 'pedidos', 'pipelines', 'embudo-de-venta', 'negocios', 'tareas', 'automatizaciones', 'clientes'],
+            'ventas' => ['cotizaciones', 'pedidos', 'pipelines', 'embudo-de-venta', 'negocios', 'automatizaciones', 'clientes'],
             'planeacion' => ['planeacion-quimicos'],
             'produccion' => ['reportes-servicio', 'servicios-tecnicos'],
             'logistica' => ['entrega-material', 'envios', 'deliveries'],
@@ -191,6 +191,20 @@
                 </div>
             </a>
         @endif
+
+        {{-- Tareas: panel personal de cada usuario, siempre visible (no depende de permisos de módulos) --}}
+        <a class="sidebar-nav-item {{ $activeSection === 'tareas' ? 'active' : '' }}"
+            href="{{ route('admin.tasks.index') }}" data-section="tareas" data-label="Tareas">
+            <div class="sidebar-nav-item-left">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <rect width="18" height="18" x="3" y="3" rx="2" />
+                    <path d="m9 12 2 2 4-4" />
+                </svg>
+                <span class="sidebar-nav-item-label">Tareas</span>
+            </div>
+        </a>
 
         {{-- ══════════════ GRUPO: ECOMMERCE ══════════════ --}}
         @if ($ecommerceVisible)
@@ -558,19 +572,6 @@
                     </a>
                 @endif
 
-                {{-- Tareas --}}
-                <a class="sidebar-nav-item {{ $activeSection === 'tareas' ? 'active' : '' }}"
-                    href="{{ route('admin.tasks.index') }}" data-section="tareas" data-label="Tareas">
-                    <div class="sidebar-nav-item-left">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                            stroke-linejoin="round">
-                            <rect width="18" height="18" x="3" y="3" rx="2" />
-                            <path d="m9 12 2 2 4-4" />
-                        </svg>
-                        <span class="sidebar-nav-item-label">Tareas</span>
-                    </div>
-                </a>
 
                 @include('admin.layouts.partials.sidebar-erp-item', ['perm' => 'leads-inbox'])
 
