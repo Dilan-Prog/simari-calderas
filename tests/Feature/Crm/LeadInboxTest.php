@@ -207,6 +207,13 @@ class LeadInboxTest extends TestCase
             ->assertSee('Correo N8N');
     }
 
+    public function test_las_notas_de_un_lead_nuevo_no_llevan_basura_de_la_relacion(): void
+    {
+        $lead = app(LeadService::class)->capture(['source' => 'manual', 'name' => 'Marta', 'phone' => '5512345678', 'notes' => 'Llevar kit de juntas']);
+
+        $this->assertSame('Llevar kit de juntas', $lead->fresh()->notes);
+    }
+
     public function test_pantallas_de_la_bandeja(): void
     {
         $this->withoutVite();
@@ -214,7 +221,7 @@ class LeadInboxTest extends TestCase
         $lead = app(LeadService::class)->capture(['source' => 'manual', 'name' => 'Marta', 'phone' => '5512345678']);
 
         $this->actingAs($admin)->get(route('admin.leads-inbox.index', ['source' => 'manual']))
-            ->assertOk()->assertSee('Marta')->assertSee('Origen: Manual');
+            ->assertOk()->assertSee('Marta');
         $this->actingAs($admin)->get(route('admin.leads-inbox.show', $lead))->assertOk()->assertSee('Línea de tiempo');
 
         $this->actingAs($admin)->post(route('admin.leads-inbox.assign', $lead), ['assigned_to' => $admin->id])->assertRedirect();

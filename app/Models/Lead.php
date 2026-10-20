@@ -89,6 +89,12 @@ class Lead extends Model
         return $this->hasMany(LeadCall::class)->orderByDesc('started_at');
     }
 
+    /** Notas internas del hilo (tabla lead_notes). Ojo: NO se llama `notes` porque choca con la columna de texto `leads.notes`. */
+    public function noteEntries(): HasMany
+    {
+        return $this->hasMany(LeadNote::class)->latest('id');
+    }
+
     public function adVisit(): BelongsTo
     {
         return $this->belongsTo(AdVisit::class, 'visitor_uuid', 'visitor_uuid');

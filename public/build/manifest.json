@@ -111,13 +111,18 @@
     "isEntry": true
   },
   "resources/css/admin/pages/erp-crm.css": {
-    "file": "assets/erp-crm-CrbIpeNu.css",
+    "file": "assets/erp-crm-B5__-wik.css",
     "src": "resources/css/admin/pages/erp-crm.css",
     "isEntry": true
   },
   "resources/css/admin/pages/erp-finance.css": {
     "file": "assets/erp-finance-CJWBNaS3.css",
     "src": "resources/css/admin/pages/erp-finance.css",
+    "isEntry": true
+  },
+  "resources/css/admin/pages/erp-leads-board.css": {
+    "file": "assets/erp-leads-board-DTkI1ru6.css",
+    "src": "resources/css/admin/pages/erp-leads-board.css",
     "isEntry": true
   },
   "resources/css/admin/pages/erp-logistics.css": {
@@ -369,7 +374,7 @@
     "isEntry": true
   },
   "resources/js/admin/erp-crm.js": {
-    "file": "assets/erp-crm-4DK8Q4z8.js",
+    "file": "assets/erp-crm-D1JDZ4BR.js",
     "name": "erp-crm",
     "src": "resources/js/admin/erp-crm.js",
     "isEntry": true

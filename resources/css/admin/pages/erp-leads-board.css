@@ -1,0 +1,151 @@
+/* Bandeja de leads: vista Embudo (tablero por etapa). Tokens de erp-core.css. */
+.lb {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    gap: 12px;
+    padding: 16px;
+    overflow: auto;
+    align-items: flex-start;
+    background: var(--erp-bg);
+}
+
+.lb-col {
+    --lb-stage: var(--erp-neu-dot);
+    flex: 0 0 280px;
+    min-width: 260px;
+    max-height: 100%;
+    display: flex;
+    flex-direction: column;
+    background: var(--erp-line-soft);
+    border-radius: 12px;
+    border-top: 3px solid var(--lb-stage);
+}
+.lb-col--neu { --lb-stage: var(--erp-neu-dot); }
+.lb-col--info { --lb-stage: var(--erp-info-dot); }
+.lb-col--warn { --lb-stage: var(--erp-warn-dot); }
+.lb-col--ok { --lb-stage: var(--erp-ok-dot); }
+
+.lb-col-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 12px 8px;
+    flex-shrink: 0;
+}
+.lb-col-title {
+    font-size: 13px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    color: var(--erp-ink);
+}
+.lb-col-count {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--erp-neu);
+    background: var(--erp-surface);
+    border-radius: 999px;
+    padding: 1px 8px;
+}
+
+.lb-col-body {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 0 8px 10px;
+    min-height: 0;
+    overflow-y: auto;
+}
+
+.lb-card {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 10px 12px;
+    background: var(--erp-surface);
+    border: 1px solid var(--erp-line);
+    border-radius: 10px;
+    color: var(--erp-ink);
+    text-decoration: none;
+    transition: border-color .12s ease, box-shadow .12s ease;
+}
+.lb-card:hover {
+    border-color: var(--erp-accent);
+    box-shadow: 0 1px 4px rgba(23, 25, 28, .08);
+}
+.lb-card-top { display: flex; align-items: center; gap: 8px; }
+.lb-card-name {
+    flex: 1;
+    min-width: 0;
+    font-size: 14px;
+    font-weight: 800;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.lb-card-sub,
+.lb-card-prev {
+    font-size: 12.5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.lb-card-sub { color: var(--erp-muted); }
+.lb-card-prev { color: var(--erp-ink); opacity: .8; }
+
+.lb-chan {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--erp-neu-bg);
+    color: var(--erp-neu);
+}
+.lb-chan--ok { background: var(--erp-ok-bg); color: var(--erp-ok); }
+.lb-chan--info { background: var(--erp-info-bg); color: var(--erp-info); }
+.lb-chan--acc { background: var(--erp-acc-bg); color: var(--erp-acc); }
+.lb-chan--neu { background: var(--erp-neu-bg); color: var(--erp-neu); }
+
+.lb-card-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    font-size: 12px;
+}
+.lb-time { font-weight: 700; color: var(--erp-muted); font-variant-numeric: tabular-nums; }
+.lb-time.is-stale { color: var(--erp-bad); }
+
+.lb-avatar {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 800;
+    background: var(--erp-ink);
+    color: #fff;
+}
+.lb-avatar.is-none { background: var(--erp-acc-bg); color: var(--erp-acc); }
+
+.lb-empty {
+    border: 1px dashed var(--erp-line);
+    border-radius: 10px;
+    padding: 16px;
+    text-align: center;
+    font-size: 12.5px;
+    color: var(--erp-muted);
+}
+.lb-more {
+    text-align: center;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--erp-muted);
+    padding: 2px 0;
+}

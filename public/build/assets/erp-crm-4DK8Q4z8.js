@@ -1,1 +1,0 @@
-document.addEventListener("DOMContentLoaded",()=>{document.querySelectorAll("[data-crm-autosubmit]").forEach(e=>{e.addEventListener("change",()=>{var t;return(t=e.closest("form"))==null?void 0:t.submit()})}),document.querySelectorAll("form[data-crm-confirm]").forEach(e=>{e.addEventListener("submit",t=>{window.confirm(e.dataset.crmConfirm)||t.preventDefault()})})});

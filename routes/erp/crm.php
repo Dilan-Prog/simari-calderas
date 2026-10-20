@@ -14,6 +14,7 @@ Route::prefix('leads')->name('leads-inbox.')->middleware('permission:leads-inbox
     Route::put('/{lead}', [LeadInboxController::class, 'update'])->whereNumber('lead')->name('update')->middleware('permission:leads-inbox,edit');
     Route::post('/{lead}/asignar', [LeadInboxController::class, 'assign'])->whereNumber('lead')->name('assign')->middleware('permission:leads-inbox,edit');
     Route::post('/{lead}/convertir', [LeadInboxController::class, 'convert'])->whereNumber('lead')->name('convert')->middleware('permission:leads-inbox,edit');
+    Route::post('/{lead}/notas', [LeadInboxController::class, 'storeNote'])->whereNumber('lead')->name('notes.store')->middleware('permission:leads-inbox,create');
     Route::post('/{lead}/llamadas', [LeadInboxController::class, 'storeCall'])->whereNumber('lead')->name('calls.store')->middleware('permission:leads-inbox,create');
 });
 

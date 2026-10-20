@@ -59,6 +59,7 @@ export default defineConfig({
                 'resources/css/admin/pages/erp-warehouse.css',
                 'resources/js/admin/erp-warehouse.js',
                 'resources/css/admin/pages/erp-crm.css',
+                'resources/css/admin/pages/erp-leads-board.css',
                 'resources/js/admin/erp-crm.js',
                 'resources/js/frontend/shop/ad-tracking.js',
                 'resources/css/frontend/shop/home.css',
