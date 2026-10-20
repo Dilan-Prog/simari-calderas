@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use App\Services\LeadService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -28,8 +29,14 @@ class LeadEmailController extends Controller
             'message'     => 'nullable|string|max:5000',
             'received_at' => 'nullable|date',
             'assigned_to' => 'nullable|integer|exists:users,id',
+            'assigned_to_email' => 'nullable|email|exists:users,email',
             'create_task' => 'nullable|boolean',
         ]);
+
+        // Responsable por correo: no depende del ID, que cambia entre entornos.
+        if (empty($data['assigned_to']) && ! empty($data['assigned_to_email'])) {
+            $data['assigned_to'] = User::where('email', $data['assigned_to_email'])->value('id');
+        }
 
         $result = $leads->captureFromEmail($data);
 

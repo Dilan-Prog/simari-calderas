@@ -72,6 +72,24 @@ class LeadEmailApiTest extends TestCase
         $this->assertSame(2, Task::count());
     }
 
+    public function test_asigna_la_tarea_por_correo_del_responsable(): void
+    {
+        $this->auth();
+        $user = \App\Models\User::create([
+            'first_name' => 'F', 'last_name' => 'O', 'position' => 'X', 'phone' => '5555555555',
+            'email' => 'admin@equiterm.test', 'password' => bcrypt('x'), 'status' => 'active',
+            'rfc' => 'XAXX010101000', 'role_id' => \App\Models\Role::create(['name_role' => 'r', 'name_role_es' => 'r'])->id,
+        ]);
+
+        $this->postJson('/api/v1/leads', $this->payload(['assigned_to_email' => 'admin@equiterm.test']))
+            ->assertCreated()
+            ->assertJsonPath('data.assigned_to', $user->id);
+        $this->assertSame($user->id, Task::first()->assigned_to);
+
+        $this->postJson('/api/v1/leads', $this->payload(['message_id' => '<x@y>', 'assigned_to_email' => 'nadie@x.com']))
+            ->assertStatus(422);
+    }
+
     public function test_requiere_habilidad_y_valida(): void
     {
         $this->auth(['deals:read']);
