@@ -13,7 +13,13 @@ class TaskController extends Controller
 {
     public function index(Request $request)
     {
-        $status = $request->get('status', 'open');
+        // Vistas: open (default) | mine | overdue | closed | all. `status=all|open` es el parámetro
+        // anterior (enlaces viejos); se respeta.
+        $view = $request->get('view', $request->get('status', 'open'));
+        $view = in_array($view, ['open', 'mine', 'overdue', 'closed', 'all'], true) ? $view : 'open';
+        $q = trim((string) $request->get('q', ''));
+        $assignedTo = (string) $request->get('assigned_to', '');
+        $userId = $request->user()?->id;
 
         $query = Task::with([
             'taskable' => fn (MorphTo $morphTo) => $morphTo->morphWith([Quote::class => ['customer', 'items.product']]),
@@ -24,15 +30,35 @@ class TaskController extends Controller
 
         // "Todas" también incluye las eliminadas (borrado lógico) -- se
         // quedan visibles ahí marcadas "Eliminada por {nombre}" en vez de
-        // desaparecer. Cualquier otro filtro de estatus las excluye (el
-        // scope global de SoftDeletes ya hace eso solo).
-        if ($status === 'all') {
-            $query->withTrashed();
-        } else {
-            $query->where('status', $status);
+        // desaparecer. Cualquier otra vista las excluye (el scope global
+        // de SoftDeletes ya hace eso solo).
+        match ($view) {
+            'all'     => $query->withTrashed(),
+            'mine'    => $query->where('assigned_to', $userId)->where('status', '!=', 'closed'),
+            'overdue' => $query->whereNotNull('due_at')->where('due_at', '<', now())->where('status', '!=', 'closed'),
+            'closed'  => $query->where('status', 'closed'),
+            default   => $query->where('status', 'open'),
+        };
+
+        if ($q !== '') {
+            $like = '%' . str_replace(['%', '_'], ['\%', '\_'], $q) . '%';
+            $query->where(fn ($w) => $w->where('title', 'like', $like)->orWhere('description', 'like', $like));
+        }
+        if ($assignedTo === 'sin') {
+            $query->whereNull('assigned_to');
+        } elseif (ctype_digit($assignedTo)) {
+            $query->where('assigned_to', (int) $assignedTo);
         }
 
         $tasks = $query->paginate(20)->withQueryString();
+
+        $counts = [
+            'open'    => Task::where('status', 'open')->count(),
+            'mine'    => Task::where('assigned_to', $userId)->where('status', '!=', 'closed')->count(),
+            'overdue' => Task::whereNotNull('due_at')->where('due_at', '<', now())->where('status', '!=', 'closed')->count(),
+            'closed'  => Task::where('status', 'closed')->count(),
+            'all'     => Task::withTrashed()->count(),
+        ];
 
         // Tareas creadas por el flujo de correos entrantes (n8n): se rotulan "Correo N8N" en Origen.
         $emailTaskIds = \App\Models\LeadInboundEmail::whereIn('task_id', $tasks->pluck('id'))
@@ -41,7 +67,10 @@ class TaskController extends Controller
         return view('admin.tasks.index', [
             'emailTaskIds' => $emailTaskIds,
             'tasks'  => $tasks,
-            'status' => $status,
+            'view'   => $view,
+            'counts' => $counts,
+            'q'      => $q,
+            'assignedTo' => $assignedTo,
             'users'  => User::orderBy('first_name')->get(['id', 'first_name', 'last_name']),
         ]);
     }

@@ -3,124 +3,117 @@
 @section('title', 'Tareas - Admin')
 
 @push('styles')
+    @vite(['resources/css/admin/pages/erp-core.css'])
 <style>
-:root {
-    --background--white:          #ffffff;
-    --header-footer-color:        #1A2535;
-    --text-subwhite-color:        #D1D5DC;
-    --text-description-color:     #6B7280;
-    --secondary-color:            #ff6213;
-    --font-family:                'Inter', sans-serif;
-    --shadow-sm:                  0 1px 2px rgba(0,0,0,.06);
-}
-
-.tasks-page { padding: 32px; font-family: var(--font-family); display: flex; flex-direction: column; gap: 24px; }
-
-.tasks-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
-.tasks-breadcrumb { display: flex; align-items: center; gap: 4px; font-size: 12px; color: var(--text-description-color); margin-bottom: 8px; }
-.tasks-breadcrumb-current { color: #374151; }
-.tasks-title { font-size: 24px; font-weight: 700; color: #111827; line-height: 1.2; margin: 0 0 6px; }
-.tasks-subtitle { font-size: 14px; color: var(--text-description-color); margin: 0; }
-
-.tasks-filters { display: flex; gap: 8px; }
-.tasks-filter-link { display: inline-flex; align-items: center; height: 36px; padding: 0 14px; border-radius: 7px; font-size: 13px; font-weight: 600; text-decoration: none; color: #4b5563; background: #f2f3f5; }
-.tasks-filter-link.active { background: var(--secondary-color); color: #fff; }
-
-.tasks-table-card { background: #fff; border-radius: 8px; box-shadow: var(--shadow-sm); overflow: hidden; }
-.tasks-table-scroll { overflow-x: auto; }
-.tasks-table { width: 100%; border-collapse: collapse; min-width: 760px; }
-.tasks-table thead tr { background: var(--header-footer-color); height: 44px; }
-.tasks-table thead th { padding: 0 20px; text-align: left; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--text-subwhite-color); white-space: nowrap; }
-.tasks-table tbody tr { height: 56px; border-bottom: 1px solid #F3F4F6; cursor: pointer; }
-.tasks-table tbody tr:last-child { border-bottom: none; }
-.tasks-table tbody tr:hover { background: rgba(255,247,237,.4); }
-.tasks-table td { padding: 10px 20px; vertical-align: middle; font-size: 13px; color: #111827; }
-.tasks-td-title { font-weight: 600; }
-.tasks-td-desc { color: var(--text-description-color); font-size: 12.5px; max-width: 360px; }
-.tasks-pill { display: inline-flex; align-items: center; height: 22px; padding: 0 10px; border-radius: 20px; font-size: 11.5px; font-weight: 700; background: #eef2ff; color: #4338ca; }
-.tasks-pill--open { background: #eef2ff; color: #4338ca; }
-.tasks-pill--pending { background: #fef3c7; color: #92400e; }
-.tasks-pill--in_progress { background: #dbeafe; color: #1e40af; }
-.tasks-pill--in_review { background: #fae8ff; color: #86198f; }
-.tasks-pill--closed { background: #f2f3f5; color: #6b7280; }
-.tasks-pill--deleted { background: #fef2f2; color: #b91c1c; }
-.task-row-deleted { height: 56px; border-bottom: 1px solid #F3F4F6; opacity: .6; cursor: default; }
-.task-row-deleted .tasks-td-title { text-decoration: line-through; }
-.tasks-link { color: var(--secondary-color); font-weight: 600; text-decoration: none; }
-.tasks-link:hover { text-decoration: underline; }
-.tasks-muted { color: #9CA3AF; }
-.tasks-empty { padding: 60px 20px; text-align: center; color: var(--text-description-color); font-size: 14px; }
-.tasks-new-btn { display: inline-flex; align-items: center; height: 36px; padding: 0 16px; border-radius: 7px; font-size: 13px; font-weight: 700; color: #fff; background: var(--secondary-color); border: none; cursor: pointer; text-decoration: none; }
-
-/* Modal crear/ver/editar -- autocontenido en esta página (no depende de CSS global del admin). */
-.task-modal-overlay { display: none; position: fixed; inset: 0; background: rgba(17,24,39,.5); z-index: 1000; align-items: center; justify-content: center; }
+/* Modal crear/ver/editar -- autocontenido en esta página; usa los tokens de erp-core.css. */
+.task-modal-overlay { display: none; position: fixed; inset: 0; background: rgba(23,25,28,.5); z-index: 1000; align-items: center; justify-content: center; padding: 16px; }
 .task-modal-overlay.active { display: flex; }
-.task-modal-box { background: #fff; border-radius: 10px; width: 100%; max-width: 480px; max-height: 90vh; overflow-y: auto; padding: 24px; }
-.task-modal-title { font-size: 18px; font-weight: 700; color: #111827; margin: 0 0 18px; }
+.task-modal-box { background: var(--erp-surface); border-radius: 12px; width: 100%; max-width: 480px; max-height: 90vh; overflow-y: auto; padding: 24px; }
+.task-modal-title { font-size: 18px; font-weight: 800; color: var(--erp-ink); margin: 0 0 18px; }
 .task-modal-field { margin-bottom: 14px; }
-.task-modal-field label { display: block; font-size: 12.5px; font-weight: 600; color: #374151; margin-bottom: 5px; }
+.task-modal-field label { display: block; font-size: 12.5px; font-weight: 700; color: var(--erp-text); margin-bottom: 5px; }
 .task-modal-field input[type="text"], .task-modal-field input[type="datetime-local"], .task-modal-field select, .task-modal-field textarea {
-    width: 100%; box-sizing: border-box; border: 1px solid #d1d5db; border-radius: 6px; padding: 9px 11px; font-size: 13.5px; font-family: var(--font-family); color: #111827;
+    width: 100%; box-sizing: border-box; border: 1px solid #d4d7dc; border-radius: 8px; padding: 9px 11px; font-size: 13.5px; font-family: inherit; color: var(--erp-ink);
 }
+.task-modal-field input:focus, .task-modal-field select:focus, .task-modal-field textarea:focus { outline: none; border-color: var(--erp-accent); box-shadow: 0 0 0 3px rgba(249,115,22,.12); }
 .task-modal-field textarea { resize: vertical; min-height: 70px; }
-.task-modal-field input[readonly] { background: #f3f4f6; color: #6b7280; cursor: not-allowed; }
-.task-modal-field-hint { font-size: 11.5px; color: #9ca3af; margin-top: 4px; }
-.task-modal-related { font-size: 12.5px; color: var(--text-description-color); background: #f9fafb; border-radius: 6px; padding: 10px 11px; margin-bottom: 14px; }
-.task-modal-related strong { color: #374151; }
+.task-modal-field input[readonly] { background: var(--erp-bg); color: var(--erp-muted); cursor: not-allowed; }
+.task-modal-field-hint { font-size: 11.5px; color: var(--erp-faint); margin-top: 4px; }
+.task-modal-related { font-size: 12.5px; color: var(--erp-muted); background: #f8f9fa; border: 1px solid var(--erp-line-soft); border-radius: 8px; padding: 10px 11px; margin-bottom: 14px; }
+.task-modal-related strong { color: var(--erp-text); }
 .task-modal-related-row { display: flex; justify-content: space-between; gap: 10px; align-items: flex-start; }
 .task-modal-customer-line { margin: 2px 0 0; }
-.task-modal-quickview-btn { font-size: 12px; font-weight: 700; color: var(--secondary-color); background: none; border: none; cursor: pointer; padding: 0; white-space: nowrap; }
-.task-modal-quickview-panel { display: none; margin-top: 10px; padding-top: 10px; border-top: 1px dashed #e5e7eb; font-size: 12.5px; color: #374151; }
+.task-modal-quickview-btn { font-size: 12px; font-weight: 700; color: var(--erp-accent-dark); background: none; border: none; cursor: pointer; padding: 0; white-space: nowrap; }
+.task-modal-quickview-panel { display: none; margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--erp-line); font-size: 12.5px; color: var(--erp-text); }
 .task-modal-quickview-panel.active { display: block; }
 .task-modal-quickview-panel div { margin-bottom: 4px; }
 .task-modal-quickview-products { margin-top: 10px; display: flex; flex-direction: column; gap: 8px; }
 .task-modal-quickview-product { display: flex; align-items: center; gap: 8px; }
-.task-modal-quickview-product img { width: 34px; height: 34px; object-fit: cover; border-radius: 5px; border: 1px solid #e5e7eb; flex-shrink: 0; background: #f3f4f6; }
-.task-modal-quickview-product-placeholder { width: 34px; height: 34px; border-radius: 5px; border: 1px solid #e5e7eb; background: #f3f4f6; flex-shrink: 0; }
-.task-modal-quickview-product-name { font-weight: 600; color: #111827; font-size: 12.5px; }
-.task-modal-quickview-product-sku { color: #9ca3af; font-size: 11.5px; }
-.task-modal-related-link { color: var(--secondary-color); font-weight: 600; text-decoration: none; font-size: 12.5px; display: inline-block; margin-top: 8px; }
+.task-modal-quickview-product img { width: 34px; height: 34px; object-fit: cover; border-radius: 5px; border: 1px solid var(--erp-line); flex-shrink: 0; background: var(--erp-bg); }
+.task-modal-quickview-product-placeholder { width: 34px; height: 34px; border-radius: 5px; border: 1px solid var(--erp-line); background: var(--erp-bg); flex-shrink: 0; }
+.task-modal-quickview-product-name { font-weight: 700; color: var(--erp-ink); font-size: 12.5px; }
+.task-modal-quickview-product-sku { color: var(--erp-faint); font-size: 11.5px; }
+.task-modal-related-link { color: var(--erp-accent-dark); font-weight: 700; text-decoration: none; font-size: 12.5px; display: inline-block; margin-top: 8px; }
 .task-modal-related-link:hover { text-decoration: underline; }
 .task-modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px; }
-.task-modal-btn { height: 38px; padding: 0 18px; border-radius: 7px; font-size: 13px; font-weight: 700; cursor: pointer; border: none; }
-.task-modal-btn--cancel { background: #f2f3f5; color: #374151; }
-.task-modal-btn--save { background: var(--secondary-color); color: #fff; }
-.task-modal-btn--delete { background: #fff; color: #b91c1c; border: 1px solid #fecaca; }
-.task-modal-btn--delete:hover { background: #fef2f2; }
+.task-modal-btn { height: 38px; padding: 0 18px; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; border: 1px solid transparent; }
+.task-modal-btn--cancel { background: #fff; color: var(--erp-text); border-color: #d4d7dc; }
+.task-modal-btn--save { background: var(--erp-accent); color: #fff; }
+.task-modal-btn--save:hover { background: #ea6a0c; }
+.task-modal-btn--delete { background: #fff; color: var(--erp-bad); border-color: #f3c2c2; }
+.task-modal-btn--delete:hover { background: var(--erp-bad-bg); }
+
+/* Tabla de tareas */
+.task-row { cursor: pointer; }
+.task-row-deleted { opacity: .6; }
+.task-row-deleted .erp-cell-main { text-decoration: line-through; }
+.task-cell-link { color: var(--erp-accent-dark); font-weight: 700; text-decoration: none; }
+.task-cell-link:hover { text-decoration: underline; }
+.task-cell-desc { max-width: 420px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 </style>
 @endpush
 
 @section('content')
-<div class="tasks-page">
-    <div class="tasks-header">
-        <div>
-            <div class="tasks-breadcrumb">
-                <a href="{{ route('admin.dashboard') }}">Panel de Control</a>
-                <span>/</span>
-                <span class="tasks-breadcrumb-current">Tareas</span>
-            </div>
-            <h1 class="tasks-title">Tareas</h1>
-            <p class="tasks-subtitle">Pendientes generados automáticamente por las automatizaciones (ej. "sin correo", "sin WhatsApp") y tareas manuales.</p>
-        </div>
-        <div class="tasks-filters">
-            <a href="{{ route('admin.tasks.index', ['status' => 'open']) }}" class="tasks-filter-link {{ $status === 'open' ? 'active' : '' }}">Abiertas</a>
-            <a href="{{ route('admin.tasks.index', ['status' => 'all']) }}" class="tasks-filter-link {{ $status === 'all' ? 'active' : '' }}">Todas</a>
-            <button type="button" class="tasks-new-btn" id="taskNewBtn">+ Nueva tarea</button>
-        </div>
-    </div>
+@php
+    $statusTone = ['open' => 'info', 'pending' => 'warn', 'in_progress' => 'acc', 'in_review' => 'info', 'closed' => 'ok'];
+    $keep = fn (array $over) => route('admin.tasks.index', array_filter(
+        array_merge(['view' => $view === 'open' ? null : $view, 'q' => $q, 'assigned_to' => $assignedTo], $over),
+        fn ($v) => $v !== null && $v !== ''
+    ));
+    $viewDefs = ['open' => 'Abiertas', 'mine' => 'Mis tareas', 'overdue' => 'Vencidas', 'closed' => 'Cerradas', 'all' => 'Todas'];
+    $views = [];
+    foreach ($viewDefs as $key => $label) {
+        $views[] = [
+            'label'  => $label . ' ' . ($counts[$key] ?? 0),
+            'url'    => route('admin.tasks.index', array_filter(['view' => $key === 'open' ? null : $key, 'q' => $q, 'assigned_to' => $assignedTo], fn ($v) => $v !== null && $v !== '')),
+            'active' => $view === $key,
+        ];
+    }
+    $chips = [];
+    if ($q !== '') $chips[] = ['label' => 'Búsqueda: ' . $q, 'url' => $keep(['q' => null])];
+    if ($assignedTo !== '') {
+        $who = $assignedTo === 'sin' ? 'Sin asignar' : ($users->firstWhere('id', (int) $assignedTo)?->full_name ?? '—');
+        $chips[] = ['label' => 'Responsable: ' . $who, 'url' => $keep(['assigned_to' => null])];
+    }
+@endphp
+<div class="erp-page">
+    <x-erp.page-header title="Tareas" code="VTA6"
+        desc="Pendientes generados por las automatizaciones y por los correos entrantes, más las tareas manuales."
+        :crumbs="[['Ventas', null], ['Tareas', null]]">
+        <button type="button" class="erp-btn erp-btn--primary" id="taskNewBtn">+ Nueva tarea</button>
+    </x-erp.page-header>
 
-    <div class="tasks-table-card">
+    @if (session('success')) <div class="erp-card" role="status" style="padding:10px 14px;margin-bottom:12px;color:var(--erp-ok);background:var(--erp-ok-bg);">{{ session('success') }}</div> @endif
+    @if ($errors->any()) <div class="erp-card" role="alert" style="padding:10px 14px;margin-bottom:12px;color:var(--erp-bad);background:var(--erp-bad-bg);">{{ $errors->first() }}</div> @endif
+
+    <x-erp.worklist :views="$views" :chips="$chips">
+        <x-slot:toolbar>
+            <form method="GET" class="erp-toolbar" style="padding:0;border:0;flex:1;" role="search">
+                @if ($view !== 'open') <input type="hidden" name="view" value="{{ $view }}"> @endif
+                <div class="erp-search"><input type="search" name="q" value="{{ $q }}" placeholder="Buscar por tarea o descripción…" aria-label="Buscar tareas"></div>
+                <select name="assigned_to" class="erp-select" aria-label="Responsable" onchange="this.form.submit()">
+                    <option value="">Responsable: todos</option>
+                    <option value="sin" @selected($assignedTo === 'sin')>Sin asignar</option>
+                    @foreach ($users as $u)
+                        <option value="{{ $u->id }}" @selected((string) $assignedTo === (string) $u->id)>{{ $u->first_name }} {{ $u->last_name }}</option>
+                    @endforeach
+                </select>
+                <button type="submit" class="erp-btn">Filtrar</button>
+            </form>
+        </x-slot:toolbar>
+
         @if ($tasks->isEmpty())
-            <div class="tasks-empty">No hay tareas {{ $status === 'open' ? 'abiertas' : '' }} por ahora.</div>
+            <div style="padding:16px;"><x-erp.empty title="Sin tareas" text="No hay tareas con estos filtros." /></div>
         @else
-            <div class="tasks-table-scroll">
-                <table class="tasks-table">
+            <div class="erp-table-wrap">
+                <table class="erp-table">
                     <thead>
                         <tr>
-                            <th>Tarea</th>
-                            <th>Relacionado con</th>
+                            <th>Folio</th>
+                            <th>Tarea / relacionado</th>
                             <th>Origen</th>
-                            <th>Asignada a</th>
+                            <th>Responsable</th>
+                            <th>Vence</th>
                             <th>Estado</th>
                             <th>Creada</th>
                         </tr>
@@ -141,54 +134,53 @@
                                 'quick_view' => $task->taskableQuickView(),
                                 'quote_items' => $task->taskableQuoteItems(),
                             ]) }}">
+                                <td class="erp-cell-folio">TAR-{{ str_pad((string) $task->id, 4, '0', STR_PAD_LEFT) }}</td>
                                 <td>
-                                    <div class="tasks-td-title">{{ $task->title }}</div>
-                                    @if ($task->description)
-                                        <div class="tasks-td-desc">{{ $task->description }}</div>
-                                    @endif
-                                </td>
-                                <td>
+                                    <div class="erp-cell-main">{{ $task->title }}</div>
                                     @if ($task->taskableUrl())
-                                        <a href="{{ $task->taskableUrl() }}" class="tasks-link" onclick="event.stopPropagation()">{{ $task->taskableLabel() }}</a>
+                                        <div class="erp-cell-sub"><a href="{{ $task->taskableUrl() }}" class="task-cell-link" onclick="event.stopPropagation()">{{ $task->taskableLabel() }}</a></div>
                                     @elseif ($task->taskableLabel())
-                                        {{ $task->taskableLabel() }}
-                                    @else
-                                        <span class="tasks-muted">&mdash;</span>
+                                        <div class="erp-cell-sub">{{ $task->taskableLabel() }}</div>
+                                    @elseif ($task->description)
+                                        <div class="erp-cell-sub task-cell-desc">{{ $task->description }}</div>
                                     @endif
                                 </td>
                                 <td>
                                     @if ($task->createdByWorkflow)
-                                        <span class="tasks-pill">{{ $task->createdByWorkflow->name }}</span>
+                                        <x-erp.chip tone="acc" :label="$task->createdByWorkflow->name" />
                                     @elseif (in_array($task->id, $emailTaskIds ?? [], true))
-                                        <span class="tasks-pill">Correo N8N</span>
+                                        <x-erp.chip tone="info" label="Correo N8N" />
                                     @else
-                                        <span class="tasks-muted">Manual</span>
+                                        <span class="erp-cell-sub">Manual</span>
                                     @endif
                                 </td>
                                 <td>
                                     @if ($task->assignee)
                                         {{ $task->assignee->full_name }}
                                     @else
-                                        <span class="tasks-muted">Sin asignar</span>
+                                        <span class="erp-cell-sub">Sin asignar</span>
                                     @endif
                                 </td>
+                                <td><x-erp.due :date="$task->due_at" :closed="$task->status === 'closed'" /></td>
                                 <td>
                                     @if ($task->trashed())
-                                        <span class="tasks-pill tasks-pill--deleted">Eliminada por {{ $task->deletedBy?->full_name ?? 'usuario eliminado' }}</span>
+                                        <x-erp.chip tone="bad" :label="'Eliminada por ' . ($task->deletedBy?->full_name ?? 'usuario eliminado')" />
                                     @else
-                                        <span class="tasks-pill tasks-pill--{{ $task->status }}">{{ \App\Models\Task::statusLabel($task->status) }}</span>
+                                        <x-erp.chip :tone="$statusTone[$task->status] ?? 'neu'" :label="\App\Models\Task::statusLabel($task->status)" />
                                     @endif
                                 </td>
-                                <td class="tasks-muted">{{ $task->created_at->format('d/m/Y H:i') }}</td>
+                                <td class="erp-cell-sub">{{ $task->created_at->format('d/m/Y H:i') }}</td>
                             </tr>
                         @endforeach
                     </tbody>
                 </table>
             </div>
         @endif
-    </div>
-
-    {{ $tasks->links() }}
+        <x-slot:footer>
+            <span>{{ $tasks->total() }} {{ $tasks->total() === 1 ? 'tarea' : 'tareas' }}</span>
+            <div>{{ $tasks->links('admin.components.pagination') }}</div>
+        </x-slot:footer>
+    </x-erp.worklist>
 </div>
 
 {{-- Modal compartido: crear (form vacío -> POST) y ver/editar (form prellenado -> PUT). --}}
