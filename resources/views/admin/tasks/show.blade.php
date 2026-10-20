@@ -74,6 +74,7 @@
             ['label' => 'Prioridad', 'value' => $priorityLabel],
         ]">
         @unless ($task->trashed())
+            <button type="button" class="erp-btn" data-task-modal-open="edit">Editar</button>
             <button type="button" class="erp-btn" onclick="document.getElementById('taskReassignModal').classList.add('is-open')">Reasignar</button>
             <form method="POST" action="{{ route('admin.tasks.update', $task) }}" class="task-inline-form">
                 @csrf @method('PUT')
@@ -109,6 +110,7 @@
             </form>
         </div>
         <script>document.addEventListener('keydown', function (e) { if (e.key === 'Escape') { var m = document.getElementById('taskReassignModal'); if (m) m.classList.remove('is-open'); } });</script>
+        @include('admin.tasks._form_modal', ['mode' => 'edit', 'task' => $task, 'users' => $users])
     @endunless
 
     @if (session('success')) <div class="task-alert task-alert--ok" role="status">{{ session('success') }}</div> @endif

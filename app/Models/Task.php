@@ -12,6 +12,7 @@ class Task extends Model
 {
     use HasFactory;
     use SoftDeletes;
+    use \App\Traits\LogsActivity;
 
     /**
      * Mismo criterio que Quote::statusLabel()/SalesOrder::statusLabel() --

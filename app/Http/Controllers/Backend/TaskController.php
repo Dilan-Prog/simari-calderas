@@ -156,31 +156,75 @@ class TaskController extends Controller
     }
 
     /**
-     * A petición del usuario: título y fecha límite se fijan al crear la
-     * tarea y no se pueden cambiar después -- solo descripción/estado/
-     * asignación son editables. Se ignoran aquí aunque el form los mande
-     * (defensa real en el controller, no solo el campo "readonly" del HTML).
+     * Edición de una tarea. Todos los campos son opcionales en la petición (los botones
+     * "Completar", "Reabrir" y "Reasignar" envían solo el suyo). Cada cambio real queda
+     * en el historial de la tarea (task_events) con su valor anterior y nuevo, y además
+     * en la bitácora del sistema (system_logs) por el trait LogsActivity del modelo.
      */
     public function update(Request $request, Task $task)
     {
         $data = $request->validate([
-            'description' => 'nullable|string',
-            'status'      => 'required|in:' . implode(',', array_keys(Task::STATUSES)),
-            'assigned_to' => 'nullable|exists:users,id',
+            'title'             => 'sometimes|required|string|max:255',
+            'description'       => 'nullable|string',
+            'related_reference' => 'nullable|string|max:255',
+            'type'              => 'nullable|in:' . implode(',', array_keys(Task::TYPES)),
+            'priority'          => 'nullable|in:' . implode(',', array_keys(Task::PRIORITIES)),
+            'due_at'            => 'nullable|date',
+            'status'            => 'sometimes|required|in:' . implode(',', array_keys(Task::STATUSES)),
+            'assigned_to'       => 'nullable|exists:users,id',
         ]);
+
+        // El formulario manda la fecha sin hora: si el día no cambió se conserva la hora original.
+        if (array_key_exists('due_at', $data)) {
+            $newDay = $data['due_at'] ? \Illuminate\Support\Carbon::parse($data['due_at'])->toDateString() : null;
+            if ($newDay === $task->due_at?->toDateString()) {
+                unset($data['due_at']);
+            } else {
+                $data['due_at'] = $newDay;
+            }
+        }
+        foreach (['description', 'related_reference', 'type', 'priority'] as $f) {
+            if (array_key_exists($f, $data) && $data[$f] === '') {
+                $data[$f] = null;
+            }
+        }
 
         // Registro de cuándo se cerró -- solo se fija la primera vez (mismo
         // criterio que Quote::accepted_at/rejected_at); si se reabre y se
         // vuelve a cerrar después, no se pisa la fecha original.
-        if ($data['status'] === 'closed' && !$task->closed_at) {
+        if (($data['status'] ?? null) === 'closed' && ! $task->closed_at) {
             $data['closed_at'] = now();
         }
 
-        $before = ['status' => $task->status, 'assigned_to' => $task->assigned_to];
+        $before = $task->only(['title', 'description', 'related_reference', 'type', 'priority', 'status', 'assigned_to']);
+        $beforeDue = $task->due_at;
+
         $task->update($data);
 
         $uid = $request->user()?->id;
-        if (array_key_exists('status', $data) && $before['status'] !== $task->status) {
+        $dash = fn ($v) => ($v === null || $v === '') ? '—' : $v;
+        $label = fn (array $map, $v) => $v ? ($map[$v] ?? $v) : null;
+        $changed = fn (string $f) => array_key_exists($f, $data) && ($before[$f] ?? null) != ($task->{$f});
+
+        if ($changed('title')) {
+            $task->logEvent('edited', 'Título cambiado: «' . $before['title'] . '» → «' . $task->title . '»', $uid);
+        }
+        if ($changed('related_reference')) {
+            $task->logEvent('edited', 'Relacionado con cambiado: «' . $dash($before['related_reference']) . '» → «' . $dash($task->related_reference) . '»', $uid);
+        }
+        if ($changed('type')) {
+            $task->logEvent('edited', 'Tipo cambiado: ' . $dash($label(Task::TYPES, $before['type'])) . ' → ' . $dash($label(Task::TYPES, $task->type)), $uid);
+        }
+        if ($changed('priority')) {
+            $task->logEvent('edited', 'Prioridad cambiada: ' . $dash($label(Task::PRIORITIES, $before['priority'])) . ' → ' . $dash($label(Task::PRIORITIES, $task->priority)), $uid);
+        }
+        if (array_key_exists('due_at', $data)) {
+            $task->logEvent('edited', 'Fecha límite cambiada: ' . ($beforeDue?->format('d/m/Y') ?? '—') . ' → ' . ($task->due_at?->format('d/m/Y') ?? '—'), $uid);
+        }
+        if ($changed('description')) {
+            $task->logEvent('edited', 'Descripción editada', $uid);
+        }
+        if ($changed('status')) {
             $task->logEvent('status', 'Estatus actualizado a «' . Task::statusLabel($task->status) . '»', $uid);
         }
         if (array_key_exists('assigned_to', $data) && (int) $before['assigned_to'] !== (int) $task->assigned_to) {
@@ -210,6 +254,7 @@ class TaskController extends Controller
         $data = $request->validate(['body' => 'required|string|max:2000']);
 
         $task->notes()->create(['body' => trim($data['body']), 'user_id' => $request->user()?->id]);
+        $task->logEvent('note', 'Nota agregada', $request->user()?->id);
 
         return redirect(route('admin.tasks.show', $task) . '#notas')->with('success', 'Nota agregada.');
     }
