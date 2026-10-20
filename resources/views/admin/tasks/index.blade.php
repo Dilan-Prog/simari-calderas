@@ -36,7 +36,7 @@
 }
 
 /* Tabla de tareas: ocupa todo el ancho disponible (sin el tope de 1400px del contenedor ERP) */
-.erp-page { max-width: none !important; margin: 0 !important; }
+.erp-page { max-width: none !important; margin: 0 !important; flex: 1; min-height: 0; overflow-y: auto; }
 .task-row { cursor: pointer; }
 .task-row-deleted { opacity: .6; }
 .task-row-deleted .erp-cell-main { text-decoration: line-through; }

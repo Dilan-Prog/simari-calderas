@@ -5,6 +5,7 @@
 @push('styles')
     @vite(['resources/css/admin/pages/erp-core.css'])
 <style>
+.task-page { flex: 1; min-height: 0; overflow-y: auto; }
 .task-page .erp-page { max-width: none !important; margin: 0 !important; }
 .task-inline-form { display: inline; margin: 0; }
 .task-desc { white-space: pre-line; margin: 0; color: var(--erp-text); font-size: 13.5px; line-height: 1.55; }
