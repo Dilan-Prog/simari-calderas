@@ -195,6 +195,18 @@ class LeadInboxTest extends TestCase
         $this->assertSame('GCLID-FIRST', $lead->first_click['gclid']);
     }
 
+    public function test_tareas_de_correo_n8n_se_rotulan_en_origen(): void
+    {
+        $this->withoutVite();
+        $admin = $this->adminUser();
+        app(LeadService::class)->captureFromEmail(['message_id' => '<a@b>', 'email' => 'c@d.com', 'subject' => 'Cotizar caldera']);
+
+        $this->actingAs($admin)->get(route('admin.tasks.index'))
+            ->assertOk()
+            ->assertSee('Cotizar caldera')
+            ->assertSee('Correo N8N');
+    }
+
     public function test_pantallas_de_la_bandeja(): void
     {
         $this->withoutVite();

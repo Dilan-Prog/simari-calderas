@@ -34,7 +34,12 @@ class TaskController extends Controller
 
         $tasks = $query->paginate(20)->withQueryString();
 
+        // Tareas creadas por el flujo de correos entrantes (n8n): se rotulan "Correo N8N" en Origen.
+        $emailTaskIds = \App\Models\LeadInboundEmail::whereIn('task_id', $tasks->pluck('id'))
+            ->pluck('task_id')->map(fn ($id) => (int) $id)->all();
+
         return view('admin.tasks.index', [
+            'emailTaskIds' => $emailTaskIds,
             'tasks'  => $tasks,
             'status' => $status,
             'users'  => User::orderBy('first_name')->get(['id', 'first_name', 'last_name']),

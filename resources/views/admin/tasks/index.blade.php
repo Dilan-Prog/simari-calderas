@@ -159,6 +159,8 @@
                                 <td>
                                     @if ($task->createdByWorkflow)
                                         <span class="tasks-pill">{{ $task->createdByWorkflow->name }}</span>
+                                    @elseif (in_array($task->id, $emailTaskIds ?? [], true))
+                                        <span class="tasks-pill">Correo N8N</span>
                                     @else
                                         <span class="tasks-muted">Manual</span>
                                     @endif
