@@ -43,7 +43,8 @@
 .task-modal-btn--delete { background: #fff; color: var(--erp-bad); border-color: #f3c2c2; }
 .task-modal-btn--delete:hover { background: var(--erp-bad-bg); }
 
-/* Tabla de tareas */
+/* Tabla de tareas: ocupa todo el ancho disponible (sin el tope de 1400px del contenedor ERP) */
+.erp-page { max-width: none; margin: 0; }
 .task-row { cursor: pointer; }
 .task-row-deleted { opacity: .6; }
 .task-row-deleted .erp-cell-main { text-decoration: line-through; }
