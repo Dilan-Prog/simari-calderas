@@ -75,6 +75,45 @@ class TaskController extends Controller
         ]);
     }
 
+    /** Página de detalle (Object Page): datos, relacionado e historial. */
+    public function show(Task $task)
+    {
+        $task->load([
+            'taskable' => fn (MorphTo $morphTo) => $morphTo->morphWith([Quote::class => ['customer', 'items.product']]),
+            'assignee',
+            'createdByWorkflow',
+            'deletedBy',
+        ]);
+
+        $email = \App\Models\LeadInboundEmail::where('task_id', $task->id)->first();
+        $origin = $task->createdByWorkflow?->name ?? ($email ? 'Correo N8N' : 'Manual');
+
+        $timeline = collect([['type' => 'tarea', 'title' => 'Tarea creada · ' . $origin, 'at' => $task->created_at, 'body' => null]]);
+        if ($email) {
+            $timeline->push([
+                'type'  => 'formulario',
+                'title' => 'Correo recibido' . ($email->subject ? ': ' . $email->subject : ''),
+                'at'    => $email->received_at ?? $email->created_at,
+                'body'  => $email->excerpt,
+            ]);
+        }
+        if ($task->closed_at) {
+            $timeline->push(['type' => 'tarea', 'title' => 'Tarea cerrada', 'at' => $task->closed_at, 'body' => null]);
+        }
+        if ($task->trashed()) {
+            $timeline->push(['type' => 'tarea', 'title' => 'Eliminada por ' . ($task->deletedBy?->full_name ?? 'usuario eliminado'), 'at' => $task->deleted_at, 'body' => null]);
+        }
+
+        return view('admin.tasks.show', [
+            'task'     => $task,
+            'origin'   => $origin,
+            'email'    => $email,
+            'timeline' => $timeline->sortBy('at')->values()->all(),
+            'lead'     => $task->taskable instanceof \App\Models\Lead ? $task->taskable : null,
+            'users'    => User::orderBy('first_name')->get(['id', 'first_name', 'last_name']),
+        ]);
+    }
+
     /**
      * Tareas manuales creadas desde el panel -- a diferencia de
      * Api\Crm\TaskController::store() (usado por N8N), aquí taskable_type/id
@@ -119,7 +158,7 @@ class TaskController extends Controller
 
         $task->update($data);
 
-        return redirect()->route('admin.tasks.index')->with('success', 'Tarea actualizada.');
+        return redirect()->route('admin.tasks.show', $task)->with('success', 'Tarea actualizada.');
     }
 
     /**

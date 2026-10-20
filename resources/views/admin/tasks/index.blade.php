@@ -17,31 +17,11 @@
 }
 .task-modal-field input:focus, .task-modal-field select:focus, .task-modal-field textarea:focus { outline: none; border-color: var(--erp-accent); box-shadow: 0 0 0 3px rgba(249,115,22,.12); }
 .task-modal-field textarea { resize: vertical; min-height: 70px; }
-.task-modal-field input[readonly] { background: var(--erp-bg); color: var(--erp-muted); cursor: not-allowed; }
-.task-modal-field-hint { font-size: 11.5px; color: var(--erp-faint); margin-top: 4px; }
-.task-modal-related { font-size: 12.5px; color: var(--erp-muted); background: #f8f9fa; border: 1px solid var(--erp-line-soft); border-radius: 8px; padding: 10px 11px; margin-bottom: 14px; }
-.task-modal-related strong { color: var(--erp-text); }
-.task-modal-related-row { display: flex; justify-content: space-between; gap: 10px; align-items: flex-start; }
-.task-modal-customer-line { margin: 2px 0 0; }
-.task-modal-quickview-btn { font-size: 12px; font-weight: 700; color: var(--erp-accent-dark); background: none; border: none; cursor: pointer; padding: 0; white-space: nowrap; }
-.task-modal-quickview-panel { display: none; margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--erp-line); font-size: 12.5px; color: var(--erp-text); }
-.task-modal-quickview-panel.active { display: block; }
-.task-modal-quickview-panel div { margin-bottom: 4px; }
-.task-modal-quickview-products { margin-top: 10px; display: flex; flex-direction: column; gap: 8px; }
-.task-modal-quickview-product { display: flex; align-items: center; gap: 8px; }
-.task-modal-quickview-product img { width: 34px; height: 34px; object-fit: cover; border-radius: 5px; border: 1px solid var(--erp-line); flex-shrink: 0; background: var(--erp-bg); }
-.task-modal-quickview-product-placeholder { width: 34px; height: 34px; border-radius: 5px; border: 1px solid var(--erp-line); background: var(--erp-bg); flex-shrink: 0; }
-.task-modal-quickview-product-name { font-weight: 700; color: var(--erp-ink); font-size: 12.5px; }
-.task-modal-quickview-product-sku { color: var(--erp-faint); font-size: 11.5px; }
-.task-modal-related-link { color: var(--erp-accent-dark); font-weight: 700; text-decoration: none; font-size: 12.5px; display: inline-block; margin-top: 8px; }
-.task-modal-related-link:hover { text-decoration: underline; }
 .task-modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px; }
 .task-modal-btn { height: 38px; padding: 0 18px; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; border: 1px solid transparent; }
 .task-modal-btn--cancel { background: #fff; color: var(--erp-text); border-color: #d4d7dc; }
 .task-modal-btn--save { background: var(--erp-accent); color: #fff; }
 .task-modal-btn--save:hover { background: #ea6a0c; }
-.task-modal-btn--delete { background: #fff; color: var(--erp-bad); border-color: #f3c2c2; }
-.task-modal-btn--delete:hover { background: var(--erp-bad-bg); }
 
 /* Tabla de tareas: ocupa todo el ancho disponible (sin el tope de 1400px del contenedor ERP) */
 .erp-page { max-width: none !important; margin: 0 !important; }
@@ -121,21 +101,8 @@
                     </thead>
                     <tbody>
                         @foreach ($tasks as $task)
-                            <tr class="{{ $task->trashed() ? 'task-row-deleted' : 'task-row' }}" data-task="{{ json_encode([
-                                'id' => $task->id,
-                                'title' => $task->title,
-                                'description' => $task->description,
-                                'due_at' => optional($task->due_at)->format('Y-m-d\TH:i'),
-                                'status' => $task->status,
-                                'closed_at' => optional($task->closed_at)->format('d/m/Y H:i'),
-                                'assigned_to' => $task->assigned_to,
-                                'related_label' => $task->taskableLabel(),
-                                'related_url' => $task->taskableUrl(),
-                                'customer' => $task->taskableCustomerInfo(),
-                                'quick_view' => $task->taskableQuickView(),
-                                'quote_items' => $task->taskableQuoteItems(),
-                            ]) }}">
-                                <td class="erp-cell-folio">TAR-{{ str_pad((string) $task->id, 4, '0', STR_PAD_LEFT) }}</td>
+                            <tr class="{{ $task->trashed() ? 'task-row-deleted task-row' : 'task-row' }}" data-href="{{ route('admin.tasks.show', $task) }}">
+                                <td class="erp-cell-folio"><a href="{{ route('admin.tasks.show', $task) }}">TAR-{{ str_pad((string) $task->id, 4, '0', STR_PAD_LEFT) }}</a></td>
                                 <td>
                                     <div class="erp-cell-main">{{ $task->title }}</div>
                                     @if ($task->taskableUrl())
@@ -184,73 +151,45 @@
     </x-erp.worklist>
 </div>
 
-{{-- Modal compartido: crear (form vacío -> POST) y ver/editar (form prellenado -> PUT). --}}
+{{-- Modal para crear una tarea manual. El detalle de cada tarea es la página admin.tasks.show. --}}
 <div class="task-modal-overlay" id="taskModalOverlay">
     <div class="task-modal-box">
-        <h2 class="task-modal-title" id="taskModalTitle">Nueva tarea</h2>
-        <form method="POST" id="taskForm" action="{{ route('admin.tasks.store') }}">
+        <h2 class="task-modal-title">Nueva tarea</h2>
+        <form method="POST" action="{{ route('admin.tasks.store') }}">
             @csrf
-            <div id="taskFormMethod"></div>
-
-            <div class="task-modal-related" id="taskModalRelated" style="display:none;">
-                <div class="task-modal-related-row">
-                    <div>
-                        <strong id="taskModalRelatedLabel"></strong>
-                        <p class="task-modal-customer-line" id="taskModalCustomerName" style="display:none;"></p>
-                        <p class="task-modal-customer-line" id="taskModalCustomerCompany" style="display:none;"></p>
-                        <p class="task-modal-customer-line" id="taskModalCustomerPhone" style="display:none;"></p>
-                        <p class="task-modal-customer-line" id="taskModalCustomerEmail" style="display:none;"></p>
-                        <p class="task-modal-customer-line" id="taskModalCustomerRfc" style="display:none;"></p>
-                    </div>
-                    <button type="button" class="task-modal-quickview-btn" id="taskModalQuickViewBtn" style="display:none;">Vista rápida ⌄</button>
-                </div>
-                <div class="task-modal-quickview-panel" id="taskModalQuickViewPanel"></div>
-                <a href="#" target="_blank" class="task-modal-related-link" id="taskModalRelatedLink" style="display:none;">Ver cotización completa ↗</a>
-            </div>
-
             <div class="task-modal-field">
                 <label>Título *</label>
-                <input type="text" name="title" id="taskFieldTitle" required maxlength="255">
-                <p class="task-modal-field-hint" id="taskFieldTitleHint" style="display:none;">No se puede modificar una vez creada la tarea.</p>
+                <input type="text" name="title" required maxlength="255">
             </div>
             <div class="task-modal-field">
                 <label>Descripción</label>
-                <textarea name="description" id="taskFieldDescription"></textarea>
+                <textarea name="description"></textarea>
             </div>
             <div class="task-modal-field">
                 <label>Fecha límite</label>
-                <input type="datetime-local" name="due_at" id="taskFieldDueAt">
-                <p class="task-modal-field-hint" id="taskFieldDueAtHint" style="display:none;">No se puede modificar una vez creada la tarea.</p>
+                <input type="datetime-local" name="due_at">
             </div>
             <div class="task-modal-field">
                 <label>Estado</label>
-                <select name="status" id="taskFieldStatus">
+                <select name="status">
                     @foreach (\App\Models\Task::STATUSES as $value => $label)
                         <option value="{{ $value }}">{{ $label }}</option>
                     @endforeach
                 </select>
-                <p class="task-modal-field-hint" id="taskFieldClosedAtHint" style="display:none;"></p>
             </div>
             <div class="task-modal-field">
                 <label>Asignada a</label>
-                <select name="assigned_to" id="taskFieldAssignedTo">
+                <select name="assigned_to">
                     <option value="">Sin asignar</option>
                     @foreach ($users as $user)
                         <option value="{{ $user->id }}">{{ $user->full_name }}</option>
                     @endforeach
                 </select>
             </div>
-
             <div class="task-modal-actions">
-                <button type="button" class="task-modal-btn task-modal-btn--delete" id="taskModalDeleteBtn" style="display:none;">Eliminar</button>
-                <div style="flex:1;"></div>
                 <button type="button" class="task-modal-btn task-modal-btn--cancel" id="taskModalCancel">Cancelar</button>
                 <button type="submit" class="task-modal-btn task-modal-btn--save">Guardar</button>
             </div>
-        </form>
-        <form method="POST" id="taskDeleteForm" style="display:none;">
-            @csrf
-            @method('DELETE')
         </form>
     </div>
 </div>
@@ -258,164 +197,12 @@
 <script>
 (function () {
     const overlay = document.getElementById('taskModalOverlay');
-    const title = document.getElementById('taskModalTitle');
-    const form = document.getElementById('taskForm');
-    const methodField = document.getElementById('taskFormMethod');
-    const related = document.getElementById('taskModalRelated');
-    const relatedLabel = document.getElementById('taskModalRelatedLabel');
-    const relatedLink = document.getElementById('taskModalRelatedLink');
-    const customerName = document.getElementById('taskModalCustomerName');
-    const customerCompany = document.getElementById('taskModalCustomerCompany');
-    const customerPhone = document.getElementById('taskModalCustomerPhone');
-    const customerEmail = document.getElementById('taskModalCustomerEmail');
-    const customerRfc = document.getElementById('taskModalCustomerRfc');
-    const quickViewBtn = document.getElementById('taskModalQuickViewBtn');
-    const quickViewPanel = document.getElementById('taskModalQuickViewPanel');
-    const fieldTitle = document.getElementById('taskFieldTitle');
-    const fieldTitleHint = document.getElementById('taskFieldTitleHint');
-    const fieldDescription = document.getElementById('taskFieldDescription');
-    const fieldDueAt = document.getElementById('taskFieldDueAt');
-    const fieldDueAtHint = document.getElementById('taskFieldDueAtHint');
-    const fieldStatus = document.getElementById('taskFieldStatus');
-    const fieldClosedAtHint = document.getElementById('taskFieldClosedAtHint');
-    const fieldAssignedTo = document.getElementById('taskFieldAssignedTo');
-    const deleteBtn = document.getElementById('taskModalDeleteBtn');
-    const deleteForm = document.getElementById('taskDeleteForm');
+    document.getElementById('taskNewBtn').addEventListener('click', function () { overlay.classList.add('active'); });
+    document.getElementById('taskModalCancel').addEventListener('click', function () { overlay.classList.remove('active'); });
+    overlay.addEventListener('click', function (e) { if (e.target === overlay) overlay.classList.remove('active'); });
 
-    function escapeHtml(value) {
-        const div = document.createElement('div');
-        div.textContent = value || '';
-        return div.innerHTML;
-    }
-
-    function setLine(el, label, value) {
-        if (value) {
-            el.style.display = 'block';
-            el.textContent = label + ': ' + value;
-        } else {
-            el.style.display = 'none';
-        }
-    }
-
-    function openCreate() {
-        title.textContent = 'Nueva tarea';
-        form.action = '{{ route('admin.tasks.store') }}';
-        methodField.innerHTML = '';
-        related.style.display = 'none';
-        quickViewPanel.classList.remove('active');
-        fieldTitle.value = '';
-        fieldTitle.removeAttribute('readonly');
-        fieldTitleHint.style.display = 'none';
-        fieldDescription.value = '';
-        fieldDueAt.value = '';
-        fieldDueAt.removeAttribute('readonly');
-        fieldDueAtHint.style.display = 'none';
-        fieldStatus.value = 'open';
-        fieldClosedAtHint.style.display = 'none';
-        fieldAssignedTo.value = '';
-        deleteBtn.style.display = 'none';
-        overlay.classList.add('active');
-    }
-
-    function openEdit(task) {
-        title.textContent = 'Detalle de la tarea';
-        form.action = '{{ url('admin/tareas') }}/' + task.id;
-        methodField.innerHTML = '<input type="hidden" name="_method" value="PUT">';
-
-        if (task.related_label) {
-            related.style.display = 'block';
-            relatedLabel.textContent = task.related_label;
-            setLine(customerName, 'Cliente', task.customer ? task.customer.name : null);
-            setLine(customerCompany, 'Empresa', task.customer ? task.customer.company : null);
-            setLine(customerPhone, 'Teléfono', task.customer ? task.customer.phone : null);
-            setLine(customerEmail, 'Correo', task.customer ? task.customer.email : null);
-            setLine(customerRfc, 'RFC', task.customer ? task.customer.rfc : null);
-
-            quickViewPanel.classList.remove('active');
-            if (task.quick_view) {
-                quickViewBtn.style.display = 'inline-block';
-                quickViewBtn.textContent = 'Vista rápida ⌄';
-                quickViewBtn.onclick = function () {
-                    const isOpen = quickViewPanel.classList.toggle('active');
-                    quickViewBtn.textContent = isOpen ? 'Vista rápida ⌃' : 'Vista rápida ⌄';
-                    if (isOpen) {
-                        const qv = task.quick_view;
-                        const items = task.quote_items || [];
-                        const productsHtml = items.length ? (
-                            '<div class="task-modal-quickview-products">' +
-                            items.map(function (item) {
-                                const img = item.image_url
-                                    ? '<img src="' + escapeHtml(item.image_url) + '" alt="">'
-                                    : '<div class="task-modal-quickview-product-placeholder"></div>';
-                                return '<div class="task-modal-quickview-product">' + img +
-                                    '<div><div class="task-modal-quickview-product-name">' + escapeHtml(item.name) + '</div>' +
-                                    '<div class="task-modal-quickview-product-sku">' + escapeHtml(item.sku || 'Sin SKU') + '</div></div></div>';
-                            }).join('') +
-                            '</div>'
-                        ) : '';
-                        quickViewPanel.innerHTML =
-                            '<div><strong>N.o cotización:</strong> ' + qv.quote_number + '</div>' +
-                            '<div><strong>Estatus:</strong> ' + qv.status_label + '</div>' +
-                            '<div><strong>Total:</strong> ' + qv.total + '</div>' +
-                            (qv.sent_at ? '<div><strong>Enviada:</strong> ' + qv.sent_at + '</div>' : '') +
-                            (qv.valid_until ? '<div><strong>Vigente hasta:</strong> ' + qv.valid_until + '</div>' : '') +
-                            productsHtml;
-                    }
-                };
-            } else {
-                quickViewBtn.style.display = 'none';
-            }
-
-            if (task.related_url) {
-                relatedLink.style.display = 'inline-block';
-                relatedLink.href = task.related_url;
-            } else {
-                relatedLink.style.display = 'none';
-            }
-        } else {
-            related.style.display = 'none';
-        }
-
-        fieldTitle.value = task.title || '';
-        fieldTitle.setAttribute('readonly', 'readonly');
-        fieldTitleHint.style.display = 'block';
-        fieldDescription.value = task.description || '';
-        fieldDueAt.value = task.due_at || '';
-        fieldDueAt.setAttribute('readonly', 'readonly');
-        fieldDueAtHint.style.display = 'block';
-        fieldStatus.value = task.status || 'open';
-        if (task.closed_at) {
-            fieldClosedAtHint.style.display = 'block';
-            fieldClosedAtHint.textContent = 'Cerrada el ' + task.closed_at;
-        } else {
-            fieldClosedAtHint.style.display = 'none';
-        }
-        fieldAssignedTo.value = task.assigned_to || '';
-
-        deleteBtn.style.display = 'inline-block';
-        deleteBtn.onclick = function () {
-            if (!confirm('¿Eliminar esta tarea? Esto no se puede deshacer.')) return;
-            deleteForm.action = '{{ url('admin/tareas') }}/' + task.id;
-            deleteForm.submit();
-        };
-
-        overlay.classList.add('active');
-    }
-
-    function closeModal() {
-        overlay.classList.remove('active');
-    }
-
-    document.getElementById('taskNewBtn').addEventListener('click', openCreate);
-    document.getElementById('taskModalCancel').addEventListener('click', closeModal);
-    overlay.addEventListener('click', function (e) {
-        if (e.target === overlay) closeModal();
-    });
-
-    document.querySelectorAll('.task-row').forEach(function (row) {
-        row.addEventListener('click', function () {
-            openEdit(JSON.parse(row.dataset.task));
-        });
+    document.querySelectorAll('.task-row[data-href]').forEach(function (row) {
+        row.addEventListener('click', function () { window.location.href = row.dataset.href; });
     });
 })();
 </script>

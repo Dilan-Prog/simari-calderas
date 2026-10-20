@@ -430,6 +430,7 @@ Route::controller(DealController::class)
 // ============================================================
 Route::get('/tareas', [TaskController::class, 'index'])->name('tasks.index');
 Route::post('/tareas', [TaskController::class, 'store'])->name('tasks.store');
+Route::get('/tareas/{task}', [TaskController::class, 'show'])->withTrashed()->name('tasks.show');
 Route::put('/tareas/{task}', [TaskController::class, 'update'])->name('tasks.update');
 Route::delete('/tareas/{task}', [TaskController::class, 'destroy'])->name('tasks.destroy');
 
