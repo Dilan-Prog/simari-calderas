@@ -16,6 +16,24 @@
 .task-items { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
 .task-item { display: flex; align-items: center; gap: 10px; }
 .task-item img, .task-item-ph { width: 34px; height: 34px; object-fit: cover; border-radius: 6px; border: 1px solid var(--erp-line); background: var(--erp-bg); flex-shrink: 0; }
+.task-tl { list-style: none; margin: 0; padding: 0; }
+.task-tl-item { position: relative; padding: 0 0 22px 28px; }
+.task-tl-item::before { content: ''; position: absolute; left: 4px; top: 14px; bottom: -4px; width: 1px; background: var(--erp-line); }
+.task-tl-item:last-child { padding-bottom: 0; }
+.task-tl-item:last-child::before { display: none; }
+.task-tl-dot { position: absolute; left: 0; top: 5px; width: 9px; height: 9px; border-radius: 50%; background: var(--erp-neu-dot); }
+.task-tl-title { font-weight: 700; font-size: 13.5px; color: var(--erp-ink); }
+.task-tl-meta { font-size: 12.5px; color: var(--erp-muted); margin-top: 2px; }
+.task-tl-body { white-space: pre-line; margin-top: 6px; padding: 8px 12px; border-radius: 8px; background: var(--erp-bg); font-size: 13px; color: var(--erp-text); }
+.task-notes-list { display: flex; flex-direction: column; gap: 10px; margin-top: 18px; }
+.task-note { background: var(--erp-bg); border-radius: 10px; padding: 12px 14px; }
+.task-note-text { white-space: pre-line; font-size: 13.5px; color: var(--erp-text); line-height: 1.5; }
+.task-note-meta { font-size: 12px; color: var(--erp-muted); margin-top: 6px; }
+.task-modal { position: fixed; inset: 0; z-index: 10000; display: none; align-items: center; justify-content: center; background: rgba(15,23,42,.45); padding: 16px; }
+.task-modal.is-open { display: flex; }
+.task-modal-card { background: #fff; border-radius: 14px; padding: 20px; width: 100%; max-width: 400px; box-shadow: 0 20px 50px rgba(0,0,0,.25); }
+.task-modal-card h3 { margin: 0 0 14px; font-size: 16px; }
+.task-modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 4px; }
 .task-alert { padding: 10px 14px; margin-bottom: 12px; border-radius: 10px; font-size: 13px; }
 .task-alert--ok { color: var(--erp-ok); background: var(--erp-ok-bg); }
 .task-alert--bad { color: var(--erp-bad); background: var(--erp-bad-bg); }
@@ -32,7 +50,10 @@
     $items = $task->taskableQuoteItems() ?? [];
     $relatedLabel = $task->taskableLabel();
     $relatedUrl = $task->taskableUrl();
-    $subtitle = $relatedLabel ?: ($email ? 'Correo de ' . $email->from_email : null);
+    $subtitle = $relatedLabel ?: ($task->related_reference ?: ($email ? 'Correo de ' . $email->from_email : null));
+    $typeLabel = \App\Models\Task::TYPES[$task->type] ?? '—';
+    $priorityLabel = \App\Models\Task::PRIORITIES[$task->priority] ?? '—';
+    $notesCount = count($notes ?? []);
     $due = $task->due_at ? $task->due_at->format('d/m/Y H:i') : '—';
 @endphp
 <div class="task-page">
@@ -46,11 +67,13 @@
         :back="route('admin.tasks.index')"
         :facts="[
             ['label' => 'Origen', 'value' => $origin],
+            ['label' => 'Tipo', 'value' => $typeLabel],
             ['label' => 'Responsable', 'value' => $task->assignee?->full_name ?? 'Sin asignar'],
             ['label' => 'Vence', 'value' => $due],
-            ['label' => 'Creada', 'value' => $task->created_at->format('d/m/Y H:i')],
+            ['label' => 'Prioridad', 'value' => $priorityLabel],
         ]">
         @unless ($task->trashed())
+            <button type="button" class="erp-btn" onclick="document.getElementById('taskReassignModal').classList.add('is-open')">Reasignar</button>
             <form method="POST" action="{{ route('admin.tasks.update', $task) }}" class="task-inline-form">
                 @csrf @method('PUT')
                 <input type="hidden" name="status" value="{{ $closed ? 'open' : 'closed' }}">
@@ -63,11 +86,35 @@
         @endunless
     </x-erp.object-header>
 
+    @unless ($task->trashed())
+        <div class="task-modal" id="taskReassignModal" onclick="if (event.target === this) this.classList.remove('is-open')">
+            <form method="POST" action="{{ route('admin.tasks.update', $task) }}" class="task-modal-card task-form">
+                @csrf @method('PUT')
+                <input type="hidden" name="status" value="{{ $task->status }}">
+                <h3>Reasignar tarea</h3>
+                <div class="task-field">
+                    <label for="taskReassignTo">Responsable</label>
+                    <select id="taskReassignTo" name="assigned_to" class="erp-select">
+                        <option value="">Sin asignar</option>
+                        @foreach ($users as $u)
+                            <option value="{{ $u->id }}" @selected((int) $task->assigned_to === $u->id)>{{ $u->first_name }} {{ $u->last_name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="task-modal-actions">
+                    <button type="button" class="erp-btn" onclick="document.getElementById('taskReassignModal').classList.remove('is-open')">Cancelar</button>
+                    <button type="submit" class="erp-btn erp-btn--primary">Guardar</button>
+                </div>
+            </form>
+        </div>
+        <script>document.addEventListener('keydown', function (e) { if (e.key === 'Escape') { var m = document.getElementById('taskReassignModal'); if (m) m.classList.remove('is-open'); } });</script>
+    @endunless
+
     @if (session('success')) <div class="task-alert task-alert--ok" role="status">{{ session('success') }}</div> @endif
     @if ($errors->any()) <div class="task-alert task-alert--bad" role="alert">{{ $errors->first() }}</div> @endif
 
     <section class="erp-card" data-erp-tabs>
-        <x-erp.tab-nav :tabs="['general' => 'General', 'historial' => 'Historial']" active="general" />
+        <x-erp.tab-nav :tabs="['general' => 'General', 'historial' => 'Historial', 'notas' => 'Notas' . ($notesCount ? ' (' . $notesCount . ')' : '')]" active="general" />
 
         <div class="erp-tabpanel is-active" data-panel="general">
             <div class="erp-card-body">
@@ -77,6 +124,8 @@
                             ['label' => 'Folio', 'value' => $folio],
                             ['label' => 'Estado', 'value' => $task->trashed() ? 'Eliminada' : \App\Models\Task::statusLabel($task->status)],
                             ['label' => 'Origen', 'value' => $origin],
+                            ['label' => 'Tipo', 'value' => $typeLabel],
+                            ['label' => 'Prioridad', 'value' => $priorityLabel],
                             ['label' => 'Responsable', 'value' => $task->assignee?->full_name ?? 'Sin asignar'],
                             ['label' => 'Vence', 'value' => $due],
                             ['label' => 'Cerrada el', 'value' => $task->closed_at?->format('d/m/Y H:i') ?? '—'],
@@ -125,7 +174,46 @@
 
         <div class="erp-tabpanel" data-panel="historial">
             <div class="erp-card-body">
-                <x-erp.timeline :items="$timeline" />
+                @if (count($timeline))
+                    <ul class="task-tl">
+                        @foreach ($timeline as $item)
+                            <li class="task-tl-item">
+                                <span class="task-tl-dot"></span>
+                                <div class="task-tl-title">{{ $item['title'] }}</div>
+                                <div class="task-tl-meta">{{ $item['actor'] }} · {{ str_replace('.', '', $item['at']->locale('es')->translatedFormat('d M Y · H:i')) }}</div>
+                                @if (! empty($item['body']))<div class="task-tl-body">{{ $item['body'] }}</div>@endif
+                            </li>
+                        @endforeach
+                    </ul>
+                @else
+                    <p class="erp-cell-sub" style="margin:0;">Sin actividad registrada.</p>
+                @endif
+            </div>
+        </div>
+
+        <div class="erp-tabpanel" data-panel="notas">
+            <div class="erp-card-body">
+                @unless ($task->trashed())
+                    <form method="POST" action="{{ route('admin.tasks.notes.store', $task) }}" class="task-form">
+                        @csrf
+                        <div class="task-field">
+                            <textarea name="body" required maxlength="2000" placeholder="Escribe una nota interna...">{{ old('body') }}</textarea>
+                        </div>
+                        <button type="submit" class="erp-btn erp-btn--primary">Agregar nota</button>
+                    </form>
+                @endunless
+                @if ($notesCount)
+                    <div class="task-notes-list">
+                        @foreach ($notes as $note)
+                            <div class="task-note">
+                                <div class="task-note-text">{{ $note->body }}</div>
+                                <div class="task-note-meta">{{ $note->author?->full_name ?? 'Sistema' }} · {{ str_replace('.', '', $note->created_at->locale('es')->translatedFormat('d M Y')) }}</div>
+                            </div>
+                        @endforeach
+                    </div>
+                @else
+                    <p class="erp-cell-sub" style="margin:14px 0 0;">Sin notas.</p>
+                @endif
             </div>
         </div>
     </section>

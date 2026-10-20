@@ -5,23 +5,35 @@
 @push('styles')
     @vite(['resources/css/admin/pages/erp-core.css'])
 <style>
-/* Modal crear/ver/editar -- autocontenido en esta página; usa los tokens de erp-core.css. */
-.task-modal-overlay { display: none; position: fixed; inset: 0; background: rgba(23,25,28,.5); z-index: 1000; align-items: center; justify-content: center; padding: 16px; }
+/* Modal "Nueva tarea" -- autocontenido en esta página; usa los tokens de erp-core.css. */
+.task-modal-overlay { display: none; position: fixed; inset: 0; background: rgba(23,25,28,.55); z-index: 1000; align-items: center; justify-content: center; padding: 16px; }
 .task-modal-overlay.active { display: flex; }
-.task-modal-box { background: var(--erp-surface); border-radius: 12px; width: 100%; max-width: 480px; max-height: 90vh; overflow-y: auto; padding: 24px; }
-.task-modal-title { font-size: 18px; font-weight: 800; color: var(--erp-ink); margin: 0 0 18px; }
-.task-modal-field { margin-bottom: 14px; }
-.task-modal-field label { display: block; font-size: 12.5px; font-weight: 700; color: var(--erp-text); margin-bottom: 5px; }
-.task-modal-field input[type="text"], .task-modal-field input[type="datetime-local"], .task-modal-field select, .task-modal-field textarea {
-    width: 100%; box-sizing: border-box; border: 1px solid #d4d7dc; border-radius: 8px; padding: 9px 11px; font-size: 13.5px; font-family: inherit; color: var(--erp-ink);
+.task-modal-box { background: var(--erp-surface); border-radius: 16px; width: 100%; max-width: 720px; max-height: 92vh; overflow-y: auto; padding: 24px 26px; box-shadow: 0 20px 50px rgba(0,0,0,.25); }
+.task-modal-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; margin-bottom: 18px; }
+.task-modal-eyebrow { font-size: 11.5px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--erp-muted, #6b7280); margin: 0 0 2px; }
+.task-modal-title { font-size: 24px; font-weight: 800; color: var(--erp-ink); margin: 0; line-height: 1.15; }
+.task-modal-head-actions { display: flex; gap: 10px; flex-shrink: 0; }
+.task-modal-error { padding: 10px 14px; margin-bottom: 14px; border-radius: 8px; color: var(--erp-bad); background: var(--erp-bad-bg); font-size: 13px; }
+.task-modal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 20px; }
+.task-modal-field--full { grid-column: 1 / -1; }
+.task-modal-field label, .task-modal-label { display: block; font-size: 12.5px; font-weight: 700; color: var(--erp-text); margin-bottom: 5px; }
+.task-modal-field label .req, .task-modal-label .req { color: var(--erp-bad); }
+.task-modal-field input[type="text"], .task-modal-field input[type="date"], .task-modal-field select, .task-modal-field textarea {
+    width: 100%; box-sizing: border-box; border: 1px solid #d4d7dc; border-radius: 10px; padding: 10px 12px; font-size: 14px; font-family: inherit; color: var(--erp-ink); background: #fff;
 }
 .task-modal-field input:focus, .task-modal-field select:focus, .task-modal-field textarea:focus { outline: none; border-color: var(--erp-accent); box-shadow: 0 0 0 3px rgba(249,115,22,.12); }
-.task-modal-field textarea { resize: vertical; min-height: 70px; }
-.task-modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px; }
-.task-modal-btn { height: 38px; padding: 0 18px; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; border: 1px solid transparent; }
-.task-modal-btn--cancel { background: #fff; color: var(--erp-text); border-color: #d4d7dc; }
-.task-modal-btn--save { background: var(--erp-accent); color: #fff; }
-.task-modal-btn--save:hover { background: #ea6a0c; }
+.task-modal-field textarea { resize: vertical; min-height: 80px; }
+.task-seg { display: inline-flex; border: 1px solid #d4d7dc; border-radius: 10px; overflow: hidden; background: #fff; }
+.task-seg label { margin: 0; cursor: pointer; position: relative; }
+.task-seg input { position: absolute; opacity: 0; pointer-events: none; }
+.task-seg span { display: block; padding: 10px 18px; font-size: 13.5px; font-weight: 700; color: var(--erp-text); border-left: 1px solid #e5e7eb; }
+.task-seg label:first-child span { border-left: 0; }
+.task-seg input:checked + span { background: var(--erp-ink); color: #fff; }
+.task-seg input:focus-visible + span { box-shadow: inset 0 0 0 2px var(--erp-accent); }
+@media (max-width: 640px) {
+    .task-modal-grid { grid-template-columns: 1fr; }
+    .task-modal-head { flex-direction: column; align-items: stretch; }
+}
 
 /* Tabla de tareas: ocupa todo el ancho disponible (sin el tope de 1400px del contenedor ERP) */
 .erp-page { max-width: none !important; margin: 0 !important; }
@@ -41,6 +53,7 @@
         array_merge(['view' => $view === 'open' ? null : $view, 'q' => $q, 'assigned_to' => $assignedTo], $over),
         fn ($v) => $v !== null && $v !== ''
     ));
+    $priorityTone = ['alta' => 'bad', 'media' => 'warn', 'baja' => 'neu'];
     $viewDefs = ['open' => 'Abiertas', 'mine' => 'Mis tareas', 'overdue' => 'Vencidas', 'closed' => 'Cerradas', 'all' => 'Todas'];
     $views = [];
     foreach ($viewDefs as $key => $label) {
@@ -65,7 +78,6 @@
     </x-erp.page-header>
 
     @if (session('success')) <div class="erp-card" role="status" style="padding:10px 14px;margin-bottom:12px;color:var(--erp-ok);background:var(--erp-ok-bg);">{{ session('success') }}</div> @endif
-    @if ($errors->any()) <div class="erp-card" role="alert" style="padding:10px 14px;margin-bottom:12px;color:var(--erp-bad);background:var(--erp-bad-bg);">{{ $errors->first() }}</div> @endif
 
     <x-erp.worklist :views="$views" :chips="$chips">
         <x-slot:toolbar>
@@ -93,8 +105,10 @@
                             <th>Folio</th>
                             <th>Tarea / relacionado</th>
                             <th>Origen</th>
+                            <th>Tipo</th>
                             <th>Responsable</th>
                             <th>Vence</th>
+                            <th>Prioridad</th>
                             <th>Estado</th>
                             <th>Creada</th>
                         </tr>
@@ -109,6 +123,8 @@
                                         <div class="erp-cell-sub"><a href="{{ $task->taskableUrl() }}" class="task-cell-link" onclick="event.stopPropagation()">{{ $task->taskableLabel() }}</a></div>
                                     @elseif ($task->taskableLabel())
                                         <div class="erp-cell-sub">{{ $task->taskableLabel() }}</div>
+                                    @elseif ($task->related_reference)
+                                        <div class="erp-cell-sub">{{ $task->related_reference }}</div>
                                     @elseif ($task->description)
                                         <div class="erp-cell-sub task-cell-desc">{{ $task->description }}</div>
                                     @endif
@@ -122,6 +138,7 @@
                                         <span class="erp-cell-sub">Manual</span>
                                     @endif
                                 </td>
+                                <td>{{ \App\Models\Task::TYPES[$task->type] ?? '—' }}</td>
                                 <td>
                                     @if ($task->assignee)
                                         {{ $task->assignee->full_name }}
@@ -130,6 +147,13 @@
                                     @endif
                                 </td>
                                 <td><x-erp.due :date="$task->due_at" :closed="$task->status === 'closed'" /></td>
+                                <td>
+                                    @if ($task->priority)
+                                        <x-erp.chip :tone="$priorityTone[$task->priority] ?? 'neu'" :label="\App\Models\Task::PRIORITIES[$task->priority] ?? $task->priority" />
+                                    @else
+                                        <span class="erp-cell-sub">—</span>
+                                    @endif
+                                </td>
                                 <td>
                                     @if ($task->trashed())
                                         <x-erp.chip tone="bad" :label="'Eliminada por ' . ($task->deletedBy?->full_name ?? 'usuario eliminado')" />
@@ -152,43 +176,64 @@
 </div>
 
 {{-- Modal para crear una tarea manual. El detalle de cada tarea es la página admin.tasks.show. --}}
-<div class="task-modal-overlay" id="taskModalOverlay">
-    <div class="task-modal-box">
-        <h2 class="task-modal-title">Nueva tarea</h2>
+<div class="task-modal-overlay {{ $errors->any() ? 'active' : '' }}" id="taskModalOverlay">
+    <div class="task-modal-box" role="dialog" aria-modal="true" aria-labelledby="taskModalTitle">
         <form method="POST" action="{{ route('admin.tasks.store') }}">
             @csrf
-            <div class="task-modal-field">
-                <label>Título *</label>
-                <input type="text" name="title" required maxlength="255">
+            <div class="task-modal-head">
+                <div>
+                    <p class="task-modal-eyebrow">Seguimiento</p>
+                    <h2 class="task-modal-title" id="taskModalTitle">Nueva tarea</h2>
+                </div>
+                <div class="task-modal-head-actions">
+                    <button type="button" class="erp-btn" id="taskModalCancel">Cancelar</button>
+                    <button type="submit" class="erp-btn erp-btn--primary">Guardar</button>
+                </div>
             </div>
-            <div class="task-modal-field">
-                <label>Descripción</label>
-                <textarea name="description"></textarea>
-            </div>
-            <div class="task-modal-field">
-                <label>Fecha límite</label>
-                <input type="datetime-local" name="due_at">
-            </div>
-            <div class="task-modal-field">
-                <label>Estado</label>
-                <select name="status">
-                    @foreach (\App\Models\Task::STATUSES as $value => $label)
-                        <option value="{{ $value }}">{{ $label }}</option>
-                    @endforeach
-                </select>
-            </div>
-            <div class="task-modal-field">
-                <label>Asignada a</label>
-                <select name="assigned_to">
-                    <option value="">Sin asignar</option>
-                    @foreach ($users as $user)
-                        <option value="{{ $user->id }}">{{ $user->full_name }}</option>
-                    @endforeach
-                </select>
-            </div>
-            <div class="task-modal-actions">
-                <button type="button" class="task-modal-btn task-modal-btn--cancel" id="taskModalCancel">Cancelar</button>
-                <button type="submit" class="task-modal-btn task-modal-btn--save">Guardar</button>
+            @if ($errors->any()) <div class="task-modal-error" role="alert">{{ $errors->first() }}</div> @endif
+            <div class="task-modal-grid">
+                <div class="task-modal-field task-modal-field--full">
+                    <label for="taskTitle">Tarea <span class="req">*</span></label>
+                    <input type="text" id="taskTitle" name="title" required maxlength="255" value="{{ old('title') }}">
+                </div>
+                <div class="task-modal-field">
+                    <label for="taskRelated">Relacionado con</label>
+                    <input type="text" id="taskRelated" name="related_reference" maxlength="255" value="{{ old('related_reference') }}" placeholder="Folio de negocio, cotización o cliente">
+                </div>
+                <div class="task-modal-field">
+                    <label for="taskType">Tipo</label>
+                    <select id="taskType" name="type">
+                        <option value="">Selecciona...</option>
+                        @foreach (\App\Models\Task::TYPES as $value => $label)
+                            <option value="{{ $value }}" @selected((string) old('type') === (string) $value)>{{ $label }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="task-modal-field">
+                    <label for="taskAssignee">Responsable <span class="req">*</span></label>
+                    <select id="taskAssignee" name="assigned_to" required>
+                        <option value="">Selecciona...</option>
+                        @foreach ($users as $user)
+                            <option value="{{ $user->id }}" @selected((string) old('assigned_to') === (string) $user->id)>{{ $user->full_name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="task-modal-field">
+                    <label for="taskDue">Vence</label>
+                    <input type="date" id="taskDue" name="due_at" value="{{ old('due_at') }}">
+                </div>
+                <div class="task-modal-field task-modal-field--full">
+                    <span class="task-modal-label">Prioridad</span>
+                    <div class="task-seg" role="radiogroup" aria-label="Prioridad">
+                        @foreach (['baja' => 'Baja', 'media' => 'Media', 'alta' => 'Alta'] as $value => $label)
+                            <label><input type="radio" name="priority" value="{{ $value }}" @checked(old('priority', 'media') === $value)><span>{{ $label }}</span></label>
+                        @endforeach
+                    </div>
+                </div>
+                <div class="task-modal-field task-modal-field--full">
+                    <label for="taskDesc">Descripción</label>
+                    <textarea id="taskDesc" name="description">{{ old('description') }}</textarea>
+                </div>
             </div>
         </form>
     </div>
@@ -200,6 +245,7 @@
     document.getElementById('taskNewBtn').addEventListener('click', function () { overlay.classList.add('active'); });
     document.getElementById('taskModalCancel').addEventListener('click', function () { overlay.classList.remove('active'); });
     overlay.addEventListener('click', function (e) { if (e.target === overlay) overlay.classList.remove('active'); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') overlay.classList.remove('active'); });
 
     document.querySelectorAll('.task-row[data-href]').forEach(function (row) {
         row.addEventListener('click', function () { window.location.href = row.dataset.href; });

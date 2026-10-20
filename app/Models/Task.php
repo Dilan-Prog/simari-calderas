@@ -26,6 +26,20 @@ class Task extends Model
         'closed'      => 'Cerrada',
     ];
 
+    const TYPES = [
+        'llamada'  => 'Llamada',
+        'whatsapp' => 'WhatsApp',
+        'correo'   => 'Correo',
+        'visita'   => 'Visita',
+        'cobranza' => 'Cobranza',
+    ];
+
+    const PRIORITIES = [
+        'baja'  => 'Baja',
+        'media' => 'Media',
+        'alta'  => 'Alta',
+    ];
+
     public static function statusLabel(string $status): string
     {
         return self::STATUSES[$status] ?? $status;
@@ -42,6 +56,9 @@ class Task extends Model
         'closed_at',
         'created_by_workflow_id',
         'deleted_by',
+        'type',
+        'priority',
+        'related_reference',
     ];
 
     protected $casts = [
@@ -66,6 +83,22 @@ class Task extends Model
     public function deletedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'deleted_by');
+    }
+
+    public function notes(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(TaskNote::class)->latest();
+    }
+
+    public function events(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(TaskEvent::class);
+    }
+
+    /** Registra un movimiento en el historial de la tarea (user null = sistema). */
+    public function logEvent(string $type, string $title, ?int $userId = null): TaskEvent
+    {
+        return $this->events()->create(['type' => $type, 'title' => $title, 'user_id' => $userId]);
     }
 
     public function createdByWorkflow(): BelongsTo

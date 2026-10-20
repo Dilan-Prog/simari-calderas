@@ -88,27 +88,35 @@ class TaskController extends Controller
         $email = \App\Models\LeadInboundEmail::where('task_id', $task->id)->first();
         $origin = $task->createdByWorkflow?->name ?? ($email ? 'Correo N8N' : 'Manual');
 
-        $timeline = collect([['type' => 'tarea', 'title' => 'Tarea creada · ' . $origin, 'at' => $task->created_at, 'body' => null]]);
+        // Historial: movimientos registrados + correo recibido + (si no hay registro) la creación derivada.
+        $events = $task->events()->with('actor')->get();
+        $timeline = $events->map(fn ($e) => [
+            'title' => $e->title,
+            'actor' => $e->actor?->full_name ?? 'Sistema',
+            'at'    => $e->created_at,
+            'body'  => null,
+        ]);
+        if (! $events->contains('type', 'created')) {
+            $timeline->push(['title' => 'Tarea creada · ' . $origin, 'actor' => 'Sistema', 'at' => $task->created_at, 'body' => null]);
+        }
         if ($email) {
             $timeline->push([
-                'type'  => 'formulario',
                 'title' => 'Correo recibido' . ($email->subject ? ': ' . $email->subject : ''),
+                'actor' => $email->from_name ?: $email->from_email,
                 'at'    => $email->received_at ?? $email->created_at,
                 'body'  => $email->excerpt,
             ]);
         }
-        if ($task->closed_at) {
-            $timeline->push(['type' => 'tarea', 'title' => 'Tarea cerrada', 'at' => $task->closed_at, 'body' => null]);
-        }
-        if ($task->trashed()) {
-            $timeline->push(['type' => 'tarea', 'title' => 'Eliminada por ' . ($task->deletedBy?->full_name ?? 'usuario eliminado'), 'at' => $task->deleted_at, 'body' => null]);
+        if ($task->closed_at && ! $events->contains(fn ($e) => $e->type === 'status' && str_contains($e->title, 'Cerrada'))) {
+            $timeline->push(['title' => 'Tarea cerrada', 'actor' => 'Sistema', 'at' => $task->closed_at, 'body' => null]);
         }
 
         return view('admin.tasks.show', [
             'task'     => $task,
             'origin'   => $origin,
             'email'    => $email,
-            'timeline' => $timeline->sortBy('at')->values()->all(),
+            'timeline' => $timeline->sortByDesc('at')->values()->all(),
+            'notes'    => $task->notes()->with('author')->get(),
             'lead'     => $task->taskable instanceof \App\Models\Lead ? $task->taskable : null,
             'users'    => User::orderBy('first_name')->get(['id', 'first_name', 'last_name']),
         ]);
@@ -123,14 +131,26 @@ class TaskController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'title'       => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'due_at'      => 'nullable|date',
-            'status'      => 'required|in:' . implode(',', array_keys(Task::STATUSES)),
-            'assigned_to' => 'nullable|exists:users,id',
+            'title'             => 'required|string|max:255',
+            'description'       => 'nullable|string',
+            'related_reference' => 'nullable|string|max:255',
+            'type'              => 'nullable|in:' . implode(',', array_keys(Task::TYPES)),
+            'priority'          => 'nullable|in:' . implode(',', array_keys(Task::PRIORITIES)),
+            'due_at'            => 'nullable|date',
+            'status'            => 'nullable|in:' . implode(',', array_keys(Task::STATUSES)),
+            'assigned_to'       => 'required|exists:users,id',
         ]);
+        $data['status'] = $data['status'] ?? 'open';
 
-        Task::create($data);
+        // Si la referencia es el folio de una cotización, la tarea queda ligada a ella.
+        $ref = trim((string) ($data['related_reference'] ?? ''));
+        if ($ref !== '' && ($quote = Quote::where('quote_number', $ref)->first())) {
+            $data['taskable_type'] = Quote::class;
+            $data['taskable_id'] = $quote->id;
+        }
+
+        $task = Task::create($data);
+        $task->logEvent('created', 'Tarea creada', $request->user()?->id);
 
         return redirect()->route('admin.tasks.index')->with('success', 'Tarea creada.');
     }
@@ -156,7 +176,16 @@ class TaskController extends Controller
             $data['closed_at'] = now();
         }
 
+        $before = ['status' => $task->status, 'assigned_to' => $task->assigned_to];
         $task->update($data);
+
+        $uid = $request->user()?->id;
+        if (array_key_exists('status', $data) && $before['status'] !== $task->status) {
+            $task->logEvent('status', 'Estatus actualizado a «' . Task::statusLabel($task->status) . '»', $uid);
+        }
+        if (array_key_exists('assigned_to', $data) && (int) $before['assigned_to'] !== (int) $task->assigned_to) {
+            $task->logEvent('assigned', 'Responsable cambiado a ' . ($task->assignee?->full_name ?? 'Sin asignar'), $uid);
+        }
 
         return redirect()->route('admin.tasks.show', $task)->with('success', 'Tarea actualizada.');
     }
@@ -169,8 +198,19 @@ class TaskController extends Controller
     public function destroy(Request $request, Task $task)
     {
         $task->update(['deleted_by' => $request->user()->id]);
+        $task->logEvent('deleted', 'Tarea eliminada', $request->user()->id);
         $task->delete();
 
         return redirect()->route('admin.tasks.index')->with('success', 'Tarea eliminada.');
+    }
+
+    /** Nota interna de una tarea. */
+    public function storeNote(Request $request, Task $task)
+    {
+        $data = $request->validate(['body' => 'required|string|max:2000']);
+
+        $task->notes()->create(['body' => trim($data['body']), 'user_id' => $request->user()?->id]);
+
+        return redirect(route('admin.tasks.show', $task) . '#notas')->with('success', 'Nota agregada.');
     }
 }
