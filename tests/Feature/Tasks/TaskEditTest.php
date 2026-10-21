@@ -96,6 +96,27 @@ class TaskEditTest extends TestCase
         $this->assertTrue($original->equalTo($task->fresh()->due_at));
     }
 
+    public function test_cambiar_solo_la_hora_se_guarda_en_24_horas_y_se_registra(): void
+    {
+        $task = $this->task(['due_at' => now()->addDays(2)->setTime(9, 0)]);
+        $day = $task->due_at->format('Y-m-d');
+
+        $this->actingAs($this->admin)->put(route('admin.tasks.update', $task), ['due_at' => $day . ' 18:45']);
+
+        $this->assertSame($day . ' 18:45', $task->fresh()->due_at->format('Y-m-d H:i'));
+        $this->assertStringContainsString('09:00 → ' . $task->due_at->format('d/m/Y') . ' 18:45', implode(' | ', $this->titles($task)));
+    }
+
+    public function test_misma_fecha_y_hora_al_minuto_no_cuenta_como_cambio(): void
+    {
+        $task = $this->task(['due_at' => now()->addDays(2)->setTime(15, 30, 42)]);
+
+        $this->actingAs($this->admin)->put(route('admin.tasks.update', $task), ['due_at' => $task->due_at->format('Y-m-d H:i')]);
+
+        $this->assertSame([], $this->titles($task));
+        $this->assertSame('15:30:42', $task->fresh()->due_at->format('H:i:s'));
+    }
+
     public function test_acciones_parciales_siguen_funcionando_sin_titulo(): void
     {
         $task = $this->task();

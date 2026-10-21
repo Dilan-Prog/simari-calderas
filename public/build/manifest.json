@@ -548,6 +548,18 @@
       "resources/js/admin/charts.js"
     ]
   },
+  "resources/js/admin/task-date-picker.js": {
+    "file": "assets/task-date-picker-EXNECiNN.js",
+    "name": "task-date-picker",
+    "src": "resources/js/admin/task-date-picker.js",
+    "isEntry": true,
+    "imports": [
+      "__commonjsHelpers-Cpj98o6Y.js"
+    ],
+    "css": [
+      "assets/task-date-picker-C6-88Yoz.css"
+    ]
+  },
   "resources/js/admin/technical-services.js": {
     "file": "assets/technical-services-CwcSFza2.js",
     "name": "technical-services",

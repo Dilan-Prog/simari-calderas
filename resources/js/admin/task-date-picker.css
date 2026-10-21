@@ -1,0 +1,31 @@
+/* Calendario de Tareas con los colores de Equiterm (tokens --erp-* de erp-core.css). */
+.task-due-quick { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.task-due-quick button { border: 1px solid #d9dce1; background: #fff; color: var(--erp-text, #374151); font-size: 12px; font-weight: 700; border-radius: 999px; padding: 4px 11px; cursor: pointer; }
+.task-due-quick button:hover { border-color: var(--erp-accent, #f97316); color: var(--erp-accent-dark, #c2410c); }
+.task-due-quick .is-clear { border-color: transparent; background: none; color: var(--erp-muted, #6b7280); }
+
+.flatpickr-calendar { font-family: inherit; border-radius: 14px; border: 1px solid var(--erp-line, #e6e8eb); box-shadow: 0 16px 40px rgba(23,25,28,.2); width: 320px; padding: 6px 6px 8px; z-index: 10100; }
+.flatpickr-calendar.arrowTop:before, .flatpickr-calendar.arrowTop:after,
+.flatpickr-calendar.arrowBottom:before, .flatpickr-calendar.arrowBottom:after { display: none; }
+.flatpickr-months { padding: 4px 4px 2px; align-items: center; }
+.flatpickr-months .flatpickr-prev-month, .flatpickr-months .flatpickr-next-month { position: static; height: 34px; width: 34px; display: flex; align-items: center; justify-content: center; border-radius: 8px; color: var(--erp-ink, #17191c); fill: var(--erp-ink, #17191c); }
+.flatpickr-months .flatpickr-prev-month:hover, .flatpickr-months .flatpickr-next-month:hover { background: var(--erp-accent-soft, #fff4ec); }
+.flatpickr-months .flatpickr-prev-month:hover svg, .flatpickr-months .flatpickr-next-month:hover svg { fill: var(--erp-accent-dark, #c2410c); }
+.flatpickr-current-month { font-size: 15px; font-weight: 800; color: var(--erp-ink, #17191c); padding: 0; height: 34px; display: flex; align-items: center; justify-content: center; gap: 6px; position: static; width: auto; flex: 1; }
+.flatpickr-current-month .flatpickr-monthDropdown-months { font-weight: 800; border-radius: 6px; padding: 4px 6px; }
+.flatpickr-current-month .flatpickr-monthDropdown-months:hover, .flatpickr-current-month input.cur-year:hover { background: var(--erp-accent-soft, #fff4ec); }
+.flatpickr-current-month input.cur-year { font-weight: 800; }
+span.flatpickr-weekday { color: var(--erp-muted, #6b7280); font-weight: 700; font-size: 11.5px; text-transform: uppercase; }
+.flatpickr-days { width: 100%; }
+.dayContainer { width: 100%; min-width: 100%; max-width: 100%; }
+.flatpickr-day { height: 38px; line-height: 38px; max-width: none; width: 14.2857%; flex-basis: 14.2857%; border-radius: 10px; font-weight: 600; color: var(--erp-ink, #17191c); border-color: transparent; }
+.flatpickr-day:hover { background: var(--erp-accent-soft, #fff4ec); border-color: transparent; color: var(--erp-accent-dark, #c2410c); }
+.flatpickr-day.today { border-color: var(--erp-accent, #f97316); }
+.flatpickr-day.today:hover { background: var(--erp-accent-soft, #fff4ec); }
+.flatpickr-day.selected, .flatpickr-day.selected:hover { background: var(--erp-accent, #f97316); border-color: var(--erp-accent, #f97316); color: #fff; }
+.flatpickr-day.prevMonthDay, .flatpickr-day.nextMonthDay { color: var(--erp-faint, #9ca3af); }
+.flatpickr-time { border-top: 1px solid var(--erp-line-soft, #eef0f2); margin-top: 6px; max-height: 52px; height: 52px; }
+.flatpickr-time .numInputWrapper { height: 40px; }
+.flatpickr-time input { font-size: 18px; font-weight: 800; color: var(--erp-ink, #17191c); }
+.flatpickr-time .flatpickr-time-separator { font-size: 18px; font-weight: 800; }
+.flatpickr-time input:hover, .flatpickr-time input:focus, .flatpickr-time .flatpickr-am-pm:hover { background: var(--erp-accent-soft, #fff4ec); }

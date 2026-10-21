@@ -174,13 +174,16 @@ class TaskController extends Controller
             'assigned_to'       => 'nullable|exists:users,id',
         ]);
 
-        // El formulario manda la fecha sin hora: si el día no cambió se conserva la hora original.
+        // La fecha llega como "YYYY-MM-DD HH:mm" (o solo "YYYY-MM-DD" desde la API). Si coincide con la
+        // actual al minuto no cuenta como cambio: así se conservan los segundos de las tareas automáticas.
         if (array_key_exists('due_at', $data)) {
-            $newDay = $data['due_at'] ? \Illuminate\Support\Carbon::parse($data['due_at'])->toDateString() : null;
-            if ($newDay === $task->due_at?->toDateString()) {
+            $newDue = $data['due_at'] ? \Illuminate\Support\Carbon::parse($data['due_at']) : null;
+            $dateOnly = $newDue && strlen(trim((string) $data['due_at'])) <= 10;
+            $fmt = $dateOnly ? 'Y-m-d' : 'Y-m-d H:i';
+            if (($newDue?->format($fmt)) === ($task->due_at?->format($fmt))) {
                 unset($data['due_at']);
             } else {
-                $data['due_at'] = $newDay;
+                $data['due_at'] = $newDue;
             }
         }
         foreach (['description', 'related_reference', 'type', 'priority'] as $f) {
@@ -219,7 +222,7 @@ class TaskController extends Controller
             $task->logEvent('edited', 'Prioridad cambiada: ' . $dash($label(Task::PRIORITIES, $before['priority'])) . ' → ' . $dash($label(Task::PRIORITIES, $task->priority)), $uid);
         }
         if (array_key_exists('due_at', $data)) {
-            $task->logEvent('edited', 'Fecha límite cambiada: ' . ($beforeDue?->format('d/m/Y') ?? '—') . ' → ' . ($task->due_at?->format('d/m/Y') ?? '—'), $uid);
+            $task->logEvent('edited', 'Fecha límite cambiada: ' . ($beforeDue?->format('d/m/Y H:i') ?? '—') . ' → ' . ($task->due_at?->format('d/m/Y H:i') ?? '—'), $uid);
         }
         if ($changed('description')) {
             $task->logEvent('edited', 'Descripción editada', $uid);

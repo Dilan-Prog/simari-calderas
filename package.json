@@ -23,6 +23,7 @@
     "dependencies": {
         "@xyflow/react": "^12.11.2",
         "chart.js": "^4.5.1",
+        "flatpickr": "^4.6.13",
         "react": "^19.2.8",
         "react-dom": "^19.2.8",
         "sortablejs": "^1.15.7"

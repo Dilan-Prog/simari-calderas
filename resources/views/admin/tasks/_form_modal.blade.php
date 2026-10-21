@@ -8,7 +8,7 @@
     $uid = 'taskModal' . ucfirst($mode);
     $reopen = $errors->any() && old('_modal') === $mode;
     $val = fn (string $field, $fallback = '') => old($field, $isEdit ? ($fallback) : '');
-    $dueValue = old('due_at', $isEdit ? $task->due_at?->format('Y-m-d') : '');
+    $dueValue = old('due_at', $isEdit ? $task->due_at?->format('Y-m-d H:i') : '');
     $priorityValue = old('priority', $isEdit ? ($task->priority ?? '') : 'media');
 @endphp
 @once
@@ -88,8 +88,8 @@
                     </select>
                 </div>
                 <div class="task-modal-field">
-                    <label for="{{ $uid }}Due">Vence</label>
-                    <input type="date" id="{{ $uid }}Due" name="due_at" value="{{ $dueValue }}">
+                    <label for="{{ $uid }}Due">Vence (fecha y hora, 24 h)</label>
+                    <input type="text" id="{{ $uid }}Due" name="due_at" value="{{ $dueValue }}" data-due-picker>
                 </div>
                 @if ($isEdit)
                     <div class="task-modal-field">
@@ -120,6 +120,7 @@
 
 @once
     @push('scripts')
+    @vite(['resources/js/admin/task-date-picker.js'])
     <script>
     (function () {
         function overlayFor(mode) { return document.querySelector('[data-task-modal="' + mode + '"]'); }
