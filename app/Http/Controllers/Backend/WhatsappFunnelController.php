@@ -11,7 +11,7 @@ use App\Models\User;
 use App\Models\WhatsappAccount;
 use App\Models\WhatsappConversation;
 use App\Services\DealService;
-use App\Services\WhatsappBaileysService;
+// QR-AISLADO (OBLIGATORIO NO TOCAR): use App\Services\WhatsappBaileysService;
 use App\Services\WhatsappService;
 use Illuminate\Http\Request;
 
@@ -30,18 +30,33 @@ class WhatsappFunnelController extends Controller
     ) {}
 
     /**
-     * Resuelve el servicio correcto según el tipo de conexión de la cuenta —
-     * meta_cloud_api (el constructor-injected WhatsappService, comportamiento
-     * de siempre) o baileys_qr (WhatsappBaileysService, microservicio Node
-     * aparte). Ambos exponen el mismo contrato público, así que el caller no
-     * necesita ramificar más allá de esto.
+     * Servicio de envío: SOLO la API oficial de Meta (WhatsappService).
+     * La vía QR/Baileys está desactivada (bloque QR-AISLADO de abajo).
      */
-    private function resolveService(WhatsappAccount $account): WhatsappService|WhatsappBaileysService
+    private function resolveService(WhatsappAccount $account): WhatsappService
     {
-        return $account->connection_type === 'baileys_qr'
-            ? app(WhatsappBaileysService::class)
-            : $this->whatsappService;
+        return $this->whatsappService;
     }
+
+    // QR-AISLADO · OBLIGATORIO NO TOCAR · INICIO
+    // Vía WhatsApp Web/Baileys (QR, NO oficial). DESACTIVADA a propósito: este proyecto usa SOLO la API
+    // oficial de Meta (Cloud API). Se deja COMENTADA para no interferir con el código original.
+    // No la borres ni la reactives sin consultar. Para volver a usarla: descomentar todos los bloques
+    // marcados con "QR-AISLADO" (buscar con grep -rn "QR-AISLADO" app routes resources config tests).
+    //     /**
+    //      * Resuelve el servicio correcto según el tipo de conexión de la cuenta —
+    //      * meta_cloud_api (el constructor-injected WhatsappService, comportamiento
+    //      * de siempre) o baileys_qr (WhatsappBaileysService, microservicio Node
+    //      * aparte). Ambos exponen el mismo contrato público, así que el caller no
+    //      * necesita ramificar más allá de esto.
+    //      */
+    //     private function resolveService(WhatsappAccount $account): WhatsappService|WhatsappBaileysService
+    //     {
+    //         return $account->connection_type === 'baileys_qr'
+    //             ? app(WhatsappBaileysService::class)
+    //             : $this->whatsappService;
+    //     }
+    // QR-AISLADO · OBLIGATORIO NO TOCAR · FIN
 
     /**
      * Kanban principal. Acepta ?pipeline_id= para cambiar de embudo
@@ -408,19 +423,24 @@ class WhatsappFunnelController extends Controller
 
         $service = $this->resolveService($account);
 
-        if ($account->connection_type === 'baileys_qr') {
-            // Baileys/QR no tiene concepto de plantilla ni la restricción de
-            // "solo plantilla" de Meta para abrir conversación -- se envía
-            // texto libre directamente.
-            $text = empty($data['params'] ?? []) ? $data['template_name'] : implode(' ', $data['params']);
-            $service->sendTextMessage($conversation, $text);
-        } else {
-            $service->sendTemplateMessage(
-                $conversation,
-                $data['template_name'],
-                $data['params'] ?? []
-            );
-        }
+        // QR-AISLADO · OBLIGATORIO NO TOCAR · INICIO
+        // Vía WhatsApp Web/Baileys (QR, NO oficial). DESACTIVADA a propósito: este proyecto usa SOLO la API
+        // oficial de Meta (Cloud API). Se deja COMENTADA para no interferir con el código original.
+        // No la borres ni la reactives sin consultar. Para volver a usarla: descomentar todos los bloques
+        // marcados con "QR-AISLADO" (buscar con grep -rn "QR-AISLADO" app routes resources config tests).
+        // if ($account->connection_type === 'baileys_qr') {
+        //     // Baileys/QR no tiene concepto de plantilla ni la restricción de
+        //     // "solo plantilla" de Meta para abrir conversación -- se envía
+        //     // texto libre directamente.
+        //     $text = empty($data['params'] ?? []) ? $data['template_name'] : implode(' ', $data['params']);
+        //     $service->sendTextMessage($conversation, $text);
+        // } else {
+        // QR-AISLADO · OBLIGATORIO NO TOCAR · FIN
+        $service->sendTemplateMessage(
+            $conversation,
+            $data['template_name'],
+            $data['params'] ?? []
+        );
 
         return response()->json([
             'success' => true,

@@ -305,6 +305,7 @@ class WhatsappFunnelControllerTest extends TestCase
 
     public function test_send_message_for_baileys_qr_account_uses_the_qr_service_not_meta(): void
     {
+        $this->markTestSkipped('QR-AISLADO · OBLIGATORIO NO TOCAR: la vía QR/Baileys está DESACTIVADA (se usa SOLO la API oficial de Meta). Quitar este skip únicamente si se reactiva el bloque comentado.');
         Config::set('services.whatsapp_qr.url', 'https://qr.example.test');
         Config::set('services.whatsapp_qr.secret', 'qr-shared-secret');
 
@@ -346,6 +347,7 @@ class WhatsappFunnelControllerTest extends TestCase
 
     public function test_send_message_for_baileys_qr_account_allows_free_text_outside_any_window(): void
     {
+        $this->markTestSkipped('QR-AISLADO · OBLIGATORIO NO TOCAR: la vía QR/Baileys está DESACTIVADA (se usa SOLO la API oficial de Meta). Quitar este skip únicamente si se reactiva el bloque comentado.');
         // A diferencia de Meta, Baileys/QR no tiene ventana de 24h -- el
         // envío de texto libre nunca debe ser rechazado con 422 por esta
         // regla, aunque no exista ningún mensaje entrante previo.
@@ -427,6 +429,7 @@ class WhatsappFunnelControllerTest extends TestCase
 
     public function test_new_chat_for_baileys_qr_account_sends_plain_text_not_a_forced_template(): void
     {
+        $this->markTestSkipped('QR-AISLADO · OBLIGATORIO NO TOCAR: la vía QR/Baileys está DESACTIVADA (se usa SOLO la API oficial de Meta). Quitar este skip únicamente si se reactiva el bloque comentado.');
         Config::set('services.whatsapp_qr.url', 'https://qr.example.test');
         Config::set('services.whatsapp_qr.secret', 'qr-shared-secret');
 

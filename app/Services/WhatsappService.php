@@ -23,8 +23,8 @@ use Illuminate\Support\Str;
  */
 class WhatsappService
 {
-    private const GRAPH_API_VERSION = 'v19.0';
-    private const GRAPH_API_BASE = 'https://graph.facebook.com';
+    public const GRAPH_API_VERSION = 'v19.0';
+    public const GRAPH_API_BASE = 'https://graph.facebook.com';
 
     private function baseUrl(WhatsappAccount $account): string
     {

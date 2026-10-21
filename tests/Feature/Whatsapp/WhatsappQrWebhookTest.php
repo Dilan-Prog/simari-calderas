@@ -22,6 +22,13 @@ class WhatsappQrWebhookTest extends TestCase
 {
     use RefreshDatabase;
 
+    // QR-AISLADO · OBLIGATORIO NO TOCAR: la vía QR/Baileys está DESACTIVADA (se usa SOLO la API oficial de Meta). Quitar este skip únicamente si se reactiva el bloque comentado.
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->markTestSkipped('QR-AISLADO · OBLIGATORIO NO TOCAR: la vía QR/Baileys está DESACTIVADA (se usa SOLO la API oficial de Meta). Quitar este skip únicamente si se reactiva el bloque comentado.');
+    }
+
     private function makeAccount(array $overrides = []): WhatsappAccount
     {
         return WhatsappAccount::create(array_merge([

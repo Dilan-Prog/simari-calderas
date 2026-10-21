@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Public;
 use App\Http\Controllers\Controller;
 use App\Jobs\ProcessWhatsappWebhookJob;
 use App\Models\WhatsappAccount;
+use App\Support\WhatsappWebhookLog;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
@@ -33,7 +34,14 @@ class WhatsappWebhookController extends Controller
             && WhatsappAccount::where('webhook_verify_token', $token)->exists();
 
         if ($mode === 'subscribe' && $tokenIsValid) {
+            WhatsappWebhookLog::markVerified();
+
             return response($challenge, 200)->header('Content-Type', 'text/plain');
+        }
+
+        // Para el panel "Probar conexión": se ve que Meta llegó pero el token no coincide.
+        if ($mode === 'subscribe') {
+            WhatsappWebhookLog::markVerifyFailed();
         }
 
         return response('Forbidden', 403);
@@ -57,12 +65,15 @@ class WhatsappWebhookController extends Controller
     public function receive(Request $request): Response
     {
         if (!$this->hasValidSignature($request)) {
+            WhatsappWebhookLog::markRejected('Firma X-Hub-Signature-256 inválida o ausente (revisa el App Secret de la cuenta)');
+
             return response('Forbidden', 403);
         }
 
         $payload = $request->json()->all();
 
         if (!empty($payload)) {
+            WhatsappWebhookLog::recordEvent($payload);
             ProcessWhatsappWebhookJob::dispatch($payload);
         }
 

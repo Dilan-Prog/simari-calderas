@@ -19,7 +19,7 @@
         // estado "conectada"/"sin configurar" en el sidebar, en vez del
         // resumen combinado que había antes.
         $metaWhatsappConfigured = $metaWhatsappActiveCount > 0;
-        $qrWhatsappConfigured = $qrWhatsappConnectedCount > 0;
+        // QR-AISLADO · OBLIGATORIO NO TOCAR: // $qrWhatsappConfigured = $qrWhatsappConnectedCount > 0;
         $webhooksConfigured = $webhooks->count() > 0;
         // $mercadoPagoConfigured ya llega calculado desde IntegrationController::index()
         // (un sub-array por rol/aplicación de Mercado Pago -- ver $mercadoPago).
@@ -90,6 +90,8 @@
                             </span>
                         </span>
                     </button>
+                    {{-- QR-AISLADO · OBLIGATORIO NO TOCAR · INICIO — vía WhatsApp Web/Baileys (QR, NO oficial) DESACTIVADA: se usa SOLO la API oficial de Meta. Bloque envuelto en @if (false) para no interferir con el código original. No borrar ni reactivar sin consultar. --}}
+                    @if (false)
                     <button type="button" class="integr-sidebar-item" data-panel="whatsapp-web">
                         <span class="integr-avatar">WW</span>
                         <span class="integr-sidebar-item-text">
@@ -100,6 +102,8 @@
                             </span>
                         </span>
                     </button>
+                    @endif
+                    {{-- QR-AISLADO · OBLIGATORIO NO TOCAR · FIN --}}
                     <button type="button" class="integr-sidebar-item" data-panel="webhooks">
                         <span class="integr-avatar">WH</span>
                         <span class="integr-sidebar-item-text">
@@ -333,6 +337,7 @@
                             <div class="integr-tabs">
                                 <button type="button" class="integr-tab active" data-tab="credenciales">Credenciales</button>
                                 <button type="button" class="integr-tab" data-tab="avanzado">Avanzado</button>
+                                <button type="button" class="integr-tab" data-tab="prueba">Probar conexión</button>
                             </div>
 
                             <div class="integr-tab-content active" data-tab-content="credenciales">
@@ -463,9 +468,17 @@
                                     </div>
                                 </div>
                             </div>
+
+                            {{-- ---- Probar conexión: verifica la cuenta contra Meta, manda un mensaje de prueba y muestra el estado
+                                 del webhook (WhatsappConnectionTestController). --}}
+                            <div class="integr-tab-content" data-tab-content="prueba">
+                                @include('admin.integrations.partials._whatsapp_test_panel', ['accounts' => $metaWhatsappAccounts, 'webhookUrl' => $whatsappWebhookUrl])
+                            </div>
                         </div>
                     </div>
 
+                    {{-- QR-AISLADO · OBLIGATORIO NO TOCAR · INICIO — vía WhatsApp Web/Baileys (QR, NO oficial) DESACTIVADA: se usa SOLO la API oficial de Meta. Bloque envuelto en @if (false) para no interferir con el código original. No borrar ni reactivar sin consultar. --}}
+                    @if (false)
                     {{-- ============ Panel 2b: WhatsApp Web (conexión por QR / Baileys) ============
                          Segunda mitad de la fusión de la antigua pantalla
                          standalone -- tabla+CRUD reales filtrados a
@@ -625,6 +638,8 @@
                             </div>
                         </div>
                     </div>
+                    @endif
+                    {{-- QR-AISLADO · OBLIGATORIO NO TOCAR · FIN --}}
 
                     {{-- ============ Panel 3: Webhooks (CRUD modal, patrón Credenciales) ============ --}}
                     <div class="integr-panel" id="integrPanel-webhooks">
@@ -1308,7 +1323,9 @@
 @include('admin.integrations.partials._webhook_modal_delete')
 @include('admin.integrations.partials._webhook_scripts')
 @include('admin.integrations.partials._whatsapp_api_modal_form')
-@include('admin.integrations.partials._whatsapp_qr_modal_form')
-@include('admin.integrations.partials._whatsapp_qr_modal_scan')
+{{-- QR-AISLADO · OBLIGATORIO NO TOCAR · INICIO — vía WhatsApp Web/Baileys (QR, NO oficial) DESACTIVADA: se usa SOLO la API oficial de Meta. Bloque envuelto en @if (false) para no interferir con el código original. No borrar ni reactivar sin consultar. --}}
+{{-- @include('admin.integrations.partials._whatsapp_qr_modal_form') --}}
+{{-- @include('admin.integrations.partials._whatsapp_qr_modal_scan') --}}
+{{-- QR-AISLADO · OBLIGATORIO NO TOCAR · FIN --}}
 @include('admin.integrations.partials._whatsapp_modal_delete')
 @include('admin.integrations.partials._whatsapp_scripts')

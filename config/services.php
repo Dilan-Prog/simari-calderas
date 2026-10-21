@@ -39,14 +39,20 @@ return [
         'webhook_token' => env('HOSTINGER_MAIL_WEBHOOK_TOKEN'),
     ],
 
+    // QR-AISLADO · OBLIGATORIO NO TOCAR · INICIO
+    // Vía WhatsApp Web/Baileys (QR, NO oficial). DESACTIVADA a propósito: este proyecto usa SOLO la API
+    // oficial de Meta (Cloud API). Se deja COMENTADA para no interferir con el código original.
+    // No la borres ni la reactives sin consultar. Para volver a usarla: descomentar todos los bloques
+    // marcados con "QR-AISLADO" (buscar con grep -rn "QR-AISLADO" app routes resources config tests).
     // Microservicio Node.js de WhatsApp vía Baileys/QR (whatsapp-qr-service/,
     // repo aparte) — segundo tipo de conexión junto a meta_cloud_api, ver
     // WhatsappBaileysService y WhatsappQrWebhookController. `secret` se envía
     // como "Authorization: Bearer <secret>" en ambas direcciones.
-    'whatsapp_qr' => [
-        'url' => env('WHATSAPP_QR_SERVICE_URL'),
-        'secret' => env('WHATSAPP_QR_SHARED_SECRET'),
-    ],
+    // 'whatsapp_qr' => [
+    //     'url' => env('WHATSAPP_QR_SERVICE_URL'),
+    //     'secret' => env('WHATSAPP_QR_SHARED_SECRET'),
+    // ],
+    // QR-AISLADO · OBLIGATORIO NO TOCAR · FIN
 
     // Credenciales de Mercado Pago. Cada "rol" es una Aplicación distinta
     // registrada en el panel de desarrolladores de Mercado Pago -- MP emite

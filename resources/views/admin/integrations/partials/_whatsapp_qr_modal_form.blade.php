@@ -1,3 +1,4 @@
+{{-- QR-AISLADO · OBLIGATORIO NO TOCAR · INICIO Vía WhatsApp Web/Baileys (QR, NO oficial). DESACTIVADA a propósito: este proyecto usa SOLO la API oficial de Meta (Cloud API). Se deja COMENTADA para no interferir con el código original. Parcial YA NO incluido desde integrations/index.blade.php. --}}
 {{-- Crear cuenta "WhatsApp Web" (conexión por QR, Baileys) -- un solo campo
      (Nombre), a diferencia del modal de API que captura phone_number_id/
      tokens/etc. Movido desde

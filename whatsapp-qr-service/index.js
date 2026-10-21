@@ -1,3 +1,5 @@
+// QR-AISLADO · OBLIGATORIO NO TOCAR · INICIO
+// Microservicio de la vía QR/Baileys (no oficial). DESACTIVADO: se usa SOLO la API oficial de Meta. No desplegar ni modificar sin consultar.
 require('dotenv').config();
 
 const fs = require('fs');

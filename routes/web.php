@@ -16,7 +16,7 @@ use App\Http\Controllers\MediaServeController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Public\EmailBounceWebhookController;
 use App\Http\Controllers\Public\MercadoPagoWebhookController;
-use App\Http\Controllers\Public\WhatsappQrWebhookController;
+// QR-AISLADO (OBLIGATORIO NO TOCAR): use App\Http\Controllers\Public\WhatsappQrWebhookController;
 use App\Http\Controllers\Public\WhatsappWebhookController;
 use Illuminate\Support\Facades\Route;
 
@@ -45,10 +45,16 @@ Route::get('/e/unsubscribe/{token}', [EmailTrackingController::class, 'unsubscri
 Route::get('/whatsapp/webhook', [WhatsappWebhookController::class, 'verify'])->name('whatsapp.webhook.verify');
 Route::post('/whatsapp/webhook', [WhatsappWebhookController::class, 'receive'])->name('whatsapp.webhook.receive');
 
+// QR-AISLADO · OBLIGATORIO NO TOCAR · INICIO
+// Vía WhatsApp Web/Baileys (QR, NO oficial). DESACTIVADA a propósito: este proyecto usa SOLO la API
+// oficial de Meta (Cloud API). Se deja COMENTADA para no interferir con el código original.
+// No la borres ni la reactives sin consultar. Para volver a usarla: descomentar todos los bloques
+// marcados con "QR-AISLADO" (buscar con grep -rn "QR-AISLADO" app routes resources config tests).
 // Webhook público del microservicio Node.js de WhatsApp vía Baileys/QR
 // (whatsapp-qr-service/), sin auth de sesión -- autenticado por secreto
 // compartido (Authorization: Bearer) en WhatsappQrWebhookController.
-Route::post('/whatsapp-qr/webhook', [WhatsappQrWebhookController::class, 'receive'])->name('whatsapp.qr.webhook');
+// Route::post('/whatsapp-qr/webhook', [WhatsappQrWebhookController::class, 'receive'])->name('whatsapp.qr.webhook');
+// QR-AISLADO · OBLIGATORIO NO TOCAR · FIN
 
 // Webhook del buzón de correo (Hostinger "Agentic Mail" / hMail, evento
 // message.received) -- por ahora solo registra el payload real en log

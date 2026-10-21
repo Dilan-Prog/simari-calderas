@@ -1,5 +1,15 @@
 <?php
 
+/*
+ * QR-AISLADO · OBLIGATORIO NO TOCAR · INICIO
+ * Vía WhatsApp Web/Baileys (QR, NO oficial). DESACTIVADA a propósito: este proyecto usa SOLO la API
+ * oficial de Meta (Cloud API). Se deja COMENTADA para no interferir con el código original.
+ * No la borres ni la reactives sin consultar. Para volver a usarla: descomentar todos los bloques
+ * marcados con "QR-AISLADO" (buscar con grep -rn "QR-AISLADO" app routes resources config tests).
+ * ESTE ARCHIVO ES 100% DE LA VÍA QR: NADIE LO REFERENCIA YA (referencias comentadas en rutas,
+ * controladores, vistas y config). Se conserva intacto solo por si se reactiva la vía QR.
+ */
+
 namespace App\Services;
 
 use App\Models\WhatsappAccount;

@@ -7,7 +7,7 @@ use App\Http\Resources\WhatsappMessageResource;
 use App\Models\Customer;
 use App\Models\WhatsappAccount;
 use App\Models\WhatsappConversation;
-use App\Services\WhatsappBaileysService;
+// QR-AISLADO (OBLIGATORIO NO TOCAR): use App\Services\WhatsappBaileysService;
 use App\Services\WhatsappService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -29,12 +29,24 @@ class WhatsappSendController extends Controller
 {
     public function __construct(private WhatsappService $whatsappService) {}
 
-    private function resolveService(WhatsappAccount $account): WhatsappService|WhatsappBaileysService
+    // Servicio de envío: SOLO la API oficial de Meta (WhatsappService).
+    private function resolveService(WhatsappAccount $account): WhatsappService
     {
-        return $account->connection_type === 'baileys_qr'
-            ? app(WhatsappBaileysService::class)
-            : $this->whatsappService;
+        return $this->whatsappService;
     }
+
+    // QR-AISLADO · OBLIGATORIO NO TOCAR · INICIO
+    // Vía WhatsApp Web/Baileys (QR, NO oficial). DESACTIVADA a propósito: este proyecto usa SOLO la API
+    // oficial de Meta (Cloud API). Se deja COMENTADA para no interferir con el código original.
+    // No la borres ni la reactives sin consultar. Para volver a usarla: descomentar todos los bloques
+    // marcados con "QR-AISLADO" (buscar con grep -rn "QR-AISLADO" app routes resources config tests).
+    // private function resolveService(WhatsappAccount $account): WhatsappService|WhatsappBaileysService
+    // {
+    //     return $account->connection_type === 'baileys_qr'
+    //         ? app(WhatsappBaileysService::class)
+    //         : $this->whatsappService;
+    // }
+    // QR-AISLADO · OBLIGATORIO NO TOCAR · FIN
 
     public function send(WhatsappAccount $account, Request $request): JsonResponse
     {

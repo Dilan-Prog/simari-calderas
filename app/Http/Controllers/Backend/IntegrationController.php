@@ -95,10 +95,22 @@ class IntegrationController extends Controller
         // uno con su propia tabla/CRUD/modal (ver
         // resources/views/admin/integrations/partials/_whatsapp_*).
         $metaWhatsappAccounts = WhatsappAccount::where('connection_type', 'meta_cloud_api')->latest()->get();
-        $qrWhatsappAccounts = WhatsappAccount::where('connection_type', 'baileys_qr')->latest()->get();
+        // QR-AISLADO · OBLIGATORIO NO TOCAR · INICIO
+        // Vía WhatsApp Web/Baileys (QR, NO oficial). DESACTIVADA a propósito: este proyecto usa SOLO la API
+        // oficial de Meta (Cloud API). Se deja COMENTADA para no interferir con el código original.
+        // No la borres ni la reactives sin consultar. Para volver a usarla: descomentar todos los bloques
+        // marcados con "QR-AISLADO" (buscar con grep -rn "QR-AISLADO" app routes resources config tests).
+        // $qrWhatsappAccounts = WhatsappAccount::where('connection_type', 'baileys_qr')->latest()->get();
+        // QR-AISLADO · OBLIGATORIO NO TOCAR · FIN
 
         $metaWhatsappActiveCount = $metaWhatsappAccounts->where('is_active', true)->count();
-        $qrWhatsappConnectedCount = $qrWhatsappAccounts->where('session_status', 'connected')->count();
+        // QR-AISLADO · OBLIGATORIO NO TOCAR · INICIO
+        // Vía WhatsApp Web/Baileys (QR, NO oficial). DESACTIVADA a propósito: este proyecto usa SOLO la API
+        // oficial de Meta (Cloud API). Se deja COMENTADA para no interferir con el código original.
+        // No la borres ni la reactives sin consultar. Para volver a usarla: descomentar todos los bloques
+        // marcados con "QR-AISLADO" (buscar con grep -rn "QR-AISLADO" app routes resources config tests).
+        // $qrWhatsappConnectedCount = $qrWhatsappAccounts->where('session_status', 'connected')->count();
+        // QR-AISLADO · OBLIGATORIO NO TOCAR · FIN
 
         // Se conserva para no romper nada más que siga usando este total
         // combinado (p.ej. reportes/estadísticas que lean esta variable).
@@ -110,9 +122,9 @@ class IntegrationController extends Controller
             'webhooks',
             'whatsappActiveCount',
             'metaWhatsappAccounts',
-            'qrWhatsappAccounts',
+            // QR-AISLADO: 'qrWhatsappAccounts',
             'metaWhatsappActiveCount',
-            'qrWhatsappConnectedCount',
+            // QR-AISLADO: 'qrWhatsappConnectedCount',
             'mercadoPago',
             'mercadoPagoConfigured',
             'apiClients',

@@ -35,13 +35,27 @@ class WhatsappAccountController extends Controller
             // conectada la sesión -- así que solo es obligatorio para
             // meta_cloud_api (incluyendo cuando el campo no se envía, que es
             // el default del modelo/columna).
-            'phone_number'                  => 'required_unless:connection_type,baileys_qr|nullable|string|max:30',
+            // QR-AISLADO · OBLIGATORIO NO TOCAR · INICIO
+            // Vía WhatsApp Web/Baileys (QR, NO oficial). DESACTIVADA a propósito: este proyecto usa SOLO la API
+            // oficial de Meta (Cloud API). Se deja COMENTADA para no interferir con el código original.
+            // No la borres ni la reactives sin consultar. Para volver a usarla: descomentar todos los bloques
+            // marcados con "QR-AISLADO" (buscar con grep -rn "QR-AISLADO" app routes resources config tests).
+            // 'phone_number'                  => 'required_unless:connection_type,baileys_qr|nullable|string|max:30',
+            // QR-AISLADO · OBLIGATORIO NO TOCAR · FIN
+            'phone_number'                  => 'required|string|max:30',
             'phone_number_id'               => 'nullable|string|max:100',
             'whatsapp_business_account_id'  => 'nullable|string|max:100',
             'webhook_verify_token'          => 'nullable|string|max:100',
             'access_token'                  => 'nullable|string',
             'app_secret'                    => 'nullable|string',
-            'connection_type'               => 'nullable|in:meta_cloud_api,baileys_qr',
+            // QR-AISLADO · OBLIGATORIO NO TOCAR · INICIO
+            // Vía WhatsApp Web/Baileys (QR, NO oficial). DESACTIVADA a propósito: este proyecto usa SOLO la API
+            // oficial de Meta (Cloud API). Se deja COMENTADA para no interferir con el código original.
+            // No la borres ni la reactives sin consultar. Para volver a usarla: descomentar todos los bloques
+            // marcados con "QR-AISLADO" (buscar con grep -rn "QR-AISLADO" app routes resources config tests).
+            // 'connection_type'               => 'nullable|in:meta_cloud_api,baileys_qr',
+            // QR-AISLADO · OBLIGATORIO NO TOCAR · FIN
+            'connection_type'               => 'nullable|in:meta_cloud_api',
             'is_active'                     => 'nullable|boolean',
         ]);
     }
@@ -118,26 +132,32 @@ class WhatsappAccountController extends Controller
         return response()->json(['success' => true]);
     }
 
-    /**
-     * Polling endpoint del modal "Escanea el código QR" (Part D, conexión
-     * baileys_qr). Si la cuenta todavía no tiene sesión activa (nunca se
-     * llamó o quedó "disconnected", incluyendo el caso de "Reconectar"),
-     * el primer poll dispara startSession() -- que persiste
-     * session_id/session_status en la cuenta como side effect y devuelve el
-     * primer QR. Los polls siguientes, ya con sesión en curso, solo
-     * consultan el estado (sessionStatus() puede devolver un QR renovado
-     * mientras siga 'qr_pending', ya que los códigos de Baileys expiran).
-     */
-    public function qrStatus(WhatsappAccount $whatsappAccount)
-    {
-        $service = app(\App\Services\WhatsappBaileysService::class);
-
-        if (blank($whatsappAccount->session_status) || $whatsappAccount->session_status === 'disconnected') {
-            $result = $service->startSession($whatsappAccount);
-        } else {
-            $result = $service->sessionStatus($whatsappAccount);
-        }
-
-        return response()->json($result);
-    }
+    // QR-AISLADO · OBLIGATORIO NO TOCAR · INICIO
+    // Vía WhatsApp Web/Baileys (QR, NO oficial). DESACTIVADA a propósito: este proyecto usa SOLO la API
+    // oficial de Meta (Cloud API). Se deja COMENTADA para no interferir con el código original.
+    // No la borres ni la reactives sin consultar. Para volver a usarla: descomentar todos los bloques
+    // marcados con "QR-AISLADO" (buscar con grep -rn "QR-AISLADO" app routes resources config tests).
+    //     /**
+    //      * Polling endpoint del modal "Escanea el código QR" (Part D, conexión
+    //      * baileys_qr). Si la cuenta todavía no tiene sesión activa (nunca se
+    //      * llamó o quedó "disconnected", incluyendo el caso de "Reconectar"),
+    //      * el primer poll dispara startSession() -- que persiste
+    //      * session_id/session_status en la cuenta como side effect y devuelve el
+    //      * primer QR. Los polls siguientes, ya con sesión en curso, solo
+    //      * consultan el estado (sessionStatus() puede devolver un QR renovado
+    //      * mientras siga 'qr_pending', ya que los códigos de Baileys expiran).
+    //      */
+    //     public function qrStatus(WhatsappAccount $whatsappAccount)
+    //     {
+    //         $service = app(\App\Services\WhatsappBaileysService::class);
+    //
+    //         if (blank($whatsappAccount->session_status) || $whatsappAccount->session_status === 'disconnected') {
+    //             $result = $service->startSession($whatsappAccount);
+    //         } else {
+    //             $result = $service->sessionStatus($whatsappAccount);
+    //         }
+    //
+    //         return response()->json($result);
+    //     }
+    // QR-AISLADO · OBLIGATORIO NO TOCAR · FIN
 }

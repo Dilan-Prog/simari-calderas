@@ -1,3 +1,4 @@
+{{-- QR-AISLADO · OBLIGATORIO NO TOCAR · INICIO Vía WhatsApp Web/Baileys (QR, NO oficial). DESACTIVADA a propósito: este proyecto usa SOLO la API oficial de Meta (Cloud API). Se deja COMENTADA para no interferir con el código original. Parcial YA NO incluido desde integrations/index.blade.php. --}}
 {{-- Escanear el QR. Se abre justo después de crear una cuenta "WhatsApp Web",
      o desde el botón "Reconectar" de una fila existente con session_status
      'disconnected'. Movido desde

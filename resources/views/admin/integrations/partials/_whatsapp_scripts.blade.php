@@ -227,6 +227,10 @@
             }
         });
 
+        // QR-AISLADO · OBLIGATORIO NO TOCAR · INICIO
+        // Vía QR/Baileys DESACTIVADA (se usa SOLO la API oficial de Meta). Código comentado para no
+        // interferir con el original (si no, getElementById(...) nulo rompería el panel de la API).
+        // No borrar ni reactivar sin consultar.
         // ============================================================
         // Panel "WhatsApp Web" -- crear (Part D) -- paso 1: modal "Nueva
         // Cuenta de WhatsApp Web" (solo Nombre), postea al mismo store() de
@@ -236,84 +240,84 @@
         // de Part D -- estar en este panel YA significa "quiero conectar
         // por QR".
         // ============================================================
-        const waQrFormModal = document.getElementById('whatsappQrFormModal');
-        const waQrForm = document.getElementById('whatsappQrForm');
-        const waQrFormErrors = document.getElementById('whatsapp-qr-form-modal-errors');
+        // const waQrFormModal = document.getElementById('whatsappQrFormModal');
+        // const waQrForm = document.getElementById('whatsappQrForm');
+        // const waQrFormErrors = document.getElementById('whatsapp-qr-form-modal-errors');
 
-        const resetWaQrForm = () => {
-            waQrForm.reset();
-            waQrFormErrors.style.display = 'none';
-            waQrFormErrors.innerHTML = '';
-            document.querySelectorAll('#whatsappQrForm .field-error-msg').forEach(el => el.remove());
-            document.querySelectorAll('#whatsappQrForm .is-invalid').forEach(el => el.classList.remove(
-                'is-invalid'));
-        };
+        // const resetWaQrForm = () => {
+        // waQrForm.reset();
+        // waQrFormErrors.style.display = 'none';
+        // waQrFormErrors.innerHTML = '';
+        // document.querySelectorAll('#whatsappQrForm .field-error-msg').forEach(el => el.remove());
+        // document.querySelectorAll('#whatsappQrForm .is-invalid').forEach(el => el.classList.remove(
+        // 'is-invalid'));
+        // };
 
-        const closeWaQrFormModal = () => waQrFormModal.classList.remove('active');
+        // const closeWaQrFormModal = () => waQrFormModal.classList.remove('active');
 
-        document.getElementById('btnNewWhatsappQrAccount')?.addEventListener('click', () => {
-            resetWaQrForm();
-            waQrFormModal.classList.add('active');
-        });
+        // document.getElementById('btnNewWhatsappQrAccount')?.addEventListener('click', () => {
+        // resetWaQrForm();
+        // waQrFormModal.classList.add('active');
+        // });
 
-        document.getElementById('closeWhatsappQrFormModal').addEventListener('click', closeWaQrFormModal);
-        document.getElementById('cancelWhatsappQrForm').addEventListener('click', closeWaQrFormModal);
-        waQrFormModal.addEventListener('click', (e) => {
-            if (e.target === waQrFormModal) closeWaQrFormModal();
-        });
+        // document.getElementById('closeWhatsappQrFormModal').addEventListener('click', closeWaQrFormModal);
+        // document.getElementById('cancelWhatsappQrForm').addEventListener('click', closeWaQrFormModal);
+        // waQrFormModal.addEventListener('click', (e) => {
+        // if (e.target === waQrFormModal) closeWaQrFormModal();
+        // });
 
-        waQrForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
+        // waQrForm.addEventListener('submit', async (e) => {
+        // e.preventDefault();
 
-            waQrFormErrors.style.display = 'none';
-            waQrFormErrors.innerHTML = '';
-            document.querySelectorAll('#whatsappQrForm .field-error-msg').forEach(el => el.remove());
-            document.querySelectorAll('#whatsappQrForm .is-invalid').forEach(el => el.classList.remove(
-                'is-invalid'));
+        // waQrFormErrors.style.display = 'none';
+        // waQrFormErrors.innerHTML = '';
+        // document.querySelectorAll('#whatsappQrForm .field-error-msg').forEach(el => el.remove());
+        // document.querySelectorAll('#whatsappQrForm .is-invalid').forEach(el => el.classList.remove(
+        // 'is-invalid'));
 
-            const formData = new FormData(waQrForm);
+        // const formData = new FormData(waQrForm);
 
-            try {
-                const response = await fetch(waAccountUrl, {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                        'Accept': 'application/json',
-                    },
-                    body: formData,
-                });
+        // try {
+        // const response = await fetch(waAccountUrl, {
+        // method: 'POST',
+        // headers: {
+        // 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+        // 'Accept': 'application/json',
+        // },
+        // body: formData,
+        // });
 
-                if (response.status === 419) {
-                    waQrFormErrors.innerHTML =
-                        '<p>Tu sesión expiró. Por favor recarga la página e intenta de nuevo.</p>';
-                    waQrFormErrors.style.display = 'block';
-                    return;
-                }
+        // if (response.status === 419) {
+        // waQrFormErrors.innerHTML =
+        // '<p>Tu sesión expiró. Por favor recarga la página e intenta de nuevo.</p>';
+        // waQrFormErrors.style.display = 'block';
+        // return;
+        // }
 
-                const data = await response.json();
+        // const data = await response.json();
 
-                if (response.ok) {
-                    const created = data.whatsappAccount;
-                    closeWaQrFormModal();
-                    openWaQrScanModal(created.id, created.name);
-                } else if (response.status === 422) {
-                    const errorList = Object.values(data.errors ?? {}).flat();
-                    waQrFormErrors.innerHTML = errorList.map(m => `<p>${m}</p>`).join('');
-                    waQrFormErrors.style.display = 'block';
+        // if (response.ok) {
+        // const created = data.whatsappAccount;
+        // closeWaQrFormModal();
+        // openWaQrScanModal(created.id, created.name);
+        // } else if (response.status === 422) {
+        // const errorList = Object.values(data.errors ?? {}).flat();
+        // waQrFormErrors.innerHTML = errorList.map(m => `<p>${m}</p>`).join('');
+        // waQrFormErrors.style.display = 'block';
 
-                    if (data.errors?.name) {
-                        const el = document.getElementById('waQrName');
-                        el.classList.add('is-invalid');
-                        const errorSpan = document.createElement('span');
-                        errorSpan.className = 'field-error-msg';
-                        errorSpan.innerText = data.errors.name[0];
-                        (el.closest('.ap-field-group') || el.parentElement)?.appendChild(errorSpan);
-                    }
-                }
-            } catch (err) {
-                console.error('Error:', err);
-            }
-        });
+        // if (data.errors?.name) {
+        // const el = document.getElementById('waQrName');
+        // el.classList.add('is-invalid');
+        // const errorSpan = document.createElement('span');
+        // errorSpan.className = 'field-error-msg';
+        // errorSpan.innerText = data.errors.name[0];
+        // (el.closest('.ap-field-group') || el.parentElement)?.appendChild(errorSpan);
+        // }
+        // }
+        // } catch (err) {
+        // console.error('Error:', err);
+        // }
+        // });
 
         // ============================================================
         // Panel "WhatsApp Web" -- paso 2: modal "Escanea el código QR". Hace
@@ -324,105 +328,106 @@
         // mientras siga 'qr_pending' (los códigos de Baileys expiran), así
         // que cada respuesta reemplaza la imagen mostrada.
         // ============================================================
-        const waQrScanModal = document.getElementById('whatsappQrScanModal');
-        const waQrScanLoading = document.getElementById('waQrScanLoading');
-        const waQrScanImage = document.getElementById('waQrScanImage');
-        const waQrScanSuccess = document.getElementById('waQrScanSuccess');
-        const waQrScanError = document.getElementById('waQrScanError');
+        // const waQrScanModal = document.getElementById('whatsappQrScanModal');
+        // const waQrScanLoading = document.getElementById('waQrScanLoading');
+        // const waQrScanImage = document.getElementById('waQrScanImage');
+        // const waQrScanSuccess = document.getElementById('waQrScanSuccess');
+        // const waQrScanError = document.getElementById('waQrScanError');
 
-        let waQrPollTimer = null;
-        let waQrPollAccountId = null;
+        // let waQrPollTimer = null;
+        // let waQrPollAccountId = null;
 
-        const stopWaQrPolling = () => {
-            if (waQrPollTimer) {
-                clearInterval(waQrPollTimer);
-                waQrPollTimer = null;
-            }
-            waQrPollAccountId = null;
-        };
+        // const stopWaQrPolling = () => {
+        // if (waQrPollTimer) {
+        // clearInterval(waQrPollTimer);
+        // waQrPollTimer = null;
+        // }
+        // waQrPollAccountId = null;
+        // };
 
-        const showWaQrState = (state) => {
-            waQrScanLoading.style.display = state === 'loading' ? 'block' : 'none';
-            waQrScanImage.style.display = state === 'qr' ? 'block' : 'none';
-            waQrScanSuccess.style.display = state === 'success' ? 'block' : 'none';
-            waQrScanError.style.display = state === 'error' ? 'block' : 'none';
-        };
+        // const showWaQrState = (state) => {
+        // waQrScanLoading.style.display = state === 'loading' ? 'block' : 'none';
+        // waQrScanImage.style.display = state === 'qr' ? 'block' : 'none';
+        // waQrScanSuccess.style.display = state === 'success' ? 'block' : 'none';
+        // waQrScanError.style.display = state === 'error' ? 'block' : 'none';
+        // };
 
-        const pollWaQrStatus = async (accountId) => {
-            try {
-                const response = await fetch(`${waAccountUrl}/${accountId}/qr`, {
-                    headers: {
-                        'Accept': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                    },
-                });
+        // const pollWaQrStatus = async (accountId) => {
+        // try {
+        // const response = await fetch(`${waAccountUrl}/${accountId}/qr`, {
+        // headers: {
+        // 'Accept': 'application/json',
+        // 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+        // },
+        // });
 
-                if (!response.ok) throw new Error('qr-status request failed');
+        // if (!response.ok) throw new Error('qr-status request failed');
 
-                const data = await response.json();
+        // const data = await response.json();
 
-                // El modal pudo haberse cerrado mientras la petición estaba
-                // en vuelo (o se lanzó otro polling encima) — no pisar nada.
-                if (waQrPollAccountId !== accountId) return;
+        // El modal pudo haberse cerrado mientras la petición estaba
+        // en vuelo (o se lanzó otro polling encima) — no pisar nada.
+        // if (waQrPollAccountId !== accountId) return;
 
-                if (data.status === 'connected') {
-                    stopWaQrPolling();
-                    showWaQrState('success');
-                    setTimeout(() => {
-                        waQrScanModal.classList.remove('active');
-                        window.location.reload();
-                    }, 1500);
-                    return;
-                }
+        // if (data.status === 'connected') {
+        // stopWaQrPolling();
+        // showWaQrState('success');
+        // setTimeout(() => {
+        // waQrScanModal.classList.remove('active');
+        // window.location.reload();
+        // }, 1500);
+        // return;
+        // }
 
-                if (data.status === 'qr_pending' && data.qr) {
-                    waQrScanImage.src = `data:image/png;base64,${data.qr}`;
-                    showWaQrState('qr');
-                    return;
-                }
+        // if (data.status === 'qr_pending' && data.qr) {
+        // waQrScanImage.src = `data:image/png;base64,${data.qr}`;
+        // showWaQrState('qr');
+        // return;
+        // }
 
-                // 'disconnected' sin QR todavía (p.ej. el microservicio no
-                // respondió a tiempo) — se mantiene el loading y se sigue
-                // reintentando en el próximo poll.
-                showWaQrState('loading');
-            } catch (err) {
-                console.error('Error:', err);
-                if (waQrPollAccountId !== accountId) return;
-                showWaQrState('error');
-                waQrScanError.textContent =
-                    'No se pudo obtener el estado de la conexión. Reintentando…';
-            }
-        };
+        // 'disconnected' sin QR todavía (p.ej. el microservicio no
+        // respondió a tiempo) — se mantiene el loading y se sigue
+        // reintentando en el próximo poll.
+        // showWaQrState('loading');
+        // } catch (err) {
+        // console.error('Error:', err);
+        // if (waQrPollAccountId !== accountId) return;
+        // showWaQrState('error');
+        // waQrScanError.textContent =
+        // 'No se pudo obtener el estado de la conexión. Reintentando…';
+        // }
+        // };
 
-        const openWaQrScanModal = (accountId, accountName) => {
-            stopWaQrPolling();
-            showWaQrState('loading');
-            document.getElementById('waQrScanTitle').textContent =
-                accountName ? `Escanea el código QR — ${accountName}` : 'Escanea el código QR';
-            waQrScanModal.classList.add('active');
+        // const openWaQrScanModal = (accountId, accountName) => {
+        // stopWaQrPolling();
+        // showWaQrState('loading');
+        // document.getElementById('waQrScanTitle').textContent =
+        // accountName ? `Escanea el código QR — ${accountName}` : 'Escanea el código QR';
+        // waQrScanModal.classList.add('active');
 
-            waQrPollAccountId = accountId;
-            pollWaQrStatus(accountId);
-            waQrPollTimer = setInterval(() => pollWaQrStatus(accountId), 3000);
-        };
+        // waQrPollAccountId = accountId;
+        // pollWaQrStatus(accountId);
+        // waQrPollTimer = setInterval(() => pollWaQrStatus(accountId), 3000);
+        // };
 
-        const closeWaQrScanModal = () => {
-            stopWaQrPolling();
-            waQrScanModal.classList.remove('active');
-        };
+        // const closeWaQrScanModal = () => {
+        // stopWaQrPolling();
+        // waQrScanModal.classList.remove('active');
+        // };
 
-        document.getElementById('closeWhatsappQrScanModal').addEventListener('click', closeWaQrScanModal);
-        document.getElementById('closeWhatsappQrScanModalBtn').addEventListener('click', closeWaQrScanModal);
-        waQrScanModal.addEventListener('click', (e) => {
-            if (e.target === waQrScanModal) closeWaQrScanModal();
-        });
+        // document.getElementById('closeWhatsappQrScanModal').addEventListener('click', closeWaQrScanModal);
+        // document.getElementById('closeWhatsappQrScanModalBtn').addEventListener('click', closeWaQrScanModal);
+        // waQrScanModal.addEventListener('click', (e) => {
+        // if (e.target === waQrScanModal) closeWaQrScanModal();
+        // });
 
         // "Reconectar" en una fila existente (connection_type=baileys_qr,
         // session_status disconnected) reabre el mismo modal de escaneo.
-        document.querySelectorAll('.btn-reconnect-whatsapp-account').forEach(btn => {
-            btn.addEventListener('click', () => {
-                openWaQrScanModal(btn.dataset.id, btn.dataset.name);
-            });
-        });
+        // document.querySelectorAll('.btn-reconnect-whatsapp-account').forEach(btn => {
+        // btn.addEventListener('click', () => {
+        // openWaQrScanModal(btn.dataset.id, btn.dataset.name);
+        // });
+        // });
+        // QR-AISLADO · OBLIGATORIO NO TOCAR · FIN
     </script>
 @endpush

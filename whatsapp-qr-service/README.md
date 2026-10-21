@@ -1,3 +1,5 @@
+> **QR-AISLADO · OBLIGATORIO NO TOCAR · INICIO** — Microservicio de la vía QR/Baileys (no oficial). **DESACTIVADO**: el proyecto usa SOLO la API oficial de Meta (Cloud API). No desplegar, no modificar, no reactivar sin consultar.
+
 # whatsapp-qr-service
 
 Standalone Node.js microservice that connects to WhatsApp via the unofficial

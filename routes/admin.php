@@ -622,10 +622,24 @@ Route::controller(WhatsappAccountController::class)
         Route::get('/{whatsappAccount}/editar', 'edit')->name('edit')->middleware('permission:whatsapp,edit');
         Route::put('/{whatsappAccount}', 'update')->name('update')->middleware('permission:whatsapp,edit');
         Route::delete('/{whatsappAccount}', 'destroy')->name('destroy')->middleware('permission:whatsapp,delete');
+        // QR-AISLADO · OBLIGATORIO NO TOCAR · INICIO
+        // Vía WhatsApp Web/Baileys (QR, NO oficial). DESACTIVADA a propósito: este proyecto usa SOLO la API
+        // oficial de Meta (Cloud API). Se deja COMENTADA para no interferir con el código original.
+        // No la borres ni la reactives sin consultar. Para volver a usarla: descomentar todos los bloques
+        // marcados con "QR-AISLADO" (buscar con grep -rn "QR-AISLADO" app routes resources config tests).
         // Polling del modal "Escanea el código QR" (Part D, conexión
         // baileys_qr) -- misma acción de permiso que editar/reconectar una
         // cuenta existente.
-        Route::get('/{whatsappAccount}/qr', 'qrStatus')->name('qr-status')->middleware('permission:whatsapp,edit');
+        // Route::get('/{whatsappAccount}/qr', 'qrStatus')->name('qr-status')->middleware('permission:whatsapp,edit');
+        // QR-AISLADO · OBLIGATORIO NO TOCAR · FIN
+        // Pestaña "Probar conexión" (Integraciones > WhatsApp API): verifica la cuenta contra la Graph API,
+        // manda un mensaje de prueba y muestra el estado del webhook.
+        Route::get('/{whatsappAccount}/prueba/conexion', [\App\Http\Controllers\Backend\WhatsappConnectionTestController::class, 'connection'])
+            ->name('test.connection')->middleware('permission:whatsapp,edit');
+        Route::post('/{whatsappAccount}/prueba/enviar', [\App\Http\Controllers\Backend\WhatsappConnectionTestController::class, 'send'])
+            ->name('test.send')->middleware(['permission:whatsapp,edit', 'throttle:10,1']);
+        Route::get('/{whatsappAccount}/prueba/webhook', [\App\Http\Controllers\Backend\WhatsappConnectionTestController::class, 'webhookStatus'])
+            ->name('test.webhook')->middleware('permission:whatsapp,edit');
     });
 
 // ============================================================
