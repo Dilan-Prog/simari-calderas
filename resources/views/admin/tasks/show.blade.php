@@ -25,6 +25,15 @@
 .task-tl-dot { position: absolute; left: 0; top: 5px; width: 9px; height: 9px; border-radius: 50%; background: var(--erp-neu-dot); }
 .task-tl-title { font-weight: 700; font-size: 13.5px; color: var(--erp-ink); }
 .task-tl-meta { font-size: 12.5px; color: var(--erp-muted); margin-top: 2px; }
+.task-mail { margin-top: 8px; border: 1px solid var(--erp-line); border-radius: 10px; background: #fff; }
+.task-mail > summary { cursor: pointer; list-style: none; padding: 8px 12px; font-size: 12.5px; font-weight: 700; color: var(--erp-accent-dark); }
+.task-mail > summary::-webkit-details-marker { display: none; }
+.task-mail > summary::before { content: '\25B8'; display: inline-block; margin-right: 6px; transition: transform .15s; }
+.task-mail[open] > summary::before { transform: rotate(90deg); }
+.task-mail-head { padding: 0 12px 8px; display: grid; grid-template-columns: auto 1fr; gap: 2px 12px; font-size: 12.5px; border-bottom: 1px solid var(--erp-line-soft); }
+.task-mail-head dt { color: var(--erp-muted); font-weight: 700; }
+.task-mail-head dd { margin: 0; color: var(--erp-ink); word-break: break-word; }
+.task-mail-body { white-space: pre-wrap; word-break: break-word; padding: 12px; font-size: 13px; line-height: 1.55; color: var(--erp-text); max-height: 420px; overflow-y: auto; }
 .task-tl-body { white-space: pre-line; margin-top: 6px; padding: 8px 12px; border-radius: 8px; background: var(--erp-bg); font-size: 13px; color: var(--erp-text); }
 .task-notes-list { display: flex; flex-direction: column; gap: 10px; margin-top: 18px; }
 .task-note { background: var(--erp-bg); border-radius: 10px; padding: 12px 14px; }
@@ -185,6 +194,20 @@
                                 <div class="task-tl-title">{{ $item['title'] }}</div>
                                 <div class="task-tl-meta">{{ $item['actor'] }} · {{ str_replace('.', '', $item['at']->locale('es')->translatedFormat('d M Y · H:i')) }}</div>
                                 @if (! empty($item['body']))<div class="task-tl-body">{{ $item['body'] }}</div>@endif
+                                @if (! empty($item['email']))
+                                    @php $mail = $item['email']; @endphp
+                                    <details class="task-mail">
+                                        <summary>Ver correo enviado</summary>
+                                        <dl class="task-mail-head">
+                                            <dt>De</dt><dd>{{ $mail['from'] ?: '—' }}</dd>
+                                            <dt>Para</dt><dd>{{ implode(', ', (array) $mail['to']) ?: '—' }}</dd>
+                                            <dt>Fecha</dt><dd>{{ $mail['at']->format('d/m/Y H:i') }}</dd>
+                                            <dt>Asunto</dt><dd>{{ $mail['subject'] ?: '(sin asunto)' }}</dd>
+                                            @if (count($mail['attachments']))<dt>Adjuntos</dt><dd>{{ implode(', ', $mail['attachments']) }}</dd>@endif
+                                        </dl>
+                                        <div class="task-mail-body">{{ trim((string) $mail['body']) !== '' ? trim($mail['body']) : '(sin contenido de texto)' }}</div>
+                                    </details>
+                                @endif
                             </li>
                         @endforeach
                     </ul>

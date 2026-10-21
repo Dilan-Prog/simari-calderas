@@ -367,6 +367,80 @@ class LeadService
         });
     }
 
+    /** Extrae las direcciones de un texto tipo "Nombre <a@b.com>, c@d.com" (o de una lista). */
+    public static function extractEmails($value): array
+    {
+        $text = is_array($value) ? implode(',', array_map('strval', $value)) : (string) $value;
+        preg_match_all('/[A-Z0-9._%+\-]+@[A-Z0-9.\-]+\.[A-Z]{2,}/i', $text, $m);
+
+        return array_values(array_unique(array_filter(array_map(fn ($e) => self::normalizeEmail($e), $m[0]))));
+    }
+
+    /**
+     * Correo que administracion@ envia a un cliente (n8n lo manda desde la carpeta Enviados). Solo se
+     * guarda si el destinatario es un lead que YA tiene una tarea: se liga por hilo (In-Reply-To = un
+     * correo entrante ya registrado) o por correo del destinatario. Idempotente por message_id.
+     *
+     * @return array{matched:bool,duplicate:bool,lead_id:?int,task_id:?int,outbound_email_id:?int}
+     */
+    public function recordOutboundEmail(array $data): array
+    {
+        $none = ['matched' => false, 'duplicate' => false, 'lead_id' => null, 'task_id' => null, 'outbound_email_id' => null];
+
+        if ($existing = \App\Models\LeadOutboundEmail::where('message_id', $data['message_id'])->first()) {
+            return ['matched' => true, 'duplicate' => true, 'lead_id' => $existing->lead_id, 'task_id' => $existing->task_id, 'outbound_email_id' => $existing->id];
+        }
+
+        $recipients = array_values(array_unique(array_merge(self::extractEmails($data['to'] ?? []), self::extractEmails($data['cc'] ?? []))));
+        $inReplyTo = trim((string) ($data['in_reply_to'] ?? ''));
+
+        // 1) Por hilo: respuesta a un correo entrante que ya creo la tarea.
+        $inbound = $inReplyTo !== '' ? \App\Models\LeadInboundEmail::where('message_id', $inReplyTo)->first() : null;
+        $lead = $inbound?->lead;
+        $task = $inbound?->task_id ? Task::find($inbound->task_id) : null;
+
+        // 2) Por destinatario: un lead con tarea cuyo correo sea alguno de los destinatarios.
+        if (! $lead && $recipients) {
+            $lead = Lead::whereIn('contact_email', $recipients)->whereHas('tasks')->orderByDesc('last_activity_at')->orderByDesc('id')->first();
+        }
+        if (! $lead) {
+            return $none;
+        }
+
+        $task ??= $lead->tasks()->where('status', '!=', 'closed')->latest('id')->first() ?? $lead->tasks()->latest('id')->first();
+        if (! $task) {
+            return $none;
+        }
+
+        $sentAt = ! empty($data['sent_at']) ? Carbon::parse($data['sent_at']) : now();
+        $to = in_array($lead->contact_email, $recipients, true) ? $lead->contact_email : ($recipients[0] ?? $lead->contact_email);
+
+        return DB::transaction(function () use ($data, $lead, $task, $recipients, $sentAt, $to) {
+            $subject = trim((string) ($data['subject'] ?? ''));
+            $email = \App\Models\LeadOutboundEmail::create([
+                'message_id'  => $data['message_id'],
+                'lead_id'     => $lead->id,
+                'task_id'     => $task->id,
+                'from_email'  => self::normalizeEmail($data['from_email'] ?? null),
+                'to_email'    => $to,
+                'recipients'  => $recipients,
+                'subject'     => $subject !== '' ? mb_substr($subject, 0, 255) : null,
+                'body'        => isset($data['body']) ? mb_substr((string) $data['body'], 0, 100000) : null,
+                'attachments' => ! empty($data['attachments']) ? array_values(array_map('strval', (array) $data['attachments'])) : null,
+                'sent_at'     => $sentAt,
+            ]);
+
+            $task->logEvent('sent_email', 'Correo enviado a ' . $to . ($subject !== '' ? ': ' . mb_substr($subject, 0, 120) : ''), null, $email->id);
+
+            // Primera respuesta al cliente: alimenta el KPI de la bandeja; la actividad del lead se refresca.
+            $lead->first_contact_at ??= $sentAt;
+            $lead->last_activity_at = $sentAt;
+            $lead->save();
+
+            return ['matched' => true, 'duplicate' => false, 'lead_id' => $lead->id, 'task_id' => $task->id, 'outbound_email_id' => $email->id];
+        });
+    }
+
     public function captureFromWhatsapp(WhatsappConversation $conversation, ?WhatsappMessage $message = null): Lead
     {
         $data = [

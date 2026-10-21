@@ -97,9 +97,9 @@ class Task extends Model
     }
 
     /** Registra un movimiento en el historial de la tarea (user null = sistema). */
-    public function logEvent(string $type, string $title, ?int $userId = null): TaskEvent
+    public function logEvent(string $type, string $title, ?int $userId = null, ?int $outboundEmailId = null): TaskEvent
     {
-        return $this->events()->create(['type' => $type, 'title' => $title, 'user_id' => $userId]);
+        return $this->events()->create(['type' => $type, 'title' => $title, 'user_id' => $userId, 'outbound_email_id' => $outboundEmailId]);
     }
 
     public function createdByWorkflow(): BelongsTo

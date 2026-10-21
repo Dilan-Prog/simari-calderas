@@ -8,4 +8,5 @@ use Illuminate\Support\Facades\Route;
 | (auth:sanctum + throttle:api-n8n + log.api). POST /api/v1/leads/call
 */
 Route::post('/leads', [\App\Http\Controllers\Api\LeadEmailController::class, 'store'])->middleware('token.ability:leads:write');
+Route::post('/leads/outbound-email', [\App\Http\Controllers\Api\LeadEmailController::class, 'storeOutbound'])->middleware('token.ability:leads:write');
 Route::post('/leads/call', [LeadCallController::class, 'store'])->middleware('token.ability:leads:write');

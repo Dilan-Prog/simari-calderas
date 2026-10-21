@@ -323,6 +323,15 @@ class LeadInboxController extends Controller
             ];
         }
 
+        foreach (\App\Models\LeadOutboundEmail::where('lead_id', $lead->id)->latest('id')->limit(30)->get() as $m) {
+            $items[] = [
+                'at'    => $m->sent_at ?? $m->created_at,
+                'type'  => 'correo',
+                'title' => 'Correo enviado: ' . ($m->subject ?: '(sin asunto)'),
+                'body'  => \Illuminate\Support\Str::limit(trim((string) $m->body), 600),
+            ];
+        }
+
         $items[] = ['at' => $lead->created_at, 'type' => 'lead', 'title' => 'Lead creado (' . $lead->source_label . ')', 'body' => null];
 
         usort($items, fn ($a, $b) => ($b['at']?->timestamp ?? 0) <=> ($a['at']?->timestamp ?? 0));

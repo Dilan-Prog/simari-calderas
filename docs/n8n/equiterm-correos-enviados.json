@@ -1,0 +1,159 @@
+{
+  "name": "Equiterm - Correos enviados",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## Correos enviados -> historial de la tarea del cliente\n**Qué hace:** cada correo que sale de `administracion@` hacia un cliente se manda al sistema. Si ese cliente tiene una tarea (porque antes escribió pidiendo algo), el correo queda en el **Historial** de la tarea y se puede abrir completo. Si el destinatario no tiene tarea (proveedores, correos internos), el sistema lo ignora y no guarda nada.\n\n**Antes de activar:**\n1. Credencial **IMAP**: la misma del flujo de recepción (imap.hostinger.com, 993, SSL).\n2. En el primer nodo confirma el nombre de la carpeta de enviados (en Hostinger suele ser `INBOX.Sent`).\n3. Credencial **Bearer** del nodo HTTP: la misma `Token_API` (permiso `leads:write`) y la URL con tu dominio real.\n\nFernanda debe responder **desde administracion@** (webmail o SMTP con copia en Enviados); lo que salga de otra cuenta no se ve aquí.",
+        "height": 330,
+        "width": 560,
+        "color": 4
+      },
+      "name": "Notas",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -80,
+        -300
+      ]
+    },
+    {
+      "parameters": {
+        "mailbox": "INBOX.Sent",
+        "postProcessAction": "nothing",
+        "format": "simple",
+        "options": {
+          "customEmailConfig": "[\"ALL\"]"
+        }
+      },
+      "name": "Correo enviado (IMAP)",
+      "type": "n8n-nodes-base.emailReadImap",
+      "typeVersion": 2,
+      "position": [
+        0,
+        100
+      ],
+      "credentials": {
+        "imap": {
+          "id": "CONFIGURAR",
+          "name": "Hostinger IMAP"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// ===== CONFIGURACIÓN (edita aquí) =====\nconst DOMINIO_PROPIO = /@equitermindustries\\.com\\.mx$/i;   // destinatarios internos: se ignoran\nconst MI_BUZON = 'administracion@equitermindustries.com.mx';\n// ======================================\n\nconst j = $json;\nconst asText = (v) => {\n  if (!v) return '';\n  if (typeof v === 'string') return v;\n  if (v.text) return v.text;\n  if (Array.isArray(v.value)) return v.value.map((a) => a.address).join(',');\n  if (Array.isArray(v)) return v.map((a) => a.address || a).join(',');\n  return '';\n};\nconst emails = (s) => (String(s).match(/[A-Z0-9._%+\\-]+@[A-Z0-9.\\-]+\\.[A-Z]{2,}/gi) || []).map((e) => e.toLowerCase());\n\n// Solo destinatarios externos (clientes). Si todos son del dominio propio, no se manda nada.\nconst externos = [...new Set([...emails(asText(j.to)), ...emails(asText(j.cc))])].filter((e) => !DOMINIO_PROPIO.test(e));\n\nconst subject = (j.subject || '').trim();\nconst body = (j.textPlain || j.text || (j.textHtml || '').replace(/<style[\\s\\S]*?<\\/style>/gi, '').replace(/<[^>]+>/g, ' ')).replace(/\\r/g, '').replace(/[ \\t]+\\n/g, '\\n').trim();\nconst messageId = (j.messageId || j.metadata?.['message-id'] || j.headers?.['message-id'] || (MI_BUZON + '|' + subject + '|' + (j.date || ''))).toString();\nconst inReplyTo = (j.metadata?.['in-reply-to'] || j.headers?.['in-reply-to'] || '').toString();\nconst from = emails(asText(j.from))[0] || MI_BUZON;\nconst attachments = (j.attachments || []).map((a) => a.filename || a.fileName || '').filter(Boolean);\n\nreturn {\n  json: {\n    valido: externos.length > 0,\n    payload: {\n      message_id: messageId,\n      from_email: from,\n      to: externos.join(', '),\n      subject,\n      body: body.slice(0, 100000),\n      sent_at: j.date ? new Date(j.date).toISOString() : new Date().toISOString(),\n      in_reply_to: inReplyTo,\n      attachments,\n    },\n  },\n};",
+        "mode": "runOnceForEachItem"
+      },
+      "name": "Preparar datos",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        260,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "={{ $json.valido }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "name": "¿Tiene destinatario externo?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        520,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://equitermindustries.com.mx/api/v1/leads/outbound-email",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.payload) }}",
+        "options": {
+          "timeout": 20000
+        }
+      },
+      "name": "Registrar correo enviado",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        780,
+        0
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "CONFIGURAR",
+          "name": "Token_API"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Correo enviado (IMAP)": {
+      "main": [
+        [
+          {
+            "node": "Preparar datos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Preparar datos": {
+      "main": [
+        [
+          {
+            "node": "¿Tiene destinatario externo?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "¿Tiene destinatario externo?": {
+      "main": [
+        [
+          {
+            "node": "Registrar correo enviado",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "active": false
+}

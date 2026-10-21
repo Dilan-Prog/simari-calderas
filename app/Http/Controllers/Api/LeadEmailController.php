@@ -42,4 +42,28 @@ class LeadEmailController extends Controller
 
         return response()->json(['data' => $result], $result['duplicate'] ? 200 : 201);
     }
+
+    /**
+     * POST /api/v1/leads/outbound-email -- correo enviado por administracion@ (carpeta Enviados, n8n).
+     * Solo se guarda si el destinatario es un cliente con tarea; si no, responde matched=false y no guarda nada.
+     */
+    public function storeOutbound(Request $request, LeadService $leads): JsonResponse
+    {
+        $data = $request->validate([
+            'message_id'    => 'required|string|max:255',
+            'from_email'    => 'nullable|string|max:190',
+            'to'            => 'required',
+            'cc'            => 'nullable',
+            'subject'       => 'nullable|string|max:500',
+            'body'          => 'nullable|string|max:200000',
+            'sent_at'       => 'nullable|date',
+            'in_reply_to'   => 'nullable|string|max:255',
+            'attachments'   => 'nullable|array',
+            'attachments.*' => 'nullable|string|max:255',
+        ]);
+
+        $result = $leads->recordOutboundEmail($data);
+
+        return response()->json(['data' => $result], $result['matched'] && ! $result['duplicate'] ? 201 : 200);
+    }
 }
