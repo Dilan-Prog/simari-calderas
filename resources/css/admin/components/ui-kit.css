@@ -152,7 +152,7 @@
 }
 
 .button-secondary.size-adjustment:hover {
-    cursor: default;
+    cursor: pointer;
     background-color: rgb(229, 229, 229);
 }
 
@@ -162,7 +162,7 @@
 
 .button-primary.size-adjustment:hover {
     transform: translateY(0);
-    cursor: default;
+    cursor: pointer;
 }
 
 /* Generic list table primitives */
@@ -259,13 +259,20 @@
     overflow: hidden;
     justify-content: center;
     width: 44px;
+    cursor: pointer;
+}
+
+.table-users-manager-action-btn:disabled,
+.table-users-manager-action-btn[aria-disabled="true"] {
+    cursor: not-allowed;
 }
 
 .table-users-manager-action-btn svg {
     display: block;
     position: static;
     margin: auto;
-    cursor: default;
+    /* Hereda el cursor del botón (pointer, o not-allowed si está deshabilitado). */
+    cursor: inherit;
     color: var(--background-primary);
 }
 

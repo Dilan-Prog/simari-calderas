@@ -6,7 +6,7 @@
         <div class="access-modal-header">
             <div class="access-modal-header-text">
                 <h3 class="access-modal-title">Acceso del cliente</h3>
-                <p class="access-modal-subtitle">Controla el estado del panel y la contraseña del cliente</p>
+                <p class="access-modal-subtitle">Controla el estado de la cuenta, el portal y la contraseña del cliente</p>
             </div>
             <button type="button" class="access-modal-close-btn" onclick="closeAccessModal()">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
@@ -28,12 +28,12 @@
         {{-- Status: client panel state --}}
         <div class="access-status-row">
             <div class="access-status-info">
-                <span class="access-status-label">Estado del panel</span>
+                <span class="access-status-label">Estado de la cuenta</span>
                 <span id="accessStatusBadge" class="users-manager-badge status">Activo</span>
             </div>
             <button type="button" id="accessStatusToggleBtn" class="button-secondary size-adjustment"
                 onclick="toggleClientStatus()">
-                Desactivar panel del cliente
+                Desactivar cuenta
             </button>
         </div>
 
@@ -206,8 +206,8 @@
         badge.className      = 'users-manager-badge ' + (classes[status] || classes.inactive);
 
         toggleBtn.textContent = status === 'active'
-            ? 'Desactivar panel del cliente'
-            : 'Activar panel del cliente';
+            ? 'Desactivar cuenta'
+            : 'Activar cuenta';
     }
 
     async function toggleClientStatus() {

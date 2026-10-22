@@ -99,7 +99,15 @@ class LoginController extends Controller
 
         // Clientes con portal activado por el admin van directo al portal de
         // servicios; el resto, a su cuenta de la tienda.
+        // Excepción: si inició sesión a mitad de una compra (venía del
+        // checkout), se le regresa ahí en vez de mandarlo al portal.
         if ($customer->portal_access) {
+            $intended = (string) session('url.intended', '');
+
+            if (str_contains($intended, '/finalizar-pedido')) {
+                return redirect()->intended(route('shop.account'));
+            }
+
             return redirect()->route('customer.dashboard');
         }
 

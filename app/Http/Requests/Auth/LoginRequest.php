@@ -44,8 +44,25 @@ class LoginRequest extends FormRequest
         $credentials = $this->only('email', 'password');
         $remember = $this->boolean('remember');
 
-        if (Auth::guard('web')->attempt($credentials, $remember)
-            || Auth::guard('customer')->attempt($credentials, $remember)) {
+        if (Auth::guard('web')->attempt($credentials, $remember)) {
+            RateLimiter::clear($this->throttleKey());
+
+            return;
+        }
+
+        if (Auth::guard('customer')->attempt($credentials, $remember)) {
+            // Un cliente solo entra si su cuenta está activa (mismo criterio
+            // que el login de la tienda).
+            if (Auth::guard('customer')->user()->status !== 'active') {
+                Auth::guard('customer')->logout();
+
+                RateLimiter::hit($this->throttleKey());
+
+                throw ValidationException::withMessages([
+                    'email' => 'Tu cuenta está desactivada. Contáctanos.',
+                ]);
+            }
+
             RateLimiter::clear($this->throttleKey());
 
             return;

@@ -12,10 +12,10 @@
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.5-6 8-6s8 2 8 6" stroke-linecap="round"/></svg>
             Mi perfil
         </a>
-        <span class="portal-sidebar__pending" title="Próximamente">
+        <a href="#pedidos" :class="{ 'is-active': section === 'pedidos' }" @click.prevent="go('pedidos')">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="17" rx="1.5"/><path d="M8 9h8M8 13h8M8 17h5" stroke-linecap="round"/></svg>
-            Mis pedidos <em>(Próximamente)</em>
-        </span>
+            Mis pedidos
+        </a>
         <a href="#direcciones" :class="{ 'is-active': section === 'direcciones' }" @click.prevent="go('direcciones')">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s7-7.2 7-12a7 7 0 1 0-14 0c0 4.8 7 12 7 12z"/><circle cx="12" cy="9" r="2.5"/></svg>
             Direcciones

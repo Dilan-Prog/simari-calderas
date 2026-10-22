@@ -33,6 +33,12 @@
             request()->routeIs('customer.dashboard') => 'dashboard',
             request()->routeIs('customer.service-reports.*') => 'reportes-servicio',
             request()->routeIs('customer.technical-services.*') => 'servicios-tecnicos',
+            request()->routeIs('customer.calendar*') => 'calendario',
+            request()->routeIs('customer.history') => 'historial',
+            request()->routeIs('customer.service-requests.*') => 'solicitar-servicio',
+            request()->routeIs('customer.orders.*') => 'pedidos',
+            request()->routeIs('customer.addresses.*') => 'direcciones',
+            request()->routeIs('customer.profile*') => 'perfil',
             default => '',
         };
     @endphp
@@ -53,6 +59,16 @@
             </div>
         </a>
 
+        {{-- Solicitar Servicio --}}
+        <a class="sidebar-nav-item {{ $activeSection === 'solicitar-servicio' ? 'active' : '' }}"
+            href="{{ Route::has('customer.service-requests.create') ? route('customer.service-requests.create') : '#' }}"
+            data-section="solicitar-servicio" data-label="Solicitar Servicio">
+            <div class="sidebar-nav-item-left">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+                <span class="sidebar-nav-item-label">Solicitar Servicio</span>
+            </div>
+        </a>
+
         {{-- Reportes de Servicio --}}
         <a class="sidebar-nav-item {{ $activeSection === 'reportes-servicio' ? 'active' : '' }}"
             href="{{ Route::has('customer.service-reports.index') ? route('customer.service-reports.index') : '#' }}"
@@ -70,6 +86,57 @@
             <div class="sidebar-nav-item-left">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-wrench"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
                 <span class="sidebar-nav-item-label">Servicios Técnicos</span>
+            </div>
+        </a>
+
+
+        {{-- Calendario --}}
+        <a class="sidebar-nav-item {{ $activeSection === 'calendario' ? 'active' : '' }}"
+            href="{{ Route::has('customer.calendar') ? route('customer.calendar') : '#' }}"
+            data-section="calendario" data-label="Calendario">
+            <div class="sidebar-nav-item-left">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+                <span class="sidebar-nav-item-label">Calendario</span>
+            </div>
+        </a>
+
+        {{-- Historial de Servicios --}}
+        <a class="sidebar-nav-item {{ $activeSection === 'historial' ? 'active' : '' }}"
+            href="{{ Route::has('customer.history') ? route('customer.history') : '#' }}"
+            data-section="historial" data-label="Historial de Servicios">
+            <div class="sidebar-nav-item-left">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5M12 7v5l3 2"/></svg>
+                <span class="sidebar-nav-item-label">Historial de Servicios</span>
+            </div>
+        </a>
+
+        {{-- Mis Pedidos --}}
+        <a class="sidebar-nav-item {{ $activeSection === 'pedidos' ? 'active' : '' }}"
+            href="{{ Route::has('customer.orders.index') ? route('customer.orders.index') : '#' }}"
+            data-section="pedidos" data-label="Mis Pedidos">
+            <div class="sidebar-nav-item-left">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                <span class="sidebar-nav-item-label">Mis Pedidos</span>
+            </div>
+        </a>
+
+        {{-- Direcciones --}}
+        <a class="sidebar-nav-item {{ $activeSection === 'direcciones' ? 'active' : '' }}"
+            href="{{ Route::has('customer.addresses.index') ? route('customer.addresses.index') : '#' }}"
+            data-section="direcciones" data-label="Direcciones">
+            <div class="sidebar-nav-item-left">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-7.2 7-12a7 7 0 1 0-14 0c0 4.8 7 12 7 12z"/><circle cx="12" cy="9" r="2.5"/></svg>
+                <span class="sidebar-nav-item-label">Direcciones</span>
+            </div>
+        </a>
+
+        {{-- Mi Perfil --}}
+        <a class="sidebar-nav-item {{ $activeSection === 'perfil' ? 'active' : '' }}"
+            href="{{ Route::has('customer.profile') ? route('customer.profile') : '#' }}"
+            data-section="perfil" data-label="Mi Perfil">
+            <div class="sidebar-nav-item-left">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.5-6 8-6s8 2 8 6"/></svg>
+                <span class="sidebar-nav-item-label">Mi Perfil</span>
             </div>
         </a>
 

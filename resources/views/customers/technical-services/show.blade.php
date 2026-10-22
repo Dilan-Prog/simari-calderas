@@ -41,6 +41,7 @@
                             'in_progress' => 'ts-badge--in-progress',
                             'completed'   => 'ts-badge--completed',
                             'cancelled'   => 'ts-badge--cancelled',
+                            'draft'       => 'ts-badge--draft',
                         ];
                         $priorityClasses = ['normal'=>'ts-priority--normal','high'=>'ts-priority--high','urgent'=>'ts-priority--urgent'];
                         $priorityLabels  = ['normal'=>'Normal','high'=>'Alta','urgent'=>'Urgente'];
@@ -64,6 +65,7 @@
             'in_progress' => ['Creado', 'Programado', 'En Proceso'],
             'completed'   => ['Creado', 'Programado', 'En Proceso', 'Completado'],
             'cancelled'   => ['Creado', 'Cancelado'],
+            'draft'       => ['Solicitud enviada', 'Pendiente de confirmación'],
         ];
         $tlSteps = $timeline[$service->status] ?? ['Creado'];
     @endphp
@@ -106,7 +108,7 @@
                 </div>
                 <div class="ts-detail-field">
                     <span class="ts-detail-label">Hora</span>
-                    <span class="ts-detail-value">{{ $service->service_time ?? '—' }}</span>
+                    <span class="ts-detail-value">{{ $service->service_time ? substr($service->service_time, 0, 5) : '—' }}</span>
                 </div>
                 <div class="ts-detail-field">
                     <span class="ts-detail-label">Duración Estimada</span>

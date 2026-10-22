@@ -1,284 +1,227 @@
 @extends('customers.layouts.master')
-@section('title')
-    Dashboard - Cliente
-@endsection
+
+@section('title', 'Inicio - Portal de servicios')
+
+@push('styles')
+<style>
+    .cd-sub { color:#6b7280; font-size:14px; margin:4px 0 0; }
+    .cd-actions { display:flex; gap:10px; flex-wrap:wrap; }
+    .cd-btn { display:inline-flex; align-items:center; gap:8px; padding:10px 16px; border-radius:10px; font-size:13px; font-weight:600; text-decoration:none; font-family:var(--font-family); border:1px solid transparent; transition:background-color .15s ease, border-color .15s ease; }
+    .cd-btn--primary { background:var(--button-primary-color,#ff6213); color:#fff; }
+    .cd-btn--primary:hover { background:var(--button-primary-color-hover,#de4a00); }
+    .cd-btn--ghost { background:#fff; color:#374151; border-color:#e5e7eb; }
+    .cd-btn--ghost:hover { background:#f9fafb; }
+    .cd-stat-link { text-decoration:none; color:inherit; display:block; transition:transform .15s ease, box-shadow .15s ease; }
+    .cd-stat-link:hover { transform:translateY(-2px); box-shadow:0 6px 16px rgba(0,0,0,.08); }
+    .cd-stat-hint { font-size:11px; color:#9ca3af; font-weight:500; }
+    .cd-grid { display:grid; grid-template-columns:3fr 2fr; gap:24px; align-items:start; }
+    .cd-panel-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; gap:12px; }
+    .cd-link-all { font-size:12px; font-weight:600; color:var(--secondary-color,#ff6213); text-decoration:none; white-space:nowrap; }
+    .cd-link-all:hover { text-decoration:underline; }
+    .cd-list { display:flex; flex-direction:column; gap:10px; }
+    .cd-item { display:flex; align-items:center; gap:14px; padding:12px; border-radius:10px; background:#f9fafb; text-decoration:none; color:inherit; transition:background-color .15s ease; }
+    .cd-item:hover { background:#f3f4f6; }
+    .cd-date { flex-shrink:0; width:52px; text-align:center; background:#fff; border:1px solid #e5e7eb; border-radius:10px; padding:6px 0; }
+    .cd-date-day { display:block; font-size:18px; font-weight:700; color:#1f2937; line-height:1.1; }
+    .cd-date-mon { display:block; font-size:10px; font-weight:600; color:#ff6213; text-transform:uppercase; letter-spacing:.05em; }
+    .cd-item-main { flex:1; min-width:0; }
+    .cd-item-title { font-size:14px; font-weight:600; color:#1f2937; margin:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .cd-item-meta { font-size:12px; color:#6b7280; margin:2px 0 0; }
+    .cd-badge { display:inline-flex; align-items:center; padding:3px 10px; border-radius:999px; font-size:11px; font-weight:600; border:1px solid transparent; white-space:nowrap; flex-shrink:0; }
+    .cd-badge--scheduled { background:#eff6ff; color:#2563eb; border-color:#bfdbfe; }
+    .cd-badge--in_progress { background:#fffbeb; color:#d97706; border-color:#fde68a; }
+    .cd-badge--completed { background:#f0fdf4; color:#16a34a; border-color:#bbf7d0; }
+    .cd-badge--draft { background:#f3f4f6; color:#6b7280; border-color:#d1d5db; }
+    .cd-badge--signed { background:#f5f3ff; color:#7c3aed; border-color:#ddd6fe; }
+    .cd-empty { text-align:center; padding:28px 12px; color:#9ca3af; }
+    .cd-empty svg { margin-bottom:8px; }
+    .cd-empty p { margin:0; font-size:13px; }
+    .cd-rate-tag { font-size:11px; font-weight:600; color:#d97706; background:#fffbeb; border:1px solid #fde68a; border-radius:999px; padding:2px 8px; white-space:nowrap; }
+    @media (max-width:1024px) { .cd-grid { grid-template-columns:1fr; } }
+    @media (max-width:640px) { .cd-actions { width:100%; } .cd-btn { flex:1; justify-content:center; } .dash-header { flex-direction:column; align-items:flex-start; gap:12px; } }
+</style>
+@endpush
+
 @section('content')
+@php
+    $displayName = trim(($customer->first_name ?? '') . ' ' . ($customer->last_name ?? ''));
+    $hour = (int) now()->format('G');
+    $greeting = $hour < 12 ? 'Buenos días' : ($hour < 19 ? 'Buenas tardes' : 'Buenas noches');
+
+    $svcLabels = ['scheduled' => 'Programado', 'in_progress' => 'En proceso', 'completed' => 'Completado', 'cancelled' => 'Cancelado', 'draft' => 'Borrador'];
+
+    $urlRequest  = Route::has('customer.service-requests.create') ? route('customer.service-requests.create') : null;
+    $urlCalendar = Route::has('customer.calendar') ? route('customer.calendar') : null;
+    $urlHistory  = Route::has('customer.history') ? route('customer.history') : null;
+    $urlProfile  = Route::has('customer.profile') ? route('customer.profile') : null;
+    $urlServices = route('customer.technical-services.index');
+    $urlReports  = route('customer.service-reports.index');
+@endphp
 <div class="dash-page">
 
     {{-- ── Header ── --}}
     <div class="dash-header">
-        <h1 class="dash-title">Resumen General</h1>
-        <span class="dash-timestamp">Última actualización: Hoy, 10:30 AM</span>
+        <div>
+            <h1 class="dash-title">{{ $greeting }}, {{ $displayName !== '' ? $displayName : 'cliente' }}</h1>
+            <p class="cd-sub">Este es el resumen de tus servicios con Equiterm Industries.</p>
+        </div>
+        <div class="cd-actions">
+            @if ($urlRequest)
+                <a href="{{ $urlRequest }}" class="cd-btn cd-btn--primary">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+                    Solicitar servicio
+                </a>
+            @endif
+            @if ($urlCalendar)
+                <a href="{{ $urlCalendar }}" class="cd-btn cd-btn--ghost">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+                    Ver calendario
+                </a>
+            @endif
+        </div>
     </div>
 
-    {{-- ── Stats grid ── --}}
+    {{-- ── Stats ── --}}
     <div class="dash-stats-grid">
 
-        {{-- Productos Activos --}}
-        <div class="dash-stat-card">
+        <a class="dash-stat-card cd-stat-link" href="{{ $urlServices }}?status=scheduled">
             <div class="dash-stat-card-top">
                 <div>
-                    <p class="dash-stat-label">Productos Activos</p>
-                    <h3 class="dash-stat-value">3</h3>
+                    <p class="dash-stat-label">Servicios próximos</p>
+                    <h3 class="dash-stat-value">{{ $stats['upcoming'] }}</h3>
                 </div>
                 <div class="dash-stat-icon blue">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z"/>
-                        <path d="M12 22V12"/>
-                        <polyline points="3.29 7 12 12 20.71 7"/>
-                        <path d="m7.5 4.27 9 5.15"/>
-                    </svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
                 </div>
             </div>
-            <span class="dash-stat-badge">+2.5%</span>
-        </div>
+            <span class="cd-stat-hint">Programados a partir de hoy</span>
+        </a>
 
-        {{-- Artículos Blog --}}
-        <div class="dash-stat-card">
+        <a class="dash-stat-card cd-stat-link" href="{{ $urlServices }}?status=in_progress">
             <div class="dash-stat-card-top">
                 <div>
-                    <p class="dash-stat-label">Artículos Blog</p>
-                    <h3 class="dash-stat-value">2</h3>
-                </div>
-                <div class="dash-stat-icon purple">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/>
-                        <path d="M14 2v4a2 2 0 0 0 2 2h4"/>
-                        <path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/>
-                    </svg>
-                </div>
-            </div>
-            <span class="dash-stat-badge">+1 esta semana</span>
-        </div>
-
-        {{-- Contactos WhatsApp --}}
-        <div class="dash-stat-card">
-            <div class="dash-stat-card-top">
-                <div>
-                    <p class="dash-stat-label">Contactos WhatsApp</p>
-                    <h3 class="dash-stat-value">128</h3>
-                </div>
-                <div class="dash-stat-icon green">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
-                    </svg>
-                </div>
-            </div>
-            <span class="dash-stat-badge">+12% vs mes anterior</span>
-        </div>
-
-        {{-- Visitas Totales --}}
-        <div class="dash-stat-card">
-            <div class="dash-stat-card-top">
-                <div>
-                    <p class="dash-stat-label">Visitas Totales</p>
-                    <h3 class="dash-stat-value">14.2k</h3>
+                    <p class="dash-stat-label">Servicios en proceso</p>
+                    <h3 class="dash-stat-value">{{ $stats['in_process'] }}</h3>
                 </div>
                 <div class="dash-stat-icon orange">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"/>
-                    </svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
                 </div>
             </div>
-            <span class="dash-stat-badge">+5.4% este mes</span>
-        </div>
+            <span class="cd-stat-hint">Nuestro equipo está trabajando</span>
+        </a>
 
+        <a class="dash-stat-card cd-stat-link" href="{{ $urlServices }}?status=completed">
+            <div class="dash-stat-card-top">
+                <div>
+                    <p class="dash-stat-label">Servicios realizados</p>
+                    <h3 class="dash-stat-value">{{ $stats['completed'] }}</h3>
+                </div>
+                <div class="dash-stat-icon green">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg>
+                </div>
+            </div>
+            <span class="cd-stat-hint">Servicios completados</span>
+        </a>
+
+        <a class="dash-stat-card cd-stat-link" href="{{ $urlReports }}">
+            <div class="dash-stat-card-top">
+                <div>
+                    <p class="dash-stat-label">Reportes por calificar</p>
+                    <h3 class="dash-stat-value">{{ $stats['pending_rating'] }}</h3>
+                </div>
+                <div class="dash-stat-icon purple">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z"/></svg>
+                </div>
+            </div>
+            <span class="cd-stat-hint">Cuéntanos qué te pareció el servicio</span>
+        </a>
     </div>
 
-    {{-- ── Bottom grid ── --}}
-    <div class="dash-bottom-grid">
+    {{-- ── Listas ── --}}
+    <div class="cd-grid">
 
-        {{-- Traffic chart --}}
+        {{-- Próximos servicios --}}
         <div class="dash-panel">
-            <div class="dash-chart-header">
-                <h3 class="dash-panel-title">Tráfico del Sitio</h3>
-                <select class="dash-chart-select" id="dashChartRange">
-                    <option value="7">Últimos 7 días</option>
-                    <option value="30">Último mes</option>
-                    <option value="365">Este año</option>
-                </select>
-            </div>
-            <div class="dash-chart-wrapper">
-                <canvas id="dashTrafficChart"></canvas>
-            </div>
-        </div>
-
-        {{-- Quick access --}}
-        <div class="dash-panel dash-quick-access">
-            <h3 class="dash-panel-title" style="margin-bottom:16px;">Accesos Rápidos</h3>
-
-            <div class="dash-quick-btns">
-
-                <button class="dash-quick-btn">
-                    <div class="dash-quick-btn-left">
-                        <div class="dash-quick-btn-icon blue">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z"/>
-                                <path d="M12 22V12"/>
-                                <polyline points="3.29 7 12 12 20.71 7"/>
-                                <path d="m7.5 4.27 9 5.15"/>
-                            </svg>
-                        </div>
-                        <span class="dash-quick-btn-label">Agregar Producto</span>
-                    </div>
-                    <svg class="dash-quick-btn-chevron" xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                        stroke-linecap="round" stroke-linejoin="round">
-                        <path d="m9 18 6-6-6-6"/>
-                    </svg>
-                </button>
-
-                <button class="dash-quick-btn">
-                    <div class="dash-quick-btn-left">
-                        <div class="dash-quick-btn-icon green">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/>
-                                <path d="M14 2v4a2 2 0 0 0 2 2h4"/>
-                                <path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/>
-                            </svg>
-                        </div>
-                        <span class="dash-quick-btn-label">Escribir Artículo</span>
-                    </div>
-                    <svg class="dash-quick-btn-chevron" xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                        stroke-linecap="round" stroke-linejoin="round">
-                        <path d="m9 18 6-6-6-6"/>
-                    </svg>
-                </button>
-
-                <button class="dash-quick-btn">
-                    <div class="dash-quick-btn-left">
-                        <div class="dash-quick-btn-icon purple">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
-                            </svg>
-                        </div>
-                        <span class="dash-quick-btn-label">Configurar WhatsApp</span>
-                    </div>
-                    <svg class="dash-quick-btn-chevron" xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                        stroke-linecap="round" stroke-linejoin="round">
-                        <path d="m9 18 6-6-6-6"/>
-                    </svg>
-                </button>
-
+            <div class="cd-panel-head">
+                <h3 class="dash-panel-title">Próximos servicios</h3>
+                <a class="cd-link-all" href="{{ $urlServices }}">Ver todos</a>
             </div>
 
-            <div class="dash-performance">
-                <div class="dash-performance-label">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
-                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/>
-                        <polyline points="16 7 22 7 22 13"/>
-                    </svg>
-                    <span>Rendimiento</span>
+            @if ($upcomingServices->isEmpty())
+                <div class="cd-empty">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+                    <p>No tienes servicios programados por ahora.</p>
+                    @if ($urlRequest)
+                        <p style="margin-top:6px;"><a class="cd-link-all" href="{{ $urlRequest }}">Solicita un servicio</a></p>
+                    @endif
                 </div>
-                <p class="dash-performance-text">
-                    El sitio ha mejorado un <span class="dash-performance-highlight">12%</span> en velocidad de carga esta semana.
-                </p>
-            </div>
+            @else
+                <div class="cd-list">
+                    @foreach ($upcomingServices as $service)
+                        @php
+                            $d = $service->service_date ? \Carbon\Carbon::parse($service->service_date) : null;
+                            $time = $service->service_time ? substr((string) $service->service_time, 0, 5) : null;
+                        @endphp
+                        <a class="cd-item" href="{{ route('customer.technical-services.show', $service) }}">
+                            <div class="cd-date">
+                                <span class="cd-date-day">{{ $d ? $d->format('d') : '—' }}</span>
+                                <span class="cd-date-mon">{{ $d ? $d->isoFormat('MMM') : '' }}</span>
+                            </div>
+                            <div class="cd-item-main">
+                                <p class="cd-item-title">{{ $service->service_type_label }}</p>
+                                <p class="cd-item-meta">
+                                    {{ $service->service_number }}
+                                    · {{ $d ? $d->isoFormat('ddd D [de] MMMM') : 'Sin fecha' }}{{ $time ? ' · ' . $time . ' h' : '' }}
+                                </p>
+                            </div>
+                            <span class="cd-badge cd-badge--{{ $service->status }}">{{ $svcLabels[$service->status] ?? $service->status_label }}</span>
+                        </a>
+                    @endforeach
+                </div>
+            @endif
         </div>
 
+        {{-- Últimos reportes --}}
+        <div class="dash-panel">
+            <div class="cd-panel-head">
+                <h3 class="dash-panel-title">Últimos reportes</h3>
+                <a class="cd-link-all" href="{{ $urlReports }}">Ver todos</a>
+            </div>
+
+            @if ($latestReports->isEmpty())
+                <div class="cd-empty">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4M12 16h4M8 11h.01M8 16h.01"/></svg>
+                    <p>Aún no tienes reportes de servicio.</p>
+                </div>
+            @else
+                <div class="cd-list">
+                    @foreach ($latestReports as $report)
+                        <a class="cd-item" href="{{ route('customer.service-reports.show', $report) }}">
+                            <div class="cd-item-main">
+                                <p class="cd-item-title">{{ $report->report_number }}</p>
+                                <p class="cd-item-meta">
+                                    {{ $report->service_type_label }}
+                                    · {{ $report->service_date ? $report->service_date->isoFormat('D MMM YYYY') : 'Sin fecha' }}
+                                </p>
+                            </div>
+                            <span class="cd-badge cd-badge--{{ $report->status }}">{{ $report->status_label }}</span>
+                        </a>
+                    @endforeach
+                </div>
+            @endif
+        </div>
     </div>
+
+    @if ($urlHistory || $urlProfile)
+        <div class="cd-actions" style="margin-top:24px;">
+            @if ($urlHistory)
+                <a href="{{ $urlHistory }}" class="cd-btn cd-btn--ghost">Historial de servicios</a>
+            @endif
+            @if ($urlProfile)
+                <a href="{{ $urlProfile }}" class="cd-btn cd-btn--ghost">Mi perfil</a>
+            @endif
+        </div>
+    @endif
+
 </div>
 @endsection
-
-@push('scripts')
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
-<script>
-(function () {
-    const datasets = {
-        7:   [1200, 1800, 1500, 2200, 2800, 3100, 2600],
-        30:  [800, 1200, 1000, 1400, 1100, 1600, 2000, 1800, 2100, 1900,
-              2300, 2500, 2200, 2700, 2400, 2800, 2600, 3000, 2900, 3200,
-              3100, 2800, 3300, 3500, 3200, 3600, 3400, 3700, 3500, 3900],
-        365: [1800, 2200, 2800, 3200, 3600, 4000, 3800],
-    };
-
-    const labels = {
-        7:   ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'],
-        30:  Array.from({ length: 30 }, (_, i) => `Día ${i + 1}`),
-        365: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul'],
-    };
-
-    const ctx = document.getElementById('dashTrafficChart').getContext('2d');
-
-    const gradient = ctx.createLinearGradient(0, 0, 0, 260);
-    gradient.addColorStop(0.05, 'rgba(0, 84, 255, 0.10)');
-    gradient.addColorStop(0.95, 'rgba(0, 84, 255, 0.00)');
-
-    const chart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: labels[365],
-            datasets: [{
-                data: datasets[365],
-                borderColor: '#ff6213',
-                borderWidth: 2,
-                backgroundColor: gradient,
-                fill: true,
-                tension: 0.4,
-                pointRadius: 0,
-                pointHoverRadius: 5,
-                pointHoverBackgroundColor: '#ff6213',
-                pointHoverBorderColor: '#ffffff',
-                pointHoverBorderWidth: 2,
-            }],
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            interaction: { mode: 'index', intersect: false },
-            plugins: {
-                legend: { display: false },
-                tooltip: {
-                    backgroundColor: '#ffffff',
-                    borderColor: '#e5e7eb',
-                    borderWidth: 1,
-                    titleColor: '#1f2937',
-                    bodyColor: '#6b7280',
-                    padding: 10,
-                    callbacks: {
-                        label: ctx => ' ' + ctx.parsed.y.toLocaleString() + ' visitas',
-                    },
-                },
-            },
-            scales: {
-                x: {
-                    grid: { display: false },
-                    border: { display: false },
-                    ticks: {
-                        color: '#9ca3af',
-                        font: { size: 12, family: 'Inter, sans-serif' },
-                    },
-                },
-                y: {
-                    grid: { color: '#f3f4f6' },
-                    border: { display: false, dash: [4, 4] },
-                    ticks: {
-                        color: '#9ca3af',
-                        font: { size: 12, family: 'Inter, sans-serif' },
-                        callback: v => v >= 1000 ? (v / 1000) + 'k' : v,
-                    },
-                    beginAtZero: true,
-                },
-            },
-        },
-    });
-
-    document.getElementById('dashChartRange').addEventListener('change', function () {
-        const range = this.value;
-        chart.data.labels = labels[range];
-        chart.data.datasets[0].data = datasets[range];
-        chart.update();
-    });
-})();
-</script>
-@endpush

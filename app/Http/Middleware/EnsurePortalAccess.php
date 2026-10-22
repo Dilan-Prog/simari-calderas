@@ -10,13 +10,25 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * El portal /customer (reportes de servicio) es un privilegio que el admin
  * activa por cliente (customers.portal_access). Un cliente autenticado sin
- * acceso es redirigido a su cuenta de la tienda.
+ * acceso es redirigido a su cuenta de la tienda. Un cliente con la cuenta
+ * desactivada/suspendida (status != active) pierde la sesión y vuelve al login.
  */
 class EnsurePortalAccess
 {
     public function handle(Request $request, Closure $next): Response
     {
         $customer = Auth::guard('customer')->user();
+
+        if ($customer && $customer->status !== 'active') {
+            Auth::guard('customer')->logout();
+
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            return redirect()
+                ->route('shop.login')
+                ->withErrors(['email' => 'Tu cuenta está desactivada. Contáctanos.']);
+        }
 
         if (! $customer || ! $customer->portal_access) {
             return redirect()

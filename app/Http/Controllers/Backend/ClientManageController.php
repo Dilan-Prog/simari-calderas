@@ -4,9 +4,11 @@ namespace App\Http\Controllers\Backend;
 
 use App\Http\Controllers\Controller;
 use App\Models\Customer;
+use App\Notifications\CustomerPortalAccessGranted;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Smalot\PdfParser\Parser;
 
@@ -440,12 +442,43 @@ class ClientManageController extends Controller
         $customer->password_hash = Hash::make($request->password);
         $customer->save();
 
+        $message = $hadAccess
+            ? 'Contraseña actualizada correctamente.'
+            : 'Acceso al portal otorgado correctamente.';
+
+        // Solo avisamos por correo si el portal ya está activo (nunca se envía la contraseña).
+        if ($customer->portal_access && ! $this->notifyPortalAccess($customer)) {
+            $message .= ' No se pudo enviar el correo de aviso al cliente.';
+        }
+
         return response()->json([
             'success' => true,
-            'message' => $hadAccess
-                ? 'Contraseña actualizada correctamente.'
-                : 'Acceso al portal otorgado correctamente.',
+            'message' => $message,
         ]);
+    }
+
+    /**
+     * Envía al cliente el aviso de acceso al portal. Síncrono y a prueba de
+     * fallos: un error de correo nunca debe romper la acción del admin.
+     */
+    private function notifyPortalAccess(Customer $customer): bool
+    {
+        if (empty($customer->email)) {
+            return false;
+        }
+
+        try {
+            $customer->notify(new CustomerPortalAccessGranted());
+
+            return true;
+        } catch (\Throwable $e) {
+            Log::warning('No se pudo enviar el aviso de acceso al portal', [
+                'customer_id' => $customer->id,
+                'error'       => $e->getMessage(),
+            ]);
+
+            return false;
+        }
     }
 
     public function updateStatus(Request $request, string $id): JsonResponse
@@ -464,7 +497,7 @@ class ClientManageController extends Controller
         return response()->json([
             'success' => true,
             'status'  => $customer->status,
-            'message' => 'Panel del cliente ' . $labels[$customer->status] . ' correctamente.',
+            'message' => 'Cuenta del cliente ' . $labels[$customer->status] . ' correctamente.',
         ]);
     }
 
@@ -478,15 +511,24 @@ class ClientManageController extends Controller
 
         $request->validate(['enabled' => 'required|boolean']);
 
+        $wasEnabled = (bool) $customer->portal_access;
+
         $customer->portal_access = $request->boolean('enabled');
         $customer->save();
+
+        $message = $customer->portal_access
+            ? 'Portal de servicios activado para este cliente.'
+            : 'Portal de servicios desactivado para este cliente.';
+
+        // Solo en la transición false -> true.
+        if ($customer->portal_access && ! $wasEnabled && ! $this->notifyPortalAccess($customer)) {
+            $message .= ' No se pudo enviar el correo de aviso al cliente.';
+        }
 
         return response()->json([
             'success'       => true,
             'portal_access' => $customer->portal_access,
-            'message'       => $customer->portal_access
-                ? 'Portal de servicios activado para este cliente.'
-                : 'Portal de servicios desactivado para este cliente.',
+            'message'       => $message,
         ]);
     }
 

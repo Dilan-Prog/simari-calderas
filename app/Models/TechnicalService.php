@@ -147,12 +147,35 @@ class TechnicalService extends Model
         return $query;
     }
 
+    /**
+     * Solicitudes que el cliente envía desde el portal (/customer/solicitar-servicio):
+     * reutilizan el estado `draft` sin usuario creador. El personal las revisa, las
+     * programa con el asistente de servicios (pasa a `scheduled`) o las rechaza
+     * (`cancelled`). Los borradores del asistente siempre llevan created_by_user_id.
+     */
+    public function scopeCustomerRequests($query)
+    {
+        return $query->where('status', 'draft')
+                     ->whereNull('created_by_user_id')
+                     ->whereNotNull('requested_at')
+                     ->whereNotNull('customer_id');
+    }
+
     // ── Accessors ──────────────────────────────────────────────────────────────
+
+    /** Solicitud enviada por el cliente y aún sin confirmar por el personal. */
+    public function getIsCustomerRequestAttribute(): bool
+    {
+        return $this->status === 'draft'
+            && $this->created_by_user_id === null
+            && $this->requested_at !== null
+            && $this->customer_id !== null;
+    }
 
     public function getStatusLabelAttribute(): string
     {
         return match($this->status) {
-            'draft'       => 'Borrador',
+            'draft'       => $this->is_customer_request ? 'Solicitud enviada' : 'Borrador',
             'scheduled'   => 'Programado',
             'in_progress' => 'En Proceso',
             'completed'   => 'Completado',

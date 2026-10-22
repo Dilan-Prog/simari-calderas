@@ -21,6 +21,7 @@
         <div class="ts-mobile-select-wrap">
             <select class="ts-mobile-status-select" id="ts-mobile-status-filter">
                 <option value="">Todos los estados</option>
+                <option value="requested">Solicitudes de clientes</option>
                 <option value="scheduled">Programado</option>
                 <option value="in_progress">En Proceso</option>
                 <option value="completed">Completado</option>
@@ -77,6 +78,34 @@
             </a>
         </div>
     </div>
+
+    {{-- Solicitudes de clientes (portal de servicios) --}}
+    @php $showingRequests = request('status') === 'requested'; @endphp
+    @if(($pendingRequests ?? 0) > 0 || $showingRequests)
+    <div class="ts-request-banner">
+        <div class="ts-request-banner__text">
+            <strong>
+                @if($pendingRequests > 0)
+                    {{ $pendingRequests }} {{ $pendingRequests === 1 ? 'solicitud de cliente por revisar' : 'solicitudes de clientes por revisar' }}
+                @else
+                    No hay solicitudes de clientes pendientes
+                @endif
+            </strong>
+            <span>Enviadas desde el portal de servicios. Abre la solicitud para programarla (pasa a Programado) o cancelarla.</span>
+        </div>
+        @if($showingRequests)
+            <a href="{{ route('admin.technical-services.index') }}" class="ts-btn">Ver todos los servicios</a>
+        @else
+            <a href="{{ route('admin.technical-services.index', ['status' => 'requested']) }}" class="ts-btn ts-btn--primary">Revisar solicitudes</a>
+        @endif
+    </div>
+    <style>
+        .ts-request-banner{display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-bottom:1rem;padding:.875rem 1rem;background:#FFF7ED;border:1px solid #FED7AA;border-radius:8px;color:#9A3412;font-size:.8125rem}
+        .ts-request-banner__text{display:flex;flex-direction:column;gap:.125rem}
+        .ts-request-banner__text strong{font-size:.9375rem;color:#7C2D12}
+        .ts-badge--request{background:#FFF7ED;color:#C2410C;border-color:#FED7AA}
+    </style>
+    @endif
 
     {{-- Toolbar --}}
     <div class="ts-toolbar">
@@ -186,12 +215,14 @@
                 <tbody>
                     @php
                         $statusClasses = [
+                            'draft'       => 'ts-badge--draft',
                             'scheduled'   => 'ts-badge--scheduled',
                             'in_progress' => 'ts-badge--in-progress',
                             'completed'   => 'ts-badge--completed',
                             'cancelled'   => 'ts-badge--cancelled',
                         ];
                         $statusLabels = [
+                            'draft'       => 'Borrador',
                             'scheduled'   => 'Programado',
                             'in_progress' => 'En Proceso',
                             'completed'   => 'Completado',
@@ -211,9 +242,13 @@
                             @endif
                         </td>
                         <td data-col="estado">
-                            <span class="ts-badge {{ $statusClasses[$service->status] ?? '' }}">
-                                {{ $statusLabels[$service->status] ?? $service->status }}
-                            </span>
+                            @if($service->is_customer_request)
+                                <span class="ts-badge ts-badge--request">Solicitud de cliente</span>
+                            @else
+                                <span class="ts-badge {{ $statusClasses[$service->status] ?? '' }}">
+                                    {{ $statusLabels[$service->status] ?? $service->status }}
+                                </span>
+                            @endif
                         </td>
                         <td data-col="tecnicos">
                             <div class="ts-table-techs">
@@ -297,12 +332,14 @@
     <div class="ts-mobile-cards" id="ts-mobile-cards">
     @php
         $mStatusClasses = [
+            'draft'       => 'ts-badge--draft',
             'scheduled'   => 'ts-badge--scheduled',
             'in_progress' => 'ts-badge--in-progress',
             'completed'   => 'ts-badge--completed',
             'cancelled'   => 'ts-badge--cancelled',
         ];
         $mStatusLabels = [
+            'draft'       => 'Borrador',
             'scheduled'   => 'Programado',
             'in_progress' => 'En Proceso',
             'completed'   => 'Completado',
@@ -311,13 +348,17 @@
     @endphp
     @forelse($services as $service)
     <div class="ts-mobile-card"
-         data-status="{{ $service->status }}"
+         data-status="{{ $service->is_customer_request ? 'requested' : $service->status }}"
          data-search="{{ strtolower($service->service_number . ' ' . $service->customer_name . ' ' . $service->service_type_label . ' ' . ($service->customer_company ?? '')) }}">
         <div class="ts-mobile-card__top">
             <span class="ts-mobile-card__num">{{ $service->service_number }}</span>
-            <span class="ts-badge {{ $mStatusClasses[$service->status] ?? '' }}">
-                {{ $mStatusLabels[$service->status] ?? $service->status }}
-            </span>
+            @if($service->is_customer_request)
+                <span class="ts-badge ts-badge--request">Solicitud de cliente</span>
+            @else
+                <span class="ts-badge {{ $mStatusClasses[$service->status] ?? '' }}">
+                    {{ $mStatusLabels[$service->status] ?? $service->status }}
+                </span>
+            @endif
         </div>
         <div class="ts-mobile-card__type">{{ $service->service_type_label }}</div>
         <div class="ts-mobile-card__meta">
@@ -420,6 +461,14 @@
             card.classList.toggle('ts-mobile-card--hidden', !(matchSearch && matchStatus));
         });
     }
+
+    // "Revisar solicitudes" (?status=requested) abre directo la vista de tabla ya filtrada.
+    @if(request('status') === 'requested')
+    window.addEventListener('load', function () {
+        var btn = document.querySelector('.ts-view-toggle__btn[data-view="table"]');
+        if (btn) btn.click();
+    });
+    @endif
 
     if (searchInput)  searchInput.addEventListener('input',  filterCards);
     if (statusSelect) statusSelect.addEventListener('change', filterCards);

@@ -46,7 +46,11 @@ class TechnicalServiceService
 
     // ── Alta inicial (Paso 1) ──────────────────────────────────────────────────
 
-    public function store(array $data, int $userId): TechnicalService
+    /**
+     * $userId null = el alta la hace el propio cliente desde el portal (ver
+     * storeCustomerRequest): el servicio queda en `draft` sin usuario creador.
+     */
+    public function store(array $data, ?int $userId): TechnicalService
     {
         $draftToken = $data['draft_token'] ?? (string) Str::uuid();
 
@@ -104,6 +108,43 @@ class TechnicalServiceService
         }
 
         throw new \RuntimeException('Unable to create technical service draft.');
+    }
+
+    /**
+     * Solicitud de servicio hecha por el cliente desde el portal. Se guarda como
+     * `draft` + requested_at + sin created_by_user_id (ver TechnicalService::scopeCustomerRequests);
+     * el personal la confirma/programa o la rechaza desde Servicios Técnicos.
+     * El draft_token (generado en servidor) vuelve idempotente el doble envío del formulario.
+     */
+    public function storeCustomerRequest(int $customerId, array $data, ?string $windowLabel = null): TechnicalService
+    {
+        $service = $this->store([
+            'customer_id'        => $customerId,
+            'draft_token'        => $data['draft_token'] ?? null,
+            'service_type_id'    => $data['service_type_id'],
+            'service_date'       => $data['service_date'],
+            'service_time'       => null,
+            'estimated_duration' => null,
+            'priority'           => 'normal',
+            'description'        => $data['description'] ?? null,
+            'address'            => $data['address'] ?? null,
+            'reference'          => $data['reference'] ?? null,
+        ], null);
+
+        // Nunca devolver/duplicar un servicio de otro cliente si el token colisionara.
+        abort_unless((int) $service->customer_id === $customerId, 403);
+
+        if ($service->wasRecentlyCreated) {
+            $this->log(
+                $service,
+                'customer_requested',
+                'Solicitud enviada por el cliente desde el portal.'
+                    . ($windowLabel ? " Horario preferido: {$windowLabel}." : ''),
+                null
+            );
+        }
+
+        return $service;
     }
 
     private function isDuplicateDraftToken(QueryException $e): bool
@@ -282,7 +323,9 @@ class TechnicalServiceService
             $query->byTechnician($technicianId);
         }
 
-        if ($status) {
+        if ($status === 'requested') {
+            $query->customerRequests();
+        } elseif ($status) {
             $query->where('status', $status);
         }
 
@@ -305,6 +348,7 @@ class TechnicalServiceService
                                                 : null,
                     'status'              => $service->status,
                     'status_label'        => $service->status_label,
+                    'is_customer_request' => $service->is_customer_request,
                     'priority'            => $service->priority,
                     'show_url'            => route('admin.technical-services.show', $service),
                     'assigned_technicians'=> $service->assignedTechnicians->map(fn(User $u) => [

@@ -45,7 +45,10 @@ class TechnicalServiceController extends Controller
         if ($request->filled('technician_id')) {
             $tableQuery->byTechnician((int) $request->technician_id);
         }
-        if ($request->filled('status')) {
+        // "requested" no es un estado real: son las solicitudes enviadas por clientes desde el portal.
+        if ($request->status === 'requested') {
+            $tableQuery->customerRequests();
+        } elseif ($request->filled('status')) {
             $tableQuery->byStatus($request->status);
         }
         if ($request->filled('date_from')) {
@@ -63,8 +66,11 @@ class TechnicalServiceController extends Controller
             ->where('table_key', 'technical-services.index')
             ->value('columns');
 
+        $pendingRequests = TechnicalService::customerRequests()->count();
+
         return view('admin.technical-services.index', compact(
-            'services', 'calendarServices', 'technicians', 'currentMonth', 'currentYear', 'viewMode', 'visibleColumns'
+            'services', 'calendarServices', 'technicians', 'currentMonth', 'currentYear', 'viewMode', 'visibleColumns',
+            'pendingRequests'
         ));
     }
 

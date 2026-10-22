@@ -37,15 +37,20 @@
                     <span class="ts-show-num">{{ $service->service_number }}</span>
                     @php
                         $statusClasses = [
+                            'draft'       => 'ts-badge--draft',
                             'scheduled'   => 'ts-badge--scheduled',
                             'in_progress' => 'ts-badge--in-progress',
                             'completed'   => 'ts-badge--completed',
                             'cancelled'   => 'ts-badge--cancelled',
                         ];
                     @endphp
-                    <span class="ts-badge {{ $statusClasses[$service->status] ?? '' }}">
-                        {{ $service->status_label ?? $service->status }}
-                    </span>
+                    @if($service->is_customer_request)
+                        <span class="ts-badge" style="background:#FFF7ED;color:#C2410C;border-color:#FED7AA">Solicitud de cliente</span>
+                    @else
+                        <span class="ts-badge {{ $statusClasses[$service->status] ?? '' }}">
+                            {{ $service->status_label ?? $service->status }}
+                        </span>
+                    @endif
                     @php
                         $priorityClasses = ['normal'=>'ts-priority--normal','high'=>'ts-priority--high','urgent'=>'ts-priority--urgent'];
                         $priorityLabels  = ['normal'=>'Normal','high'=>'Alta','urgent'=>'Urgente'];
@@ -149,6 +154,24 @@
         </div>
     </div>
 
+    @if($service->is_customer_request)
+    <div class="ts-card" style="margin-bottom:1rem;background:#FFF7ED;border:1px solid #FED7AA">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap">
+            <div style="font-size:.875rem;color:#7C2D12">
+                <strong style="display:block;font-size:1rem">Solicitud enviada por el cliente desde el portal</strong>
+                Recibida {{ $service->requested_at?->diffForHumans() }}
+                ({{ $service->requested_at?->format('d/m/Y H:i') }}). Fecha solicitada:
+                <strong>{{ $service->service_date ? $service->service_date->format('d/m/Y') : '—' }}</strong>.
+                Revisa los datos, asigna técnicos y programa el servicio; el cliente ve el cambio en su portal.
+                Para rechazarla usa "Cancelar Servicio".
+            </div>
+            <a href="{{ route('admin.technical-services.edit', $service) }}" class="ts-btn ts-btn--primary">
+                Revisar y programar
+            </a>
+        </div>
+    </div>
+    @endif
+
     {{-- ── Status timeline ─────────────────────────── --}}
     @php
         $timeline = [
@@ -157,7 +180,7 @@
             'completed'   => ['Creado', 'Programado', 'En Proceso', 'Completado'],
             'cancelled'   => ['Creado', 'Cancelado'],
         ];
-        $tlSteps = $timeline[$service->status] ?? ['Creado'];
+        $tlSteps = $timeline[$service->status] ?? [$service->is_customer_request ? 'Solicitud del cliente' : 'Creado'];
     @endphp
     <div class="ts-card" style="margin-bottom:1rem">
         <div class="ts-timeline">
@@ -338,7 +361,7 @@
                 <div class="ts-mat-item">
                     <span class="ts-mat-item__name">{{ $log->action }}</span>
                     <span style="font-size:0.75rem;color:#9CA3AF">
-                        {{ $log->performedBy ? trim($log->performedBy->first_name.' '.$log->performedBy->last_name) : 'Sistema' }}
+                        {{ $log->performedBy ? trim($log->performedBy->first_name.' '.$log->performedBy->last_name) : ($log->action === 'customer_requested' ? 'Cliente (portal)' : 'Sistema') }}
                         — {{ $log->created_at->format('d/m/Y H:i') }}
                     </span>
                     @if($log->comment)

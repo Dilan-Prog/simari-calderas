@@ -32,11 +32,12 @@
         <form method="GET" action="{{ route('customer.technical-services.index') }}" class="ts-filters">
             <div class="ts-select-wrap">
                 <select class="ts-select" name="status" onchange="this.form.submit()">
-                    <option value="">Todos los estados</option>
-                    <option value="scheduled"   {{ request('status') == 'scheduled'   ? 'selected' : '' }}>Programado</option>
-                    <option value="in_progress" {{ request('status') == 'in_progress' ? 'selected' : '' }}>En Proceso</option>
-                    <option value="completed"   {{ request('status') == 'completed'   ? 'selected' : '' }}>Completado</option>
-                    <option value="cancelled"   {{ request('status') == 'cancelled'   ? 'selected' : '' }}>Cancelado</option>
+                    <option value="">Todos</option>
+                    <option value="scheduled"   {{ ($status ?? null) === 'scheduled'   ? 'selected' : '' }}>Programado</option>
+                    <option value="in_progress" {{ ($status ?? null) === 'in_progress' ? 'selected' : '' }}>En proceso</option>
+                    <option value="completed"   {{ ($status ?? null) === 'completed'   ? 'selected' : '' }}>Completado</option>
+                    <option value="cancelled"   {{ ($status ?? null) === 'cancelled'   ? 'selected' : '' }}>Cancelado</option>
+                    <option value="draft"       {{ ($status ?? null) === 'draft'       ? 'selected' : '' }}>Solicitud enviada</option>
                 </select>
                 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
                      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -66,12 +67,14 @@
                         'in_progress' => 'ts-badge--in-progress',
                         'completed'   => 'ts-badge--completed',
                         'cancelled'   => 'ts-badge--cancelled',
+                        'draft'       => 'ts-badge--draft',
                     ];
                     $statusLabels = [
                         'scheduled'   => 'Programado',
                         'in_progress' => 'En Proceso',
                         'completed'   => 'Completado',
                         'cancelled'   => 'Cancelado',
+                        'draft'       => 'Solicitud enviada',
                     ];
                 @endphp
 
@@ -82,7 +85,7 @@
                     <td class="ts-table-date">
                         {{ $service->service_date ? \Carbon\Carbon::parse($service->service_date)->format('d M Y') : '—' }}
                         @if($service->service_time)
-                            <br><span style="font-size:0.75rem;color:#9CA3AF">{{ $service->service_time }}</span>
+                            <br><span style="font-size:0.75rem;color:#9CA3AF">{{ substr($service->service_time, 0, 5) }}</span>
                         @endif
                     </td>
                     <td>
@@ -127,7 +130,7 @@
                                 <rect width="18" height="18" x="3" y="4" rx="2"/>
                                 <path d="M3 10h18"/>
                             </svg>
-                            <p>No hay servicios registrados</p>
+                            <p>{{ ($status ?? null) ? 'No hay servicios con ese estado' : 'No hay servicios registrados' }}</p>
                         </div>
                     </td>
                 </tr>
@@ -162,7 +165,7 @@
         <div class="ts-mobile-card__meta">
             <span>📅 {{ $service->service_date ? \Carbon\Carbon::parse($service->service_date)->format('d M Y') : '—' }}</span>
             @if($service->service_time)
-                <span>⏰ {{ $service->service_time }}</span>
+                <span>⏰ {{ substr($service->service_time, 0, 5) }}</span>
             @endif
         </div>
         <div class="ts-mobile-card__divider"></div>
