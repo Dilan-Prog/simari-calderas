@@ -23,8 +23,11 @@ class AdEvent extends Model
         'checkout_start',
     ];
 
+    // Elementos del sitio que pueden disparar un evento (columna `element`).
+    const ELEMENTS = ['flotante', 'producto', 'tarjeta', 'servicio', 'seccion', 'enlace'];
+
     protected $fillable = [
-        'ad_visit_id', 'event_type', 'url', 'product_id', 'occurred_at',
+        'ad_visit_id', 'event_type', 'url', 'product_id', 'element', 'occurred_at',
     ];
 
     protected $casts = [

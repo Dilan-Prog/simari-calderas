@@ -68,5 +68,5 @@
     {{-- Acción secundaria: enlace de texto discreto (conserva la clase
          .product-card__quote-btn, data-ad-track y wa.me que usan el tracking
          y el carrusel compacto). --}}
-    <a href="{{ $quoteWhatsappUrl }}" target="_blank" rel="noopener nofollow" class="product-card__quote-btn" data-ad-track="quote_start" data-product-id="{{ $product->id }}">Solicitar cotización<span class="product-card__sr"> (se abre en una pestaña nueva)</span></a>
+    <a href="{{ $quoteWhatsappUrl }}" target="_blank" rel="noopener nofollow" class="product-card__quote-btn" data-ad-track="quote_start" data-ad-element="tarjeta" data-product-id="{{ $product->id }}">Solicitar cotización<span class="product-card__sr"> (se abre en una pestaña nueva)</span></a>
 </div>

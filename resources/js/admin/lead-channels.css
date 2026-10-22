@@ -11,6 +11,9 @@
 .lw-conv-ch .lw-chs { margin-left: 0; }
 .lw-chevrons li > span, .lw-chevrons li button { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding-left: 16px; padding-right: 12px; }
 .lw-stages .lw-chevrons { flex: 1 1 640px; }
+.lw-notes textarea { width: 100%; box-sizing: border-box; min-height: 72px; resize: vertical; }
+.lw-notes .lw-pane-foot { display: flex; justify-content: flex-end; margin-top: 8px; }
+.lw-newtask { margin-top: 10px; width: 100%; justify-content: center; }
 .lw-lost { margin: 0; }
 .lw-lost button { border: 1px solid #d9dce1; background: #fff; color: var(--erp-bad, #b91c1c); font-size: 12px; font-weight: 700; border-radius: 999px; padding: 5px 12px; cursor: pointer; white-space: nowrap; }
 .lw-lost button:hover { background: var(--erp-bad-bg, #fde8e8); }

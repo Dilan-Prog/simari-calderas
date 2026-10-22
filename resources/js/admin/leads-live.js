@@ -59,7 +59,12 @@ function start() {
 
         // Panel de datos: no se reemplaza mientras tengas un campo enfocado ahi (p. ej. un desplegable abierto).
         const info = shell.querySelector('.lw-info');
-        if (info && !info.contains(document.activeElement)) swap('.lw-info', next);
+        const typing = info && [...info.querySelectorAll('textarea, input[type="text"]')].some((el) => el.value.trim() !== '');
+        if (info && !info.contains(document.activeElement) && !typing) {
+            const open = [...info.querySelectorAll('details')].map((d) => d.open);
+            swap('.lw-info', next);
+            info.querySelectorAll('details').forEach((d, i) => { d.open = !!open[i]; });
+        }
     }
 
     async function tick() {

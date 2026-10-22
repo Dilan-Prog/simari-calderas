@@ -128,7 +128,13 @@ class AdTrackingController extends Controller
             'event_type'   => ['required', Rule::in(AdEvent::EVENT_TYPES)],
             'url'          => ['required', 'string', 'max:2048'],
             'product_id'   => ['nullable', 'integer', 'exists:products,id'],
+            'element'      => ['nullable', 'string', 'max:30'],
         ]);
+
+        // Solo se guarda si es un elemento conocido; cualquier otro valor -> null.
+        $element = in_array($validated['element'] ?? null, AdEvent::ELEMENTS, true)
+            ? $validated['element']
+            : null;
 
         // Segundo throttle, por visitor_uuid además del throttle:60,1 por IP
         // ya puesto en la ruta -- el de IP es fácil de esquivar con proxies.
@@ -148,6 +154,7 @@ class AdTrackingController extends Controller
                 'event_type'  => $validated['event_type'],
                 'url'         => $validated['url'],
                 'product_id'  => $validated['product_id'] ?? null,
+                'element'     => $element,
                 // Siempre del servidor -- se ignora cualquier 'occurred_at'
                 // u otro timestamp que venga en el request.
                 'occurred_at' => now(),

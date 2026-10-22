@@ -168,7 +168,7 @@
                                 <span class="ad-tracking-event-icon {{ $iconClass }}">{{ $meta['icon'] }}</span>
                                 <div class="ad-tracking-event-card {{ $iconClass }}">
                                     <div class="ad-tracking-event-top">
-                                        <span class="ad-tracking-event-title {{ $iconClass }}">{{ $meta['title'] }}</span>
+                                        <span class="ad-tracking-event-title {{ $iconClass }}">{{ $meta['title'] }}@if ($event->element) · {{ ['flotante' => 'botón flotante', 'producto' => 'ficha de producto', 'tarjeta' => 'tarjeta de producto', 'servicio' => 'página de servicio', 'seccion' => 'sección del inicio', 'enlace' => 'enlace'][$event->element] ?? $event->element }}@endif</span>
                                         <span class="ad-tracking-event-time">{{ $event->occurred_at?->format('H:i') }} hrs</span>
                                     </div>
                                     @if ($event->url)

@@ -228,16 +228,10 @@
 
                     <div class="lw-composer" data-lw-composer>
                         <div class="lw-tabs" role="tablist">
-                            <button type="button" class="is-on" data-tab="nota" role="tab">Nota</button>
-                            <button type="button" data-tab="whatsapp" role="tab">WhatsApp</button>
+                            <button type="button" class="is-on" data-tab="whatsapp" role="tab">WhatsApp</button>
                             <button type="button" data-tab="correo" role="tab">Correo</button>
                         </div>
-                        <form method="POST" action="{{ route('admin.leads-inbox.notes.store', $selected) }}" class="lw-pane" data-pane="nota">
-                            @csrf
-                            <textarea class="erp-input" name="body" rows="3" placeholder="Escribe una nota interna…" required>{{ old('body') }}</textarea>
-                            <div class="lw-pane-foot"><button class="erp-btn erp-btn--primary erp-btn--sm" type="submit">Guardar nota</button></div>
-                        </form>
-                        <div class="lw-pane lw-wa" data-pane="whatsapp" data-wa-templates="{{ route('admin.leads-inbox.whatsapp.templates', $selected) }}" hidden>
+                        <div class="lw-pane lw-wa" data-pane="whatsapp" data-wa-templates="{{ route('admin.leads-inbox.whatsapp.templates', $selected) }}">
                             @if (! ($wa['ready'] ?? false))
                                 <p class="lw-soon">{{ $wa['reason'] ?? 'WhatsApp no está disponible para este lead.' }}</p>
                                 @if ($phoneDigits)<a class="erp-btn erp-btn--sm" href="https://wa.me/{{ $phoneDigits }}" target="_blank" rel="noopener">Abrir WhatsApp</a>@endif
@@ -355,6 +349,15 @@
                         </dl>
                     </section>
 
+                    <section class="lw-card lw-notes">
+                        <h3>Notas</h3>
+                        <form method="POST" action="{{ route('admin.leads-inbox.notes.store', $selected) }}">
+                            @csrf
+                            <textarea class="erp-input" name="body" rows="3" placeholder="Escribe una nota interna…" required>{{ old('body') }}</textarea>
+                            <div class="lw-pane-foot"><button class="erp-btn erp-btn--primary erp-btn--sm" type="submit">Guardar nota</button></div>
+                        </form>
+                    </section>
+
                     <section class="lw-card">
                         <h3>Próxima tarea</h3>
                         @if ($nextTask)
@@ -365,7 +368,10 @@
                         @else
                             <p class="lw-muted">Sin tareas pendientes.</p>
                         @endif
+                        <button type="button" class="erp-btn erp-btn--sm lw-newtask" data-task-modal-open="lead">+ Crear tarea</button>
                     </section>
+
+                    @includeIf('admin.leads-inbox._log', ['lead' => $selected])
 
                     <div class="lw-cta">
                         @if ($selected->deal)
@@ -391,6 +397,15 @@
     </div>
 
     @if ($selected)
+        @include('admin.tasks._form_modal', [
+            'mode' => 'lead',
+            'users' => $users,
+            'action' => route('admin.leads-inbox.task.store', $selected),
+            'eyebrow' => 'Lead · ' . $selected->display_name,
+            'modalTitle' => 'Nueva tarea del lead',
+            'relatedLabel' => 'Lead ' . $selected->display_name,
+            'defaultAssignee' => $selected->assigned_to ?: auth()->id(),
+        ])
         <script>
             document.addEventListener('DOMContentLoaded', function () {
                 var composer = document.querySelector('[data-lw-composer]');
@@ -464,6 +479,7 @@
                 function openWhatsapp() { if (tab) { tab.click(); } composer.scrollIntoView({ block: 'nearest' }); }
 
                 if (tab) tab.addEventListener('click', function () { loadTemplates(); syncMode(); });
+                if (tab && tab.classList.contains('is-on')) { loadTemplates(); syncMode(); }
                 if (pane) pane.addEventListener('change', syncMode);
                 document.querySelectorAll('[data-wa-open]').forEach(function (a) {
                     a.addEventListener('click', function (e) { e.preventDefault(); openWhatsapp(); });

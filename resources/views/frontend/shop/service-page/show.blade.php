@@ -239,7 +239,7 @@
         $svcQuoteUrl = 'https://wa.me/' . \App\Models\Setting::get('footer.phone_link', '5214494577320') . '?text=' . urlencode($svcQuoteMessage);
     @endphp
     <div class="svc-quote-bar">
-        <a href="{{ $svcQuoteUrl }}" target="_blank" rel="noopener nofollow" class="svc-quote-bar__btn" data-ad-track="quote_start">Cotizar servicio<span class="sr-only"> (se abre en una pestaña nueva)</span></a>
+        <a href="{{ $svcQuoteUrl }}" target="_blank" rel="noopener nofollow" class="svc-quote-bar__btn" data-ad-track="quote_start" data-ad-element="servicio">Cotizar servicio<span class="sr-only"> (se abre en una pestaña nueva)</span></a>
     </div>
 </div>
 @endsection

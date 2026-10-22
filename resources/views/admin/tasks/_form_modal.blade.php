@@ -5,6 +5,7 @@
 --}}
 @php
     $isEdit = $mode === 'edit';
+    $isLead = $mode === 'lead';
     $uid = 'taskModal' . ucfirst($mode);
     $reopen = $errors->any() && old('_modal') === $mode;
     $val = fn (string $field, $fallback = '') => old($field, $isEdit ? ($fallback) : '');
@@ -45,14 +46,14 @@
 
 <div class="task-modal-overlay {{ $reopen ? 'active' : '' }}" id="{{ $uid }}" data-task-modal="{{ $mode }}">
     <div class="task-modal-box" role="dialog" aria-modal="true" aria-labelledby="{{ $uid }}Title">
-        <form method="POST" action="{{ $isEdit ? route('admin.tasks.update', $task) : route('admin.tasks.store') }}">
+        <form method="POST" action="{{ $isEdit ? route('admin.tasks.update', $task) : ($action ?? route('admin.tasks.store')) }}">
             @csrf
             @if ($isEdit) @method('PUT') @endif
             <input type="hidden" name="_modal" value="{{ $mode }}">
             <div class="task-modal-head">
                 <div>
-                    <p class="task-modal-eyebrow">{{ $isEdit ? 'Editar · TAR-' . str_pad((string) $task->id, 4, '0', STR_PAD_LEFT) : 'Seguimiento' }}</p>
-                    <h2 class="task-modal-title" id="{{ $uid }}Title">{{ $isEdit ? 'Editar tarea' : 'Nueva tarea' }}</h2>
+                    <p class="task-modal-eyebrow">{{ $isEdit ? 'Editar · TAR-' . str_pad((string) $task->id, 4, '0', STR_PAD_LEFT) : ($eyebrow ?? 'Seguimiento') }}</p>
+                    <h2 class="task-modal-title" id="{{ $uid }}Title">{{ $isEdit ? 'Editar tarea' : ($modalTitle ?? 'Nueva tarea') }}</h2>
                 </div>
                 <div class="task-modal-head-actions">
                     <button type="button" class="erp-btn" data-task-modal-close>Cancelar</button>
@@ -67,7 +68,11 @@
                 </div>
                 <div class="task-modal-field">
                     <label for="{{ $uid }}Related">Relacionado con</label>
-                    <input type="text" id="{{ $uid }}Related" name="related_reference" maxlength="255" value="{{ old('related_reference', $isEdit ? $task->related_reference : '') }}" placeholder="Folio de negocio, cotización o cliente">
+                    @if ($isLead)
+                        <input type="text" id="{{ $uid }}Related" value="{{ $relatedLabel ?? '' }}" disabled>
+                    @else
+                        <input type="text" id="{{ $uid }}Related" name="related_reference" maxlength="255" value="{{ old('related_reference', $isEdit ? $task->related_reference : '') }}" placeholder="Folio de negocio, cotización o cliente">
+                    @endif
                 </div>
                 <div class="task-modal-field">
                     <label for="{{ $uid }}Type">Tipo</label>
@@ -83,7 +88,7 @@
                     <select id="{{ $uid }}Assignee" name="assigned_to" @required(! $isEdit)>
                         <option value="">{{ $isEdit ? 'Sin asignar' : 'Selecciona...' }}</option>
                         @foreach ($users as $user)
-                            <option value="{{ $user->id }}" @selected((string) old('assigned_to', $isEdit ? $task->assigned_to : '') === (string) $user->id)>{{ $user->full_name }}</option>
+                            <option value="{{ $user->id }}" @selected((string) old('assigned_to', $isEdit ? $task->assigned_to : ($defaultAssignee ?? '')) === (string) $user->id)>{{ $user->full_name }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -124,11 +129,11 @@
     <script>
     (function () {
         function overlayFor(mode) { return document.querySelector('[data-task-modal="' + mode + '"]'); }
-        document.querySelectorAll('[data-task-modal-open]').forEach(function (btn) {
-            btn.addEventListener('click', function () {
-                var o = overlayFor(btn.getAttribute('data-task-modal-open'));
-                if (o) { o.classList.add('active'); var f = o.querySelector('input[type="text"]'); if (f) f.focus(); }
-            });
+        document.addEventListener('click', function (e) {
+            var btn = e.target.closest('[data-task-modal-open]');
+            if (!btn) return;
+            var o = overlayFor(btn.getAttribute('data-task-modal-open'));
+            if (o) { o.classList.add('active'); var f = o.querySelector('input[type="text"]'); if (f) f.focus(); }
         });
         document.querySelectorAll('[data-task-modal]').forEach(function (o) {
             o.addEventListener('click', function (e) { if (e.target === o) o.classList.remove('active'); });

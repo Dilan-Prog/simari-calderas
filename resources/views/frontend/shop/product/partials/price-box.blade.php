@@ -99,7 +99,7 @@
             @if(!$product->is_purchasable) disabled @endif>
             {{ $product->is_purchasable ? 'Agregar al carrito' : 'No disponible' }}
         </button>
-        <a href="{{ $quoteWhatsappUrl }}" target="_blank" rel="noopener nofollow" class="product-price-box__quote-btn" data-ad-track="quote_start" data-product-id="{{ $product->id }}">Solicitar cotización</a>
+        <a href="{{ $quoteWhatsappUrl }}" target="_blank" rel="noopener nofollow" class="product-price-box__quote-btn" data-ad-track="quote_start" data-ad-element="producto" data-product-id="{{ $product->id }}">Solicitar cotización</a>
     </div>
 
     @if ($product->short_description)

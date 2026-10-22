@@ -155,6 +155,7 @@
                             event_type: eventType,
                             url: window.location.href,
                             product_id: opts.productId != null ? opts.productId : null,
+                            element: opts.element || null,
                         },
                         true // keepalive: estos eventos suelen ir de la mano de una
                         // navegación (WhatsApp en pestaña nueva, checkout) y no deben
@@ -172,7 +173,15 @@
         document.addEventListener('click', function (e) {
             var el = e.target.closest('[data-ad-track]');
             if (!el) return;
-            window.AdTracking.track(el.dataset.adTrack, { productId: el.dataset.productId || null });
+            var VALID_ELEMENTS = ['flotante', 'producto', 'tarjeta', 'servicio', 'seccion', 'enlace'];
+            var element = el.dataset.adElement;
+            if (!element || VALID_ELEMENTS.indexOf(element) === -1) {
+                element = el.classList.contains('wa-float-btn') ? 'flotante' : null;
+            }
+            window.AdTracking.track(el.dataset.adTrack, {
+                productId: el.dataset.productId || null,
+                element: element,
+            });
         });
     } catch (err) {
         // Cualquier fallo inesperado aquí (localStorage bloqueado, API no

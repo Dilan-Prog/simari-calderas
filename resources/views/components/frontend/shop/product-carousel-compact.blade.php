@@ -71,7 +71,7 @@
                 </a>
                 <button type="button" class="product-card__add-btn pc-compact__add" data-product-id="{{ $item->id }}"
                     data-sku="{{ $item->sku }}" data-name="{{ $itemName }}" data-price="{{ $item->base_price }}">Agregar al carrito</button>
-                <a href="{{ $quoteUrl }}" target="_blank" rel="noopener nofollow" class="product-card__quote-btn pc-compact__quote" data-ad-track="quote_start" data-product-id="{{ $item->id }}">Solicitar cotización<span class="product-card__sr"> (se abre en una pestaña nueva)</span></a>
+                <a href="{{ $quoteUrl }}" target="_blank" rel="noopener nofollow" class="product-card__quote-btn pc-compact__quote" data-ad-track="quote_start" data-ad-element="tarjeta" data-product-id="{{ $item->id }}">Solicitar cotización<span class="product-card__sr"> (se abre en una pestaña nueva)</span></a>
             </article>
         @endforeach
     </div>
