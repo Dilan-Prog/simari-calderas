@@ -38,9 +38,19 @@
         $activeSource = request('source');
         $activeChip = request('chip');
         $thread = isset($timeline) ? array_reverse(is_array($timeline) ? $timeline : (array) $timeline) : [];
-        $bubbleTypes = ['whatsapp', 'correo', 'nota', 'llamada', 'formulario'];
-        $chLabel = ['whatsapp' => 'WhatsApp', 'correo' => 'Correo', 'nota' => 'Nota', 'llamada' => 'Llamada', 'formulario' => 'Formulario'];
+        // El chat solo muestra mensajes (WhatsApp, correo), notas y el renglon de "Lead creado"; el resto vive en la Bitacora.
+        $bubbleTypes = ['whatsapp', 'correo', 'nota'];
+        $chLabel = ['whatsapp' => 'WhatsApp', 'correo' => 'Correo', 'nota' => 'Nota interna'];
         $phoneDigits = $selected ? preg_replace('/\D+/', '', (string) $selected->whatsapp_target) : '';
+        $firstName = $selected ? trim(explode(' ', trim((string) $selected->contact_name))[0] ?? '') : '';
+        // Respuestas rapidas (texto estatico): {nombre} se reemplaza por el primer nombre del lead.
+        $quickReplies = [
+            'Saludo' => 'Hola {nombre}, gracias por escribir a Equiterm Industries. ¿En qué podemos ayudarte?',
+            'Solicitar datos' => 'Hola {nombre}, para preparar tu cotización ¿nos compartes el equipo que necesitas, la capacidad y la ciudad de instalación?',
+            'Cotización en camino' => 'Hola {nombre}, estamos preparando tu cotización y te la enviamos en breve.',
+            'Seguimiento' => 'Hola {nombre}, ¿pudiste revisar la información que te enviamos? Quedamos atentos a tus comentarios.',
+        ];
+        $quickReplies = array_map(fn ($t) => str_replace('{nombre}', $firstName !== '' ? $firstName : 'buen día', $t), $quickReplies);
     @endphp
 
     <div class="lw-shell {{ $selected ? 'has-lead' : '' }}" data-lw>
@@ -73,6 +83,9 @@
                     <div class="erp-form-actions"><button class="erp-btn erp-btn--primary" type="submit">Registrar</button></div>
                 </form>
             </details>
+            <button type="button" class="lw-theme-toggle" data-lw-theme-toggle aria-label="Modo oscuro" aria-pressed="false" title="Modo oscuro">
+                <svg class="lw-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+            </button>
             <div class="lw-kpis">
                 <span class="lw-kpi {{ ($kpis['sin_atender'] ?? 0) ? 'is-bad' : '' }}"><strong>{{ $kpis['sin_atender'] ?? 0 }}</strong> sin atender</span>
                 <span class="lw-kpi"><strong>{{ isset($kpis['primera_respuesta_min']) ? $kpis['primera_respuesta_min'] . ' min' : '—' }}</strong> 1.ª respuesta</span>
@@ -131,7 +144,7 @@
                                     <span class="lw-row-time">{{ $l->preview_at ? $l->preview_at->diffForHumans(null, true, true) : '' }}</span>
                                 </span>
                                 <span class="lw-row-sub">{{ $subtitle($l) }}</span>
-                                <span class="lw-row-prev {{ $unattended ? 'is-bold' : '' }}">{{ $l->preview ?: '—' }}</span>
+                                <span class="lw-row-prev {{ $unattended ? 'is-bold' : '' }}">{{ $l->preview ?: '—' }}@if ($unattended)<span class="lw-unread" title="Sin atender" aria-label="Sin atender"></span>@endif</span>
                                 <span class="lw-row-meta">
                                     <span class="lw-row-ch" title="{{ $l->source_label }}">{!! $icon($l->source) !!}</span>
                                     @include('admin.leads-inbox._channels', ['lead' => $l, 'icon' => $icon])
@@ -156,6 +169,15 @@
                             <h2>{{ $selected->display_name }}</h2>
                             <p>{{ $subtitle($selected) }}</p>
                             <div class="lw-conv-ch">@include('admin.leads-inbox._channels', ['lead' => $selected, 'icon' => $icon]) <span>{{ \App\Support\LeadChannels::label(\App\Support\LeadChannels::for($selected)) }}</span></div>
+                            @if ($wa['ready'] ?? false)
+                                <div class="lw-wa-state {{ $wa['window_open'] ? 'is-open' : 'is-closed' }}">
+                                    @if ($wa['window_open'])
+                                        Ventana de 24 h abierta · hasta {{ $wa['window_until']->format('d/m H:i') }}
+                                    @else
+                                        Ventana de 24 h cerrada · solo plantillas
+                                    @endif
+                                </div>
+                            @endif
                         </div>
                         <div class="lw-actions">
                             @if ($selected->contact_phone)
@@ -211,15 +233,15 @@
                         @forelse ($thread as $ev)
                             @php $t = $ev['type'] ?? 'lead'; $at = $ev['at'] ?? null; @endphp
                             @if (in_array($t, $bubbleTypes, true))
-                                <div class="lw-msg lw-msg--{{ $t }}">
+                                <div class="lw-msg lw-msg--{{ $t }} {{ ! empty($ev['out']) ? 'is-out' : '' }}">
                                     <div class="lw-bubble">
                                         <div class="lw-bubble-h"><span class="lw-bubble-ch">{!! $icon($t === 'nota' ? 'manual' : $t) !!}{{ $chLabel[$t] }}</span>@if (! empty($ev['title']))<b>{{ $ev['title'] }}</b>@endif</div>
                                         @if (! empty($ev['body']))<div class="lw-bubble-b">{{ $ev['body'] }}</div>@endif
                                         <div class="lw-bubble-t">{{ $at ? $at->format('d/m/Y H:i') : '' }}</div>
                                     </div>
                                 </div>
-                            @else
-                                <div class="lw-event"><span>{{ $ev['title'] ?? '' }}@if (! empty($ev['body'])) · {{ \Illuminate\Support\Str::limit($ev['body'], 90) }}@endif @if ($at)<em>{{ $at->format('d/m H:i') }}</em>@endif</span></div>
+                            @elseif ($t === 'lead')
+                                <div class="lw-event"><span>{{ $ev['title'] ?? '' }}@if ($at)<em>{{ $at->format('d/m H:i') }}</em>@endif</span></div>
                             @endif
                         @empty
                             <p class="lw-empty">Aún no hay actividad en este lead.</p>
@@ -230,7 +252,15 @@
                         <div class="lw-tabs" role="tablist">
                             <button type="button" class="is-on" data-tab="whatsapp" role="tab">WhatsApp</button>
                             <button type="button" data-tab="correo" role="tab">Correo</button>
+                            <button type="button" data-tab="nota" role="tab">Nota interna</button>
                         </div>
+                        @if (($wa['ready'] ?? false) && $wa['window_open'])
+                            <div class="lw-quick" data-lw-quick aria-label="Respuestas rápidas">
+                                @foreach ($quickReplies as $qLabel => $qText)
+                                    <button type="button" data-quick-text="{{ $qText }}">{{ $qLabel }}</button>
+                                @endforeach
+                            </div>
+                        @endif
                         <div class="lw-pane lw-wa" data-pane="whatsapp" data-wa-templates="{{ route('admin.leads-inbox.whatsapp.templates', $selected) }}">
                             @if (! ($wa['ready'] ?? false))
                                 <p class="lw-soon">{{ $wa['reason'] ?? 'WhatsApp no está disponible para este lead.' }}</p>
@@ -238,12 +268,12 @@
                             @else
                                 <form method="POST" action="{{ route('admin.leads-inbox.whatsapp.send', $selected) }}" data-wa-form>
                                     @csrf
-                                    <p class="lw-wa-state {{ $wa['window_open'] ? 'is-open' : 'is-closed' }}">
+                                    <p class="lw-wa-hint lw-wa-to">
                                         Para <b>{{ $wa['number'] }}</b> ·
                                         @if ($wa['window_open'])
-                                            Ventana de 24 h abierta hasta {{ $wa['window_until']->format('d/m H:i') }}: puedes escribir libremente.
+                                            puedes escribir libremente.
                                         @else
-                                            Ventana de 24 h cerrada: para iniciar o reabrir la conversación envía una plantilla aprobada.
+                                            para iniciar o reabrir la conversación envía una plantilla aprobada.
                                         @endif
                                     </p>
                                     <div class="lw-wa-mode" role="radiogroup" aria-label="Tipo de mensaje">
@@ -269,6 +299,13 @@
                             <p class="lw-soon">El envío desde la bandeja aún no está disponible.</p>
                             @if ($selected->contact_email)<a class="erp-btn erp-btn--sm" href="mailto:{{ $selected->contact_email }}" target="_blank" rel="noopener">Abrir correo</a>@endif
                         </div>
+                        <div class="lw-pane lw-nota" data-pane="nota" hidden>
+                            <form method="POST" action="{{ route('admin.leads-inbox.notes.store', $selected) }}">
+                                @csrf
+                                <textarea class="erp-input" name="body" rows="3" maxlength="2000" placeholder="Nota para el equipo (el cliente no la ve)…" required></textarea>
+                                <div class="lw-pane-foot"><button class="erp-btn erp-btn--primary erp-btn--sm" type="submit">Guardar nota interna</button></div>
+                            </form>
+                        </div>
                     </div>
                 @else
                     <div class="lw-placeholder">
@@ -289,8 +326,9 @@
                         <div class="lw-conv-who"><h2>{{ $selected->display_name }}</h2><p>{{ $subtitle($selected) }}</p></div>
                     </div>
 
-                    <section class="lw-card">
-                        <h3>Contacto</h3>
+                    <details class="lw-card lw-sec" data-sec="contacto" open>
+                        <summary class="lw-sec-h"><h3>Contacto</h3><span class="lw-sec-chev" aria-hidden="true"></span></summary>
+                        <div class="lw-sec-b">
                         <dl class="lw-kv">
                             <dt>Teléfono</dt>
                             <dd>{{ $selected->contact_phone ?: '—' }} @if ($selected->contact_phone)<a class="lw-mini" href="tel:{{ $selected->contact_phone }}">Llamar</a>@endif</dd>
@@ -314,10 +352,12 @@
                                 <div class="lw-pane-foot"><button class="erp-btn erp-btn--primary erp-btn--sm" type="submit">Guardar datos</button></div>
                             </form>
                         </details>
-                    </section>
+                        </div>
+                    </details>
 
-                    <section class="lw-card">
-                        <h3>Lead</h3>
+                    <details class="lw-card lw-sec" data-sec="lead" open>
+                        <summary class="lw-sec-h"><h3>Lead</h3><span class="lw-sec-chev" aria-hidden="true"></span></summary>
+                        <div class="lw-sec-b">
                         <form method="POST" action="{{ route('admin.leads-inbox.stage.update', $selected) }}" class="lw-field">
                             @csrf
                             <label>Etapa (Embudo de Venta)
@@ -340,31 +380,37 @@
                             </label>
                         </form>
                         <dl class="lw-kv"><dt>Creado</dt><dd>{{ optional($selected->created_at)->format('d/m/Y H:i') }}</dd></dl>
-                    </section>
+                        </div>
+                    </details>
 
                     @include('admin.leads-inbox._deal', ['lead' => $selected, 'users' => $users])
 
-                    <section class="lw-card">
-                        <h3>Origen</h3>
+                    <details class="lw-card lw-sec" data-sec="origen">
+                        <summary class="lw-sec-h"><h3>Origen</h3><span class="lw-sec-chev" aria-hidden="true"></span></summary>
+                        <div class="lw-sec-b">
                         <dl class="lw-kv">
                             <dt>Fuente</dt><dd>{{ $selected->source_label }}@if ($selected->utm_source) · {{ $selected->utm_source }}@endif</dd>
                             <dt>Campaña</dt><dd>{{ $selected->utm_campaign ?: '—' }}</dd>
                             <dt>Palabra clave</dt><dd>{{ $selected->utm_term ?: '—' }}</dd>
                             <dt>GCLID capturado</dt><dd>{{ $clickLabel }}</dd>
                         </dl>
-                    </section>
+                        </div>
+                    </details>
 
-                    <section class="lw-card lw-notes">
-                        <h3>Notas</h3>
+                    <details class="lw-card lw-sec lw-notes" data-sec="notas" @if ($errors->has('body') || old('body')) open data-force-open @endif>
+                        <summary class="lw-sec-h"><h3>Notas</h3><span class="lw-sec-chev" aria-hidden="true"></span></summary>
+                        <div class="lw-sec-b">
                         <form method="POST" action="{{ route('admin.leads-inbox.notes.store', $selected) }}">
                             @csrf
                             <textarea class="erp-input" name="body" rows="3" placeholder="Escribe una nota interna…" required>{{ old('body') }}</textarea>
                             <div class="lw-pane-foot"><button class="erp-btn erp-btn--primary erp-btn--sm" type="submit">Guardar nota</button></div>
                         </form>
-                    </section>
+                        </div>
+                    </details>
 
-                    <section class="lw-card">
-                        <h3>Próxima tarea</h3>
+                    <details class="lw-card lw-sec" data-sec="tarea" open>
+                        <summary class="lw-sec-h"><h3>Próxima tarea</h3><span class="lw-sec-chev" aria-hidden="true"></span></summary>
+                        <div class="lw-sec-b">
                         @if ($nextTask)
                             <a class="lw-task" href="{{ route('admin.tasks.show', $nextTask) }}">
                                 <b>{{ $nextTask->title }}</b>
@@ -374,7 +420,8 @@
                             <p class="lw-muted">Sin tareas pendientes.</p>
                         @endif
                         <button type="button" class="erp-btn erp-btn--sm lw-newtask" data-task-modal-open="lead">+ Crear tarea</button>
-                    </section>
+                        </div>
+                    </details>
 
                     @includeIf('admin.leads-inbox._log', ['lead' => $selected])
 
@@ -477,9 +524,6 @@
                 if (tab) tab.addEventListener('click', function () { loadTemplates(); syncMode(); });
                 if (tab && tab.classList.contains('is-on')) { loadTemplates(); syncMode(); }
                 if (pane) pane.addEventListener('change', syncMode);
-                document.querySelectorAll('[data-wa-open]').forEach(function (a) {
-                    a.addEventListener('click', function (e) { e.preventDefault(); openWhatsapp(); });
-                });
                 @if (session('composer_tab') === 'whatsapp')
                     openWhatsapp();
                 @endif

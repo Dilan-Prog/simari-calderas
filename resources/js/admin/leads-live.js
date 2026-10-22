@@ -1,6 +1,8 @@
 // Bandeja de leads en vivo: consulta una huella ligera cada pocos segundos y, si hubo actividad,
 // vuelve a pedir la pagina y reemplaza solo la lista, los contadores y la conversacion.
 // No toca el compositor (lo que estas escribiendo se conserva) ni el buscador.
+import { restoreSections, sectionStates } from './lead-inbox-ui.js';
+
 const POLL_MS = 5000;
 const SLOW_MS = 20000;
 
@@ -61,9 +63,12 @@ function start() {
         const info = shell.querySelector('.lw-info');
         const typing = info && [...info.querySelectorAll('textarea, input[type="text"]')].some((el) => el.value.trim() !== '');
         if (info && !info.contains(document.activeElement) && !typing) {
-            const open = [...info.querySelectorAll('details')].map((d) => d.open);
+            // Secciones plegables: se conservan por data-sec (clave estable); el resto de <details> (p. ej. Editar contacto) por posicion.
+            const states = sectionStates(info);
+            const plain = [...info.querySelectorAll('details:not([data-sec])')].map((d) => d.open);
             swap('.lw-info', next);
-            info.querySelectorAll('details').forEach((d, i) => { d.open = !!open[i]; });
+            restoreSections(info, states);
+            info.querySelectorAll('details:not([data-sec])').forEach((d, i) => { d.open = !!plain[i]; });
         }
     }
 

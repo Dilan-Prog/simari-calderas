@@ -7,12 +7,7 @@
     ];
 @endphp
 <style>
-    .lw-log { margin-top: 10px; border: 1px solid var(--erp-line); border-radius: 8px; font-size: 13px; color: var(--erp-ink); }
-    .lw-log > summary { cursor: pointer; padding: 8px 10px; font-weight: 600; font-size: 13px; list-style: none; }
-    .lw-log > summary::-webkit-details-marker { display: none; }
-    .lw-log > summary::before { content: '\25B8'; display: inline-block; margin-right: 6px; color: var(--erp-muted); transition: transform .15s; }
-    .lw-log[open] > summary::before { transform: rotate(90deg); }
-    .lw-log-list { list-style: none; margin: 0; padding: 6px 10px 10px 12px; max-height: 320px; overflow-y: auto; border-top: 1px solid var(--erp-line); }
+    .lw-log-list { list-style: none; margin: 0; padding: 6px 10px 10px 12px; max-height: 320px; overflow-y: auto; }
     .lw-log-item { position: relative; padding: 6px 0 6px 14px; border-left: 2px solid var(--erp-line); line-height: 1.35; }
     .lw-log-item::before { content: ''; position: absolute; left: -5px; top: 11px; width: 8px; height: 8px; border-radius: 50%; background: var(--lw-dot, var(--erp-muted)); }
     .lw-log-time { display: block; font-size: 11px; color: var(--erp-muted); }
@@ -21,8 +16,9 @@
     .lw-log-by { font-size: 11px; color: var(--erp-muted); font-style: italic; }
     .lw-log-empty { padding: 8px 10px; color: var(--erp-muted); }
 </style>
-<details class="lw-log">
-    <summary>Bitacora ({{ count($__log) }})</summary>
+<details class="lw-card lw-sec lw-log" data-sec="bitacora">
+    <summary class="lw-sec-h"><h3>Bitacora ({{ count($__log) }})</h3><span class="lw-sec-chev" aria-hidden="true"></span></summary>
+    <div class="lw-sec-b">
     @if (count($__log))
         <ul class="lw-log-list">
             @foreach ($__log as $__e)
@@ -37,4 +33,5 @@
     @else
         <div class="lw-log-empty">Sin movimientos.</div>
     @endif
+    </div>
 </details>

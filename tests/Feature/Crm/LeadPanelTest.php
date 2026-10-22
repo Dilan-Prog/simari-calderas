@@ -82,7 +82,7 @@ class LeadPanelTest extends TestCase
             ->assertOk()->assertSee('Lead ' . $lead->display_name)->assertSee(route('admin.leads-inbox.show', $lead), false);
     }
 
-    public function test_las_notas_estan_en_el_panel_derecho_y_ya_no_en_el_compositor(): void
+    public function test_las_notas_estan_en_el_panel_derecho_y_tambien_como_pestana_del_compositor(): void
     {
         $lead = $this->lead();
 
@@ -90,7 +90,8 @@ class LeadPanelTest extends TestCase
         $html = $response->getContent();
 
         $response->assertSee('Escribe una nota interna')->assertSee('Guardar nota')->assertSee('+ Crear tarea')
-            ->assertDontSee('data-tab="nota"', false)->assertDontSee('data-pane="nota"', false);
+            ->assertSee('data-tab="nota"', false)->assertSee('data-pane="nota"', false)
+            ->assertSee('data-sec="notas"', false)->assertSee('data-sec="bitacora"', false);
 
         // Orden del panel derecho: Notas, luego Proxima tarea.
         $this->assertLessThan(strpos($html, 'Próxima tarea'), strpos($html, 'Escribe una nota interna'));

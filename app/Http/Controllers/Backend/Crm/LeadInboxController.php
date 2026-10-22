@@ -262,6 +262,7 @@ class LeadInboxController extends Controller
                 $items[] = [
                     'at'    => $m->sent_at ?? $m->created_at,
                     'type'  => 'whatsapp',
+                    'out'   => $m->sender_type !== 'contact',
                     'title' => $m->sender_type === 'contact'
                         ? 'Mensaje de WhatsApp recibido'
                         : ($m->is_template ? 'Plantilla de WhatsApp enviada' : 'Mensaje de WhatsApp enviado'),
@@ -319,6 +320,7 @@ class LeadInboxController extends Controller
             $items[] = [
                 'at'    => $n->created_at,
                 'type'  => 'nota',
+                'out'   => true,
                 'title' => 'Nota de ' . ($n->author?->first_name ?: 'sistema'),
                 'body'  => $n->body,
             ];
@@ -337,6 +339,7 @@ class LeadInboxController extends Controller
             $items[] = [
                 'at'    => $m->sent_at ?? $m->created_at,
                 'type'  => 'correo',
+                'out'   => true,
                 'title' => 'Correo enviado: ' . ($m->subject ?: '(sin asunto)'),
                 'body'  => \Illuminate\Support\Str::limit(trim((string) $m->body), 600),
             ];

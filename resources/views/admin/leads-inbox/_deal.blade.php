@@ -9,8 +9,9 @@
     $money = fn ($amount, $currency) => '$' . number_format((float) $amount, 2) . ' ' . ($currency ?: 'MXN');
     $customerName = $customer ? trim($customer->first_name . ' ' . $customer->last_name) : '';
 @endphp
-<section class="lw-card lw-deal">
-    <h3>Negocio</h3>
+<details class="lw-card lw-sec lw-deal" data-sec="negocio" open>
+<summary class="lw-sec-h"><h3>Negocio</h3><span class="lw-sec-chev" aria-hidden="true"></span></summary>
+<div class="lw-sec-b">
 
     @if (! $customer)
         <p class="lw-muted">Para crear un negocio primero agrega al lead como cliente: así el negocio nace con sus datos ya dados de alta.</p>
@@ -98,4 +99,5 @@
 
         <button type="button" class="erp-btn erp-btn--primary erp-btn--sm lw-deal-btn" data-lead-quote="{{ route('admin.quotes.create', ['customer_id' => $lead->customer_id, 'deal_id' => $deal->id, 'embed' => 1]) }}">+ Crear cotización</button>
     @endif
-</section>
+</div>
+</details>
