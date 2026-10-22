@@ -445,6 +445,7 @@ class LeadInboxController extends Controller
             'phone'    => 'nullable|string|max:40',
             'whatsapp' => 'nullable|string|max:40',
             'email'    => 'nullable|string|max:150',
+            'website'  => 'nullable|string|max:255',
         ]);
 
         $this->leads->updateContact($lead, $data);

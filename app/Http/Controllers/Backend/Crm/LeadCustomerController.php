@@ -44,6 +44,7 @@ class LeadCustomerController extends Controller
             'prefill'   => [
                 'full_name' => $lead->contact_name,
                 'email'     => $lead->contact_email,
+                'website'   => $lead->contact_website,
                 'phone'     => $lead->contact_phone ?: $lead->phone_normalized,
                 'source'    => self::sourceFor($lead),
             ],
@@ -70,6 +71,7 @@ class LeadCustomerController extends Controller
             'company'          => 'nullable|string|max:150',
             'email'            => ['nullable', 'email', 'max:150', Rule::unique('customers', 'email')],
             'phone'            => 'nullable|string|max:30',
+            'website'          => 'nullable|string|max:255',
             'rfc'              => 'nullable|string|max:20',
             'tipo_persona'     => 'nullable|in:fisica,moral',
             'document_type'    => 'required_without:link_customer_id|nullable|in:' . implode(',', array_keys(self::DOCUMENT_TYPES)),
@@ -90,6 +92,7 @@ class LeadCustomerController extends Controller
                 'first_name'    => $parts[0],
                 'last_name'     => $parts[1] ?? '',
                 'company'       => $data['company'] ?? '',
+                'website'       => LeadService::normalizeWebsite($data['website'] ?? null),
                 'email'         => ! empty($data['email']) ? strtolower($data['email']) : null,
                 'phone'         => $data['phone'] ?? '',
                 'rfc'           => $data['rfc'] ?? null,
@@ -121,6 +124,7 @@ class LeadCustomerController extends Controller
         $lead->customer_id = $customer->id;
         $lead->contact_name ??= trim($customer->first_name . ' ' . $customer->last_name) ?: null;
         $lead->contact_email ??= $customer->email ? LeadService::normalizeEmail($customer->email) : null;
+        $lead->contact_website ??= $customer->website ?: null;
         if (! $lead->phone_normalized && $customer->phone) {
             $lead->contact_phone = $customer->phone;
             $lead->phone_normalized = LeadService::normalizePhone($customer->phone);

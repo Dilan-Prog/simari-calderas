@@ -43,7 +43,7 @@ class Lead extends Model
 
     protected $fillable = [
         'source', 'status',
-        'contact_name', 'contact_phone', 'phone_normalized', 'contact_whatsapp', 'whatsapp_normalized', 'contact_email',
+        'contact_name', 'contact_phone', 'phone_normalized', 'contact_whatsapp', 'whatsapp_normalized', 'contact_email', 'contact_website',
         'customer_id', 'deal_id', 'whatsapp_conversation_id', 'pool_calculator_lead_id', 'assigned_to',
         'visitor_uuid', 'gclid', 'gbraid', 'wbraid',
         'utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term',

@@ -1,6 +1,7 @@
 // Bandeja de leads en vivo (consulta de actividad cada pocos segundos).
 import './leads-live.js';
 import './lead-customer.js';
+import './lead-deal.js';
 import './lead-channels.css';
 
 // ERP crm: JS del módulo (entrada de Vite).

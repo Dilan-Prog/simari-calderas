@@ -614,6 +614,17 @@ class LeadService
             }
         }
 
+        if (array_key_exists('website', $data)) {
+            $value = trim((string) $data['website']);
+            if ($value === '') {
+                $lead->contact_website = null;
+            } elseif ($site = self::normalizeWebsite($value)) {
+                $lead->contact_website = $site;
+            } else {
+                $errors['website'] = 'El sitio web no parece una dirección válida (ej. www.empresa.com).';
+            }
+        }
+
         if ($errors) {
             throw ValidationException::withMessages($errors);
         }
@@ -621,6 +632,24 @@ class LeadService
         $lead->save();
 
         return $lead;
+    }
+
+    /** "empresa.com" -> "https://empresa.com"; devuelve null si no parece una direccion valida. */
+    public static function normalizeWebsite(?string $value): ?string
+    {
+        $value = trim((string) $value);
+        if ($value === '') {
+            return null;
+        }
+        if (! preg_match('#^https?://#i', $value)) {
+            $value = 'https://' . $value;
+        }
+        $host = parse_url($value, PHP_URL_HOST);
+        if (! $host || ! str_contains($host, '.') || ! filter_var($value, FILTER_VALIDATE_URL)) {
+            return null;
+        }
+
+        return mb_substr($value, 0, 255);
     }
 
     public function changeStatus(Lead $lead, string $status): Lead

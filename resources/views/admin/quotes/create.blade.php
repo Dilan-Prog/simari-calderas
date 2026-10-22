@@ -1,4 +1,4 @@
-@extends('admin.layouts.master')
+@extends(request()->boolean('embed') ? 'admin.layouts.embed' : 'admin.layouts.master')
 
 @section('title', 'Nueva Cotización - Admin')
 
@@ -32,6 +32,12 @@
 
     <form method="POST" action="{{ route('admin.quotes.store') }}" id="quoteForm">
         @csrf
+        @php
+            $embedMode = request()->boolean('embed') || old('embed');
+            $dealIdValue = old('deal_id', request('deal_id'));
+        @endphp
+        @if($embedMode)<input type="hidden" name="embed" value="1">@endif
+        @if($dealIdValue)<input type="hidden" name="deal_id" value="{{ $dealIdValue }}">@endif
 
         {{-- ════════════════════════════════════════════
              BARRA DE PROGRESO DEL WIZARD
@@ -70,6 +76,7 @@
                     <label class="form-label">Cliente registrado <span class="form-req">*</span></label>
                     <div class="client-select-wrap">
                         <input type="text" id="clientSearchInput" class="form-input"
+                               value="{{ $prefillCustomer ? trim($prefillCustomer->first_name . ' ' . $prefillCustomer->last_name) . ($prefillCustomer->company ? ' — ' . $prefillCustomer->company : '') : '' }}"
                                placeholder="Escribe el nombre o empresa..."
                                autocomplete="off">
                         <div id="clientDropdown" class="client-dropdown" style="display:none">
@@ -91,7 +98,7 @@
                             <div class="client-dropdown__empty" style="display:none">Sin resultados</div>
                         </div>
                     </div>
-                    <input type="hidden" name="customer_id" id="customerIdInput" value="{{ old('customer_id') }}">
+                    <input type="hidden" name="customer_id" id="customerIdInput" value="{{ old('customer_id', $prefillCustomer->id ?? '') }}">
                     <span id="customerIdError" class="form-error" style="display:none">Debes seleccionar un cliente registrado.</span>
                     @error('customer_id')<span class="form-error">{{ $message }}</span>@enderror
                 </div>
@@ -99,7 +106,7 @@
                 <div class="form-group">
                     <label class="form-label">Nombre completo <span class="form-req">*</span></label>
                     <input type="text" name="guest_name" id="guestName" class="form-input {{ $errors->has('guest_name') ? 'is-invalid' : '' }}"
-                           value="{{ old('guest_name') }}" required autocomplete="off"
+                           value="{{ old('guest_name', $prefillCustomer ? trim($prefillCustomer->first_name . ' ' . $prefillCustomer->last_name) : '') }}" required autocomplete="off"
                            placeholder="Nombre y apellidos del receptor">
                     @error('guest_name')<span class="form-error">{{ $message }}</span>@enderror
                 </div>
@@ -107,20 +114,20 @@
                 <div class="form-group">
                     <label class="form-label">Empresa</label>
                     <input type="text" name="guest_company" class="form-input"
-                           value="{{ old('guest_company') }}" placeholder="Razón social o nombre comercial">
+                           value="{{ old('guest_company', $prefillCustomer->company ?? '') }}" placeholder="Razón social o nombre comercial">
                 </div>
 
                 <div class="form-grid">
                     <div class="form-group">
                         <label class="form-label">Correo electrónico</label>
                         <input type="email" name="guest_email" class="form-input {{ $errors->has('guest_email') ? 'is-invalid' : '' }}"
-                               value="{{ old('guest_email') }}" placeholder="correo@empresa.com">
+                               value="{{ old('guest_email', $prefillCustomer->email ?? '') }}" placeholder="correo@empresa.com">
                         @error('guest_email')<span class="form-error">{{ $message }}</span>@enderror
                     </div>
                     <div class="form-group">
                         <label class="form-label">Teléfono</label>
                         <input type="text" name="guest_phone" class="form-input"
-                               value="{{ old('guest_phone') }}" placeholder="+52 449 000 0000">
+                               value="{{ old('guest_phone', $prefillCustomer->phone ?? '') }}" placeholder="+52 449 000 0000">
                     </div>
                 </div>
 
@@ -131,7 +138,7 @@
                         <div class="form-group">
                             <label class="form-label">RFC</label>
                             <input type="text" name="guest_rfc" class="form-input"
-                                   value="{{ old('guest_rfc') }}" placeholder="XXXX000000XX0">
+                                   value="{{ old('guest_rfc', $prefillCustomer->rfc ?? '') }}" placeholder="XXXX000000XX0">
                         </div>
                         <div class="form-group">
                             <label class="form-label">Válido hasta</label>
@@ -449,7 +456,7 @@
                             </svg>
                             Guardar Cotización
                         </button>
-                        <a href="{{ route('admin.quotes.index') }}" class="btn-cancel">Cancelar</a>
+                        @if(!$embedMode)<a href="{{ route('admin.quotes.index') }}" class="btn-cancel">Cancelar</a>@endif
                     </div>
                 </aside>
             </div>
@@ -843,34 +850,44 @@ window.ADMIN_QUOTES_CONFIG = {
         }
     });
 
+    // Misma lógica para el clic en el buscador y para el prellenado al cargar.
+    function selectClient(item) {
+        // Rellenar campos del receptor (copia editable, no referencia en vivo)
+        document.getElementById('guestName').value                           = item.dataset.name;
+        document.querySelector('[name="guest_company"]').value               = item.dataset.company;
+        document.querySelector('[name="guest_email"]').value                 = item.dataset.email;
+        document.querySelector('[name="guest_phone"]').value                 = item.dataset.phone;
+        document.querySelector('[name="guest_rfc"]').value                   = item.dataset.rfc;
+
+        // Guardar el vínculo al cliente registrado
+        document.getElementById('customerIdInput').value = item.dataset.id;
+        document.getElementById('customerIdError').style.display = 'none';
+
+        // Actualizar el buscador con el nombre seleccionado
+        searchInput.value = item.dataset.name + (item.dataset.company ? ' — ' + item.dataset.company : '');
+        dropdown.style.display = 'none';
+
+        // FIX: Retención de ISR solo aplica a clientes persona moral —
+        // se deshabilita y limpia para persona física (o sin cliente).
+        var isrInput = document.getElementById('isrRetentionRate');
+        if (isrInput) {
+            var isMoral = item.dataset.tipoPersona === 'moral';
+            isrInput.disabled = !isMoral;
+            if (!isMoral) isrInput.value = '';
+            if (window.QuoteForm) window.QuoteForm.calculateGlobalTotals();
+        }
+    }
+
     items.forEach(item => {
-        item.addEventListener('click', () => {
-            // Rellenar campos del receptor (copia editable, no referencia en vivo)
-            document.getElementById('guestName').value                           = item.dataset.name;
-            document.querySelector('[name="guest_company"]').value               = item.dataset.company;
-            document.querySelector('[name="guest_email"]').value                 = item.dataset.email;
-            document.querySelector('[name="guest_phone"]').value                 = item.dataset.phone;
-            document.querySelector('[name="guest_rfc"]').value                   = item.dataset.rfc;
-
-            // Guardar el vínculo al cliente registrado
-            document.getElementById('customerIdInput').value = item.dataset.id;
-            document.getElementById('customerIdError').style.display = 'none';
-
-            // Actualizar el buscador con el nombre seleccionado
-            searchInput.value = item.dataset.name + (item.dataset.company ? ' — ' + item.dataset.company : '');
-            dropdown.style.display = 'none';
-
-            // FIX: Retención de ISR solo aplica a clientes persona moral —
-            // se deshabilita y limpia para persona física (o sin cliente).
-            var isrInput = document.getElementById('isrRetentionRate');
-            if (isrInput) {
-                var isMoral = item.dataset.tipoPersona === 'moral';
-                isrInput.disabled = !isMoral;
-                if (!isMoral) isrInput.value = '';
-                if (window.QuoteForm) window.QuoteForm.calculateGlobalTotals();
-            }
-        });
+        item.addEventListener('click', () => selectClient(item));
     });
+
+    // Prellenado: cliente indicado por ?customer_id= (p. ej. desde la Bandeja de leads).
+    var prefillId = @json(isset($prefillCustomer) && $prefillCustomer ? (string) $prefillCustomer->id : null);
+    if (prefillId) {
+        var prefillItem = items.find(i => i.dataset.id === prefillId);
+        if (prefillItem) selectClient(prefillItem);
+    }
 })();
 
 // ── Validación: cotización requiere cliente registrado ──

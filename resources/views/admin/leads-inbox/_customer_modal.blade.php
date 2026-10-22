@@ -72,6 +72,10 @@
                         <input type="email" id="lcmEmail" name="email" maxlength="150" value="{{ old('email', $prefill['email']) }}">
                     </div>
                     <div class="lcm-field">
+                        <label for="lcmWebsite">Sitio web</label>
+                        <input type="text" id="lcmWebsite" name="website" maxlength="255" value="{{ old('website', $prefill['website'] ?? '') }}" placeholder="www.empresa.com">
+                    </div>
+                    <div class="lcm-field">
                         <label for="lcmPhone">Teléfono</label>
                         <input type="text" id="lcmPhone" name="phone" maxlength="30" value="{{ old('phone', $prefill['phone']) }}">
                     </div>

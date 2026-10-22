@@ -298,8 +298,10 @@
                             <dd>{{ $selected->whatsapp_display ?: '—' }} @if ($phoneDigits)<a class="lw-mini" href="#" data-wa-open>Escribir</a>@endif</dd>
                             <dt>Correo</dt>
                             <dd>{{ $selected->contact_email ?: '—' }} @if ($selected->contact_email)<a class="lw-mini" href="mailto:{{ $selected->contact_email }}">Escribir</a>@endif</dd>
+                            <dt>Sitio web</dt>
+                            <dd>@if ($selected->contact_website)<a class="lw-mini" href="{{ $selected->contact_website }}" target="_blank" rel="noopener noreferrer">{{ preg_replace('#^https?://(www\.)?#i', '', rtrim($selected->contact_website, '/')) }}</a>@else —@endif</dd>
                         </dl>
-                        <details class="lw-edit" data-lw-edit @if ($errors->hasAny(['name', 'phone', 'whatsapp', 'email'])) open @endif>
+                        <details class="lw-edit" data-lw-edit @if ($errors->hasAny(['name', 'phone', 'whatsapp', 'email', 'website'])) open @endif>
                             <summary class="erp-btn erp-btn--sm">Editar contacto</summary>
                             <form method="POST" action="{{ route('admin.leads-inbox.contact.update', $selected) }}" class="lw-edit-form">
                                 @csrf @method('PUT')
@@ -307,6 +309,7 @@
                                 <label>Teléfono <input class="erp-input" type="text" name="phone" maxlength="40" inputmode="tel" value="{{ old('phone', $selected->contact_phone) }}" placeholder="449 123 4567"></label>
                                 <label>WhatsApp <input class="erp-input" type="text" name="whatsapp" maxlength="40" inputmode="tel" value="{{ old('whatsapp', $selected->contact_whatsapp) }}" placeholder="Vacío = el mismo que el teléfono"></label>
                                 <label>Correo <input class="erp-input" type="email" name="email" maxlength="150" value="{{ old('email', $selected->contact_email) }}" placeholder="correo@empresa.com"></label>
+                                <label>Sitio web <input class="erp-input" type="text" name="website" maxlength="255" value="{{ old('website', $selected->contact_website) }}" placeholder="www.empresa.com"></label>
                                 <p class="lw-muted">Sin lada se asume México (+52).</p>
                                 <div class="lw-pane-foot"><button class="erp-btn erp-btn--primary erp-btn--sm" type="submit">Guardar datos</button></div>
                             </form>
@@ -338,6 +341,8 @@
                         </form>
                         <dl class="lw-kv"><dt>Creado</dt><dd>{{ optional($selected->created_at)->format('d/m/Y H:i') }}</dd></dl>
                     </section>
+
+                    @include('admin.leads-inbox._deal', ['lead' => $selected, 'users' => $users])
 
                     <section class="lw-card">
                         <h3>Origen</h3>
@@ -374,15 +379,6 @@
                     @includeIf('admin.leads-inbox._log', ['lead' => $selected])
 
                     <div class="lw-cta">
-                        @if ($selected->deal)
-                            <a class="erp-btn erp-btn--primary" href="{{ route('admin.deals.show', $selected->deal) }}">Ver negocio</a>
-                        @else
-                            <form method="POST" action="{{ route('admin.leads-inbox.convert', $selected) }}">
-                                @csrf
-                                <input type="hidden" name="target" value="deal">
-                                <button class="erp-btn erp-btn--primary" type="submit">Convertir a negocio</button>
-                            </form>
-                        @endif
                         @if ($selected->customer_id)
                             <a class="erp-btn" href="{{ route('admin.clients.information', $selected->customer_id) }}">Ver cliente</a>
                         @else

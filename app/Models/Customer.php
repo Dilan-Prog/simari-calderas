@@ -27,6 +27,7 @@ class Customer extends Authenticatable
         'status',
         'source',
         'company',
+        'website',
         'rfc',
         'tipo_persona',
         'notes',

@@ -342,6 +342,7 @@ Route::controller(QuoteController::class)
         Route::get('/buscar-productos', 'searchProducts')->name('search-products');
         Route::get('/buscar-servicios', 'searchServices')->name('search-services');
         Route::get('/{quote}', 'show')->name('show');
+        Route::get('/{quote}/guardada', 'embeddedSaved')->name('embedded-saved');
         Route::get('/{quote}/editar', 'edit')->name('edit')->middleware('permission:quotes,edit');
         Route::put('/{quote}', 'update')->name('update')->middleware('permission:quotes,edit');
         Route::delete('/{quote}', 'destroy')->name('destroy')->middleware('permission:quotes,delete');

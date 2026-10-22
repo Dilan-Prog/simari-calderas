@@ -5,6 +5,7 @@ namespace App\Support;
 use App\Models\AdEvent;
 use App\Models\AdVisit;
 use App\Models\Customer;
+use App\Models\Deal;
 use App\Models\Lead;
 use App\Models\LeadCall;
 use App\Models\LeadInboundEmail;
@@ -16,6 +17,7 @@ use App\Models\User;
 use App\Models\WhatsappMessage;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 
@@ -58,6 +60,7 @@ class LeadLog
         $this->notes($lead, $e);
         $this->tasks($tasks, $taskLogs, $e);
         $this->changes($logs, $e);
+        $this->quotes($lead, $e);
 
         // Orden estable: por hora y, a igualdad, el orden en que se generaron (el origen queda primero).
         $sorted = $e->values()->map(fn ($x, $i) => $x + ['_i' => $i])
@@ -265,6 +268,27 @@ class LeadLog
         }
     }
 
+    /** Cotizaciones ligadas al negocio del lead (tabla deal_quote). */
+    private function quotes(Lead $lead, Collection $e): void
+    {
+        if (! $lead->deal_id) {
+            return;
+        }
+        $folio = Deal::withTrashed()->whereKey($lead->deal_id)->value('folio');
+        $rows = DB::table('deal_quote')->join('quotes', 'quotes.id', '=', 'deal_quote.quote_id')
+            ->where('deal_quote.deal_id', $lead->deal_id)
+            ->get(['quotes.quote_number', 'quotes.total', 'quotes.currency', 'deal_quote.created_at']);
+
+        foreach ($rows as $r) {
+            $e->push($this->entry(
+                Carbon::parse($r->created_at),
+                'negocio',
+                'Cotizacion ' . $r->quote_number . ' ligada al negocio ' . ($folio ?: '#' . $lead->deal_id),
+                '$' . number_format((float) $r->total, 2) . ' ' . ($r->currency ?: 'MXN')
+            ));
+        }
+    }
+
     private function changes(Collection $logs, Collection $e): void
     {
         $changes = [];
@@ -286,6 +310,7 @@ class LeadLog
         $userIds = [];
         $stageIds = [];
         $customerIds = [];
+        $dealIds = [];
         foreach ($changes as [, $f, $old, $new]) {
             if ($f === 'assigned_to') {
                 array_push($userIds, $old, $new);
@@ -293,13 +318,16 @@ class LeadLog
                 array_push($stageIds, $old, $new);
             } elseif ($f === 'customer_id') {
                 $customerIds[] = $new;
+            } elseif ($f === 'deal_id') {
+                $dealIds[] = $new;
             }
         }
         $this->primeUsers(collect($userIds));
         $stages = PipelineStage::whereIn('id', array_filter($stageIds))->pluck('name', 'id');
         $customers = Customer::whereIn('id', array_filter($customerIds))->get()->keyBy('id');
+        $dealFolios = Deal::withTrashed()->whereIn('id', array_filter($dealIds))->pluck('folio', 'id');
 
-        $contactLabels = ['contact_name' => 'nombre', 'contact_email' => 'correo', 'contact_phone' => 'telefono', 'contact_whatsapp' => 'WhatsApp'];
+        $contactLabels = ['contact_name' => 'nombre', 'contact_email' => 'correo', 'contact_phone' => 'telefono', 'contact_whatsapp' => 'WhatsApp', 'contact_website' => 'sitio web'];
         $contact = [];
 
         foreach ($changes as [$l, $f, $old, $new]) {
@@ -324,6 +352,8 @@ class LeadLog
                 } else {
                     $e->push($this->entry($at, 'cliente', 'Cliente desligado', null, $by));
                 }
+            } elseif ($f === 'deal_id') {
+                $e->push($this->entry($at, 'negocio', $new ? 'Negocio creado: ' . ($dealFolios[$new] ?? '#' . $new) : 'Negocio desligado', null, $by));
             } elseif (isset($contactLabels[$f])) {
                 $contact[$l->id]['log'] = $l;
                 $contact[$l->id]['fields'][] = $contactLabels[$f];

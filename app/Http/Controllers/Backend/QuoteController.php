@@ -55,7 +55,7 @@ class QuoteController extends Controller
         return view('admin.quotes.index', compact('quotes', 'visibleColumns'));
     }
 
-    public function create()
+    public function create(Request $request)
     {
         $customers = \App\Models\Customer::select('id', 'first_name', 'last_name', 'email', 'phone', 'rfc', 'company', 'tipo_persona')
             ->where('status', 'active')
@@ -67,7 +67,12 @@ class QuoteController extends Controller
         // el usuario deje en el campo al momento de enviar el form, no esto.
         $defaultExchangeRate = Products::exchangeRate();
 
-        return view('admin.quotes.create', compact('customers', 'defaultExchangeRate'));
+        // Cliente preseleccionado (p. ej. desde la Bandeja de leads): solo clientes activos.
+        $prefillCustomer = $request->filled('customer_id')
+            ? $customers->firstWhere('id', (int) $request->input('customer_id'))
+            : null;
+
+        return view('admin.quotes.create', compact('customers', 'defaultExchangeRate', 'prefillCustomer'));
     }
 
     public function store(Request $request)
@@ -92,6 +97,8 @@ class QuoteController extends Controller
             'notes'            => 'nullable|string',
             'terms_conditions' => 'nullable|string',
             'items_json'       => 'required|json',
+            'deal_id'          => 'nullable|exists:deals,id',
+            'embed'            => 'nullable|boolean',
         ]);
 
         $items = json_decode($request->items_json, true);
@@ -115,8 +122,22 @@ class QuoteController extends Controller
         $quote = $this->quoteService->store($data, auth()->id());
         $this->resolveVisitorUuidForQuote($quote);
 
+        if ($request->filled('deal_id') && $deal = \App\Models\Deal::find($request->input('deal_id'))) {
+            app(\App\Services\LeadDealService::class)->attachQuote($deal, $quote);
+        }
+
+        if ($request->boolean('embed')) {
+            return redirect()->route('admin.quotes.embedded-saved', $quote);
+        }
+
         return redirect()->route('admin.quotes.show', $quote)
             ->with('success', "Cotización {$quote->quote_number} creada exitosamente.");
+    }
+
+    /** Pantalla mínima (iframe) que avisa a la página padre que la cotización se guardó. */
+    public function embeddedSaved(Quote $quote)
+    {
+        return view('admin.quotes.embedded-saved', compact('quote'));
     }
 
     /**
