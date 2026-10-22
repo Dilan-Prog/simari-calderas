@@ -666,6 +666,7 @@ Route::controller(WhatsappFunnelController::class)
         // aquí que lo capture.
         Route::post('/desde-negocio/{deal}', 'fromDeal')->name('from-deal');
         Route::post('/nuevo-chat', 'newChat')->name('new-chat');
+        Route::post('/leads/{lead}/mover-etapa', 'moveLead')->whereNumber('lead')->name('move-lead');
         Route::post('/{conversation}/mover-etapa', 'moveStage')->name('move-stage');
         Route::get('/{conversation}/mensajes', 'messages')->name('messages');
         Route::post('/{conversation}/mensajes', 'sendMessage')->name('send-message');

@@ -43,6 +43,7 @@ class LeadCustomerController extends Controller
             'duplicate' => $lead->customer_id ? null : $leads->findCustomer($lead->phone_normalized, $lead->contact_email),
             'prefill'   => [
                 'full_name' => $lead->contact_name,
+                'company'   => $lead->contact_company,
                 'email'     => $lead->contact_email,
                 'website'   => $lead->contact_website,
                 'phone'     => $lead->contact_phone ?: $lead->phone_normalized,

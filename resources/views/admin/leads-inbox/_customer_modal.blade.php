@@ -65,7 +65,7 @@
                     </div>
                     <div class="lcm-field">
                         <label for="lcmCompany">Empresa</label>
-                        <input type="text" id="lcmCompany" name="company" maxlength="150" value="{{ old('company') }}">
+                        <input type="text" id="lcmCompany" name="company" maxlength="150" value="{{ old('company', $prefill['company'] ?? '') }}">
                     </div>
                     <div class="lcm-field">
                         <label for="lcmEmail">Correo</label>

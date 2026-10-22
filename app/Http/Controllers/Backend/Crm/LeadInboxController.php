@@ -445,6 +445,7 @@ class LeadInboxController extends Controller
     {
         $data = $request->validate([
             'name'     => 'nullable|string|max:150',
+            'company'  => 'nullable|string|max:150',
             'phone'    => 'nullable|string|max:40',
             'whatsapp' => 'nullable|string|max:40',
             'email'    => 'nullable|string|max:150',

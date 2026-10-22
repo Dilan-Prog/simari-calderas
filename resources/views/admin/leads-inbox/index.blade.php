@@ -28,7 +28,7 @@
             $b = count($parts) > 1 ? mb_substr($parts[1], 0, 1) : '';
             return mb_strtoupper($a . $b);
         };
-        $subtitle = fn ($l) => optional($l->customer)->company ?: ($l->customer ? 'Cliente' : 'Sin identificar');
+        $subtitle = fn ($l) => $l->contact_company ?: optional($l->customer)->company ?: ($l->customer ? 'Cliente' : 'Sin identificar');
         $chIcon = [
             'whatsapp' => 'M12 3a9 9 0 0 0-7.7 13.6L3 21l4.5-1.2A9 9 0 1 0 12 3z',
             'llamada' => 'M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z',
@@ -381,6 +381,8 @@
                         <summary class="lw-sec-h"><h3>Contacto</h3><span class="lw-sec-chev" aria-hidden="true"></span></summary>
                         <div class="lw-sec-b">
                         <dl class="lw-kv">
+                            <dt>Empresa</dt>
+                            <dd>{{ $selected->contact_company ?: optional($selected->customer)->company ?: '—' }}</dd>
                             <dt>Teléfono</dt>
                             <dd>{{ $selected->contact_phone ?: '—' }} @if ($selected->contact_phone)<a class="lw-mini" href="tel:{{ $selected->contact_phone }}">Llamar</a>@endif</dd>
                             <dt>WhatsApp</dt>
@@ -390,11 +392,12 @@
                             <dt>Sitio web</dt>
                             <dd>@if ($selected->contact_website)<a class="lw-mini" href="{{ $selected->contact_website }}" target="_blank" rel="noopener noreferrer">{{ preg_replace('#^https?://(www\.)?#i', '', rtrim($selected->contact_website, '/')) }}</a>@else —@endif</dd>
                         </dl>
-                        <details class="lw-edit" data-lw-edit @if ($errors->hasAny(['name', 'phone', 'whatsapp', 'email', 'website'])) open @endif>
+                        <details class="lw-edit" data-lw-edit @if ($errors->hasAny(['name', 'company', 'phone', 'whatsapp', 'email', 'website'])) open @endif>
                             <summary class="erp-btn erp-btn--sm">Editar contacto</summary>
                             <form method="POST" action="{{ route('admin.leads-inbox.contact.update', $selected) }}" class="lw-edit-form">
                                 @csrf @method('PUT')
                                 <label>Nombre <input class="erp-input" type="text" name="name" maxlength="150" value="{{ old('name', $selected->contact_name) }}"></label>
+                                <label>Empresa <input class="erp-input" type="text" name="company" maxlength="150" value="{{ old('company', $selected->contact_company ?: optional($selected->customer)->company) }}" placeholder="Nombre de la empresa"></label>
                                 <label>Teléfono <input class="erp-input" type="text" name="phone" maxlength="40" inputmode="tel" value="{{ old('phone', $selected->contact_phone) }}" placeholder="449 123 4567"></label>
                                 <label>WhatsApp <input class="erp-input" type="text" name="whatsapp" maxlength="40" inputmode="tel" value="{{ old('whatsapp', $selected->contact_whatsapp) }}" placeholder="Vacío = el mismo que el teléfono"></label>
                                 <label>Correo <input class="erp-input" type="email" name="email" maxlength="150" value="{{ old('email', $selected->contact_email) }}" placeholder="correo@empresa.com"></label>

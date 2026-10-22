@@ -23,6 +23,7 @@ import Sortable from 'sortablejs';
     var sendMessageUrlTemplate  = board.dataset.sendMessageUrlTemplate || '';
     var createDealUrlTemplate   = board.dataset.createDealUrlTemplate || '';
     var reassignAgentUrlTemplate = board.dataset.reassignAgentUrlTemplate || '';
+    var moveLeadUrlTemplate     = board.dataset.moveLeadUrlTemplate || '';
     var newChatUrl              = board.dataset.newChatUrl || '';
 
     function buildUrl(template, id) {
@@ -75,13 +76,15 @@ import Sortable from 'sortablejs';
             dragClass: 'dragging',
             onEnd: function (evt) {
                 var card = evt.item;
-                var convId = card.getAttribute('data-conv-id');
+                var leadId = card.getAttribute('data-lead-id');
+                var convId = leadId || card.getAttribute('data-conv-id');
                 var toStageId = evt.to.getAttribute('data-stage-id');
 
                 if (!convId || !toStageId) return;
                 if (evt.from === evt.to && evt.oldIndex === evt.newIndex) return;
 
-                fetch(buildUrl(moveStageUrlTemplate, convId), {
+                // Tarjeta de lead (correo, formulario, llamada): se mueve con su propia ruta.
+                fetch(buildUrl(leadId ? moveLeadUrlTemplate : moveStageUrlTemplate, convId), {
                     method: 'POST',
                     headers: jsonHeaders(),
                     body: JSON.stringify({ to_stage_id: toStageId }),
@@ -319,6 +322,11 @@ import Sortable from 'sortablejs';
             // No abrir el modal si el click vino de un drag (SortableJS
             // agrega la clase temporalmente durante el arrastre).
             if (card.classList.contains('sortable-ghost') || card.classList.contains('dragging')) return;
+            // Lead sin conversación de WhatsApp: se abre en la bandeja de leads.
+            if (card.getAttribute('data-lead-id')) {
+                window.location.href = card.getAttribute('data-lead-url');
+                return;
+            }
             openChat(card.getAttribute('data-conv-id'), card);
         });
     });
@@ -392,7 +400,15 @@ import Sortable from 'sortablejs';
             .then(function (r) { return r.json(); })
             .then(function (payload) {
                 var card = board.querySelector('.wf-chat-card[data-conv-id="' + currentConversationId + '"]');
-                if (card) card.setAttribute('data-agent-id', agentId || '');
+                if (card) {
+                    card.setAttribute('data-agent-id', agentId || '');
+                    var label = card.querySelector('.wf-chat-card-agent');
+                    var agent = (data.agents || []).filter(function (a) { return String(a.id) === String(agentId); })[0];
+                    if (label) {
+                        label.textContent = agent ? agent.name : 'Sin asignar';
+                        label.classList.toggle('wf-chat-card-agent-empty', !agent);
+                    }
+                }
                 alert('Agente actualizado.');
             })
             .catch(function (err) { console.error(err); alert('Error de red al reasignar agente.'); });

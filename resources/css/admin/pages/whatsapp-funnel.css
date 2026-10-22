@@ -305,3 +305,20 @@
     width: 100%;
     margin-top: 8px;
 }
+
+/* ── Tarjetas de leads sin conversación de WhatsApp (correo, formulario, llamada) ── */
+.wf-lead-card { cursor: pointer; }
+
+.wf-chan-badge {
+    flex-shrink: 0;
+    font-size: 0.65rem;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 999px;
+    color: #374151;
+    background: #e5e7eb;
+}
+
+.wf-chan-correo { color: #1d4ed8; background: #dbeafe; }
+.wf-chan-formulario { color: #6d28d9; background: #ede9fe; }
+.wf-chan-llamada { color: #047857; background: #d1fae5; }

@@ -20,7 +20,7 @@
             </div>
             <h1 class="pipeline-board-title">Embudo de Venta</h1>
             <p class="pipeline-board-subtitle">
-                Conversaciones de WhatsApp por etapa — arrastra las tarjetas para actualizar su estatus.
+                Conversaciones de WhatsApp y demás contactos (correo, formulario, llamada) por etapa — arrastra las tarjetas para actualizar su estatus.
             </p>
         </div>
 
@@ -79,10 +79,12 @@
             data-send-message-url-template="{{ route('admin.whatsapp-funnel.send-message', ['conversation' => '__CONV_ID__']) }}"
             data-create-deal-url-template="{{ route('admin.whatsapp-funnel.create-deal', ['conversation' => '__CONV_ID__']) }}"
             data-reassign-agent-url-template="{{ route('admin.whatsapp-funnel.reassign-agent', ['conversation' => '__CONV_ID__']) }}"
+            data-move-lead-url-template="{{ route('admin.whatsapp-funnel.move-lead', ['lead' => '__CONV_ID__']) }}"
             data-new-chat-url="{{ route('admin.whatsapp-funnel.new-chat') }}">
             @foreach($stages as $stage)
                 @php
                     $stageConversations = $conversationsByStage->get($stage->id, collect());
+                    $stageLeads = $leadsByStage->get($stage->id, collect());
                 @endphp
 
                 <div class="pipeline-column" data-stage-id="{{ $stage->id }}">
@@ -91,7 +93,7 @@
                             <span class="pipeline-column-title">{{ $stage->name }}</span>
                         </div>
                         <div class="pipeline-column-stats">
-                            <span class="pipeline-column-count" data-column-count>{{ $stageConversations->count() }} conversación(es)</span>
+                            <span class="pipeline-column-count" data-column-count>{{ $stageConversations->count() + $stageLeads->count() }} contacto(s)</span>
                         </div>
                     </div>
 
@@ -106,10 +108,12 @@
                                     ? strtoupper(mb_substr($customer->first_name ?? '', 0, 1) . mb_substr($customer->last_name ?? '', 0, 1))
                                     : strtoupper(mb_substr($conversation->contact_phone, -2));
                                 $lastMessage = $conversation->messages->last();
+                                $linkedLead = $linkedLeads->get($conversation->id);
+                                $assignee = $conversation->assignedUser ?? $linkedLead?->assignee;
                             @endphp
                             <div class="pipeline-card wf-chat-card" data-conv-id="{{ $conversation->id }}"
                                 data-name="{{ $displayName }}" data-phone="{{ $conversation->contact_phone }}"
-                                data-agent-id="{{ $conversation->assigned_user_id }}"
+                                data-agent-id="{{ $assignee?->id }}"
                                 data-unread="{{ $conversation->unread_count }}"
                                 data-last-activity="{{ optional($conversation->last_message_at)->timestamp }}">
                                 <div class="wf-chat-card-body">
@@ -136,8 +140,8 @@
                                     @endif
 
                                     <div class="wf-chat-card-bottom">
-                                        @if($conversation->assignedUser)
-                                            <span class="wf-chat-card-agent">{{ $conversation->assignedUser->full_name }}</span>
+                                        @if($assignee)
+                                            <span class="wf-chat-card-agent">{{ $assignee->full_name }}</span>
                                         @else
                                             <span class="wf-chat-card-agent wf-chat-card-agent-empty">Sin asignar</span>
                                         @endif
@@ -148,8 +152,50 @@
                                 </div>
                             </div>
                         @empty
-                            <div class="pipeline-column-empty">Sin conversaciones en esta etapa</div>
                         @endforelse
+
+                        @foreach($stageLeads as $lead)
+                            @php
+                                $leadName = $lead->display_name;
+                                $leadInitials = strtoupper(mb_substr(preg_replace('/[^\pL]/u', '', (string) $lead->contact_name) ?: $leadName, 0, 2));
+                                $chan = ['correo' => 'Correo', 'formulario' => 'Formulario', 'llamada' => 'Llamada', 'manual' => 'Manual', 'whatsapp' => 'WhatsApp'][$lead->source] ?? $lead->source_label;
+                            @endphp
+                            <div class="pipeline-card wf-chat-card wf-lead-card" data-lead-id="{{ $lead->id }}"
+                                data-lead-url="{{ route('admin.leads-inbox.index', ['lead' => $lead->id]) }}"
+                                data-name="{{ $leadName }}" data-phone="{{ $lead->contact_phone ?: $lead->contact_email }}"
+                                data-agent-id="{{ $lead->assigned_to }}" data-unread="0"
+                                data-last-activity="{{ optional($lead->last_activity_at)->timestamp }}">
+                                <div class="wf-chat-card-body">
+                                    <div class="wf-chat-card-top">
+                                        <span class="wf-chat-avatar">{{ $leadInitials ?: '?' }}</span>
+                                        <div class="wf-chat-card-info">
+                                            <div class="wf-chat-card-name">{{ $leadName }}</div>
+                                            @if($lead->contact_company || optional($lead->customer)->company)
+                                                <div class="wf-chat-card-company">{{ $lead->contact_company ?: $lead->customer->company }}</div>
+                                            @endif
+                                        </div>
+                                        <span class="wf-chan-badge wf-chan-{{ $lead->source }}">{{ $chan }}</span>
+                                    </div>
+                                    @if($lead->funnel_preview)
+                                        <div class="wf-chat-card-preview">{{ \Illuminate\Support\Str::limit($lead->funnel_preview, 60) }}</div>
+                                    @endif
+                                    <div class="wf-chat-card-bottom">
+                                        @if($lead->assignee)
+                                            <span class="wf-chat-card-agent">{{ $lead->assignee->full_name }}</span>
+                                        @else
+                                            <span class="wf-chat-card-agent wf-chat-card-agent-empty">Sin asignar</span>
+                                        @endif
+                                        @if($lead->deal_id)
+                                            <span class="wf-deal-badge" title="Negocio vinculado">Negocio</span>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+
+                        @if($stageConversations->isEmpty() && $stageLeads->isEmpty())
+                            <div class="pipeline-column-empty">Sin contactos en esta etapa</div>
+                        @endif
                     </div>
                 </div>
             @endforeach

@@ -5,12 +5,16 @@ namespace App\Http\Controllers\Backend;
 use App\Http\Controllers\Controller;
 use App\Models\Customer;
 use App\Models\Deal;
+use App\Models\Lead;
+use App\Models\LeadInboundEmail;
 use App\Models\Pipeline;
 use App\Models\PipelineStage;
 use App\Models\User;
 use App\Models\WhatsappAccount;
 use App\Models\WhatsappConversation;
 use App\Services\DealService;
+use App\Services\LeadService;
+use App\Support\LeadStages;
 // QR-AISLADO (OBLIGATORIO NO TOCAR): use App\Services\WhatsappBaileysService;
 use App\Services\WhatsappService;
 use Illuminate\Http\Request;
@@ -76,6 +80,8 @@ class WhatsappFunnelController extends Controller
 
         $stages = collect();
         $conversationsByStage = collect();
+        $leadsByStage = collect();
+        $linkedLeads = collect();
 
         if ($pipeline) {
             $stages = PipelineStage::where('pipeline_id', $pipeline->id)
@@ -118,9 +124,17 @@ class WhatsappFunnelController extends Controller
                 $query->stale();
             }
 
-            $conversationsByStage = $query->orderByDesc('last_message_at')
+            $conversations = $query->orderByDesc('last_message_at')->get();
+            $conversationsByStage = $conversations->groupBy('pipeline_stage_id');
+
+            // Lead de cada conversación: de ahí sale el responsable cuando la conversación no
+            // tiene agente propio (el responsable se asigna desde la bandeja de leads).
+            $linkedLeads = Lead::with('assignee')
+                ->whereIn('whatsapp_conversation_id', $conversations->pluck('id'))
                 ->get()
-                ->groupBy('pipeline_stage_id');
+                ->keyBy('whatsapp_conversation_id');
+
+            $leadsByStage = $this->leadsWithoutConversation($request, $pipeline, $stages);
         }
 
         $agents = User::orderBy('first_name')->get();
@@ -136,11 +150,83 @@ class WhatsappFunnelController extends Controller
             'pipeline',
             'stages',
             'conversationsByStage',
+            'leadsByStage',
+            'linkedLeads',
             'agents',
             'accounts',
             'templates',
             'dealPipelines'
         ));
+    }
+
+    /**
+     * Leads que no tienen conversación de WhatsApp (correo, formulario, llamada, manual), agrupados por
+     * etapa, para que el Embudo muestre también esos contactos. Los que ya tienen conversación salen como
+     * tarjeta de esa conversación. Con los filtros "Sin leer" / "Sin responder" no aplican (son de chat).
+     *
+     * @return \Illuminate\Support\Collection<int, \Illuminate\Support\Collection<int, Lead>>
+     */
+    private function leadsWithoutConversation(Request $request, Pipeline $pipeline, $stages)
+    {
+        if ($request->boolean('unread') || $request->boolean('stale')) {
+            return collect();
+        }
+
+        $isDefault = (int) optional(LeadStages::defaultPipeline())->id === (int) $pipeline->id;
+        $stageIds = $stages->pluck('id')->all();
+
+        $query = Lead::with(['assignee', 'customer'])
+            ->whereNull('whatsapp_conversation_id')
+            ->where(function ($q) use ($stageIds, $isDefault) {
+                $q->whereIn('pipeline_stage_id', $stageIds);
+                if ($isDefault) {
+                    $q->orWhereNull('pipeline_stage_id');
+                }
+            });
+
+        if ($request->filled('search')) {
+            $s = $request->search;
+            $query->where(function ($q) use ($s) {
+                $q->where('contact_name', 'like', "%{$s}%")
+                    ->orWhere('contact_phone', 'like', "%{$s}%")
+                    ->orWhere('contact_email', 'like', "%{$s}%");
+            });
+        }
+        if ($request->filled('agent_id')) {
+            $query->where('assigned_to', $request->agent_id);
+        }
+
+        $leads = $query->orderByDesc('last_activity_at')->orderByDesc('id')->limit(300)->get();
+
+        // Último correo recibido de cada lead, para la vista previa de la tarjeta.
+        $previews = LeadInboundEmail::whereIn('lead_id', $leads->pluck('id'))
+            ->orderByDesc('id')
+            ->get()
+            ->unique('lead_id')
+            ->keyBy('lead_id');
+
+        foreach ($leads as $lead) {
+            $mail = $previews->get($lead->id);
+            $lead->funnel_preview = $mail ? trim(($mail->subject ?: '') . ' ' . ($mail->excerpt ?: '')) : trim((string) $lead->notes);
+            $lead->funnel_stage_id = LeadStages::current($lead, $stages)?->id;
+        }
+
+        return $leads->groupBy('funnel_stage_id');
+    }
+
+    /** Arrastre de una tarjeta de lead (sin conversación) a otra etapa: misma lógica que la bandeja. */
+    public function moveLead(Request $request, Lead $lead)
+    {
+        $data = $request->validate(['to_stage_id' => 'required|exists:pipeline_stages,id']);
+
+        $stage = PipelineStage::with('pipeline')->findOrFail($data['to_stage_id']);
+        if ($stage->pipeline?->channel !== Pipeline::CHANNEL_WHATSAPP) {
+            return response()->json(['errors' => ['to_stage_id' => ['Esa etapa no es del Embudo de Venta.']]], 422);
+        }
+
+        LeadStages::move($lead, $stage);
+
+        return response()->json(['success' => true]);
     }
 
     /**
@@ -252,6 +338,12 @@ class WhatsappFunnelController extends Controller
         ]);
 
         $conversation->update(['assigned_user_id' => $data['assigned_user_id'] ?? null]);
+
+        // El responsable es el mismo en la bandeja de leads: se refleja en el lead de esta conversación.
+        $leads = app(LeadService::class);
+        foreach (Lead::where('whatsapp_conversation_id', $conversation->id)->get() as $lead) {
+            $leads->assign($lead, $data['assigned_user_id'] ?? null);
+        }
 
         return response()->json([
             'success' => true,

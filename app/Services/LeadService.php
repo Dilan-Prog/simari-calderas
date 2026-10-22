@@ -614,6 +614,10 @@ class LeadService
             }
         }
 
+        if (array_key_exists('company', $data)) {
+            $lead->contact_company = trim((string) $data['company']) ?: null;
+        }
+
         if (array_key_exists('website', $data)) {
             $value = trim((string) $data['website']);
             if ($value === '') {
@@ -675,6 +679,11 @@ class LeadService
             $lead->first_contact_at ??= now();
         }
         $lead->save();
+
+        // Mismo responsable en el Embudo de Venta (update directo: no dispara observadores).
+        if ($lead->whatsapp_conversation_id) {
+            WhatsappConversation::where('id', $lead->whatsapp_conversation_id)->update(['assigned_user_id' => $userId]);
+        }
 
         return $lead;
     }

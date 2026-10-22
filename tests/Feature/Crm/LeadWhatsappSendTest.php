@@ -256,6 +256,24 @@ class LeadWhatsappSendTest extends TestCase
         $this->assertSame('ana@empresa.com', $l->contact_email);
     }
 
+    public function test_guarda_la_empresa_del_lead_y_la_muestra_en_la_ficha_y_en_la_lista(): void
+    {
+        $lead = $this->lead(['source' => 'manual']);
+
+        $this->actingAs($this->admin)->put(route('admin.leads-inbox.contact.update', $lead), ['company' => '  Calderas del Norte SA  '])
+            ->assertSessionHas('success');
+
+        $this->assertSame('Calderas del Norte SA', $lead->fresh()->contact_company);
+
+        $html = $this->actingAs($this->admin)->get(route('admin.leads-inbox.index', ['lead' => $lead->id]))->assertOk()->getContent();
+        $this->assertStringContainsString('name="company"', $html);
+        $this->assertStringContainsString('Calderas del Norte SA', $html);
+
+        // vacío la borra
+        $this->actingAs($this->admin)->put(route('admin.leads-inbox.contact.update', $lead), ['company' => ''])->assertSessionHas('success');
+        $this->assertNull($lead->fresh()->contact_company);
+    }
+
     public function test_whatsapp_vacio_vuelve_a_usar_el_telefono_y_numeros_malos_se_rechazan(): void
     {
         $lead = $this->lead(['contact_whatsapp' => '33 1234 5678', 'whatsapp_normalized' => '+523312345678']);

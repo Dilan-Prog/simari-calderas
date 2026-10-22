@@ -35,7 +35,7 @@
                         $tone = $lbTones[$lead->source] ?? 'neu';
                         $when = $lead->preview_at ?? $lead->last_activity_at ?? $lead->created_at;
                         $stale = $col['status'] === 'nuevo' && $when && $when->diffInHours(now()) >= 24;
-                        $company = optional($lead->customer)->company;
+                        $company = $lead->contact_company ?: optional($lead->customer)->company;
                         $owner = optional($lead->assignee)->name;
                     @endphp
                     <a class="lb-card" href="{{ route('admin.leads-inbox.index', ['lead' => $lead->id]) }}">

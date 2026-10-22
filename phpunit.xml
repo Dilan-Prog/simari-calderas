@@ -23,6 +23,8 @@
         <env name="CACHE_DRIVER" value="array"/>
         <!-- <env name="DB_CONNECTION" value="sqlite"/> -->
         <!-- <env name="DB_DATABASE" value=":memory:"/> -->
+        <!-- Base propia de pruebas: RefreshDatabase la borra, nunca debe ser la de desarrollo. Se puede cambiar con DB_DATABASE=... al correr. -->
+        <env name="DB_DATABASE" value="laravel_test"/>
         <env name="MAIL_MAILER" value="array"/>
         <env name="PULSE_ENABLED" value="false"/>
         <env name="QUEUE_CONNECTION" value="sync"/>
