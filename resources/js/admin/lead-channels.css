@@ -31,10 +31,6 @@
 .lqm-close { border: 0; background: none; font-size: 28px; line-height: 1; cursor: pointer; color: var(--erp-muted, #6b7280); }
 .lqm-frame { flex: 1; border: 0; width: 100%; background: #fff; color-scheme: light; }
 @media (max-width: 800px) { .lqm-box { width: 100vw; height: 100vh; border-radius: 0; } }
-.lw-lost { margin: 0; }
-.lw-lost button { border: 1px solid var(--lw-lost-line, #fecaca); background: var(--erp-surface, #fff); color: var(--erp-bad, #b91c1c); font-size: 12px; font-weight: 700; border-radius: 999px; padding: 5px 12px; cursor: pointer; white-space: nowrap; }
-.lw-lost button:hover { background: var(--erp-bad-bg, #fde8e8); }
-.lw-lost.is-on button { background: var(--erp-bad, #b91c1c); border-color: var(--erp-bad, #b91c1c); color: #fff; cursor: default; }
 .lw-shell[data-theme="dark"] .lqm-overlay { background: rgba(0,0,0,.7); }
 .lw-shell[data-theme="dark"] .lw-deal-quote { background: var(--erp-bg); }
 .lw-shell[data-theme="dark"] .lw-deal-form .erp-input, .lw-shell[data-theme="dark"] .lw-deal-form .erp-select, .lw-shell[data-theme="dark"] .lw-notes textarea { background: var(--lw-field); color: var(--erp-ink); border-color: var(--lw-field-line); }

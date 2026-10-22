@@ -111,7 +111,7 @@
     "isEntry": true
   },
   "resources/css/admin/pages/erp-crm.css": {
-    "file": "assets/erp-crm-74VqHQ4y.css",
+    "file": "assets/erp-crm-Bn5JSPwU.css",
     "src": "resources/css/admin/pages/erp-crm.css",
     "isEntry": true
   },
@@ -374,12 +374,12 @@
     "isEntry": true
   },
   "resources/js/admin/erp-crm.js": {
-    "file": "assets/erp-crm-DNy0DGDX.js",
+    "file": "assets/erp-crm-D64OQXrj.js",
     "name": "erp-crm",
     "src": "resources/js/admin/erp-crm.js",
     "isEntry": true,
     "css": [
-      "assets/erp-crm-CGyyeCHh.css"
+      "assets/erp-crm-DYIt4NFm.css"
     ]
   },
   "resources/js/admin/erp-finance.js": {

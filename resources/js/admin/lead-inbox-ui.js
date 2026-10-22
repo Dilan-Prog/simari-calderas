@@ -19,7 +19,11 @@ function applyTheme(dark) {
     if (!shell) return;
     if (dark) shell.setAttribute('data-theme', 'dark');
     else shell.removeAttribute('data-theme');
-    document.querySelectorAll('[data-lw-theme-toggle]').forEach((b) => b.setAttribute('aria-pressed', dark ? 'true' : 'false'));
+    document.querySelectorAll('[data-lw-theme-toggle]').forEach((b) => {
+        b.setAttribute('aria-pressed', dark ? 'true' : 'false');
+        const label = b.querySelector('span');
+        if (label) label.textContent = dark ? 'Modo claro' : 'Modo oscuro';
+    });
 }
 
 // ───────── Secciones plegables del panel derecho ─────────
@@ -71,6 +75,32 @@ function syncQuick() {
     if (bar) bar.hidden = activeTab() === 'correo';
 }
 
+// Atajo "/": al teclear "/" al inicio del cuadro se filtran las respuestas rapidas por lo que sigue.
+function filterQuick(term) {
+    const bar = document.querySelector('[data-lw-quick]');
+    if (!bar) return;
+    const q = term.trim().toLowerCase();
+    bar.classList.toggle('is-slash', term !== '');
+    bar.querySelectorAll('[data-quick-text]').forEach((b) => {
+        b.hidden = q !== '' && !b.textContent.toLowerCase().includes(q);
+    });
+}
+
+document.addEventListener('input', (e) => {
+    const ta = e.target;
+    if (!(ta instanceof HTMLTextAreaElement) || !ta.closest('[data-lw-composer]')) return;
+    const m = ta.value.match(/^\s*\/(.*)$/s);
+    filterQuick(m ? m[1].split('\n')[0] : '');
+});
+
+document.addEventListener('keydown', (e) => {
+    const ta = e.target;
+    if (e.key !== 'Enter' || e.shiftKey || !(ta instanceof HTMLTextAreaElement) || !ta.closest('[data-lw-composer]')) return;
+    if (!/^\s*\//.test(ta.value)) return;
+    const first = document.querySelector('[data-lw-quick] [data-quick-text]:not([hidden])');
+    if (first) { e.preventDefault(); first.click(); }
+});
+
 function init() {
     const shell = shellEl();
     if (!shell) return;
@@ -91,12 +121,36 @@ document.addEventListener('click', (e) => {
         return;
     }
 
+    const emoToggle = e.target.closest?.('[data-lw-emoji-toggle]');
+    if (emoToggle) {
+        const pop = emoToggle.closest('.lw-input-row')?.querySelector('[data-lw-emoji]');
+        if (pop) pop.hidden = !pop.hidden;
+        return;
+    }
+    const emoPick = e.target.closest?.('[data-lw-emoji-pick]');
+    if (emoPick) {
+        const ta = document.querySelector('[data-lw-composer] textarea[data-lw-text]');
+        if (ta && !ta.disabled) {
+            const s = ta.selectionStart ?? ta.value.length;
+            const en = ta.selectionEnd ?? s;
+            ta.value = ta.value.slice(0, s) + emoPick.dataset.lwEmojiPick + ta.value.slice(en);
+            const pos = s + emoPick.dataset.lwEmojiPick.length;
+            ta.focus();
+            ta.setSelectionRange(pos, pos);
+        }
+        emoPick.closest('[data-lw-emoji]').hidden = true;
+        return;
+    }
+    if (!e.target.closest?.('.lw-input-row')) document.querySelectorAll('[data-lw-emoji]').forEach((p) => { p.hidden = true; });
+
     const quick = e.target.closest?.('[data-quick-text]');
     if (quick) {
         const ta = quickTarget();
         if (!ta) return;
         const text = quick.dataset.quickText;
-        ta.value = ta.value.trim() === '' ? text : ta.value.replace(/\s+$/, '') + ' ' + text;
+        const slash = /^\s*\//.test(ta.value);
+        ta.value = (ta.value.trim() === '' || slash) ? text : ta.value.replace(/\s+$/, '') + ' ' + text;
+        filterQuick('');
         ta.focus();
         ta.setSelectionRange(ta.value.length, ta.value.length);
         ta.dispatchEvent(new Event('input', { bubbles: true }));
