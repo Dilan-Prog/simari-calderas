@@ -48,6 +48,7 @@
             request()->routeIs('admin.quotes.*') => 'cotizaciones',
             request()->routeIs('admin.service-reports.*') => 'reportes-servicio',
             request()->routeIs('admin.technical-services.*') => 'servicios-tecnicos',
+            request()->routeIs('admin.monitoring.*') => 'monitoreo',
             request()->routeIs('admin.purchase-orders.*') => 'ordenes-compra',
             request()->routeIs('admin.sales-orders.*') => 'pedidos',
             request()->routeIs('admin.material-delivery-reports.*') => 'entrega-material',
@@ -94,7 +95,7 @@
             'ecommerce' => ['productos', 'categorias', 'marcas', 'colecciones', 'paginas-servicio', 'galeria', 'inicio-secciones', 'menus', 'configuracion-sitio', 'integraciones', 'metodos-de-pago', 'reglas-de-envio', 'carritos-abandonados', 'ordenes'],
             'ventas' => ['cotizaciones', 'pedidos', 'pipelines', 'embudo-de-venta', 'negocios', 'automatizaciones', 'clientes'],
             'planeacion' => ['planeacion-quimicos'],
-            'produccion' => ['reportes-servicio', 'servicios-tecnicos'],
+            'produccion' => ['reportes-servicio', 'servicios-tecnicos', 'monitoreo'],
             'logistica' => ['entrega-material', 'envios', 'deliveries'],
             'finanzas' => ['proveedores', 'ordenes-compra'],
             'almacen' => ['inventory'],
@@ -174,7 +175,7 @@
         $anyOf = fn (array $perms) => collect($perms)->contains(fn ($p) => $erpNavByPerm->has($p) || $authUser->hasPermission($p));
         $ventasVisible = $anyOf(['quotes', 'sales-orders', 'pipeline', 'whatsapp', 'deals', 'automations', 'clients', 'leads-inbox', 'google-conversions']);
         $planeacionVisible = $anyOf(['projects', 'boms', 'mrp', 'chemical-planning']);
-        $produccionVisible = $anyOf(['production-orders', 'service-calendar', 'service-reports', 'technical-services']);
+        $produccionVisible = $anyOf(['production-orders', 'service-calendar', 'service-reports', 'technical-services', 'monitoring']);
         $logisticaVisible = $anyOf(['material-delivery-reports', 'shipments', 'pickups', 'carriers']);
         $finanzasVisible = $anyOf(['receivables', 'payables', 'payments', 'suppliers', 'purchase-orders']);
         $almacenVisible = $anyOf(['inventory', 'warehouse-transfers', 'stock-counts']);
@@ -699,6 +700,18 @@
                     <div class="sidebar-nav-item-left">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clipboard-list"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"></rect><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><path d="M12 11h4"></path><path d="M12 16h4"></path><path d="M8 11h.01"></path><path d="M8 16h.01"></path></svg>
                         <span class="sidebar-nav-item-label">Reporte de Servicios</span>
+                    </div>
+                </a>
+                @endif
+
+                {{-- Monitoreo de Clientes (agua / químicos) --}}
+                @if($authUser->hasPermission('monitoring'))
+                <a class="sidebar-nav-item {{ $activeSection === 'monitoreo' ? 'active' : '' }}"
+                    href="{{ route('admin.monitoring.index') }}" data-section="monitoreo"
+                    data-label="Monitoreo de Clientes">
+                    <div class="sidebar-nav-item-left">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-droplets"><path d="M7 16.3c2.2 0 4-1.83 4-4.05 0-1.16-.57-2.26-1.71-3.19S7.29 6.75 7 5.3c-.29 1.45-1.14 2.84-2.29 3.76S3 11.1 3 12.25c0 2.22 1.8 4.05 4 4.05z"></path><path d="M12.56 6.6A10.97 10.97 0 0 0 14 3.02c.5 2.5 2 4.9 4 6.5s3 3.5 3 5.5a6.98 6.98 0 0 1-11.91 4.97"></path></svg>
+                        <span class="sidebar-nav-item-label">Monitoreo de Clientes</span>
                     </div>
                 </a>
                 @endif

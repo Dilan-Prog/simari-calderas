@@ -109,6 +109,12 @@ return [
         'route' => 'admin.service-reports.index',
         'order' => 11,
     ],
+    'monitoring' => [
+        'name'  => 'Monitoreo de Clientes',
+        'icon'  => 'droplets',
+        'route' => 'admin.monitoring.index',
+        'order' => 12,
+    ],
     'inventory' => [
         'name'  => 'Inventario',
         'icon'  => 'archive',

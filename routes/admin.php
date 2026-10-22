@@ -28,6 +28,7 @@ use App\Http\Controllers\Backend\HomeSectionController;
 use App\Http\Controllers\Backend\MenuController;
 use App\Http\Controllers\Backend\CollectionController;
 use App\Http\Controllers\Backend\ChemicalPlanningController;
+use App\Http\Controllers\Backend\MonitoringController;
 use App\Http\Controllers\Backend\SalesOrderController;
 use App\Http\Controllers\Backend\StoreOrderController;
 use App\Http\Controllers\Backend\ShipmentController;
@@ -808,6 +809,43 @@ Route::controller(ChemicalPlanningController::class)
         Route::get('/', 'index')->name('index');
         Route::post('/proyeccion', 'updateProjection')->name('projection.update')->middleware('permission:chemical-planning,edit');
         Route::get('/exportar', 'export')->name('export');
+    });
+
+// ============================================================
+// Monitoreo de agua / químicos de clientes — programas de N semanas con
+// parámetros (rangos) y químicos (dosis planeada, barras de Gantt) por equipo.
+// El cliente captura sus lecturas/dosis desde el portal (routes/customer.php);
+// aquí el personal define el programa, ve todo, alertas, Gantt y exporta.
+// ============================================================
+Route::controller(MonitoringController::class)
+    ->middleware('permission:monitoring')
+    ->prefix('monitoreo')
+    ->name('monitoring.')
+    ->group(function () {
+        // Rutas estáticas / AJAX primero para no colisionar con {program}
+        Route::get('/', 'index')->name('index');
+        Route::get('/alertas', 'alerts')->name('alerts');
+        Route::get('/buscar-clientes', 'searchCustomers')->name('customers.search');
+        Route::get('/buscar-productos', 'searchProducts')->name('products.search');
+        Route::get('/crear', 'create')->name('create')->middleware('permission:monitoring,create');
+        Route::post('/', 'store')->name('store')->middleware('permission:monitoring,create');
+
+        // Equipos del cliente
+        Route::post('/clientes/{customer}/equipos', 'storeEquipment')->name('equipment.store')->middleware('permission:monitoring,create');
+        Route::put('/equipos/{equipment}', 'updateEquipment')->name('equipment.update')->middleware('permission:monitoring,edit');
+        Route::delete('/equipos/{equipment}', 'destroyEquipment')->name('equipment.destroy')->middleware('permission:monitoring,delete');
+
+        // Programa
+        Route::get('/{program}', 'show')->name('show');
+        Route::get('/{program}/editar', 'edit')->name('edit')->middleware('permission:monitoring,edit');
+        Route::put('/{program}', 'update')->name('update')->middleware('permission:monitoring,edit');
+        Route::delete('/{program}', 'destroy')->name('destroy')->middleware('permission:monitoring,delete');
+        Route::get('/{program}/exportar', 'export')->name('export');
+
+        // Registros (lecturas / dosis)
+        Route::post('/{program}/registros', 'storeEntry')->name('entries.store')->middleware('permission:monitoring,create');
+        Route::put('/{program}/registros/{entry}', 'updateEntry')->name('entries.update')->middleware('permission:monitoring,edit');
+        Route::delete('/{program}/registros/{entry}', 'destroyEntry')->name('entries.destroy')->middleware('permission:monitoring,delete');
     });
 
 // ============================================================

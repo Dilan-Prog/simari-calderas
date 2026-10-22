@@ -3,6 +3,10 @@
 use App\Http\Controllers\Backend\Customers\CustomerController;
 use App\Http\Controllers\Customers\AddressController;
 use App\Http\Controllers\Customers\CalendarController;
+use App\Http\Controllers\Customers\EquipmentController;
+use App\Http\Controllers\Customers\MonitoringController;
+use App\Http\Controllers\Customers\MonitoringEntryController;
+use App\Http\Controllers\Customers\MonitoringItemController;
 use App\Http\Controllers\Customers\OrderController;
 use App\Http\Controllers\Customers\ProfileController;
 use App\Http\Controllers\Customers\ServiceHistoryController;
@@ -46,6 +50,23 @@ Route::put('/perfil/contrasena', [ProfileController::class, 'updatePassword'])->
 // Pedidos de la tienda del propio cliente.
 Route::get('/pedidos', [OrderController::class, 'index'])->name('orders.index');
 Route::get('/pedidos/{order}', [OrderController::class, 'show'])->name('orders.show');
+
+// Monitoreo: programas del cliente, registro diario (lecturas y dosificación), gráficas y Gantt.
+Route::get('/monitoreo', [MonitoringController::class, 'index'])->name('monitoring.index');
+Route::get('/monitoreo/{program}', [MonitoringController::class, 'show'])->name('monitoring.show');
+Route::get('/monitoreo/{program}/serie', [MonitoringController::class, 'series'])->name('monitoring.series');
+Route::put('/monitoreo/{program}/fechas', [MonitoringController::class, 'updateDates'])->name('monitoring.dates');
+Route::post('/monitoreo/{program}/registros', [MonitoringEntryController::class, 'store'])->name('monitoring.entries.store');
+Route::put('/monitoreo/registros/{entry}', [MonitoringEntryController::class, 'update'])->name('monitoring.entries.update');
+Route::delete('/monitoreo/registros/{entry}', [MonitoringEntryController::class, 'destroy'])->name('monitoring.entries.destroy');
+Route::post('/monitoreo/{program}/elementos', [MonitoringItemController::class, 'store'])->name('monitoring.items.store');
+Route::delete('/monitoreo/elementos/{item}', [MonitoringItemController::class, 'destroy'])->name('monitoring.items.destroy');
+
+// Equipos del cliente (calderas, torres, chillers...).
+Route::get('/equipos', [EquipmentController::class, 'index'])->name('equipment.index');
+Route::post('/equipos', [EquipmentController::class, 'store'])->name('equipment.store');
+Route::put('/equipos/{equipment}', [EquipmentController::class, 'update'])->name('equipment.update');
+Route::delete('/equipos/{equipment}', [EquipmentController::class, 'destroy'])->name('equipment.destroy');
 
 // Libreta de direcciones.
 Route::get('/direcciones', [AddressController::class, 'index'])->name('addresses.index');
