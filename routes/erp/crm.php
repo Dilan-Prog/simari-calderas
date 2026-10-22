@@ -12,6 +12,9 @@ Route::prefix('leads')->name('leads-inbox.')->middleware('permission:leads-inbox
     Route::post('/', [LeadInboxController::class, 'store'])->name('store')->middleware('permission:leads-inbox,create');
     Route::get('/{lead}', [LeadInboxController::class, 'show'])->whereNumber('lead')->name('show');
     Route::put('/{lead}', [LeadInboxController::class, 'update'])->whereNumber('lead')->name('update')->middleware('permission:leads-inbox,edit');
+    Route::put('/{lead}/contacto', [LeadInboxController::class, 'updateContact'])->whereNumber('lead')->name('contact.update')->middleware('permission:leads-inbox,edit');
+    Route::get('/{lead}/whatsapp/plantillas', [LeadInboxController::class, 'whatsappTemplates'])->whereNumber('lead')->name('whatsapp.templates')->middleware('permission:leads-inbox,edit');
+    Route::post('/{lead}/whatsapp', [LeadInboxController::class, 'sendWhatsapp'])->whereNumber('lead')->name('whatsapp.send')->middleware('permission:leads-inbox,edit');
     Route::post('/{lead}/asignar', [LeadInboxController::class, 'assign'])->whereNumber('lead')->name('assign')->middleware('permission:leads-inbox,edit');
     Route::post('/{lead}/convertir', [LeadInboxController::class, 'convert'])->whereNumber('lead')->name('convert')->middleware('permission:leads-inbox,edit');
     Route::post('/{lead}/notas', [LeadInboxController::class, 'storeNote'])->whereNumber('lead')->name('notes.store')->middleware('permission:leads-inbox,create');

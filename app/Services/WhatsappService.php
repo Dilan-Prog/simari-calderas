@@ -26,6 +26,12 @@ class WhatsappService
     public const GRAPH_API_VERSION = 'v19.0';
     public const GRAPH_API_BASE = 'https://graph.facebook.com';
 
+    /**
+     * Error de Meta del último envío fallido (`error` de la Graph API: message, code...),
+     * o null si el último envío salió bien. Lo usan las pantallas que muestran el motivo.
+     */
+    public ?array $lastError = null;
+
     private function baseUrl(WhatsappAccount $account): string
     {
         return self::GRAPH_API_BASE . '/' . self::GRAPH_API_VERSION . '/' . $account->phone_number_id;
@@ -159,8 +165,9 @@ class WhatsappService
                         $paramCount = $this->countBodyParams($template['components'] ?? []);
 
                         return [
-                            'name'   => $name,
-                            'label'  => (string) Str::of($name)->replace('_', ' ')->title(),
+                            'name'     => $name,
+                            'language' => $template['language'] ?? 'es_MX',
+                            'label'    => (string) Str::of($name)->replace('_', ' ')->title(),
                             'params' => $paramCount > 0
                                 ? array_map(fn ($n) => "Parámetro {$n}", range(1, $paramCount))
                                 : [],
@@ -191,6 +198,8 @@ class WhatsappService
 
     private function recordOutboundMessage(WhatsappConversation $conversation, \Illuminate\Http\Client\Response $response, array $attributes): WhatsappMessage
     {
+        $this->lastError = $response->successful() ? null : ($response->json('error') ?: ['message' => 'HTTP ' . $response->status()]);
+
         if (!$response->successful()) {
             Log::warning('WhatsappService: envío fallido', [
                 'conversation_id' => $conversation->id,
@@ -227,6 +236,28 @@ class WhatsappService
         }
 
         return $lastInbound->sent_at->diffInHours(now()) < 24;
+    }
+
+    /**
+     * Conversación de la cuenta con ese teléfono. Meta no siempre entrega el número en el
+     * mismo formato que se escribió (p. ej. México 52 1 + 10 dígitos o 52 + 10), así que si
+     * no hay coincidencia exacta se compara por los últimos 10 dígitos.
+     */
+    public function findConversationByPhone(WhatsappAccount $account, string $phone): ?WhatsappConversation
+    {
+        $digits = preg_replace('/\D+/', '', $phone);
+
+        $exact = WhatsappConversation::where('account_id', $account->id)
+            ->whereIn('contact_phone', array_unique([$phone, $digits]))
+            ->first();
+        if ($exact || strlen($digits) < 10) {
+            return $exact;
+        }
+
+        return WhatsappConversation::where('account_id', $account->id)
+            ->where('contact_phone', 'like', '%' . substr($digits, -10))
+            ->orderByDesc('last_message_at')
+            ->first();
     }
 
     /**
@@ -313,9 +344,7 @@ class WhatsappService
      */
     public function ingestInboundMessage(WhatsappAccount $account, string $phone, array $data = []): WhatsappMessage
     {
-        $conversation = WhatsappConversation::where('account_id', $account->id)
-            ->where('contact_phone', $phone)
-            ->first();
+        $conversation = $this->findConversationByPhone($account, $phone);
 
         if (!$conversation) {
             $customer = Customer::where('phone', $phone)->first();

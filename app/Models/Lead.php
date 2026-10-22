@@ -43,7 +43,7 @@ class Lead extends Model
 
     protected $fillable = [
         'source', 'status',
-        'contact_name', 'contact_phone', 'phone_normalized', 'contact_email',
+        'contact_name', 'contact_phone', 'phone_normalized', 'contact_whatsapp', 'whatsapp_normalized', 'contact_email',
         'customer_id', 'deal_id', 'whatsapp_conversation_id', 'pool_calculator_lead_id', 'assigned_to',
         'visitor_uuid', 'gclid', 'gbraid', 'wbraid',
         'utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term',
@@ -123,6 +123,18 @@ class Lead extends Model
     public function getDisplayNameAttribute(): string
     {
         return $this->contact_name ?: ($this->contact_phone ?: ($this->contact_email ?: 'Lead #' . $this->id));
+    }
+
+    /** Número (E.164) al que se escribe por WhatsApp: el propio del lead o, si no tiene, el teléfono. */
+    public function getWhatsappTargetAttribute(): ?string
+    {
+        return $this->whatsapp_normalized ?: $this->phone_normalized;
+    }
+
+    /** Número tal como se muestra en pantalla (el propio de WhatsApp o el teléfono). */
+    public function getWhatsappDisplayAttribute(): ?string
+    {
+        return $this->contact_whatsapp ?: $this->contact_phone;
     }
 
     public function getSourceLabelAttribute(): string

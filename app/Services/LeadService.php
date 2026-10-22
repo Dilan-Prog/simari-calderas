@@ -123,7 +123,8 @@ class LeadService
         return Lead::open()
             ->where(function ($q) use ($phoneE164, $email, $customerId) {
                 if ($phoneE164) {
-                    $q->orWhere('phone_normalized', $phoneE164);
+                    $q->orWhere('phone_normalized', $phoneE164)
+                        ->orWhere('whatsapp_normalized', $phoneE164);
                 }
                 if ($email) {
                     $q->orWhere('contact_email', $email);
@@ -567,6 +568,60 @@ class LeadService
     }
 
     // ── Acciones de bandeja ─────────────────────────────────────────────
+
+    /**
+     * Edita los datos de contacto de un lead. Cada campo que llega (aunque sea
+     * vacío) se aplica; el que no llega se deja igual. El WhatsApp vacío significa
+     * "usar el teléfono". Lanza ValidationException si un número no es válido.
+     *
+     * @param array{name?:?string,phone?:?string,whatsapp?:?string,email?:?string} $data
+     */
+    public function updateContact(Lead $lead, array $data): Lead
+    {
+        $errors = [];
+
+        if (array_key_exists('name', $data)) {
+            $lead->contact_name = trim((string) $data['name']) ?: null;
+        }
+
+        foreach (['phone' => ['contact_phone', 'phone_normalized'], 'whatsapp' => ['contact_whatsapp', 'whatsapp_normalized']] as $key => [$raw, $norm]) {
+            if (! array_key_exists($key, $data)) {
+                continue;
+            }
+            $value = trim((string) $data[$key]);
+            if ($value === '') {
+                $lead->{$raw} = null;
+                $lead->{$norm} = null;
+                continue;
+            }
+            $e164 = self::normalizePhone($value);
+            if (! $e164) {
+                $errors[$key] = ($key === 'phone' ? 'El teléfono' : 'El WhatsApp') . ' no parece un número válido.';
+                continue;
+            }
+            $lead->{$raw} = $value;
+            $lead->{$norm} = $e164;
+        }
+
+        if (array_key_exists('email', $data)) {
+            $value = trim((string) $data['email']);
+            if ($value === '') {
+                $lead->contact_email = null;
+            } elseif ($email = self::normalizeEmail($value)) {
+                $lead->contact_email = $email;
+            } else {
+                $errors['email'] = 'El correo no es válido.';
+            }
+        }
+
+        if ($errors) {
+            throw ValidationException::withMessages($errors);
+        }
+
+        $lead->save();
+
+        return $lead;
+    }
 
     public function changeStatus(Lead $lead, string $status): Lead
     {

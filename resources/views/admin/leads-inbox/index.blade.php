@@ -40,7 +40,7 @@
         $thread = isset($timeline) ? array_reverse(is_array($timeline) ? $timeline : (array) $timeline) : [];
         $bubbleTypes = ['whatsapp', 'correo', 'nota', 'llamada', 'formulario'];
         $chLabel = ['whatsapp' => 'WhatsApp', 'correo' => 'Correo', 'nota' => 'Nota', 'llamada' => 'Llamada', 'formulario' => 'Formulario'];
-        $phoneDigits = $selected ? preg_replace('/\D+/', '', (string) $selected->contact_phone) : '';
+        $phoneDigits = $selected ? preg_replace('/\D+/', '', (string) $selected->whatsapp_target) : '';
     @endphp
 
     <div class="lw-shell {{ $selected ? 'has-lead' : '' }}" data-lw>
@@ -157,6 +157,8 @@
                         <div class="lw-actions">
                             @if ($selected->contact_phone)
                                 <a class="erp-btn erp-btn--sm" href="tel:{{ $selected->contact_phone }}">Llamar</a>
+                            @endif
+                            @if ($phoneDigits)
                                 <a class="erp-btn erp-btn--sm" href="https://wa.me/{{ $phoneDigits }}" target="_blank" rel="noopener">WhatsApp</a>
                             @endif
                             @if ($selected->contact_email)
@@ -220,9 +222,39 @@
                             <textarea class="erp-input" name="body" rows="3" placeholder="Escribe una nota interna…" required>{{ old('body') }}</textarea>
                             <div class="lw-pane-foot"><button class="erp-btn erp-btn--primary erp-btn--sm" type="submit">Guardar nota</button></div>
                         </form>
-                        <div class="lw-pane" data-pane="whatsapp" hidden>
-                            <p class="lw-soon">El envío desde la bandeja aún no está disponible.</p>
-                            @if ($phoneDigits)<a class="erp-btn erp-btn--sm" href="https://wa.me/{{ $phoneDigits }}" target="_blank" rel="noopener">Abrir WhatsApp</a>@endif
+                        <div class="lw-pane lw-wa" data-pane="whatsapp" data-wa-templates="{{ route('admin.leads-inbox.whatsapp.templates', $selected) }}" hidden>
+                            @if (! ($wa['ready'] ?? false))
+                                <p class="lw-soon">{{ $wa['reason'] ?? 'WhatsApp no está disponible para este lead.' }}</p>
+                                @if ($phoneDigits)<a class="erp-btn erp-btn--sm" href="https://wa.me/{{ $phoneDigits }}" target="_blank" rel="noopener">Abrir WhatsApp</a>@endif
+                            @else
+                                <form method="POST" action="{{ route('admin.leads-inbox.whatsapp.send', $selected) }}" data-wa-form>
+                                    @csrf
+                                    <p class="lw-wa-state {{ $wa['window_open'] ? 'is-open' : 'is-closed' }}">
+                                        Para <b>{{ $wa['number'] }}</b> ·
+                                        @if ($wa['window_open'])
+                                            Ventana de 24 h abierta hasta {{ $wa['window_until']->format('d/m H:i') }}: puedes escribir libremente.
+                                        @else
+                                            Ventana de 24 h cerrada: para iniciar o reabrir la conversación envía una plantilla aprobada.
+                                        @endif
+                                    </p>
+                                    <div class="lw-wa-mode" role="radiogroup" aria-label="Tipo de mensaje">
+                                        <label><input type="radio" name="type" value="text" data-wa-mode @checked(old('type', $wa['window_open'] ? 'text' : 'template') === 'text') @disabled(! $wa['window_open'])> Mensaje</label>
+                                        <label><input type="radio" name="type" value="template" data-wa-mode @checked(old('type', $wa['window_open'] ? 'text' : 'template') === 'template')> Plantilla</label>
+                                    </div>
+                                    <div data-wa-part="text">
+                                        <textarea class="erp-input" name="text" rows="3" maxlength="4000" placeholder="Escribe tu mensaje de WhatsApp…" @disabled(! $wa['window_open'])>{{ old('text') }}</textarea>
+                                    </div>
+                                    <div data-wa-part="template" hidden>
+                                        <select class="erp-select" name="template_name" data-wa-template data-old="{{ old('template_name') }}">
+                                            <option value="">Cargando plantillas…</option>
+                                        </select>
+                                        <input type="hidden" name="language" value="{{ old('language', 'es_MX') }}" data-wa-language>
+                                        <div class="lw-wa-params" data-wa-params></div>
+                                        <p class="lw-wa-hint" data-wa-hint hidden></p>
+                                    </div>
+                                    <div class="lw-pane-foot"><button class="erp-btn erp-btn--primary erp-btn--sm" type="submit">Enviar por WhatsApp</button></div>
+                                </form>
+                            @endif
                         </div>
                         <div class="lw-pane" data-pane="correo" hidden>
                             <p class="lw-soon">El envío desde la bandeja aún no está disponible.</p>
@@ -254,10 +286,22 @@
                             <dt>Teléfono</dt>
                             <dd>{{ $selected->contact_phone ?: '—' }} @if ($selected->contact_phone)<a class="lw-mini" href="tel:{{ $selected->contact_phone }}">Llamar</a>@endif</dd>
                             <dt>WhatsApp</dt>
-                            <dd>{{ $selected->contact_phone ?: '—' }} @if ($phoneDigits)<a class="lw-mini" href="https://wa.me/{{ $phoneDigits }}" target="_blank" rel="noopener">Escribir</a>@endif</dd>
+                            <dd>{{ $selected->whatsapp_display ?: '—' }} @if ($phoneDigits)<a class="lw-mini" href="#" data-wa-open>Escribir</a>@endif</dd>
                             <dt>Correo</dt>
                             <dd>{{ $selected->contact_email ?: '—' }} @if ($selected->contact_email)<a class="lw-mini" href="mailto:{{ $selected->contact_email }}">Escribir</a>@endif</dd>
                         </dl>
+                        <details class="lw-edit" data-lw-edit @if ($errors->hasAny(['name', 'phone', 'whatsapp', 'email'])) open @endif>
+                            <summary class="erp-btn erp-btn--sm">Editar contacto</summary>
+                            <form method="POST" action="{{ route('admin.leads-inbox.contact.update', $selected) }}" class="lw-edit-form">
+                                @csrf @method('PUT')
+                                <label>Nombre <input class="erp-input" type="text" name="name" maxlength="150" value="{{ old('name', $selected->contact_name) }}"></label>
+                                <label>Teléfono <input class="erp-input" type="text" name="phone" maxlength="40" inputmode="tel" value="{{ old('phone', $selected->contact_phone) }}" placeholder="449 123 4567"></label>
+                                <label>WhatsApp <input class="erp-input" type="text" name="whatsapp" maxlength="40" inputmode="tel" value="{{ old('whatsapp', $selected->contact_whatsapp) }}" placeholder="Vacío = el mismo que el teléfono"></label>
+                                <label>Correo <input class="erp-input" type="email" name="email" maxlength="150" value="{{ old('email', $selected->contact_email) }}" placeholder="correo@empresa.com"></label>
+                                <p class="lw-muted">Sin lada se asume México (+52).</p>
+                                <div class="lw-pane-foot"><button class="erp-btn erp-btn--primary erp-btn--sm" type="submit">Guardar datos</button></div>
+                            </form>
+                        </details>
                     </section>
 
                     <section class="lw-card">
@@ -330,4 +374,89 @@
         </div>
         @endif
     </div>
+
+    @if ($selected)
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                var composer = document.querySelector('[data-lw-composer]');
+                if (!composer) return;
+                var pane = composer.querySelector('[data-pane="whatsapp"]');
+                var tab = composer.querySelector('.lw-tabs [data-tab="whatsapp"]');
+                var loaded = false;
+
+                function loadTemplates() {
+                    if (loaded || !pane) return;
+                    var select = pane.querySelector('[data-wa-template]');
+                    if (!select) return;
+                    loaded = true;
+                    var params = pane.querySelector('[data-wa-params]');
+                    var lang = pane.querySelector('[data-wa-language]');
+                    var hint = pane.querySelector('[data-wa-hint]');
+                    var templates = [];
+
+                    function renderParams() {
+                        var t = templates.find(function (x) { return x.name === select.value; });
+                        params.innerHTML = '';
+                        if (lang) lang.value = (t && t.language) || 'es_MX';
+                        ((t && t.params) || []).forEach(function (label, i) {
+                            var l = document.createElement('label');
+                            l.textContent = label + ' ';
+                            var inp = document.createElement('input');
+                            inp.className = 'erp-input'; inp.type = 'text'; inp.name = 'params[]'; inp.maxLength = 1024; inp.required = true;
+                            if (i === 0 && /nombre/i.test(label)) inp.value = {!! json_encode(trim(explode(' ', (string) $selected->contact_name)[0] ?? '')) !!};
+                            l.appendChild(inp);
+                            params.appendChild(l);
+                        });
+                        syncMode();
+                    }
+
+                    fetch(pane.dataset.waTemplates, { headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }, credentials: 'same-origin' })
+                        .then(function (r) { return r.json(); })
+                        .then(function (data) {
+                            templates = data.templates || [];
+                            select.innerHTML = '';
+                            var first = document.createElement('option');
+                            first.value = ''; first.textContent = templates.length ? 'Elige una plantilla aprobada…' : 'No hay plantillas aprobadas';
+                            select.appendChild(first);
+                            templates.forEach(function (t) {
+                                var o = document.createElement('option');
+                                o.value = t.name; o.textContent = t.label + ' (' + t.name + ')';
+                                select.appendChild(o);
+                            });
+                            if (select.dataset.old) { select.value = select.dataset.old; }
+                            if (!templates.length && hint) {
+                                hint.hidden = false;
+                                hint.textContent = 'Crea y aprueba plantillas en Meta (WhatsApp Manager). Aparecerán aquí en unos minutos.';
+                            }
+                            renderParams();
+                        })
+                        .catch(function () { select.innerHTML = '<option value="">No se pudieron cargar las plantillas</option>'; });
+                    select.addEventListener('change', renderParams);
+                }
+
+                function syncMode() {
+                    if (!pane) return;
+                    var checked = pane.querySelector('[data-wa-mode]:checked');
+                    var mode = checked ? checked.value : 'template';
+                    pane.querySelectorAll('[data-wa-part]').forEach(function (p) { p.hidden = p.dataset.waPart !== mode; });
+                    var tpl = pane.querySelector('[data-wa-template]');
+                    if (tpl) tpl.disabled = mode !== 'template';
+                    pane.querySelectorAll('[data-wa-params] input').forEach(function (i) { i.disabled = mode !== 'template'; });
+                    var txt = pane.querySelector('textarea[name="text"]');
+                    if (txt) txt.required = mode === 'text' && !txt.disabled;
+                }
+
+                function openWhatsapp() { if (tab) { tab.click(); } composer.scrollIntoView({ block: 'nearest' }); }
+
+                if (tab) tab.addEventListener('click', function () { loadTemplates(); syncMode(); });
+                if (pane) pane.addEventListener('change', syncMode);
+                document.querySelectorAll('[data-wa-open]').forEach(function (a) {
+                    a.addEventListener('click', function (e) { e.preventDefault(); openWhatsapp(); });
+                });
+                @if (session('composer_tab') === 'whatsapp')
+                    openWhatsapp();
+                @endif
+            });
+        </script>
+    @endif
 @endsection

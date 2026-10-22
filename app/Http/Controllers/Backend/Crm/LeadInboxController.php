@@ -9,7 +9,10 @@ use App\Models\LeadInboundEmail;
 use App\Models\LeadNote;
 use App\Models\Task;
 use App\Models\User;
+use App\Models\WhatsappAccount;
+use App\Models\WhatsappConversation;
 use App\Services\LeadService;
+use App\Services\WhatsappService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -61,7 +64,9 @@ class LeadInboxController extends Controller
                 $w->where('contact_name', 'like', "%{$term}%")
                     ->orWhere('contact_email', 'like', "%{$term}%")
                     ->orWhere('contact_phone', 'like', "%{$term}%")
-                    ->orWhere('phone_normalized', 'like', "%{$term}%");
+                    ->orWhere('phone_normalized', 'like', "%{$term}%")
+                    ->orWhere('contact_whatsapp', 'like', "%{$term}%")
+                    ->orWhere('whatsapp_normalized', 'like', "%{$term}%");
             });
         }
 
@@ -85,7 +90,9 @@ class LeadInboxController extends Controller
 
         $timeline = [];
         $nextTask = null;
+        $wa = null;
         if ($selected) {
+            $wa = $this->whatsappState($selected);
             $selected->load(['assignee', 'customer', 'deal', 'calls', 'tasks', 'whatsappConversation', 'noteEntries.author']);
             $timeline = $this->timeline($selected);
             $nextTask = $selected->tasks
@@ -126,6 +133,7 @@ class LeadInboxController extends Controller
             'selected'   => $selected,
             'timeline'   => $timeline,
             'nextTask'   => $nextTask,
+            'wa'         => $wa,
             'channels'   => $channels,
             'chipCounts' => $chipCounts,
             'kpis'       => $kpis,
@@ -254,7 +262,9 @@ class LeadInboxController extends Controller
                 $items[] = [
                     'at'    => $m->sent_at ?? $m->created_at,
                     'type'  => 'whatsapp',
-                    'title' => $m->sender_type === 'contact' ? 'Mensaje de WhatsApp recibido' : 'Mensaje de WhatsApp enviado',
+                    'title' => $m->sender_type === 'contact'
+                        ? 'Mensaje de WhatsApp recibido'
+                        : ($m->is_template ? 'Plantilla de WhatsApp enviada' : 'Mensaje de WhatsApp enviado'),
                     'body'  => $m->content ?: '(' . $m->message_type . ')',
                 ];
             }
@@ -426,5 +436,147 @@ class LeadInboxController extends Controller
         $this->leads->recordCall($data + ['lead_id' => $lead->id]);
 
         return back()->with('success', 'Llamada registrada.');
+    }
+
+    public function updateContact(Request $request, Lead $lead)
+    {
+        $data = $request->validate([
+            'name'     => 'nullable|string|max:150',
+            'phone'    => 'nullable|string|max:40',
+            'whatsapp' => 'nullable|string|max:40',
+            'email'    => 'nullable|string|max:150',
+        ]);
+
+        $this->leads->updateContact($lead, $data);
+
+        return redirect()->route('admin.leads-inbox.index', ['lead' => $lead->id])->with('success', 'Datos de contacto actualizados.');
+    }
+
+    // ── WhatsApp desde la bandeja ───────────────────────────────────────
+
+    /** Cuenta de la API oficial con la que se escribe a este lead (la de su conversación o la primera activa). */
+    private function whatsappAccountFor(Lead $lead): ?WhatsappAccount
+    {
+        $conversation = $lead->whatsappConversation;
+        if ($conversation?->account?->is_active) {
+            return $conversation->account;
+        }
+
+        return WhatsappAccount::active()
+            ->where(fn ($q) => $q->whereNull('connection_type')->orWhere('connection_type', 'meta_cloud_api'))
+            ->orderBy('id')
+            ->first();
+    }
+
+    private function whatsappConversationFor(Lead $lead, WhatsappAccount $account): ?WhatsappConversation
+    {
+        $linked = $lead->whatsappConversation;
+        if ($linked && (int) $linked->account_id === (int) $account->id) {
+            return $linked;
+        }
+
+        $target = $lead->whatsapp_target;
+
+        return $target ? app(WhatsappService::class)->findConversationByPhone($account, $target) : null;
+    }
+
+    /** @return array{ready:bool,reason:?string,number:?string,window_open:bool,window_until:?\Illuminate\Support\Carbon} */
+    private function whatsappState(Lead $lead): array
+    {
+        $state = ['ready' => false, 'reason' => null, 'number' => $lead->whatsapp_display, 'window_open' => false, 'window_until' => null];
+
+        if (! $lead->whatsapp_target) {
+            $state['reason'] = 'Este lead no tiene número de WhatsApp ni teléfono. Captúralo en "Editar contacto".';
+
+            return $state;
+        }
+        $account = $this->whatsappAccountFor($lead);
+        if (! $account || ! $account->phone_number_id || ! $account->access_token) {
+            $state['reason'] = 'No hay una cuenta de WhatsApp API activa con credenciales. Configúrala en Integraciones.';
+
+            return $state;
+        }
+
+        $state['ready'] = true;
+        $conversation = $this->whatsappConversationFor($lead, $account);
+        $inbound = $conversation?->lastInboundMessage;
+        if ($inbound?->sent_at && $inbound->sent_at->copy()->addHours(24)->isFuture()) {
+            $state['window_open'] = true;
+            $state['window_until'] = $inbound->sent_at->copy()->addHours(24);
+        }
+
+        return $state;
+    }
+
+    /** Plantillas aprobadas (Meta) para el selector; se piden al abrir la pestaña. */
+    public function whatsappTemplates(Lead $lead, WhatsappService $service)
+    {
+        $account = $this->whatsappAccountFor($lead);
+        if (! $account) {
+            return response()->json(['templates' => []]);
+        }
+
+        return response()->json(['templates' => array_values($service->approvedTemplates($account))]);
+    }
+
+    public function sendWhatsapp(Request $request, Lead $lead, WhatsappService $service)
+    {
+        $data = $request->validate([
+            'type'          => 'required|in:text,template',
+            'text'          => 'required_if:type,text|nullable|string|max:4000',
+            'template_name' => ['required_if:type,template', 'nullable', 'string', 'max:150', 'regex:/^[a-z0-9_]+$/'],
+            'language'      => ['nullable', 'string', 'max:10', 'regex:/^[a-z]{2,3}(_[A-Za-z]{2})?$/'],
+            'params'        => 'nullable|array|max:10',
+            'params.*'      => 'nullable|string|max:1024',
+        ]);
+
+        $back = redirect()->route('admin.leads-inbox.index', ['lead' => $lead->id])->with('composer_tab', 'whatsapp');
+
+        $state = $this->whatsappState($lead);
+        if (! $state['ready']) {
+            return $back->with('error', $state['reason']);
+        }
+        if ($data['type'] === 'text' && ! $state['window_open']) {
+            return $back->withInput()->with('error', 'La ventana de 24 h está cerrada: solo puedes enviar una plantilla aprobada para reabrir la conversación.');
+        }
+
+        $account = $this->whatsappAccountFor($lead);
+        $conversation = $this->whatsappConversationFor($lead, $account) ?? WhatsappConversation::create([
+            'account_id'    => $account->id,
+            'customer_id'   => $lead->customer_id,
+            'contact_phone' => ltrim($lead->whatsapp_target, '+'),
+            'status'        => 'open',
+            'started_at'    => now(),
+            'unread_count'  => 0,
+        ]);
+
+        if ($data['type'] === 'template') {
+            $params = array_values(array_map('trim', $data['params'] ?? []));
+            if (in_array('', $params, true)) {
+                return $back->withInput()->with('error', 'Completa todos los parámetros de la plantilla.');
+            }
+            $message = $service->sendTemplateMessage($conversation, $data['template_name'], $params, $data['language'] ?? 'es_MX');
+        } else {
+            $message = $service->sendTextMessage($conversation, trim($data['text']));
+        }
+
+        if (! $message->external_message_id) {
+            // Meta no aceptó el mensaje: no se deja en el historial como si se hubiera enviado.
+            $message->delete();
+            $detail = $service->lastError['message'] ?? null;
+
+            return $back->withInput()->with('error', 'WhatsApp no aceptó el mensaje' . ($detail ? ': ' . $detail : '.') . ' Revisa Integraciones > WhatsApp API > Probar conexión.');
+        }
+
+        if ((int) $lead->whatsapp_conversation_id !== (int) $conversation->id) {
+            $lead->whatsapp_conversation_id = $conversation->id;
+        }
+        $lead->last_activity_at = now();
+        $lead->save();
+        if ($lead->status === 'nuevo') {
+            $this->leads->changeStatus($lead, 'contactado');
+        }
+
+        return $back->with('success', $data['type'] === 'template' ? 'Plantilla enviada por WhatsApp.' : 'Mensaje enviado por WhatsApp.');
     }
 }
