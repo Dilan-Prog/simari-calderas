@@ -348,8 +348,12 @@
 .lw-wa-closed b { font-size: 13.5px; font-weight: 800; color: var(--erp-ink); }
 .lw-wa-closed span { font-size: 12.5px; color: var(--erp-muted); }
 .lw-wa-mode.is-closed { display: none; }
-.lw-wa-mode { display: flex; gap: 14px; margin-bottom: 6px; font-size: 12px; font-weight: 700; color: var(--erp-text); }
-.lw-wa-mode label { display: inline-flex; align-items: center; gap: 5px; cursor: pointer; }
+.lw-wa-mode { display: inline-flex; gap: 2px; padding: 3px; margin-bottom: 8px; background: var(--erp-neu-bg); border-radius: 999px; font-size: 12px; font-weight: 700; }
+.lw-wa-mode label { position: relative; display: inline-flex; align-items: center; padding: 5px 16px; border-radius: 999px; cursor: pointer; color: var(--erp-muted); transition: background .15s, color .15s; }
+.lw-wa-mode label input { position: absolute; opacity: 0; width: 0; height: 0; pointer-events: none; }
+.lw-wa-mode label:hover { color: var(--erp-ink); }
+.lw-wa-mode label:has(input:checked) { background: var(--erp-surface); color: var(--erp-accent-dark); box-shadow: 0 1px 3px rgba(0, 0, 0, .12); }
+.lw-wa-mode label:has(input:focus-visible) { outline: 2px solid var(--erp-accent); outline-offset: 1px; }
 .lw-wa-mode input:disabled + *, .lw-wa-mode label:has(input:disabled) { opacity: .5; cursor: not-allowed; }
 .lw-wa-params { display: grid; gap: 6px; margin-top: 8px; }
 .lw-wa-params label { display: grid; gap: 3px; font-size: 12px; font-weight: 700; color: var(--erp-muted); }
