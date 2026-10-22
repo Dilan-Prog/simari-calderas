@@ -1,3 +1,6 @@
+// Bandeja de leads en vivo (consulta de actividad cada pocos segundos).
+import './leads-live.js';
+
 // ERP crm: JS del módulo (entrada de Vite).
 // Los selectores con data-crm-autosubmit envían su formulario de filtros al cambiar.
 document.addEventListener('DOMContentLoaded', () => {
