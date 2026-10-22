@@ -295,6 +295,41 @@
     display: block;
 }
 
+/* Campana de notificaciones (junto al perfil, al pie del menú) */
+.sidebar-notif-btn {
+    position: relative;
+    margin-left: auto;
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    border-radius: 10px;
+    color: #9ca3af;
+    cursor: pointer;
+    padding: 0;
+    transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.sidebar-notif-btn:hover {
+    background-color: #2E3A46;
+    color: #ffffff;
+}
+
+.sidebar-notif-dot {
+    position: absolute;
+    top: 7px;
+    right: 8px;
+    width: 8px;
+    height: 8px;
+    background-color: #ef4444;
+    border-radius: 50%;
+    border: 2px solid #141516;
+}
+
 .sidebar-logout-btn {
     width: 100%;
     display: flex;
@@ -398,6 +433,15 @@
 .admin-sidebar.collapsed .sidebar-profile {
     justify-content: center;
     padding: 6px 0;
+}
+
+.admin-sidebar.collapsed .sidebar-profile {
+    flex-direction: column;
+    gap: 6px;
+}
+
+.admin-sidebar.collapsed .sidebar-notif-btn {
+    margin-left: 0;
 }
 
 .admin-sidebar.collapsed .sidebar-profile-info {

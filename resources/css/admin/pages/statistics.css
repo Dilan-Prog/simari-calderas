@@ -14,7 +14,7 @@
    secciones vive en el sidebar principal (grupo "Estadísticas") — este
    módulo ya no trae su propio submenú lateral. */
 .stats-module {
-    height: calc(100vh - 64px);
+    height: calc(100vh - var(--admin-topbar-h));
     overflow-y: auto;
 }
 

@@ -93,7 +93,7 @@
         // ni estructura de carpetas, solo cómo se muestran los módulos.
         $groupSections = [
             'ecommerce' => ['productos', 'categorias', 'marcas', 'colecciones', 'paginas-servicio', 'galeria', 'inicio-secciones', 'menus', 'configuracion-sitio', 'integraciones', 'metodos-de-pago', 'reglas-de-envio', 'carritos-abandonados', 'ordenes'],
-            'ventas' => ['cotizaciones', 'pedidos', 'pipelines', 'embudo-de-venta', 'negocios', 'automatizaciones', 'clientes'],
+            'ventas' => ['tareas', 'cotizaciones', 'pedidos', 'pipelines', 'embudo-de-venta', 'negocios', 'automatizaciones', 'clientes'],
             'planeacion' => ['planeacion-quimicos'],
             'produccion' => ['reportes-servicio', 'servicios-tecnicos', 'monitoreo'],
             'logistica' => ['entrega-material', 'envios', 'deliveries'],
@@ -173,7 +173,7 @@
         $erpNavItems = app(\App\Services\Erp\ErpNavigation::class)->items($authUser);
         $erpNavByPerm = collect($erpNavItems)->keyBy('permission');
         $anyOf = fn (array $perms) => collect($perms)->contains(fn ($p) => $erpNavByPerm->has($p) || $authUser->hasPermission($p));
-        $ventasVisible = $anyOf(['quotes', 'sales-orders', 'pipeline', 'whatsapp', 'deals', 'automations', 'clients', 'leads-inbox', 'google-conversions']);
+        $ventasVisible = true; // incluye Tareas (panel personal, sin permiso de módulo)
         $planeacionVisible = $anyOf(['projects', 'boms', 'mrp', 'chemical-planning']);
         $produccionVisible = $anyOf(['production-orders', 'service-calendar', 'service-reports', 'technical-services', 'monitoring']);
         $logisticaVisible = $anyOf(['material-delivery-reports', 'shipments', 'pickups', 'carriers']);
@@ -192,20 +192,6 @@
                 </div>
             </a>
         @endif
-
-        {{-- Tareas: panel personal de cada usuario, siempre visible (no depende de permisos de módulos) --}}
-        <a class="sidebar-nav-item {{ $activeSection === 'tareas' ? 'active' : '' }}"
-            href="{{ route('admin.tasks.index') }}" data-section="tareas" data-label="Tareas">
-            <div class="sidebar-nav-item-left">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                    stroke-linejoin="round">
-                    <rect width="18" height="18" x="3" y="3" rx="2" />
-                    <path d="m9 12 2 2 4-4" />
-                </svg>
-                <span class="sidebar-nav-item-label">Tareas</span>
-            </div>
-        </a>
 
         {{-- ══════════════ GRUPO: ECOMMERCE ══════════════ --}}
         @if ($ecommerceVisible)
@@ -486,6 +472,20 @@
                 </svg>
             </button>
             <div class="sidebar-nav-group-body" data-group-body="ventas">
+
+                {{-- Tareas: panel personal de cada usuario, siempre visible (no depende de permisos de módulos) --}}
+                <a class="sidebar-nav-item {{ $activeSection === 'tareas' ? 'active' : '' }}"
+                    href="{{ route('admin.tasks.index') }}" data-section="tareas" data-label="Tareas">
+                    <div class="sidebar-nav-item-left">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round">
+                            <rect width="18" height="18" x="3" y="3" rx="2" />
+                            <path d="m9 12 2 2 4-4" />
+                        </svg>
+                        <span class="sidebar-nav-item-label">Tareas</span>
+                    </div>
+                </a>
 
                 {{-- Cotizaciones --}}
                 @if ($authUser->hasPermission('quotes'))
@@ -1233,6 +1233,15 @@
                 <p class="sidebar-profile-name">{{ auth()->user()->full_name }}</p>
                 <span class="sidebar-profile-email">{{ auth()->user()->email }}</span>
             </div>
+            <button type="button" class="sidebar-notif-btn" title="Notificaciones" aria-label="Notificaciones">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                    fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/>
+                    <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>
+                </svg>
+                <span class="sidebar-notif-dot"></span>
+            </button>
         </div>
         <form method="POST" action="{{ route('logout') }}">
             @csrf

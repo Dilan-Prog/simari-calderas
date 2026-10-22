@@ -44,7 +44,7 @@
        lo que quede bajo el primer viewport (la tabla completa, en cuanto
        hay más de un puñado de filas) queda inalcanzable sin scroll alguno.
        Mismo patrón ya usado en email-marketing.css/statistics.css. */
-    height: calc(100vh - 64px);
+    height: calc(100vh - var(--admin-topbar-h));
     overflow-y: auto;
     overflow-x: hidden;
     box-sizing: border-box;

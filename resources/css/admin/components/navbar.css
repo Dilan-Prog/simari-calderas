@@ -44,6 +44,39 @@
 }
 
 
+/* Alto de la barra superior: en escritorio no hay cabecera; en móvil solo la barra con el botón del menú. */
+:root {
+    --admin-topbar-h: 0px;
+}
+
+@media (max-width: 1023px) {
+    :root {
+        --admin-topbar-h: 56px;
+    }
+}
+
+.admin-mobile-bar {
+    display: none;
+}
+
+@media (max-width: 1023px) {
+    .admin-mobile-bar {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        height: var(--admin-topbar-h);
+        padding: 0 8px;
+        background-color: #141516;
+        border-bottom: 1px solid #2E3A46;
+        flex-shrink: 0;
+    }
+    .admin-mobile-bar-title {
+        color: #e5e7eb;
+        font-size: 14px;
+        font-weight: 600;
+    }
+}
+
 /* ── Cabecera superior ── */
 .admin-top-header {
     height: 64px;

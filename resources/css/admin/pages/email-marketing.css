@@ -24,7 +24,7 @@
        proveer su propio contenedor con scroll interno, o el contenido bajo
        el primer viewport (el armador de plantillas en particular) queda
        inalcanzable. Mismo patrón ya usado en dashboard.css/statistics.css. */
-    height: calc(100vh - 64px);
+    height: calc(100vh - var(--admin-topbar-h));
     overflow-y: auto;
     overflow-x: hidden;
     box-sizing: border-box;
