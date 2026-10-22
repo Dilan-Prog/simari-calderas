@@ -318,6 +318,11 @@
                                 <button class="erp-btn erp-btn--primary" type="submit">Convertir a negocio</button>
                             </form>
                         @endif
+                        @if ($selected->customer_id)
+                            <a class="erp-btn" href="{{ route('admin.clients.information', $selected->customer_id) }}">Ver cliente</a>
+                        @else
+                            <button type="button" class="erp-btn" data-lead-customer="{{ route('admin.leads-inbox.customer.form', $selected) }}">Agregar como cliente</button>
+                        @endif
                         <a class="erp-btn erp-btn--link" href="{{ route('admin.leads-inbox.show', $selected) }}">Abrir ficha completa</a>
                     </div>
                 @endif
