@@ -52,7 +52,7 @@
             <h1 class="lw-title">Bandeja de leads</h1>
             <div class="lw-toggle" role="tablist" aria-label="Vista">
                 <a class="{{ ! $isBoard ? 'is-on' : '' }}" href="{{ $inboxUrl(['view' => 'bandeja'], ['lead']) }}" role="tab" aria-selected="{{ $isBoard ? 'false' : 'true' }}">Bandeja</a>
-                <a class="{{ $isBoard ? 'is-on' : '' }}" href="{{ $inboxUrl(['view' => 'embudo'], ['lead']) }}" role="tab" aria-selected="{{ $isBoard ? 'true' : 'false' }}">Embudo</a>
+                <a href="{{ route('admin.whatsapp-funnel.index') }}" role="tab" aria-selected="false" title="Ir al Embudo de Venta">Embudo</a>
             </div>
             <details class="crm-new lw-new">
                 <summary class="erp-btn erp-btn--sm">+ Nuevo lead</summary>
@@ -119,6 +119,7 @@
                     @endforeach
                 </div>
 
+                @php $rowStages = \App\Support\LeadStages::defaultPipeline()?->stages()->get() ?? collect(); @endphp
                 <nav class="lw-rows">
                     @forelse ($leads as $l)
                         @php $unattended = $l->status === 'nuevo'; @endphp
@@ -133,7 +134,8 @@
                                 <span class="lw-row-prev {{ $unattended ? 'is-bold' : '' }}">{{ $l->preview ?: '—' }}</span>
                                 <span class="lw-row-meta">
                                     <span class="lw-row-ch" title="{{ $l->source_label }}">{!! $icon($l->source) !!}</span>
-                                    <span class="erp-inbox-tag erp-inbox-tag--{{ $l->status_tone }}">{{ $l->status_label }}</span>
+                                    @include('admin.leads-inbox._channels', ['lead' => $l, 'icon' => $icon])
+                                    <span class="erp-inbox-tag erp-inbox-tag--{{ $l->status_tone }}">{{ \App\Support\LeadStages::current($l, $rowStages ?? null)?->name ?? $l->status_label }}</span>
                                     <span class="lw-row-who">{{ $l->assignee ? $l->assignee->first_name : 'Sin asignar' }}</span>
                                 </span>
                             </span>
@@ -153,6 +155,7 @@
                         <div class="lw-conv-who">
                             <h2>{{ $selected->display_name }}</h2>
                             <p>{{ $subtitle($selected) }}</p>
+                            <div class="lw-conv-ch">@include('admin.leads-inbox._channels', ['lead' => $selected, 'icon' => $icon]) <span>{{ \App\Support\LeadChannels::label(\App\Support\LeadChannels::for($selected)) }}</span></div>
                         </div>
                         <div class="lw-actions">
                             @if ($selected->contact_phone)
@@ -167,22 +170,34 @@
                         </div>
                     </div>
 
+                    @php
+                        $pipeStages = \App\Support\LeadStages::stages($selected);
+                        $curStage = \App\Support\LeadStages::current($selected, $pipeStages);
+                        $lostStage = $pipeStages->firstWhere('is_lost', true);
+                    @endphp
                     <div class="lw-stages">
                         <ol class="lw-chevrons">
-                            @foreach ($stages as $sk => $sl)
-                                <li class="{{ $selected->status === $sk ? 'is-on' : '' }}">
-                                    @if ($selected->status === $sk)
-                                        <span>{{ $sl }}</span>
+                            @foreach ($pipeStages->where('is_lost', false) as $ps)
+                                <li class="{{ $curStage && $curStage->id === $ps->id ? 'is-on' : '' }}">
+                                    @if ($curStage && $curStage->id === $ps->id)
+                                        <span>{{ $ps->name }}</span>
                                     @else
-                                        <form method="POST" action="{{ route('admin.leads-inbox.update', $selected) }}">
-                                            @csrf @method('PUT')
-                                            <input type="hidden" name="status" value="{{ $sk }}">
-                                            <button type="submit">{{ $sl }}</button>
+                                        <form method="POST" action="{{ route('admin.leads-inbox.stage.update', $selected) }}">
+                                            @csrf
+                                            <input type="hidden" name="pipeline_stage_id" value="{{ $ps->id }}">
+                                            <button type="submit">{{ $ps->name }}</button>
                                         </form>
                                     @endif
                                 </li>
                             @endforeach
                         </ol>
+                        @if ($lostStage)
+                            <form method="POST" action="{{ route('admin.leads-inbox.stage.update', $selected) }}" class="lw-lost {{ $curStage && $curStage->id === $lostStage->id ? 'is-on' : '' }}">
+                                @csrf
+                                <input type="hidden" name="pipeline_stage_id" value="{{ $lostStage->id }}">
+                                <button type="submit" @disabled($curStage && $curStage->id === $lostStage->id)>{{ $lostStage->name }}</button>
+                            </form>
+                        @endif
                         @if (! $selected->assigned_to)
                             <form method="POST" action="{{ route('admin.leads-inbox.assign', $selected) }}">
                                 @csrf
@@ -306,12 +321,12 @@
 
                     <section class="lw-card">
                         <h3>Lead</h3>
-                        <form method="POST" action="{{ route('admin.leads-inbox.update', $selected) }}" class="lw-field">
-                            @csrf @method('PUT')
-                            <label>Etapa
-                                <select class="erp-select" name="status" onchange="this.form.submit()">
-                                    @foreach (\App\Models\Lead::STATUSES as $k => $label)
-                                        <option value="{{ $k }}" @selected($selected->status === $k)>{{ $label }}</option>
+                        <form method="POST" action="{{ route('admin.leads-inbox.stage.update', $selected) }}" class="lw-field">
+                            @csrf
+                            <label>Etapa (Embudo de Venta)
+                                <select class="erp-select" name="pipeline_stage_id" onchange="this.form.submit()">
+                                    @foreach ($pipeStages ?? \App\Support\LeadStages::stages($selected) as $ps)
+                                        <option value="{{ $ps->id }}" @selected(($curStage ?? \App\Support\LeadStages::current($selected))?->id === $ps->id)>{{ $ps->name }}</option>
                                     @endforeach
                                 </select>
                             </label>

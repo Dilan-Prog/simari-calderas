@@ -16,6 +16,24 @@ class WhatsappConversation extends Model
 {
     use HasFactory;
 
+    protected static function booted(): void
+    {
+        // Toda conversacion nueva entra a la primera etapa del Embudo de Venta (si no trae una).
+        static::creating(function (self $conversation) {
+            if (! $conversation->pipeline_stage_id && ($stage = \App\Support\LeadStages::entryStage())) {
+                $conversation->pipeline_id = $stage->pipeline_id;
+                $conversation->pipeline_stage_id = $stage->id;
+            }
+        });
+
+        // Se movio la tarjeta en el Embudo de Venta: el lead de esa conversacion toma la misma etapa.
+        static::updated(function (self $conversation) {
+            if ($conversation->wasChanged('pipeline_stage_id')) {
+                \App\Support\LeadStages::syncLeadFromConversation($conversation);
+            }
+        });
+    }
+
     public $timestamps = true;
 
     protected $fillable = [
