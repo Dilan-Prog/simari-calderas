@@ -18,9 +18,15 @@
 /* ── (a) Página de listado ──────────────────────────────────── */
 
 .shipments-page {
-    max-width: 1240px;
+    width: 100%;
+    box-sizing: border-box;
+    max-width: 1800px;
     margin: 0 auto;
-    padding: 24px 0 60px;
+    padding: 24px 24px 60px;
+}
+
+@media (max-width: 720px) {
+    .shipments-page { padding: 14px 14px 40px; }
 }
 
 .shipments-eyebrow {

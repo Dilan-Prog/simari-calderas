@@ -20,19 +20,16 @@ class VentasStatsService
         $from = $period['from'];
         $to = $period['to'];
 
-        $quotesInPeriod = Quote::whereBetween('created_at', [$from, $to])->get();
-        $acceptedInPeriod = $quotesInPeriod->where('status', 'accepted');
+        $cur = $this->metrics($from, $to);
+        $quotesInPeriod = $cur['quotes'];
+        $acceptedInPeriod = $cur['accepted'];
+        $quotedTotal = $cur['quotedTotal'];
+        $acceptedTotal = $cur['acceptedTotal'];
+        $conversionPct = $cur['conversionPct'];
+        $salesOrdersOpen = $cur['openOrders'];
 
-        $acceptedTotal = (float) $acceptedInPeriod->sum('total');
-        $quotedTotal = (float) $quotesInPeriod->sum('total');
-        $sentOrLater = $quotesInPeriod->whereIn('status', ['sent', 'accepted', 'rejected', 'expired'])->count();
-        $conversionPct = $sentOrLater > 0 ? round($acceptedInPeriod->count() / $sentOrLater * 100, 1) : 0.0;
-
-        $storeTotal = (float) StoreOrder::whereBetween('created_at', [$from, $to])->sum('total');
-
-        $salesOrdersOpen = SalesOrder::whereBetween('created_at', [$from, $to])
-            ->whereIn('status', ['pendiente', 'en_preparacion'])
-            ->count();
+        $prevRange = StatisticsFormatter::previousRange($period);
+        $prev = $prevRange ? $this->metrics($prevRange[0], $prevRange[1]) : null;
 
         $kpis = [
             [
@@ -61,6 +58,14 @@ class VentasStatsService
             ],
         ];
 
+        if ($prev) {
+            $money = fn (float $v) => StatisticsFormatter::compactMoney($v);
+            $kpis[0] = StatisticsFormatter::withComparison($kpis[0], $period, $quotedTotal, $prev['quotedTotal'], $money);
+            $kpis[1] = StatisticsFormatter::withComparison($kpis[1], $period, $acceptedTotal, $prev['acceptedTotal'], $money);
+            $kpis[2] = StatisticsFormatter::withComparison($kpis[2], $period, $conversionPct, $prev['conversionPct'], fn (float $v) => StatisticsFormatter::pct($v, 1), false, true);
+            $kpis[3] = StatisticsFormatter::withComparison($kpis[3], $period, (float) $salesOrdersOpen, (float) $prev['openOrders'], fn (float $v) => (string) (int) $v);
+        }
+
         $panels = [
             $this->ingresoCombinadoPanel($from, $to),
             $this->tendenciaMontoPanel(),
@@ -71,6 +76,28 @@ class VentasStatsService
         ];
 
         return ['kpis' => $kpis, 'panels' => $panels];
+    }
+
+    /**
+     * Métricas del KPI para un rango (se llama una vez para el periodo
+     * actual y, con la comparación activa, otra para el anterior).
+     */
+    private function metrics($from, $to): array
+    {
+        $quotes = Quote::whereBetween('created_at', [$from, $to])->get();
+        $accepted = $quotes->where('status', 'accepted');
+        $sentOrLater = $quotes->whereIn('status', ['sent', 'accepted', 'rejected', 'expired'])->count();
+
+        return [
+            'quotes'        => $quotes,
+            'accepted'      => $accepted,
+            'quotedTotal'   => (float) $quotes->sum('total'),
+            'acceptedTotal' => (float) $accepted->sum('total'),
+            'conversionPct' => $sentOrLater > 0 ? round($accepted->count() / $sentOrLater * 100, 1) : 0.0,
+            'openOrders'    => SalesOrder::whereBetween('created_at', [$from, $to])
+                ->whereIn('status', ['pendiente', 'en_preparacion'])
+                ->count(),
+        ];
     }
 
     private function ingresoCombinadoPanel($from, $to): array

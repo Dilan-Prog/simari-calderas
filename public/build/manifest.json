@@ -41,7 +41,7 @@
     "isEntry": true
   },
   "resources/css/admin/pages/audit.css": {
-    "file": "assets/audit-Btdm9tzx.css",
+    "file": "assets/audit-C2HA0dc3.css",
     "src": "resources/css/admin/pages/audit.css",
     "isEntry": true
   },
@@ -96,7 +96,7 @@
     "isEntry": true
   },
   "resources/css/admin/pages/email-marketing.css": {
-    "file": "assets/email-marketing-CgUnkyj4.css",
+    "file": "assets/email-marketing-lL-XbqB5.css",
     "src": "resources/css/admin/pages/email-marketing.css",
     "isEntry": true
   },
@@ -106,7 +106,7 @@
     "isEntry": true
   },
   "resources/css/admin/pages/erp-core.css": {
-    "file": "assets/erp-core-BMTvTYV3.css",
+    "file": "assets/erp-core-Dbxoca7c.css",
     "src": "resources/css/admin/pages/erp-core.css",
     "isEntry": true
   },
@@ -206,7 +206,7 @@
     "isEntry": true
   },
   "resources/css/admin/pages/shipments.css": {
-    "file": "assets/shipments-6GVMbXd7.css",
+    "file": "assets/shipments-CPH_Jwbb.css",
     "src": "resources/css/admin/pages/shipments.css",
     "isEntry": true
   },
@@ -216,7 +216,7 @@
     "isEntry": true
   },
   "resources/css/admin/pages/statistics.css": {
-    "file": "assets/statistics-BB5v6mR6.css",
+    "file": "assets/statistics-Dm47hRov.css",
     "src": "resources/css/admin/pages/statistics.css",
     "isEntry": true
   },
@@ -552,13 +552,13 @@
     "isEntry": true
   },
   "resources/js/admin/statistics-datepicker.js": {
-    "file": "assets/statistics-datepicker-BBlhZ5aP.js",
+    "file": "assets/statistics-datepicker-Dbd-Ufxl.js",
     "name": "statistics-datepicker",
     "src": "resources/js/admin/statistics-datepicker.js",
     "isEntry": true
   },
   "resources/js/admin/statistics-panel.js": {
-    "file": "assets/statistics-panel-DjgqLhOG.js",
+    "file": "assets/statistics-panel-DFIS9sNQ.js",
     "name": "statistics-panel",
     "src": "resources/js/admin/statistics-panel.js",
     "isEntry": true,

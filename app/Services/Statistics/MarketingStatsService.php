@@ -53,6 +53,18 @@ class MarketingStatsService
             ],
         ];
 
+        if ($prevRange = StatisticsFormatter::previousRange($period)) {
+            $prevSends = EmailSend::whereBetween('sent_at', $prevRange)->get();
+            $pTotal = $prevSends->count();
+            $int = fn (float $v) => (string) (int) $v;
+            $pct = fn (float $v) => StatisticsFormatter::pct($v, 1);
+            $rate = fn (int $n, int $t) => $t > 0 ? $n / $t * 100 : 0.0;
+            $kpis[0] = StatisticsFormatter::withComparison($kpis[0], $period, (float) $total, (float) $pTotal, $int);
+            $kpis[1] = StatisticsFormatter::withComparison($kpis[1], $period, $rate($opened, $total), $rate($prevSends->whereNotNull('opened_at')->count(), $pTotal), $pct, false, true);
+            $kpis[2] = StatisticsFormatter::withComparison($kpis[2], $period, $rate($clicked, $total), $rate($prevSends->whereNotNull('clicked_at')->count(), $pTotal), $pct, false, true);
+            $kpis[3] = StatisticsFormatter::withComparison($kpis[3], $period, (float) $bounced, (float) $prevSends->whereNotNull('bounced_at')->count(), $int, true);
+        }
+
         $panels = [
             $this->origenPanel($sends),
             $this->porMesPanel(),

@@ -47,6 +47,15 @@ class InventarioStatsService
             ],
         ];
 
+        if ($prevRange = StatisticsFormatter::previousRange($period)) {
+            $prevMovements = InventoryMovement::whereBetween('created_at', $prevRange)->get();
+            $int = fn (float $v) => number_format((int) $v);
+            $kpis[0] = StatisticsFormatter::withComparison($kpis[0], $period, (float) $movements->count(), (float) $prevMovements->count(), $int);
+            $kpis[1] = StatisticsFormatter::withComparison($kpis[1], $period, (float) $entradas->sum('quantity'), (float) $prevMovements->where('movement_type', 'entrada')->sum('quantity'), $int);
+            $kpis[2] = StatisticsFormatter::withComparison($kpis[2], $period, (float) $salidas->sum('quantity'), (float) $prevMovements->where('movement_type', 'salida')->sum('quantity'), $int);
+            // Alertas de stock bajo: estado actual del catalogo, sin historial.
+        }
+
         $panels = [
             $this->movimientosPorTipoPanel($movements),
             $this->stockBajoPanel($lowStock),

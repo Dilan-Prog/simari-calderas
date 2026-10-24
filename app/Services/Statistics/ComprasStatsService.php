@@ -61,6 +61,22 @@ class ComprasStatsService
             ],
         ];
 
+        if ($prevRange = StatisticsFormatter::previousRange($period)) {
+            $prevOrders = PurchaseOrder::whereBetween('created_at', $prevRange)->get();
+            $prevAccepted = $prevOrders->where('status', 'accepted');
+            $prevLeadTime = $this->leadTimeDaysPorOrden($prevAccepted);
+            $prevLeadTimeAvg = $prevLeadTime->isNotEmpty() ? round($prevLeadTime->avg(), 1) : 0.0;
+
+            $kpis[0] = StatisticsFormatter::withComparison($kpis[0], $period, $gastoTotal, (float) $prevAccepted->sum('total'), fn (float $v) => StatisticsFormatter::compactMoney($v));
+            $kpis[1] = StatisticsFormatter::withComparison($kpis[1], $period, (float) $accepted->count(), (float) $prevAccepted->count(), fn (float $v) => (string) (int) $v);
+            // Lead time: menos días es mejor. Si un periodo no tiene recepciones su
+            // promedio es 0 por falta de dato, no por rapidez: sin comparación.
+            if ($leadTimeDays->isNotEmpty() && $prevLeadTime->isNotEmpty()) {
+                $kpis[2] = StatisticsFormatter::withComparison($kpis[2], $period, $leadTimeRealPromedio, $prevLeadTimeAvg, fn (float $v) => $v . ' d', true);
+            }
+            $kpis[3] = StatisticsFormatter::withComparison($kpis[3], $period, (float) $proveedoresActivos, (float) $prevAccepted->pluck('supplier_id')->unique()->filter()->count(), fn (float $v) => (string) (int) $v);
+        }
+
         $panels = [
             $this->gastoPorProveedorPanel($accepted),
             $this->ordenesPorEstatusPanel($orders),

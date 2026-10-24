@@ -60,11 +60,15 @@ class StatisticsController extends Controller
 
     private function render(Request $request, string $section)
     {
+        // Solo se aceptan escalares: ?period[]=x o ?date_from[]=... llegaban como
+        // array y reventaban (TypeError, 500) contra los parámetros ?string.
+        $scalar = fn (string $key) => is_string($request->query($key)) ? $request->query($key) : null;
+
         $period = StatisticsPeriodResolver::resolve(
-            $request->query('period'),
+            $scalar('period'),
             $request->boolean('compare'),
-            $request->query('date_from'),
-            $request->query('date_to')
+            $scalar('date_from'),
+            $scalar('date_to')
         );
 
         $data = match ($section) {

@@ -14,8 +14,9 @@ class TiendaStatsService
         $to = $period['to'];
 
         $orders = StoreOrder::whereBetween('created_at', [$from, $to])->get();
-        $ingresoWeb = (float) $orders->sum('total');
-        $ticketPromedio = $orders->count() > 0 ? $ingresoWeb / $orders->count() : 0.0;
+        $cur = $this->metrics($orders);
+        $ingresoWeb = $cur['ingreso'];
+        $ticketPromedio = $cur['ticket'];
         $conFactura = $orders->where('requires_invoice', true)->count();
 
         $kpis = [
@@ -45,6 +46,15 @@ class TiendaStatsService
             ],
         ];
 
+        if ($prevRange = StatisticsFormatter::previousRange($period)) {
+            $prev = $this->metrics(StoreOrder::whereBetween('created_at', $prevRange)->get());
+            $money = fn (float $v) => StatisticsFormatter::compactMoney($v);
+            $kpis[0] = StatisticsFormatter::withComparison($kpis[0], $period, $ingresoWeb, $prev['ingreso'], $money);
+            $kpis[1] = StatisticsFormatter::withComparison($kpis[1], $period, (float) $orders->count(), (float) $prev['count'], fn (float $v) => (string) (int) $v);
+            $kpis[2] = StatisticsFormatter::withComparison($kpis[2], $period, $ticketPromedio, $prev['ticket'], $money);
+            $kpis[3] = StatisticsFormatter::withComparison($kpis[3], $period, $cur['facturaPct'], $prev['facturaPct'], fn (float $v) => StatisticsFormatter::pct($v), false, true);
+        }
+
         $panels = [
             $this->tendenciaIngresoPanel(),
             $this->pedidosPorEstatusPanel($orders),
@@ -52,6 +62,22 @@ class TiendaStatsService
         ];
 
         return ['kpis' => $kpis, 'panels' => $panels];
+    }
+
+    /**
+     * @return array{count: int, ingreso: float, ticket: float, facturaPct: float}
+     */
+    private function metrics(Collection $orders): array
+    {
+        $count = $orders->count();
+        $ingreso = (float) $orders->sum('total');
+
+        return [
+            'count'      => $count,
+            'ingreso'    => $ingreso,
+            'ticket'     => $count > 0 ? $ingreso / $count : 0.0,
+            'facturaPct' => $count > 0 ? $orders->where('requires_invoice', true)->count() / $count * 100 : 0.0,
+        ];
     }
 
     private function tendenciaIngresoPanel(): array

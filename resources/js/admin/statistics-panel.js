@@ -434,10 +434,36 @@ function initAll() {
     }
 }
 
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initAll);
-} else {
+/**
+ * Conserva el filtro (periodo / rango personalizado / comparar) al cambiar
+ * de seccion desde el menu lateral: los enlaces del sidebar son estaticos
+ * (sin query string), asi que cada cambio de seccion reiniciaba el periodo
+ * a "Este mes" y apagaba la comparacion. La query viene de
+ * `data-carry-query` en .stats-module (la arma StatisticsPeriodResolver).
+ */
+function carryFilterToSidebar() {
+    const module = document.querySelector('.stats-module[data-carry-query]');
+    const query = module ? module.dataset.carryQuery : '';
+    if (!query) return;
+
+    document.querySelectorAll('a[data-section^="estadisticas-"]').forEach((link) => {
+        try {
+            const url = new URL(link.getAttribute('href'), window.location.href);
+            new URLSearchParams(query).forEach((value, key) => url.searchParams.set(key, value));
+            link.setAttribute('href', url.pathname + url.search);
+        } catch (e) { /* href invalido: se deja el enlace como esta */ }
+    });
+}
+
+function boot() {
+    carryFilterToSidebar();
     initAll();
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', boot);
+} else {
+    boot();
 }
 
 export default StatisticsPanel;

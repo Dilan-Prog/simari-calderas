@@ -51,6 +51,18 @@ class ReportesStatsService
             ],
         ];
 
+        if ($prevRange = StatisticsFormatter::previousRange($period)) {
+            $prevReports = ServiceReport::whereBetween('created_at', $prevRange)->get();
+            $prevMeasurements = ServiceReportMeasurement::whereHas('report', fn ($q) => $q->whereBetween('created_at', $prevRange))->get();
+            $prevPendingLong = $prevReports->whereNull('signed_at')->filter(fn ($r) => $r->created_at->lt(now()->subDays(15)))->count();
+            $signedPct = fn ($rs, $sg) => $rs->count() > 0 ? $sg->count() / $rs->count() * 100 : 0.0;
+
+            $kpis[0] = StatisticsFormatter::withComparison($kpis[0], $period, (float) $reports->count(), (float) $prevReports->count(), fn (float $v) => (string) (int) $v);
+            $kpis[1] = StatisticsFormatter::withComparison($kpis[1], $period, $signedPct($reports, $signed), $signedPct($prevReports, $prevReports->whereNotNull('signed_at')), fn (float $v) => StatisticsFormatter::pct($v), false, true);
+            $kpis[2] = StatisticsFormatter::withComparison($kpis[2], $period, (float) $outOfRange->count(), (float) $prevMeasurements->filter(fn ($m) => $m->in_range === false)->count(), fn (float $v) => (string) (int) $v, true);
+            $kpis[3] = StatisticsFormatter::withComparison($kpis[3], $period, (float) $pendingLong->count(), (float) $prevPendingLong, fn (float $v) => (string) (int) $v, true);
+        }
+
         $panels = [
             $this->fueraDeRangoPanel($outOfRange, $measurements->count()),
             $this->firmadosPanel($reports),

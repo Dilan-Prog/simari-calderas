@@ -72,6 +72,23 @@ class EmbudoStatsService
             ],
         ];
 
+        if ($prevRange = StatisticsFormatter::previousRange($period)) {
+            [$pFrom, $pTo] = $prevRange;
+            $prevVelocity = $this->dealReports->pipelineVelocity($pipeline->id, $pFrom, $pTo);
+            $prevLost = Deal::where('pipeline_id', $pipeline->id)->where('status', 'lost')
+                ->whereBetween('closed_at', [$pFrom, $pTo])->count();
+            $prevClosed = $prevVelocity['total_won'] + $prevLost;
+            $conversion = fn (int $won, int $closed) => $closed > 0 ? $won / $closed * 100 : 0.0;
+
+            $kpis[0] = StatisticsFormatter::withComparison($kpis[0], $period, (float) $velocity['total_won'], (float) $prevVelocity['total_won'], fn (float $v) => (string) (int) $v);
+            $kpis[1] = StatisticsFormatter::withComparison($kpis[1], $period, $conversion($velocity['total_won'], $totalCerrados), $conversion($prevVelocity['total_won'], $prevClosed), fn (float $v) => StatisticsFormatter::pct($v), false, true);
+            // Días de cierre: menos es mejor; sin negocios ganados el promedio es 0 por falta de dato.
+            if ($velocity['total_won'] > 0 && $prevVelocity['total_won'] > 0) {
+                $kpis[2] = StatisticsFormatter::withComparison($kpis[2], $period, (float) $velocity['avg_days_to_close'], (float) $prevVelocity['avg_days_to_close'], fn (float $v) => $v . ' d', true);
+            }
+            // Negocios abiertos: estado actual del pipeline, sin historial.
+        }
+
         $panels = [
             $this->embudoPanel($pipeline->id),
             $this->desempenoPorEtapaPanel($pipeline->id),

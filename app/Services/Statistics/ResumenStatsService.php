@@ -67,6 +67,18 @@ class ResumenStatsService
             ],
         ];
 
+        if ($prevRange = StatisticsFormatter::previousRange($period)) {
+            [$pFrom, $pTo] = $prevRange;
+            $prevIngreso = (float) Quote::where('status', 'accepted')->whereBetween('created_at', [$pFrom, $pTo])->sum('total')
+                + (float) StoreOrder::whereBetween('created_at', [$pFrom, $pTo])->sum('total');
+            $prevServicios = TechnicalService::whereBetween('created_at', [$pFrom, $pTo])->count();
+
+            $kpis[0] = StatisticsFormatter::withComparison($kpis[0], $period, $ingresoCombinado, $prevIngreso, fn (float $v) => StatisticsFormatter::compactMoney($v));
+            $kpis[1] = StatisticsFormatter::withComparison($kpis[1], $period, (float) $serviciosAtendidos, (float) $prevServicios, fn (float $v) => (string) (int) $v);
+            // Pedidos abiertos y alertas de inventario son el estado de hoy
+            // (sin historial), no tienen contraparte en el periodo anterior.
+        }
+
         $panels = [
             $this->ingresoCombinadoPanel($ingresoB2B, $ingresoTienda),
             $this->pedidosPorEstatusPanel(),

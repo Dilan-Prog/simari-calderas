@@ -80,7 +80,7 @@
     .mon-suggest button:hover { background: var(--erp-accent-soft, #fff4ec); }
     .mon-rel { position: relative; }
 
-    .mon-chart-wrap { max-width: 760px; }
+    .mon-chart-wrap { max-width: 1100px; }
 
     /* Menú desplegable de exportación */
     details.mon-menu { position: relative; }

@@ -5,7 +5,7 @@
 @endsection
 
 @section('content')
-<div class="stats-module">
+<div class="stats-module" data-carry-query="{{ http_build_query($period['query']) }}">
     <div class="stats-content">
         <div class="stats-breadcrumb">Panel de Control &gt; Estadísticas &gt; <span>{{ $section['title'] }}</span></div>
 
@@ -18,6 +18,12 @@
 
         <form method="GET" id="statsPeriodForm" class="stats-filterbar">
             <div class="stats-filterbar-label">Periodo</div>
+            {{-- Conserva el preset activo cuando el formulario se envía sin pulsar un
+                 botón de periodo (el toggle de comparar hace form.submit(), que no
+                 incluye ningún botón submit). Va ANTES de los botones: si se pulsa
+                 uno, su value llega después y prevalece. En rango personalizado va
+                 vacío (date_from/date_to mandan). --}}
+            <input type="hidden" name="period" value="{{ $period['period'] === 'custom' ? '' : $period['period'] }}">
             <div class="stats-period-group">
                 @foreach ($periods as $slug => $label)
                     <button type="submit" name="period" value="{{ $slug }}"
@@ -49,7 +55,11 @@
                 <span class="stats-compare-knob"></span>
                 <span class="stats-compare-label">Comparar con {{ $period['compareLabel'] }}</span>
             </label>
-            <div class="stats-filterbar-hint">El filtro aplica a toda la página · cada panel hereda el rango</div>
+            @if ($period['compare'] && $period['compareRangeLabel'])
+                <div class="stats-filterbar-hint" id="statsCompareHint">Comparando {{ $period['rangeLabel'] }} contra {{ $period['compareRangeLabel'] }} ({{ $period['compareLabel'] }}) · las tarjetas muestran la variación</div>
+            @else
+                <div class="stats-filterbar-hint">El filtro aplica a toda la página · cada panel hereda el rango</div>
+            @endif
         </form>
 
         {{-- ═══ Modal del selector de rango, fuera del <form> (mismo patrón que
@@ -151,7 +161,7 @@
                 <div class="stats-domains-title">Entrar a un dominio</div>
                 <div class="stats-domains-grid">
                     @foreach ($domainCards as $card)
-                        <a href="{{ route('admin.statistics.show', $card['id']) }}" class="stats-domain-card">
+                        <a href="{{ route('admin.statistics.show', ['section' => $card['id']] + $period['query']) }}" class="stats-domain-card">
                             <div class="stats-domain-top">
                                 <div class="stats-domain-chip" style="background:{{ $card['chipBg'] }};color:{{ $card['chipColor'] }}">{!! $card['icon'] !!}</div>
                                 <div class="stats-domain-title">{{ $card['title'] }}</div>

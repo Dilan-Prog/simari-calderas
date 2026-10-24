@@ -15,6 +15,10 @@
     var MSHORT = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
 
     var state = { startDate: null, endDate: null, hoverDate: null, leftMonth: null, rightMonth: null };
+    // Rango ya aplicado (el que muestra la pagina). Cancelar / Escape / clic
+    // fuera / cerrar descartan una seleccion a medias y vuelven a este rango;
+    // antes quedaba la seleccion parcial al reabrir el modal.
+    var committed = { startDate: null, endDate: null };
 
     function norm(d) { return new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
 
@@ -63,6 +67,13 @@
     function closeModal() {
         document.getElementById('statsDatePickerOverlay').classList.remove('stats-dp-open');
         state.hoverDate = null;
+        state.startDate = committed.startDate;
+        state.endDate = committed.endDate;
+        // "Limpiar" vacia los inputs ocultos; si luego se cancela, deben volver
+        // al rango aplicado o el siguiente envio del formulario (p. ej. el
+        // toggle de comparar) perderia el rango personalizado.
+        var f = document.getElementById('statsDateFrom'), t = document.getElementById('statsDateTo');
+        if (f && t) { f.value = fmtISO(committed.startDate); t.value = fmtISO(committed.endDate); }
     }
 
     function renderCalendars() {
@@ -225,6 +236,7 @@
         document.getElementById('statsDateFrom').value = fmtISO(r.s);
         document.getElementById('statsDateTo').value = fmtISO(r.e);
         updateTrigger(r.s, r.e);
+        committed.startDate = r.s; committed.endDate = r.e;
         closeModal();
         document.getElementById('statsPeriodForm').submit();
     }
@@ -241,6 +253,7 @@
         document.getElementById('statsDateFrom').value = fmtISO(s);
         document.getElementById('statsDateTo').value = fmtISO(e);
         updateTrigger(s, e);
+        committed.startDate = s; committed.endDate = e;
         closeModal();
         document.getElementById('statsPeriodForm').submit();
     }
@@ -286,6 +299,7 @@
             var r = effectiveRange();
             updateTrigger(r.s, r.e);
         }
+        committed.startDate = state.startDate; committed.endDate = state.endDate;
 
         trg.addEventListener('click', openModal);
         document.getElementById('statsDpCloseBtn').addEventListener('click', closeModal);
@@ -299,7 +313,7 @@
             if (e.target === this) closeModal();
         });
         document.addEventListener('keydown', function (e) {
-            if (e.key === 'Escape') closeModal();
+            if (e.key === 'Escape' && document.getElementById('statsDatePickerOverlay').classList.contains('stats-dp-open')) closeModal();
         });
 
         document.querySelectorAll('[data-quick-range]').forEach(function (btn) {

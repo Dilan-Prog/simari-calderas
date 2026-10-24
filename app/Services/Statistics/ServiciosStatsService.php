@@ -56,6 +56,15 @@ class ServiciosStatsService
             ],
         ];
 
+        if ($prevRange = StatisticsFormatter::previousRange($period)) {
+            $prevServices = TechnicalService::with('assignedTechnicians')->whereBetween('created_at', $prevRange)->get();
+            $int = fn (float $v) => (string) (int) $v;
+            $kpis[0] = StatisticsFormatter::withComparison($kpis[0], $period, (float) $services->count(), (float) $prevServices->count(), $int);
+            $kpis[1] = StatisticsFormatter::withComparison($kpis[1], $period, (float) $completed->count(), (float) $prevServices->where('status', 'completed')->count(), $int);
+            $kpis[2] = StatisticsFormatter::withComparison($kpis[2], $period, (float) $inProgress->count(), (float) $prevServices->where('status', 'in_progress')->count(), $int);
+            $kpis[3] = StatisticsFormatter::withComparison($kpis[3], $period, (float) $technicianCount, (float) $prevServices->flatMap(fn ($s) => $s->assignedTechnicians->pluck('id'))->unique()->count(), $int);
+        }
+
         $panels = [
             $this->porEstatusPanel($services),
             $this->participacionTecnicoPanel($services),
