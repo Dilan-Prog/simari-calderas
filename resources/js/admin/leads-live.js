@@ -6,6 +6,48 @@ import { restoreSections, sectionStates } from './lead-inbox-ui.js';
 const POLL_MS = 5000;
 const SLOW_MS = 20000;
 
+// El compositor no se reemplaza (para no perder lo que escribes), pero la ventana de 24 h de WhatsApp puede
+// abrirse (el cliente escribio) o cerrarse mientras tanto: se ajusta solo lo que depende de ella.
+function syncWhatsappWindow(shell, next) {
+    const cur = shell.querySelector('[data-pane="whatsapp"] [data-wa-form]');
+    const nxt = next.querySelector('[data-pane="whatsapp"] [data-wa-form]');
+    if (!cur || !nxt || cur.dataset.waWindow === nxt.dataset.waWindow) return;
+
+    const opened = nxt.dataset.waWindow === 'open';
+    cur.dataset.waWindow = nxt.dataset.waWindow;
+
+    const mode = cur.querySelector('.lw-wa-mode');
+    const nextMode = nxt.querySelector('.lw-wa-mode');
+
+    // Aviso "Ventana de 24 h cerrada" (va justo antes del selector Mensaje / Plantilla).
+    const curNotice = cur.querySelector('.lw-wa-closed');
+    const nextNotice = nxt.querySelector('.lw-wa-closed');
+    if (nextNotice && !curNotice && mode) mode.before(nextNotice.cloneNode(true));
+    else if (!nextNotice && curNotice) curNotice.remove();
+
+    // Selector Mensaje / Plantilla, caja de texto y emoji.
+    if (mode && nextMode) mode.className = nextMode.className;
+    ['[data-wa-mode][value="text"]', 'textarea[name="text"]', '[data-lw-emoji-toggle]'].forEach((sel) => {
+        const a = cur.querySelector(sel);
+        const b = nxt.querySelector(sel);
+        if (a && b) a.disabled = b.disabled;
+    });
+
+    // Respuestas rapidas: solo existen con la ventana abierta (van justo antes del panel de WhatsApp).
+    const pane = cur.closest('[data-pane="whatsapp"]');
+    const quick = pane?.parentElement.querySelector('[data-lw-quick]');
+    const nextQuick = next.querySelector('[data-lw-quick]');
+    if (nextQuick && !quick && pane) pane.parentElement.insertBefore(nextQuick.cloneNode(true), pane);
+    else if (!nextQuick && quick) quick.remove();
+
+    // Abierta: lo natural es escribir un mensaje; cerrada: solo plantilla.
+    const radio = cur.querySelector(`[data-wa-mode][value="${opened ? 'text' : 'template'}"]`);
+    if (radio && !radio.checked) {
+        radio.checked = true;
+        radio.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+}
+
 function start() {
     const shell = document.querySelector('[data-lw]');
     if (!shell) return;
@@ -58,6 +100,7 @@ function start() {
         }
         swap('.lw-conv-head', next);
         swap('.lw-stages', next);
+        syncWhatsappWindow(shell, next);
 
         // Panel de datos: no se reemplaza mientras tengas un campo enfocado ahi (p. ej. un desplegable abierto).
         const info = shell.querySelector('.lw-info');

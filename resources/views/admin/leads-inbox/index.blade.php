@@ -313,7 +313,7 @@
                                 <p class="lw-soon">{{ $wa['reason'] ?? 'WhatsApp no está disponible para este lead.' }}</p>
                                 @if ($phoneDigits)<a class="erp-btn erp-btn--sm" href="https://wa.me/{{ $phoneDigits }}" target="_blank" rel="noopener">Abrir WhatsApp</a>@endif
                             @else
-                                <form method="POST" action="{{ route('admin.leads-inbox.whatsapp.send', $selected) }}" data-wa-form>
+                                <form method="POST" action="{{ route('admin.leads-inbox.whatsapp.send', $selected) }}" data-wa-form data-wa-window="{{ $wa['window_open'] ? 'open' : 'closed' }}">
                                     @csrf
                                     @unless ($wa['window_open'])
                                         <div class="lw-wa-closed">
@@ -482,13 +482,11 @@
 
                     @includeIf('admin.leads-inbox._log', ['lead' => $selected])
 
-                    <div class="lw-cta">
-                        @if ($selected->customer_id)
+                    @if ($selected->customer_id)
+                        <div class="lw-cta">
                             <a class="erp-btn" href="{{ route('admin.clients.information', $selected->customer_id) }}">Ver cliente</a>
-                        @else
-                            <button type="button" class="erp-btn" data-lead-customer="{{ route('admin.leads-inbox.customer.form', $selected) }}">Agregar como cliente</button>
-                        @endif
-                    </div>
+                        </div>
+                    @endif
                 @endif
             </aside>
         </div>

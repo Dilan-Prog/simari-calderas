@@ -337,6 +337,30 @@ class LeadWhatsappSendTest extends TestCase
         $html = $this->actingAs($this->admin)->get(route('admin.leads-inbox.index', ['lead' => $lead->id]))->assertOk()->getContent();
 
         $this->assertStringContainsString('Ventana de 24 h cerrada', $html);
+        $this->assertStringContainsString('data-wa-window="closed"', $html);
+    }
+
+    public function test_la_ventana_abierta_se_marca_para_que_la_bandeja_en_vivo_la_actualice(): void
+    {
+        $account = $this->account();
+        $lead = $this->lead();
+        $this->conversationWithInbound($account, $lead, 1);
+
+        $html = $this->actingAs($this->admin)->get(route('admin.leads-inbox.index', ['lead' => $lead->id]))->assertOk()->getContent();
+
+        $this->assertStringContainsString('data-wa-window="open"', $html);
+        $this->assertStringNotContainsString('class="lw-wa-closed"', $html);
+    }
+
+    public function test_agregar_como_cliente_aparece_una_sola_vez_en_el_panel_derecho(): void
+    {
+        $account = $this->account();
+        $lead = $this->lead();
+        $this->conversationWithInbound($account, $lead, 1);
+
+        $html = $this->actingAs($this->admin)->get(route('admin.leads-inbox.index', ['lead' => $lead->id]))->assertOk()->getContent();
+
+        $this->assertSame(1, substr_count($html, 'data-lead-customer="'));
     }
 
     public function test_las_rutas_nuevas_exigen_permiso_de_editar(): void
