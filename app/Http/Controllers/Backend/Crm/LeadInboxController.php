@@ -569,6 +569,11 @@ class LeadInboxController extends Controller
             // Meta no aceptó el mensaje: no se deja en el historial como si se hubiera enviado.
             $message->delete();
             $detail = $service->lastError['message'] ?? null;
+            $code = (int) ($service->lastError['code'] ?? 0);
+
+            if ($code === 190) {
+                return $back->withInput()->with('error', 'WhatsApp rechazó el token de acceso (expirado o inválido). Recibir mensajes sigue funcionando, pero para enviar hay que poner un Access Token vigente en Integraciones > WhatsApp API > Credenciales > Editar (usa un token permanente de usuario del sistema).');
+            }
 
             return $back->withInput()->with('error', 'WhatsApp no aceptó el mensaje' . ($detail ? ': ' . $detail : '.') . ' Revisa Integraciones > WhatsApp API > Probar conexión.');
         }
