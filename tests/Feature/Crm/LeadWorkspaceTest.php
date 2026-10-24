@@ -181,6 +181,21 @@ class LeadWorkspaceTest extends TestCase
         $this->assertSame('Cercana', $this->data([], 'nextTask')->title);
     }
 
+    public function test_el_panel_lista_todas_las_tareas_abiertas_del_lead(): void
+    {
+        $lead = $this->lead();
+        $lead->tasks()->create(['title' => 'Llamar al cliente', 'status' => 'open', 'due_at' => now()->addDay()]);
+        $lead->tasks()->create(['title' => 'Enviar ficha tecnica', 'status' => 'open', 'due_at' => now()->addDays(2)]);
+        $lead->tasks()->create(['title' => 'Tarea cerrada vieja', 'status' => 'closed']);
+
+        $html = $this->actingAs($this->admin)->get(route('admin.leads-inbox.index', ['lead' => $lead->id]))->assertOk()->getContent();
+        $this->assertStringContainsString('Tareas (2)', $html);
+        $this->assertStringContainsString('Llamar al cliente', $html);
+        $this->assertStringContainsString('Enviar ficha tecnica', $html);
+        $panel = substr($html, strpos($html, 'data-sec="tarea"'), 2500);
+        $this->assertStringNotContainsString('Tarea cerrada vieja', substr($panel, 0, strpos($panel, 'data-sec="bitacora"') ?: 2500));
+    }
+
     public function test_agregar_nota_guarda_valida_y_aparece_en_timeline(): void
     {
         $lead = $this->lead(['last_activity_at' => now()->subDays(3)]);

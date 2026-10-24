@@ -39,6 +39,10 @@
 
 .eq-toasts { position: fixed; bottom: 16px; right: 16px; z-index: 10060; display: flex; flex-direction: column; gap: 10px; width: 360px; max-width: calc(100vw - 24px); pointer-events: none; }
 .eq-toast { position: relative; pointer-events: auto; display: flex; gap: 10px; padding: 12px 34px 14px 12px; background: var(--erp-surface, #fff); border: 1px solid var(--erp-line, #e6e8eb); border-left: 4px solid var(--erp-accent, #f97316); border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,.2); cursor: pointer; overflow: hidden; font-family: Inter, system-ui, sans-serif; animation: eqToastIn .2s ease-out; }
+.eq-toast.is-ok { border-left-color: var(--erp-ok-dot, #16a34a); }
+.eq-toast.is-err { border-left-color: var(--erp-bad, #b91c1c); }
+.eq-toast.is-ok .eq-notif-ico { color: var(--erp-ok, #15803d); }
+.eq-toast.is-err .eq-notif-ico { color: var(--erp-bad, #b91c1c); }
 .eq-toast.is-leaving { opacity: 0; transform: translateX(24px); transition: opacity .2s, transform .2s; }
 .eq-toast-close { position: absolute; top: 6px; right: 6px; width: 24px; height: 24px; border: 0; border-radius: 6px; background: none; color: var(--erp-muted, #6b7280); font-size: 18px; line-height: 1; cursor: pointer; }
 .eq-toast-close:hover { background: var(--erp-neu-bg, #f0f1f3); color: var(--erp-ink, #17191c); }

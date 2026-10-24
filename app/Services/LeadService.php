@@ -288,10 +288,37 @@ class LeadService
 
             if ($isNew) {
                 $this->notifyIncoming($lead);
+                // manual: lo registra una persona; llamada: el flujo de llamadas ya crea su propia tarea de seguimiento
+                if (empty($data['skip_arrival_task']) && ! in_array($source, ['manual', 'llamada'], true)) {
+                    $this->createArrivalTask($lead);
+                }
             }
 
             return $lead->fresh();
         });
+    }
+
+    /** Tarea "Lead nuevo" en Tareas cuando entra un lead por cualquier medio (no aplica a manual ni llamada). */
+    private function createArrivalTask(Lead $lead): void
+    {
+        try {
+            $channel = Lead::SOURCES[$lead->source] ?? ucfirst((string) $lead->source);
+            $contact = collect([$lead->contact_phone ? 'Tel. ' . $lead->contact_phone : null, $lead->contact_email])->filter()->implode(' · ');
+
+            Task::create([
+                'taskable_type' => Lead::class,
+                'taskable_id'   => $lead->id,
+                'assigned_to'   => $lead->assigned_to,
+                'title'         => 'Llegó un lead nuevo por ' . $channel . ': ' . $lead->display_name,
+                'description'   => 'Lead nuevo en la Bandeja de leads (' . $channel . ')' . ($contact !== '' ? ' · ' . $contact : '') . '. Atiéndelo y dale seguimiento.',
+                'type'          => array_key_exists($lead->source, Task::TYPES) ? $lead->source : null,
+                'priority'      => 'alta',
+                'due_at'        => now()->addHour(),
+                'status'        => 'open',
+            ]);
+        } catch (\Throwable $e) {
+            report($e);
+        }
     }
 
     /** Notificación persistente "Lead nuevo · canal" (nunca rompe la captura). */
@@ -368,6 +395,7 @@ class LeadService
 
             $lead = $this->capture([
                 'source' => 'correo',
+                'skip_arrival_task' => true, // el correo ya genera su propia tarea "Atender solicitud por correo"
                 'name'   => $data['name'] ?? null,
                 'email'  => $data['email'],
                 'phone'  => $data['phone'] ?? null,

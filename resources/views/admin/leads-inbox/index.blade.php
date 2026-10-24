@@ -59,9 +59,23 @@
     @endphp
 
     <div class="lw-shell {{ $selected ? 'has-lead' : '' }}" data-lw>
-        @if (session('success'))<div class="crm-flash ok lw-flash" role="status">{{ session('success') }}</div>@endif
-        @if (session('error'))<div class="crm-flash err lw-flash" role="alert">{{ session('error') }}</div>@endif
-        @if ($errors->any())<div class="crm-flash err lw-flash" role="alert">{{ $errors->first() }}</div>@endif
+        {{-- Confirmaciones y errores salen como aviso emergente (mismo estilo que las notificaciones), no como barra fija. --}}
+        @if (session('success') || session('error') || $errors->any())
+            <script>
+                document.addEventListener('DOMContentLoaded', function () {
+                    if (!window.eqToast) return;
+                    @if (session('success'))
+                        window.eqToast({ type: 'ok', title: 'Listo', body: @json(session('success'), JSON_UNESCAPED_UNICODE) });
+                    @endif
+                    @if (session('error'))
+                        window.eqToast({ type: 'err', title: 'No se pudo completar', body: @json(session('error'), JSON_UNESCAPED_UNICODE) });
+                    @endif
+                    @if ($errors->any())
+                        window.eqToast({ type: 'err', title: 'Revisa los datos', body: @json($errors->first(), JSON_UNESCAPED_UNICODE) });
+                    @endif
+                });
+            </script>
+        @endif
 
         <header class="lw-top">
             <h1 class="lw-title">Bandeja de leads</h1>
@@ -467,16 +481,17 @@
                     </details>
 
                     <details class="lw-card lw-sec" data-sec="tarea" open>
-                        <summary class="lw-sec-h"><h3>Próxima tarea</h3><span class="lw-sec-chev" aria-hidden="true"></span></summary>
+                        <summary class="lw-sec-h"><h3>Tareas @if ($openTasks->count())({{ $openTasks->count() }})@endif</h3><span class="lw-sec-chev" aria-hidden="true"></span></summary>
                         <div class="lw-sec-b">
-                        @if ($nextTask)
-                            <a class="lw-task" href="{{ route('admin.tasks.show', $nextTask) }}">
-                                <b>{{ $nextTask->title }}</b>
-                                <span>Vence {{ $nextTask->due_at ? $nextTask->due_at->format('d/m/Y H:i') : 'sin fecha' }}</span>
+                        @forelse ($openTasks as $t)
+                            <a class="lw-task {{ $loop->first ? 'is-next' : '' }}" href="{{ route('admin.tasks.show', $t) }}">
+                                @if ($loop->first && $openTasks->count() > 1)<em class="lw-task-tag">Próxima</em>@endif
+                                <b>{{ $t->title }}</b>
+                                <span>Vence {{ $t->due_at ? $t->due_at->format('d/m/Y H:i') : 'sin fecha' }}@if ($t->due_at && $t->due_at->isPast()) · <i class="lw-task-late">vencida</i>@endif · {{ $t->assignee?->first_name ?? 'Sin responsable' }}</span>
                             </a>
-                        @else
+                        @empty
                             <p class="lw-muted">Sin tareas pendientes.</p>
-                        @endif
+                        @endforelse
                         <button type="button" class="erp-btn erp-btn--sm lw-newtask" data-task-modal-open="lead">+ Crear tarea</button>
                         </div>
                     </details>

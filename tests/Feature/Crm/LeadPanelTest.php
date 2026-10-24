@@ -94,7 +94,7 @@ class LeadPanelTest extends TestCase
             ->assertSee('data-sec="notas"', false)->assertSee('data-sec="bitacora"', false);
 
         // Orden del panel derecho: Notas, luego Proxima tarea.
-        $this->assertLessThan(strpos($html, 'Próxima tarea'), strpos($html, 'Escribe una nota interna'));
+        $this->assertLessThan(strpos($html, 'data-sec="tarea"'), strpos($html, 'Escribe una nota interna'));
     }
 
     public function test_el_modal_de_tarea_del_lead_viene_con_sus_datos(): void

@@ -4,6 +4,45 @@
  * Cada respuesta del feed dispara window 'equiterm:hot' con detail = {leads:[ids], tasks:[ids]}
  * (para resaltar filas en bandeja/embudo/tareas; escuchar con window.addEventListener('equiterm:hot', e => e.detail)).
  */
+// Aviso emergente reutilizable por cualquier pantalla (confirmaciones y errores): window.eqToast({ type: 'ok'|'err'|'task'..., title, body, seconds }).
+// Usa el mismo contenedor, estilo y duracion (preferencia del usuario) que los avisos de la campana.
+window.eqToastSeconds = window.eqToastSeconds ?? 30;
+window.eqToast = function (it) {
+    const wrap = document.getElementById('eqToasts');
+    if (!wrap) return;
+    const paths = {
+        ok: '<path d="M20 6L9 17l-5-5"/>',
+        err: '<circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/>',
+        lead_incoming: '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>',
+        lead_reply: '<polyline points="9 17 4 12 9 7"/><path d="M20 18v-2a4 4 0 0 0-4-4H4"/>',
+        task: '<path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>',
+    };
+    const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    const t = document.createElement('div');
+    t.className = 'eq-toast' + (it.type === 'ok' ? ' is-ok' : it.type === 'err' ? ' is-err' : '');
+    t.setAttribute('role', it.type === 'err' ? 'alert' : 'status');
+    t.innerHTML = '<span class="eq-notif-ico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + (paths[it.type] || paths.task) + '</svg></span>' +
+        '<span class="eq-notif-txt"><span class="eq-notif-title">' + esc(it.title) + '</span>' + (it.body ? '<span class="eq-notif-body">' + esc(it.body) + '</span>' : '') + '</span>';
+    const x = document.createElement('button');
+    x.type = 'button'; x.className = 'eq-toast-close'; x.setAttribute('aria-label', 'Cerrar aviso'); x.innerHTML = '&times;';
+    t.appendChild(x);
+    while (wrap.children.length >= 4) wrap.firstElementChild.remove();
+    const close = () => { t.classList.add('is-leaving'); setTimeout(() => t.remove(), 220); };
+    const secs = it.seconds ?? window.eqToastSeconds;
+    if (secs > 0) {
+        const bar = document.createElement('div');
+        bar.className = 'eq-toast-bar';
+        t.appendChild(bar);
+        const anim = bar.animate([{ transform: 'scaleX(1)' }, { transform: 'scaleX(0)' }], { duration: secs * 1000, fill: 'forwards', easing: 'linear' });
+        anim.onfinish = close;
+        t.addEventListener('mouseenter', () => anim.pause());
+        t.addEventListener('mouseleave', () => anim.play());
+    }
+    x.addEventListener('click', (e) => { e.stopPropagation(); close(); });
+    t.addEventListener('click', () => { close(); if (it.url) window.location.href = it.url; });
+    wrap.appendChild(t);
+};
+
 (function () {
     const btn = document.getElementById('eqNotifBtn');
     const wrap = document.getElementById('eqToasts');
@@ -142,6 +181,7 @@
         api(url).then((d) => {
             if (d.enabled === false) { btn.hidden = true; stop(); return; }
             state.seconds = d.toast_seconds ?? state.seconds;
+            window.eqToastSeconds = state.seconds;
             state.unread = d.unread ?? 0;
             const items = d.items || [];
             if (state.first) {

@@ -90,6 +90,7 @@ class LeadInboxController extends Controller
 
         $timeline = [];
         $nextTask = null;
+        $openTasks = collect();
         $wa = null;
         if ($selected && $request->filled('lead')) {
             // Abrir el lead desde un aviso: lo marca como leído y quita el resaltado de "respuesta pendiente".
@@ -98,12 +99,13 @@ class LeadInboxController extends Controller
         }
         if ($selected) {
             $wa = $this->whatsappState($selected);
-            $selected->load(['assignee', 'customer', 'deal', 'calls', 'tasks', 'whatsappConversation', 'noteEntries.author']);
+            $selected->load(['assignee', 'customer', 'deal', 'calls', 'tasks.assignee', 'whatsappConversation', 'noteEntries.author']);
             $timeline = $this->timeline($selected);
-            $nextTask = $selected->tasks
+            $openTasks = $selected->tasks
                 ->where('status', 'open')
                 ->sortBy(fn ($t) => [$t->due_at ? 0 : 1, $t->due_at?->timestamp ?? 0, $t->id])
-                ->first();
+                ->values();
+            $nextTask = $openTasks->first();
         }
 
         $bySource = Lead::open()->selectRaw('source, count(*) as c')->groupBy('source')->pluck('c', 'source');
@@ -138,6 +140,7 @@ class LeadInboxController extends Controller
             'selected'   => $selected,
             'timeline'   => $timeline,
             'nextTask'   => $nextTask,
+            'openTasks'  => $openTasks,
             'wa'         => $wa,
             'channels'   => $channels,
             'chipCounts' => $chipCounts,
