@@ -11,7 +11,10 @@
    totalmente distinto, no confundir.
    ============================================================ */
 
-.pipelines-page {
+/* Las variables --pp-* tambien deben llegar a los modales: se incluyen fuera de .pipelines-page,
+   y sin ellas el check de los interruptores, el boton Guardar y los bordes no se ven. */
+.pipelines-page,
+.pp-modal-overlay {
     --pp-bg-app:        #f2f3f5;
     --pp-bg-panel:      #ffffff;
     --pp-bg-subtle:     #fbfbfc;
@@ -36,7 +39,9 @@
     --pp-purple-soft:   #f1ebfd;
     --pp-shadow-sm:      var(--shadow-sm, 0 1px 2px rgba(0,0,0,.06));
     --pp-shadow-md:      var(--shadow-md, 0 10px 20px rgba(0,0,0,.1));
+}
 
+.pipelines-page {
     font-family: 'Inter Tight', var(--font-family, 'Inter'), system-ui, sans-serif;
     color: var(--pp-text);
     padding: 28px 24px 70px;

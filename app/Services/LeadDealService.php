@@ -29,8 +29,8 @@ class LeadDealService
             throw ValidationException::withMessages(['lead' => 'Para crear un negocio primero agrega al lead como cliente.']);
         }
 
-        $pipeline = Pipeline::query()->deals()->where('is_active', true)->orderByDesc('is_default')->orderBy('id')->first();
-        if (! $pipeline || ! $pipeline->stages()->exists()) {
+        $pipeline = Pipeline::defaultForDeals();
+        if (! $pipeline) {
             throw ValidationException::withMessages(['lead' => 'No hay un embudo de Negocios activo con etapas para crear el negocio.']);
         }
 

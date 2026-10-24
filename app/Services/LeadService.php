@@ -791,8 +791,8 @@ class LeadService
             return $d;
         }
 
-        $pipeline = Pipeline::query()->deals()->where('is_active', true)->orderByDesc('is_default')->orderBy('id')->first();
-        if (! $pipeline || ! $pipeline->stages()->exists()) {
+        $pipeline = Pipeline::defaultForDeals();
+        if (! $pipeline) {
             return null;
         }
 

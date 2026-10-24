@@ -213,4 +213,24 @@ class LeadDealTest extends TestCase
 
         $this->assertSame('https://sigma-alimentos.com', Customer::where('email', 'nuevo@sigma.com')->firstOrFail()->website);
     }
+
+    public function test_crea_el_negocio_aunque_el_embudo_de_negocios_este_marcado_como_inactivo(): void
+    {
+        Pipeline::query()->deals()->update(['is_active' => false]);
+        $lead = $this->leadWithCustomer();
+
+        $deal = app(\App\Services\LeadDealService::class)->createForLead($lead, [], $this->admin);
+
+        $this->assertNotNull($deal->id);
+        $this->assertSame($deal->id, $lead->fresh()->deal_id);
+    }
+
+    public function test_sigue_marcando_error_si_no_hay_ningun_embudo_de_negocios_con_etapas(): void
+    {
+        Pipeline::query()->deals()->delete();
+        $lead = $this->leadWithCustomer();
+
+        $this->expectException(\Illuminate\Validation\ValidationException::class);
+        app(\App\Services\LeadDealService::class)->createForLead($lead, [], $this->admin);
+    }
 }

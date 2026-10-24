@@ -48,6 +48,18 @@ class Pipeline extends Model
         return $query->where('channel', self::CHANNEL_DEALS);
     }
 
+    /**
+     * Embudo de Negocios donde se crean los negocios que nacen de un lead: el activo predeterminado y, si
+     * ninguno esta marcado como activo, el predeterminado (o el primero) que tenga etapas. La pantalla de
+     * Negocios ya muestra los embudos aunque esten inactivos, asi que crear un negocio no debe fallar por eso.
+     */
+    public static function defaultForDeals(): ?self
+    {
+        $base = static::query()->deals()->whereHas('stages')->orderByDesc('is_default')->orderBy('id');
+
+        return (clone $base)->where('is_active', true)->first() ?? $base->first();
+    }
+
     /** Pipelines de tipo Embudo de Venta (WhatsApp). */
     public function scopeWhatsapp($query)
     {
