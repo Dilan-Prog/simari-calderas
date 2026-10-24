@@ -9,7 +9,7 @@
     @vite(['resources/css/admin/pages/erp-core.css', 'resources/css/admin/pages/erp-crm.css'])
 @endpush
 @push('scripts')
-    @vite(['resources/js/admin/erp-crm.js'])
+    @vite(['resources/js/admin/erp-crm.js', 'resources/js/admin/hot-highlight.js'])
 @endpush
 @section('content')
     @php
@@ -150,7 +150,7 @@
                 <nav class="lw-rows">
                     @forelse ($leads as $l)
                         @php $unattended = $l->status === 'nuevo'; @endphp
-                        <a class="lw-row {{ $selected && $selected->id === $l->id ? 'is-active' : '' }} {{ $unattended ? 'is-unread' : '' }}" href="{{ $inboxUrl(['lead' => $l->id]) }}">
+                        <a class="lw-row {{ $selected && $selected->id === $l->id ? 'is-active' : '' }} {{ $unattended ? 'is-unread' : '' }} {{ $l->reply_pending_at ? 'is-hot' : '' }}" data-hot-lead="{{ $l->id }}" href="{{ $inboxUrl(['lead' => $l->id]) }}">
                             <span class="lw-av-wrap">
                                 <span class="lw-av">{{ $initials($l->display_name) }}</span>
                                 <span class="lw-row-ch lw-row-ch--{{ $l->source }}" title="{{ $l->source_label }}">{!! $icon($l->source) !!}</span>
@@ -158,13 +158,14 @@
                             <span class="lw-row-main">
                                 <span class="lw-row-top">
                                     <span class="lw-row-name">{{ $l->display_name }}</span>
-                                    <span class="lw-row-time">{{ $l->preview_at ? $l->preview_at->diffForHumans(null, true, true) : '' }}</span>
+                                    <span class="lw-row-time"><span class="hot-dot" aria-label="Respondió"></span> {{ $l->preview_at ? $l->preview_at->diffForHumans(null, true, true) : '' }}</span>
                                 </span>
                                 <span class="lw-row-line">
                                     <span class="lw-row-prev {{ $unattended ? 'is-bold' : '' }}">{{ $l->preview ?: '—' }}</span>
                                     @if ($unattended)<span class="lw-unread" title="Sin atender" aria-label="Sin atender"></span>@endif
                                 </span>
                                 <span class="lw-row-meta">
+                                    <span class="hot-tag">Respondió{{ $l->reply_pending_at ? ' · ' . $l->reply_pending_at->diffForHumans(null, true, true) : '' }}</span>
                                     <span class="lw-stage">{{ \App\Support\LeadStages::current($l, $rowStages ?? null)?->name ?? $l->status_label }}</span>
                                     @include('admin.leads-inbox._channels', ['lead' => $l, 'icon' => $icon])
                                     <span class="lw-row-who" title="{{ $l->assignee ? $l->assignee->full_name : 'Sin asignar' }}">{{ $l->assignee ? $initials($l->assignee->full_name) : '—' }}</span>

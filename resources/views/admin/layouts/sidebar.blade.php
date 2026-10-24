@@ -1233,14 +1233,16 @@
                 <p class="sidebar-profile-name">{{ auth()->user()->full_name }}</p>
                 <span class="sidebar-profile-email">{{ auth()->user()->email }}</span>
             </div>
-            <button type="button" class="sidebar-notif-btn" title="Notificaciones" aria-label="Notificaciones">
+            @php $eqNotif = \Illuminate\Support\Facades\Route::has('admin.notifications.feed'); @endphp
+            <button type="button" class="sidebar-notif-btn" id="eqNotifBtn" title="Notificaciones" aria-label="Notificaciones" aria-haspopup="dialog" aria-expanded="false"
+                @if($eqNotif) data-feed-url="{{ route('admin.notifications.feed') }}" data-read-url="{{ route('admin.notifications.read') }}" data-prefs-url="{{ route('admin.notifications.prefs') }}" @else hidden @endif>
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                     fill="none" stroke="currentColor" stroke-width="2"
                     stroke-linecap="round" stroke-linejoin="round">
                     <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/>
                     <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>
                 </svg>
-                <span class="sidebar-notif-dot"></span>
+                <span class="sidebar-notif-badge" id="eqNotifBadge" hidden>0</span>
             </button>
         </div>
         <form method="POST" action="{{ route('logout') }}">

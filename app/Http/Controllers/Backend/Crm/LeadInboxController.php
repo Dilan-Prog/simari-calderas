@@ -91,6 +91,11 @@ class LeadInboxController extends Controller
         $timeline = [];
         $nextTask = null;
         $wa = null;
+        if ($selected && $request->filled('lead')) {
+            // Abrir el lead desde un aviso: lo marca como leído y quita el resaltado de "respuesta pendiente".
+            \App\Models\AdminNotification::markSubjectRead($request->user()?->id, 'lead', $selected->id);
+            LeadService::clearReplyPending($selected);
+        }
         if ($selected) {
             $wa = $this->whatsappState($selected);
             $selected->load(['assignee', 'customer', 'deal', 'calls', 'tasks', 'whatsappConversation', 'noteEntries.author']);
@@ -243,6 +248,8 @@ class LeadInboxController extends Controller
 
     public function show(Lead $lead)
     {
+        \App\Models\AdminNotification::markSubjectRead(auth()->id(), 'lead', $lead->id);
+        LeadService::clearReplyPending($lead);
         $lead->load(['assignee', 'customer', 'deal', 'whatsappConversation', 'poolCalculatorLead', 'calls', 'tasks', 'conversionUploads', 'noteEntries.author']);
 
         return view('admin.leads-inbox.show', [
@@ -422,6 +429,7 @@ class LeadInboxController extends Controller
 
         LeadNote::create(['lead_id' => $lead->id, 'user_id' => $request->user()?->id, 'body' => $data['body']]);
         $lead->forceFill(['last_activity_at' => now()])->save();
+        LeadService::clearReplyPending($lead);
 
         return redirect()->route('admin.leads-inbox.index', ['lead' => $lead->id])->with('success', 'Nota agregada.');
     }
@@ -583,6 +591,7 @@ class LeadInboxController extends Controller
         }
         $lead->last_activity_at = now();
         $lead->save();
+        LeadService::clearReplyPending($lead);
         if ($lead->status === 'nuevo') {
             $this->leads->changeStatus($lead, 'contactado');
         }

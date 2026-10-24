@@ -55,6 +55,7 @@ class Lead extends Model
         'click_at'         => 'datetime',
         'first_contact_at' => 'datetime',
         'last_activity_at' => 'datetime',
+        'reply_pending_at' => 'datetime',
         'first_click'      => 'array',
         'last_click'       => 'array',
     ];

@@ -39,6 +39,7 @@ class User extends Authenticatable
         'curp',
         'social_segurity_number',
         'birthdate',
+        'notification_toast_seconds',
     ];
 
     /**
@@ -64,6 +65,12 @@ class User extends Authenticatable
     public function role(): BelongsTo
     {
         return $this->belongsTo(Role::class, 'role_id');
+    }
+
+    /** Usuarios que reciben también las notificaciones de este usuario ("Notificar también a estos usuarios"). */
+    public function notificationCopies(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'user_notification_copies', 'user_id', 'copy_user_id');
     }
 
     public function contactEmergency()

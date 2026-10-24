@@ -96,10 +96,42 @@ class Task extends Model
         return $this->hasMany(TaskEvent::class);
     }
 
-    /** Registra un movimiento en el historial de la tarea (user null = sistema). */
+    /**
+     * Tareas creadas sin sesión (n8n/API, workflows, captura de correo) no pasan por un controlador que
+     * registre el evento 'created', así que avisan desde aquí. Las del panel avisan vía logEvent().
+     */
+    protected static function booted(): void
+    {
+        static::created(function (Task $task) {
+            if (! auth()->check()) {
+                app(\App\Services\NotificationService::class)->notifyTask($task, 'Tarea nueva', $task->title, null, 'created');
+            }
+        });
+    }
+
+    /** Tipos de movimiento que NO generan notificación (correos enviados los hace el sistema y ya son visibles en el lead). */
+    private const SILENT_EVENTS = ['sent_email'];
+
+    /**
+     * Registra un movimiento en el historial de la tarea (user null = sistema) y lo notifica a quien
+     * corresponda (responsable, creador, permiso notif-tarea y copias; nunca al propio actor).
+     */
     public function logEvent(string $type, string $title, ?int $userId = null, ?int $outboundEmailId = null): TaskEvent
     {
-        return $this->events()->create(['type' => $type, 'title' => $title, 'user_id' => $userId, 'outbound_email_id' => $outboundEmailId]);
+        $event = $this->events()->create(['type' => $type, 'title' => $title, 'user_id' => $userId, 'outbound_email_id' => $outboundEmailId]);
+
+        if (! in_array($type, self::SILENT_EVENTS, true)) {
+            $actor = $userId ? User::find($userId) : null;
+            app(\App\Services\NotificationService::class)->notifyTask(
+                $this,
+                $this->title,
+                ($actor ? $actor->full_name . ': ' : '') . $title,
+                $actor,
+                'event:' . $event->id
+            );
+        }
+
+        return $event;
     }
 
     public function createdByWorkflow(): BelongsTo

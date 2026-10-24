@@ -1,0 +1,1 @@
+function a(t){const e={lead:new Set(((t==null?void 0:t.leads)||[]).map(String)),task:new Set(((t==null?void 0:t.tasks)||[]).map(String))};["lead","task"].forEach(s=>{document.querySelectorAll("[data-hot-"+s+"]").forEach(o=>{o.classList.toggle("is-hot",e[s].has(String(o.getAttribute("data-hot-"+s))))})})}window.addEventListener("equiterm:hot",t=>a(t.detail));

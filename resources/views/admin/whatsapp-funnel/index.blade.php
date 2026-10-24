@@ -111,7 +111,7 @@
                                 $linkedLead = $linkedLeads->get($conversation->id);
                                 $assignee = $conversation->assignedUser ?? $linkedLead?->assignee;
                             @endphp
-                            <div class="pipeline-card wf-chat-card" data-conv-id="{{ $conversation->id }}"
+                            <div class="pipeline-card wf-chat-card {{ $linkedLead?->reply_pending_at ? 'is-hot' : '' }}" @if($linkedLead) data-hot-lead="{{ $linkedLead->id }}" @endif data-conv-id="{{ $conversation->id }}"
                                 data-name="{{ $displayName }}" data-phone="{{ $conversation->contact_phone }}"
                                 data-agent-id="{{ $assignee?->id }}"
                                 data-unread="{{ $conversation->unread_count }}"
@@ -128,6 +128,7 @@
                                                 <div class="wf-chat-card-company">{{ $customer->company }}</div>
                                             @endif
                                         </div>
+                                        <span class="hot-dot" aria-label="Respondió"></span>
                                         @if($conversation->unread_count > 0)
                                             <span class="wf-unread-badge">{{ $conversation->unread_count }}</span>
                                         @endif
@@ -140,6 +141,7 @@
                                     @endif
 
                                     <div class="wf-chat-card-bottom">
+                                        <span class="hot-tag">Respondió{{ $linkedLead?->reply_pending_at ? ' · ' . $linkedLead->reply_pending_at->diffForHumans(null, true, true) : '' }}</span>
                                         @if($assignee)
                                             <span class="wf-chat-card-agent">{{ $assignee->full_name }}</span>
                                         @else
@@ -160,7 +162,7 @@
                                 $leadInitials = strtoupper(mb_substr(preg_replace('/[^\pL]/u', '', (string) $lead->contact_name) ?: $leadName, 0, 2));
                                 $chan = ['correo' => 'Correo', 'formulario' => 'Formulario', 'llamada' => 'Llamada', 'manual' => 'Manual', 'whatsapp' => 'WhatsApp'][$lead->source] ?? $lead->source_label;
                             @endphp
-                            <div class="pipeline-card wf-chat-card wf-lead-card" data-lead-id="{{ $lead->id }}"
+                            <div class="pipeline-card wf-chat-card wf-lead-card {{ $lead->reply_pending_at ? 'is-hot' : '' }}" data-hot-lead="{{ $lead->id }}" data-lead-id="{{ $lead->id }}"
                                 data-lead-url="{{ route('admin.leads-inbox.index', ['lead' => $lead->id]) }}"
                                 data-name="{{ $leadName }}" data-phone="{{ $lead->contact_phone ?: $lead->contact_email }}"
                                 data-agent-id="{{ $lead->assigned_to }}" data-unread="0"
@@ -174,12 +176,14 @@
                                                 <div class="wf-chat-card-company">{{ $lead->contact_company ?: $lead->customer->company }}</div>
                                             @endif
                                         </div>
+                                        <span class="hot-dot" aria-label="Respondió"></span>
                                         <span class="wf-chan-badge wf-chan-{{ $lead->source }}">{{ $chan }}</span>
                                     </div>
                                     @if($lead->funnel_preview)
                                         <div class="wf-chat-card-preview">{{ \Illuminate\Support\Str::limit($lead->funnel_preview, 60) }}</div>
                                     @endif
                                     <div class="wf-chat-card-bottom">
+                                        <span class="hot-tag">Respondió{{ $lead->reply_pending_at ? ' · ' . $lead->reply_pending_at->diffForHumans(null, true, true) : '' }}</span>
                                         @if($lead->assignee)
                                             <span class="wf-chat-card-agent">{{ $lead->assignee->full_name }}</span>
                                         @else
@@ -247,4 +251,5 @@
     };
 </script>
 @vite('resources/js/admin/whatsapp-funnel-board.js')
+@vite('resources/js/admin/hot-highlight.js')
 @endpush

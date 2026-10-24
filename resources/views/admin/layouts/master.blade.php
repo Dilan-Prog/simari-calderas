@@ -22,6 +22,7 @@
     @vite(['resources/js/admin/canonical-picker.js'])
     @vite(['resources/js/admin/variable-picker.js'])
     @vite(['resources/js/admin/rule-value-picker.js'])
+    @vite(['resources/js/admin/notifications.js'])
     @if (\Illuminate\Support\Facades\Route::has('admin.launchpad.search'))
         <meta name="erp-search-url" content="{{ route('admin.launchpad.search') }}">
         @vite(['resources/css/admin/pages/erp-core.css', 'resources/js/admin/erp-palette.js', 'resources/js/admin/erp-ui.js'])
@@ -40,6 +41,7 @@
 
     @include('admin.layouts.sidebar')
     @include('admin.layouts.toast')
+    <div class="eq-toasts" id="eqToasts" aria-live="polite" aria-atomic="false"></div>
     @include('admin.components._image_picker_modal')
     <section class="admin-main">
         @include('admin.layouts.navbar')

@@ -500,6 +500,16 @@
             setFieldValue(editForm, 'password', '');
             setFieldValue(editForm, 'password_confirmation', '');
 
+            const copyIds = (user.notification_copy_ids || []).map(String);
+            const copiesSelect = editForm.querySelector('[name="notification_copies[]"]');
+            if (copiesSelect) {
+                Array.from(copiesSelect.options).forEach(opt => {
+                    opt.selected = copyIds.includes(opt.value);
+                    // un usuario no se copia a sí mismo
+                    opt.disabled = String(id) === opt.value;
+                });
+            }
+
             const contacts = user.contact_emergency || [];
             if (contacts.length === 0) {
                 addEditContactRow();

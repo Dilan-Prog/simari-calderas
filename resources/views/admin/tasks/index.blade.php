@@ -3,7 +3,7 @@
 @section('title', 'Tareas - Admin')
 
 @push('styles')
-    @vite(['resources/css/admin/pages/erp-core.css'])
+    @vite(['resources/css/admin/pages/erp-core.css', 'resources/js/admin/hot-highlight.js'])
 <style>
 /* Modal "Nueva tarea" -- autocontenido en esta página; usa los tokens de erp-core.css. */
 /* Tabla de tareas: ocupa todo el ancho disponible (sin el tope de 1400px del contenedor ERP) */
@@ -18,6 +18,10 @@
 @endpush
 
 @section('content')
+    @php
+        $hotTaskIds = [];
+        try { $hotTaskIds = method_exists(\App\Support\Notif::class, 'hotTaskIds') ? array_map('intval', (array) \App\Support\Notif::hotTaskIds(auth()->user())) : []; } catch (\Throwable $e) { $hotTaskIds = []; }
+    @endphp
 @php
     $statusTone = ['open' => 'info', 'pending' => 'warn', 'in_progress' => 'acc', 'in_review' => 'info', 'closed' => 'ok'];
     $keep = fn (array $over) => route('admin.tasks.index', array_filter(
@@ -86,7 +90,7 @@
                     </thead>
                     <tbody>
                         @foreach ($tasks as $task)
-                            <tr class="{{ $task->trashed() ? 'task-row-deleted task-row' : 'task-row' }}" data-href="{{ route('admin.tasks.show', $task) }}">
+                            <tr class="{{ $task->trashed() ? 'task-row-deleted task-row' : 'task-row' }} {{ in_array($task->id, $hotTaskIds, true) ? 'is-hot' : '' }}" data-hot-task="{{ $task->id }}" data-href="{{ route('admin.tasks.show', $task) }}">
                                 <td class="erp-cell-folio"><a href="{{ route('admin.tasks.show', $task) }}">TAR-{{ str_pad((string) $task->id, 4, '0', STR_PAD_LEFT) }}</a></td>
                                 <td>
                                     <div class="erp-cell-main">{{ $task->title }}</div>

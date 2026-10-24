@@ -55,7 +55,17 @@ class RoleController extends Controller
             'CRM' => [
                 'clients', 'pipeline', 'deals', 'automations',
             ],
+            // Una casilla por tipo de aviso (solo 'view' = "Recibir"); ver config/notifications.php.
+            'Notificaciones' => array_keys(config('notifications.permissions', [])),
         ];
+    }
+
+    /** Los permisos notif-* no son módulos de menú: se agregan solo al grid de Roles (nombre = etiqueta del tipo). */
+    private function notificationModules(): array
+    {
+        return collect(config('notifications.permissions', []))
+            ->map(fn ($p) => ['name' => $p['label']])
+            ->all();
     }
 
     public function index()
@@ -76,7 +86,7 @@ class RoleController extends Controller
             'totalRoles'   => $roles->count(),
             'totalUsers'   => User::whereNotNull('role_id')->count(),
             'totalModules' => Permission::distinct('module')->count('module'),
-            'modules'      => config('modules'),
+            'modules'      => config('modules') + $this->notificationModules(),
             'moduleGroups' => $this->moduleGroups(),
             'visibleColumns' => $visibleColumns,
         ]);

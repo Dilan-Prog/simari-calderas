@@ -71,6 +71,8 @@ class UserManageController extends Controller
             'emergency_phone.*' => 'nullable|string|max:30',
             'relationship' => 'nullable|array',
             'relationship.*' => 'nullable|string|max:50',
+            'notification_copies' => 'nullable|array',
+            'notification_copies.*' => 'integer|exists:users,id',
         ]);
         $user = new User;
         $user->first_name = $request->first_name;
@@ -85,6 +87,7 @@ class UserManageController extends Controller
         $user->role_id = $request->role_id;
         $user->password = bcrypt($request->password);
         $user->save();
+        $user->notificationCopies()->sync($this->copyIds($request, $user));
         if ($request->has('emergency_contact_name')) {
             foreach ($request->emergency_contact_name as $index => $name) {
                 if (! empty($name)) {
@@ -107,6 +110,7 @@ class UserManageController extends Controller
     {
         $user = User::with(['role:id,name_role_es', 'contactEmergency'])
             ->findOrFail($id);
+        $user->setAttribute('notification_copy_ids', $user->notificationCopies()->pluck('users.id')->all());
 
         return response()->json($user);
     }
@@ -139,6 +143,8 @@ class UserManageController extends Controller
             'emergency_phone.*' => 'nullable|string|max:30',
             'relationship' => 'nullable|array',
             'relationship.*' => 'nullable|string|max:50',
+            'notification_copies' => 'nullable|array',
+            'notification_copies.*' => 'integer|exists:users,id',
         ]);
         $user->first_name = $request->first_name;
         $user->last_name = $request->last_name;
@@ -154,6 +160,7 @@ class UserManageController extends Controller
             $user->password = bcrypt($request->password);
         }
         $user->save();
+        $user->notificationCopies()->sync($this->copyIds($request, $user));
         $user->contactEmergency()->delete();
 
         if ($request->has('emergency_contact_name')) {
@@ -172,6 +179,15 @@ class UserManageController extends Controller
             'success' => true,
             'user' => $user->load(['role:id,name_role_es', 'contactEmergency']),
         ]);
+    }
+
+    /** Usuarios a los que se les copian las notificaciones de $user (sin él mismo). */
+    private function copyIds(Request $request, User $user): array
+    {
+        return collect((array) $request->input('notification_copies', []))
+            ->map(fn ($i) => (int) $i)
+            ->reject(fn ($i) => $i === (int) $user->id)
+            ->unique()->values()->all();
     }
 
     public function destroy(string $id)

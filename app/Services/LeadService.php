@@ -286,8 +286,59 @@ class LeadService
                 $this->convertToDeal($lead);
             }
 
+            if ($isNew) {
+                $this->notifyIncoming($lead);
+            }
+
             return $lead->fresh();
         });
+    }
+
+    /** Notificación persistente "Lead nuevo · canal" (nunca rompe la captura). */
+    private function notifyIncoming(Lead $lead): void
+    {
+        $contact = $lead->contact_phone ?: ($lead->contact_email ?: null);
+        $body = trim($lead->display_name . ($contact && $contact !== $lead->display_name ? ' · ' . $contact : ''));
+
+        app(NotificationService::class)->notifyLead(
+            $lead,
+            'lead_incoming',
+            'Lead nuevo · ' . (Lead::SOURCES[$lead->source] ?? ucfirst((string) $lead->source)),
+            $body !== '' ? $body : null,
+            'incoming:' . $lead->id
+        );
+    }
+
+    /**
+     * Mensaje entrante (WhatsApp/correo): deja el lead resaltado como "pendiente de respuesta" y, si el lead ya
+     * existía, avisa "<Nombre> dice: <mensaje>" (un lead nuevo ya generó su aviso de lead entrante).
+     */
+    private function registerInboundMessage(Lead $lead, string $channel, ?string $text, string $dedupeKey, bool $isNew, $at = null): void
+    {
+        try {
+            Lead::whereKey($lead->id)->update(['reply_pending_at' => $at ?: now()]);
+
+            if (! $isNew) {
+                app(NotificationService::class)->notifyLead(
+                    $lead,
+                    'lead_reply',
+                    NotificationService::channelTitle($channel),
+                    $lead->display_name . ' dice: ' . NotificationService::preview($text),
+                    $dedupeKey
+                );
+            }
+        } catch (\Throwable $e) {
+            report($e);
+        }
+    }
+
+    /** Un usuario respondió (WhatsApp/correo/nota): el lead deja de estar resaltado. */
+    public static function clearReplyPending(Lead|int|null $lead): void
+    {
+        $id = $lead instanceof Lead ? $lead->id : $lead;
+        if ($id) {
+            Lead::whereKey($id)->whereNotNull('reply_pending_at')->update(['reply_pending_at' => null]);
+        }
     }
 
     /**
@@ -356,6 +407,8 @@ class LeadService
                 'task_id'     => $task?->id,
                 'is_new_lead' => $isNew,
             ]);
+
+            $this->registerInboundMessage($lead, 'correo', $excerpt !== '' ? $excerpt : $subject, 'mail:' . $data['message_id'], $isNew, $at);
 
             return [
                 'duplicate'   => false,
@@ -437,6 +490,7 @@ class LeadService
             $lead->first_contact_at ??= $sentAt;
             $lead->last_activity_at = $sentAt;
             $lead->save();
+            self::clearReplyPending($lead);
 
             return ['matched' => true, 'duplicate' => false, 'lead_id' => $lead->id, 'task_id' => $task->id, 'outbound_email_id' => $email->id];
         });
@@ -465,7 +519,21 @@ class LeadService
             }
         }
 
-        return $this->capture($data);
+        $maxBefore = (int) Lead::max('id');
+        $lead = $this->capture($data);
+
+        if ($message) {
+            $this->registerInboundMessage(
+                $lead,
+                'whatsapp',
+                $message->content ?: '(' . $message->message_type . ')',
+                'wa:' . ($message->external_message_id ?: 'id' . $message->id),
+                $lead->id > $maxBefore,
+                $message->sent_at
+            );
+        }
+
+        return $lead;
     }
 
     public function captureFromPoolCalculator(PoolCalculatorLead $pool): Lead

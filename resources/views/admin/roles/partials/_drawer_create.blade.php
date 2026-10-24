@@ -79,11 +79,15 @@
                             <div class="roles-module-card" data-module="{{ $key }}">
                                 <span class="roles-module-name">{{ $modules[$key]['name'] }}</span>
                                 <div class="roles-module-actions">
+                                    @if ($groupLabel === 'Notificaciones')
+                                    <label class="roles-action-check"><input type="checkbox" class="roles-action-view"  data-action="view"   data-module="{{ $key }}"> Recibir</label>
+                                    @else
                                     <label class="roles-action-check"><input type="checkbox" class="roles-action-view"  data-action="view"   data-module="{{ $key }}"> Lectura</label>
                                     <label class="roles-action-check"><input type="checkbox" class="roles-action-other" data-action="create" data-module="{{ $key }}"> Crear</label>
                                     <label class="roles-action-check"><input type="checkbox" class="roles-action-other" data-action="edit"   data-module="{{ $key }}"> Editar</label>
                                     <label class="roles-action-check"><input type="checkbox" class="roles-action-other" data-action="delete" data-module="{{ $key }}"> Eliminar</label>
                                     <label class="roles-action-check"><input type="checkbox" class="roles-action-other" data-action="log"    data-module="{{ $key }}"> Bitácora</label>
+                                    @endif
                                 </div>
                             </div>
                             @endforeach

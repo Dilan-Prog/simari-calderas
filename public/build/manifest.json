@@ -31,7 +31,7 @@
     "isEntry": true
   },
   "resources/css/admin/app.css": {
-    "file": "assets/app-Bfop1zqU.css",
+    "file": "assets/app-D-rvhmJd.css",
     "src": "resources/css/admin/app.css",
     "isEntry": true
   },
@@ -439,6 +439,15 @@
       "__commonjsHelpers-Cpj98o6Y.js"
     ]
   },
+  "resources/js/admin/hot-highlight.js": {
+    "file": "assets/hot-highlight-CPsXWocj.js",
+    "name": "hot-highlight",
+    "src": "resources/js/admin/hot-highlight.js",
+    "isEntry": true,
+    "css": [
+      "assets/hot-highlight-Dgrv20Do.css"
+    ]
+  },
   "resources/js/admin/image-picker.js": {
     "file": "assets/image-picker-aaP7ym_A.js",
     "name": "image-picker",
@@ -449,6 +458,12 @@
     "file": "assets/link-picker-ljEXFrCB.js",
     "name": "link-picker",
     "src": "resources/js/admin/link-picker.js",
+    "isEntry": true
+  },
+  "resources/js/admin/notifications.js": {
+    "file": "assets/notifications-DhrfIGjH.js",
+    "name": "notifications",
+    "src": "resources/js/admin/notifications.js",
     "isEntry": true
   },
   "resources/js/admin/orders.js": {

@@ -322,6 +322,11 @@ class WhatsappFunnelController extends Controller
             );
         }
 
+        if ($message->external_message_id) {
+            // Respondió un usuario: los leads de esta conversación dejan de estar resaltados.
+            \App\Models\Lead::where('whatsapp_conversation_id', $conversation->id)->whereNotNull('reply_pending_at')->update(['reply_pending_at' => null]);
+        }
+
         return response()->json([
             'success' => true,
             'message' => $message,

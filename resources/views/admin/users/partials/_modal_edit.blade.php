@@ -81,6 +81,18 @@
                     <span id="editEmergencyText">Agregar otro contacto de emergencia (1/5)</span>
                 </button>
             </div>
+            <h3>Notificaciones</h3>
+            <div class="user-manager-form">
+                <div style="grid-column: 1 / -1;">
+                    <label class="supliers-manager-slider-label" for="edit_notification_copies">Notificar también a estos usuarios</label>
+                    <select class="users-manager-select" name="notification_copies[]" id="edit_notification_copies" multiple size="5">
+                        @foreach ($users->where('status', 'active') as $copyUser)
+                            <option value="{{ $copyUser->id }}">{{ $copyUser->first_name }} {{ $copyUser->last_name }}</option>
+                        @endforeach
+                    </select>
+                    <small style="color:#6b7280;">Lo que reciba este usuario (leads, respuestas, tareas) también les llegará a ellos, aunque no tengan el permiso. Ctrl/Cmd + clic para elegir varios.</small>
+                </div>
+            </div>
             <h3>Acceso al Sistema</h3>
             <div class="user-manager-form access-sistem-form">
                 <div>

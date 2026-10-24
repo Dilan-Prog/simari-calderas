@@ -85,6 +85,13 @@ class TaskController extends Controller
             'deletedBy',
         ]);
 
+        // Abrir la tarea marca como leídas sus notificaciones y, la primera vez que la ve su responsable, lo registra.
+        $viewer = auth()->user();
+        \App\Models\AdminNotification::markSubjectRead($viewer?->id, 'task', $task->id);
+        if ($viewer && (int) $task->assigned_to === (int) $viewer->id && ! $task->events()->where('type', 'viewed')->exists()) {
+            $task->logEvent('viewed', 'Vista por su responsable (' . $viewer->full_name . ')', $viewer->id);
+        }
+
         $email = \App\Models\LeadInboundEmail::where('task_id', $task->id)->first();
         $origin = $task->createdByWorkflow?->name ?? ($email ? 'Correo N8N' : 'Manual');
 
