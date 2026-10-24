@@ -774,7 +774,7 @@ class LeadService
             'email'      => $lead->contact_email ?: 'sin-correo-lead' . $lead->id . '@lead.invalid',
             'company'    => '',
             'phone'      => $lead->phone_normalized ?: '',
-            'document_type' => 'ine',
+            'document_type' => '',
             'source'     => 'lead:' . $lead->source,
             'status'     => 'active',
             'visitor_uuid' => $lead->visitor_uuid,

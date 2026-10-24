@@ -130,7 +130,7 @@
                         </p>
 
                         <p class="breadcrumb-users-manager main"><strong>Tipo de documento</strong></p>
-                        <p class="breadcrumb-users-manager">&nbsp; {{ strtoupper($customer->document_type ?? '—') }}</p>
+                        <p class="breadcrumb-users-manager">&nbsp; {{ strtoupper($customer->document_type ?: '—') }}</p>
 
                         <p class="breadcrumb-users-manager main"><strong>¿Cómo nos conoció?</strong></p>
                         <p class="breadcrumb-users-manager">&nbsp; {{ ucfirst($customer->source ?? '—') }}</p>

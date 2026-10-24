@@ -75,13 +75,12 @@ class LeadCustomerController extends Controller
             'website'          => 'nullable|string|max:255',
             'rfc'              => 'nullable|string|max:20',
             'tipo_persona'     => 'nullable|in:fisica,moral',
-            'document_type'    => 'required_without:link_customer_id|nullable|in:' . implode(',', array_keys(self::DOCUMENT_TYPES)),
+            'document_type'    => 'nullable|in:' . implode(',', array_keys(self::DOCUMENT_TYPES)),
             'source'           => 'nullable|in:' . implode(',', array_keys(self::SOURCES)),
             'notes'            => 'nullable|string|max:1000',
         ], [
             'email.unique'              => 'Ese correo ya pertenece a otro cliente. Usa "Vincular a este cliente" para ligar el lead a él.',
             'full_name.required_without' => 'Escribe el nombre del cliente.',
-            'document_type.required_without' => 'Elige el tipo de documento.',
         ]);
 
         if (! empty($data['link_customer_id'])) {
@@ -98,7 +97,7 @@ class LeadCustomerController extends Controller
                 'phone'         => $data['phone'] ?? '',
                 'rfc'           => $data['rfc'] ?? null,
                 'tipo_persona'  => $data['tipo_persona'] ?? null,
-                'document_type' => $data['document_type'],
+                'document_type' => $data['document_type'] ?? '',
                 'source'        => $data['source'] ?? self::sourceFor($lead),
                 'status'        => 'active',
                 'notes'         => $data['notes'] ?? null,

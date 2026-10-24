@@ -800,7 +800,6 @@
             });
 
             const fullName = form.querySelector('[name="full_name"]')?.value.trim();
-            const documentType = form.querySelector('[name="document_type"]')?.value.trim();
             const company = form.querySelector('[name="company"]')?.value.trim();
             const email = form.querySelector('[name="email"]')?.value.trim();
             const phone = form.querySelector('[name="phone"]')?.value.trim();
@@ -822,10 +821,7 @@
                 errors.push('El campo "Empresa" es requerido.');
             }
 
-            if (!documentType || documentType === 'seleccione' || documentType.toLowerCase().includes('select')) {
-                valMark(form, 'document_type', 'Tipo de Documento');
-                errors.push('El campo "Tipo de Documento" es requerido.');
-            }
+            // Tipo de documento: opcional (puede ir en "Sin especificar").
 
             // FIX QA-6: Was comparing documentType.toLowerCase() instead of
             // source.toLowerCase() — a copy-paste bug that made this guard check

@@ -92,10 +92,11 @@
                         </select>
                     </div>
                     <div class="lcm-field">
-                        <label for="lcmDoc">Tipo de documento <span class="req">*</span></label>
-                        <select id="lcmDoc" name="document_type" required>
+                        <label for="lcmDoc">Tipo de documento</label>
+                        <select id="lcmDoc" name="document_type">
+                            <option value="">Sin especificar</option>
                             @foreach ($documentTypes as $value => $label)
-                                <option value="{{ $value }}" @selected(old('document_type', 'ine') === $value)>{{ $label }}</option>
+                                <option value="{{ $value }}" @selected(old('document_type', '') === $value)>{{ $label }}</option>
                             @endforeach
                         </select>
                     </div>

@@ -51,6 +51,21 @@ class LeadCustomerTest extends TestCase
             'rfc' => 'XAXX010101000', 'tipo_persona' => 'moral', 'document_type' => 'ine', 'source' => 'admin', 'notes' => 'Compras de calderas'];
     }
 
+    public function test_el_tipo_de_documento_es_opcional_al_agregar_como_cliente(): void
+    {
+        $lead = $this->emailLead();
+
+        $html = $this->actingAs($this->admin)->get(route('admin.leads-inbox.customer.form', $lead))->assertOk()->getContent();
+        $this->assertStringContainsString('Sin especificar', $html);
+        $this->assertStringNotContainsString('name="document_type" required', $html);
+
+        $payload = $this->payload();
+        unset($payload['document_type']);
+        $this->actingAs($this->admin)->postJson(route('admin.leads-inbox.customer.store', $lead), $payload)->assertSuccessful();
+
+        $this->assertSame('', \App\Models\Customer::where('email', 'carlos@sigma.com')->firstOrFail()->document_type);
+    }
+
     public function test_el_formulario_viene_con_los_datos_del_lead(): void
     {
         $lead = $this->emailLead();

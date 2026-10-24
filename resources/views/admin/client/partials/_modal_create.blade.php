@@ -98,9 +98,9 @@
                 <div>
                     {{-- FIX QA-12: required by validateFormFields() and by the
                          server (required|in:...), but had no visual indicator. --}}
-                    <label class="supliers-manager-slider-label">Tipo de documento *</label>
+                    <label class="supliers-manager-slider-label">Tipo de documento</label>
                     <select class="users-manager-select" name="document_type">
-                        <option value="">Seleccionar...</option>
+                        <option value="">Sin especificar</option>
                         <option value="ine" {{ old('document_type') == 'ine' ? 'selected' : '' }}>INE</option>
                         <option value="pasaporte" {{ old('document_type') == 'pasaporte' ? 'selected' : '' }}>Pasaporte</option>
                         <option value="curp" {{ old('document_type') == 'curp' ? 'selected' : '' }}>CURP</option>

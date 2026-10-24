@@ -79,12 +79,12 @@
                     {{-- FIX QA-12: this field is required by validateFormFields()
                          and by the server (required|in:...) in BOTH forms, but
                          neither Crear nor Editar showed a required asterisk. --}}
-                    <label class="supliers-manager-slider-label">Tipo de documento *</label>
+                    <label class="supliers-manager-slider-label">Tipo de documento</label>
                     {{-- FIX QA-8 Part A: Added missing 'cfdi' option so this select
                          has the exact same options as the create modal — without it,
                          a customer with document_type=cfdi couldn't be preselected. --}}
                     <select class="users-manager-select" name="document_type">
-                        <option value="">Seleccionar...</option>
+                        <option value="">Sin especificar</option>
                         <option value="ine">INE</option>
                         <option value="pasaporte">Pasaporte</option>
                         <option value="curp">CURP</option>

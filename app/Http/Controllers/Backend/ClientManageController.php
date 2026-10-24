@@ -74,11 +74,8 @@ class ClientManageController extends Controller
             'tipo_persona' => 'nullable|in:fisica,moral',
             'sin_correo' => 'nullable|boolean',
             'rfc_generic' => 'nullable|boolean',
-            // FIX QA-5: Changed to 'required|in:...' — document_type is NOT NULL
-            // in the DB but had no required rule, so a request bypassing the JS
-            // guard (direct POST, missing field) passed validation and crashed
-            // the INSERT with a silent 500 QueryException instead of a 422.
-            'document_type' => 'required|in:ine,pasaporte,curp,cfdi',
+            // Opcional: la columna es NOT NULL, asi que sin valor se guarda ''.
+            'document_type' => 'nullable|in:ine,pasaporte,curp,cfdi',
             // FIX QA-6: Changed to 'required|in:...' — source is NOT NULL in the
             // DB but had no required rule, causing the same silent 500 pattern
             // as document_type (QA-5) when the field is missing/empty.
@@ -112,7 +109,7 @@ class ClientManageController extends Controller
         $customer->rfc = $request->boolean('rfc_generic') ? self::RFC_GENERICO : $request->rfc;
         $customer->tipo_persona = $request->tipo_persona;
         $customer->notes = $request->notes;
-        $customer->document_type = $request->document_type;
+        $customer->document_type = $request->document_type ?? '';
         $customer->source = $request->source;
         $customer->status = $request->status;
         // Sin acceso al portal hasta que se otorgue vía grantAccess() (o el
@@ -341,10 +338,8 @@ class ClientManageController extends Controller
             'tipo_persona' => 'nullable|in:fisica,moral',
             'sin_correo' => 'nullable|boolean',
             'rfc_generic' => 'nullable|boolean',
-            // FIX QA-5: document_type is NOT NULL in the DB; require it here too
-            // so update() matches store() and a bypassed/missing value returns
-            // a 422 instead of crashing the UPDATE with a QueryException.
-            'document_type' => 'required|in:ine,pasaporte,curp,cfdi',
+            // Opcional (igual que en store()): la columna es NOT NULL, asi que sin valor se guarda ''.
+            'document_type' => 'nullable|in:ine,pasaporte,curp,cfdi',
             // FIX QA-6: Changed to 'required|in:...' — same NOT NULL mismatch as
             // document_type, mirrored here so update() matches store().
             'source' => 'required|in:web,whatsapp,admin,campaña,referido',
@@ -371,7 +366,7 @@ class ClientManageController extends Controller
         $customer->phone = $request->phone;
         $customer->rfc = $request->boolean('rfc_generic') ? self::RFC_GENERICO : $request->rfc;
         $customer->tipo_persona = $request->tipo_persona;
-        $customer->document_type = $request->document_type;
+        $customer->document_type = $request->document_type ?? '';
         $customer->source = $request->source;
         $customer->notes = $request->notes;
         $customer->status = $request->status;

@@ -122,6 +122,21 @@ class CustomerControllerTest extends TestCase
         ], $headers)->assertStatus(403);
     }
 
+    public function test_el_tipo_de_documento_es_opcional(): void
+    {
+        $headers = $this->tokenHeaders(['customers:write']);
+
+        $this->postJson('/api/v1/customers', [
+            'first_name' => 'Sin', 'last_name' => 'Documento', 'email' => 'sin-doc@example.com',
+            'phone' => '5555555555', 'company' => 'Equiterm', 'source' => 'admin',
+        ], $headers)->assertStatus(201)->assertJsonPath('data.document_type', '');
+
+        // pero si viene, sigue validandose
+        $this->postJson('/api/v1/customers', [
+            'first_name' => 'Otro', 'phone' => '5555555555', 'company' => 'Equiterm', 'source' => 'admin', 'document_type' => 'licencia',
+        ], $headers)->assertStatus(422)->assertJsonValidationErrors('document_type');
+    }
+
     public function test_store_creates_customer_with_correct_ability(): void
     {
         $headers = $this->tokenHeaders(['customers:write']);
@@ -152,7 +167,7 @@ class CustomerControllerTest extends TestCase
 
         $this->postJson('/api/v1/customers', [], $headers)
             ->assertStatus(422)
-            ->assertJsonValidationErrors(['first_name', 'phone', 'company', 'document_type', 'source']);
+            ->assertJsonValidationErrors(['first_name', 'phone', 'company', 'source']);
     }
 
     public function test_update_requires_customers_write_ability(): void

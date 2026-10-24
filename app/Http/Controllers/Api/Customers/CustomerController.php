@@ -77,7 +77,7 @@ class CustomerController extends Controller
         $customer->rfc = $data['rfc'] ?? null;
         $customer->tipo_persona = $data['tipo_persona'] ?? null;
         $customer->notes = $data['notes'] ?? null;
-        $customer->document_type = $data['document_type'];
+        $customer->document_type = $data['document_type'] ?? '';
         $customer->source = $data['source'];
         $customer->status = $data['status'] ?? 'active';
         // Sin acceso al portal hasta que se otorgue explícitamente (mismo
@@ -101,7 +101,7 @@ class CustomerController extends Controller
         $customer->rfc = $data['rfc'] ?? null;
         $customer->tipo_persona = $data['tipo_persona'] ?? null;
         $customer->notes = $data['notes'] ?? null;
-        $customer->document_type = $data['document_type'];
+        $customer->document_type = $data['document_type'] ?? '';
         $customer->source = $data['source'];
         $customer->status = $data['status'] ?? $customer->status;
         $customer->save();
@@ -130,7 +130,7 @@ class CustomerController extends Controller
             'phone'         => ['required', 'string', 'max:30'],
             'rfc'           => ['nullable', 'string', 'max:20'],
             'tipo_persona'  => ['nullable', 'in:fisica,moral'],
-            'document_type' => ['required', 'in:ine,pasaporte,curp,cfdi'],
+            'document_type' => ['nullable', 'in:ine,pasaporte,curp,cfdi'],
             'source'        => ['required', 'in:web,whatsapp,admin,campaña,referido'],
             'status'        => ['nullable', 'in:active,inactive,suspended'],
             'notes'         => ['nullable', 'string', 'regex:/^[a-zA-ZÀ-ÿ0-9\s]+$/'],
