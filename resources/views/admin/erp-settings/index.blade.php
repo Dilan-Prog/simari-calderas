@@ -32,6 +32,42 @@
 
             <div class="pform-panel-wrap" style="margin-top:20px;">
 
+                {{-- ── 0. Términos y condiciones del cotizador ───────────────────────── --}}
+                <div class="pform-panel" id="quote-terms">
+                    <div class="erp-panel-header">
+                        <span class="erp-panel-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                                <path d="M14 2v6h6" />
+                                <path d="M16 13H8" />
+                                <path d="M16 17H8" />
+                                <path d="M10 9H8" />
+                            </svg>
+                        </span>
+                        <div class="erp-panel-heading">
+                            <h2 class="pform-panel-title">Términos y condiciones del cotizador</h2>
+                            <p class="erp-panel-subtitle">Texto predeterminado que se precarga en cada cotización nueva y aparece en su PDF.</p>
+                        </div>
+                    </div>
+
+                    <form method="POST" action="{{ route('admin.erp-settings.quote-terms.update') }}">
+                        @csrf
+                        @method('PUT')
+
+                        <div class="pform-field">
+                            <label class="pform-label" for="erp_quote_terms">Texto predeterminado</label>
+                            <textarea id="erp_quote_terms" name="quote_terms" class="pform-textarea" rows="14" maxlength="20000"
+                                placeholder="Ej. Vigencia de la cotización, forma de pago, tiempos de entrega, garantía...">{{ old('quote_terms', $quoteTerms) }}</textarea>
+                            <p class="pform-hint">Cada cotización se puede ajustar sin cambiar este texto. Cambiarlo aquí no modifica las cotizaciones ya creadas.</p>
+                            @error('quote_terms')
+                                <p class="pform-hint" style="color:#c81e1e;">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <button type="submit" class="pform-btn primary">Guardar términos</button>
+                    </form>
+                </div>
+
                 {{-- ── 1. Ajustes generales (group_name = 'erp') ─────────────────────── --}}
                 <div class="pform-panel">
                     <div class="erp-panel-header">

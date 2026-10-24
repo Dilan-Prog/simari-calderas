@@ -18,7 +18,11 @@ class ErpSettingController extends Controller
         // y de 'integraciones' (que tiene su propio manejo de credenciales).
         // Por ahora no hay ningún ajuste erp.* sembrado; la vista debe
         // mostrar un estado vacío razonable en ese caso.
-        $settings = Setting::where('group_name', 'erp')->orderBy('key')->get();
+        // Los términos del cotizador tienen su propio panel (textarea); fuera de la lista
+        // genérica para que un input de una línea no les quite los saltos de línea.
+        $settings = Setting::where('group_name', 'erp')
+            ->where('key', '!=', self::QUOTE_TERMS_KEY)
+            ->orderBy('key')->get();
 
         $serviceTypes = ServiceType::orderBy('name')->get();
 
@@ -28,7 +32,32 @@ class ErpSettingController extends Controller
             ? ServiceReportType::orderBy('sort_order')->orderBy('label')->get()
             : collect();
 
-        return view('admin.erp-settings.index', compact('settings', 'serviceTypes', 'serviceReportTypes'));
+        $quoteTerms = (string) Setting::get(self::QUOTE_TERMS_KEY, '');
+
+        return view('admin.erp-settings.index', compact('settings', 'serviceTypes', 'serviceReportTypes', 'quoteTerms'));
+    }
+
+    // ── Términos y condiciones del cotizador ────────────────────────────────
+
+    /** Texto que se precarga en cada cotización nueva (se puede ajustar por cotización). */
+    public const QUOTE_TERMS_KEY = 'erp.quote_terms_default';
+
+    public function updateQuoteTerms(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'quote_terms' => 'nullable|string|max:20000',
+        ]);
+
+        // Fila creada la primera vez que se guarda; Setting::set() no fija el grupo.
+        Setting::updateOrCreate(['key' => self::QUOTE_TERMS_KEY], [
+            'value'              => trim((string) ($validated['quote_terms'] ?? '')),
+            'type'               => 'string',
+            'group_name'         => 'erp',
+            'updated_by_user_id' => auth()->id(),
+        ]);
+
+        return redirect()->to(route('admin.erp-settings.index') . '#quote-terms')
+            ->with('success', 'Términos y condiciones del cotizador actualizados. Se precargarán en las cotizaciones nuevas.');
     }
 
     public function update(Request $request): RedirectResponse
@@ -38,6 +67,7 @@ class ErpSettingController extends Controller
         $values = $request->input('values', []);
 
         $existingKeys = Setting::where('group_name', 'erp')
+            ->where('key', '!=', self::QUOTE_TERMS_KEY)
             ->whereIn('key', array_keys($values))
             ->pluck('key')->all();
 

@@ -863,6 +863,7 @@ Route::controller(\App\Http\Controllers\Backend\ErpSettingController::class)
     ->group(function () {
         Route::get('/', 'index')->name('index');
         Route::put('/', 'update')->name('update')->middleware('permission:erp-settings,edit');
+        Route::put('/terminos-cotizador', 'updateQuoteTerms')->name('quote-terms.update')->middleware('permission:erp-settings,edit');
         Route::post('/tipos-servicio', 'storeServiceType')->name('service-types.store')->middleware('permission:erp-settings,create');
         Route::put('/tipos-servicio/{serviceType}', 'updateServiceType')->name('service-types.update')->middleware('permission:erp-settings,edit');
         Route::delete('/tipos-servicio/{serviceType}', 'destroyServiceType')->name('service-types.destroy')->middleware('permission:erp-settings,delete');

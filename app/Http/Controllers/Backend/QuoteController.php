@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\EmailTemplate;
 use App\Models\Quote;
 use App\Models\Products;
+use App\Models\Setting;
 use App\Models\ServicePage;
 use App\Services\EmailTemplateService;
 use App\Services\EmailTrackingService;
@@ -72,7 +73,10 @@ class QuoteController extends Controller
             ? $customers->firstWhere('id', (int) $request->input('customer_id'))
             : null;
 
-        return view('admin.quotes.create', compact('customers', 'defaultExchangeRate', 'prefillCustomer'));
+        // Texto predeterminado de términos y condiciones (Configuración ERP) para precargar el campo.
+        $defaultTerms = (string) Setting::get(ErpSettingController::QUOTE_TERMS_KEY, '');
+
+        return view('admin.quotes.create', compact('customers', 'defaultExchangeRate', 'prefillCustomer', 'defaultTerms'));
     }
 
     public function store(Request $request)
@@ -378,7 +382,9 @@ class QuoteController extends Controller
         // sigue siendo editable, esto solo define qué se muestra por defecto.
         $defaultExchangeRate = Products::exchangeRate();
 
-        return view('admin.quotes.edit', compact('quote', 'customers', 'defaultExchangeRate'));
+        $defaultTerms = (string) Setting::get(ErpSettingController::QUOTE_TERMS_KEY, '');
+
+        return view('admin.quotes.edit', compact('quote', 'customers', 'defaultExchangeRate', 'defaultTerms'));
     }
 
     public function update(Request $request, Quote $quote)
