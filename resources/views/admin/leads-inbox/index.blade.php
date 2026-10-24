@@ -88,6 +88,9 @@
                     <div class="erp-form-actions"><button class="erp-btn erp-btn--primary" type="submit">Registrar</button></div>
                 </form>
             </details>
+            @if (! $isBoard && $selected)
+                <a class="erp-btn erp-btn--sm lw-full-btn" href="{{ route('admin.leads-inbox.show', $selected) }}">Abrir ficha completa</a>
+            @endif
             <button type="button" class="lw-theme-toggle" data-lw-theme-toggle aria-label="Modo oscuro" aria-pressed="false" title="Modo oscuro">
                 <svg class="lw-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg><span>Modo oscuro</span>
             </button>
@@ -485,7 +488,6 @@
                         @else
                             <button type="button" class="erp-btn" data-lead-customer="{{ route('admin.leads-inbox.customer.form', $selected) }}">Agregar como cliente</button>
                         @endif
-                        <a class="erp-btn erp-btn--link" href="{{ route('admin.leads-inbox.show', $selected) }}">Abrir ficha completa</a>
                     </div>
                 @endif
             </aside>

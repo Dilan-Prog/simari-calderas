@@ -166,6 +166,7 @@
 .lw-kpi strong { color: var(--erp-accent-dark); }
 .lw-kpi + .lw-kpi strong { color: var(--erp-ink); }
 .lw-kpi.is-bad strong { color: var(--erp-acc); }
+.lw-full-btn { height: 32px; padding: 0 12px; border-radius: 8px; font-size: 13px; font-weight: 700; display: inline-flex; align-items: center; white-space: nowrap; text-decoration: none; }
 .lw-info-btn { display: none; }
 .lw-theme-toggle { height: 32px; padding: 0 12px; border: 1px solid var(--erp-line); border-radius: 8px; background: var(--erp-surface); color: var(--erp-ink); cursor: pointer; display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; font-family: inherit; white-space: nowrap; flex-shrink: 0; }
 .lw-theme-toggle:hover { border-color: var(--erp-accent); color: var(--erp-accent-dark); }
