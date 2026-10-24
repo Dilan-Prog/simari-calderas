@@ -23,7 +23,7 @@
             :back="route('admin.leads-inbox.index')"
             eyebrow="BANDEJA DE LEADS · VTA1"
             :facts="[
-                ['label' => 'Teléfono', 'value' => $lead->contact_phone],
+                ['label' => 'Teléfono', 'value' => \App\Support\PhoneFormat::pretty($lead->contact_phone)],
                 ['label' => 'Correo', 'value' => $lead->contact_email],
                 ['label' => 'Responsable', 'value' => $lead->assignee?->first_name],
                 ['label' => 'Campaña', 'value' => $lead->utm_campaign],

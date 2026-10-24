@@ -22,7 +22,7 @@
             <dt>Cliente</dt><dd>{{ $customerName ?: '—' }}</dd>
             <dt>Empresa</dt><dd>{{ $customer->company ?: '—' }}</dd>
             <dt>Correo</dt><dd>{{ $customer->email ?: '—' }}</dd>
-            <dt>Teléfono</dt><dd>{{ $customer->phone ?: '—' }}</dd>
+            <dt>Teléfono</dt><dd>{{ $customer->phone ? \App\Support\PhoneFormat::pretty($customer->phone) : '—' }}</dd>
             @if ($customer->website)<dt>Sitio web</dt><dd>{{ $customer->website }}</dd>@endif
         </dl>
         <form method="POST" action="{{ route('admin.leads-inbox.deal.store', $lead) }}" class="lw-deal-form">
@@ -32,7 +32,7 @@
             </label>
             <div class="lw-deal-row">
                 <label>Monto estimado
-                    <input class="erp-input" type="number" name="amount" min="0" step="0.01" value="{{ old('amount') }}" placeholder="0.00">
+                    <input class="erp-input" type="text" name="amount" inputmode="decimal" autocomplete="off" data-money value="{{ old('amount') }}" placeholder="0.00">
                 </label>
                 <label>Moneda
                     <select class="erp-select" name="currency">

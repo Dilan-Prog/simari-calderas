@@ -319,7 +319,7 @@
                                     @unless ($wa['window_open'])
                                         <div class="lw-wa-closed">
                                             <b>Ventana de 24 h cerrada</b>
-                                            <span>Para {{ $wa['number'] }}: WhatsApp solo permite plantillas aprobadas hasta que el cliente vuelva a escribir.</span>
+                                            <span>Para {{ \App\Support\PhoneFormat::pretty($wa['number']) }}: WhatsApp solo permite plantillas aprobadas hasta que el cliente vuelva a escribir.</span>
                                         </div>
                                     @endunless
                                     <div class="lw-wa-mode {{ $wa['window_open'] ? '' : 'is-closed' }}" role="radiogroup" aria-label="Tipo de mensaje">
@@ -388,9 +388,9 @@
                             <dt>Empresa</dt>
                             <dd>{{ $selected->contact_company ?: optional($selected->customer)->company ?: '—' }}</dd>
                             <dt>Teléfono</dt>
-                            <dd>{{ $selected->contact_phone ?: '—' }} @if ($selected->contact_phone)<a class="lw-mini" href="tel:{{ $selected->contact_phone }}">Llamar</a>@endif</dd>
+                            <dd>{{ $selected->contact_phone ? \App\Support\PhoneFormat::pretty($selected->contact_phone) : '—' }} @if ($selected->contact_phone)<a class="lw-mini" href="tel:{{ $selected->contact_phone }}">Llamar</a>@endif</dd>
                             <dt>WhatsApp</dt>
-                            <dd>{{ $selected->whatsapp_display ?: '—' }} @if ($phoneDigits)<a class="lw-mini" href="#" data-wa-open>Escribir</a>@endif</dd>
+                            <dd>{{ $selected->whatsapp_display ? \App\Support\PhoneFormat::pretty($selected->whatsapp_display) : '—' }} @if ($phoneDigits)<a class="lw-mini" href="#" data-wa-open>Escribir</a>@endif</dd>
                             <dt>Correo</dt>
                             <dd>{{ $selected->contact_email ?: '—' }} @if ($selected->contact_email)<a class="lw-mini" href="mailto:{{ $selected->contact_email }}">Escribir</a>@endif</dd>
                             <dt>Sitio web</dt>

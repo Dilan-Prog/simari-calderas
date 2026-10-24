@@ -43,3 +43,41 @@ window.addEventListener('message', (e) => {
     closeQuoteModal();
     window.location.reload();
 });
+
+// Monto con formato de numero (20,000.50) mientras se escribe; al enviar se manda sin comas.
+// Delegado porque el panel se vuelve a pintar con el refresco en vivo.
+function moneyRaw(value) {
+    return String(value).replace(/[^\d.]/g, '').replace(/^(\d*\.\d*).*$/, '$1');
+}
+
+function moneyFormat(raw) {
+    if (raw === '') return '';
+    const [int, dec] = raw.split('.');
+    const grouped = (int === '' ? '0' : int.replace(/^0+(?=\d)/, '')).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    return dec === undefined ? grouped : grouped + '.' + dec.slice(0, 2);
+}
+
+document.addEventListener('input', (e) => {
+    const el = e.target.closest('input[data-money]');
+    if (!el) return;
+    const digitsBeforeCaret = moneyRaw(el.value.slice(0, el.selectionStart ?? el.value.length)).length;
+    el.value = moneyFormat(moneyRaw(el.value));
+    let seen = 0;
+    let pos = 0;
+    while (pos < el.value.length && seen < digitsBeforeCaret) {
+        if (/[\d.]/.test(el.value[pos])) seen++;
+        pos++;
+    }
+    el.setSelectionRange(pos, pos);
+});
+
+document.addEventListener('focusout', (e) => {
+    const el = e.target.closest('input[data-money]');
+    if (!el || el.value === '') return;
+    const raw = moneyRaw(el.value);
+    el.value = moneyFormat(raw.includes('.') ? Number(raw).toFixed(2) : raw + '.00');
+});
+
+document.addEventListener('submit', (e) => {
+    e.target.querySelectorAll('input[data-money]').forEach((el) => { el.value = moneyRaw(el.value); });
+}, true);
