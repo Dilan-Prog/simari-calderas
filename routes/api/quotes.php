@@ -25,6 +25,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::controller(QuoteController::class)->prefix('quotes')->group(function () {
     Route::get('/', 'index')->middleware('token.ability:quotes:read');
+    Route::post('/expire-drafts', 'expireDrafts')->middleware('token.ability:quotes:write');
     Route::get('/{quote}', 'show')->middleware('token.ability:quotes:read');
     Route::post('/', 'store')->middleware('token.ability:quotes:write');
     Route::post('/{quote}/accept', 'accept')->middleware('token.ability:quotes:write');

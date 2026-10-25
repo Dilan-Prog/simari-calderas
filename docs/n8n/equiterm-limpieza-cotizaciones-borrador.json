@@ -1,0 +1,278 @@
+{
+  "name": "Equiterm - Limpieza de cotizaciones en borrador",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## Limpieza de cotizaciones en borrador\nMarca como **Vencida** toda cotización que lleve más de N días en **Borrador**, para no revolver la información. Solo toca borradores (nunca enviadas, aceptadas ni rechazadas) y es seguro repetirlo.\n\n**Antes de activar:**\n1. Credencial **Header/Bearer Auth** `Token_API` con el token del ApiClient que tenga la habilidad `quotes:write` (Integraciones > API / N8N).\n2. Credencial **SMTP** `Hostinger SMTP` (la misma del flujo de recepción de correos).\n3. En el nodo **Configuración**: `dias` (30 por defecto), `limite` (máx. 500 por ejecución), `correo_aviso` (a quién llega el resumen) y `prueba`.\n4. **Primero ejecútalo a mano con `prueba` = true** (botón *Ejecutar manualmente*): solo lista lo que expiraría, sin cambiar nada. Cuando el listado sea el esperado, pon `prueba` = false y activa el flujo (corre cada lunes a las 7:00, hora de CDMX).\n\nEl sistema ya cuenta con el estado Vencida; en Cotizaciones puedes filtrar por él.",
+        "height": 400,
+        "width": 560,
+        "color": 4
+      },
+      "name": "Notas",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -120,
+        -300
+      ]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                1
+              ],
+              "triggerAtHour": 7
+            }
+          ]
+        }
+      },
+      "name": "Cada lunes 7:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        160
+      ]
+    },
+    {
+      "parameters": {},
+      "name": "Ejecutar manualmente",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        340
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a1",
+              "name": "dias",
+              "value": 30,
+              "type": "number"
+            },
+            {
+              "id": "a2",
+              "name": "limite",
+              "value": 500,
+              "type": "number"
+            },
+            {
+              "id": "a3",
+              "name": "prueba",
+              "value": false,
+              "type": "boolean"
+            },
+            {
+              "id": "a4",
+              "name": "correo_aviso",
+              "value": "administracion@equitermindustries.com.mx",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Configuración",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        260,
+        250
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://equitermindustries.com.mx/api/v1/quotes/expire-drafts",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ days: $json.dias, limit: $json.limite, dry_run: $json.prueba }) }}",
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "name": "Expirar borradores",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        520,
+        250
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "CONFIGURAR",
+          "name": "Token_API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "={{ $json.data.processed }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "name": "¿Hubo cotizaciones?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        780,
+        250
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Arma el resumen que se manda por correo con lo que expiró (o expiraría, en modo prueba).\nconst r = $json.data;\nconst money = (n, c) => (Number(n) || 0).toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ' + (c || 'MXN');\n\nconst lines = r.quotes.map(q =>\n  '• ' + q.quote_number + ' — ' + (q.guest_name || 'Sin nombre') + ' — ' + money(q.total, q.currency) + ' (creada ' + String(q.created_at || '').slice(0, 10) + ')'\n);\n\nconst totals = {};\nr.quotes.forEach(q => { totals[q.currency || 'MXN'] = (totals[q.currency || 'MXN'] || 0) + (Number(q.total) || 0); });\nconst suma = Object.entries(totals).map(([c, v]) => money(v, c)).join('  ·  ');\n\nconst cabecera = r.dry_run\n  ? 'PRUEBA: no se cambió nada. Estas cotizaciones se marcarían como Vencidas:'\n  : 'Se marcaron como Vencidas estas cotizaciones que seguían en borrador:';\n\nlet text = cabecera + '\\n\\n'\n  + 'Borradores con más de ' + r.days + ' días: ' + r.processed + '\\n'\n  + lines.join('\\n') + '\\n\\n'\n  + 'Suma de los montos: ' + suma;\n\nif (r.remaining > 0) {\n  text += '\\n\\nQuedan ' + r.remaining + ' por procesar; se tomarán en la siguiente ejecución.';\n}\ntext += '\\n\\nPuedes verlas en Cotizaciones filtrando por el estado \"Vencida\".';\n\nreturn [{ json: {\n  subject: (r.dry_run ? '[PRUEBA] ' : '') + 'Cotizaciones en borrador marcadas como vencidas: ' + r.processed,\n  text,\n} }];\n"
+      },
+      "name": "Armar resumen",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1040,
+        170
+      ]
+    },
+    {
+      "parameters": {
+        "fromEmail": "ventas@equitermindustries.com.mx",
+        "toEmail": "={{ $('Configuración').item.json.correo_aviso }}",
+        "subject": "={{ $json.subject }}",
+        "emailFormat": "text",
+        "text": "={{ $json.text }}",
+        "options": {}
+      },
+      "name": "Enviar resumen",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        1300,
+        170
+      ],
+      "credentials": {
+        "smtp": {
+          "id": "CONFIGURAR",
+          "name": "Hostinger SMTP"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "name": "Nada que limpiar",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1040,
+        340
+      ]
+    }
+  ],
+  "connections": {
+    "Cada lunes 7:00": {
+      "main": [
+        [
+          {
+            "node": "Configuración",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ejecutar manualmente": {
+      "main": [
+        [
+          {
+            "node": "Configuración",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Configuración": {
+      "main": [
+        [
+          {
+            "node": "Expirar borradores",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Expirar borradores": {
+      "main": [
+        [
+          {
+            "node": "¿Hubo cotizaciones?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "¿Hubo cotizaciones?": {
+      "main": [
+        [
+          {
+            "node": "Armar resumen",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Nada que limpiar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Armar resumen": {
+      "main": [
+        [
+          {
+            "node": "Enviar resumen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "America/Mexico_City"
+  },
+  "active": false
+}

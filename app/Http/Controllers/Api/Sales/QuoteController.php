@@ -143,4 +143,51 @@ class QuoteController extends Controller
 
         return response()->json(['data' => new QuoteResource($quote)]);
     }
+
+    /**
+     * Limpieza para N8N: pasa a "Vencida" (expired) las cotizaciones que llevan mas de `days` dias en
+     * borrador (por fecha de creacion), para no revolver la informacion. Idempotente: solo toca borradores.
+     * Con `dry_run=1` solo lista lo que expiraria. `limit` acota cuantas procesa por llamada.
+     */
+    public function expireDrafts(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'days'    => 'nullable|integer|min:1|max:3650',
+            'limit'   => 'nullable|integer|min:1|max:500',
+            'dry_run' => 'nullable|boolean',
+        ]);
+
+        $days = (int) ($data['days'] ?? 30);
+        $limit = (int) ($data['limit'] ?? 200);
+        $dryRun = (bool) ($data['dry_run'] ?? false);
+        $cutoff = now()->subDays($days);
+
+        $base = Quote::query()->where('status', 'draft')->where('created_at', '<', $cutoff);
+        $matched = (clone $base)->count();
+        $quotes = $base->orderBy('id')->limit($limit)->get();
+
+        if (! $dryRun) {
+            foreach ($quotes as $quote) {
+                $quote->update(['status' => 'expired']);
+            }
+        }
+
+        return response()->json(['data' => [
+            'days'      => $days,
+            'cutoff'    => $cutoff->toIso8601String(),
+            'dry_run'   => $dryRun,
+            'matched'   => $matched,
+            'processed' => $quotes->count(),
+            'remaining' => max(0, $matched - $quotes->count()),
+            'quotes'    => $quotes->map(fn (Quote $q) => [
+                'id'           => $q->id,
+                'quote_number' => $q->quote_number,
+                'guest_name'   => $q->guest_name,
+                'total'        => $q->total,
+                'currency'     => $q->currency,
+                'created_at'   => optional($q->created_at)->toIso8601String(),
+                'status'       => $dryRun ? 'draft' : 'expired',
+            ])->values(),
+        ]]);
+    }
 }
