@@ -2,7 +2,7 @@
     <script>window.PRODUCT_VARIABLES = @json(\App\Models\Products::VARIABLE_CATALOG);</script>
     <script>window.PFORM_IVA_RATE = @json(\App\Models\Products::ivaRate());</script>
     <script>window.PFORM_EXCHANGE_RATE = @json(\App\Models\Products::exchangeRate());</script>
-    <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
+    <script src="{{ asset('vendor/quill/quill.js') }}"></script>
     <script>
         (function() {
 

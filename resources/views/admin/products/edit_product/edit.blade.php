@@ -4,7 +4,7 @@
 @endsection
 
 @push('styles')
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css">
+    <link rel="stylesheet" href="{{ asset('vendor/quill/quill.snow.css') }}">
     {{-- FIX (validación de servidor): create.blade.php ya trae este bloque
          (usado por su validación de cliente en pform-field-error /
          pform-error-msg — ver _scripts_create.blade.php showFieldError()),
