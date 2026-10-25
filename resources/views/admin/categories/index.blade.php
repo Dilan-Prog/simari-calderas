@@ -113,43 +113,33 @@
         </div>
     </div>
 
-    {{-- Filters --}}
-    <div style="display:flex;gap:12px;align-items:center;margin-bottom:20px;">
-        <div class="filters-clients-manager-search" style="flex:1;">
-            <span class="search-icon-clients-manager">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
-                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
-                </svg>
-            </span>
-            <input type="text" id="categorySearch" placeholder="Buscar por nombre o slug...">
-        </div>
-        <div class="filters-clients-manager-select">
-            <select id="categoryLevelFilter">
-                <option value="all">Todos los niveles</option>
-                <option value="1">Categorías Principales</option>
-                <option value="2">Subcategorías</option>
-                <option value="3">Categorías Hijas</option>
-            </select>
-        </div>
-        <div class="filters-clients-manager-select">
-            <select id="categoryStatusFilter">
-                <option value="all">Todos los estados</option>
-                <option value="active">Activas</option>
-                <option value="inactive">Inactivas</option>
-            </select>
-        </div>
-        <button type="button" id="btnFilter"
-            style="display:flex;align-items:center;gap:6px;padding:8px 16px;
-                   border:1.5px solid #ff6213;background:white;color:#ff6213;
-                   border-radius:8px;font-weight:600;cursor:pointer;font-size:14px;">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
-                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+    {{-- Filters: búsqueda por nombre/slug (acentos y mayúsculas no importan), nivel y estado.
+         El árbol completo ya viene cargado, así que se filtra en el navegador. --}}
+    <div class="lf-bar" role="search">
+        <div class="lf-search">
+            <svg class="lf-search-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
             </svg>
-            Filtrar
-        </button>
+            <input type="search" id="categorySearch" class="lf-search-input" autocomplete="off"
+                placeholder="Buscar por nombre o slug…" aria-label="Buscar categorías por nombre o slug">
+            <button type="button" class="lf-search-clear" id="categorySearchClear" aria-label="Limpiar búsqueda"
+                title="Limpiar búsqueda (Esc)" hidden>&times;</button>
+        </div>
+        <select id="categoryLevelFilter" class="lf-select" aria-label="Filtrar por nivel">
+            <option value="all">Todos los niveles</option>
+            <option value="1">Categorías Principales</option>
+            <option value="2">Subcategorías</option>
+            <option value="3">Categorías Hijas</option>
+        </select>
+        <select id="categoryStatusFilter" class="lf-select" aria-label="Filtrar por estado">
+            <option value="all">Todos los estados</option>
+            <option value="active">Activas</option>
+            <option value="inactive">Inactivas</option>
+        </select>
+        <button type="button" class="lf-reset" id="categoryFilterReset" hidden>Limpiar filtros</button>
     </div>
+    <p class="lf-count" id="categoryFilterCount" aria-live="polite" hidden></p>
 
     {{-- Table --}}
     <main class="table-container-clients-manager head">
@@ -184,6 +174,8 @@
                     // usa la directiva "permiso('modulo','accion')" llamando a auth()
                     // directamente, que si esta disponible como helper global dentro
                     // de la funcion.
+                    // Guardia: si la vista se renderiza dos veces en el mismo proceso (pruebas), la funcion ya existe.
+                    if (! function_exists('renderCategoryRow')) {
                     function renderCategoryRow($cat, $level = 1) {
                         $indent     = ($level - 1) * 28;
                         $levelLabel = match($level) { 1 => 'Principal', 2 => 'Subcategoría', default => 'Categoría hija' };
@@ -196,12 +188,16 @@
                         $iconColor = match($level) { 1 => '#ff6213', 2 => '#ff6213', default => '#8b5cf6' };
                         $dataLevel = $level;
                         $dataStatus = $cat->is_active ? 'active' : 'inactive';
-                        $dataName = strtolower($cat->name);
+                        $dataName = e(mb_strtolower($cat->name));
+                        $dataSlug = e(mb_strtolower((string) $cat->slug));
                         $childId = 'children-' . $cat->id;
                         echo '<tr class="cat-row"
+                            data-id="'.$cat->id.'"
+                            data-parent="'.($cat->parent_id ?? '').'"
                             data-level="'.$dataLevel.'"
                             data-status="'.$dataStatus.'"
                             data-name="'.$dataName.'"
+                            data-slug="'.$dataSlug.'"
                             style="border-bottom:1px solid #f1f5f9;">';
                         echo '<td style="padding:12px 16px;padding-left:'.($indent + 16).'px;">';
                         echo '<div style="display:flex;align-items:center;gap:8px;">';
@@ -257,11 +253,18 @@
                             }
                         }
                     }
+                    }
                 @endphp
 
                 @foreach ($allForTree as $rootCat)
                     @php renderCategoryRow($rootCat, 1); @endphp
                 @endforeach
+                <tr id="categoryNoResults" hidden>
+                    <td colspan="7" class="lf-empty">
+                        <strong>Sin resultados.</strong>
+                        <span id="categoryNoResultsText">Ninguna categoría coincide con la búsqueda y los filtros.</span>
+                    </td>
+                </tr>
 
                 </tbody>
             </table>

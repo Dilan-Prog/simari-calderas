@@ -28,7 +28,10 @@
     display: flex;
     flex-direction: column;
     height: 100vh;
-    overflow: hidden;
+    /* Red de seguridad: si una pagina no trae su propio scroll (laptops de poca altura), el area principal
+       scrollea en vez de recortar el contenido. Las paginas con scroll interno siguen igual. */
+    overflow-x: hidden;
+    overflow-y: auto;
     min-width: 0;
     transition: margin-left 0.3s ease;
 }

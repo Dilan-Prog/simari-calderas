@@ -26,11 +26,35 @@ class CollectionController extends Controller
         'cta_final', 'button', 'table_block', 'pool_calculator',
     ];
 
-    public function index()
+    /**
+     * Palabras de una búsqueda del listado (máx. 8). Cada una debe aparecer en el
+     * nombre o el slug (utf8mb4_unicode_ci: sin distinguir mayúsculas ni acentos).
+     *
+     * @return string[]
+     */
+    public static function searchTerms(mixed $q): array
     {
-        $collections = Collection::orderBy('sort_order')
-            ->orderBy('name')
-            ->paginate(15);
+        if (!is_scalar($q)) {
+            return [];
+        }
+
+        return array_slice(preg_split('/\s+/u', trim((string) $q), -1, PREG_SPLIT_NO_EMPTY) ?: [], 0, 8);
+    }
+
+    public function index(Request $request)
+    {
+        $collectionsQuery = Collection::orderBy('sort_order')->orderBy('name');
+
+        foreach (self::searchTerms($request->input('q')) as $term) {
+            $like = '%' . addcslashes($term, '\\%_') . '%';
+            $collectionsQuery->where(function ($w) use ($like) {
+                $w->where('name', 'like', $like)->orWhere('slug', 'like', $like);
+            });
+        }
+
+        // withQueryString: conserva ?q= al cambiar de página.
+        $collections = $collectionsQuery->paginate(15)->withQueryString();
+        $search = trim((string) (is_scalar($request->input('q')) ? $request->input('q') : ''));
 
         $categories = Category::where('is_active', true)->get(['id', 'name']);
         $brands     = Brand::where('is_active', true)->get(['id', 'name']);
@@ -39,7 +63,7 @@ class CollectionController extends Controller
             ->where('table_key', 'collections.index')
             ->value('columns');
 
-        return view('admin.collections.index', compact('collections', 'categories', 'brands', 'visibleColumns'));
+        return view('admin.collections.index', compact('collections', 'categories', 'brands', 'visibleColumns', 'search'));
     }
 
     public function store(Request $request)

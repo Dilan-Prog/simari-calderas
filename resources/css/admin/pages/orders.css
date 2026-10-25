@@ -8,10 +8,29 @@
    ============================================================ */
 
 .orders-page {
-    max-width: 1240px;
+    /* .admin-main es flex en columna: sin min-width:0 la pagina tomaba como
+       minimo el ancho intrinseco de las pestanas/filtros y se salia de la
+       pantalla (recortada a la derecha). Margen lateral uniforme de 24 px y
+       tope de 1800 px centrado para ultra anchos. */
+    width: 100%;
+    min-width: 0;
+    max-width: 1800px;
     margin: 0 auto;
-    padding: 24px 0 60px;
+    padding: 24px 24px 60px;
+    box-sizing: border-box;
+    flex: 0 0 auto;
 }
+
+.orders-page-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+
+.orders-page-head > div:first-child { flex: 1 1 320px; min-width: 0; }
 
 /* ── Header ─────────────────────────────────────────────── */
 .orders-eyebrow {
@@ -40,12 +59,13 @@
 /* ── KPIs ───────────────────────────────────────────────── */
 .orders-kpi-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 14px;
     margin-bottom: 22px;
 }
 
 .orders-kpi-card {
+    min-width: 0;
     background: #fff;
     border: 1px solid #e5e7eb;
     border-radius: 12px;
@@ -95,7 +115,10 @@
 .orders-tabs {
     display: flex;
     gap: 4px;
+    min-width: 0;
+    max-width: 100%;
     overflow-x: auto;
+    scrollbar-width: thin;
     border-bottom: 1px solid #e5e7eb;
     margin-bottom: 18px;
 }
@@ -235,12 +258,22 @@
 
 /* ── Tabla (grid-based, no <table> real — mismo patrón que
    .stats-table-*) ── */
-.orders-table { margin-bottom: 22px; }
+.orders-table { margin-bottom: 22px; min-width: 0; }
+
+/* Contenedor con scroll horizontal interno: si la pantalla es angosta la
+   tabla conserva un ancho minimo legible y scrollea aqui, no la pagina. */
+.orders-table-scroll {
+    overflow-x: auto;
+    max-width: 100%;
+    scrollbar-width: thin;
+}
+
+.orders-table-scroll-inner { min-width: 860px; }
 
 .orders-table-head,
 .orders-table-row {
     display: grid;
-    grid-template-columns: 1.3fr 1.4fr 1fr 1fr .9fr 1fr 56px;
+    grid-template-columns: minmax(0, 1.3fr) minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, .9fr) minmax(0, 1fr) 76px;
     gap: 12px;
     align-items: center;
     padding: 0 16px;
@@ -507,7 +540,7 @@
 /* ── Detalle: grid principal + sidebar ──────────────────── */
 .orders-detail-grid {
     display: grid;
-    grid-template-columns: 1fr 348px;
+    grid-template-columns: minmax(0, 1fr) 348px;
     gap: 16px;
     align-items: start;
 }
@@ -767,20 +800,22 @@
 /* ── Responsive (mismo criterio que Estadísticas/Auditoría:
    media queries simples, sin rediseño) ── */
 @media (max-width: 1024px) {
-    .orders-detail-grid { grid-template-columns: 1fr; }
+    .orders-detail-grid { grid-template-columns: minmax(0, 1fr); }
     .orders-detail-side { position: static; }
-    .orders-kpi-grid { grid-template-columns: repeat(2, 1fr); }
+    .orders-kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .orders-table-scroll-inner { min-width: 700px; }
     .orders-table-head,
-    .orders-table-row { grid-template-columns: 1.3fr 1.4fr 1fr 1fr 56px; }
+    .orders-table-row { grid-template-columns: minmax(0, 1.3fr) minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1fr) 76px; }
     .orders-table-head > :nth-child(4),
     .orders-table-row > :nth-child(4) { display: none; }
 }
 
 @media (max-width: 640px) {
     .orders-page { padding: 16px 16px 48px; }
-    .orders-kpi-grid { grid-template-columns: 1fr; }
+    .orders-kpi-grid { grid-template-columns: minmax(0, 1fr); }
+    .orders-table-scroll-inner { min-width: 520px; }
     .orders-table-head,
-    .orders-table-row { grid-template-columns: 1.3fr 1fr 56px; }
+    .orders-table-row { grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr) 76px; }
     .orders-table-head > :nth-child(2),
     .orders-table-row > :nth-child(2),
     .orders-table-head > :nth-child(3),

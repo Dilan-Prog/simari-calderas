@@ -328,3 +328,158 @@
 @media (max-width: 560px) {
     .cf-option { grid-template-columns: 1fr; }
 }
+
+/* ── Barra de búsqueda/filtros de listados (Categorías y Colecciones) ──
+   El buscador toma el espacio sobrante pero nunca baja de 280 px; la barra
+   hace wrap en vez de encimar el buscador con los selects. */
+.lf-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px 12px;
+    margin-bottom: 20px;
+}
+
+.lf-search {
+    position: relative;
+    flex: 1 1 340px;
+    min-width: 280px;
+}
+
+.lf-search-icon {
+    position: absolute;
+    left: 13px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #9ca3af;
+    pointer-events: none;
+}
+
+.lf-search-input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 11px 38px 11px 40px;
+    border: 1px solid var(--border-color, #d1d5db);
+    border-radius: 10px;
+    background: #ffffff;
+    font-size: 14px;
+    font-family: var(--font-family);
+    color: #374151;
+    outline: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.lf-search-input::placeholder {
+    color: #9ca3af;
+    opacity: 1;
+}
+
+.lf-search-input::-webkit-search-cancel-button,
+.lf-search-input::-webkit-search-decoration {
+    -webkit-appearance: none;
+    appearance: none;
+    display: none;
+}
+
+.lf-search-input:focus {
+    border-color: #ff6213;
+    box-shadow: 0 0 0 3px #ff621326;
+}
+
+.lf-search-clear {
+    position: absolute;
+    right: 7px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 26px;
+    height: 26px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    color: #6b7280;
+    font-size: 20px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.lf-search-clear[hidden] {
+    display: none;
+}
+
+.lf-search-clear:hover {
+    background: #fff3ec;
+    color: #ff6213;
+}
+
+.lf-select {
+    flex: 0 1 auto;
+    min-width: 0;
+    max-width: 100%;
+    padding: 11px 36px 11px 14px;
+    border: 1px solid var(--border-color, #d1d5db);
+    border-radius: 10px;
+    background-color: #ffffff;
+    font-size: 14px;
+    font-family: var(--font-family);
+    color: #374151;
+    cursor: pointer;
+    outline: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.lf-select:focus {
+    border-color: #ff6213;
+    box-shadow: 0 0 0 3px #ff621326;
+}
+
+.lf-reset {
+    padding: 10px 14px;
+    border: 1.5px solid #ff6213;
+    border-radius: 10px;
+    background: #ffffff;
+    color: #ff6213;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: var(--font-family);
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.lf-reset[hidden] {
+    display: none;
+}
+
+.lf-reset:hover {
+    background: #fff3ec;
+}
+
+.lf-count {
+    margin: -8px 0 14px;
+    font-size: 13px;
+    color: #6b7280;
+}
+
+.lf-count[hidden] {
+    display: none;
+}
+
+.lf-empty {
+    padding: 32px 16px;
+    text-align: center;
+    color: #6b7280;
+    font-size: 14px;
+}
+
+tr[hidden] {
+    display: none;
+}
+
+.lf-hidden {
+    display: none !important;
+}
+
+/* Fila de contexto: ancestro que se muestra solo para ubicar a una coincidencia. */
+.lf-context {
+    opacity: 0.6;
+}

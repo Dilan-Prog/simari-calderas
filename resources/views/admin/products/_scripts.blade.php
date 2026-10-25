@@ -1,4 +1,5 @@
 @push('scripts')
+    <script src="{{ asset('js/admin/list-search.js') }}?v={{ @filemtime(public_path('js/admin/list-search.js')) }}"></script>
     <script>
         (function() {
             const btnGrid = document.getElementById('btnViewGrid');
@@ -22,11 +23,13 @@
                 select.addEventListener('change', () => filterForm.submit());
             });
 
-            // Debounce free-text search so it doesn't reload on every keystroke.
-            let searchDebounce = null;
-            searchInput.addEventListener('input', () => {
-                clearTimeout(searchDebounce);
-                searchDebounce = setTimeout(() => filterForm.submit(), 600);
+            // Búsqueda: con retraso al escribir, Enter busca de inmediato, Esc / × limpia,
+            // y el foco vuelve al campo tras la recarga (public/js/admin/list-search.js).
+            initListSearch({
+                input: searchInput,
+                form: filterForm,
+                clearBtn: document.getElementById('prodSearchClear'),
+                storageKey: 'prodSearchFocus',
             });
 
             const gridSelectAllBar = document.getElementById('prodGridSelectAllBar');

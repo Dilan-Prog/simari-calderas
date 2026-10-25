@@ -60,13 +60,18 @@ class ProductFilters
 
     public static function apply(Builder $query, Request $request): Builder
     {
-        if (($search = trim((string) $request->input('search', ''))) !== '') {
-            $like = '%' . addcslashes($search, '\\%_') . '%';
+        // Búsqueda por palabras: cada palabra debe aparecer en el nombre, SKU, modelo, SKU de
+        // proveedor o marca (en cualquier orden), así "bomba grundfos" encuentra una bomba de
+        // esa marca aunque el nombre no diga "grundfos". La colación utf8mb4_unicode_ci ya ignora
+        // mayúsculas y acentos; los espacios sobrantes se descartan.
+        foreach (self::searchTerms($request->input('search')) as $term) {
+            $like = '%' . addcslashes($term, '\%_') . '%';
             $query->where(function ($q) use ($like) {
                 $q->where('name', 'like', $like)
                     ->orWhere('sku', 'like', $like)
                     ->orWhere('model', 'like', $like)
                     ->orWhere('supplier_sku', 'like', $like)
+                    ->orWhereHas('brand', fn ($b) => $b->where('name', 'like', $like))
                     ->orWhereHas('suppliers', fn ($s) => $s->where('suppliers_products.sku', 'like', $like));
             });
         }
@@ -137,6 +142,17 @@ class ProductFilters
         }
 
         return $query;
+    }
+
+    /** @return string[] palabras de la búsqueda (máx. 8), sin espacios sobrantes. */
+    public static function searchTerms(mixed $search): array
+    {
+        if (!is_scalar($search)) {
+            return [];
+        }
+        $terms = preg_split('/\s+/u', trim((string) $search), -1, PREG_SPLIT_NO_EMPTY) ?: [];
+
+        return array_slice($terms, 0, 8);
     }
 
     private static function applyMissing(Builder $q, string $m): void

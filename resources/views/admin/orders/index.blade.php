@@ -6,7 +6,7 @@
 <div class="orders-page">
 
     {{-- Header --}}
-    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-bottom:20px;">
+    <div class="orders-page-head">
         <div>
             <p class="orders-eyebrow">Ventas · Tienda en línea</p>
             <h1 class="orders-title">Órdenes de tienda</h1>
@@ -98,6 +98,8 @@
 
     {{-- Tabla --}}
     <div class="orders-table">
+        <div class="orders-table-scroll">
+        <div class="orders-table-scroll-inner">
         <div class="orders-table-head">
             <span>Folio</span>
             <span data-col="cliente">Cliente / contacto</span>
@@ -119,6 +121,8 @@
                     </div>
                 @endif
             </div>
+            </div>{{-- /.orders-table-scroll-inner --}}
+            </div>{{-- /.orders-table-scroll --}}
         @else
             <div class="orders-table-body">
                 @foreach ($orders as $order)
@@ -166,6 +170,8 @@
                     </div>
                 @endforeach
             </div>
+            </div>{{-- /.orders-table-scroll-inner --}}
+            </div>{{-- /.orders-table-scroll --}}
 
             <div style="display:flex;justify-content:space-between;align-items:center;margin:14px 4px 0;">
                 <p style="margin:0;font-size:13px;color:#6b7280;">

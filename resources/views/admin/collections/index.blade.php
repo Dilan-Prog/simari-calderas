@@ -36,8 +36,8 @@
 
     {{-- Stats cards --}}
     @php
-        $total      = $collections->total();
         $allColls   = \App\Models\Collection::all();
+        $total      = $allColls->count();
         $manuales   = $allColls->where('type', 'manual')->count();
         $automaticas = $allColls->where('type', 'automatic')->count();
         $activas    = $allColls->where('is_active', true)->count();
@@ -97,6 +97,27 @@
             </div>
         </div>
     </div>
+
+    {{-- Búsqueda (servidor): ?q= por nombre o slug; conserva la paginación. --}}
+    <form class="lf-bar" id="collectionSearchForm" method="GET" action="{{ route('admin.collections.index') }}" role="search">
+        <div class="lf-search">
+            <svg class="lf-search-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+            </svg>
+            <input type="search" name="q" id="collectionSearch" class="lf-search-input" autocomplete="off"
+                placeholder="Buscar colección por nombre o slug…" aria-label="Buscar colecciones por nombre o slug"
+                value="{{ $search }}">
+            <button type="button" class="lf-search-clear" id="collectionSearchClear" aria-label="Limpiar búsqueda"
+                title="Limpiar búsqueda (Esc)" hidden>&times;</button>
+        </div>
+        @if ($search !== '')
+            <a href="{{ route('admin.collections.index') }}" class="lf-reset" style="text-decoration:none;">Limpiar búsqueda</a>
+        @endif
+    </form>
+    @if ($search !== '')
+        <p class="lf-count">{{ $collections->total() }} {{ $collections->total() === 1 ? 'colección coincide' : 'colecciones coinciden' }} con "{{ $search }}"</p>
+    @endif
 
     {{-- Table --}}
     <main class="table-container-clients-manager head">
@@ -174,7 +195,12 @@
                 @empty
                     <tr>
                         <td colspan="6" style="padding:32px 16px;text-align:center;color:#6b7280;">
-                            No hay colecciones creadas todavía.
+                            @if ($search !== '')
+                                <strong>Sin resultados.</strong> Ninguna colección coincide con "{{ $search }}".
+                                <a href="{{ route('admin.collections.index') }}" style="color:#ff6213;font-weight:600;">Limpiar búsqueda</a>
+                            @else
+                                No hay colecciones creadas todavía.
+                            @endif
                         </td>
                     </tr>
                 @endforelse
@@ -197,6 +223,15 @@
 @include('admin.collections.partials._create_edit_modal')
 @include('admin.collections.partials._delete_modal')
 @include('admin.collections.partials._scripts')
+<script src="{{ asset('js/admin/list-search.js') }}?v={{ @filemtime(public_path('js/admin/list-search.js')) }}"></script>
+<script>
+    initListSearch({
+        input: document.getElementById('collectionSearch'),
+        form: document.getElementById('collectionSearchForm'),
+        clearBtn: document.getElementById('collectionSearchClear'),
+        storageKey: 'collectionSearchFocus',
+    });
+</script>
 @include('admin.components.center-toast')
 </div>
 @push('scripts')

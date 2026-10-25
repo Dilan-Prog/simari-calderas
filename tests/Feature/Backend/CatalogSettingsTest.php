@@ -112,6 +112,39 @@ class CatalogSettingsTest extends TestCase
         $response->assertSee('name="values[footer.email]"', false);
     }
 
+    public function test_settings_screen_groups_everything_in_accordions_inside_the_same_form(): void
+    {
+        Setting::create(['key' => 'footer.email', 'value' => 'a@b.mx', 'type' => 'string', 'group_name' => 'footer']);
+
+        $html = $this->actingAs($this->adminUser())->get(self::URL)->assertOk()->getContent();
+
+        // Un acordeón por grupo, subgrupos del catálogo anidados y controles globales.
+        $this->assertStringContainsString('data-acc-key="group:catalog"', $html);
+        $this->assertStringContainsString('data-acc-key="group:footer"', $html);
+        foreach (['best_seller', 'discount', 'last_units', 'new', 'listing'] as $block) {
+            $this->assertStringContainsString('data-acc-key="catalog:' . $block . '"', $html);
+        }
+        $this->assertStringContainsString('data-acc-all="open"', $html);
+        $this->assertStringContainsString('data-acc-all="close"', $html);
+        // Solo hay un formulario y un botón de guardar: todos los campos viajan juntos.
+        $this->assertSame(1, preg_match_all('/<form[^>]*configuracion-sitio/', $html));
+        $this->assertSame(1, substr_count($html, 'Guardar configuración'));
+        // Sin errores: solo el primer grupo viene abierto.
+        $this->assertSame(1, preg_match_all('/<details class="st-acc" [^>]*\bopen\b/s', $html));
+    }
+
+    public function test_validation_errors_open_their_accordion_sections(): void
+    {
+        $admin = $this->adminUser();
+        $values = array_merge($this->validValues(), ['catalog.badge_color_new' => '#ZZZ']);
+
+        $this->actingAs($admin)->from(self::URL)->put(self::URL, ['values' => $values]);
+        $html = $this->actingAs($admin)->get(self::URL)->assertOk()->getContent();
+
+        $this->assertMatchesRegularExpression('/<details class="st-acc st-acc-sub catalog-settings-block" id="catalog_block_new"[^>]*\bopen\b/s', $html);
+        $this->assertDoesNotMatchRegularExpression('/<details class="st-acc st-acc-sub catalog-settings-block" id="catalog_block_discount"[^>]*\bopen\b/s', $html);
+    }
+
     public function test_every_catalog_field_in_spec_is_seeded_and_matches_defaults(): void
     {
         $this->assertEqualsCanonicalizing(

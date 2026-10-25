@@ -1,4 +1,5 @@
 @push('scripts')
+    <script src="{{ asset('js/admin/list-search.js') }}?v={{ @filemtime(public_path('js/admin/list-search.js')) }}"></script>
     @php
         // Mismo formato que edit_product/_scripts.blade.php: por id de
         // categoría principal, su lista de subcategorías, cada una con su
@@ -38,11 +39,14 @@
                 });
             });
 
-            let searchDebounce = null;
-            searchInput.addEventListener('input', () => {
-                if (changes.size) return;
-                clearTimeout(searchDebounce);
-                searchDebounce = setTimeout(() => filterForm.submit(), 600);
+            // Misma búsqueda que el listado (retraso al escribir, Enter, Esc / ×, foco tras recargar).
+            // Con cambios sin guardar no recarga: los controles de filtro quedan deshabilitados.
+            initListSearch({
+                input: searchInput,
+                form: filterForm,
+                clearBtn: document.getElementById('bulkEditSearchClear'),
+                storageKey: 'bulkEditSearchFocus',
+                canSubmit: () => !changes.size,
             });
 
             function showToast(message, type = 'success') {
@@ -82,6 +86,8 @@
                 bulkEditCount.textContent = changes.size;
                 bulkEditBar.classList.toggle('active', changes.size > 0);
                 filterControls.forEach(el => el.disabled = changes.size > 0);
+                // Explica por qué el buscador/filtros no responden mientras hay ediciones sin guardar.
+                filterControls.forEach(el => el.title = changes.size > 0 ? 'Guarda o descarta los cambios pendientes para buscar o filtrar' : '');
                 saveBtn.disabled = changes.size === 0;
             }
 

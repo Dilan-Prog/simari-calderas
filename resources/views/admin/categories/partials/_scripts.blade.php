@@ -493,38 +493,90 @@
             }
         });
 
-        // Search and filter
+        // Search and filter — nombre/slug (sin distinguir acentos ni mayúsculas, varias palabras),
+        // nivel y estado. Si una subcategoría/hija coincide, también se muestran sus ancestros
+        // (atenuados) para ver de quién cuelga. Con el filtro activo se ignoran los colapsados.
         const categorySearch = document.getElementById('categorySearch');
         const categoryLevelFilter = document.getElementById('categoryLevelFilter');
         const categoryStatusFilter = document.getElementById('categoryStatusFilter');
-        const btnFilter = document.getElementById('btnFilter');
+        const categorySearchClear = document.getElementById('categorySearchClear');
+        const categoryFilterReset = document.getElementById('categoryFilterReset');
+        const categoryFilterCount = document.getElementById('categoryFilterCount');
+        const categoryNoResults = document.getElementById('categoryNoResults');
+        const categoryNoResultsText = document.getElementById('categoryNoResultsText');
+        const catRows = Array.from(document.querySelectorAll('#categoriesTable .cat-row'));
+        const catRowById = new Map(catRows.map(r => [r.dataset.id, r]));
+
+        const normalize = (s) => (s || '').toString().normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+        catRows.forEach(r => { r._hay = normalize((r.dataset.name || '') + ' ' + (r.dataset.slug || '')); });
 
         const filterCategories = () => {
-            const search = categorySearch.value.toLowerCase().trim();
+            const terms = normalize(categorySearch.value).split(/\s+/).filter(Boolean);
             const level = categoryLevelFilter.value;
             const status = categoryStatusFilter.value;
+            const active = terms.length > 0 || level !== 'all' || status !== 'all';
 
-            document.querySelectorAll('.cat-row').forEach(row => {
-                const name = row.dataset.name ?? '';
-                const rowLevel = row.dataset.level ?? '';
-                const rowStatus = row.dataset.status ?? '';
+            categorySearchClear.hidden = categorySearch.value === '';
+            categoryFilterReset.hidden = !active;
 
-                const matchSearch = !search || name.includes(search);
-                const matchLevel = level === 'all' || rowLevel === level;
-                const matchStatus = status === 'all' || rowStatus === status;
+            const direct = new Set();
+            const context = new Set();
+            if (active) {
+                catRows.forEach(row => {
+                    const ok = terms.every(t => row._hay.includes(t))
+                        && (level === 'all' || row.dataset.level === level)
+                        && (status === 'all' || row.dataset.status === status);
+                    if (!ok) return;
+                    direct.add(row);
+                    if (terms.length) {
+                        let p = catRowById.get(row.dataset.parent);
+                        while (p) { context.add(p); p = catRowById.get(p.dataset.parent); }
+                    }
+                });
+            }
 
-                row.style.display = matchSearch && matchLevel && matchStatus ? '' : 'none';
+            catRows.forEach(row => {
+                const shown = !active || direct.has(row) || context.has(row);
+                row.classList.toggle('lf-hidden', !shown);
+                row.classList.toggle('lf-context', active && !direct.has(row) && context.has(row));
+                if (active) row.style.display = ''; // el filtro manda sobre carpetas colapsadas
             });
+
+            const none = active && direct.size === 0;
+            categoryNoResults.hidden = !none;
+            if (none) {
+                categoryNoResultsText.textContent = terms.length
+                    ? 'Ninguna categoría coincide con "' + categorySearch.value.trim() + '" y los filtros elegidos.'
+                    : 'Ninguna categoría coincide con los filtros elegidos.';
+            }
+            categoryFilterCount.hidden = !active;
+            if (active) {
+                categoryFilterCount.textContent = direct.size + ' de ' + catRows.length + ' categorías coinciden';
+            }
         };
 
         categorySearch.addEventListener('input', filterCategories);
+        categorySearch.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') e.preventDefault();
+            if (e.key === 'Escape' && categorySearch.value !== '') {
+                e.preventDefault();
+                categorySearch.value = '';
+                filterCategories();
+            }
+        });
+        categorySearchClear.addEventListener('click', () => {
+            categorySearch.value = '';
+            filterCategories();
+            categorySearch.focus();
+        });
+        categoryFilterReset.addEventListener('click', () => {
+            categorySearch.value = '';
+            categoryLevelFilter.value = 'all';
+            categoryStatusFilter.value = 'all';
+            filterCategories();
+        });
         categoryLevelFilter.addEventListener('change', filterCategories);
         categoryStatusFilter.addEventListener('change', filterCategories);
-        btnFilter.addEventListener('click', filterCategories);
-
-
-        categorySearch.addEventListener('input', filterCategories);
-        categoryLevelFilter.addEventListener('change', filterCategories);
 
         document.querySelectorAll('[data-toggle]').forEach(function(el) {
             el.addEventListener('click', function() {

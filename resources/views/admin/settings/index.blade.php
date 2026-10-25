@@ -35,14 +35,35 @@
 
         $groupTitles = [
             'catalog' => 'Catálogo y etiquetas',
-            'footer' => 'Footer',
+            'footer' => 'Footer y datos de contacto',
             'ecommerce' => 'Ecommerce',
             'pool_calculator' => 'Calculadora de Bombas de Calor',
+            'inventory' => 'Inventario',
+            'survey' => 'Encuestas',
         ];
+
+        $groupDescriptions = [
+            'catalog' => 'Etiquetas de las tarjetas de producto (Más vendido, descuento, Últimas piezas, Nuevo) y ajustes del listado',
+            'footer' => 'Dirección, WhatsApp, correo y redes del pie de página',
+            'ecommerce' => 'IVA, tipo de cambio y descuento por pago de contado',
+            'pool_calculator' => 'Tarifa eléctrica, COP, horas de operación y temperaturas por ciudad',
+            'inventory' => 'Almacén predeterminado y ajustes de inventario',
+            'survey' => 'Valores predeterminados de las encuestas',
+        ];
+
+        // Un grupo se abre solo si alguno de sus campos regresó con error de validación.
+        $groupHasError = function ($settings) use ($errors) {
+            foreach ($settings as $s) {
+                if ($errors->has($s->key) || $errors->has('values.' . $s->key)) {
+                    return true;
+                }
+            }
+            return false;
+        };
     @endphp
 
     <div class="container user-manager">
-        <section class="clients-manager-section">
+        <section class="clients-manager-section st-page">
 
             {{-- Header --}}
             <header class="clients-manager-main" style="margin-bottom:4px;">
@@ -60,12 +81,43 @@
                 @csrf
                 @method('PUT')
 
-                <div class="pform-panel-wrap" style="margin-top:20px;">
+                <div class="st-wrap">
+                    @if ($groups->isNotEmpty())
+                        <div class="st-toolbar" role="group" aria-label="Controles de las secciones">
+                            <p class="st-toolbar-hint">Cada sección se despliega por separado; recordamos cuáles dejaste abiertas.</p>
+                            <div class="st-toolbar-actions">
+                                <button type="button" class="st-btn" data-acc-all="open">Expandir todo</button>
+                                <button type="button" class="st-btn" data-acc-all="close">Contraer todo</button>
+                            </div>
+                        </div>
+                    @endif
+
                     @forelse ($groups as $groupName => $settings)
-                        <div class="pform-panel">
-                            <h2 class="pform-panel-title">
-                                {{ $groupTitles[$groupName] ?? ucfirst(str_replace(['_', '-'], ' ', $groupName ?? 'General')) }}
-                            </h2>
+                        @php
+                            $groupKey = $groupName ?: 'general';
+                            $groupSlug = preg_replace('/[^a-z0-9_]/i', '_', $groupKey);
+                            $groupTitle = $groupTitles[$groupName] ?? ucfirst(str_replace(['_', '-'], ' ', $groupName ?: 'General'));
+                            $groupError = $groupHasError($settings);
+                            $groupBodyId = 'st_group_body_' . $groupSlug;
+                        @endphp
+                        <details class="st-acc" data-acc-key="group:{{ $groupKey }}" id="st_group_{{ $groupSlug }}"
+                            @if ($loop->first || $groupError) open @endif>
+                            <summary class="st-acc-summary" aria-controls="{{ $groupBodyId }}">
+                                <span class="st-acc-heading">
+                                    <span class="st-acc-title">{{ $groupTitle }}</span>
+                                    @if (!empty($groupDescriptions[$groupName ?? '']))
+                                        <span class="st-acc-desc">{{ $groupDescriptions[$groupName] }}</span>
+                                    @endif
+                                </span>
+                                @if ($groupError)
+                                    <span class="st-pill is-error">Revisar</span>
+                                @endif
+                                <span class="st-count">{{ $settings->count() }} {{ $settings->count() === 1 ? 'ajuste' : 'ajustes' }}</span>
+                                <span class="st-chevron" aria-hidden="true">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                                </span>
+                            </summary>
+                            <div class="st-acc-body" id="{{ $groupBodyId }}">
 
                             @if ($groupName === 'catalog')
                                 @php
@@ -117,9 +169,40 @@
                                 </p>
 
                                 @foreach ($catalogLayout as $block)
-                                    <fieldset class="catalog-settings-block" id="catalog_block_{{ $block['id'] }}">
-                                        <legend>{{ $block['title'] }}</legend>
+                                    @php
+                                        $blockEnabledSetting = $catalogByKey->get('catalog.badge_enabled_' . $block['id']);
+                                        $blockEnabledValue = null;
+                                        if ($blockEnabledSetting) {
+                                            $blockEnabledValue = array_key_exists($blockEnabledSetting->key, $oldValues) && is_scalar($oldValues[$blockEnabledSetting->key])
+                                                ? (string) $oldValues[$blockEnabledSetting->key]
+                                                : (string) $blockEnabledSetting->value;
+                                        }
+                                        $blockOn = in_array($blockEnabledValue, ['1', 'true'], true);
+                                        $blockError = false;
+                                        foreach ($block['keys'] as $bk) {
+                                            if ($errors->has('catalog.' . $bk) || $errors->has('values.catalog.' . $bk)) { $blockError = true; }
+                                        }
+                                        $blockBodyId = 'catalog_block_body_' . $block['id'];
+                                    @endphp
+                                    <details class="st-acc st-acc-sub catalog-settings-block" id="catalog_block_{{ $block['id'] }}"
+                                        data-acc-key="catalog:{{ $block['id'] }}" @if ($blockError) open @endif>
+                                        <summary class="st-acc-summary" aria-controls="{{ $blockBodyId }}">
+                                            <span class="st-acc-heading">
+                                                <span class="st-acc-title">{{ $block['title'] }}</span>
+                                            </span>
+                                            @if ($blockError)
+                                                <span class="st-pill is-error">Revisar</span>
+                                            @endif
+                                            @if ($blockEnabledSetting)
+                                                <span class="st-pill {{ $blockOn ? 'is-on' : 'is-off' }}" data-block-status>{{ $blockOn ? 'Activa' : 'Desactivada' }}</span>
+                                            @endif
+                                            <span class="st-chevron" aria-hidden="true">
+                                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                                            </span>
+                                        </summary>
+                                        <div class="st-acc-body" id="{{ $blockBodyId }}">
                                         <p class="catalog-settings-help">{{ $block['help'] }}</p>
+                                        <div class="st-fields">
 
                                         @foreach ($block['keys'] as $shortKey)
                                             @php
@@ -214,9 +297,12 @@
                                                 @endif
                                             </div>
                                         @endforeach
-                                    </fieldset>
+                                        </div>
+                                        </div>
+                                    </details>
                                 @endforeach
 
+                                <div class="st-fields">
                                 @foreach ($settings->reject(fn ($s) => in_array($s->key, $catalogPlaced, true)) as $setting)
                                     @php
                                         $fieldName = "values[{$setting->key}]";
@@ -229,7 +315,9 @@
                                         <p class="pform-hint">Clave: <code>{{ $setting->key }}</code></p>
                                     </div>
                                 @endforeach
+                                </div>
                             @else
+                            <div class="st-fields">
                             @foreach ($settings as $setting)
                                 @php
                                     $fieldName = "values[{$setting->key}]";
@@ -239,7 +327,7 @@
                                         ucfirst(str_replace(['_', '-'], ' ', last(explode('.', $setting->key))));
                                 @endphp
 
-                                <div class="pform-field">
+                                <div class="pform-field {{ $setting->type === 'json' ? 'st-field-wide' : '' }}">
                                     @if ($setting->type === 'boolean')
                                         <label class="pform-label" for="{{ $fieldId }}">{{ $label }}</label>
                                         <input type="hidden" name="{{ $fieldName }}" value="0">
@@ -257,8 +345,10 @@
                                     @endif
                                 </div>
                             @endforeach
+                            </div>
                             @endif
-                        </div>
+                            </div>
+                        </details>
                     @empty
                         <div class="pform-panel">
                             <p class="pform-hint">No hay configuraciones registradas todavía.</p>
@@ -266,7 +356,9 @@
                     @endforelse
 
                     @if ($groups->isNotEmpty())
-                        <button type="submit" class="pform-btn primary">Guardar configuración</button>
+                        <div class="st-savebar">
+                            <button type="submit" class="pform-btn primary">Guardar configuración</button>
+                        </div>
                     @endif
                 </div>
             </form>
@@ -275,9 +367,62 @@
 
     @push('styles')
         <style>
-            .catalog-settings-intro { font-size: 14px; color: #374151; margin: -8px 0 20px; line-height: 1.5; }
-            .catalog-settings-block { border: 1px solid #d1d5db; border-radius: 8px; padding: 16px 20px 20px; margin: 0 0 20px; min-width: 0; }
-            .catalog-settings-block legend { font-size: 15px; font-weight: 700; color: #111827; padding: 0 8px; }
+            /* ── Pagina: margen lateral de 24 px, ancho de la pantalla con tope de 1800 px ── */
+            .container.user-manager .clients-manager-section.st-page { padding: 24px; max-width: 1800px; margin: 0 auto; box-sizing: border-box; }
+            .st-wrap { margin-top: 16px; width: 100%; min-width: 0; }
+
+            /* ── Barra de controles ── */
+            .st-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
+            .st-toolbar-hint { margin: 0; font-size: 13px; color: #6b7280; flex: 1 1 280px; }
+            .st-toolbar-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+            .st-btn { padding: 8px 14px; border: 1.5px solid #e5e7eb; border-radius: 8px; background: #fff; font: inherit; font-size: 13px; font-weight: 600; color: #374151; cursor: pointer; transition: border-color .15s, color .15s; }
+            .st-btn:hover { border-color: var(--secondary-color, #ff6213); color: var(--secondary-color, #ff6213); }
+            .st-btn:focus-visible { outline: 2px solid var(--secondary-color, #ff6213); outline-offset: 2px; }
+
+            /* ── Acordeon (details/summary) ── */
+            .st-acc { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; box-shadow: 0 1px 3px rgba(0, 0, 0, .06); margin-bottom: 12px; min-width: 0; }
+            .st-acc[open] { border-color: #d1d5db; }
+            .st-acc-summary { display: flex; align-items: center; gap: 12px; padding: 16px 20px; cursor: pointer; list-style: none; user-select: none; border-radius: 12px; }
+            .st-acc-summary::-webkit-details-marker { display: none; }
+            .st-acc-summary:hover { background: #fafafa; }
+            .st-acc-summary:focus-visible { outline: 2px solid var(--secondary-color, #ff6213); outline-offset: 2px; }
+            .st-acc[open] > .st-acc-summary { border-bottom-left-radius: 0; border-bottom-right-radius: 0; border-bottom: 1px solid #f3f4f6; }
+            .st-acc-heading { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1 1 auto; }
+            .st-acc-title { font-size: 16px; font-weight: 700; color: #111827; }
+            .st-acc-desc { font-size: 12.5px; color: #6b7280; line-height: 1.4; }
+            .st-count { font-size: 12px; color: #6b7280; white-space: nowrap; }
+            .st-chevron { display: inline-flex; flex: 0 0 auto; color: #6b7280; transition: transform .2s ease; transform: rotate(-90deg); }
+            .st-acc[open] > .st-acc-summary > .st-chevron { transform: rotate(0deg); }
+            .st-acc-body { padding: 20px; min-width: 0; }
+            .st-pill { display: inline-block; padding: 2px 9px; border-radius: 999px; font-size: 11.5px; font-weight: 700; white-space: nowrap; background: #f1f2f4; color: #6b7280; }
+            .st-pill.is-on { background: #e6f6ee; color: #0f7a4f; }
+            .st-pill.is-off { background: #f1f2f4; color: #6b7280; }
+            .st-pill.is-error { background: #fdecec; color: #c81e1e; }
+
+            /* Subgrupos del catalogo (acordeones anidados) */
+            .st-acc-sub { box-shadow: none; border-color: #e5e7eb; background: #fcfcfd; margin-bottom: 10px; }
+            .st-acc-sub > .st-acc-summary { padding: 12px 16px; }
+            .st-acc-sub .st-acc-title { font-size: 14.5px; }
+            .st-acc-sub > .st-acc-body { padding: 16px; }
+            .st-acc-sub:last-child { margin-bottom: 0; }
+
+            /* Campos en rejilla para aprovechar el ancho */
+            .st-fields { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 18px 24px; align-items: start; }
+            .st-fields > .pform-field { margin: 0; min-width: 0; }
+            .st-fields > .st-field-wide { grid-column: 1 / -1; }
+
+            /* Barra de guardado fija al fondo del area con scroll */
+            .st-savebar { position: sticky; bottom: 0; z-index: 5; display: flex; justify-content: flex-end; padding: 12px 0; margin-top: 8px; background: linear-gradient(to top, #f0f2f5 70%, rgba(240, 242, 245, 0)); }
+
+            @media (max-width: 640px) {
+                .container.user-manager .clients-manager-section.st-page { padding: 16px; }
+                .st-acc-summary { padding: 14px 14px; flex-wrap: wrap; }
+                .st-acc-body { padding: 14px; }
+                .st-count { display: none; }
+            }
+
+            /* ── Campos del catalogo ── */
+            .catalog-settings-intro { font-size: 14px; color: #374151; margin: 0 0 16px; line-height: 1.5; }
             .catalog-settings-help { font-size: 13px; color: #4b5563; margin: 0 0 16px; line-height: 1.5; }
             .catalog-settings-hint { font-size: 12px; color: #4b5563; margin: 6px 0 0; min-height: 1em; }
             .catalog-settings-hint.is-warning { color: #92400e; font-weight: 600; }
@@ -288,7 +433,7 @@
             .catalog-color-picker { width: 44px; height: 40px; padding: 2px; border: 1px solid #d1d5db; border-radius: 8px; background: #fff; cursor: pointer; }
             .catalog-color-text { max-width: 130px; font-family: monospace; text-transform: uppercase; }
             .catalog-badge-preview { display: inline-block; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 700; line-height: 1.3; }
-            .catalog-settings-block input:focus-visible { outline: 2px solid var(--secondary-color, #0054ff); outline-offset: 2px; }
+            .st-acc input:focus-visible { outline: 2px solid var(--secondary-color, #0054ff); outline-offset: 2px; }
         </style>
     @endpush
 
@@ -343,6 +488,78 @@
                         }
                     });
                 });
+            })();
+
+            // ── Acordeones de la configuracion ──
+            (function () {
+                var STORE = 'admin.settings.accordion.v1';
+                var form = document.querySelector('form[action*="configuracion-sitio"]') || document.querySelector('.st-wrap').closest('form');
+                var accs = Array.prototype.slice.call(document.querySelectorAll('details.st-acc[data-acc-key]'));
+                if (!accs.length) return;
+
+                function read() {
+                    try { return JSON.parse(localStorage.getItem(STORE) || '{}') || {}; } catch (e) { return {}; }
+                }
+                function write(map) {
+                    try { localStorage.setItem(STORE, JSON.stringify(map)); } catch (e) { /* sin almacenamiento: la pagina sigue funcionando */ }
+                }
+                function sync(d) {
+                    var sm = d.querySelector(':scope > summary');
+                    if (sm) sm.setAttribute('aria-expanded', d.open ? 'true' : 'false');
+                }
+                function hasError(d) {
+                    return !!d.querySelector('.is-invalid, .field-error-msg, [aria-invalid="true"]');
+                }
+                function openAncestors(el) {
+                    var d = el.closest('details');
+                    while (d) { d.open = true; d = d.parentElement ? d.parentElement.closest('details') : null; }
+                }
+
+                // Estado guardado (los que traen error de validacion siempre quedan abiertos)
+                var saved = read();
+                accs.forEach(function (d) {
+                    var key = d.getAttribute('data-acc-key');
+                    if (hasError(d)) { d.open = true; }
+                    else if (Object.prototype.hasOwnProperty.call(saved, key)) { d.open = !!saved[key]; }
+                    sync(d);
+                    d.addEventListener('toggle', function () {
+                        sync(d);
+                        var map = read();
+                        map[key] = d.open;
+                        write(map);
+                    });
+                });
+
+                // Expandir / contraer todo
+                document.querySelectorAll('[data-acc-all]').forEach(function (btn) {
+                    btn.addEventListener('click', function () {
+                        var open = btn.getAttribute('data-acc-all') === 'open';
+                        accs.forEach(function (d) { d.open = open; });
+                    });
+                });
+
+                // Etiqueta Activa/Desactivada de cada subgrupo en vivo
+                document.querySelectorAll('details.st-acc-sub').forEach(function (d) {
+                    var status = d.querySelector('[data-block-status]');
+                    var box = d.querySelector('input[type="checkbox"]');
+                    if (!status || !box) return;
+                    box.addEventListener('change', function () {
+                        status.textContent = box.checked ? 'Activa' : 'Desactivada';
+                        status.classList.toggle('is-on', box.checked);
+                        status.classList.toggle('is-off', !box.checked);
+                    });
+                });
+
+                // Un campo invalido dentro de una seccion cerrada no se puede enfocar y bloquearia el envio en silencio:
+                // se abre la seccion antes de validar.
+                if (form) {
+                    form.addEventListener('invalid', function (e) { openAncestors(e.target); }, true);
+                    form.addEventListener('click', function (e) {
+                        var btn = e.target.closest ? e.target.closest('button[type="submit"]') : null;
+                        if (!btn) return;
+                        form.querySelectorAll(':invalid').forEach(openAncestors);
+                    });
+                }
             })();
         </script>
     @endpush

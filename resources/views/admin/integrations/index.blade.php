@@ -47,16 +47,20 @@
                     <p style="margin:0;color:#047857;font-weight:600;">{{ session('success') }}</p>
                 </div>
             @endif
-            @if (session('mail_test_success'))
-                <div class="pform-panel" style="border-left:4px solid #10b981;margin-top:16px;">
-                    <p style="margin:0;color:#047857;font-weight:600;">{{ session('mail_test_success') }}</p>
-                </div>
-            @endif
-            @if (session('mail_test_error'))
-                <div class="pform-panel" style="border-left:4px solid #ef4444;margin-top:16px;">
-                    <p style="margin:0;color:#b91c1c;font-weight:600;">{{ session('mail_test_error') }}</p>
-                </div>
-            @endif
+            {{-- Resultado de "Probar envío": aviso emergente (no una barra arriba de la
+                 página) para que se vea aunque la vista se restaure más abajo. --}}
+            @foreach (['mail_test_success' => 'success', 'mail_test_error' => 'error'] as $flashKey => $flashType)
+                @if (session($flashKey))
+                    <div class="toast-notification toast-{{ $flashType }} integr-mail-toast" role="status">
+                        <div class="toast-body">
+                            <p class="toast-title">{{ $flashType === 'success' ? 'Prueba de correo' : 'Falló la prueba de correo' }}</p>
+                            <p class="toast-message">{{ session($flashKey) }}</p>
+                        </div>
+                        <button type="button" class="toast-close"
+                            onclick="const t=this.closest('.toast-notification');t.style.animation='toastOut 0.3s ease forwards';setTimeout(()=>t.remove(),300)">✕</button>
+                    </div>
+                @endif
+            @endforeach
             @if ($errors->any())
                 <div class="pform-panel" style="border-left:4px solid #ef4444;margin-top:16px;">
                     @foreach ($errors->all() as $error)
@@ -1280,31 +1284,182 @@
     </style>
 
     <script>
-        // Toggle de secciones del hub (sin dependencias — misma idea que
-        // cualquier tab-switcher del admin, aquí implementado ad-hoc porque
-        // esta página no tenía tabs previamente).
-        document.querySelectorAll('#integrSidebar .integr-sidebar-item').forEach(item => {
-            item.addEventListener('click', () => {
-                document.querySelectorAll('#integrSidebar .integr-sidebar-item').forEach(i => i.classList.remove('active'));
-                document.querySelectorAll('.integr-panel').forEach(p => p.classList.remove('active'));
+        // ------------------------------------------------------------------
+        // Vista guardada del hub: panel de integración activo + pestaña interna
+        // de cada panel + posición de scroll. Se conserva al guardar/crear/
+        // editar/eliminar/probar (sea con POST+redirect o con fetch+reload):
+        //   1) URL: ?panel=...&tab=... (history.replaceState). Es lo que usan los
+        //      redirects del servidor (ReturnsToIntegrationsHub) y lo que
+        //      sobrevive a location.reload().
+        //   2) localStorage: último panel/pestañas usados (también al volver a la
+        //      pantalla más tarde). sessionStorage: scroll por panel+pestaña.
+        // Todo el acceso a storage va en try/catch (modo privado, bloqueado...).
+        // ------------------------------------------------------------------
+        (function () {
+            const VIEW_KEY = 'integraciones.vista';
+            const SCROLL_KEY = 'integraciones.scroll';
+            const sidebarItems = Array.from(document.querySelectorAll('#integrSidebar .integr-sidebar-item'));
+            const validPanels = sidebarItems.map(i => i.dataset.panel);
+            const panelEl = id => document.getElementById('integrPanel-' + id);
 
-                item.classList.add('active');
-                document.getElementById('integrPanel-' + item.dataset.panel)?.classList.add('active');
+            const storeGet = (area, key) => {
+                try { return window[area].getItem(key); } catch (e) { return null; }
+            };
+            const storeSet = (area, key, value) => {
+                try { window[area].setItem(key, value); } catch (e) {}
+            };
+            const readJson = (area, key) => {
+                try { return JSON.parse(storeGet(area, key)) || null; } catch (e) { return null; }
+            };
+
+            const state = { panel: validPanels[0], tabs: {} };
+
+            const hasTab = (panel, tab) =>
+                !!(tab && panelEl(panel)?.querySelector('.integr-tab[data-tab="' + CSS.escape(tab) + '"]'));
+            const activeTab = panel => state.tabs[panel] || null;
+
+            const showPanel = panel => {
+                sidebarItems.forEach(i => i.classList.toggle('active', i.dataset.panel === panel));
+                document.querySelectorAll('.integr-panel').forEach(p => p.classList.toggle('active', p.id === 'integrPanel-' + panel));
+                state.panel = panel;
+            };
+
+            const showTab = (panel, tab) => {
+                const el = panelEl(panel);
+                if (!el || !hasTab(panel, tab)) return;
+                el.querySelectorAll('.integr-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+                el.querySelectorAll('.integr-tab-content').forEach(c => c.classList.toggle('active', c.dataset.tabContent === tab));
+                state.tabs[panel] = tab;
+            };
+
+            // Scroll: quien scrollea es el ancestro con overflow auto/scroll más cercano al hub
+            // (hoy .container.user-manager; .admin-main en otros layouts) o, si no hay, la ventana.
+            const hubEl = document.querySelector('.integr-hub');
+            const scrollParent = () => {
+                let el = hubEl.parentElement;
+                while (el && el !== document.body) {
+                    const oy = getComputedStyle(el).overflowY;
+                    if ((oy === 'auto' || oy === 'scroll') && el.scrollHeight > el.clientHeight + 1) return el;
+                    el = el.parentElement;
+                }
+                return null;
+            };
+            const currentScroll = () => scrollParent()?.scrollTop ?? window.scrollY ?? 0;
+            const saveScroll = () => {
+                storeSet('sessionStorage', SCROLL_KEY, JSON.stringify({
+                    panel: state.panel, tab: activeTab(state.panel), top: currentScroll(),
+                }));
+            };
+
+            // Escribe el estado en la URL (query, no hash: el Referer no lleva hash) y en localStorage.
+            const persist = () => {
+                storeSet('localStorage', VIEW_KEY, JSON.stringify(state));
+                try {
+                    const url = new URL(window.location.href);
+                    url.searchParams.set('panel', state.panel);
+                    const tab = activeTab(state.panel);
+                    if (tab) url.searchParams.set('tab', tab); else url.searchParams.delete('tab');
+                    url.hash = '';
+                    window.history.replaceState(window.history.state, '', url);
+                } catch (e) {}
+                saveScroll();
+            };
+
+            // --- Estado inicial: URL > localStorage > primer panel ---
+            const saved = readJson('localStorage', VIEW_KEY);
+            if (saved && typeof saved === 'object' && saved.tabs && typeof saved.tabs === 'object') {
+                Object.keys(saved.tabs).forEach(p => {
+                    if (validPanels.includes(p) && hasTab(p, saved.tabs[p])) showTab(p, saved.tabs[p]);
+                });
+            }
+            const params = new URLSearchParams(window.location.search);
+            const urlPanel = params.get('panel');
+            const urlTab = params.get('tab');
+            const initialPanel = validPanels.includes(urlPanel) ? urlPanel
+                : (saved && validPanels.includes(saved.panel) ? saved.panel : validPanels[0]);
+            showPanel(initialPanel);
+            if (validPanels.includes(urlPanel) && hasTab(urlPanel, urlTab)) showTab(urlPanel, urlTab);
+
+            // --- Interacciones ---
+            sidebarItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    showPanel(item.dataset.panel);
+                    persist();
+                });
             });
-        });
 
-        // Toggle de pestañas Credenciales/Avanzado, con estado independiente
-        // por cada panel de integración (scoped al .integr-panel más cercano).
-        document.querySelectorAll('.integr-tab').forEach(tab => {
-            tab.addEventListener('click', () => {
-                const panel = tab.closest('.integr-panel');
-                panel.querySelectorAll('.integr-tab').forEach(t => t.classList.remove('active'));
-                panel.querySelectorAll('.integr-tab-content').forEach(c => c.classList.remove('active'));
-
-                tab.classList.add('active');
-                panel.querySelector(`.integr-tab-content[data-tab-content="${tab.dataset.tab}"]`)?.classList.add('active');
+            // Pestañas Credenciales/Avanzado/..., con estado independiente por panel.
+            document.querySelectorAll('.integr-tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const panel = tab.closest('.integr-panel').id.replace('integrPanel-', '');
+                    showTab(panel, tab.dataset.tab);
+                    persist();
+                });
             });
-        });
+
+            // Al enviar cualquier formulario del hub (guardar, probar envío, crear/eliminar
+            // cliente o token...) el servidor recibe en qué panel/pestaña estabas y
+            // redirige ahí con ese mismo estado.
+            const upsertHidden = (form, name, value) => {
+                let input = form.querySelector('input[type="hidden"][name="' + name + '"]');
+                if (!input) {
+                    input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = name;
+                    form.appendChild(input);
+                }
+                input.value = value;
+            };
+            document.addEventListener('submit', e => {
+                const form = e.target;
+                if (!(form instanceof HTMLFormElement) || !form.closest('.integr-content')) return;
+                if ((form.getAttribute('method') || 'get').toLowerCase() !== 'post') return;
+                const panel = form.closest('.integr-panel')?.id.replace('integrPanel-', '') || state.panel;
+                upsertHidden(form, '_panel', panel);
+                const tab = form.closest('.integr-tab-content')?.dataset.tabContent || activeTab(panel);
+                if (tab) upsertHidden(form, '_tab', tab); else form.querySelector('input[name="_tab"]')?.remove();
+                saveScroll();
+            }, true);
+
+            // Scroll: guardar mientras se mueve y al salir/recargar la página.
+            let scrollTimer = null;
+            const onScroll = () => { clearTimeout(scrollTimer); scrollTimer = setTimeout(saveScroll, 120); };
+            // Los eventos scroll no burbujean: se captura en document para cubrir a cualquier contenedor.
+            document.addEventListener('scroll', onScroll, { capture: true, passive: true });
+            window.addEventListener('pagehide', saveScroll);
+            window.addEventListener('beforeunload', saveScroll);
+
+            // Restaurar el scroll si es la misma vista (mismo panel + pestaña). Si se acaba
+            // de generar un token, se muestra ese token (solo se ve una vez) en vez de restaurar.
+            const savedScroll = readJson('sessionStorage', SCROLL_KEY);
+            persist();
+            const newToken = document.getElementById('integrNewToken');
+            if (newToken) {
+                newToken.scrollIntoView({ block: 'center' });
+                return;
+            }
+            if (savedScroll && savedScroll.panel === state.panel
+                && (savedScroll.tab || null) === (activeTab(state.panel) || null) && savedScroll.top > 0) {
+                let userMoved = false;
+                ['wheel', 'touchstart', 'keydown', 'mousedown'].forEach(ev =>
+                    window.addEventListener(ev, () => { userMoved = true; }, { once: true, passive: true }));
+                const restore = () => {
+                    if (userMoved) return;
+                    const sp = scrollParent();
+                    if (sp) sp.scrollTop = savedScroll.top;
+                    else window.scrollTo(0, savedScroll.top);
+                };
+                restore();
+                requestAnimationFrame(restore);
+                window.addEventListener('load', restore, { once: true });
+            }
+        })();
+
+        // Avisos de "Probar envío": se cierran solos.
+        document.querySelectorAll('.integr-mail-toast').forEach(toast => setTimeout(() => {
+            toast.style.animation = 'toastOut 0.3s ease forwards';
+            setTimeout(() => toast.remove(), 300);
+        }, 8000));
 
         // Copiar URL de callback (pestaña Avanzado) — mismo patrón que
         // .btn-copy-webhook-value en admin/whatsapp-accounts.

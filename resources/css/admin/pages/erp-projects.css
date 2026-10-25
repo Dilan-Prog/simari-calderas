@@ -78,7 +78,9 @@ a.prj-kpi:hover { border-color: var(--erp-accent, #f97316); }
 /* Object Page */
 .prj-main { margin-bottom: 0; min-width: 0; }
 .prj-main .erp-tabpanel { padding: 18px 20px; }
-.prj-aside { position: sticky; top: 68px; }
+.prj-aside { position: sticky; top: 24px; }
+/* En laptops (alto util < 800 px) el panel lateral puede ser mas alto que la ventana: sticky dejaria su parte baja inalcanzable. */
+@media (max-height: 800px) { .prj-aside { position: static; } }
 .prj-aside .erp-docflow { margin-bottom: 0; }
 .prj-status-form, .prj-inline-form { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin: 0; }
 .prj-progress-row { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; }

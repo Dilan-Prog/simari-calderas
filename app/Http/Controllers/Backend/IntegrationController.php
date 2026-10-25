@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Backend;
 
+use App\Http\Controllers\Backend\Concerns\ReturnsToIntegrationsHub;
 use App\Http\Controllers\Controller;
 use App\Models\ApiClient;
 use App\Models\EmailTemplate;
@@ -16,6 +17,8 @@ use Illuminate\Support\Facades\Crypt;
 
 class IntegrationController extends Controller
 {
+    use ReturnsToIntegrationsHub;
+
     /**
      * Claves del grupo 'integraciones' que administra esta pantalla.
      * La contraseña se guarda encriptada (Crypt) y nunca se re-imprime
@@ -160,7 +163,7 @@ class IntegrationController extends Controller
             $this->saveSetting('mail.password', Crypt::encryptString($data['mail_password']));
         }
 
-        return back()->with('success', 'Configuración de correo guardada.');
+        return $this->backToIntegrations($request, 'smtp', 'credenciales')->with('success', 'Configuración de correo guardada.');
     }
 
     public function updateMercadoPago(Request $request)
@@ -205,7 +208,7 @@ class IntegrationController extends Controller
             }
         }
 
-        return back()->with('success', 'Configuración de Mercado Pago guardada.');
+        return $this->backToIntegrations($request, 'mercadopago')->with('success', 'Configuración de Mercado Pago guardada.');
     }
 
     public function sendTestMail(Request $request)
@@ -238,10 +241,10 @@ class IntegrationController extends Controller
                 ['guest_email' => $request->input('test_email'), 'guest_name' => 'Prueba SMTP']
             );
         } catch (\Throwable $e) {
-            return back()->with('mail_test_error', 'Falló el envío: ' . $e->getMessage());
+            return $this->backToIntegrations($request, 'smtp', 'credenciales')->with('mail_test_error', 'Falló el envío: ' . $e->getMessage());
         }
 
-        return back()->with('mail_test_success', 'Correo de prueba enviado a ' . $request->input('test_email') . '. Revisa la bandeja (y spam).');
+        return $this->backToIntegrations($request, 'smtp', 'credenciales')->with('mail_test_success', 'Correo de prueba enviado a ' . $request->input('test_email') . '. Revisa la bandeja (y spam).');
     }
 
     /**
@@ -260,7 +263,7 @@ class IntegrationController extends Controller
         $quote = Quote::with('items')->inRandomOrder()->first();
 
         if (!$quote) {
-            return back()->with('mail_test_error', 'No hay ninguna cotización en la base de datos para usar de prueba.');
+            return $this->backToIntegrations($request, 'smtp', 'credenciales')->with('mail_test_error', 'No hay ninguna cotización en la base de datos para usar de prueba.');
         }
 
         try {
@@ -288,10 +291,10 @@ class IntegrationController extends Controller
                 ]
             );
         } catch (\Throwable $e) {
-            return back()->with('mail_test_error', 'Falló el envío: ' . $e->getMessage());
+            return $this->backToIntegrations($request, 'smtp', 'credenciales')->with('mail_test_error', 'Falló el envío: ' . $e->getMessage());
         }
 
-        return back()->with('mail_test_success', "Correo de prueba con PDF de la cotización {$quote->quote_number} enviado a " . $request->input('test_email') . '. Revisa la bandeja (y spam).');
+        return $this->backToIntegrations($request, 'smtp', 'credenciales')->with('mail_test_success', "Correo de prueba con PDF de la cotización {$quote->quote_number} enviado a " . $request->input('test_email') . '. Revisa la bandeja (y spam).');
     }
 
     protected function saveSetting(string $key, $value, string $type = 'string'): void

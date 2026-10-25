@@ -31,7 +31,7 @@
         </div>
 
         @if (session('plain_text_token'))
-            <div class="pform-panel" style="border-left:4px solid #10b981; margin-bottom:16px;">
+            <div class="pform-panel" id="integrNewToken" style="border-left:4px solid #10b981; margin-bottom:16px;">
                 <p style="margin:0 0 8px; color:#047857; font-weight:600;">
                     Token generado — cópialo ahora, no se volverá a mostrar:
                 </p>

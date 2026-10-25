@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Backend;
 
+use App\Http\Controllers\Backend\Concerns\ReturnsToIntegrationsHub;
 use App\Http\Controllers\Controller;
 use App\Models\ApiClient;
 use Illuminate\Http\Request;
@@ -14,6 +15,8 @@ use Illuminate\Http\Request;
  */
 class ApiClientController extends Controller
 {
+    use ReturnsToIntegrationsHub;
+
     public function store(Request $request)
     {
         $data = $request->validate([
@@ -27,26 +30,26 @@ class ApiClientController extends Controller
             'created_by' => auth()->id(),
         ]);
 
-        return back()->with('success', 'Cliente de API creado. Ahora genera un token para él.');
+        return $this->backToIntegrations($request, 'api-clients')->with('success', 'Cliente de API creado. Ahora genera un token para él.');
     }
 
-    public function toggle(ApiClient $apiClient)
+    public function toggle(Request $request, ApiClient $apiClient)
     {
         $apiClient->update(['is_active' => ! $apiClient->is_active]);
 
-        return back()->with('success', $apiClient->is_active
+        return $this->backToIntegrations($request, 'api-clients')->with('success', $apiClient->is_active
             ? 'Cliente de API activado.'
             : 'Cliente de API desactivado. Sus tokens dejarán de funcionar de inmediato.');
     }
 
-    public function destroy(ApiClient $apiClient)
+    public function destroy(Request $request, ApiClient $apiClient)
     {
         // Borra en cascada sus tokens (morphMany sobre personal_access_tokens,
         // sin FK física -- se limpia a mano antes de borrar el cliente).
         $apiClient->tokens()->delete();
         $apiClient->delete();
 
-        return back()->with('success', 'Cliente de API eliminado.');
+        return $this->backToIntegrations($request, 'api-clients')->with('success', 'Cliente de API eliminado.');
     }
 
     /**
@@ -67,13 +70,13 @@ class ApiClientController extends Controller
 
         $token = $apiClient->createToken($data['token_name'], $data['abilities']);
 
-        return back()->with('success', 'Token generado.')->with('plain_text_token', $token->plainTextToken);
+        return $this->backToIntegrations($request, 'api-clients')->with('success', 'Token generado.')->with('plain_text_token', $token->plainTextToken);
     }
 
-    public function revokeToken(ApiClient $apiClient, int $tokenId)
+    public function revokeToken(Request $request, ApiClient $apiClient, int $tokenId)
     {
         $apiClient->tokens()->where('id', $tokenId)->delete();
 
-        return back()->with('success', 'Token revocado. Cualquier integración que lo use dejará de funcionar de inmediato.');
+        return $this->backToIntegrations($request, 'api-clients')->with('success', 'Token revocado. Cualquier integración que lo use dejará de funcionar de inmediato.');
     }
 }
