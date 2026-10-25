@@ -116,4 +116,14 @@ class User extends Authenticatable
     {
         return "{$this->first_name} {$this->last_name}";
     }
+
+    /**
+     * La tabla users no tiene columna `name` (usa first_name / last_name), pero varias vistas leen
+     * `$user->name` (responsables de negocios, metas, secuencias...). Se expone como nombre completo
+     * para que esas vistas muestren el nombre en vez de quedar vacias. Solo lectura: no sirve para consultas SQL.
+     */
+    public function getNameAttribute(): string
+    {
+        return trim($this->full_name);
+    }
 }

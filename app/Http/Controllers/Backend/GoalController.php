@@ -39,7 +39,7 @@ class GoalController extends Controller
 
     public function create()
     {
-        $users = User::orderBy('name')->get();
+        $users = User::orderBy('first_name')->orderBy('last_name')->get();
 
         return view('admin.goals.create', compact('users'));
     }
@@ -68,7 +68,7 @@ class GoalController extends Controller
 
     public function edit(Goal $goal)
     {
-        $users = User::orderBy('name')->get();
+        $users = User::orderBy('first_name')->orderBy('last_name')->get();
 
         return view('admin.goals.edit', compact('goal', 'users'));
     }

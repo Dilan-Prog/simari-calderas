@@ -146,7 +146,7 @@ class DealController extends Controller
     {
         $pipelines = Pipeline::query()->deals()->with('stages')->orderBy('name')->get();
         $customers = Customer::where('status', 'active')->orderBy('first_name')->get();
-        $users = User::orderBy('name')->get();
+        $users = User::orderBy('first_name')->orderBy('last_name')->get();
 
         return view('admin.deals.create', compact('pipelines', 'customers', 'users'));
     }
@@ -180,7 +180,7 @@ class DealController extends Controller
     {
         $pipelines = Pipeline::query()->deals()->with('stages')->orderBy('name')->get();
         $customers = Customer::where('status', 'active')->orderBy('first_name')->get();
-        $users = User::orderBy('name')->get();
+        $users = User::orderBy('first_name')->orderBy('last_name')->get();
 
         return view('admin.deals.edit', compact('deal', 'pipelines', 'customers', 'users'));
     }
