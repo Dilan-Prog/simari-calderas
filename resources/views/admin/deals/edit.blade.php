@@ -47,6 +47,10 @@
 
 .deal-snapshot-box { grid-column: 1 / -1; background: #FAFBFC; border: 1px dashed #D1D5DB; border-radius: 6px; padding: 16px; display: none; }
 .deal-snapshot-box.is-visible { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.deal-snapshot-register { grid-column: 1 / -1; display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; background: #fff; border: 1px solid #E5E7EB; border-radius: 6px; cursor: pointer; }
+.deal-snapshot-register input[type=checkbox] { margin-top: 3px; accent-color: var(--secondary-color, #ff6213); }
+.deal-snapshot-register span { display: flex; flex-direction: column; gap: 2px; font-size: 13px; color: #111827; }
+.deal-snapshot-register small { font-size: 12px; color: #6B7280; }
 .deal-snapshot-box-label { grid-column: 1 / -1; font-size: 12px; font-weight: 600; color: #6B7280; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 4px; }
 
 .deal-form-actions { display: flex; align-items: center; justify-content: flex-end; gap: 10px; margin-top: 24px; padding-top: 20px; border-top: 1px solid #F3F4F6; }
@@ -185,7 +189,7 @@
 
                 <div class="deal-form-field deal-form-field-full">
                     <label class="deal-form-label" for="customer_id">Cliente existente</label>
-                    <select id="customer_id" name="customer_id" class="deal-form-select @error('customer_id') is-invalid @enderror">
+                    <select id="customer_id" name="customer_id" class="deal-form-select @error('customer_id') is-invalid @enderror" data-searchable data-search-placeholder="Buscar cliente por nombre, empresa o correo…" data-empty-text="No hay clientes con ese nombre">
                         <option value="">— Sin cliente (usar datos de contacto abajo) —</option>
                         @foreach($customers as $customer)
                             <option value="{{ $customer->id }}" {{ (string) old('customer_id', $deal->customer_id) === (string) $customer->id ? 'selected' : '' }}>
@@ -199,6 +203,12 @@
 
                 <div class="deal-snapshot-box" id="snapshot-box">
                     <span class="deal-snapshot-box-label">Datos de contacto (sin cliente registrado)</span>
+
+                    <label class="deal-snapshot-register">
+                        <input type="hidden" name="register_customer" value="0">
+                        <input type="checkbox" name="register_customer" value="1" {{ old('register_customer', '1') ? 'checked' : '' }}>
+                        <span><b>Registrar como cliente al guardar</b><small>Se crea el cliente con estos datos (o se liga al que ya tenga ese correo o teléfono) y queda ligado al negocio.</small></span>
+                    </label>
 
                     <div class="deal-form-field">
                         <label class="deal-form-label" for="company_snapshot">Empresa</label>
@@ -317,4 +327,5 @@
 
 })();
 </script>
+<script src="{{ asset('js/admin/searchable-select.js') }}?v={{ @filemtime(public_path('js/admin/searchable-select.js')) }}"></script>
 @endpush

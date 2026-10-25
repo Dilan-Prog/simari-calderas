@@ -10,6 +10,7 @@ use App\Models\Pipeline;
 use App\Models\PipelineStage;
 use App\Models\Tag;
 use App\Models\User;
+use App\Services\DealCustomerRegistrar;
 use App\Services\DealForecastService;
 use App\Services\DealReportService;
 use App\Services\DealService;
@@ -168,12 +169,25 @@ class DealController extends Controller
             'contact_snapshot_phone' => 'nullable|string|max:30',
             'source'                 => 'nullable|string|max:100',
             'notes'                  => 'nullable|string',
+            'register_customer'      => 'nullable|boolean',
         ]);
+
+        // Sin cliente elegido pero con datos de contacto: se registra el cliente (o se liga al que ya exista).
+        $registered = null;
+        if ($request->boolean('register_customer') && DealCustomerRegistrar::canRegister($data)) {
+            $registered = app(DealCustomerRegistrar::class)->fromContact($data);
+            $data['customer_id'] = $registered['customer']->id;
+        }
+        unset($data['register_customer']);
 
         $deal = $this->dealService->create($data);
 
+        if ($registered) {
+            app(DealCustomerRegistrar::class)->linkLeadOf($deal, $registered['customer']);
+        }
+
         return redirect()->route('admin.deals.show', $deal)
-            ->with('success', "Negociación {$deal->folio} creada exitosamente.");
+            ->with('success', "Negociación {$deal->folio} creada exitosamente." . $this->registeredNote($registered));
     }
 
     public function edit(Deal $deal)
@@ -203,12 +217,37 @@ class DealController extends Controller
             'status'                 => 'nullable|in:open,won,lost',
             'lost_reason'            => 'nullable|string',
             'notes'                  => 'nullable|string',
+            'register_customer'      => 'nullable|boolean',
         ]);
+
+        $registered = null;
+        if ($request->boolean('register_customer') && DealCustomerRegistrar::canRegister($data)) {
+            $registered = app(DealCustomerRegistrar::class)->fromContact($data);
+            $data['customer_id'] = $registered['customer']->id;
+        }
+        unset($data['register_customer']);
 
         $this->dealService->update($deal, $data);
 
+        if ($registered) {
+            app(DealCustomerRegistrar::class)->linkLeadOf($deal, $registered['customer']);
+        }
+
         return redirect()->route('admin.deals.show', $deal)
-            ->with('success', "Negociación {$deal->folio} actualizada exitosamente.");
+            ->with('success', "Negociación {$deal->folio} actualizada exitosamente." . $this->registeredNote($registered));
+    }
+
+    /** Aviso adicional cuando al guardar se registro (o se ligo) el cliente. */
+    private function registeredNote(?array $registered): string
+    {
+        if (! $registered) {
+            return '';
+        }
+        $name = trim($registered['customer']->first_name . ' ' . $registered['customer']->last_name);
+
+        return $registered['created']
+            ? " Se registró al cliente {$name}."
+            : " Se ligó al cliente existente {$name}.";
     }
 
     /**
