@@ -71,7 +71,9 @@ import Sortable from 'sortablejs';
         new Sortable(listEl, {
             group: 'wa-funnel-kanban',
             animation: 150,
-            draggable: '.wf-chat-card',
+            draggable: '.dh-card',
+            filter: '[data-wf-quick]',
+            preventOnFilter: false,
             ghostClass: 'sortable-ghost',
             dragClass: 'dragging',
             onEnd: function (evt) {
@@ -116,51 +118,97 @@ import Sortable from 'sortablejs';
 
     // ── Filtros client-side ──────────────────────────────────────
 
-    var searchInput = document.getElementById('wfSearchInput');
+    var searchInput  = document.getElementById('wfSearchInput');
     var agentFilter  = document.getElementById('wfAgentFilter');
+    var channelFilter = document.getElementById('wfChannelFilter');
     var unreadFilter = document.getElementById('wfUnreadFilter');
     var staleFilter  = document.getElementById('wfStaleFilter');
-    var applyBtn     = document.getElementById('wfApplyFiltersBtn');
+    var clearBtn     = document.getElementById('wfClearFilters');
+
+    function norm(str) {
+        return String(str || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+    }
 
     function applyFilters() {
-        var search = (searchInput && searchInput.value || '').toLowerCase().trim();
+        var words = norm(searchInput && searchInput.value).split(/\s+/).filter(Boolean);
         var agentId = agentFilter ? agentFilter.value : '';
+        var channel = channelFilter ? channelFilter.value : '';
         var unreadOnly = unreadFilter ? unreadFilter.checked : false;
         var staleOnly = staleFilter ? staleFilter.checked : false;
         var nowSec = Math.floor(Date.now() / 1000);
 
-        board.querySelectorAll('.wf-chat-card').forEach(function (card) {
-            var name = (card.getAttribute('data-name') || '').toLowerCase();
-            var phone = (card.getAttribute('data-phone') || '').toLowerCase();
-            var cardAgentId = card.getAttribute('data-agent-id') || '';
-            var unread = parseInt(card.getAttribute('data-unread'), 10) || 0;
-            var lastActivity = parseInt(card.getAttribute('data-last-activity'), 10) || 0;
+        document.querySelectorAll('[data-wf-item]').forEach(function (item) {
+            var hay = norm((item.getAttribute('data-name') || '') + ' ' + (item.getAttribute('data-phone') || ''));
+            var itemAgentId = item.getAttribute('data-agent-id') || '';
+            var unread = parseInt(item.getAttribute('data-unread'), 10) || 0;
+            var lastActivity = parseInt(item.getAttribute('data-last-activity'), 10) || 0;
 
-            var visible = true;
-
-            if (search && name.indexOf(search) === -1 && phone.indexOf(search) === -1) {
-                visible = false;
-            }
-            if (agentId && cardAgentId !== agentId) {
-                visible = false;
-            }
-            if (unreadOnly && unread <= 0) {
-                visible = false;
-            }
+            var visible = words.every(function (w) { return hay.indexOf(w) !== -1; });
+            if (agentId && itemAgentId !== agentId) visible = false;
+            if (channel && item.getAttribute('data-channel') !== channel) visible = false;
+            if (unreadOnly && unread <= 0) visible = false;
             if (staleOnly) {
                 var hoursSince = lastActivity ? (nowSec - lastActivity) / 3600 : Infinity;
                 if (hoursSince < 24) visible = false;
             }
 
-            card.style.display = visible ? '' : 'none';
+            item.style.display = visible ? '' : 'none';
+        });
+
+        // Contador y mensaje vacio de cada columna segun lo que queda visible.
+        board.querySelectorAll('.dh-column').forEach(function (col) {
+            var shown = [].filter.call(col.querySelectorAll('.dh-card'), function (c) { return c.style.display !== 'none'; }).length;
+            var counter = col.querySelector('[data-column-count]');
+            if (counter) counter.textContent = shown + ' contacto(s)';
+            var empty = col.querySelector('[data-wf-empty]');
+            if (empty) empty.hidden = shown > 0;
         });
     }
 
-    if (applyBtn) applyBtn.addEventListener('click', applyFilters);
+    function clearFilters() {
+        if (searchInput) searchInput.value = '';
+        if (agentFilter) agentFilter.value = '';
+        if (channelFilter) channelFilter.value = '';
+        if (unreadFilter) unreadFilter.checked = false;
+        if (staleFilter) staleFilter.checked = false;
+        applyFilters();
+    }
+
     if (searchInput) searchInput.addEventListener('input', applyFilters);
-    if (agentFilter) agentFilter.addEventListener('change', applyFilters);
-    if (unreadFilter) unreadFilter.addEventListener('change', applyFilters);
-    if (staleFilter) staleFilter.addEventListener('change', applyFilters);
+    [agentFilter, channelFilter, unreadFilter, staleFilter].forEach(function (el) {
+        if (el) el.addEventListener('change', applyFilters);
+    });
+    if (clearBtn) clearBtn.addEventListener('click', clearFilters);
+
+    // ── Vistas (Kanban / Lista) y tema, igual que Negocios ─────────
+
+    var hubRoot = document.getElementById('deals-hub-root');
+    var THEME_KEY = 'dh-theme';
+
+    if (hubRoot) {
+        try { hubRoot.setAttribute('data-theme', window.localStorage.getItem(THEME_KEY) || 'light'); } catch (e) { /* sin localStorage */ }
+        var themeBtn = document.getElementById('dhThemeToggle');
+        if (themeBtn) {
+            themeBtn.addEventListener('click', function () {
+                var next = hubRoot.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+                hubRoot.setAttribute('data-theme', next);
+                try { window.localStorage.setItem(THEME_KEY, next); } catch (e) { /* sin localStorage */ }
+            });
+        }
+
+        var VIEW_KEY = 'wf-view';
+        var viewBtns = hubRoot.querySelectorAll('[data-view-btn]');
+        var setView = function (name) {
+            viewBtns.forEach(function (b) { b.classList.toggle('dh-view-btn-active', b.getAttribute('data-view-btn') === name); });
+            hubRoot.querySelectorAll('.dh-view').forEach(function (v) { v.classList.toggle('dh-view-active', v.getAttribute('data-view') === name); });
+            try { window.localStorage.setItem(VIEW_KEY, name); } catch (e) { /* sin localStorage */ }
+        };
+        viewBtns.forEach(function (b) { b.addEventListener('click', function () { setView(b.getAttribute('data-view-btn')); }); });
+        try {
+            var savedView = window.localStorage.getItem(VIEW_KEY);
+            if (savedView && hubRoot.querySelector('[data-view="' + savedView + '"]')) setView(savedView);
+        } catch (e) { /* sin localStorage */ }
+    }
 
     // ── Modal de chat ─────────────────────────────────────────────
 
@@ -249,7 +297,7 @@ import Sortable from 'sortablejs';
         // Limpiar el badge de no leídos en la tarjeta (el servidor lo
         // resetea al cargar los mensajes; se refleja aquí de inmediato).
         if (cardEl) {
-            var badge = cardEl.querySelector('.wf-unread-badge');
+            var badge = cardEl.querySelector('[data-wf-unread]');
             if (badge) badge.remove();
             cardEl.setAttribute('data-unread', '0');
         }
@@ -317,8 +365,10 @@ import Sortable from 'sortablejs';
         currentConversationId = null;
     }
 
-    board.querySelectorAll('.wf-chat-card').forEach(function (card) {
+    document.querySelectorAll('[data-wf-item]').forEach(function (card) {
         card.addEventListener('click', function (evt) {
+            // Enlaces rapidos (llamar, correo, bandeja) y botones deshabilitados: no abren nada mas.
+            if (evt.target.closest('a[data-wf-quick], .is-disabled')) return;
             // No abrir el modal si el click vino de un drag (SortableJS
             // agrega la clase temporalmente durante el arrastre).
             if (card.classList.contains('sortable-ghost') || card.classList.contains('dragging')) return;
@@ -356,7 +406,7 @@ import Sortable from 'sortablejs';
                     return;
                 }
                 chatTextInput.value = '';
-                openChat(currentConversationId, board.querySelector('.wf-chat-card[data-conv-id="' + currentConversationId + '"]'));
+                openChat(currentConversationId, board.querySelector('.dh-card[data-conv-id="' + currentConversationId + '"]'));
             })
             .catch(function (err) { console.error(err); alert('Error de red al enviar el mensaje.'); })
             .finally(function () { sendTextBtn.disabled = false; });
@@ -380,7 +430,7 @@ import Sortable from 'sortablejs';
                     alert(res.body.message || 'No se pudo enviar la plantilla.');
                     return;
                 }
-                openChat(currentConversationId, board.querySelector('.wf-chat-card[data-conv-id="' + currentConversationId + '"]'));
+                openChat(currentConversationId, board.querySelector('.dh-card[data-conv-id="' + currentConversationId + '"]'));
             })
             .catch(function (err) { console.error(err); alert('Error de red al enviar la plantilla.'); })
             .finally(function () { sendTemplateBtn.disabled = false; });
@@ -399,14 +449,19 @@ import Sortable from 'sortablejs';
             })
             .then(function (r) { return r.json(); })
             .then(function (payload) {
-                var card = board.querySelector('.wf-chat-card[data-conv-id="' + currentConversationId + '"]');
+                var card = board.querySelector('.dh-card[data-conv-id="' + currentConversationId + '"]');
                 if (card) {
                     card.setAttribute('data-agent-id', agentId || '');
-                    var label = card.querySelector('.wf-chat-card-agent');
+                    var label = card.querySelector('[data-wf-agent]');
                     var agent = (data.agents || []).filter(function (a) { return String(a.id) === String(agentId); })[0];
                     if (label) {
                         label.textContent = agent ? agent.name : 'Sin asignar';
-                        label.classList.toggle('wf-chat-card-agent-empty', !agent);
+                        label.classList.toggle('is-empty', !agent);
+                    }
+                    var avatar = card.querySelector('[data-wf-avatar]');
+                    if (avatar) {
+                        if (agent) { avatar.title = agent.name; avatar.textContent = agent.name.split(/\s+/).slice(0, 2).map(function (w) { return w.charAt(0); }).join('').toUpperCase(); }
+                        else avatar.remove();
                     }
                 }
                 alert('Agente actualizado.');
@@ -581,7 +636,7 @@ import Sortable from 'sortablejs';
         var openConvId = params.get('open_conversation');
         if (!openConvId || !chatModal) return;
 
-        var existingCard = board.querySelector('.wf-chat-card[data-conv-id="' + openConvId + '"]');
+        var existingCard = board.querySelector('.dh-card[data-conv-id="' + openConvId + '"]');
         openChat(openConvId, existingCard);
 
         // Limpiar el parámetro de la URL para que un refresh posterior no

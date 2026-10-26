@@ -3,7 +3,7 @@
   "nodes": [
     {
       "parameters": {
-        "content": "## Limpieza de cotizaciones en borrador\nMarca como **Vencida** toda cotización que lleve más de N días en **Borrador**, para no revolver la información. Solo toca borradores (nunca enviadas, aceptadas ni rechazadas) y es seguro repetirlo.\n\n**Antes de activar:**\n1. Credencial **Header/Bearer Auth** `Token_API` con el token del ApiClient que tenga la habilidad `quotes:write` (Integraciones > API / N8N).\n2. Credencial **SMTP** `Hostinger SMTP` (la misma del flujo de recepción de correos).\n3. En el nodo **Configuración**: `dias` (30 por defecto), `limite` (máx. 500 por ejecución), `correo_aviso` (a quién llega el resumen) y `prueba`.\n4. **Primero ejecútalo a mano con `prueba` = true** (botón *Ejecutar manualmente*): solo lista lo que expiraría, sin cambiar nada. Cuando el listado sea el esperado, pon `prueba` = false y activa el flujo (corre cada lunes a las 7:00, hora de CDMX).\n\nEl sistema ya cuenta con el estado Vencida; en Cotizaciones puedes filtrar por él.",
+        "content": "## Limpieza de cotizaciones en borrador\nMarca como **Vencida** toda cotización que lleve más de N días en **Borrador**, para no revolver la información. Solo toca borradores (nunca enviadas, aceptadas ni rechazadas) y es seguro repetirlo.\n\n**Antes de activar:**\n1. Credencial **Header/Bearer Auth** `Token_API` con el token del ApiClient que tenga las habilidades `quotes:write` y `tasks:write` (Integraciones > API / N8N).\n2. Credencial **SMTP** `Hostinger SMTP` (la misma del flujo de recepción de correos).\n3. En el nodo **Configuración**: `dias` (30 por defecto), `limite` (máx. 500 por ejecución), `correo_aviso` (a quién llega el resumen) y `prueba`.\n4. **Primero ejecútalo a mano con `prueba` = true** (botón *Ejecutar manualmente*): solo lista lo que expiraría, sin cambiar nada. Cuando el listado sea el esperado, pon `prueba` = false y activa el flujo (corre el día 1 de cada mes a las 7:00, hora de CDMX; en esta etapa la revisión manual de los resultados sirve para ajustar el plazo).\n\nEl sistema ya cuenta con el estado Vencida; en Cotizaciones puedes filtrar por él.\n\n**Tareas:** por cada cotización que pasa a Vencida se crea una tarea \"FOLIO → Expirada\" en Tareas (vence al día siguiente, sin responsable) para que una persona la revise; el correo de resumen se sigue enviando. En modo `prueba` no se crean tareas.",
         "height": 400,
         "width": 560,
         "color": 4
@@ -21,16 +21,16 @@
         "rule": {
           "interval": [
             {
-              "field": "weeks",
-              "triggerAtDay": [
-                1
-              ],
-              "triggerAtHour": 7
+              "field": "months",
+              "monthsInterval": 1,
+              "triggerAtDayOfMonth": 1,
+              "triggerAtHour": 7,
+              "triggerAtMinute": 0
             }
           ]
         }
       },
-      "name": "Cada lunes 7:00",
+      "name": "Día 1 de cada mes 7:00",
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
       "position": [
@@ -193,20 +193,51 @@
         1040,
         340
       ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Una tarea por cada cotizacion que paso a Vencida, para que una persona la revise.\n// En modo prueba no se cambia nada, asi que tampoco se crean tareas.\nconst r = $('Expirar borradores').first().json.data;\nif (r.dry_run) return [];\nconst manana = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();\nreturn r.quotes.map(q => ({ json: {\n  taskable_type: 'App\\Models\\Quote',\n  taskable_id: q.id,\n  title: q.quote_number + ' → Expirada',\n  description: 'La cotizacion ' + q.quote_number + ' (' + (q.guest_name || 'Sin nombre') + ', ' + Number(q.total || 0).toLocaleString('es-MX', { minimumFractionDigits: 2 }) + ' ' + (q.currency || 'MXN') + ') llevaba mas de ' + r.days + ' dias en borrador y paso a Vencida. Revisala: si sigue vigente, crea una nueva o dale seguimiento al cliente.',\n  due_at: manana,\n  status: 'open'\n} }));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1160,
+        510
+      ],
+      "id": "t1000001-0000-4000-8000-000000000001",
+      "name": "Preparar tareas"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://equitermindustries.com.mx/api/v1/tasks",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json) }}",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1400,
+        510
+      ],
+      "id": "t1000001-0000-4000-8000-000000000002",
+      "name": "Registrar tarea",
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "CONFIGURAR",
+          "name": "Token_API"
+        }
+      }
     }
   ],
   "connections": {
-    "Cada lunes 7:00": {
-      "main": [
-        [
-          {
-            "node": "Configuración",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Ejecutar manualmente": {
       "main": [
         [
@@ -247,6 +278,11 @@
             "node": "Armar resumen",
             "type": "main",
             "index": 0
+          },
+          {
+            "node": "Preparar tareas",
+            "type": "main",
+            "index": 0
           }
         ],
         [
@@ -263,6 +299,28 @@
         [
           {
             "node": "Enviar resumen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Día 1 de cada mes 7:00": {
+      "main": [
+        [
+          {
+            "node": "Configuración",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Preparar tareas": {
+      "main": [
+        [
+          {
+            "node": "Registrar tarea",
             "type": "main",
             "index": 0
           }

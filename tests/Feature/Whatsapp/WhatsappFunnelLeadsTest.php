@@ -80,7 +80,7 @@ class WhatsappFunnelLeadsTest extends TestCase
 
         $this->assertStringContainsString('data-lead-id="' . $lead->id . '"', $html);
         $this->assertStringContainsString('Carlos Sigma', $html);
-        $this->assertStringContainsString('wf-chan-correo', $html);
+        $this->assertStringContainsString('data-ch="correo"', $html);
         $this->assertStringContainsString('Necesito cotizar una caldera', $html);
         $this->assertStringContainsString(route('admin.leads-inbox.index', ['lead' => $lead->id]), $html);
     }
@@ -112,7 +112,7 @@ class WhatsappFunnelLeadsTest extends TestCase
 
         $html = $this->board();
 
-        $this->assertSame(2, preg_match_all('/wf-chat-card-agent">\s*' . preg_quote($this->agent->full_name, '/') . '\s*</', $html));
+        $this->assertSame(2, preg_match_all('/data-wf-agent>\s*' . preg_quote($this->agent->full_name, '/') . '\s*</', $html));
         $this->assertStringNotContainsString('Sin asignar</span>', $html);
         $this->assertSame($this->agent->id, WhatsappConversation::find($wa->whatsapp_conversation_id)->assigned_user_id);
     }
