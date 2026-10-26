@@ -51,11 +51,10 @@ class PortalRoleDefaults
                 'permissions' => $all,
             ],
             'Laboratorio / Operación' => [
-                'description' => 'Registra análisis químicos, monitoreo y equipos; consulta servicios y reportes.',
+                'description' => 'Registra análisis químicos y monitoreo; consulta servicios y reportes.',
                 'permissions' => [
                     'water-analysis:view', 'water-analysis:create', 'water-analysis:edit', 'water-analysis:delete',
                     'monitoring:view', 'monitoring:create', 'monitoring:edit', 'monitoring:delete',
-                    'equipment:view', 'equipment:create', 'equipment:edit', 'equipment:delete',
                     'service-requests:view', 'service-requests:create',
                     'service-reports:view', 'technical-services:view', 'calendar:view',
                     'history:view', 'timeline:view',

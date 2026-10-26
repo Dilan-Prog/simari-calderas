@@ -26,23 +26,20 @@
     <div class="ts-header-top">
         <div>
             <h1 class="ts-title">Monitoreo de agua y químicos</h1>
-            <p class="ts-subtitle">Registra día a día las lecturas del agua y la dosificación de tus equipos, y revisa su avance semana por semana.</p>
+            <p class="ts-subtitle">Revisa la evolución de tu análisis químico del agua: tendencia, estado de las lecturas y cumplimiento diario.</p>
         </div>
-        @if (Route::has('customer.equipment.index'))
-            <a href="{{ route('customer.equipment.index') }}" class="ts-btn">Mis equipos</a>
-        @endif
     </div>
 
-    @if ($cards->isEmpty())
+    @if ($analysis)
+        @include('customers.monitoring.partials.analysis', ['analysis' => $analysis])
+    @elseif ($cards->isEmpty())
         <div class="ts-card mn-empty">
-            <svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 24 24" fill="none"
-                 stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <path d="M3 3v18h18"/><path d="m7 15 4-4 3 3 5-6"/>
-            </svg>
-            <p>Tu equipo de Equiterm aún no te asigna un programa de monitoreo.</p>
-            <p class="mn-muted">Cuando lo haga, aparecerá aquí para que puedas capturar tus registros diarios.</p>
+            <p>No tienes permiso para ver los datos de análisis químico.</p>
         </div>
-    @else
+    @endif
+
+    @if ($cards->isNotEmpty())
+        <h2 class="mn-section-title" style="margin-top:1.5rem">Programas de monitoreo</h2>
         <div class="mn-grid mn-block">
             @foreach ($cards as $c)
                 @php

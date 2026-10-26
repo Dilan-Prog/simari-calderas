@@ -7,6 +7,7 @@ use App\Models\MonitoringEntry;
 use App\Models\MonitoringEquipment;
 use App\Models\MonitoringProgram;
 use App\Services\MonitoringService;
+use App\Services\WaterAnalysisInsights;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -38,7 +39,7 @@ class MonitoringController extends Controller
         return MonitoringProgram::where('customer_id', $this->customerId())->findOrFail($id);
     }
 
-    public function index(): View
+    public function index(Request $request, WaterAnalysisInsights $insights): View
     {
         $programs = MonitoringProgram::where('customer_id', $this->customerId())
             ->orderByRaw("CASE status WHEN 'active' THEN 0 WHEN 'paused' THEN 1 ELSE 2 END")
@@ -71,9 +72,15 @@ class MonitoringController extends Controller
 
         $alerts = $this->service->alerts($this->customerId(), 30)->take(15);
 
+        // Gráficas del Reporte de Análisis Químico (solo si el usuario puede ver ese módulo).
+        $analysis = \App\Support\PortalContext::can('water-analysis', 'view')
+            ? $insights->forCustomer($this->customerId(), (int) $request->query('dias', 30))
+            : null;
+
         return view('customers.monitoring.index', [
-            'cards'  => $cards,
-            'alerts' => $alerts,
+            'cards'    => $cards,
+            'alerts'   => $alerts,
+            'analysis' => $analysis,
         ]);
     }
 

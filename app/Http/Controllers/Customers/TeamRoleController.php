@@ -25,7 +25,7 @@ class TeamRoleController extends Controller
     {
         $groups = [
             'Servicios' => ['service-requests', 'service-reports', 'technical-services', 'calendar', 'history', 'timeline'],
-            'Operación' => ['monitoring', 'equipment', 'water-analysis', 'addresses'],
+            'Operación' => ['monitoring', 'water-analysis', 'addresses'],
             'Comercial' => ['quotes', 'orders', 'deliveries', 'purchase-orders'],
         ];
 

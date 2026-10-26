@@ -3,7 +3,6 @@
 use App\Http\Controllers\Backend\Customers\CustomerController;
 use App\Http\Controllers\Customers\AddressController;
 use App\Http\Controllers\Customers\CalendarController;
-use App\Http\Controllers\Customers\EquipmentController;
 use App\Http\Controllers\Customers\MaterialDeliveryController;
 use App\Http\Controllers\Customers\MonitoringController;
 use App\Http\Controllers\Customers\MonitoringEntryController;
@@ -84,12 +83,6 @@ Route::put('/monitoreo/registros/{entry}', [MonitoringEntryController::class, 'u
 Route::delete('/monitoreo/registros/{entry}', [MonitoringEntryController::class, 'destroy'])->name('monitoring.entries.destroy')->middleware('portal.permission:monitoring,delete');
 Route::post('/monitoreo/{program}/elementos', [MonitoringItemController::class, 'store'])->name('monitoring.items.store')->middleware('portal.permission:monitoring,create');
 Route::delete('/monitoreo/elementos/{item}', [MonitoringItemController::class, 'destroy'])->name('monitoring.items.destroy')->middleware('portal.permission:monitoring,delete');
-
-// Equipos del cliente (calderas, torres, chillers...).
-Route::get('/equipos', [EquipmentController::class, 'index'])->name('equipment.index')->middleware('portal.permission:equipment,view');
-Route::post('/equipos', [EquipmentController::class, 'store'])->name('equipment.store')->middleware('portal.permission:equipment,create');
-Route::put('/equipos/{equipment}', [EquipmentController::class, 'update'])->name('equipment.update')->middleware('portal.permission:equipment,edit');
-Route::delete('/equipos/{equipment}', [EquipmentController::class, 'destroy'])->name('equipment.destroy')->middleware('portal.permission:equipment,delete');
 
 // Libreta de direcciones.
 Route::get('/direcciones', [AddressController::class, 'index'])->name('addresses.index')->middleware('portal.permission:addresses,view');

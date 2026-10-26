@@ -51,10 +51,6 @@ return [
         'name' => 'Monitoreo',
         'actions' => ['view', 'create', 'edit', 'delete'],
     ],
-    'equipment' => [
-        'name' => 'Mis equipos',
-        'actions' => ['view', 'create', 'edit', 'delete'],
-    ],
     'orders' => [
         'name' => 'Mis pedidos',
         'actions' => ['view'],

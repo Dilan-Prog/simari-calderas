@@ -195,8 +195,6 @@
                                 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
                             </div>
                             @if ($eb->has('equipment_id')) <span class="mn-error">{{ $eb->first('equipment_id') }}</span>
-                            @elseif ($activeEquipment->isEmpty() && Route::has('customer.equipment.index'))
-                                <span class="mn-hint"><a href="{{ route('customer.equipment.index') }}">Registra tus equipos</a> para ligarlos aquí.</span>
                             @endif
                         </div>
 

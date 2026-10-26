@@ -94,7 +94,7 @@ class PortalTeamTest extends TestCase
         // El rol de administrador no incluye "team" (owner_only).
         $admin = $this->owner->portalRoles()->where('name', 'Administrador del portal')->first();
         $this->assertFalse(in_array('team:view', $admin->permissionKeys(), true));
-        $this->assertTrue(in_array('equipment:delete', $admin->permissionKeys(), true));
+        $this->assertTrue(in_array('addresses:delete', $admin->permissionKeys(), true));
     }
 
     public function test_owner_creates_role_and_member(): void
@@ -102,8 +102,8 @@ class PortalTeamTest extends TestCase
         $this->asOwner()->post(route('customer.team.roles.store'), [
             'name' => 'Operadores',
             'description' => 'Equipo de planta',
-            // "equipment:edit" sin "equipment:view" se descarta; "team:view" (owner_only) y módulos inventados también.
-            'permissions' => ['monitoring:view', 'monitoring:create', 'equipment:edit', 'team:view', 'nada:view', 'quotes:create'],
+            // "addresses:edit" sin "addresses:view" se descarta; "team:view" (owner_only) y módulos inventados también.
+            'permissions' => ['monitoring:view', 'monitoring:create', 'addresses:edit', 'team:view', 'nada:view', 'quotes:create'],
         ])->assertRedirect(route('customer.team.index', ['tab' => 'roles']));
 
         $role = $this->owner->portalRoles()->where('name', 'Operadores')->firstOrFail();
@@ -227,22 +227,22 @@ class PortalTeamTest extends TestCase
 
     public function test_member_sees_only_permitted_modules_and_routes_are_protected(): void
     {
-        $role = $this->makeRole($this->owner, 'Solo equipos', ['equipment:view']);
+        $role = $this->makeRole($this->owner, 'Solo direcciones', ['addresses:view']);
         $member = $this->makeMember($this->owner, $role);
 
         $this->asMember($member);
 
         $dash = $this->get(route('customer.dashboard'))->assertOk();
-        $dash->assertSee('Mis Equipos')
+        $dash->assertSee('Direcciones')
             ->assertDontSee('Mis Pedidos')
-            ->assertDontSee('Direcciones')
+            ->assertDontSee('Entregas de Material')
             ->assertDontSee('Usuarios y Roles')
             ->assertDontSee('Servicios próximos');
 
-        $this->get(route('customer.equipment.index'))->assertOk();
-        $this->post(route('customer.equipment.store'), ['name' => 'Caldera'])
+        $this->get(route('customer.addresses.index'))->assertOk();
+        $this->post(route('customer.addresses.store'), ['label' => 'Planta'])
             ->assertRedirect(route('customer.dashboard'));
-        $this->get(route('customer.addresses.index'))->assertRedirect(route('customer.dashboard'));
+        $this->get(route('customer.history'))->assertRedirect(route('customer.dashboard'));
         $this->get(route('customer.orders.index'))->assertRedirect(route('customer.dashboard'));
         $this->get(route('customer.quotes.index'))->assertRedirect(route('customer.dashboard'));
         $this->get(route('customer.service-reports.index'))->assertRedirect(route('customer.dashboard'));
@@ -291,13 +291,13 @@ class PortalTeamTest extends TestCase
 
     public function test_deactivated_or_deleted_member_is_blocked_mid_session(): void
     {
-        $role = $this->makeRole($this->owner, 'R', ['equipment:view']);
+        $role = $this->makeRole($this->owner, 'R', ['addresses:view']);
         $member = $this->makeMember($this->owner, $role);
 
-        $this->asMember($member)->get(route('customer.equipment.index'))->assertOk();
+        $this->asMember($member)->get(route('customer.addresses.index'))->assertOk();
 
         $member->update(['status' => 'inactive']);
-        $this->get(route('customer.equipment.index'))->assertRedirect(route('shop.login'));
+        $this->get(route('customer.addresses.index'))->assertRedirect(route('shop.login'));
         $this->assertGuest('customer');
 
         // Sin rol.
@@ -313,17 +313,17 @@ class PortalTeamTest extends TestCase
 
     public function test_role_permission_change_applies_on_next_request(): void
     {
-        $role = $this->makeRole($this->owner, 'R', ['equipment:view']);
+        $role = $this->makeRole($this->owner, 'R', ['addresses:view']);
         $member = $this->makeMember($this->owner, $role);
 
         $this->asMember($member)->get(route('customer.orders.index'))->assertRedirect(route('customer.dashboard'));
-        $role->syncPermissions(['equipment:view', 'orders:view']);
+        $role->syncPermissions(['addresses:view', 'orders:view']);
         $this->get(route('customer.orders.index'))->assertOk();
     }
 
     public function test_member_cannot_reach_shop_account_areas(): void
     {
-        $role = $this->makeRole($this->owner, 'R', ['equipment:view']);
+        $role = $this->makeRole($this->owner, 'R', ['addresses:view']);
         $member = $this->makeMember($this->owner, $role);
 
         $this->asMember($member);
@@ -459,7 +459,7 @@ class PortalTeamTest extends TestCase
 
     public function test_portal_context_can_for_owner_and_member(): void
     {
-        $role = $this->makeRole($this->owner, 'R', ['equipment:view', 'equipment:edit', 'quotes:view']);
+        $role = $this->makeRole($this->owner, 'R', ['addresses:view', 'addresses:edit', 'quotes:view']);
         $member = $this->makeMember($this->owner, $role);
 
         // Titular: todo, sin marca de sesión.
@@ -473,9 +473,9 @@ class PortalTeamTest extends TestCase
         session(['portal_member_id' => $member->id]);
         PortalContext::flush();
         $this->assertSame($member->id, PortalContext::memberId());
-        $this->assertTrue(PortalContext::can('equipment', 'view'));
-        $this->assertTrue(PortalContext::can('equipment', 'edit'));
-        $this->assertFalse(PortalContext::can('equipment', 'delete'));
+        $this->assertTrue(PortalContext::can('addresses', 'view'));
+        $this->assertTrue(PortalContext::can('addresses', 'edit'));
+        $this->assertFalse(PortalContext::can('addresses', 'delete'));
         $this->assertFalse(PortalContext::can('orders', 'view'));
         $this->assertFalse(PortalContext::can('team', 'view'));
         $this->assertFalse(PortalContext::can('modulo-inexistente', 'view'));
@@ -483,7 +483,7 @@ class PortalTeamTest extends TestCase
         // Desactivado o sin rol: sin permisos.
         $member->update(['status' => 'inactive']);
         PortalContext::flush();
-        $this->assertFalse(PortalContext::can('equipment', 'view'));
+        $this->assertFalse(PortalContext::can('addresses', 'view'));
     }
 
     // ───────────────────────── Mi perfil ─────────────────────────

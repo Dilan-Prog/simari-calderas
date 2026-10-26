@@ -43,7 +43,6 @@
             request()->routeIs('customer.purchase-orders.*') => 'ordenes-compra',
             request()->routeIs('customer.team.*') => 'equipo',
             request()->routeIs('customer.monitoring.*') => 'monitoreo',
-            request()->routeIs('customer.equipment.*') => 'equipos',
             request()->routeIs('customer.orders.*') => 'pedidos',
             request()->routeIs('customer.addresses.*') => 'direcciones',
             request()->routeIs('customer.profile*') => 'perfil',
@@ -196,18 +195,6 @@
             <div class="sidebar-nav-item-left">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m7 15 4-4 3 3 5-6"/></svg>
                 <span class="sidebar-nav-item-label">Monitoreo</span>
-            </div>
-        </a>
-        @endif
-
-        {{-- Mis Equipos --}}
-        @if (\App\Support\PortalContext::can('equipment'))
-        <a class="sidebar-nav-item {{ $activeSection === 'equipos' ? 'active' : '' }}"
-            href="{{ Route::has('customer.equipment.index') ? route('customer.equipment.index') : '#' }}"
-            data-section="equipos" data-label="Mis Equipos">
-            <div class="sidebar-nav-item-left">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M9 7h6M9 11h6M9 15h3"/></svg>
-                <span class="sidebar-nav-item-label">Mis Equipos</span>
             </div>
         </a>
         @endif
