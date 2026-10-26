@@ -71,7 +71,7 @@ import Sortable from 'sortablejs';
         new Sortable(listEl, {
             group: 'wa-funnel-kanban',
             animation: 150,
-            draggable: '.dh-card',
+            draggable: '.wf2-card',
             filter: '[data-wf-quick]',
             preventOnFilter: false,
             ghostClass: 'sortable-ghost',
@@ -118,97 +118,105 @@ import Sortable from 'sortablejs';
 
     // ── Filtros client-side ──────────────────────────────────────
 
-    var searchInput  = document.getElementById('wfSearchInput');
-    var agentFilter  = document.getElementById('wfAgentFilter');
+    var searchInput   = document.getElementById('wfSearchInput');
+    var agentFilter   = document.getElementById('wfAgentFilter');
     var channelFilter = document.getElementById('wfChannelFilter');
-    var unreadFilter = document.getElementById('wfUnreadFilter');
-    var staleFilter  = document.getElementById('wfStaleFilter');
-    var clearBtn     = document.getElementById('wfClearFilters');
+    var sortSelect    = document.getElementById('wfSort');
+    var chipBtns      = document.querySelectorAll('[data-chip]');
+    var activeChip    = 'todos';
 
     function norm(str) {
         return String(str || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+    }
+
+    // Chips rapidos: Todos / Sin leer / Sin responder / Ventana abierta / Tareas vencidas / Prioridad alta.
+    function chipMatches(item) {
+        switch (activeChip) {
+            case 'unread': return (parseInt(item.getAttribute('data-unread'), 10) || 0) > 0;
+            case 'stale':  return item.getAttribute('data-stale') === '1';
+            case 'window': return item.getAttribute('data-win') === '1';
+            case 'due':    return item.getAttribute('data-due') === '1';
+            case 'prio':   return item.getAttribute('data-prio') === '1';
+            default:       return true;
+        }
     }
 
     function applyFilters() {
         var words = norm(searchInput && searchInput.value).split(/\s+/).filter(Boolean);
         var agentId = agentFilter ? agentFilter.value : '';
         var channel = channelFilter ? channelFilter.value : '';
-        var unreadOnly = unreadFilter ? unreadFilter.checked : false;
-        var staleOnly = staleFilter ? staleFilter.checked : false;
-        var nowSec = Math.floor(Date.now() / 1000);
 
+        var rowsShown = 0;
         document.querySelectorAll('[data-wf-item]').forEach(function (item) {
             var hay = norm((item.getAttribute('data-name') || '') + ' ' + (item.getAttribute('data-phone') || ''));
-            var itemAgentId = item.getAttribute('data-agent-id') || '';
-            var unread = parseInt(item.getAttribute('data-unread'), 10) || 0;
-            var lastActivity = parseInt(item.getAttribute('data-last-activity'), 10) || 0;
-
             var visible = words.every(function (w) { return hay.indexOf(w) !== -1; });
-            if (agentId && itemAgentId !== agentId) visible = false;
+            if (agentId && (item.getAttribute('data-agent-id') || '') !== agentId) visible = false;
             if (channel && item.getAttribute('data-channel') !== channel) visible = false;
-            if (unreadOnly && unread <= 0) visible = false;
-            if (staleOnly) {
-                var hoursSince = lastActivity ? (nowSec - lastActivity) / 3600 : Infinity;
-                if (hoursSince < 24) visible = false;
-            }
+            if (!chipMatches(item)) visible = false;
 
             item.style.display = visible ? '' : 'none';
+            if (visible && item.classList.contains('wf2-row')) rowsShown++;
         });
 
         // Contador y mensaje vacio de cada columna segun lo que queda visible.
-        board.querySelectorAll('.dh-column').forEach(function (col) {
-            var shown = [].filter.call(col.querySelectorAll('.dh-card'), function (c) { return c.style.display !== 'none'; }).length;
+        board.querySelectorAll('.wf2-col').forEach(function (col) {
+            var shown = [].filter.call(col.querySelectorAll('.wf2-card'), function (c) { return c.style.display !== 'none'; }).length;
             var counter = col.querySelector('[data-column-count]');
-            if (counter) counter.textContent = shown + ' contacto(s)';
+            if (counter) counter.textContent = shown;
             var empty = col.querySelector('[data-wf-empty]');
             if (empty) empty.hidden = shown > 0;
         });
+
+        var none = document.querySelector('[data-wf-none]');
+        if (none) none.hidden = rowsShown > 0;
     }
 
-    function clearFilters() {
-        if (searchInput) searchInput.value = '';
-        if (agentFilter) agentFilter.value = '';
-        if (channelFilter) channelFilter.value = '';
-        if (unreadFilter) unreadFilter.checked = false;
-        if (staleFilter) staleFilter.checked = false;
-        applyFilters();
+    // Orden de las tarjetas dentro de cada columna: recientes, mayor valor o mas tiempo sin respuesta.
+    function sortCards() {
+        var mode = sortSelect ? sortSelect.value : 'reciente';
+        board.querySelectorAll('.wf2-col-list').forEach(function (list) {
+            var cards = [].slice.call(list.querySelectorAll('.wf2-card'));
+            cards.sort(function (a, b) {
+                var la = parseInt(a.getAttribute('data-last-activity'), 10) || 0;
+                var lb = parseInt(b.getAttribute('data-last-activity'), 10) || 0;
+                if (mode === 'valor') return (parseFloat(b.getAttribute('data-value')) || 0) - (parseFloat(a.getAttribute('data-value')) || 0) || lb - la;
+                if (mode === 'espera') return la - lb;
+                return lb - la;
+            });
+            var empty = list.querySelector('[data-wf-empty]');
+            cards.forEach(function (c) { list.insertBefore(c, empty); });
+        });
     }
 
     if (searchInput) searchInput.addEventListener('input', applyFilters);
-    [agentFilter, channelFilter, unreadFilter, staleFilter].forEach(function (el) {
-        if (el) el.addEventListener('change', applyFilters);
-    });
-    if (clearBtn) clearBtn.addEventListener('click', clearFilters);
-
-    // ── Vistas (Kanban / Lista) y tema, igual que Negocios ─────────
-
-    var hubRoot = document.getElementById('deals-hub-root');
-    var THEME_KEY = 'dh-theme';
-
-    if (hubRoot) {
-        try { hubRoot.setAttribute('data-theme', window.localStorage.getItem(THEME_KEY) || 'light'); } catch (e) { /* sin localStorage */ }
-        var themeBtn = document.getElementById('dhThemeToggle');
-        if (themeBtn) {
-            themeBtn.addEventListener('click', function () {
-                var next = hubRoot.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-                hubRoot.setAttribute('data-theme', next);
-                try { window.localStorage.setItem(THEME_KEY, next); } catch (e) { /* sin localStorage */ }
+    [agentFilter, channelFilter].forEach(function (el) { if (el) el.addEventListener('change', applyFilters); });
+    if (sortSelect) sortSelect.addEventListener('change', sortCards);
+    chipBtns.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            activeChip = btn.getAttribute('data-chip');
+            chipBtns.forEach(function (b) {
+                var on = b === btn;
+                b.classList.toggle('is-on', on);
+                b.setAttribute('aria-pressed', on ? 'true' : 'false');
             });
-        }
+            applyFilters();
+        });
+    });
 
-        var VIEW_KEY = 'wf-view';
-        var viewBtns = hubRoot.querySelectorAll('[data-view-btn]');
-        var setView = function (name) {
-            viewBtns.forEach(function (b) { b.classList.toggle('dh-view-btn-active', b.getAttribute('data-view-btn') === name); });
-            hubRoot.querySelectorAll('.dh-view').forEach(function (v) { v.classList.toggle('dh-view-active', v.getAttribute('data-view') === name); });
-            try { window.localStorage.setItem(VIEW_KEY, name); } catch (e) { /* sin localStorage */ }
-        };
-        viewBtns.forEach(function (b) { b.addEventListener('click', function () { setView(b.getAttribute('data-view-btn')); }); });
-        try {
-            var savedView = window.localStorage.getItem(VIEW_KEY);
-            if (savedView && hubRoot.querySelector('[data-view="' + savedView + '"]')) setView(savedView);
-        } catch (e) { /* sin localStorage */ }
-    }
+    // ── Vistas (Tablero / Lista) ──────────────────────────────────
+
+    var VIEW_KEY = 'wf-view';
+    var viewBtns = document.querySelectorAll('[data-view-btn]');
+    var setView = function (name) {
+        viewBtns.forEach(function (b) { b.classList.toggle('is-on', b.getAttribute('data-view-btn') === name); });
+        document.querySelectorAll('.wf2-viewbox').forEach(function (v) { v.classList.toggle('is-on', v.getAttribute('data-view') === name); });
+        try { window.localStorage.setItem(VIEW_KEY, name); } catch (e) { /* sin localStorage */ }
+    };
+    viewBtns.forEach(function (b) { b.addEventListener('click', function () { setView(b.getAttribute('data-view-btn')); }); });
+    try {
+        var savedView = window.localStorage.getItem(VIEW_KEY);
+        if (savedView && document.querySelector('.wf2-viewbox[data-view="' + savedView + '"]')) setView(savedView);
+    } catch (e) { /* sin localStorage */ }
 
     // ── Modal de chat ─────────────────────────────────────────────
 
@@ -365,19 +373,50 @@ import Sortable from 'sortablejs';
         currentConversationId = null;
     }
 
+    // ── Ficha del lead en modal (la Bandeja de leads incrustada) ──
+
+    var leadModal = document.getElementById('wfLeadModal');
+    var leadFrame = document.getElementById('wfLeadFrame');
+    var leadFull = document.getElementById('wfLeadFull');
+    var leadLoads = 0;
+
+    function openLeadModal(url) {
+        if (!leadModal || !leadFrame) { window.location.href = url; return; }
+        leadLoads = 0;
+        leadFrame.src = url + (url.indexOf('?') === -1 ? '?' : '&') + 'embed=1';
+        if (leadFull) leadFull.href = url;
+        leadModal.hidden = false;
+        document.body.style.overflow = 'hidden';
+        var closeBtn = document.getElementById('wfLeadClose');
+        if (closeBtn) closeBtn.focus();
+    }
+
+    function closeLeadModal() {
+        if (!leadModal || leadModal.hidden) return;
+        leadModal.hidden = true;
+        document.body.style.overflow = '';
+        var changed = leadLoads > 1; // si dentro se guardó algo (la página recargó), el tablero se actualiza
+        leadFrame.src = 'about:blank';
+        if (changed) window.location.reload();
+    }
+
+    if (leadFrame) leadFrame.addEventListener('load', function () { if (leadFrame.getAttribute('src') !== 'about:blank') leadLoads++; });
+    var leadCloseBtn = document.getElementById('wfLeadClose');
+    if (leadCloseBtn) leadCloseBtn.addEventListener('click', closeLeadModal);
+    if (leadModal) leadModal.addEventListener('mousedown', function (e) { if (e.target === leadModal) closeLeadModal(); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeLeadModal(); });
+
     document.querySelectorAll('[data-wf-item]').forEach(function (card) {
         card.addEventListener('click', function (evt) {
-            // Enlaces rapidos (llamar, correo, bandeja) y botones deshabilitados: no abren nada mas.
-            if (evt.target.closest('a[data-wf-quick], .is-disabled')) return;
-            // No abrir el modal si el click vino de un drag (SortableJS
-            // agrega la clase temporalmente durante el arrastre).
+            // No abrir nada si el click vino de un drag (SortableJS agrega la clase durante el arrastre).
             if (card.classList.contains('sortable-ghost') || card.classList.contains('dragging')) return;
-            // Lead sin conversación de WhatsApp: se abre en la bandeja de leads.
-            if (card.getAttribute('data-lead-id')) {
-                window.location.href = card.getAttribute('data-lead-url');
+            var openUrl = card.getAttribute('data-open-url');
+            if (openUrl) {
+                openLeadModal(openUrl);
                 return;
             }
-            openChat(card.getAttribute('data-conv-id'), card);
+            // Conversación sin lead ligado: modal de chat.
+            if (card.getAttribute('data-conv-id')) openChat(card.getAttribute('data-conv-id'), card);
         });
     });
 
@@ -406,7 +445,7 @@ import Sortable from 'sortablejs';
                     return;
                 }
                 chatTextInput.value = '';
-                openChat(currentConversationId, board.querySelector('.dh-card[data-conv-id="' + currentConversationId + '"]'));
+                openChat(currentConversationId, board.querySelector('.wf2-card[data-conv-id="' + currentConversationId + '"]'));
             })
             .catch(function (err) { console.error(err); alert('Error de red al enviar el mensaje.'); })
             .finally(function () { sendTextBtn.disabled = false; });
@@ -430,7 +469,7 @@ import Sortable from 'sortablejs';
                     alert(res.body.message || 'No se pudo enviar la plantilla.');
                     return;
                 }
-                openChat(currentConversationId, board.querySelector('.dh-card[data-conv-id="' + currentConversationId + '"]'));
+                openChat(currentConversationId, board.querySelector('.wf2-card[data-conv-id="' + currentConversationId + '"]'));
             })
             .catch(function (err) { console.error(err); alert('Error de red al enviar la plantilla.'); })
             .finally(function () { sendTemplateBtn.disabled = false; });
@@ -449,19 +488,14 @@ import Sortable from 'sortablejs';
             })
             .then(function (r) { return r.json(); })
             .then(function (payload) {
-                var card = board.querySelector('.dh-card[data-conv-id="' + currentConversationId + '"]');
+                var card = board.querySelector('.wf2-card[data-conv-id="' + currentConversationId + '"]');
                 if (card) {
                     card.setAttribute('data-agent-id', agentId || '');
                     var label = card.querySelector('[data-wf-agent]');
-                    var agent = (data.agents || []).filter(function (a) { return String(a.id) === String(agentId); })[0];
+                    var agent = (data.agents || []).filter(function (x) { return String(x.id) === String(agentId); })[0];
                     if (label) {
-                        label.textContent = agent ? agent.name : 'Sin asignar';
-                        label.classList.toggle('is-empty', !agent);
-                    }
-                    var avatar = card.querySelector('[data-wf-avatar]');
-                    if (avatar) {
-                        if (agent) { avatar.title = agent.name; avatar.textContent = agent.name.split(/\s+/).slice(0, 2).map(function (w) { return w.charAt(0); }).join('').toUpperCase(); }
-                        else avatar.remove();
+                        label.title = agent ? agent.name : 'Sin asignar';
+                        label.textContent = agent ? agent.name.split(/\s+/).slice(0, 2).map(function (w) { return w.charAt(0); }).join('').toUpperCase() : '–';
                     }
                 }
                 alert('Agente actualizado.');
@@ -636,7 +670,7 @@ import Sortable from 'sortablejs';
         var openConvId = params.get('open_conversation');
         if (!openConvId || !chatModal) return;
 
-        var existingCard = board.querySelector('.dh-card[data-conv-id="' + openConvId + '"]');
+        var existingCard = board.querySelector('.wf2-card[data-conv-id="' + openConvId + '"]');
         openChat(openConvId, existingCard);
 
         // Limpiar el parámetro de la URL para que un refresh posterior no

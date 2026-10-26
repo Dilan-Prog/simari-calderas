@@ -7,6 +7,7 @@ use App\Models\Customer;
 use App\Models\Deal;
 use App\Models\Lead;
 use App\Models\LeadInboundEmail;
+use App\Models\Task;
 use App\Models\Pipeline;
 use App\Models\PipelineStage;
 use App\Models\User;
@@ -82,6 +83,7 @@ class WhatsappFunnelController extends Controller
         $conversationsByStage = collect();
         $leadsByStage = collect();
         $linkedLeads = collect();
+        $tasksByLead = collect();
 
         if ($pipeline) {
             $stages = PipelineStage::where('pipeline_id', $pipeline->id)
@@ -129,12 +131,22 @@ class WhatsappFunnelController extends Controller
 
             // Lead de cada conversación: de ahí sale el responsable cuando la conversación no
             // tiene agente propio (el responsable se asigna desde la bandeja de leads).
-            $linkedLeads = Lead::with('assignee')
+            $linkedLeads = Lead::with(['assignee', 'deal'])
                 ->whereIn('whatsapp_conversation_id', $conversations->pluck('id'))
                 ->get()
                 ->keyBy('whatsapp_conversation_id');
 
             $leadsByStage = $this->leadsWithoutConversation($request, $pipeline, $stages);
+
+            // Tareas abiertas de cada lead (la mas proxima sale en la tarjeta como "Hoy · Enviar ficha...").
+            $leadIds = $linkedLeads->pluck('id')->merge($leadsByStage->flatten(1)->pluck('id'))->unique()->values();
+            $tasksByLead = $leadIds->isEmpty() ? collect() : Task::open()
+                ->where('taskable_type', Lead::class)
+                ->whereIn('taskable_id', $leadIds)
+                ->orderByRaw('due_at is null')
+                ->orderBy('due_at')
+                ->get()
+                ->groupBy('taskable_id');
         }
 
         $agents = User::orderBy('first_name')->get();
@@ -152,6 +164,7 @@ class WhatsappFunnelController extends Controller
             'conversationsByStage',
             'leadsByStage',
             'linkedLeads',
+            'tasksByLead',
             'agents',
             'accounts',
             'templates',
@@ -175,7 +188,7 @@ class WhatsappFunnelController extends Controller
         $isDefault = (int) optional(LeadStages::defaultPipeline())->id === (int) $pipeline->id;
         $stageIds = $stages->pluck('id')->all();
 
-        $query = Lead::with(['assignee', 'customer'])
+        $query = Lead::with(['assignee', 'customer', 'deal'])
             ->whereNull('whatsapp_conversation_id')
             ->where(function ($q) use ($stageIds, $isDefault) {
                 $q->whereIn('pipeline_stage_id', $stageIds);

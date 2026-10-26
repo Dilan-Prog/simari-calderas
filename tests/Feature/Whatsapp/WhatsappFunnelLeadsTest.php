@@ -112,7 +112,7 @@ class WhatsappFunnelLeadsTest extends TestCase
 
         $html = $this->board();
 
-        $this->assertSame(2, preg_match_all('/data-wf-agent>\s*' . preg_quote($this->agent->full_name, '/') . '\s*</', $html));
+        $this->assertSame(2, preg_match_all('/title="' . preg_quote($this->agent->full_name, '/') . '" data-wf-agent>/', $html));
         $this->assertStringNotContainsString('Sin asignar</span>', $html);
         $this->assertSame($this->agent->id, WhatsappConversation::find($wa->whatsapp_conversation_id)->assigned_user_id);
     }

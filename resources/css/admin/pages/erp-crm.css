@@ -446,3 +446,11 @@
     .lw-bubble { max-width: 92%; }
     .lw-shell:not(.has-lead) .lw-info-btn { display: none; }
 }
+
+/* Modo incrustado (?embed=1): la ficha del lead dentro del modal del Embudo de Venta (sin encabezado ni lista de leads). */
+body.wf-embed .lw-top, body.wf-embed .lw-list, body.wf-embed .lw-back, body.wf-embed .lw-info-btn { display: none !important; }
+body.wf-embed .lw { grid-template-columns: minmax(0, 1fr) 320px; }
+@media (max-width: 800px) {
+    body.wf-embed .lw { grid-template-columns: minmax(0, 1fr); }
+    body.wf-embed .lw-conv { display: flex; }
+}

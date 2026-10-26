@@ -28,13 +28,17 @@
         @vite(['resources/css/admin/pages/erp-core.css', 'resources/js/admin/erp-palette.js', 'resources/js/admin/erp-ui.js'])
     @endif
     @stack('styles')
+    @if (request()->boolean('embed'))
+        {{-- Modo incrustado (iframe dentro de un modal): sin menú lateral ni barra móvil. --}}
+        <style>#adminSidebar, .sidebar-backdrop, .admin-mobile-bar, #adminNavOverlay { display: none !important; } .admin-main { margin-left: 0 !important; }</style>
+    @endif
     <style>
     .val-error-input,.val-error-select{border-color:#e3342f!important;box-shadow:0 0 0 2px rgba(227,52,47,.18)!important;}
     .val-error-msg{display:block;color:#e3342f;font-size:12px;margin-top:4px;font-weight:500;}
     </style>
 </head>
 
-<body>
+<body @class(['wf-embed' => request()->boolean('embed')])>
     <div class="admin-nav-overlay" id="adminNavOverlay">
         <div class="admin-spinner"></div>
     </div>

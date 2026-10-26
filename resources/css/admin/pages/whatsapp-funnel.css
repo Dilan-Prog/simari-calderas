@@ -324,41 +324,154 @@
 .wf-chan-llamada { color: #047857; background: #d1fae5; }
 
 /* ============================================================
-   Embudo de Venta con la interfaz de Negocios (deals.css).
-   Complementos propios del embudo, dentro de #deals-hub-root para heredar
-   sus variables (--accent, --bg-panel, ...) y el tema claro/oscuro.
+   Embudo de Venta — diseño "Embudo de Venta v2" (clases .wf2-*).
    ============================================================ */
-#deals-hub-root.wf-hub [hidden] { display: none !important; }
+.wf2 {
+    --brand: #ff6213; --brand-hover: #de4a00; --brand-soft: #fff2e9;
+    --ink: #141516; --text: #000; --desc: #6B7280;
+    --card: #fff; --line: #E5E7EB; --line-2: #EDEFF1;
+    --ok: #0F7B3F; --ok-soft: #E9F6EE; --warn: #B45309; --warn-soft: #FEF6E7;
+    --err: #C81E1E; --err-soft: #FDECEC; --alert-row: #FDEEEE;
+    --info: #1D5FD0; --info-soft: #EBF1FD; --wa: #25D366;
+    --sm: 0 1px 2px rgba(0, 0, 0, .06);
+    font-family: 'Inter', -apple-system, 'Segoe UI', sans-serif; color: var(--text);
+    padding: 24px; width: 100%; max-width: 1800px; margin: 0 auto; box-sizing: border-box;
+    -webkit-font-smoothing: antialiased;
+}
+.wf2 *, .wf2 *::before, .wf2 *::after { box-sizing: border-box; }
+.wf2 [hidden] { display: none !important; }
+.wf2 button, .wf2 select, .wf2 input { font-family: inherit; color: inherit; }
+.wf2-crumb { font-size: 12px; color: var(--desc); margin-bottom: 9px; }
+.wf2-crumb span { color: var(--text); font-weight: 500; }
+.wf2-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; flex-wrap: wrap; margin-bottom: 18px; }
+.wf2-head-l { min-width: 0; flex: 1 1 320px; }
+.wf2-head h1 { font-size: 26px; font-weight: 700; margin: 0 0 5px; letter-spacing: -.5px; }
+.wf2-head p { margin: 0; font-size: 14px; color: var(--desc); }
+.wf2-head-r { display: flex; gap: 9px; align-items: center; flex-wrap: wrap; flex-shrink: 0; }
+.wf2-pipe select, .wf2-select { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 9px 11px; font-size: 12.5px; cursor: pointer; outline: none; box-shadow: var(--sm); }
+.wf2-pipe select { font-weight: 600; font-size: 13px; padding: 10px 12px; }
+.wf2-conn { display: flex; align-items: center; gap: 7px; font-size: 12px; color: var(--desc); white-space: nowrap; margin-right: 4px; }
+.wf2-conn i { width: 7px; height: 7px; border-radius: 50%; background: #9AA1AA; }
+.wf2-conn i.on { background: var(--wa); }
+.wf2-btn { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 10px 15px; font-size: 13px; font-weight: 600; color: var(--text); box-shadow: var(--sm); white-space: nowrap; cursor: pointer; text-decoration: none; }
+.wf2-btn:hover { border-color: var(--brand); color: var(--brand); text-decoration: none; }
+.wf2-btn--primary { background: var(--brand); color: #fff; border-color: var(--brand); }
+.wf2-btn--primary:hover { background: var(--brand-hover); border-color: var(--brand-hover); color: #fff; }
+.wf2-btn:disabled { opacity: .5; cursor: not-allowed; }
 
-#deals-hub-root .wf-check { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--muted); cursor: pointer; white-space: nowrap; }
-#deals-hub-root .wf-check input { accent-color: var(--accent); }
+.wf2-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; margin-bottom: 16px; }
+.wf2-kpi { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; box-shadow: var(--sm); min-width: 0; }
+.wf2-kpi-l { font-size: 11.5px; font-weight: 600; color: var(--desc); margin-bottom: 6px; }
+.wf2-kpi-v { font-size: 22px; font-weight: 700; letter-spacing: -.4px; font-variant-numeric: tabular-nums; }
+.wf2-kpi-s { font-size: 11.5px; color: var(--desc); margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-#deals-hub-root .wf-chan { font-size: 10.5px; font-weight: 700; padding: 2px 8px; border-radius: 999px; background: var(--bg-subtle); color: var(--muted); white-space: nowrap; }
-#deals-hub-root .wf-chan[data-ch="whatsapp"] { background: var(--ok-soft); color: var(--ok); }
-#deals-hub-root .wf-chan[data-ch="correo"] { background: var(--info-soft); color: var(--info); }
-#deals-hub-root .wf-chan[data-ch="formulario"] { background: var(--accent-soft); color: var(--accent); }
-#deals-hub-root .wf-chan[data-ch="llamada"] { background: var(--warn-soft); color: var(--warn); }
+.wf2-bar { display: flex; align-items: center; gap: 9px; margin-bottom: 14px; flex-wrap: wrap; }
+.wf2-search { position: relative; width: 260px; max-width: 100%; }
+.wf2-search svg { position: absolute; left: 11px; top: 11px; color: #99A1AF; }
+.wf2-search input { width: 100%; background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 9px 11px 9px 33px; font-size: 13px; outline: none; box-shadow: var(--sm); }
+.wf2-search input:focus { border-color: var(--brand); }
+.wf2-chips, .wf2-views { display: flex; gap: 4px; background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 3px; box-shadow: var(--sm); flex-wrap: wrap; }
+.wf2-views { margin-left: auto; gap: 3px; }
+.wf2-chip, .wf2-view { border: 0; background: transparent; padding: 6px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; color: var(--desc); white-space: nowrap; display: inline-flex; align-items: center; gap: 6px; }
+.wf2-view { padding: 6px 12px; }
+.wf2-chip span { font-size: 10.5px; font-weight: 700; opacity: .75; font-variant-numeric: tabular-nums; }
+.wf2-chip.is-on { background: var(--brand-soft); color: var(--brand); }
+.wf2-view.is-on { background: var(--ink); color: #fff; }
 
-#deals-hub-root .wf-pill { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 999px; white-space: nowrap; }
-#deals-hub-root .wf-pill--unread { background: var(--accent); color: var(--accent-contrast); min-width: 18px; text-align: center; margin-left: auto; }
-#deals-hub-root .wf-pill--deal { background: var(--accent-soft); color: var(--accent); }
+.wf2-viewbox { display: none; }
+.wf2-viewbox.is-on { display: block; }
+.wf2-board { display: flex; gap: 12px; align-items: stretch; overflow-x: auto; padding-bottom: 10px; }
+.wf2-col { width: 272px; min-width: 272px; background: var(--card); border: 1px solid var(--line); border-radius: 10px; box-shadow: var(--sm); display: flex; flex-direction: column; height: max(560px, calc(100vh - 340px)); }
+.wf2-col-h { padding: 12px 13px 10px; border-bottom: 1px solid var(--line); display: flex; flex-direction: column; gap: 7px; }
+.wf2-col-t { display: flex; align-items: center; gap: 8px; }
+.wf2-col-t i { width: 8px; height: 8px; border-radius: 2px; background: var(--ac); flex-shrink: 0; }
+.wf2-col-t b { font-size: 13.5px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.wf2-pill { font-size: 11px; font-weight: 700; color: var(--desc); background: var(--line-2); border-radius: 999px; padding: 1px 7px; font-variant-numeric: tabular-nums; flex-shrink: 0; }
+.wf2-col-t em { margin-left: auto; font-style: normal; font-size: 11px; font-weight: 600; color: var(--desc); flex-shrink: 0; }
+.wf2-col-v { display: flex; align-items: baseline; gap: 8px; }
+.wf2-col-v strong { font-size: 16px; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: -.3px; }
+.wf2-col-v small { font-size: 11px; color: var(--desc); white-space: nowrap; }
+.wf2-bar-track { height: 3px; border-radius: 2px; background: var(--line-2); overflow: hidden; }
+.wf2-bar-track div { height: 100%; background: var(--ac); }
+.wf2-col-list { flex: 1; min-height: 0; overflow-y: auto; padding: 9px; display: flex; flex-direction: column; gap: 8px; }
+.wf2-empty { border: 1px dashed #D8DCE1; border-radius: 9px; padding: 20px 12px; text-align: center; display: flex; flex-direction: column; gap: 4px; }
+.wf2-empty b { font-size: 12px; font-weight: 600; }
+.wf2-empty span { font-size: 11px; color: var(--desc); line-height: 1.45; }
+.wf2-col-f { border-top: 1px solid var(--line); padding: 9px 12px; display: flex; align-items: center; gap: 7px; font-size: 11px; color: var(--desc); }
+.wf2-col-f b { margin-left: auto; font-weight: 600; color: var(--ok); }
+.wf2-col-f b.is-bad { color: var(--err); }
 
-#deals-hub-root .wf-card-preview { font-size: 12px; color: var(--muted); line-height: 1.35; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-#deals-hub-root .wf-card-tags { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
-#deals-hub-root .wf-card-tags:empty { display: none; }
-#deals-hub-root .wf-agent-label { font-size: 12px; font-weight: 600; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-#deals-hub-root .wf-agent-label.is-empty { color: var(--faint); font-style: italic; font-weight: 400; }
-#deals-hub-root .dh-card-top .dh-card-owner-avatar { margin-left: auto; }
-#deals-hub-root .dh-card-top .wf-pill--unread + .dh-card-owner-avatar { margin-left: 6px; }
+.wf2-card { background: var(--card); border: 1px solid var(--line); border-radius: 9px; padding: 10px; cursor: pointer; box-shadow: var(--sm); display: flex; flex-direction: column; gap: 8px; flex-shrink: 0; }
+.wf2-card:hover { border-color: var(--brand); }
+.wf2-card.is-alert { background: var(--alert-row); border-color: #F4CFCF; }
+.wf2-card.sortable-ghost { opacity: .4; }
+.wf2-card-top { display: flex; gap: 9px; align-items: flex-start; }
+.wf2-av-wrap { position: relative; flex-shrink: 0; }
+.wf2-av { width: 32px; height: 32px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; background: color-mix(in srgb, var(--av, #8b93a1) 16%, #fff); color: var(--av, #4b5563); }
+.wf2-wa { position: absolute; right: -2px; bottom: -2px; width: 13px; height: 13px; border-radius: 50%; background: var(--wa); border: 2px solid var(--card); }
+.wf2-card-main { min-width: 0; flex: 1; }
+.wf2-card-l1, .wf2-card-l2 { display: flex; align-items: center; gap: 6px; }
+.wf2-card-l2 { margin-top: 3px; }
+.wf2-card-l1 b { font-size: 12.5px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.wf2-card-l1 small { margin-left: auto; font-size: 10.5px; color: var(--desc); white-space: nowrap; flex-shrink: 0; }
+.wf2-card-l2 span { font-size: 11px; color: var(--desc); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.wf2-card-l2 strong { margin-left: auto; font-size: 12px; font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; flex-shrink: 0; }
+.wf2-card-l2 em { font-style: normal; font-size: 9.5px; color: var(--desc); font-weight: 600; }
+.wf2-prio { width: 6px; height: 6px; border-radius: 50%; background: var(--err); flex-shrink: 0; }
+.wf2-card-prev { font-size: 11.5px; color: var(--desc); line-height: 1.4; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.wf2-card-tags { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
+.wf2-card-end { margin-left: auto; display: flex; align-items: center; gap: 5px; flex-shrink: 0; }
+.wf2-tag { font-size: 10.5px; font-weight: 600; border-radius: 5px; padding: 2px 6px; white-space: nowrap; background: var(--line-2); color: var(--desc); max-width: 130px; overflow: hidden; text-overflow: ellipsis; }
+.wf2-row .wf2-tag { font-size: 11px; padding: 2px 7px; max-width: 100%; }
+.wf2-tag.is-ok { background: var(--ok-soft); color: var(--ok); }
+.wf2-tag.is-off { background: var(--line-2); color: var(--desc); }
+.wf2-tag.due-vencida { background: var(--err-soft); color: var(--err); }
+.wf2-tag.due-hoy { background: var(--warn-soft); color: var(--warn); }
+.wf2-tag.due-manana { background: var(--info-soft); color: var(--info); }
+.wf2-chan[data-ch="whatsapp"] { background: var(--ok-soft); color: var(--ok); }
+.wf2-chan[data-ch="correo"] { background: var(--info-soft); color: var(--info); }
+.wf2-chan[data-ch="formulario"] { background: var(--brand-soft); color: var(--brand); }
+.wf2-chan[data-ch="llamada"] { background: var(--warn-soft); color: var(--warn); }
+.wf2-unread { min-width: 18px; height: 18px; border-radius: 999px; background: var(--err); color: #fff; font-size: 10.5px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; padding: 0 5px; flex-shrink: 0; }
+.wf2-agent { width: 20px; height: 20px; border-radius: 50%; background: var(--line-2); color: var(--desc); font-size: 9px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; }
 
-#deals-hub-root a.dh-quick-btn { text-decoration: none; }
-#deals-hub-root .dh-quick-btn.is-disabled { opacity: .4; cursor: default; }
-#deals-hub-root .dh-quick-btn.is-disabled:hover { color: var(--muted); border-color: var(--border); }
-#deals-hub-root .wf-td-sub { display: block; font-size: 11px; font-weight: 400; color: var(--faint); }
+.wf2-list { background: var(--card); border: 1px solid var(--line); border-radius: 10px; box-shadow: var(--sm); overflow-x: auto; }
+.wf2-list-in { min-width: 1040px; }
+.wf2-row { display: grid; grid-template-columns: minmax(200px, 2fr) 140px 110px 60px 140px 130px minmax(150px, 1.2fr) 80px; gap: 12px; padding: 10px 16px; border-bottom: 1px solid var(--line-2); align-items: center; cursor: pointer; font-size: 12.5px; }
+.wf2-row:hover { background: var(--brand-soft); }
+.wf2-row.is-alert { background: var(--alert-row); }
+.wf2-row--h { padding: 11px 16px; border-bottom: 1px solid var(--line); font-size: 11px; font-weight: 700; color: var(--desc); text-transform: uppercase; letter-spacing: .5px; cursor: default; }
+.wf2-row--h:hover { background: transparent; }
+.wf2-row .r { text-align: right; }
+.wf2-row .muted { color: var(--desc); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.wf2-row .small { font-size: 11.5px; }
+.wf2-r-c { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.wf2-r-c b { display: block; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.wf2-r-c small { display: block; font-size: 11px; color: var(--desc); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.wf2-r-c .wf2-av { width: 30px; height: 30px; font-size: 10.5px; flex-shrink: 0; }
+.wf2-r-st { display: flex; align-items: center; gap: 7px; min-width: 0; }
+.wf2-r-st i { width: 7px; height: 7px; border-radius: 2px; flex-shrink: 0; }
+.wf2-r-st span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.wf2-none { padding: 40px; text-align: center; font-size: 13px; color: var(--desc); }
+.wf2-note { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 24px; font-size: 14px; color: var(--desc); }
 
-/* Respondio (resaltado compartido con la bandeja de leads) */
-#deals-hub-root .dh-card.is-hot { border-color: var(--hot-accent, #f97316); }
-#deals-hub-root .is-hot .dh-card-name { font-weight: 800; }
-#deals-hub-root[data-theme="dark"] .dh-card.is-hot { background: rgba(249, 115, 22, .22) !important; }
-#deals-hub-root[data-theme="dark"] .hot-tag { color: #fdba74; }
+/* Respondió (resaltado compartido con la bandeja de leads) */
+.wf2-card.is-hot { border-color: var(--hot-accent, #f97316); }
+.wf2-card.is-hot .wf2-card-l1 b { font-weight: 800; }
 
+@media (max-width: 720px) {
+    .wf2 { padding: 14px; }
+    .wf2-views { margin-left: 0; }
+}
+
+/* Modal con la ficha del lead (Bandeja de leads incrustada) */
+.wf2-modal { position: fixed; inset: 0; z-index: 1200; background: rgba(10, 11, 12, .5); display: flex; align-items: center; justify-content: center; padding: 16px; }
+.wf2-modal[hidden] { display: none !important; }
+.wf2-modal-box { width: min(1500px, 97vw); height: min(900px, 94vh); background: #fff; border-radius: 14px; box-shadow: 0 24px 70px rgba(0, 0, 0, .35); display: flex; flex-direction: column; overflow: hidden; }
+.wf2-modal-bar { display: flex; align-items: center; gap: 10px; padding: 8px 12px 8px 18px; border-bottom: 1px solid #E5E7EB; background: #fff; flex-shrink: 0; }
+.wf2-modal-bar span { font-size: 13px; font-weight: 700; margin-right: auto; font-family: 'Inter', sans-serif; }
+.wf2-modal-bar .wf2-btn { padding: 6px 12px; font-size: 12px; background: #fff; border: 1px solid #E5E7EB; border-radius: 8px; color: #000; font-weight: 600; text-decoration: none; cursor: pointer; white-space: nowrap; }
+.wf2-modal-bar .wf2-btn:hover { border-color: #ff6213; color: #ff6213; }
+.wf2-modal-x { width: 32px; height: 32px; border: 1px solid #E5E7EB; border-radius: 8px; background: #fff; font-size: 20px; line-height: 1; cursor: pointer; color: #6B7280; }
+.wf2-modal-x:hover { border-color: #ff6213; color: #ff6213; }
+.wf2-modal-box iframe { flex: 1; width: 100%; border: 0; background: #fff; }

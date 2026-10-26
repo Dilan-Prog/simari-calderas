@@ -196,7 +196,11 @@
             <section class="lw-conv" aria-label="Conversación">
                 @if ($selected)
                     <div class="lw-conv-head">
-                        <a class="lw-back" href="{{ $inboxUrl([], ['lead']) }}">&larr; Volver</a>
+                        @if(request('from') === 'embudo')
+                            <a class="lw-back" href="{{ route('admin.whatsapp-funnel.index') }}">&larr; Embudo de Venta</a>
+                        @else
+                            <a class="lw-back" href="{{ $inboxUrl([], ['lead']) }}">&larr; Volver</a>
+                        @endif
                         <span class="lw-av lw-av--lg">{{ $initials($selected->display_name) }}</span>
                         <div class="lw-conv-who">
                             <div class="lw-conv-name">
