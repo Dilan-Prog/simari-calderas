@@ -244,6 +244,56 @@
                                                     placeholder="Equiterm Industries">
                                             </div>
 
+                                            <div class="pform-field">
+                                                <label class="pform-label" for="mail_signature">Firma de los correos que se envían desde la bandeja</label>
+                                                <textarea id="mail_signature" name="mail_signature" class="pform-input"
+                                                    rows="4" maxlength="1000"
+                                                    placeholder="Atentamente,&#10;Equipo de ventas&#10;Equiterm Industries">{{ old('mail_signature', $values['mail.signature']) }}</textarea>
+                                                <p class="pform-hint">Opcional. Texto plano (máx. 1000 caracteres); se agrega al final de cada correo que envíes desde la bandeja de leads.</p>
+                                            </div>
+
+                                            <h3 class="pform-panel-title" style="font-size:15px;margin:24px 0 8px;padding-top:16px;border-top:1px solid var(--erp-border, #e5e7eb);">Buzón de la bandeja de leads (respuestas a clientes)</h3>
+                                            <p class="pform-hint" style="margin-bottom:16px;">
+                                                Normalmente <code>administracion@equitermindustries.com.mx</code> con la contraseña de ese buzón;
+                                                si se deja vacío, las respuestas salen con el remitente general.
+                                                Usa el mismo servidor, puerto y cifrado del SMTP de arriba.
+                                            </p>
+
+                                            <div class="pform-field">
+                                                <label class="pform-label" for="mail_inbox_username">Usuario del buzón (correo completo)</label>
+                                                <input type="text" id="mail_inbox_username" name="mail_inbox_username" class="pform-input"
+                                                    value="{{ old('mail_inbox_username', $values['mail.inbox.username']) }}"
+                                                    maxlength="190" placeholder="administracion@equitermindustries.com.mx" autocomplete="off">
+                                            </div>
+
+                                            <div class="pform-field">
+                                                <label class="pform-label" for="mail_inbox_password">Contraseña del buzón</label>
+                                                <input type="password" id="mail_inbox_password" name="mail_inbox_password"
+                                                    class="pform-input"
+                                                    placeholder="{{ $hasInboxPassword ? '••••••••  (contraseña guardada — deja vacío para conservarla)' : 'Contraseña del buzón' }}"
+                                                    autocomplete="new-password">
+                                                <p class="pform-hint">
+                                                    @if ($hasInboxPassword)<strong>Contraseña guardada.</strong> @endif
+                                                    Se guarda encriptada. Déjala vacía para no cambiarla.
+                                                </p>
+                                            </div>
+
+                                            <div class="pform-field">
+                                                <label class="pform-label" for="mail_inbox_from_address">Correo remitente de las respuestas (From / Reply-To)</label>
+                                                <input type="email" id="mail_inbox_from_address" name="mail_inbox_from_address"
+                                                    class="pform-input"
+                                                    value="{{ old('mail_inbox_from_address', $values['mail.inbox.from_address']) }}"
+                                                    placeholder="administracion@equitermindustries.com.mx">
+                                            </div>
+
+                                            <div class="pform-field">
+                                                <label class="pform-label" for="mail_inbox_from_name">Nombre del remitente de las respuestas</label>
+                                                <input type="text" id="mail_inbox_from_name" name="mail_inbox_from_name"
+                                                    class="pform-input"
+                                                    value="{{ old('mail_inbox_from_name', $values['mail.inbox.from_name']) }}"
+                                                    placeholder="Equiterm Industries">
+                                            </div>
+
                                             <button type="submit" class="pform-btn primary">Guardar configuración</button>
                                         </div>
                                     </div>

@@ -302,6 +302,9 @@
                                             <div class="lw-bubble-h"><span class="lw-bubble-ch">Nota interna{{ ! empty($ev['title']) ? ' de ' . \Illuminate\Support\Str::after($ev['title'], 'Nota de ') : '' }} · solo equipo</span></div>
                                         @endif
                                         @if (! empty($ev['body']))<div class="lw-bubble-b">{{ $ev['body'] }}</div>@endif
+                                        @if ($t === 'correo')
+                                            @include('admin.leads-inbox.partials._email_actions', ['ev' => $ev, 'lead' => $selected])
+                                        @endif
                                         <div class="lw-bubble-t"><span>{{ $at ? $at->format('H:i') : '' }}</span>@if ($isOut && $t === 'whatsapp')<svg class="lw-tick" viewBox="0 0 16 11" width="16" height="11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 5.8l2.6 2.6L9.5 2.5M6.5 8.4L12.4 2.5"/></svg>@endif</div>
                                     </div>
                                 </div>
@@ -367,8 +370,7 @@
                             @endif
                         </div>
                         <div class="lw-pane" data-pane="correo" hidden>
-                            <p class="lw-soon">El envío desde la bandeja aún no está disponible.</p>
-                            @if ($selected->contact_email)<a class="erp-btn erp-btn--sm" href="mailto:{{ $selected->contact_email }}" target="_blank" rel="noopener">Abrir correo</a>@endif
+                            @include('admin.leads-inbox.partials._email_composer', ['lead' => $selected, 'emailCompose' => $emailCompose ?? null])
                         </div>
                         <div class="lw-pane lw-nota" data-pane="nota" hidden>
                             <form method="POST" action="{{ route('admin.leads-inbox.notes.store', $selected) }}">

@@ -96,13 +96,13 @@ class TaskController extends Controller
         $origin = $task->createdByWorkflow?->name ?? ($email ? 'Correo N8N' : 'Manual');
 
         // Historial: movimientos registrados + correo recibido + (si no hay registro) la creación derivada.
-        $events = $task->events()->with(['actor', 'outboundEmail'])->get();
+        $events = $task->events()->with(['actor', 'outboundEmail.sentBy'])->get();
         $timeline = $events->map(function ($e) {
             $mail = $e->outboundEmail;
 
             return [
                 'title' => $e->title,
-                'actor' => $mail ? ($mail->from_email ?: 'Correo enviado') : ($e->actor?->full_name ?? 'Sistema'),
+                'actor' => $mail ? ($mail->sentBy?->full_name ?: ($e->actor?->full_name ?: ($mail->from_email ?: 'Correo enviado'))) : ($e->actor?->full_name ?? 'Sistema'),
                 'at'    => $mail?->sent_at ?? $e->created_at,
                 'body'  => null,
                 // Correo enviado al cliente (se puede abrir desde el historial).

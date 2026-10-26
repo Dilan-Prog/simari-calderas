@@ -9,4 +9,5 @@ use Illuminate\Support\Facades\Route;
 */
 Route::post('/leads', [\App\Http\Controllers\Api\LeadEmailController::class, 'store'])->middleware('token.ability:leads:write');
 Route::post('/leads/outbound-email', [\App\Http\Controllers\Api\LeadEmailController::class, 'storeOutbound'])->middleware('token.ability:leads:write');
+Route::post('/leads/{lead}/send-email', [\App\Http\Controllers\Api\LeadEmailController::class, 'sendEmail'])->middleware(['token.ability:leads:write', 'throttle:30,1'])->whereNumber('lead');
 Route::post('/leads/call', [LeadCallController::class, 'store'])->middleware('token.ability:leads:write');

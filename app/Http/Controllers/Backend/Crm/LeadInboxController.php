@@ -4,19 +4,26 @@ namespace App\Http\Controllers\Backend\Crm;
 
 use App\Http\Controllers\Controller;
 use App\Models\AdEvent;
+use App\Models\Customer;
+use App\Models\EmailTemplate;
 use App\Models\Lead;
 use App\Models\LeadInboundEmail;
+use App\Models\LeadOutboundEmail;
 use App\Models\LeadNote;
+use App\Models\Quote;
 use App\Models\Task;
 use App\Models\User;
 use App\Models\WhatsappAccount;
 use App\Models\WhatsappConversation;
+use App\Services\EmailTemplateService;
+use App\Services\LeadMailService;
 use App\Services\LeadService;
 use App\Services\WhatsappService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use RuntimeException;
 
 class LeadInboxController extends Controller
 {
@@ -92,6 +99,7 @@ class LeadInboxController extends Controller
         $nextTask = null;
         $openTasks = collect();
         $wa = null;
+        $emailCompose = null;
         if ($selected && $request->filled('lead')) {
             // Abrir el lead desde un aviso: lo marca como leído y quita el resaltado de "respuesta pendiente".
             \App\Models\AdminNotification::markSubjectRead($request->user()?->id, 'lead', $selected->id);
@@ -99,6 +107,7 @@ class LeadInboxController extends Controller
         }
         if ($selected) {
             $wa = $this->whatsappState($selected);
+            $emailCompose = $this->emailCompose($selected);
             $selected->load(['assignee', 'customer', 'deal', 'deals.quotes', 'deals.stage', 'calls', 'tasks.assignee', 'whatsappConversation', 'noteEntries.author']);
             $timeline = $this->timeline($selected);
             $openTasks = $selected->tasks
@@ -142,6 +151,7 @@ class LeadInboxController extends Controller
             'nextTask'   => $nextTask,
             'openTasks'  => $openTasks,
             'wa'         => $wa,
+            'emailCompose' => $emailCompose,
             'channels'   => $channels,
             'chipCounts' => $chipCounts,
             'kpis'       => $kpis,
@@ -258,6 +268,7 @@ class LeadInboxController extends Controller
         return view('admin.leads-inbox.show', [
             'lead'     => $lead,
             'timeline' => $this->timeline($lead),
+            'emailCompose' => $this->emailCompose($lead),
             'users'    => User::where('status', 'active')->orderBy('first_name')->get(['id', 'first_name', 'last_name']),
         ]);
     }
@@ -338,20 +349,30 @@ class LeadInboxController extends Controller
 
         foreach (LeadInboundEmail::where('lead_id', $lead->id)->latest('id')->limit(30)->get() as $em) {
             $items[] = [
-                'at'    => $em->received_at ?? $em->created_at,
-                'type'  => 'correo',
-                'title' => 'Correo recibido: ' . ($em->subject ?: '(sin asunto)'),
-                'body'  => $em->excerpt,
+                'at'       => $em->received_at ?? $em->created_at,
+                'type'     => 'correo',
+                'title'    => 'Correo recibido: ' . ($em->subject ?: '(sin asunto)'),
+                'body'     => $em->excerpt,
+                'email_id' => $em->id,
+                'dir'      => 'in',
+                'sent_by'  => null,
+                'source'   => null,
+                'subject'  => $em->subject,
             ];
         }
 
-        foreach (\App\Models\LeadOutboundEmail::where('lead_id', $lead->id)->latest('id')->limit(30)->get() as $m) {
+        foreach (LeadOutboundEmail::with('sentBy')->where('lead_id', $lead->id)->latest('id')->limit(30)->get() as $m) {
             $items[] = [
-                'at'    => $m->sent_at ?? $m->created_at,
-                'type'  => 'correo',
-                'out'   => true,
-                'title' => 'Correo enviado: ' . ($m->subject ?: '(sin asunto)'),
-                'body'  => \Illuminate\Support\Str::limit(trim((string) $m->body), 600),
+                'at'       => $m->sent_at ?? $m->created_at,
+                'type'     => 'correo',
+                'out'      => true,
+                'title'    => 'Correo enviado: ' . ($m->subject ?: '(sin asunto)'),
+                'body'     => Str::limit(trim((string) $m->body), 600),
+                'email_id' => $m->id,
+                'dir'      => 'out',
+                'sent_by'  => $m->sentBy?->full_name,
+                'source'   => $m->source ?: LeadOutboundEmail::SOURCE_EXTERNAL,
+                'subject'  => $m->subject,
             ];
         }
 
@@ -600,5 +621,142 @@ class LeadInboxController extends Controller
         }
 
         return $back->with('success', $data['type'] === 'template' ? 'Plantilla enviada por WhatsApp.' : 'Mensaje enviado por WhatsApp.');
+    }
+
+    // ── Correo desde la bandeja ─────────────────────────────────────────
+
+    /**
+     * Datos para el compositor de correo del lead.
+     *
+     * @return array{can_send:bool,reason:?string,to:?string,subject:string,signature:string,from:string,sender_address:string,uses_default_sender:bool,templates:array,quotes:array,open_task:?array,in_reply_to:?string}
+     */
+    public function emailCompose(Lead $lead): array
+    {
+        $mail = app(LeadMailService::class);
+
+        $reason = null;
+        if (! filter_var((string) $lead->contact_email, FILTER_VALIDATE_EMAIL)) {
+            $reason = 'Este lead no tiene correo. Captúralo en "Editar contacto".';
+        } else {
+            $reason = $mail->smtpProblem();
+        }
+
+        $inbound = $mail->latestInbound($lead);
+        $subject = trim((string) $inbound?->subject);
+        if ($subject !== '' && ! preg_match('/^\s*(re|rv)\s*:/i', $subject)) {
+            $subject = 'Re: ' . $subject;
+        }
+
+        $quotes = $lead->customer_id
+            ? Quote::where('customer_id', $lead->customer_id)->orderByDesc('id')->limit(20)->get()
+                ->map(fn (Quote $q) => [
+                    'id'           => $q->id,
+                    'number'       => $q->quote_number,
+                    'status_label' => Quote::statusLabel((string) $q->status),
+                    'total_label'  => '$' . number_format((float) $q->total, 2) . ($q->currency ? ' ' . $q->currency : ''),
+                ])->all()
+            : [];
+
+        $task = $mail->replyTask($lead);
+        $sender = $mail->sender();
+        $fromName = (string) $sender['name'];
+        $fromAddress = $sender['address'];
+
+        return [
+            'can_send'    => $reason === null,
+            'reason'      => $reason,
+            'to'          => $lead->contact_email,
+            'subject'     => $subject,
+            'signature'   => $mail->signature(),
+            'from'        => $fromName !== '' ? $fromName . ' <' . $fromAddress . '>' : $fromAddress,
+            'sender_address'     => $fromAddress,
+            'uses_default_sender' => $sender['uses_default'],
+            'templates'  => EmailTemplate::orderBy('name')->get(['id', 'name'])->map(fn ($t) => ['id' => $t->id, 'name' => $t->name])->all(),
+            'quotes'      => $quotes,
+            'open_task'   => $task ? ['id' => $task->id, 'title' => $task->title] : null,
+            'in_reply_to' => $inbound?->message_id,
+        ];
+    }
+
+    /** Plantilla de correo con los tokens resueltos para este lead (asunto + texto plano). */
+    public function emailTemplate(Lead $lead, int $template, EmailTemplateService $service)
+    {
+        $tpl = EmailTemplate::findOrFail($template);
+
+        $recipient = $lead->customer;
+        if (! $recipient) {
+            // Contacto del lead como destinatario temporal (no se guarda).
+            $recipient = (new Customer())->forceFill([
+                'first_name' => (string) $lead->contact_name,
+                'last_name'  => '',
+                'email'      => $lead->contact_email,
+                'company'    => $lead->contact_company,
+            ]);
+        }
+
+        $rendered = $service->render($tpl, $recipient);
+
+        return response()->json([
+            'subject' => trim((string) $rendered['subject']),
+            'body'    => $this->htmlToPlainText((string) $rendered['html']),
+        ]);
+    }
+
+    /** HTML a texto plano conservando saltos de línea, párrafos y enlaces. */
+    private function htmlToPlainText(string $html): string
+    {
+        $html = preg_replace('/<(style|script|head)\b[^>]*>.*?<\/\1>/is', '', $html);
+        $html = preg_replace('/<a\b[^>]*href=["\']([^"\']+)["\'][^>]*>(.*?)<\/a>/is', '$2 ($1)', $html);
+        $html = preg_replace('/<br\s*\/?>/i', "\n", $html);
+        $html = preg_replace('/<\/(p|div|tr|h[1-6]|li|table)>/i', "\n", $html);
+        $text = html_entity_decode(strip_tags($html), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        $text = str_replace("\u{00A0}", ' ', $text);
+        $text = preg_replace('/[ \t]+/', ' ', $text);
+        $text = preg_replace('/ *\n */', "\n", $text);
+        $text = preg_replace('/\n{3,}/', "\n\n", $text);
+
+        return trim($text);
+    }
+
+    public function sendEmail(Request $request, Lead $lead, LeadMailService $mail)
+    {
+        $request->merge(['to' => trim((string) $request->input('to'))]);
+
+        $data = $request->validate([
+            'to'          => 'required|email|max:255',
+            'cc'          => ['nullable', 'string', 'max:1000', function ($attribute, $value, $fail) use ($mail, $request) {
+                try {
+                    $mail->parseCc($value, strtolower((string) $request->input('to')));
+                } catch (RuntimeException $e) {
+                    $fail($e->getMessage());
+                }
+            }],
+            'subject'     => 'required|string|max:255',
+            'body'        => 'required|string|max:20000',
+            'quote_ids'   => 'nullable|array|max:10',
+            'quote_ids.*' => 'integer',
+            'files'       => 'nullable|array|max:3',
+            'files.*'     => 'file|max:10240|mimes:pdf,doc,docx,xls,xlsx,png,jpg,jpeg,zip',
+            'close_task'  => 'nullable|boolean',
+        ]);
+
+        $back = redirect()->route('admin.leads-inbox.index', ['lead' => $lead->id])->with('composer_tab', 'correo');
+
+        try {
+            $cc = $mail->parseCc($data['cc'] ?? null, strtolower($data['to']));
+            $email = $mail->send($lead, [
+                'to'         => $data['to'],
+                'cc'         => $cc,
+                'subject'    => $data['subject'],
+                'body'       => $data['body'],
+                'quote_ids'  => $data['quote_ids'] ?? [],
+                'files'      => $request->file('files', []),
+                'close_task' => (bool) ($data['close_task'] ?? false),
+            ], $request->user());
+        } catch (RuntimeException $e) {
+            return $back->withInput($request->except('files'))->with('error', $e->getMessage());
+        }
+
+        return $back->with('success', 'Correo enviado a ' . $email->to_email . '.');
     }
 }

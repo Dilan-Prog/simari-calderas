@@ -211,7 +211,7 @@
                 <div class="form-group">
                     <label class="form-label">Notas internas</label>
                     <textarea name="notes" class="form-textarea"
-                              placeholder="Observaciones visibles solo para el equipo">{{ old('notes') }}</textarea>
+                              placeholder="Observaciones visibles solo para el equipo">{{ old('notes', $prefillNotes ?? '') }}</textarea>
                 </div>
 
                 <div class="form-group" style="margin-top:4px;">

@@ -26,7 +26,10 @@ class IntegrationController extends Controller
      */
     protected array $mailKeys = [
         'mail.host', 'mail.port', 'mail.username', 'mail.encryption',
-        'mail.from_address', 'mail.from_name',
+        'mail.from_address', 'mail.from_name', 'mail.signature',
+        // Buzón de la bandeja de leads (respuestas a clientes); host/puerto/cifrado son los generales.
+        // mail.inbox.password va aparte (encriptada, nunca se re-imprime).
+        'mail.inbox.from_address', 'mail.inbox.from_name', 'mail.inbox.username',
     ];
 
     /**
@@ -50,6 +53,7 @@ class IntegrationController extends Controller
         }
 
         $hasPassword = (bool) Setting::get('mail.password');
+        $hasInboxPassword = (bool) Setting::get('mail.inbox.password');
 
         // Un sub-array por rol -- ver $mercadoPagoRoles arriba. La vista
         // itera esto en un @foreach, así que agregar una 3ra aplicación no
@@ -122,6 +126,7 @@ class IntegrationController extends Controller
         return view('admin.integrations.index', compact(
             'values',
             'hasPassword',
+            'hasInboxPassword',
             'webhooks',
             'whatsappActiveCount',
             'metaWhatsappAccounts',
@@ -148,6 +153,11 @@ class IntegrationController extends Controller
             'mail_encryption'   => ['nullable', 'in:ssl,tls,none'],
             'mail_from_address' => ['nullable', 'email', 'max:255'],
             'mail_from_name'    => ['nullable', 'string', 'max:255'],
+            'mail_signature'    => ['nullable', 'string', 'max:1000'],
+            'mail_inbox_from_address' => ['nullable', 'email', 'max:255'],
+            'mail_inbox_from_name'    => ['nullable', 'string', 'max:255'],
+            'mail_inbox_username'     => ['nullable', 'string', 'max:190'],
+            'mail_inbox_password'     => ['nullable', 'string', 'max:255'],
         ]);
 
         $this->saveSetting('mail.host', $data['mail_host'] ?? null);
@@ -156,11 +166,20 @@ class IntegrationController extends Controller
         $this->saveSetting('mail.encryption', $data['mail_encryption'] ?? null);
         $this->saveSetting('mail.from_address', $data['mail_from_address'] ?? null);
         $this->saveSetting('mail.from_name', $data['mail_from_name'] ?? null);
+        $this->saveSetting('mail.signature', $data['mail_signature'] ?? null);
+        $this->saveSetting('mail.inbox.from_address', $data['mail_inbox_from_address'] ?? null);
+        $this->saveSetting('mail.inbox.from_name', $data['mail_inbox_from_name'] ?? null);
+        $this->saveSetting('mail.inbox.username', $data['mail_inbox_username'] ?? null);
 
         // Campo vacío = conservar la contraseña actual (así el admin puede
         // editar el resto sin re-capturarla).
         if (filled($data['mail_password'] ?? null)) {
             $this->saveSetting('mail.password', Crypt::encryptString($data['mail_password']));
+        }
+
+        // Igual para la contraseña del buzón de la bandeja de leads.
+        if (filled($data['mail_inbox_password'] ?? null)) {
+            $this->saveSetting('mail.inbox.password', Crypt::encryptString($data['mail_inbox_password']));
         }
 
         return $this->backToIntegrations($request, 'smtp', 'credenciales')->with('success', 'Configuración de correo guardada.');

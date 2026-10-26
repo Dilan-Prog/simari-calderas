@@ -9,8 +9,11 @@ class LeadOutboundEmail extends Model
 {
     protected $fillable = [
         'message_id', 'lead_id', 'task_id', 'from_email', 'to_email', 'recipients',
-        'subject', 'body', 'attachments', 'sent_at',
+        'subject', 'body', 'attachments', 'sent_at', 'source', 'sent_by_user_id', 'in_reply_to',
     ];
+
+    public const SOURCE_PLATFORM = 'platform';
+    public const SOURCE_EXTERNAL = 'external';
 
     protected $casts = ['recipients' => 'array', 'attachments' => 'array', 'sent_at' => 'datetime'];
 
@@ -31,6 +34,12 @@ class LeadOutboundEmail extends Model
     public function lead(): BelongsTo
     {
         return $this->belongsTo(Lead::class);
+    }
+
+    /** Usuario que lo envió desde la bandeja (null si lo registró n8n desde Enviados). */
+    public function sentBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'sent_by_user_id');
     }
 
     public function task(): BelongsTo

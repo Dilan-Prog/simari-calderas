@@ -105,7 +105,21 @@ class QuoteController extends Controller
         // Texto predeterminado de términos y condiciones (Configuración ERP) para precargar el campo.
         $defaultTerms = (string) Setting::get(ErpSettingController::QUOTE_TERMS_KEY, '');
 
-        return view('admin.quotes.create', compact('customers', 'defaultExchangeRate', 'prefillCustomer', 'defaultTerms'));
+        // Desde un correo de la Bandeja de leads: precarga las notas internas con el contexto del correo recibido.
+        $prefillNotes = '';
+        if ($request->filled('from_email') && $request->filled('from_lead')) {
+            $mail = \App\Models\LeadInboundEmail::where('lead_id', (int) $request->input('from_lead'))
+                ->whereKey((int) $request->input('from_email'))
+                ->first();
+            if ($mail) {
+                $who = trim(($mail->from_name ? $mail->from_name . ' ' : '') . ($mail->from_email ?? ''));
+                $when = ($mail->received_at ?? $mail->created_at)?->format('d/m/Y H:i');
+                $prefillNotes = 'Solicitud por correo: ' . ($mail->subject ?: '(sin asunto)')
+                    . ' (' . trim($who . ($when ? ', ' . $when : ''), ', ') . ')';
+            }
+        }
+
+        return view('admin.quotes.create', compact('customers', 'defaultExchangeRate', 'prefillCustomer', 'defaultTerms', 'prefillNotes'));
     }
 
     public function store(Request $request)

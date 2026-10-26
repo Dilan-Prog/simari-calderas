@@ -62,6 +62,41 @@ return [
         'relations'         => ['customer', 'account'],
     ],
 
+    // Bandeja de leads y correo (conexión con n8n: ver docs/n8n/README-correo.md).
+    // OJO: el correo que se envía por la API (POST /api/v1/leads/{lead}/send-email) crea un
+    // lead_outbound_email, así que un workflow de ese tipo que a su vez envíe correo se
+    // reinscribe a sí mismo; el motor no tiene guarda de recursión (ver README).
+
+    'lead' => [
+        'model'             => \App\Models\Lead::class,
+        'label'             => 'Lead',
+        'group'             => 'CRM',
+        'supports_stale'    => true,
+        'stale_field'       => 'last_activity_at',
+        'customer_relation' => 'customer',
+        'relations'         => ['customer', 'deal'],
+    ],
+
+    'lead_inbound_email' => [
+        'model'             => \App\Models\LeadInboundEmail::class,
+        'label'             => 'Correo recibido de lead',
+        'group'             => 'CRM',
+        'supports_stale'    => false,
+        'stale_field'       => null,
+        'customer_relation' => null,
+        'relations'         => ['lead'],
+    ],
+
+    'lead_outbound_email' => [
+        'model'             => \App\Models\LeadOutboundEmail::class,
+        'label'             => 'Correo enviado a lead',
+        'group'             => 'CRM',
+        'supports_stale'    => false,
+        'stale_field'       => null,
+        'customer_relation' => null,
+        'relations'         => ['lead'],
+    ],
+
     // === ECOMMERCE (Fase 20a - rellenar aqui) ===
 
     'products' => [
