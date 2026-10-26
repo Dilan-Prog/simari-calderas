@@ -3,7 +3,7 @@
     $typeColors = [
         'quote' => '#2563eb', 'order' => '#7c3aed', 'delivery' => '#0d9488', 'service' => '#ea580c', 'report' => '#c2410c',
         'store' => '#db2777', 'monitor' => '#0891b2', 'deal' => '#4f46e5', 'project' => '#65a30d', 'lead' => '#6b7280',
-        'receivable' => '#b45309', 'payment' => '#15803d',
+        'receivable' => '#b45309', 'payment' => '#15803d', 'purchase_order' => '#0369a1',
     ];
     $kpi = $history['kpis'];
     $timeline = $history['timeline'];
@@ -87,7 +87,7 @@
                     @foreach ($events as $e)
                         @php $tag = $e['url'] ? 'a' : 'div'; @endphp
                         <li class="ch-item" data-type="{{ $e['type'] }}" style="--ch-c: {{ $typeColors[$e['type']] ?? '#9ca3af' }}">
-                            <{{ $tag }} class="ch-card" @if ($e['url']) href="{{ $e['url'] }}" @endif>
+                            <{{ $tag }} class="ch-card" @if ($e['url']) href="{{ $e['url'] }}" @if ($e['type'] === 'purchase_order') target="_blank" rel="noopener" @endif @endif>
                                 <span class="ch-date">{{ $e['date']?->format('d/m/Y') ?? '—' }}</span>
                                 <span class="ch-type">{{ $history['types'][$e['type']] ?? $e['type'] }}</span>
                                 <span class="ch-main">{{ $e['folio'] }}@if ($e['title'])<small>{{ $e['title'] }}</small>@endif</span>
@@ -121,7 +121,7 @@
                                 @foreach ($group['rows'] as $r)
                                     <tr>
                                         <td>{{ $r['date']?->format('d/m/Y') ?? '—' }}</td>
-                                        <td>@if ($r['url'])<a href="{{ $r['url'] }}">{{ $r['folio'] }}</a>@else{{ $r['folio'] }}@endif</td>
+                                        <td>@if ($r['url'])<a href="{{ $r['url'] }}" @if ($r['type'] === 'purchase_order') target="_blank" rel="noopener" @endif>{{ $r['folio'] }}</a>@else{{ $r['folio'] }}@endif</td>
                                         <td>{{ $r['title'] ?? '—' }}</td>
                                         <td>@if ($r['status'])<span class="ch-badge">{{ $r['status'] }}</span>@else — @endif</td>
                                         <td style="text-align:right">{{ $r['amount'] ?? '—' }}</td>

@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Customer;
+use App\Models\CustomerPurchaseOrder;
 use App\Models\Deal;
 use App\Models\Lead;
 use App\Models\MaterialDeliveryReport;
@@ -37,6 +38,7 @@ class CustomerHistoryService
     /** Etiquetas de los tipos de evento, usadas por la línea de tiempo y sus filtros. */
     public const TYPES = [
         'quote'    => 'Cotización',
+        'purchase_order' => 'Orden de compra del cliente',
         'order'    => 'Pedido de entrega',
         'delivery' => 'Reporte de entrega',
         'service'  => 'Servicio técnico',
@@ -60,6 +62,9 @@ class CustomerHistoryService
 
         if ($can('quotes')) {
             $rows['quote'] = $this->quotes($customer);
+        }
+        if ($can('clients')) {
+            $rows['purchase_order'] = $this->purchaseOrders($customer);
         }
         if ($can('sales-orders')) {
             $rows['order'] = $this->orders($customer);
@@ -98,6 +103,7 @@ class CustomerHistoryService
         // Pestañas: cada una agrupa uno o más orígenes.
         $tabs = [
             'quotes'   => ['label' => 'Cotizaciones', 'groups' => ['quote' => 'Cotizaciones']],
+            'po'       => ['label' => 'Órdenes de compra', 'groups' => ['purchase_order' => 'Órdenes de compra subidas por el cliente']],
             'delivery' => ['label' => 'Pedidos y entregas', 'groups' => ['order' => 'Pedidos de entrega', 'delivery' => 'Reportes de entrega de material']],
             'services' => ['label' => 'Servicios', 'groups' => ['service' => 'Servicios técnicos', 'report' => 'Reportes de servicio', 'monitor' => 'Programas de monitoreo']],
             'store'    => ['label' => 'Órdenes de tienda', 'groups' => ['store' => 'Órdenes de la tienda en línea']],
@@ -183,6 +189,21 @@ class CustomerHistoryService
             'quote', $q->created_at, $q->quote_number, null,
             Quote::statusLabel($q->status) . ($q->valid_until ? ' · vigencia ' . $q->valid_until->format('d/m/Y') : ''),
             $this->money($q->total, $q->currency), $this->url('admin.quotes.show', $q->id)
+        ));
+    }
+
+    /** PDF que el cliente sube en el portal (Órdenes de Compra); el enlace descarga el archivo. */
+    private function purchaseOrders(Customer $c): array
+    {
+        return $this->pack(CustomerPurchaseOrder::where('customer_id', $c->id)->with('quote:id,quote_number'), 'created_at', fn (CustomerPurchaseOrder $o) => $this->row(
+            'purchase_order', $o->created_at, $o->po_number ?: $o->original_name,
+            collect([
+                $o->po_number ? $o->original_name : null,
+                $o->quote ? 'Cotización ' . $o->quote->quote_number : null,
+                $o->sizeLabel(),
+            ])->filter()->implode(' · '),
+            $o->uploaded_by_member_id ? 'Subida por un usuario del equipo' : 'Subida por el titular',
+            null, $this->url('admin.customer-purchase-orders.download', $o->id)
         ));
     }
 

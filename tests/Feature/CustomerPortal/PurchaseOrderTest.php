@@ -315,6 +315,22 @@ class PurchaseOrderTest extends TestCase
         $this->assertStringContainsString('oc-staff.pdf', $res->headers->get('Content-Disposition'));
     }
 
+    public function test_la_ficha_del_cliente_en_el_admin_lista_sus_ordenes_de_compra(): void
+    {
+        $customer = $this->customer();
+        $other = $this->customer('Otra SA');
+        $po = $this->stored($customer, ['original_name' => 'oc-ficha.pdf', 'po_number' => 'OC-FICHA-77']);
+        $this->stored($other, ['original_name' => 'oc-ajena.pdf', 'po_number' => 'OC-AJENA-99']);
+
+        $res = $this->actingAs($this->staff('Administrador'))->get(route('admin.clients.information', $customer->id));
+
+        $res->assertOk()
+            ->assertSee('Órdenes de compra')
+            ->assertSee('OC-FICHA-77')
+            ->assertSee(route('admin.customer-purchase-orders.download', $po->id), false)
+            ->assertDontSee('OC-AJENA-99');
+    }
+
     public function test_el_nombre_original_se_sanea(): void
     {
         $customer = $this->customer();
