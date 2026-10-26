@@ -85,7 +85,11 @@
             {{-- Tabs --}}
             <div class="tabs-show-clients-container">
                 <button class="tab-show-client active" data-tab="info">Información</button>
-                <button class="tab-show-client" data-tab="orders">Órdenes</button>
+                <button class="tab-show-client" data-tab="history">Historial</button>
+                @foreach ($history['sections'] as $key => $section)
+                    <button class="tab-show-client" data-tab="hist-{{ $key }}">{{ $section['label'] }}
+                        <span class="ch-count">{{ $section['count'] }}</span></button>
+                @endforeach
                 <button class="tab-show-client" data-tab="addresses">Direcciones</button>
             </div>
 
@@ -175,49 +179,8 @@
                 </div>
             </div>
 
-            {{-- Tab: Orders --}}
-            <div class="tab-content-show-client" id="orders">
-                <div class="stats">
-                    <div class="stat-card">
-                        <p class="breadcrumb-users-manager">Total de Órdenes</p>
-                        <h2>0</h2>
-                    </div>
-                    <div class="stat-card">
-                        <p class="breadcrumb-users-manager">Total Gastado</p>
-                        <h2>$0.00</h2>
-                    </div>
-                    <div class="stat-card">
-                        <p class="breadcrumb-users-manager">Última Orden</p>
-                        <h2>—</h2>
-                    </div>
-                </div>
-                <main class="table-container-users-manager">
-                    <table class="users-manager-table">
-                        <thead>
-                            <tr>
-                                <th>ORDEN #</th>
-                                <th>FECHA</th>
-                                <th>ESTADO</th>
-                                <th>TOTAL</th>
-                                <th>ACCIONES</th>
-                            </tr>
-                        </thead>
-                    </table>
-                    <div class="table-scroll">
-                        <table class="users-manager-table">
-                            <tbody>
-                                <tr>
-                                    <td colspan="5">
-                                        <p class="breadcrumb-users-manager main" style="text-align:center;padding:20px;">
-                                            Sin órdenes registradas.
-                                        </p>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </main>
-            </div>
+            {{-- Tabs: Historial (línea de tiempo) y listas por área --}}
+            @include('admin.client.partials._history', ['customer' => $customer, 'history' => $history])
 
             {{-- Tab: Addresses --}}
             <div class="tab-content-show-client" id="addresses">

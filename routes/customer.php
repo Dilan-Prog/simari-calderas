@@ -4,11 +4,14 @@ use App\Http\Controllers\Backend\Customers\CustomerController;
 use App\Http\Controllers\Customers\AddressController;
 use App\Http\Controllers\Customers\CalendarController;
 use App\Http\Controllers\Customers\EquipmentController;
+use App\Http\Controllers\Customers\MaterialDeliveryController;
 use App\Http\Controllers\Customers\MonitoringController;
 use App\Http\Controllers\Customers\MonitoringEntryController;
 use App\Http\Controllers\Customers\MonitoringItemController;
 use App\Http\Controllers\Customers\OrderController;
 use App\Http\Controllers\Customers\ProfileController;
+use App\Http\Controllers\Customers\QuoteController;
+use App\Http\Controllers\Customers\TimelineController;
 use App\Http\Controllers\Customers\ServiceHistoryController;
 use App\Http\Controllers\Customers\ServiceReportController;
 use App\Http\Controllers\Customers\ServiceRequestController;
@@ -50,6 +53,20 @@ Route::put('/perfil/contrasena', [ProfileController::class, 'updatePassword'])->
 // Pedidos de la tienda del propio cliente.
 Route::get('/pedidos', [OrderController::class, 'index'])->name('orders.index');
 Route::get('/pedidos/{order}', [OrderController::class, 'show'])->name('orders.show');
+
+// Cotizaciones del cliente (solo las que ya se le enviaron; nunca borradores).
+Route::get('/cotizaciones', [QuoteController::class, 'index'])->name('quotes.index');
+Route::get('/cotizaciones/{quote}', [QuoteController::class, 'show'])->name('quotes.show');
+Route::get('/cotizaciones/{quote}/pdf', [QuoteController::class, 'pdf'])->name('quotes.pdf');
+
+// Entregas de material: pedidos de entrega y reportes de entrega firmados.
+Route::get('/entregas', [MaterialDeliveryController::class, 'index'])->name('deliveries.index');
+Route::get('/entregas/pedidos/{order}', [MaterialDeliveryController::class, 'showOrder'])->name('deliveries.orders.show');
+Route::get('/entregas/reportes/{report}', [MaterialDeliveryController::class, 'showReport'])->name('deliveries.reports.show');
+Route::get('/entregas/reportes/{report}/pdf', [MaterialDeliveryController::class, 'reportPdf'])->name('deliveries.reports.pdf');
+
+// Expediente: línea de tiempo con todo lo ligado al cliente.
+Route::get('/expediente', [TimelineController::class, 'index'])->name('timeline');
 
 // Monitoreo: programas del cliente, registro diario (lecturas y dosificación), gráficas y Gantt.
 Route::get('/monitoreo', [MonitoringController::class, 'index'])->name('monitoring.index');

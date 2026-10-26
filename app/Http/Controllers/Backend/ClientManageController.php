@@ -38,7 +38,11 @@ class ClientManageController extends Controller
     public function information(string $id)
     {
         $customer = Customer::with(['customer_addresses'])->findOrFail($id);
-        return view('admin.client.partials.show', compact('customer'));
+        // Historial completo (cotizaciones, pedidos, entregas, servicios, tienda, negocios, cobranza),
+        // limitado a los módulos que el usuario puede ver.
+        $history = app(\App\Services\CustomerHistoryService::class)->build($customer, auth()->user());
+
+        return view('admin.client.partials.show', compact('customer', 'history'));
     }
 
     /**

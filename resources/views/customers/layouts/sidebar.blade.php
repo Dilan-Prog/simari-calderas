@@ -35,6 +35,9 @@
             request()->routeIs('customer.technical-services.*') => 'servicios-tecnicos',
             request()->routeIs('customer.calendar*') => 'calendario',
             request()->routeIs('customer.history') => 'historial',
+            request()->routeIs('customer.quotes.*') => 'cotizaciones',
+            request()->routeIs('customer.deliveries.*') => 'entregas',
+            request()->routeIs('customer.timeline') => 'expediente',
             request()->routeIs('customer.service-requests.*') => 'solicitar-servicio',
             request()->routeIs('customer.monitoring.*') => 'monitoreo',
             request()->routeIs('customer.equipment.*') => 'equipos',
@@ -109,6 +112,36 @@
             <div class="sidebar-nav-item-left">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5M12 7v5l3 2"/></svg>
                 <span class="sidebar-nav-item-label">Historial de Servicios</span>
+            </div>
+        </a>
+
+        {{-- Cotizaciones --}}
+        <a class="sidebar-nav-item {{ $activeSection === 'cotizaciones' ? 'active' : '' }}"
+            href="{{ Route::has('customer.quotes.index') ? route('customer.quotes.index') : '#' }}"
+            data-section="cotizaciones" data-label="Cotizaciones">
+            <div class="sidebar-nav-item-left">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg>
+                <span class="sidebar-nav-item-label">Cotizaciones</span>
+            </div>
+        </a>
+
+        {{-- Entregas de Material --}}
+        <a class="sidebar-nav-item {{ $activeSection === 'entregas' ? 'active' : '' }}"
+            href="{{ Route::has('customer.deliveries.index') ? route('customer.deliveries.index') : '#' }}"
+            data-section="entregas" data-label="Entregas de Material">
+            <div class="sidebar-nav-item-left">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16.5 9.4 7.55 4.24"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="M3.27 6.96 12 12.01l8.73-5.05M12 22.08V12"/></svg>
+                <span class="sidebar-nav-item-label">Entregas de Material</span>
+            </div>
+        </a>
+
+        {{-- Expediente (todo lo ligado al cliente) --}}
+        <a class="sidebar-nav-item {{ $activeSection === 'expediente' ? 'active' : '' }}"
+            href="{{ Route::has('customer.timeline') ? route('customer.timeline') : '#' }}"
+            data-section="expediente" data-label="Mi Expediente">
+            <div class="sidebar-nav-item-left">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg>
+                <span class="sidebar-nav-item-label">Mi Expediente</span>
             </div>
         </a>
 
