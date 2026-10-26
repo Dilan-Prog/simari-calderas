@@ -19,10 +19,8 @@
 }
 
 /* ── Contenido ── */
-/* Margen lateral uniforme de 24px junto al sidebar; en pantallas ultra anchas
-   el contenido se centra con un tope de 1800px (el padding lateral crece en
-   vez de usar max-width, para que el scroll del módulo siga a ras del borde). */
-.stats-content { padding: 24px max(24px, calc((100% - 1800px) / 2 + 24px)) 60px; min-width: 0; }
+/* Margen lateral uniforme de 24px junto al sidebar, a todo el ancho disponible. */
+.stats-content { padding: 24px 24px 60px; min-width: 0; }
 
 .stats-breadcrumb { font-size: 12px; color: #6b7280; margin-bottom: 9px; }
 .stats-breadcrumb span { color: #111827; font-weight: 500; }

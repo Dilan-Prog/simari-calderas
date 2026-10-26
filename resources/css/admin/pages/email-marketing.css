@@ -15,10 +15,8 @@
 /* ── Shell general ──────────────────────────────────────────── */
 
 .em-shell {
-    /* Ancho completo junto al sidebar con margen lateral uniforme de 24px; en
-       pantallas ultra anchas el contenido se centra con un tope de 1800px (el
-       padding lateral crece, así el scroll del módulo sigue a ras del borde). */
-    padding: 24px max(24px, calc((100% - 1800px) / 2 + 24px)) 40px;
+    /* Ancho completo junto al sidebar con margen lateral uniforme de 24px. */
+    padding: 24px 24px 40px;
     font-family: var(--font-family);
     color: var(--text-black);
     /* .admin-main tiene overflow:hidden (layout.css) -- este módulo debe

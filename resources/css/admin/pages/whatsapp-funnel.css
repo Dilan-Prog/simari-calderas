@@ -335,7 +335,7 @@
     --info: #1D5FD0; --info-soft: #EBF1FD; --wa: #25D366;
     --sm: 0 1px 2px rgba(0, 0, 0, .06);
     font-family: 'Inter', -apple-system, 'Segoe UI', sans-serif; color: var(--text);
-    padding: 24px; width: 100%; max-width: 1800px; margin: 0 auto; box-sizing: border-box;
+    padding: 24px; width: 100%; margin: 0 auto; box-sizing: border-box;
     -webkit-font-smoothing: antialiased;
 }
 .wf2 *, .wf2 *::before, .wf2 *::after { box-sizing: border-box; }

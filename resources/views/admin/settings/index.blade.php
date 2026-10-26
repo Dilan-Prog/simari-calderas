@@ -368,7 +368,7 @@
     @push('styles')
         <style>
             /* ── Pagina: margen lateral de 24 px, ancho de la pantalla con tope de 1800 px ── */
-            .container.user-manager .clients-manager-section.st-page { padding: 24px; max-width: 1800px; margin: 0 auto; box-sizing: border-box; }
+            .container.user-manager .clients-manager-section.st-page { padding: 24px; margin: 0 auto; box-sizing: border-box; }
             .st-wrap { margin-top: 16px; width: 100%; min-width: 0; }
 
             /* ── Barra de controles ── */

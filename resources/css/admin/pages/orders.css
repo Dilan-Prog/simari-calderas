@@ -10,11 +10,10 @@
 .orders-page {
     /* .admin-main es flex en columna: sin min-width:0 la pagina tomaba como
        minimo el ancho intrinseco de las pestanas/filtros y se salia de la
-       pantalla (recortada a la derecha). Margen lateral uniforme de 24 px y
-       tope de 1800 px centrado para ultra anchos. */
+       pantalla (recortada a la derecha). Margen lateral uniforme de 24 px a todo
+       el ancho disponible. */
     width: 100%;
     min-width: 0;
-    max-width: 1800px;
     margin: 0 auto;
     padding: 24px 24px 60px;
     box-sizing: border-box;

@@ -27,8 +27,8 @@
 }
 
 /* ── Página y encabezado ─────────────────────────────────────────────────── */
-/* Llena el ancho junto al menu lateral (margen de 24 px); el tope solo evita lineas eternas en pantallas ultra anchas. */
-.erp-page { padding: 24px; max-width: 1800px; width: 100%; box-sizing: border-box; margin: 0 auto; }
+/* Llena todo el ancho junto al menu lateral con margen lateral de 24 px (sin tope: en monitores grandes no deben sobrar huecos). */
+.erp-page { padding: 24px; width: 100%; box-sizing: border-box; margin: 0 auto; }
 .erp-page-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; }
 .erp-title { font-size: 26px; font-weight: 800; letter-spacing: -.02em; margin: 0; color: var(--erp-ink); display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 .erp-code { font-size: 11px; font-weight: 700; letter-spacing: .04em; color: var(--erp-muted); background: var(--erp-neu-bg); border-radius: 5px; padding: 2px 7px; }
