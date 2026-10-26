@@ -123,6 +123,12 @@ Route::controller(ClientManageController::class)
         Route::get('/clientes/{id}/constancia-portal', 'downloadPortalCertificate')->name('clients.portal-certificate');
     });
 
+// Órdenes de compra (PDF) que los clientes suben en el portal: descarga para el personal.
+Route::get('/clientes/ordenes-de-compra/{id}/archivo', [\App\Http\Controllers\Backend\CustomerPurchaseOrderController::class, 'download'])
+    ->whereNumber('id')
+    ->name('customer-purchase-orders.download')
+    ->middleware('permission:clients,view');
+
 // ============================================================
 // Proveedores
 // ============================================================

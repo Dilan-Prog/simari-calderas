@@ -102,10 +102,32 @@ class Customer extends Authenticatable
         return $this->hasMany(\App\Models\Quote::class);
     }
 
+    // Órdenes de compra (PDF) que el cliente sube desde el portal.
+    public function customerPurchaseOrders()
+    {
+        return $this->hasMany(\App\Models\CustomerPurchaseOrder::class);
+    }
+
     // Visita de anuncio (gclid/wbraid/UTM) que originó a este cliente, si se
     // identificó (login/registro) en una sesión donde ya se había capturado.
     public function adVisit()
     {
         return $this->belongsTo(\App\Models\AdVisit::class, 'visitor_uuid', 'visitor_uuid');
+    }
+
+    public function waterAnalysisReports()
+    {
+        return $this->hasMany(\App\Models\WaterAnalysisReport::class);
+    }
+
+    // Roles y usuarios adicionales del equipo en el portal /customer.
+    public function portalRoles()
+    {
+        return $this->hasMany(\App\Models\CustomerPortalRole::class);
+    }
+
+    public function portalUsers()
+    {
+        return $this->hasMany(\App\Models\CustomerPortalUser::class);
     }
 }

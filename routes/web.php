@@ -83,7 +83,7 @@ Route::controller(CatalogController::class)->group(function () {
         ->name('catalog.category');
     Route::get('/buscar-en-vivo', 'liveSearch')->middleware('throttle:30,1')->name('catalog.live-search');
 });
-Route::controller(CartController::class)->prefix('carrito')->name('cart.')->group(function () {
+Route::controller(CartController::class)->prefix('carrito')->name('cart.')->middleware('deny.portal.member')->group(function () {
     Route::post('/agregar', 'add')->name('add');
     Route::patch('/actualizar', 'update')->name('update');
     Route::delete('/eliminar', 'remove')->name('remove');
@@ -94,25 +94,25 @@ Route::controller(CartController::class)->prefix('carrito')->name('cart.')->grou
 // checkout.index) -- shipping.store y confirm siguen siendo endpoints POST
 // normales, ahora consumidos por fetch() desde esa misma página en vez de
 // un GET por cada paso (ver CheckoutController::index()).
-Route::controller(CheckoutController::class)->prefix('finalizar-pedido')->name('checkout.')->group(function () {
+Route::controller(CheckoutController::class)->prefix('finalizar-pedido')->name('checkout.')->middleware('deny.portal.member')->group(function () {
     Route::get('/', 'index')->name('index');
     Route::post('/envio', 'storeShipping')->name('shipping.store');
     Route::post('/contacto', 'captureContact')->name('capture-contact')->middleware('throttle:20,1');
     Route::post('/confirmar', 'confirm')->name('confirm');
 });
-Route::get('/finalizar-pedido/pago/mercadopago/{order:order_number}', [MercadoPagoCheckoutController::class, 'show'])->name('checkout.payment.mercadopago');
+Route::get('/finalizar-pedido/pago/mercadopago/{order:order_number}', [MercadoPagoCheckoutController::class, 'show'])->name('checkout.payment.mercadopago')->middleware('deny.portal.member');
 // throttle bajo (10/min por IP) a propósito -- charge()/checkoutPro() son
 // las únicas rutas de este checkout que de verdad procesan un cobro contra
 // Mercado Pago; sin límite, alguien podría usarlas para probar en volumen
 // si tarjetas robadas son válidas (carding). Un checkout real nunca hace
 // más de 1-2 intentos por minuto.
-Route::post('/finalizar-pedido/pago/mercadopago/{order:order_number}/cobrar/{payment}', [MercadoPagoCheckoutController::class, 'charge'])->name('checkout.payment.mercadopago.charge')->middleware('throttle:10,1');
-Route::post('/finalizar-pedido/pago/mercadopago/{order:order_number}/checkout-pro/{payment}', [MercadoPagoCheckoutController::class, 'checkoutPro'])->name('checkout.payment.mercadopago.checkout-pro')->middleware('throttle:10,1');
+Route::post('/finalizar-pedido/pago/mercadopago/{order:order_number}/cobrar/{payment}', [MercadoPagoCheckoutController::class, 'charge'])->name('checkout.payment.mercadopago.charge')->middleware(['throttle:10,1', 'deny.portal.member']);
+Route::post('/finalizar-pedido/pago/mercadopago/{order:order_number}/checkout-pro/{payment}', [MercadoPagoCheckoutController::class, 'checkoutPro'])->name('checkout.payment.mercadopago.checkout-pro')->middleware(['throttle:10,1', 'deny.portal.member']);
 // thanks() la llama nuestro propio JS en segundo plano (fetch) además de la
 // navegación real -- límite más generoso, no procesa cobros, solo
 // reconcilia contra la API.
-Route::get('/finalizar-pedido/pago/mercadopago/{order:order_number}/gracias', [MercadoPagoCheckoutController::class, 'thanks'])->name('checkout.payment.mercadopago.thanks')->middleware('throttle:30,1');
-Route::get('/finalizar-pedido/pago/mercadopago/{order:order_number}/reintentar/{payment}', [MercadoPagoCheckoutController::class, 'retry'])->name('checkout.payment.mercadopago.retry')->middleware('signed');
+Route::get('/finalizar-pedido/pago/mercadopago/{order:order_number}/gracias', [MercadoPagoCheckoutController::class, 'thanks'])->name('checkout.payment.mercadopago.thanks')->middleware(['throttle:30,1', 'deny.portal.member']);
+Route::get('/finalizar-pedido/pago/mercadopago/{order:order_number}/reintentar/{payment}', [MercadoPagoCheckoutController::class, 'retry'])->name('checkout.payment.mercadopago.retry')->middleware(['signed', 'deny.portal.member']);
 Route::get('/producto/{slug}', [ShopProductController::class, 'show'])->name('product.show');
 Route::get('/coleccion/{slug}', [ShopCollectionController::class, 'show'])->name('collection.show');
 // Arquitectura de 3 niveles (hub → categoría → servicio), todas resueltas

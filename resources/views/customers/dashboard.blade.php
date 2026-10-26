@@ -44,15 +44,17 @@
 
 @section('content')
 @php
-    $displayName = trim(($customer->first_name ?? '') . ' ' . ($customer->last_name ?? ''));
+    // El controlador manda el nombre de quien entró (usuario del equipo o titular) y qué módulos puede ver.
+    $displayName = trim((string) ($displayName ?? ''));
+    $can = $can ?? ['services' => true, 'reports' => true, 'request' => true, 'calendar' => true, 'history' => true];
     $hour = (int) now()->format('G');
     $greeting = $hour < 12 ? 'Buenos días' : ($hour < 19 ? 'Buenas tardes' : 'Buenas noches');
 
     $svcLabels = ['scheduled' => 'Programado', 'in_progress' => 'En proceso', 'completed' => 'Completado', 'cancelled' => 'Cancelado', 'draft' => 'Borrador'];
 
-    $urlRequest  = Route::has('customer.service-requests.create') ? route('customer.service-requests.create') : null;
-    $urlCalendar = Route::has('customer.calendar') ? route('customer.calendar') : null;
-    $urlHistory  = Route::has('customer.history') ? route('customer.history') : null;
+    $urlRequest  = $can['request'] && Route::has('customer.service-requests.create') ? route('customer.service-requests.create') : null;
+    $urlCalendar = $can['calendar'] && Route::has('customer.calendar') ? route('customer.calendar') : null;
+    $urlHistory  = $can['history'] && Route::has('customer.history') ? route('customer.history') : null;
     $urlProfile  = Route::has('customer.profile') ? route('customer.profile') : null;
     $urlServices = route('customer.technical-services.index');
     $urlReports  = route('customer.service-reports.index');
@@ -82,8 +84,10 @@
     </div>
 
     {{-- ── Stats ── --}}
+    @if ($can['services'] || $can['reports'])
     <div class="dash-stats-grid">
 
+        @if ($can['services'])
         <a class="dash-stat-card cd-stat-link" href="{{ $urlServices }}?status=scheduled">
             <div class="dash-stat-card-top">
                 <div>
@@ -123,6 +127,9 @@
             <span class="cd-stat-hint">Servicios completados</span>
         </a>
 
+        @endif
+
+        @if ($can['reports'])
         <a class="dash-stat-card cd-stat-link" href="{{ $urlReports }}">
             <div class="dash-stat-card-top">
                 <div>
@@ -135,12 +142,16 @@
             </div>
             <span class="cd-stat-hint">Cuéntanos qué te pareció el servicio</span>
         </a>
+        @endif
     </div>
+    @endif
 
     {{-- ── Listas ── --}}
+    @if ($can['services'] || $can['reports'])
     <div class="cd-grid">
 
         {{-- Próximos servicios --}}
+        @if ($can['services'])
         <div class="dash-panel">
             <div class="cd-panel-head">
                 <h3 class="dash-panel-title">Próximos servicios</h3>
@@ -181,7 +192,10 @@
             @endif
         </div>
 
+        @endif
+
         {{-- Últimos reportes --}}
+        @if ($can['reports'])
         <div class="dash-panel">
             <div class="cd-panel-head">
                 <h3 class="dash-panel-title">Últimos reportes</h3>
@@ -210,7 +224,9 @@
                 </div>
             @endif
         </div>
+        @endif
     </div>
+    @endif
 
     @if ($urlHistory || $urlProfile)
         <div class="cd-actions" style="margin-top:24px;">

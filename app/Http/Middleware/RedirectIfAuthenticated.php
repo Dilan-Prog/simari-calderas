@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Providers\RouteServiceProvider;
+use App\Support\PortalContext;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -23,6 +24,11 @@ class RedirectIfAuthenticated
             if (Auth::guard($guard)->check()) {
                 // Un cliente ya autenticado que visita login/registro de la
                 // tienda va a su cuenta; el resto (admin/users) conserva HOME.
+                // Un usuario del equipo del portal (roles) no tiene cuenta de tienda: va al portal.
+                if ($guard === 'customer' && PortalContext::memberId() !== null) {
+                    return redirect()->route('customer.dashboard');
+                }
+
                 return $guard === 'customer'
                     ? redirect()->route('shop.account')
                     : redirect(RouteServiceProvider::HOME);

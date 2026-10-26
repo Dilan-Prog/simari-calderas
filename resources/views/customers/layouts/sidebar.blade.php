@@ -39,6 +39,9 @@
             request()->routeIs('customer.deliveries.*') => 'entregas',
             request()->routeIs('customer.timeline') => 'expediente',
             request()->routeIs('customer.service-requests.*') => 'solicitar-servicio',
+            request()->routeIs('customer.water-analysis.*') => 'analisis-quimico',
+            request()->routeIs('customer.purchase-orders.*') => 'ordenes-compra',
+            request()->routeIs('customer.team.*') => 'equipo',
             request()->routeIs('customer.monitoring.*') => 'monitoreo',
             request()->routeIs('customer.equipment.*') => 'equipos',
             request()->routeIs('customer.orders.*') => 'pedidos',
@@ -65,6 +68,7 @@
         </a>
 
         {{-- Solicitar Servicio --}}
+        @if (\App\Support\PortalContext::can('service-requests'))
         <a class="sidebar-nav-item {{ $activeSection === 'solicitar-servicio' ? 'active' : '' }}"
             href="{{ Route::has('customer.service-requests.create') ? route('customer.service-requests.create') : '#' }}"
             data-section="solicitar-servicio" data-label="Solicitar Servicio">
@@ -73,8 +77,22 @@
                 <span class="sidebar-nav-item-label">Solicitar Servicio</span>
             </div>
         </a>
+        @endif
+
+        {{-- Reporte de Análisis Químico (registro diario del agua) --}}
+        @if (\App\Support\PortalContext::can('water-analysis'))
+        <a class="sidebar-nav-item {{ $activeSection === 'analisis-quimico' ? 'active' : '' }}"
+            href="{{ Route::has('customer.water-analysis.index') ? route('customer.water-analysis.index') : '#' }}"
+            data-section="analisis-quimico" data-label="Reporte de Análisis Químico">
+            <div class="sidebar-nav-item-left">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2v7.5L4.5 19a2 2 0 0 0 1.8 3h11.4a2 2 0 0 0 1.8-3L14 9.5V2"/><path d="M8.5 2h7"/><path d="M7 16h10"/></svg>
+                <span class="sidebar-nav-item-label">Reporte de Análisis Químico</span>
+            </div>
+        </a>
+        @endif
 
         {{-- Reportes de Servicio --}}
+        @if (\App\Support\PortalContext::can('service-reports'))
         <a class="sidebar-nav-item {{ $activeSection === 'reportes-servicio' ? 'active' : '' }}"
             href="{{ Route::has('customer.service-reports.index') ? route('customer.service-reports.index') : '#' }}"
             data-section="reportes-servicio" data-label="Reporte de Servicios">
@@ -83,8 +101,10 @@
                 <span class="sidebar-nav-item-label">Reporte de Servicios</span>
             </div>
         </a>
+        @endif
 
         {{-- Servicios Técnicos --}}
+        @if (\App\Support\PortalContext::can('technical-services'))
         <a class="sidebar-nav-item {{ $activeSection === 'servicios-tecnicos' ? 'active' : '' }}"
             href="{{ Route::has('customer.technical-services.index') ? route('customer.technical-services.index') : '#' }}"
             data-section="servicios-tecnicos" data-label="Servicios Técnicos">
@@ -93,9 +113,11 @@
                 <span class="sidebar-nav-item-label">Servicios Técnicos</span>
             </div>
         </a>
+        @endif
 
 
         {{-- Calendario --}}
+        @if (\App\Support\PortalContext::can('calendar'))
         <a class="sidebar-nav-item {{ $activeSection === 'calendario' ? 'active' : '' }}"
             href="{{ Route::has('customer.calendar') ? route('customer.calendar') : '#' }}"
             data-section="calendario" data-label="Calendario">
@@ -104,8 +126,10 @@
                 <span class="sidebar-nav-item-label">Calendario</span>
             </div>
         </a>
+        @endif
 
         {{-- Historial de Servicios --}}
+        @if (\App\Support\PortalContext::can('history'))
         <a class="sidebar-nav-item {{ $activeSection === 'historial' ? 'active' : '' }}"
             href="{{ Route::has('customer.history') ? route('customer.history') : '#' }}"
             data-section="historial" data-label="Historial de Servicios">
@@ -114,8 +138,10 @@
                 <span class="sidebar-nav-item-label">Historial de Servicios</span>
             </div>
         </a>
+        @endif
 
         {{-- Cotizaciones --}}
+        @if (\App\Support\PortalContext::can('quotes'))
         <a class="sidebar-nav-item {{ $activeSection === 'cotizaciones' ? 'active' : '' }}"
             href="{{ Route::has('customer.quotes.index') ? route('customer.quotes.index') : '#' }}"
             data-section="cotizaciones" data-label="Cotizaciones">
@@ -124,8 +150,22 @@
                 <span class="sidebar-nav-item-label">Cotizaciones</span>
             </div>
         </a>
+        @endif
+
+        {{-- Órdenes de Compra (PDF que sube el cliente) --}}
+        @if (\App\Support\PortalContext::can('purchase-orders'))
+        <a class="sidebar-nav-item {{ $activeSection === 'ordenes-compra' ? 'active' : '' }}"
+            href="{{ Route::has('customer.purchase-orders.index') ? route('customer.purchase-orders.index') : '#' }}"
+            data-section="ordenes-compra" data-label="Órdenes de Compra">
+            <div class="sidebar-nav-item-left">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M12 18v-6"/><path d="m9 15 3-3 3 3"/></svg>
+                <span class="sidebar-nav-item-label">Órdenes de Compra</span>
+            </div>
+        </a>
+        @endif
 
         {{-- Entregas de Material --}}
+        @if (\App\Support\PortalContext::can('deliveries'))
         <a class="sidebar-nav-item {{ $activeSection === 'entregas' ? 'active' : '' }}"
             href="{{ Route::has('customer.deliveries.index') ? route('customer.deliveries.index') : '#' }}"
             data-section="entregas" data-label="Entregas de Material">
@@ -134,8 +174,10 @@
                 <span class="sidebar-nav-item-label">Entregas de Material</span>
             </div>
         </a>
+        @endif
 
         {{-- Expediente (todo lo ligado al cliente) --}}
+        @if (\App\Support\PortalContext::can('timeline'))
         <a class="sidebar-nav-item {{ $activeSection === 'expediente' ? 'active' : '' }}"
             href="{{ Route::has('customer.timeline') ? route('customer.timeline') : '#' }}"
             data-section="expediente" data-label="Mi Expediente">
@@ -144,8 +186,10 @@
                 <span class="sidebar-nav-item-label">Mi Expediente</span>
             </div>
         </a>
+        @endif
 
         {{-- Monitoreo --}}
+        @if (\App\Support\PortalContext::can('monitoring'))
         <a class="sidebar-nav-item {{ $activeSection === 'monitoreo' ? 'active' : '' }}"
             href="{{ Route::has('customer.monitoring.index') ? route('customer.monitoring.index') : '#' }}"
             data-section="monitoreo" data-label="Monitoreo">
@@ -154,8 +198,10 @@
                 <span class="sidebar-nav-item-label">Monitoreo</span>
             </div>
         </a>
+        @endif
 
         {{-- Mis Equipos --}}
+        @if (\App\Support\PortalContext::can('equipment'))
         <a class="sidebar-nav-item {{ $activeSection === 'equipos' ? 'active' : '' }}"
             href="{{ Route::has('customer.equipment.index') ? route('customer.equipment.index') : '#' }}"
             data-section="equipos" data-label="Mis Equipos">
@@ -164,8 +210,10 @@
                 <span class="sidebar-nav-item-label">Mis Equipos</span>
             </div>
         </a>
+        @endif
 
         {{-- Mis Pedidos --}}
+        @if (\App\Support\PortalContext::can('orders'))
         <a class="sidebar-nav-item {{ $activeSection === 'pedidos' ? 'active' : '' }}"
             href="{{ Route::has('customer.orders.index') ? route('customer.orders.index') : '#' }}"
             data-section="pedidos" data-label="Mis Pedidos">
@@ -174,8 +222,10 @@
                 <span class="sidebar-nav-item-label">Mis Pedidos</span>
             </div>
         </a>
+        @endif
 
         {{-- Direcciones --}}
+        @if (\App\Support\PortalContext::can('addresses'))
         <a class="sidebar-nav-item {{ $activeSection === 'direcciones' ? 'active' : '' }}"
             href="{{ Route::has('customer.addresses.index') ? route('customer.addresses.index') : '#' }}"
             data-section="direcciones" data-label="Direcciones">
@@ -184,6 +234,19 @@
                 <span class="sidebar-nav-item-label">Direcciones</span>
             </div>
         </a>
+        @endif
+
+        {{-- Usuarios y roles del portal (solo el titular) --}}
+        @if (\App\Support\PortalContext::can('team'))
+        <a class="sidebar-nav-item {{ $activeSection === 'equipo' ? 'active' : '' }}"
+            href="{{ Route::has('customer.team.index') ? route('customer.team.index') : '#' }}"
+            data-section="equipo" data-label="Usuarios y Roles">
+            <div class="sidebar-nav-item-left">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                <span class="sidebar-nav-item-label">Usuarios y Roles</span>
+            </div>
+        </a>
+        @endif
 
         {{-- Mi Perfil --}}
         <a class="sidebar-nav-item {{ $activeSection === 'perfil' ? 'active' : '' }}"
@@ -198,10 +261,10 @@
     </nav>
     <div class="sidebar-footer">
         <div class="sidebar-profile">
-            <div class="sidebar-avatar">{{ mb_strtoupper(mb_substr($authUser->first_name, 0, 2)) }}</div>
+            <div class="sidebar-avatar">{{ mb_strtoupper(mb_substr(\App\Support\PortalContext::displayName() ?: $authUser->first_name, 0, 2)) }}</div>
             <div class="sidebar-profile-info">
-                <p class="sidebar-profile-name">{{ $authUser->first_name }} {{ $authUser->last_name }}</p>
-                <span class="sidebar-profile-email">{{ $authUser->email }}</span>
+                <p class="sidebar-profile-name">{{ \App\Support\PortalContext::displayName() }}</p>
+                <span class="sidebar-profile-email">{{ \App\Support\PortalContext::displayEmail() }}</span>
             </div>
         </div>
         <form method="POST" action="{{ route('logout') }}">

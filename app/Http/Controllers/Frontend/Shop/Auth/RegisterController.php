@@ -26,7 +26,7 @@ class RegisterController extends Controller
             'first_name' => ['required', 'string', 'max:100'],
             'last_name'  => ['required', 'string', 'max:100'],
             'company'    => ['nullable', 'string', 'max:255'],
-            'email'      => ['required', 'string', 'email', 'max:255', 'unique:customers,email'],
+            'email'      => ['required', 'string', 'email', 'max:255', 'unique:customers,email', 'unique:customer_portal_users,email'],
             'phone'      => ['required', 'string', 'max:20'],
             'password'   => ['required', 'confirmed', Password::min(8)],
             'visitor_uuid' => ['nullable', 'uuid'],

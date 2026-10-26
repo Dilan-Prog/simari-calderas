@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Frontend\Shop\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\Cart;
 use App\Services\CartRecoveryService;
+use App\Services\Portal\PortalMemberAuth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
@@ -52,6 +53,14 @@ class LoginController extends Controller
         $credentials = ['email' => $email, 'password' => $request->input('password')];
 
         if (! Auth::guard('customer')->attempt($credentials, $request->boolean('remember'))) {
+            // ¿Es un usuario del equipo de un cliente (roles del portal)? Entra directo al portal.
+            if (app(PortalMemberAuth::class)->attempt($email, $request->input('password'))) {
+                RateLimiter::clear($throttleKey);
+                $request->session()->regenerate();
+
+                return redirect()->route('customer.dashboard');
+            }
+
             RateLimiter::hit($throttleKey);
 
             throw ValidationException::withMessages([
@@ -60,6 +69,7 @@ class LoginController extends Controller
         }
 
         $customer = Auth::guard('customer')->user();
+        PortalMemberAuth::forget(); // entró el titular: sin marca de usuario del equipo
 
         // Atribución publicitaria: nunca sobreescribe un visitor_uuid ya
         // guardado, y nunca debe romper el flujo real de inicio de sesión.

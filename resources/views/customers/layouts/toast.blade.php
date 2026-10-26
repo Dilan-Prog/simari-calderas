@@ -53,3 +53,32 @@
         });
     </script>
 @endif
+
+{{-- Avisos de error de sesión (permisos del portal, acciones bloqueadas) --}}
+@if (session('error') && ! $errors->any())
+    <div class="toast-notification toast-error" id="toastNotificationError">
+        <div class="toast-icon-wrap">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                stroke="#dc2626" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" x2="12" y1="8" y2="12"></line>
+                <line x1="12" x2="12.01" y1="16" y2="16"></line>
+            </svg>
+        </div>
+        <div class="toast-body">
+            <p class="toast-title">No se pudo completar</p>
+            <p class="toast-message">{{ session('error') }}</p>
+        </div>
+        <button class="toast-close"
+            onclick="const t=this.closest('.toast-notification');t.style.animation='toastOut 0.3s ease forwards';setTimeout(()=>t.remove(),300)">✕</button>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const toast = document.getElementById('toastNotificationError');
+            if (toast) setTimeout(() => {
+                toast.style.animation = 'toastOut 0.3s ease forwards';
+                setTimeout(() => toast.remove(), 300);
+            }, 7000);
+        });
+    </script>
+@endif

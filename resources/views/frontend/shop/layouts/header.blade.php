@@ -80,9 +80,11 @@
             </button>
             <div class="eq-header__user-menu" x-show="userOpen" x-cloak>
               <div class="eq-header__user-menu-head">
-                <div class="eq-header__user-menu-name">Hola, {{ $headerCustomer->first_name }}</div>
-                <div class="eq-header__user-menu-email">{{ $headerCustomer->email }}</div>
+                <div class="eq-header__user-menu-name">Hola, {{ \App\Support\PortalContext::member()?->first_name ?? $headerCustomer->first_name }}</div>
+                <div class="eq-header__user-menu-email">{{ \App\Support\PortalContext::displayEmail() }}</div>
               </div>
+              {{-- Los usuarios del equipo del portal (roles) no tienen cuenta de tienda: solo ven el portal. --}}
+              @if (\App\Support\PortalContext::isOwner())
               <a href="{{ route('shop.account') }}">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.5-6 8-6s8 2 8 6" stroke-linecap="round"/></svg>
                 Mi perfil
@@ -103,6 +105,7 @@
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20s-8-4.5-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 9c0 6.5-8 11-8 11z" stroke-linejoin="round"/></svg>
                 Favoritos
               </a>
+              @endif
               @if ($headerCustomer->portal_access)
                 <a href="{{ route('customer.dashboard') }}">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a4.5 4.5 0 0 0-6.4 6.4l-5 5V21h3.3l5-5a4.5 4.5 0 0 0 6.4-6.4l-2.8 2.8-2.3-2.3 2.8-2.8z" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -393,11 +396,13 @@
 
       <div class="eq-mnav__secondary">
         @if ($mnavCustomer)
+          @if (\App\Support\PortalContext::isOwner())
           <a href="{{ route('shop.account') }}" @click="closeMobileNav()">Mi perfil</a>
           <a href="{{ route('shop.account') }}#pedidos" @click="closeMobileNav()">Mis pedidos</a>
           <a href="{{ route('shop.account') }}#direcciones" @click="closeMobileNav()">Direcciones</a>
           <a href="{{ route('shop.account') }}#pagos" @click="closeMobileNav()">Métodos de pago</a>
           <a href="{{ route('shop.account') }}#favoritos" @click="closeMobileNav()">Favoritos</a>
+          @endif
           @if ($mnavCustomer->portal_access)
             <a href="{{ route('customer.dashboard') }}" @click="closeMobileNav()">Portal de servicios</a>
           @endif

@@ -32,9 +32,12 @@ Route::prefix('cuenta')->name('shop.')->group(function () {
         Route::post('restablecer', [PasswordResetController::class, 'update'])->name('password.update');
     });
 
-    Route::middleware('auth:customer')->group(function () {
+    // Cerrar sesión: también los usuarios del equipo del portal.
+    Route::post('cerrar-sesion', [LoginController::class, 'destroy'])->middleware('auth:customer')->name('logout');
+
+    // deny.portal.member: los usuarios del equipo (roles del portal) no operan la cuenta de la tienda.
+    Route::middleware(['auth:customer', 'deny.portal.member'])->group(function () {
         Route::get('/', [AccountController::class, 'index'])->name('account');
-        Route::post('cerrar-sesion', [LoginController::class, 'destroy'])->name('logout');
 
         // Solicitud de acceso al portal de servicios (wizard con autosave)
         Route::post('portal/solicitud/respuesta', [PortalRequestController::class, 'answer'])->name('portal-request.answer');

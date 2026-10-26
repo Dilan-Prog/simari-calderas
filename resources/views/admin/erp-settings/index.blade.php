@@ -353,6 +353,22 @@
                     @endif
                 </div>
 
+                {{-- ── Parámetros de análisis de agua (límites del Reporte de análisis químico) ── --}}
+                @if (Route::has('admin.erp-settings.water-analysis.index'))
+                    <div class="pform-panel" id="water-analysis">
+                        <div class="erp-panel-header">
+                            <span class="erp-panel-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2v7.5L4.5 19a2 2 0 0 0 1.8 3h11.4a2 2 0 0 0 1.8-3L14 9.5V2" /><path d="M8.5 2h7" /><path d="M7 16h10" /></svg>
+                            </span>
+                            <div class="erp-panel-heading">
+                                <h2 class="pform-panel-title">Parámetros de análisis de agua</h2>
+                                <p class="erp-panel-subtitle">Valores mínimo y máximo de dureza, pH, alcalinidad, conductividad y STD del Reporte de análisis químico del portal del cliente.</p>
+                            </div>
+                        </div>
+                        <a href="{{ route('admin.erp-settings.water-analysis.index') }}" class="pform-btn primary">Configurar parámetros</a>
+                    </div>
+                @endif
+
                 {{-- ── 4. Encuesta de satisfacción (Califica este servicio) ───────────── --}}
                 @include('admin.erp-settings._survey')
 

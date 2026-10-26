@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Auth;
 
+use App\Services\Portal\PortalMemberAuth;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
@@ -63,6 +64,14 @@ class LoginRequest extends FormRequest
                 ]);
             }
 
+            PortalMemberAuth::forget(); // entró el titular: sin marca de usuario del equipo
+            RateLimiter::clear($this->throttleKey());
+
+            return;
+        }
+
+        // Usuario del equipo de un cliente (roles del portal): entra como su titular con la marca de sesión.
+        if (app(PortalMemberAuth::class)->attempt((string) $this->input('email'), (string) $this->input('password'))) {
             RateLimiter::clear($this->throttleKey());
 
             return;

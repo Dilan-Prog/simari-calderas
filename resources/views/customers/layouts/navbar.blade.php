@@ -1,9 +1,8 @@
 @php
     $navCustomer = auth('customer')->user();
 
-    $navName = $navCustomer
-        ? trim(($navCustomer->first_name ?? '') . ' ' . ($navCustomer->last_name ?? ''))
-        : '';
+    // displayName(): nombre del usuario del equipo si entró uno; si no, el del titular.
+    $navName = \App\Support\PortalContext::displayName();
     if ($navName === '' && $navCustomer) {
         $navName = $navCustomer->company ?: ($navCustomer->email ?? 'Cliente');
     }
@@ -23,6 +22,7 @@
         request()->routeIs('customer.history*')             => 'Historial de Servicios',
         request()->routeIs('customer.service-requests.*')   => 'Solicitar Servicio',
         request()->routeIs('customer.profile*')             => 'Mi Perfil',
+        request()->routeIs('customer.team.*')               => 'Usuarios y Roles',
         request()->routeIs('customer.service-reports.*')    => 'Reportes de Servicio',
         request()->routeIs('customer.technical-services.*') => 'Servicios Técnicos',
         default                                             => 'Inicio',
@@ -66,6 +66,7 @@
                 </svg>
                 <span>Ir a la tienda</span>
             </a>
+            @if (\App\Support\PortalContext::isOwner())
             <a href="{{ route('shop.account') }}" class="portal-nav-link" title="Mi cuenta">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
                     fill="none" stroke="currentColor" stroke-width="2"
@@ -75,6 +76,7 @@
                 </svg>
                 <span>Mi cuenta</span>
             </a>
+            @endif
             <div class="admin-header-avatar" title="{{ $navName }}">{{ $navInitials }}</div>
         </div>
     </header>

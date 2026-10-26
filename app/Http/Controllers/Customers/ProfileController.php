@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Customers;
 
 use App\Http\Controllers\Controller;
 use App\Models\Customer;
+use App\Support\PortalContext;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -23,6 +24,11 @@ class ProfileController extends Controller
     {
         $customer = auth('customer')->user();
 
+        // Usuario del equipo (roles del portal): solo sus propios datos, no los de la empresa.
+        if ($member = PortalContext::member()) {
+            return view('customers.profile-member', compact('customer', 'member'));
+        }
+
         $counts = [
             'services_total'     => $customer->services()->count(),
             'services_completed' => $customer->services()->where('status', 'completed')->count(),
@@ -39,6 +45,10 @@ class ProfileController extends Controller
      */
     public function update(Request $request): RedirectResponse
     {
+        if (PortalContext::memberId() !== null) {
+            return $this->updateMember($request);
+        }
+
         /** @var Customer $customer */
         $customer = auth('customer')->user();
 
@@ -52,7 +62,7 @@ class ProfileController extends Controller
         $data = $request->validate([
             'first_name'   => ['required', 'string', 'max:100'],
             'last_name'    => ['nullable', 'string', 'max:100'],
-            'email'        => ['required', 'string', 'email', 'max:255', Rule::unique('customers', 'email')->ignore($customer->id)],
+            'email'        => ['required', 'string', 'email', 'max:255', Rule::unique('customers', 'email')->ignore($customer->id), Rule::unique('customer_portal_users', 'email')],
             'phone'        => ['required', 'string', 'max:20'],
             'company'      => ['nullable', 'string', 'max:255'],
             'rfc'          => ['nullable', 'string', 'regex:/^[A-ZÑ&]{3,4}\d{6}[A-Z0-9]{3}$/u'],
@@ -94,6 +104,10 @@ class ProfileController extends Controller
      */
     public function updatePassword(Request $request): RedirectResponse
     {
+        if (PortalContext::memberId() !== null) {
+            return $this->updateMemberPassword($request);
+        }
+
         /** @var Customer $customer */
         $customer = auth('customer')->user();
 
@@ -121,6 +135,69 @@ class ProfileController extends Controller
 
         // Mantener la sesión del cliente iniciada con el nuevo hash.
         Auth::guard('customer')->login($customer);
+        $request->session()->regenerate();
+
+        return redirect()->route('customer.profile')->with('success', 'Tu contraseña se actualizó correctamente.');
+    }
+
+    /**
+     * Usuario del equipo: edita solo su nombre y teléfono (el correo y el rol los define el titular).
+     */
+    private function updateMember(Request $request): RedirectResponse
+    {
+        $member = PortalContext::member();
+        abort_unless($member, 403);
+
+        $data = $request->validate([
+            'first_name' => ['required', 'string', 'max:100'],
+            'last_name'  => ['nullable', 'string', 'max:100'],
+            'phone'      => ['nullable', 'string', 'max:30'],
+        ], [
+            'required' => 'El campo :attribute es obligatorio.',
+            'max'      => 'El campo :attribute no puede tener más de :max caracteres.',
+        ], [
+            'first_name' => 'nombre',
+            'last_name'  => 'apellido',
+            'phone'      => 'teléfono',
+        ]);
+
+        $member->update([
+            'first_name' => trim($data['first_name']),
+            'last_name'  => trim($data['last_name'] ?? ''),
+            'phone'      => $data['phone'] ?? null,
+        ]);
+
+        return redirect()->route('customer.profile')->with('success', 'Tus datos se actualizaron correctamente.');
+    }
+
+    /** Usuario del equipo: cambia SU contraseña verificando la actual (no la del titular). */
+    private function updateMemberPassword(Request $request): RedirectResponse
+    {
+        $member = PortalContext::member();
+        abort_unless($member, 403);
+
+        $request->validate([
+            'current_password' => ['required', 'string'],
+            'password'         => ['required', 'confirmed', 'different:current_password', Password::min(8)],
+        ], [
+            'required'     => 'El campo :attribute es obligatorio.',
+            'confirmed'    => 'La confirmación de la nueva contraseña no coincide.',
+            'different'    => 'La nueva contraseña debe ser distinta a la actual.',
+            'password.min' => 'La nueva contraseña debe tener al menos 8 caracteres.',
+        ], [
+            'current_password' => 'contraseña actual',
+            'password'         => 'nueva contraseña',
+        ]);
+
+        if (! Hash::check($request->input('current_password'), $member->password)) {
+            return back()->withErrors(['current_password' => 'La contraseña actual no es correcta.']);
+        }
+
+        $member->forceFill([
+            'password'       => $request->input('password'),
+            'remember_token' => Str::random(60),
+        ])->save();
+
         $request->session()->regenerate();
 
         return redirect()->route('customer.profile')->with('success', 'Tu contraseña se actualizó correctamente.');
