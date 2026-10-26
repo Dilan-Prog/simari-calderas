@@ -270,13 +270,13 @@
             </div>
 
             <div class="quotes-select-wrap">
-                <select name="status" class="quotes-filter-select">
+                <select name="status" class="quotes-filter-select" onchange="this.form.submit()">
                     <option value="">Todos los estados</option>
                     <option value="draft"    {{ request('status') === 'draft'    ? 'selected' : '' }}>Borrador</option>
                     <option value="sent"     {{ request('status') === 'sent'     ? 'selected' : '' }}>Enviada</option>
                     <option value="accepted" {{ request('status') === 'accepted' ? 'selected' : '' }}>Aceptada</option>
                     <option value="rejected" {{ request('status') === 'rejected' ? 'selected' : '' }}>Rechazada</option>
-                    <option value="expired"  {{ request('status') === 'expired'  ? 'selected' : '' }}>Expirada</option>
+                    <option value="expired"  {{ request('status') === 'expired'  ? 'selected' : '' }}>Vencida</option>
                 </select>
                 <span class="quotes-select-chevron">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
@@ -304,6 +304,14 @@
             </button>
         </div>
     </form>
+
+    @php $hasQuoteFilters = request()->hasAny(['search','status','date_from','date_to']) && collect(request()->only(['search','status','date_from','date_to']))->filter()->isNotEmpty(); @endphp
+    @if($hasQuoteFilters)
+    <div id="quotes-active-filters" style="display:flex;align-items:center;gap:12px;margin:10px 2px;font-size:13px;color:#4B5563;">
+        <span><strong>{{ $quotes->total() }}</strong> {{ $quotes->total() === 1 ? 'resultado' : 'resultados' }}</span>
+        <a href="{{ route('admin.quotes.index') }}" style="color:#ff6213;text-decoration:none;">Limpiar filtros</a>
+    </div>
+    @endif
 
     {{-- Table card --}}
     <div class="quotes-table-card">
@@ -334,7 +342,7 @@
                                     'sent'     => ['class' => 'quotes-badge-sent',     'label' => 'Enviada'],
                                     'accepted' => ['class' => 'quotes-badge-accepted', 'label' => 'Aceptada'],
                                     'rejected' => ['class' => 'quotes-badge-rejected', 'label' => 'Rechazada'],
-                                    'expired'  => ['class' => 'quotes-badge-expired',  'label' => 'Expirada'],
+                                    'expired'  => ['class' => 'quotes-badge-expired',  'label' => 'Vencida'],
                                 ];
                                 $badge = $badgeMap[$quote->status] ?? ['class' => 'quotes-badge-draft', 'label' => $quote->status];
                             @endphp

@@ -27,24 +27,41 @@ class QuoteController extends Controller
         $query = Quote::with('createdBy')->latest();
 
         if ($request->filled('search')) {
-            $search = $request->search;
-            $query->where(function ($q) use ($search) {
-                $q->where('quote_number', 'like', "%{$search}%")
-                  ->orWhere('guest_name', 'like', "%{$search}%")
-                  ->orWhere('guest_company', 'like', "%{$search}%");
+            $search = trim((string) $request->input('search'));
+            $like = '%' . addcslashes($search, '\%_') . '%';
+            $query->where(function ($q) use ($like) {
+                $q->where('quote_number', 'like', $like)
+                  ->orWhere('guest_name', 'like', $like)
+                  ->orWhere('guest_company', 'like', $like)
+                  ->orWhere('guest_email', 'like', $like)
+                  ->orWhere('guest_phone', 'like', $like)
+                  // Cotizaciones ligadas a un cliente registrado (p. ej. las de la bandeja de leads).
+                  ->orWhereHas('customer', function ($c) use ($like) {
+                      $c->where('first_name', 'like', $like)
+                        ->orWhere('last_name', 'like', $like)
+                        ->orWhereRaw("CONCAT(first_name, ' ', last_name) like ?", [$like])
+                        ->orWhere('company', 'like', $like)
+                        ->orWhere('email', 'like', $like)
+                        ->orWhere('phone', 'like', $like);
+                  });
             });
         }
 
         if ($request->filled('status')) {
-            $query->where('status', $request->status);
+            $query->where('status', $request->input('status'));
         }
 
-        if ($request->filled('date_from')) {
-            $query->whereDate('created_at', '>=', $request->date_from);
+        $from = $this->parseFilterDate($request->input('date_from'));
+        $to = $this->parseFilterDate($request->input('date_to'));
+        if ($from && $to && $from->gt($to)) {
+            [$from, $to] = [$to, $from];
         }
-
-        if ($request->filled('date_to')) {
-            $query->whereDate('created_at', '<=', $request->date_to);
+        if ($from) {
+            $query->where('created_at', '>=', $from->startOfDay());
+        }
+        if ($to) {
+            // Incluye el día final completo.
+            $query->where('created_at', '<=', $to->endOfDay());
         }
 
         $quotes = $query->paginate(15)->withQueryString();
@@ -54,6 +71,18 @@ class QuoteController extends Controller
             ->value('columns');
 
         return view('admin.quotes.index', compact('quotes', 'visibleColumns'));
+    }
+
+    private function parseFilterDate($value): ?\Carbon\Carbon
+    {
+        if (! is_string($value) || ! preg_match('/^\d{4}-\d{2}-\d{2}$/', $value)) {
+            return null;
+        }
+        try {
+            return \Carbon\Carbon::createFromFormat('Y-m-d', $value)->startOfDay();
+        } catch (\Throwable $e) {
+            return null;
+        }
     }
 
     public function create(Request $request)
