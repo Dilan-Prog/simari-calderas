@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Backend\Crm;
 
 use App\Http\Controllers\Controller;
+use App\Models\Deal;
 use App\Models\Lead;
 use App\Models\Quote;
 use App\Services\LeadDealService;
@@ -11,7 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 
 /**
- * Negocio del lead desde la bandeja: se crea solo si el lead ya es cliente (con los datos del cliente) y se le
+ * Negocios del lead desde la bandeja (un lead puede tener varios): se crea solo si el lead ya es cliente (con los datos del cliente) y se le
  * ligan cotizaciones del mismo cliente; el monto del negocio sale de la cotizacion mas reciente.
  */
 class LeadDealController extends Controller
@@ -45,13 +46,12 @@ class LeadDealController extends Controller
         return $this->back($lead)->with('success', 'Negocio ' . $deal->folio . ' creado con los datos del cliente.');
     }
 
-    public function linkQuote(Request $request, Lead $lead): RedirectResponse
+    public function linkQuote(Request $request, Lead $lead, Deal $deal): RedirectResponse
     {
         $request->validate(['quote_id' => 'nullable|integer', 'quote_number' => 'nullable|string|max:40']);
 
-        $deal = $lead->deal;
-        if (! $deal) {
-            return $this->back($lead)->with('error', 'Este lead todavía no tiene negocio.');
+        if (! $this->deals->belongsToLead($lead, $deal)) {
+            return $this->back($lead)->with('error', 'Ese negocio no pertenece a este lead.');
         }
 
         $quote = $request->filled('quote_id')
@@ -69,12 +69,14 @@ class LeadDealController extends Controller
         return $this->back($lead)->with('success', 'Cotización ' . $quote->quote_number . ' ligada al negocio ' . $deal->folio . '.');
     }
 
-    public function unlinkQuote(Lead $lead, Quote $quote): RedirectResponse
+    public function unlinkQuote(Lead $lead, Deal $deal, Quote $quote): RedirectResponse
     {
-        if ($deal = $lead->deal) {
-            $this->deals->detachQuote($deal, $quote);
+        if (! $this->deals->belongsToLead($lead, $deal)) {
+            return $this->back($lead)->with('error', 'Ese negocio no pertenece a este lead.');
         }
 
-        return $this->back($lead)->with('success', 'Cotización ' . $quote->quote_number . ' quitada del negocio.');
+        $this->deals->detachQuote($deal, $quote);
+
+        return $this->back($lead)->with('success', 'Cotización ' . $quote->quote_number . ' quitada del negocio ' . $deal->folio . '.');
     }
 }

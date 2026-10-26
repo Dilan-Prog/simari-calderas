@@ -27,6 +27,7 @@ class Deal extends Model
         'closed_at',
         'owner_id',
         'customer_id',
+        'lead_id',
         'company_snapshot',
         'contact_snapshot_name',
         'contact_snapshot_email',
@@ -77,6 +78,11 @@ class Deal extends Model
     public function customer()
     {
         return $this->belongsTo(Customer::class);
+    }
+
+    public function lead()
+    {
+        return $this->belongsTo(Lead::class);
     }
 
     public function contacts()

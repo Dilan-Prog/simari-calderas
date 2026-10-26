@@ -60,6 +60,7 @@ class LeadLog
         $this->notes($lead, $e);
         $this->tasks($tasks, $taskLogs, $e);
         $this->changes($logs, $e);
+        $this->deals($lead, $e);
         $this->quotes($lead, $e);
 
         // Orden estable: por hora y, a igualdad, el orden en que se generaron (el origen queda primero).
@@ -268,22 +269,43 @@ class LeadLog
         }
     }
 
-    /** Cotizaciones ligadas al negocio del lead (tabla deal_quote). */
+    /** Un "Negocio creado" por cada negocio del lead (deals.lead_id y el legacy leads.deal_id). */
+    private function deals(Lead $lead, Collection $e): void
+    {
+        foreach ($this->leadDeals($lead) as $d) {
+            $e->push($this->entry($d->created_at ?? $lead->created_at, 'negocio', 'Negocio creado: ' . ($d->folio ?: '#' . $d->id)));
+        }
+    }
+
+    /** @return Collection<int,Deal> */
+    private function leadDeals(Lead $lead): Collection
+    {
+        return Deal::withTrashed()
+            ->where(function ($q) use ($lead) {
+                $q->where('lead_id', $lead->id);
+                if ($lead->deal_id) {
+                    $q->orWhere('id', $lead->deal_id);
+                }
+            })->orderBy('id')->get();
+    }
+
+    /** Cotizaciones ligadas a TODOS los negocios del lead (tabla deal_quote). */
     private function quotes(Lead $lead, Collection $e): void
     {
-        if (! $lead->deal_id) {
+        $deals = $this->leadDeals($lead)->keyBy('id');
+        if ($deals->isEmpty()) {
             return;
         }
-        $folio = Deal::withTrashed()->whereKey($lead->deal_id)->value('folio');
         $rows = DB::table('deal_quote')->join('quotes', 'quotes.id', '=', 'deal_quote.quote_id')
-            ->where('deal_quote.deal_id', $lead->deal_id)
-            ->get(['quotes.quote_number', 'quotes.total', 'quotes.currency', 'deal_quote.created_at']);
+            ->whereIn('deal_quote.deal_id', $deals->keys())
+            ->get(['deal_quote.deal_id', 'quotes.quote_number', 'quotes.total', 'quotes.currency', 'deal_quote.created_at']);
 
         foreach ($rows as $r) {
+            $folio = $deals[$r->deal_id]->folio ?? null;
             $e->push($this->entry(
                 Carbon::parse($r->created_at),
                 'negocio',
-                'Cotizacion ' . $r->quote_number . ' ligada al negocio ' . ($folio ?: '#' . $lead->deal_id),
+                'Cotizacion ' . $r->quote_number . ' ligada al negocio ' . ($folio ?: '#' . $r->deal_id),
                 '$' . number_format((float) $r->total, 2) . ' ' . ($r->currency ?: 'MXN')
             ));
         }
@@ -353,7 +375,10 @@ class LeadLog
                     $e->push($this->entry($at, 'cliente', 'Cliente desligado', null, $by));
                 }
             } elseif ($f === 'deal_id') {
-                $e->push($this->entry($at, 'negocio', $new ? 'Negocio creado: ' . ($dealFolios[$new] ?? '#' . $new) : 'Negocio desligado', null, $by));
+                // El alta de cada negocio se registra en deals() (puede haber varios); aqui solo el desligado.
+                if (! $new) {
+                    $e->push($this->entry($at, 'negocio', 'Negocio desligado', null, $by));
+                }
             } elseif (isset($contactLabels[$f])) {
                 $contact[$l->id]['log'] = $l;
                 $contact[$l->id]['fields'][] = $contactLabels[$f];

@@ -65,9 +65,16 @@ class Lead extends Model
         return $this->belongsTo(Customer::class);
     }
 
+    /** Negocio principal / mas reciente (leads.deal_id). Todos los negocios del lead: deals(). */
     public function deal(): BelongsTo
     {
         return $this->belongsTo(Deal::class)->withTrashed();
+    }
+
+    /** Negocios del lead (deals.lead_id), el mas reciente primero. */
+    public function deals(): HasMany
+    {
+        return $this->hasMany(Deal::class, 'lead_id')->latest('id');
     }
 
     public function whatsappConversation(): BelongsTo

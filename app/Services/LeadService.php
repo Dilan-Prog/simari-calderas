@@ -831,6 +831,7 @@ class LeadService
             'currency'               => 'MXN',
             'owner_id'               => $lead->assigned_to ?? $user?->id,
             'customer_id'            => $lead->customer_id,
+            'lead_id'                => $lead->id,
             'contact_snapshot_name'  => $lead->contact_name,
             'contact_snapshot_email' => $lead->contact_email,
             'contact_snapshot_phone' => $lead->phone_normalized,

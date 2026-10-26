@@ -99,7 +99,7 @@ class LeadInboxController extends Controller
         }
         if ($selected) {
             $wa = $this->whatsappState($selected);
-            $selected->load(['assignee', 'customer', 'deal', 'calls', 'tasks.assignee', 'whatsappConversation', 'noteEntries.author']);
+            $selected->load(['assignee', 'customer', 'deal', 'deals.quotes', 'deals.stage', 'calls', 'tasks.assignee', 'whatsappConversation', 'noteEntries.author']);
             $timeline = $this->timeline($selected);
             $openTasks = $selected->tasks
                 ->where('status', 'open')
@@ -253,7 +253,7 @@ class LeadInboxController extends Controller
     {
         \App\Models\AdminNotification::markSubjectRead(auth()->id(), 'lead', $lead->id);
         LeadService::clearReplyPending($lead);
-        $lead->load(['assignee', 'customer', 'deal', 'whatsappConversation', 'poolCalculatorLead', 'calls', 'tasks', 'conversionUploads', 'noteEntries.author']);
+        $lead->load(['assignee', 'customer', 'deal', 'deals.quotes', 'deals.stage', 'whatsappConversation', 'poolCalculatorLead', 'calls', 'tasks', 'conversionUploads', 'noteEntries.author']);
 
         return view('admin.leads-inbox.show', [
             'lead'     => $lead,

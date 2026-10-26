@@ -374,12 +374,12 @@
     "isEntry": true
   },
   "resources/js/admin/erp-crm.js": {
-    "file": "assets/erp-crm-DauJaPkM.js",
+    "file": "assets/erp-crm-l1QJ5G1g.js",
     "name": "erp-crm",
     "src": "resources/js/admin/erp-crm.js",
     "isEntry": true,
     "css": [
-      "assets/erp-crm-DYIt4NFm.css"
+      "assets/erp-crm-jYtN_A8w.css"
     ]
   },
   "resources/js/admin/erp-finance.js": {

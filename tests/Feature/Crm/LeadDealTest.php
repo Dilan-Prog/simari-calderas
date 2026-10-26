@@ -35,9 +35,9 @@ class LeadDealTest extends TestCase
         PipelineStage::create(['pipeline_id' => $deals->id, 'name' => 'Prospecto', 'slug' => 'prospecto', 'order' => 0]);
     }
 
-    private function lead(): Lead
+    private function lead(string $email = 'carlos@sigma.com'): Lead
     {
-        $r = app(LeadService::class)->captureFromEmail(['message_id' => '<' . uniqid() . '@x>', 'email' => 'carlos@sigma.com', 'name' => 'Carlos Herrera', 'subject' => 'Cotizar']);
+        $r = app(LeadService::class)->captureFromEmail(['message_id' => '<' . uniqid() . '@x>', 'email' => $email, 'name' => 'Carlos Herrera', 'subject' => 'Cotizar']);
 
         return Lead::findOrFail($r['lead_id']);
     }
@@ -135,10 +135,10 @@ class LeadDealTest extends TestCase
         $q1 = $this->quote($lead->customer, 'COT-2026-0001', 5049.00);
         $q2 = $this->quote($lead->customer, 'COT-2026-0002', 8200.50, 'USD');
 
-        $this->actingAs($this->admin)->post(route('admin.leads-inbox.deal.quotes.link', $lead), ['quote_id' => $q1->id])->assertSessionHas('success');
+        $this->actingAs($this->admin)->post(route('admin.leads-inbox.deal.quotes.link', [$lead, $deal]), ['quote_id' => $q1->id])->assertSessionHas('success');
         $this->assertSame('5049.00', $deal->fresh()->amount);
 
-        $this->actingAs($this->admin)->post(route('admin.leads-inbox.deal.quotes.link', $lead), ['quote_number' => 'cot-2026-0002'])->assertSessionHas('success');
+        $this->actingAs($this->admin)->post(route('admin.leads-inbox.deal.quotes.link', [$lead, $deal]), ['quote_number' => 'cot-2026-0002'])->assertSessionHas('success');
         $deal->refresh();
         $this->assertSame('8200.50', $deal->amount);
         $this->assertSame('USD', $deal->currency);
@@ -146,7 +146,7 @@ class LeadDealTest extends TestCase
 
         $this->page($lead->fresh())->assertSee('COT-2026-0001')->assertSee('COT-2026-0002')->assertSee('Cotizaciones (2)');
 
-        $this->actingAs($this->admin)->delete(route('admin.leads-inbox.deal.quotes.unlink', [$lead, $q2]))->assertSessionHas('success');
+        $this->actingAs($this->admin)->delete(route('admin.leads-inbox.deal.quotes.unlink', [$lead, $deal, $q2]))->assertSessionHas('success');
         $deal->refresh();
         $this->assertSame(1, $deal->quotes()->count());
         $this->assertSame('5049.00', $deal->amount, 'el monto vuelve a la cotizacion que queda ligada');
@@ -156,29 +156,117 @@ class LeadDealTest extends TestCase
     {
         $lead = $this->leadWithCustomer();
         $this->actingAs($this->admin)->post(route('admin.leads-inbox.deal.store', $lead), []);
+        $deal = Deal::firstOrFail();
         $other = $this->customer(['email' => 'otro@x.com', 'first_name' => 'Otro']);
         $foreign = $this->quote($other, 'COT-2026-0099', 100);
 
-        $this->actingAs($this->admin)->post(route('admin.leads-inbox.deal.quotes.link', $lead), ['quote_id' => $foreign->id])->assertSessionHas('error');
-        $this->actingAs($this->admin)->post(route('admin.leads-inbox.deal.quotes.link', $lead), ['quote_number' => 'COT-NO-EXISTE'])->assertSessionHas('error');
+        $this->actingAs($this->admin)->post(route('admin.leads-inbox.deal.quotes.link', [$lead, $deal]), ['quote_id' => $foreign->id])->assertSessionHas('error');
+        $this->actingAs($this->admin)->post(route('admin.leads-inbox.deal.quotes.link', [$lead, $deal]), ['quote_number' => 'COT-NO-EXISTE'])->assertSessionHas('error');
 
         $this->assertSame(0, Deal::firstOrFail()->quotes()->count());
     }
 
-    public function test_ligar_sin_negocio_da_error(): void
+    public function test_un_negocio_de_otro_lead_no_se_puede_tocar(): void
     {
         $lead = $this->leadWithCustomer();
+        $this->actingAs($this->admin)->post(route('admin.leads-inbox.deal.store', $lead), []);
+        $mine = Deal::firstOrFail();
         $q = $this->quote($lead->customer, 'COT-2026-0001', 10);
+        $this->actingAs($this->admin)->post(route('admin.leads-inbox.deal.quotes.link', [$lead, $mine]), ['quote_id' => $q->id]);
 
-        $this->actingAs($this->admin)->post(route('admin.leads-inbox.deal.quotes.link', $lead), ['quote_id' => $q->id])->assertSessionHas('error');
+        $other = $this->lead('otro-lead@sigma.com');
+        $other->update(['customer_id' => $lead->customer_id]);
+
+        $this->actingAs($this->admin)->post(route('admin.leads-inbox.deal.quotes.link', [$other, $mine]), ['quote_id' => $q->id])->assertSessionHas('error');
+        $this->actingAs($this->admin)->delete(route('admin.leads-inbox.deal.quotes.unlink', [$other, $mine, $q]))->assertSessionHas('error');
+        $this->assertSame(1, $mine->quotes()->count(), 'el negocio ajeno no se modifica');
+    }
+
+    public function test_se_puede_crear_un_segundo_negocio_sin_cerrar_el_primero(): void
+    {
+        $lead = $this->leadWithCustomer();
+        $this->actingAs($this->admin)->post(route('admin.leads-inbox.deal.store', $lead), [])->assertSessionHas('success');
+        $this->actingAs($this->admin)->post(route('admin.leads-inbox.deal.store', $lead), [])->assertSessionHas('success');
+        $this->actingAs($this->admin)->post(route('admin.leads-inbox.deal.store', $lead), ['name' => 'Otro']);
+
+        $this->assertSame(3, Deal::count());
+        $this->assertSame(3, $lead->deals()->count());
+        $names = $lead->deals()->pluck('name')->all();
+        $this->assertContains('Negocio - Sigma Alimentos', $names);
+        $this->assertContains('Negocio - Sigma Alimentos (2)', $names);
+        $this->assertContains('Otro', $names);
+        $this->assertSame((int) Deal::max('id'), $lead->fresh()->deal_id, 'leads.deal_id apunta al mas reciente');
+        $this->assertSame('open', Deal::orderBy('id')->first()->status);
+    }
+
+    public function test_las_cotizaciones_son_independientes_por_negocio(): void
+    {
+        $lead = $this->leadWithCustomer();
+        $this->actingAs($this->admin)->post(route('admin.leads-inbox.deal.store', $lead), []);
+        $this->actingAs($this->admin)->post(route('admin.leads-inbox.deal.store', $lead), []);
+        [$d1, $d2] = [Deal::orderBy('id')->first(), Deal::orderByDesc('id')->first()];
+        $q1 = $this->quote($lead->customer, 'COT-2026-0001', 100);
+        $q2 = $this->quote($lead->customer, 'COT-2026-0002', 200, 'USD');
+
+        $this->actingAs($this->admin)->post(route('admin.leads-inbox.deal.quotes.link', [$lead, $d1]), ['quote_id' => $q1->id]);
+        $this->actingAs($this->admin)->post(route('admin.leads-inbox.deal.quotes.link', [$lead, $d2]), ['quote_id' => $q2->id]);
+
+        $this->assertSame([$q1->id], $d1->quotes()->pluck('quotes.id')->all());
+        $this->assertSame([$q2->id], $d2->quotes()->pluck('quotes.id')->all());
+        $this->assertSame('100.00', $d1->fresh()->amount);
+        $this->assertSame('200.00', $d2->fresh()->amount);
+        $this->assertSame('USD', $d2->fresh()->currency);
+
+        $this->actingAs($this->admin)->delete(route('admin.leads-inbox.deal.quotes.unlink', [$lead, $d1, $q1]));
+        $this->assertSame(0, $d1->quotes()->count());
+        $this->assertSame(1, $d2->quotes()->count());
+    }
+
+    public function test_la_migracion_llena_deals_lead_id_desde_leads_deal_id(): void
+    {
+        $lead = $this->leadWithCustomer();
+        $pipelineId = Pipeline::query()->deals()->value('id');
+        $stageId = PipelineStage::where('pipeline_id', $pipelineId)->value('id');
+        $deal = Deal::create(['pipeline_id' => $pipelineId, 'pipeline_stage_id' => $stageId, 'name' => 'Viejo', 'status' => 'open']);
+        $orphan = Deal::create(['pipeline_id' => $pipelineId, 'pipeline_stage_id' => $stageId, 'name' => 'Sin lead', 'status' => 'open']);
+        $lead->update(['deal_id' => $deal->id]);
+        \DB::table('deals')->update(['lead_id' => null]);
+
+        $migration = require base_path('database/migrations/2026_10_29_100000_add_lead_id_to_deals.php');
+        $migration->backfill(); // sin DDL: en MySQL un ALTER confirma la transaccion del test
+
+        $this->assertSame($lead->id, (int) \DB::table('deals')->where('id', $deal->id)->value('lead_id'));
+        $this->assertNull(\DB::table('deals')->where('id', $orphan->id)->value('lead_id'));
+
+        // Un negocio legacy (solo leads.deal_id, sin lead_id) sigue siendo accesible desde el lead.
+        \DB::table('deals')->where('id', $deal->id)->update(['lead_id' => null]);
+        $q = $this->quote($lead->customer, 'COT-2026-0003', 5);
+        $this->actingAs($this->admin)->post(route('admin.leads-inbox.deal.quotes.link', [$lead, $deal->fresh()]), ['quote_id' => $q->id])->assertSessionHas('success');
+    }
+
+    public function test_la_bitacora_con_dos_negocios_registra_ambos_y_sus_cotizaciones(): void
+    {
+        $lead = $this->leadWithCustomer();
+        $this->actingAs($this->admin)->post(route('admin.leads-inbox.deal.store', $lead), []);
+        $this->actingAs($this->admin)->post(route('admin.leads-inbox.deal.store', $lead), []);
+        [$d1, $d2] = [Deal::orderBy('id')->first(), Deal::orderByDesc('id')->first()];
+        $this->actingAs($this->admin)->post(route('admin.leads-inbox.deal.quotes.link', [$lead, $d1]), ['quote_id' => $this->quote($lead->customer, 'COT-2026-0010', 1)->id]);
+        $this->actingAs($this->admin)->post(route('admin.leads-inbox.deal.quotes.link', [$lead, $d2]), ['quote_id' => $this->quote($lead->customer, 'COT-2026-0011', 2)->id]);
+
+        $titles = collect(\App\Support\LeadLog::for($lead->fresh()))->pluck('title');
+        $this->assertTrue($titles->contains('Negocio creado: ' . $d1->folio));
+        $this->assertTrue($titles->contains('Negocio creado: ' . $d2->folio));
+        $this->assertTrue($titles->contains('Cotizacion COT-2026-0010 ligada al negocio ' . $d1->folio));
+        $this->assertTrue($titles->contains('Cotizacion COT-2026-0011 ligada al negocio ' . $d2->folio));
     }
 
     public function test_la_bitacora_registra_el_negocio_y_las_cotizaciones_ligadas(): void
     {
         $lead = $this->leadWithCustomer();
         $this->actingAs($this->admin)->post(route('admin.leads-inbox.deal.store', $lead), []);
+        $deal = Deal::firstOrFail();
         $q = $this->quote($lead->customer, 'COT-2026-0007', 5049.00);
-        $this->actingAs($this->admin)->post(route('admin.leads-inbox.deal.quotes.link', $lead), ['quote_id' => $q->id]);
+        $this->actingAs($this->admin)->post(route('admin.leads-inbox.deal.quotes.link', [$lead, $deal]), ['quote_id' => $q->id]);
 
         $titles = collect(\App\Support\LeadLog::for($lead->fresh()))->pluck('title')->implode(' | ');
         $this->assertStringContainsString('Negocio creado:', $titles);

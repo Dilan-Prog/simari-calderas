@@ -10,7 +10,7 @@ use App\Models\User;
 use Illuminate\Validation\ValidationException;
 
 /**
- * Negocio de un lead: se crea solo si el lead ya es cliente, con los datos del cliente ya dados de alta,
+ * Negocios de un lead (puede tener varios a la vez): cada uno se crea solo si el lead ya es cliente, con los datos del cliente ya dados de alta,
  * y se le ligan cotizaciones (el monto del negocio sale de la cotizacion mas reciente).
  */
 class LeadDealService
@@ -20,10 +20,6 @@ class LeadDealService
      */
     public function createForLead(Lead $lead, array $data, ?User $user = null): Deal
     {
-        if ($lead->deal_id && ($existing = Deal::find($lead->deal_id))) {
-            return $existing;
-        }
-
         $customer = $lead->customer_id ? $lead->customer()->first() : null;
         if (! $customer) {
             throw ValidationException::withMessages(['lead' => 'Para crear un negocio primero agrega al lead como cliente.']);
@@ -37,12 +33,13 @@ class LeadDealService
         $customerName = trim($customer->first_name . ' ' . $customer->last_name);
         $deal = app(DealService::class)->create([
             'pipeline_id'            => $pipeline->id,
-            'name'                   => trim((string) ($data['name'] ?? '')) ?: 'Negocio - ' . ($customer->company ?: $customerName),
+            'name'                   => trim((string) ($data['name'] ?? '')) ?: $this->defaultName($lead, $customer->company ?: $customerName),
             'amount'                 => $data['amount'] ?? 0,
             'currency'               => $data['currency'] ?? 'MXN',
             'expected_close_date'    => $data['expected_close_date'] ?? null,
             'owner_id'               => $data['owner_id'] ?? $lead->assigned_to ?? $user?->id,
             'customer_id'            => $customer->id,
+            'lead_id'                => $lead->id,
             'company_snapshot'       => $customer->company ?: null,
             'contact_snapshot_name'  => $customerName,
             'contact_snapshot_email' => $customer->email,
@@ -52,6 +49,7 @@ class LeadDealService
             'notes'                  => $data['notes'] ?? null,
         ]);
 
+        // leads.deal_id queda como negocio principal / mas reciente.
         $lead->deal_id = $deal->id;
         $lead->save();
         if (in_array($lead->status, ['nuevo', 'contactado'], true)) {
@@ -59,6 +57,26 @@ class LeadDealService
         }
 
         return $deal;
+    }
+
+    /** "Negocio - <empresa>", y " (2)", " (3)"... si el lead ya tiene negocios con ese nombre. */
+    private function defaultName(Lead $lead, string $company): string
+    {
+        $base = 'Negocio - ' . $company;
+        $taken = Deal::withTrashed()->where('lead_id', $lead->id)->pluck('name')->all();
+        $name = $base;
+        for ($n = 2; in_array($name, $taken, true); $n++) {
+            $name = $base . ' (' . $n . ')';
+        }
+
+        return $name;
+    }
+
+    /** El negocio pertenece al lead: deals.lead_id, o el legacy leads.deal_id. */
+    public function belongsToLead(Lead $lead, Deal $deal): bool
+    {
+        return (int) $deal->lead_id === (int) $lead->id
+            || (! $deal->lead_id && $lead->deal_id && (int) $lead->deal_id === (int) $deal->id);
     }
 
     /** Liga la cotizacion al negocio y toma su total como monto del negocio. */

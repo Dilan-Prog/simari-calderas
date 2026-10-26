@@ -108,10 +108,14 @@ function start() {
         if (info && !info.contains(document.activeElement) && !typing) {
             // Secciones plegables: se conservan por data-sec (clave estable); el resto de <details> (p. ej. Editar contacto) por posicion.
             const states = sectionStates(info);
-            const plain = [...info.querySelectorAll('details:not([data-sec])')].map((d) => d.open);
+            const plainSel = 'details:not([data-sec]):not([data-deal])';
+            const plain = [...info.querySelectorAll(plainSel)].map((d) => d.open);
+            // Negocios: cada bloque se conserva por su id (la lista puede cambiar de tamano o de orden).
+            const deals = new Map([...info.querySelectorAll('details[data-deal]')].map((d) => [d.dataset.deal, d.open]));
             swap('.lw-info', next);
             restoreSections(info, states);
-            info.querySelectorAll('details:not([data-sec])').forEach((d, i) => { d.open = !!plain[i]; });
+            info.querySelectorAll(plainSel).forEach((d, i) => { d.open = !!plain[i]; });
+            info.querySelectorAll('details[data-deal]').forEach((d) => { if (deals.has(d.dataset.deal)) d.open = deals.get(d.dataset.deal); });
         }
     }
 
