@@ -118,6 +118,20 @@ class LeadOutboundEmailTest extends TestCase
         $this->postJson('/api/v1/leads/outbound-email', ['subject' => 'x'])->assertStatus(422);
     }
 
+    public function test_las_entidades_html_del_cuerpo_se_muestran_como_texto_normal(): void
+    {
+        $this->inbound();
+        $this->auth();
+        $this->postJson('/api/v1/leads/outbound-email', $this->payload([
+            'body' => 'Para: Ana &lt;ana@empresa.com&gt; Enviado:&nbsp;lunes 11:59 a.&nbsp;m. Tom &amp; Jerry',
+        ]))->assertCreated();
+
+        $email = LeadOutboundEmail::firstOrFail();
+
+        $this->assertSame('Para: Ana <ana@empresa.com> Enviado: lunes 11:59 a. m. Tom & Jerry', $email->body);
+        $this->assertNull((new LeadOutboundEmail())->body);
+    }
+
     public function test_la_pagina_de_la_tarea_muestra_el_correo_enviado(): void
     {
         $this->withoutVite();
