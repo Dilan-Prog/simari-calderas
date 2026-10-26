@@ -116,7 +116,7 @@ class PurchaseOrderController extends Controller
             return back()->withInput()->withErrors(['file' => 'No se pudo guardar el archivo; inténtalo de nuevo.']);
         }
 
-        CustomerPurchaseOrder::create([
+        $order = CustomerPurchaseOrder::create([
             'customer_id'           => $customerId,
             'po_number'             => $this->clean($validated['po_number'] ?? null),
             'po_date'               => $validated['po_date'] ?? null,
@@ -128,6 +128,13 @@ class PurchaseOrderController extends Controller
             'size'                  => (int) $file->getSize(),
             'uploaded_by_member_id' => PortalContext::memberId(),
         ]);
+
+        // Aviso al personal (tarea + correo a administración); un fallo nunca afecta la subida del cliente.
+        try {
+            app(\App\Services\Portal\PortalStaffAlerts::class)->purchaseOrderUploaded($order);
+        } catch (\Throwable $e) {
+            report($e);
+        }
 
         return redirect()
             ->route('customer.purchase-orders.index')

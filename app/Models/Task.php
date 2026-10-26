@@ -159,6 +159,7 @@ class Task extends Model
             \App\Models\Deal::class  => 'Negocio ' . $this->taskable->name,
             \App\Models\Cart::class  => 'Carrito #' . $this->taskable->id,
             \App\Models\Lead::class  => 'Lead ' . $this->taskable->display_name,
+            \App\Models\Customer::class => 'Cliente ' . trim($this->taskable->first_name . ' ' . $this->taskable->last_name) . ($this->taskable->company ? ' · ' . $this->taskable->company : ''),
             default                  => class_basename($this->taskable_type) . ' #' . $this->taskable->getKey(),
         };
     }
@@ -178,6 +179,7 @@ class Task extends Model
             \App\Models\Quote::class => route('admin.quotes.show', $this->taskable_id),
             \App\Models\Deal::class  => route('admin.deals.show', $this->taskable_id),
             \App\Models\Lead::class  => route('admin.leads-inbox.show', $this->taskable_id),
+            \App\Models\Customer::class => route('admin.clients.information', $this->taskable_id),
             default                  => null,
         };
     }
@@ -190,6 +192,19 @@ class Task extends Model
      */
     public function taskableCustomerInfo(): ?array
     {
+        // Tarea ligada directamente a un cliente (avisos del portal): sus propios datos.
+        if ($this->taskable instanceof \App\Models\Customer) {
+            $c = $this->taskable;
+
+            return [
+                'name'    => trim($c->first_name . ' ' . $c->last_name),
+                'phone'   => $c->phone,
+                'email'   => $c->email,
+                'company' => $c->company,
+                'rfc'     => $c->rfc,
+            ];
+        }
+
         if (!$this->taskable instanceof \App\Models\Quote) {
             return null;
         }

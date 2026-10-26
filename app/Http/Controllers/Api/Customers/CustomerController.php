@@ -126,7 +126,7 @@ class CustomerController extends Controller
             // caller de la API reciba un 422 claro en vez de un 500 por
             // violar la constraint de la BD.
             'company'       => ['required', 'string', 'max:150', 'regex:/^[a-zA-ZÀ-ÿ0-9\s]+$/'],
-            'email'         => ['nullable', 'email', 'max:150', $uniqueEmail],
+            'email'         => ['nullable', 'email', 'max:150', $uniqueEmail, new \App\Rules\EmailNotPortalMember],
             'phone'         => ['required', 'string', 'max:30'],
             'rfc'           => ['nullable', 'string', 'max:20'],
             'tipo_persona'  => ['nullable', 'in:fisica,moral'],

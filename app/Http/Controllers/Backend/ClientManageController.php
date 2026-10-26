@@ -72,7 +72,7 @@ class ClientManageController extends Controller
             // Opcional desde ahora — un cliente puede darse de alta "Sin
             // Correo" (checkbox en el formulario, ver abajo). unique sigue
             // aplicando: MySQL permite varios NULL en un índice único.
-            'email' => 'nullable|email|max:150|unique:customers,email',
+            'email' => ['nullable', 'email', 'max:150', 'unique:customers,email', new \App\Rules\EmailNotPortalMember],
             'phone' => 'nullable|string|max:30',
             'rfc' => 'nullable|string|max:20',
             'tipo_persona' => 'nullable|in:fisica,moral',
@@ -336,7 +336,7 @@ class ClientManageController extends Controller
             // FIX QA-3: Added regex — alphanumeric + spaces only (matches the
             // real-time dynamicAlphanumeric() filter already applied in JS).
             'company' => ['nullable', 'string', 'max:150', 'regex:/^[a-zA-ZÀ-ÿ0-9\s]+$/'],
-            'email' => 'nullable|email|max:150|unique:customers,email,' . $id,
+            'email' => ['nullable', 'email', 'max:150', 'unique:customers,email,' . $id, new \App\Rules\EmailNotPortalMember],
             'phone' => 'nullable|string|max:30',
             'rfc' => 'nullable|string|max:20',
             'tipo_persona' => 'nullable|in:fisica,moral',

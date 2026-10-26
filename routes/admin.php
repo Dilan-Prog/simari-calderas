@@ -123,6 +123,17 @@ Route::controller(ClientManageController::class)
         Route::get('/clientes/{id}/constancia-portal', 'downloadPortalCertificate')->name('clients.portal-certificate');
     });
 
+// >>> Usuarios del portal (ficha)
+Route::controller(\App\Http\Controllers\Backend\Customers\PortalUserAdminController::class)
+    ->middleware(['permission:clients', 'permission:clients,edit'])
+    ->whereNumber(['id', 'memberId'])
+    ->group(function () {
+        Route::patch('/clientes/{id}/usuarios-portal/{memberId}/estado', 'toggle')->name('clients.portal-users.toggle');
+        Route::put('/clientes/{id}/usuarios-portal/{memberId}/contrasena', 'resetPassword')->name('clients.portal-users.password');
+        Route::delete('/clientes/{id}/usuarios-portal/{memberId}', 'destroy')->name('clients.portal-users.destroy');
+    });
+// <<<
+
 // Órdenes de compra (PDF) que los clientes suben en el portal: descarga para el personal.
 Route::get('/clientes/ordenes-de-compra/{id}/archivo', [\App\Http\Controllers\Backend\CustomerPurchaseOrderController::class, 'download'])
     ->whereNumber('id')

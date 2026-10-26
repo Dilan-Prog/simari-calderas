@@ -795,11 +795,13 @@ class LeadService
         }
 
         $parts = preg_split('/\s+/', trim((string) $lead->contact_name), 2) ?: [];
+        // Un correo que ya es de un usuario del equipo del portal no puede ser el de un cliente: se usa el marcador.
+        $leadEmail = $lead->contact_email && ! \App\Rules\EmailNotPortalMember::taken($lead->contact_email) ? $lead->contact_email : null;
         $customer = Customer::create([
             'first_name' => $parts[0] ?? ($lead->phone_normalized ?? 'Sin nombre'),
             'last_name'  => $parts[1] ?? '',
             // customers.email es NOT NULL y único: sin correo se usa un marcador (.invalid) editable después.
-            'email'      => $lead->contact_email ?: 'sin-correo-lead' . $lead->id . '@lead.invalid',
+            'email'      => $leadEmail ?: 'sin-correo-lead' . $lead->id . '@lead.invalid',
             'company'    => '',
             'phone'      => $lead->phone_normalized ?: '',
             'document_type' => '',

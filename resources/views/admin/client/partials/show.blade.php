@@ -90,6 +90,8 @@
                     <button class="tab-show-client" data-tab="hist-{{ $key }}">{{ $section['label'] }}
                         <span class="ch-count">{{ $section['count'] }}</span></button>
                 @endforeach
+                <button class="tab-show-client" data-tab="water-analysis">Análisis químico</button>
+                <button class="tab-show-client" data-tab="portal-users">Usuarios del portal</button>
                 <button class="tab-show-client" data-tab="addresses">Direcciones</button>
             </div>
 
@@ -182,6 +184,12 @@
             {{-- Tabs: Historial (línea de tiempo) y listas por área --}}
             @include('admin.client.partials._history', ['customer' => $customer, 'history' => $history])
 
+            {{-- Tab: Análisis químico del cliente (registro diario del portal) --}}
+            @include('admin.client.partials._water_analysis', ['customer' => $customer])
+
+            {{-- Tab: Usuarios del portal del cliente (equipo con roles) --}}
+            @include('admin.client.partials._portal_users', ['customer' => $customer])
+
             {{-- Tab: Addresses --}}
             <div class="tab-content-show-client" id="addresses">
                 <div class="grid-2-information-client-show">
@@ -219,15 +227,25 @@
         @include('admin.client.partials._edit_modal')
 
         <script>
-            // Tab switching
+            // Tab switching (la pestaña activa queda en el hash: #water-analysis, #portal-users, ...)
+            const activateClientTab = (btn) => {
+                document.querySelectorAll('.tab-show-client').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content-show-client').forEach(c => c.classList.remove('active'));
+                btn.classList.add('active');
+                document.getElementById(btn.dataset.tab).classList.add('active');
+                // Las gráficas de una pestaña oculta se miden en 0: se vuelven a ajustar al mostrarla.
+                requestAnimationFrame(() => window.dispatchEvent(new Event('resize')));
+            };
             document.querySelectorAll('.tab-show-client').forEach(btn => {
                 btn.addEventListener('click', () => {
-                    document.querySelectorAll('.tab-show-client').forEach(t => t.classList.remove('active'));
-                    document.querySelectorAll('.tab-content-show-client').forEach(c => c.classList.remove('active'));
-                    btn.classList.add('active');
-                    document.getElementById(btn.dataset.tab).classList.add('active');
+                    activateClientTab(btn);
+                    history.replaceState(null, '', '#' + btn.dataset.tab);
                 });
             });
+            if (location.hash) {
+                const hashBtn = document.querySelector('.tab-show-client[data-tab="' + location.hash.slice(1) + '"]');
+                if (hashBtn) activateClientTab(hashBtn);
+            }
 
             // Edit client button in show page
             const editClientModal   = document.getElementById('clientEditModal');

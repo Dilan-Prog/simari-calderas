@@ -70,7 +70,7 @@ class LeadCustomerController extends Controller
             'link_customer_id' => 'nullable|integer|exists:customers,id',
             'full_name'        => 'required_without:link_customer_id|nullable|string|max:200',
             'company'          => 'nullable|string|max:150',
-            'email'            => ['nullable', 'email', 'max:150', Rule::unique('customers', 'email')],
+            'email'            => ['nullable', 'email', 'max:150', Rule::unique('customers', 'email'), new \App\Rules\EmailNotPortalMember],
             'phone'            => 'nullable|string|max:30',
             'website'          => 'nullable|string|max:255',
             'rfc'              => 'nullable|string|max:20',

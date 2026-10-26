@@ -123,6 +123,7 @@ class WaterAnalysisController extends Controller
         }
 
         $report = $this->persist($existing, $data, $values);
+        $this->alertStaffIfOutOfRange($report);
 
         return redirect()->route('customer.water-analysis.index')->with(
             'success',
@@ -137,7 +138,8 @@ class WaterAnalysisController extends Controller
         $request->merge(['report_date' => $model->report_date->toDateString()]);
         [$data, $values] = $this->validated($request);
 
-        $this->persist($model, $data, $values);
+        $saved = $this->persist($model, $data, $values);
+        $this->alertStaffIfOutOfRange($saved);
 
         return redirect()->route('customer.water-analysis.index')
             ->with('success', 'Registro del ' . $this->fmt($model) . ' actualizado.');
@@ -154,6 +156,16 @@ class WaterAnalysisController extends Controller
     }
 
     // ── Internos ────────────────────────────────────────────────────────────
+
+    /** Avisa al personal (tarea + correo) si el registro quedó fuera de rango; un fallo nunca rompe el guardado. */
+    private function alertStaffIfOutOfRange(WaterAnalysisReport $report): void
+    {
+        try {
+            app(\App\Services\Portal\PortalStaffAlerts::class)->outOfRangeAnalysis($report);
+        } catch (\Throwable $e) {
+            report($e);
+        }
+    }
 
     private function fmt(WaterAnalysisReport $r): string
     {

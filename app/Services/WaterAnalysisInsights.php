@@ -127,4 +127,41 @@ class WaterAnalysisInsights
             ],
         ];
     }
+
+    /**
+     * Últimos registros del cliente (sin importar el periodo) como arreglos simples para tablas:
+     * ['parameters' => [{code,name,unit}], 'rows' => [{date, date_iso, notes, recorded_by, cells[{value,status}]}]].
+     * 'recorded_by' = 'Titular' (recorded_by_member_id nulo) o 'Usuario del equipo'.
+     */
+    public function recentReports(int $customerId, int $limit = 30): array
+    {
+        $parameters = WaterAnalysisParameter::where('is_active', true)->orderBy('sort_order')->get();
+
+        $rows = WaterAnalysisReport::where('customer_id', $customerId)
+            ->with('results')
+            ->orderByDesc('report_date')
+            ->orderByDesc('id')
+            ->limit(max(1, $limit))
+            ->get()
+            ->map(fn ($r) => [
+                'date'        => $r->report_date->format('d/m/Y'),
+                'date_iso'    => $r->report_date->toDateString(),
+                'notes'       => $r->notes,
+                'recorded_by' => $r->recorded_by_member_id ? 'Usuario del equipo' : 'Titular',
+                'cells'       => $parameters->map(function ($p) use ($r) {
+                    $res = $r->results->firstWhere('parameter_id', $p->id);
+
+                    return [
+                        'value'  => $res ? $p->formatValue($res->value) : null,
+                        'status' => $res ? $p->statusFor($res->value) : null,
+                    ];
+                })->all(),
+            ])
+            ->all();
+
+        return [
+            'parameters' => $parameters->map(fn ($p) => ['code' => $p->code, 'name' => $p->name, 'unit' => $p->unit])->all(),
+            'rows'       => $rows,
+        ];
+    }
 }

@@ -40,6 +40,12 @@ class DealCustomerRegistrar
             return ['customer' => $existing, 'created' => false];
         }
 
+        // Si el correo ya es de un usuario del equipo del portal (y ningún titular lo tiene), no puede ser el
+        // correo de un cliente: se registra sin correo (el del contacto sigue en el negocio).
+        if ($email && \App\Rules\EmailNotPortalMember::taken($email)) {
+            $email = null;
+        }
+
         $parts = explode(' ', trim(preg_replace('/\s+/', ' ', (string) $data['contact_snapshot_name'])), 2);
 
         $customer = Customer::create([
