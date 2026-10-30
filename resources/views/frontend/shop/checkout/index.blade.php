@@ -24,7 +24,7 @@
 @section('title', 'Finalizar pedido — Equiterm Industries')
 
 @section('content')
-<div class="eq-checkout">
+<div class="eq-checkout" data-clarity-mask="True">
     <h1 class="checkout-title">Finalizar pedido</h1>
 
     @if (session('error'))

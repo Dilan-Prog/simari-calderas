@@ -13,7 +13,7 @@
     // no se toca aquí, este eager-load vive en la propia vista).
     $storeOrder->loadMissing(['items.product.images', 'paymentMethod']);
 @endphp
-<div class="eq-checkout">
+<div class="eq-checkout" data-clarity-mask="True">
     <div class="checkout-confirmation">
         {{-- Esta vista SOLO se renderiza cuando el pago realmente quedó
              aprobado o en un estado asíncrono válido (in_process/pending,

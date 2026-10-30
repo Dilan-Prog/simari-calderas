@@ -50,6 +50,11 @@ class SecurityHeaders
         // cerrada -- sin esto el navegador bloquea el script en silencio
         // (se ve como fallo de red en devtools, no como error de CSP a
         // simple vista) sin importar si la página es HTTP o HTTPS.
+        // Microsoft Clarity: la etiqueta sale de www.clarity.ms, carga su script
+        // desde scripts.clarity.ms y envía los datos a subdominios *.clarity.ms
+        // (y c.bing.com para el enlace con Bing Webmaster Tools).
+        $clarity = 'https://*.clarity.ms';
+
         $mercadoPagoScript = 'https://sdk.mercadopago.com https://*.mlstatic.com';
         $mercadoPagoConnect = 'https://*.mercadopago.com https://*.mlstatic.com';
         $mercadoPagoFrame = 'https://*.mercadopago.com https://*.mercadolibre.com';
@@ -64,11 +69,11 @@ class SecurityHeaders
             // al usuario, simplemente deja de evaluar condiciones y los
             // elementos x-show quedan permanentemente en su estado inicial del
             // DOM (visible), como el mega-menú "Próximamente" que nunca cierra.
-            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com {$mercadoPagoScript}" . (app()->environment('local') ? ' http://127.0.0.1:5173 http://localhost:5173' : ''),
+            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com {$clarity} {$mercadoPagoScript}" . (app()->environment('local') ? ' http://127.0.0.1:5173 http://localhost:5173' : ''),
             "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com {$mercadoPagoStyle}" . (app()->environment('local') ? ' http://127.0.0.1:5173 http://localhost:5173' : ''),
             "font-src 'self' https://fonts.gstatic.com https://*.mlstatic.com",
             "img-src 'self' data: https:",
-            "connect-src 'self' https://www.google-analytics.com {$mercadoPagoConnect}" . (app()->environment('local') ? ' ' . implode(' ', $viteDevOrigins) : ''),
+            "connect-src 'self' https://www.google-analytics.com {$clarity} https://c.bing.com {$mercadoPagoConnect}" . (app()->environment('local') ? ' ' . implode(' ', $viteDevOrigins) : ''),
             "frame-src 'self' {$mercadoPagoFrame}",
             "frame-ancestors 'self'",
         ]);
