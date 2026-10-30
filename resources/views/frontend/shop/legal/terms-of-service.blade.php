@@ -63,7 +63,7 @@
           <div class="simari-terms-card__content">
             <h2 class="simari-privacy-card__title simari-terms-card__title">Aceptación de los Términos</h2>
             <div class="simari-privacy-card__text">
-              <p>Al acceder y utilizar el sitio web de Equiterm Industries S.A. de C.V. (en adelante "Equiterm Industries" o "el Sitio"), usted acepta estar legalmente obligado por estos Términos y Condiciones de Uso.</p>
+              <p>Al acceder y utilizar el sitio web de Equiterm Industries, nombre comercial de Dilan Yovani Garcia Gonzalez (en adelante "Equiterm Industries" o "el Sitio"), usted acepta estar legalmente obligado por estos Términos y Condiciones de Uso.</p>
               <p>Si no está de acuerdo con estos términos, le solicitamos que no utilice nuestro sitio web ni nuestros servicios.</p>
               <p>Equiterm Industries se reserva el derecho de modificar estos términos en cualquier momento. Es responsabilidad del usuario revisar periódicamente esta página para estar al tanto de cualquier cambio.</p>
             </div>
@@ -340,7 +340,7 @@
       </p>
 
       <div class="simari-cta__footer">
-        © {{ now()->year }} Equiterm Industries S.A. de C.V. - Todos los derechos reservados
+        © {{ now()->year }} Equiterm Industries - Todos los derechos reservados
       </div>
     </div>
   </div>

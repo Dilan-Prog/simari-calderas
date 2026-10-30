@@ -57,9 +57,9 @@
                                 </h2>
                                 <div class="simari-privacy-card__text">
                                     <p>
-                                        <strong>Equiterm Industries S.A. de C.V.</strong>, con domicilio
-                                        en
-                                        <span class="simari-privacy-placeholder">[Dirección completa]</span>, es responsable
+                                        <strong>Equiterm Industries</strong> es el nombre comercial de
+                                        <strong>Dilan Yovani Garcia Gonzalez</strong>, persona física, con domicilio
+                                        en Tlaquiltenango, Morelos, C.P. 62980, México, quien es responsable
                                         del tratamiento de sus datos personales.
                                     </p>
                                 </div>
@@ -148,7 +148,7 @@
                                     <p class="simari-privacy-note">
                                         Si no desea que sus datos sean tratados para estas finalidades adicionales, puede
                                         manifestarlo enviando un correo a:
-                                        <span class="simari-privacy-placeholder">[email de contacto]</span>
+                                        <a href="mailto:administracion@equitermindustries.com.mx">administracion@equitermindustries.com.mx</a>
                                     </p>
                                 </div>
                             </div>

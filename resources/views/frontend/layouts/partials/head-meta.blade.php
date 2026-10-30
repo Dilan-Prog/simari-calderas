@@ -61,7 +61,7 @@
     "@context": "https://schema.org",
     "@type": "Organization",
     "name": "Equiterm Industries",
-    "legalName": "Equiterm Industries S.A. de C.V.",
+    "legalName": "Dilan Yovani Garcia Gonzalez",
     "url": "https://equitermindustries.com.mx",
     "logo": "{{ asset('images/logo/equiterm-logo-blanco-color-3x.png') }}",
     "email": "administracion@equitermindustries.com.mx",
