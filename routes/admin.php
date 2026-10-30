@@ -776,6 +776,23 @@ Route::controller(StoreOrderController::class)
     });
 
 // ============================================================
+// Correos automáticos de los pedidos de la tienda (Ecommerce). Comparte el
+// permiso del módulo Órdenes: ver = entrar a la pantalla, editar = guardar,
+// mandar pruebas y reenviar.
+// ============================================================
+Route::controller(\App\Http\Controllers\Backend\OrderEmailController::class)
+    ->middleware('permission:orders')
+    ->prefix('correos-de-pedidos')
+    ->name('order-emails.')
+    ->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::get('/vista-previa/{event}', 'preview')->name('preview');
+        Route::put('/', 'update')->name('update')->middleware('permission:orders,edit');
+        Route::post('/prueba', 'sendTest')->name('test')->middleware(['permission:orders,edit', 'throttle:10,1']);
+        Route::post('/{email}/reenviar', 'resend')->whereNumber('email')->name('resend')->middleware(['permission:orders,edit', 'throttle:10,1']);
+    });
+
+// ============================================================
 // Envíos — 1:1 con StoreOrder (checkout público). Los avances de estatus
 // pueden empujar automáticamente el estatus de la orden (ver
 // App\Actions\AdvanceStoreOrderStatus).

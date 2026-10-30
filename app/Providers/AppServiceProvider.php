@@ -79,6 +79,9 @@ class AppServiceProvider extends ServiceProvider
                 $entry['model']::observe(\App\Observers\AutomatableModelObserver::class);
             }
         }
+
+        // Correos automáticos de pedidos de la tienda (Ecommerce > Correos de pedidos).
+        \App\Models\StoreOrder::observe(\App\Observers\StoreOrderEmailObserver::class);
     }
 
     /**

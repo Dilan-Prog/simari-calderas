@@ -285,7 +285,7 @@ class LeadMailService
      * Se recrea en cada envío para no reutilizar una conexión con credenciales viejas.
      * `mail.lead_inbox_transport` solo existe para poder sustituir el transporte (pruebas).
      */
-    private function inboxMailer(array $mailbox): MailerContract
+    public function inboxMailer(array $mailbox): MailerContract
     {
         $smtp = (array) config('mail.mailers.smtp', []);
 

@@ -60,6 +60,7 @@
             request()->routeIs('admin.gallery.*') => 'galeria',
             request()->routeIs('admin.inventory.*') => 'inventory',
             request()->routeIs('admin.abandoned-carts.*') => 'carritos-abandonados',
+            request()->routeIs('admin.order-emails.*') => 'correos-pedidos',
             request()->routeIs('admin.orders.*') => 'ordenes',
             request()->routeIs('admin.shipments.*') => 'envios',
             request()->routeIs('admin.deliveries.*') => 'deliveries',
@@ -92,7 +93,7 @@
         // Agrupación puramente visual del sidebar — no afecta rutas, permisos
         // ni estructura de carpetas, solo cómo se muestran los módulos.
         $groupSections = [
-            'ecommerce' => ['productos', 'categorias', 'marcas', 'colecciones', 'paginas-servicio', 'galeria', 'inicio-secciones', 'menus', 'configuracion-sitio', 'integraciones', 'metodos-de-pago', 'reglas-de-envio', 'carritos-abandonados', 'ordenes'],
+            'ecommerce' => ['productos', 'categorias', 'marcas', 'colecciones', 'paginas-servicio', 'galeria', 'inicio-secciones', 'menus', 'configuracion-sitio', 'integraciones', 'metodos-de-pago', 'reglas-de-envio', 'carritos-abandonados', 'ordenes', 'correos-pedidos'],
             'ventas' => ['tareas', 'cotizaciones', 'pedidos', 'pipelines', 'embudo-de-venta', 'negocios', 'automatizaciones', 'clientes'],
             'planeacion' => ['planeacion-quimicos'],
             'produccion' => ['reportes-servicio', 'servicios-tecnicos', 'monitoreo'],
@@ -348,6 +349,20 @@
                                 <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12" />
                             </svg>
                             <span class="sidebar-nav-item-label">Órdenes</span>
+                        </div>
+                    </a>
+
+                    {{-- Correos de pedidos (comparte el permiso de Órdenes) --}}
+                    <a class="sidebar-nav-item {{ $activeSection === 'correos-pedidos' ? 'active' : '' }}" data-section="correos-pedidos"
+                        href="{{ route('admin.order-emails.index') }}" data-label="Correos de pedidos">
+                        <div class="sidebar-nav-item-left">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <rect width="20" height="16" x="2" y="4" rx="2" />
+                                <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+                            </svg>
+                            <span class="sidebar-nav-item-label">Correos de pedidos</span>
                         </div>
                     </a>
                 @endif
