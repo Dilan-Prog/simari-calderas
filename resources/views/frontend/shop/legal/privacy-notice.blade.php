@@ -62,6 +62,11 @@
                                         en Tlaquiltenango, Morelos, C.P. 62980, México, quien es responsable
                                         del tratamiento de sus datos personales.
                                     </p>
+                                    <p>
+                                        Contacto del responsable: teléfono <strong>+52 56 5595 4116</strong>
+                                        y correo
+                                        <a href="mailto:administracion@equitermindustries.com.mx">administracion@equitermindustries.com.mx</a>.
+                                    </p>
                                 </div>
                             </div>
                         </div>

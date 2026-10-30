@@ -5,20 +5,11 @@
         <img src="{{ asset('images/logo/equiterm-logo-blanco-color-3x.png') }}" alt="Equiterm Industries" class="eq-footer__logo">
         <p>{{ \App\Models\Setting::get('footer.description', 'Ingeniería térmica industrial: calderas, calentamiento y tratamiento de agua, con proyectos llave en mano en toda la República Mexicana.') }}</p>
         {{--
-          Identidad del negocio (la piden Meta/WhatsApp Business y el Aviso de Privacidad):
-          qué es, quién es el responsable y dónde está. Solo ciudad y estado del domicilio fiscal:
-          por seguridad no se publica calle ni número. Editable con las claves footer.business_summary,
-          footer.legal_identity, footer.location y footer.legal_phone en Configuración del Sitio.
-          La dirección de Aguascalientes (footer.address_*) sigue siendo la de las cotizaciones y PDFs
-          y no se muestra aquí.
+          Qué es el negocio (lo pide Meta/WhatsApp Business). El nombre del titular, el domicilio y el
+          teléfono NO van en el pie de página: viven en el Aviso de Privacidad y en los Términos y
+          Condiciones. Editable con footer.business_summary en Configuración del Sitio.
         --}}
-        <p style="margin-top:12px;font-size:13px;line-height:1.5;opacity:.8;">
-          {{ \App\Models\Setting::get('footer.business_summary', 'Comercializadora y distribuidora de equipos industriales: calderas, calentadores y tratamiento de agua.') }}<br>
-          {{ \App\Models\Setting::get('footer.legal_identity', 'Equiterm Industries es nombre comercial de Dilan Yovani Garcia Gonzalez.') }}<br>
-          {{ \App\Models\Setting::get('footer.location', 'Tlaquiltenango, Morelos, C.P. 62980, México') }}<br>
-          Tel. {{ \App\Models\Setting::get('footer.legal_phone', '+52 56 5595 4116') }} ·
-          <a href="mailto:{{ \App\Models\Setting::get('footer.email', 'administracion@equitermindustries.com.mx') }}" style="color:inherit;">{{ \App\Models\Setting::get('footer.email', 'administracion@equitermindustries.com.mx') }}</a>
-        </p>
+        <p style="margin-top:12px;font-size:13px;line-height:1.5;opacity:.8;">{{ \App\Models\Setting::get('footer.business_summary', 'Comercializadora y distribuidora de equipos industriales: calderas, calentadores y tratamiento de agua.') }}</p>
       </div>
       @foreach ($footerMenus as $footerMenu)
         <details class="eq-footer__col" open>
