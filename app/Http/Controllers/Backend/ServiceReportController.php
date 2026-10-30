@@ -252,7 +252,7 @@ class ServiceReportController extends Controller
 
     public function show(ServiceReport $report)
     {
-        $report->load(['measurements', 'activity', 'customFields', 'assignedUser', 'createdBy', 'customer', 'images', 'service']);
+        $report->load(['measurements', 'activity', 'customFields', 'assignedUser', 'createdBy', 'customer', 'images', 'service', 'rating.answers']);
 
         $availableServices = $report->service_id ? collect() : $this->getAvailableServices();
 

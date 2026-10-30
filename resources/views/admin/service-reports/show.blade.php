@@ -2,6 +2,22 @@
 @section('title', 'Reporte ' . $report->report_number)
 @push('styles')
     @vite('resources/css/service-reports.css')
+    <style>
+        .sr-rate-top { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
+        .sr-rate-stars { font-size: 22px; letter-spacing: 2px; line-height: 1; color: #F59E0B; }
+        .sr-rate-stars i { font-style: normal; color: #D1D5DB; }
+        .sr-rate-score { font-size: 15px; font-weight: 800; color: #111827; }
+        .sr-rate-card { font-size: 12.5px; font-weight: 600; color: #6B7280; margin: 0 0 10px; }
+        .sr-rate-h { margin: 10px 0 6px; font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: #6B7280; }
+        .sr-rate-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+        .sr-rate-chip { border-radius: 999px; padding: 3px 10px; font-size: 12px; font-weight: 600; background: #ECFDF5; color: #047857; border: 1px solid #A7F3D0; }
+        .sr-rate-chip--bad { background: #FFFBEB; color: #B45309; border-color: #FCD34D; }
+        .sr-rate-comment { margin: 0; font-size: 13px; line-height: 1.45; color: #374151; white-space: pre-line; background: #F9FAFB; border-radius: 8px; padding: 8px 10px; }
+        .sr-rate-meta { margin: 10px 0 0; font-size: 12px; color: #6B7280; }
+        .sr-rate-empty { margin: 0 0 10px; font-size: 13px; color: #6B7280; }
+        .sr-rate-link { display: inline-block; margin-top: 8px; font-size: 12.5px; font-weight: 700; color: #EA580C; text-decoration: none; }
+        .sr-rate-link:hover { text-decoration: underline; }
+    </style>
 @endpush
 
 @section('content')
@@ -400,6 +416,49 @@
                     </div>
                 </div>
             </div>
+
+            {{-- Calificación del servicio (la que dio el cliente al firmar) --}}
+            @if($report->status === 'signed')
+                @php
+                    $rating = $report->rating;
+                    $rated = $rating && $rating->status === \App\Models\ServiceRating::STATUS_SUBMITTED && $rating->rating;
+                    $goodAnswers = $rated ? $rating->answers->where('kind', '!=', 'negative') : collect();
+                    $badAnswers = $rated ? $rating->answers->where('kind', 'negative') : collect();
+                @endphp
+                <div class="sr-panel-card">
+                    <h3 class="sr-panel-title">Calificación del servicio</h3>
+                    @if($rated)
+                        <div class="sr-rate-top" aria-label="Calificación: {{ $rating->rating }} de 5">
+                            <span class="sr-rate-stars" aria-hidden="true">{{ str_repeat('★', $rating->rating) }}<i>{{ str_repeat('★', 5 - $rating->rating) }}</i></span>
+                            <span class="sr-rate-score">{{ $rating->rating }}/5</span>
+                        </div>
+                        @if($rating->card_label)<p class="sr-rate-card">{{ $rating->card_label }}</p>@endif
+                        @if($goodAnswers->isNotEmpty())
+                            <p class="sr-rate-h">Lo mejor</p>
+                            <div class="sr-rate-chips">@foreach($goodAnswers as $a)<span class="sr-rate-chip">{{ $a->question_label }}</span>@endforeach</div>
+                        @endif
+                        @if($badAnswers->isNotEmpty())
+                            <p class="sr-rate-h">A mejorar</p>
+                            <div class="sr-rate-chips">@foreach($badAnswers as $a)<span class="sr-rate-chip sr-rate-chip--bad">{{ $a->question_label }}</span>@endforeach</div>
+                        @endif
+                        @if($rating->comment)
+                            <p class="sr-rate-h">Comentario</p>
+                            <p class="sr-rate-comment">{{ $rating->comment }}</p>
+                        @endif
+                        <p class="sr-rate-meta">Calificado el {{ ($rating->submitted_at ?? $rating->created_at)->format('d/m/Y H:i') }}</p>
+                        <a href="{{ route('admin.service-ratings.show', $rating) }}" class="sr-rate-link">Ver opinión completa →</a>
+                    @else
+                        <p class="sr-rate-empty">
+                            {{ $rating && $rating->status === \App\Models\ServiceRating::STATUS_SKIPPED
+                                ? 'El cliente omitió la calificación. Podrá hacerlo después desde su portal.'
+                                : 'Este servicio aún no ha sido calificado.' }}
+                        </p>
+                        @if(app(\App\Services\SatisfactionSurveyService::class)->isRateable($report))
+                            <a href="{{ route('admin.service-reports.rate', $report) }}" class="sr-btn sr-btn-outline" style="width:100%;justify-content:center;">Califica este servicio</a>
+                        @endif
+                    @endif
+                </div>
+            @endif
 
             {{-- Vincular servicio (solo admin, solo si falta el vínculo) --}}
             @if(!$report->service_id && auth()->user()->isAdmin())
