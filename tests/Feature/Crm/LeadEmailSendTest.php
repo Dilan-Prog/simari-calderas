@@ -513,6 +513,39 @@ class LeadEmailSendTest extends TestCase
             ->assertSee(route('admin.integrations.index'), false);
     }
 
+    public function test_el_redactor_de_correo_vive_en_un_modal_con_el_resumen_de_la_conversacion(): void
+    {
+        $in = $this->inbound();
+        $lead = Lead::find($in['lead_id']);
+
+        $html = $this->actingAs($this->admin)->get(route('admin.leads-inbox.index', ['lead' => $lead->id]))
+            ->assertOk()
+            ->assertSee('data-lwm', false)
+            ->assertSee('data-lwm-chat', false)
+            ->assertSee('data-lw-mail-open', false)
+            ->getContent();
+
+        // El formulario ya no es un panel del compositor: solo existe dentro del modal.
+        $this->assertStringNotContainsString('data-pane="correo"', $html);
+        $this->assertSame(1, substr_count($html, 'data-lwe-form data-lwe-template-url'));
+        $this->assertLessThan(strpos($html, 'data-lwe-form data-lwe-template-url'), strpos($html, 'data-lwm-chat'));
+    }
+
+    public function test_el_modal_solo_se_reabre_si_el_envio_fallo(): void
+    {
+        $in = $this->inbound();
+        $lead = Lead::find($in['lead_id']);
+        $url = route('admin.leads-inbox.index', ['lead' => $lead->id]);
+
+        // Envio correcto: vuelve con composer_tab=correo pero sin error, el modal queda cerrado.
+        $this->actingAs($this->admin)->withSession(['composer_tab' => 'correo', 'success' => 'Correo enviado a x.'])->get($url)
+            ->assertOk()->assertDontSee("if (document.readyState === 'complete') open();", false);
+
+        // Envio fallido: se reabre con lo que el usuario habia escrito.
+        $this->actingAs($this->admin)->withSession(['composer_tab' => 'correo', 'error' => 'SMTP caido'])->get($url)
+            ->assertOk()->assertSee("if (document.readyState === 'complete') open();", false);
+    }
+
     public function test_integraciones_nunca_imprime_la_contrasena_del_buzon(): void
     {
         $this->smtpWithInbox('Super-Secreta-XYZ');

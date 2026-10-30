@@ -1,4 +1,4 @@
-{{-- Redactor de correo de la bandeja. Vars: $lead, $emailCompose (array|null, lo arma LeadInboxController::emailCompose()).
+{{-- Redactor de correo de la bandeja (vive dentro del modal _email_modal). Vars: $lead, $emailCompose (array|null, lo arma LeadInboxController::emailCompose()).
      CSS y JS van en linea (prefijo lwe-) a proposito: no requiere build y no toca los archivos compartidos de la bandeja. --}}
 @php
     $c = is_array($emailCompose ?? null) ? $emailCompose : null;
@@ -7,12 +7,6 @@
     // ¿Se envio este formulario y regreso con errores? (el formulario de notas tambien usa "body", por eso se mira "subject").
     $oldInput = (array) session()->getOldInput();
     $submitted = array_key_exists('subject', $oldInput) || array_key_exists('to', $oldInput);
-    $errKeys = $errors->keys();
-    $hasFileErr = collect($errKeys)->contains(fn ($k) => str_starts_with($k, 'files') || str_starts_with($k, 'quote_ids'));
-    $activateTab = session('composer_tab') === 'correo'
-        || ($errors->any() && $submitted)
-        || ($errors->hasAny(['to', 'cc', 'subject']) )
-        || $hasFileErr;
 @endphp
 
 @if (! $canSend)
@@ -336,30 +330,6 @@
             form.addEventListener('input', function (e) {
                 if (e.target && e.target.getAttribute && e.target.getAttribute('aria-invalid') === 'true') e.target.removeAttribute('aria-invalid');
             });
-        })();
-    </script>
-@endif
-
-@if ($activateTab)
-    <script>
-        (function () {
-            function activate() {
-                var composer = document.querySelector('[data-lw-composer]');
-                if (!composer) return;
-                var btn = composer.querySelector('.lw-tabs [data-tab="correo"]');
-                var pane = composer.querySelector('[data-pane="correo"]');
-                if (btn && !btn.classList.contains('is-on')) btn.click();
-                // Respaldo si el JS de la bandeja aun no engancho las pestañas.
-                if (pane && pane.hidden) {
-                    composer.querySelectorAll('.lw-tabs [data-tab]').forEach(function (t) { t.classList.toggle('is-on', t === btn); });
-                    composer.querySelectorAll('[data-pane]').forEach(function (p) { p.hidden = p.dataset.pane !== 'correo'; });
-                }
-                composer.scrollIntoView({ block: 'nearest' });
-                var bad = pane && pane.querySelector('[aria-invalid="true"]');
-                if (bad) bad.focus();
-            }
-            if (document.readyState === 'complete') activate();
-            else window.addEventListener('load', activate);
         })();
     </script>
 @endif

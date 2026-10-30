@@ -235,7 +235,7 @@
                                 <a class="erp-btn erp-btn--sm" href="https://wa.me/{{ $phoneDigits }}" target="_blank" rel="noopener" title="WhatsApp"><svg class="lw-ic lw-ic--wa" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a9 9 0 0 0-7.7 13.6L3 21l4.5-1.2A9 9 0 1 0 12 3z"/></svg><span>WhatsApp</span></a>
                             @endif
                             @if ($selected->contact_email)
-                                <a class="erp-btn erp-btn--sm" href="mailto:{{ $selected->contact_email }}" title="Correo"><svg class="lw-ic lw-ic--mail" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18v12H3zM3 7l9 7 9-7"/></svg><span>Correo</span></a>
+                                <a class="erp-btn erp-btn--sm" href="mailto:{{ $selected->contact_email }}" data-lw-mail-open title="Correo"><svg class="lw-ic lw-ic--mail" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18v12H3zM3 7l9 7 9-7"/></svg><span>Correo</span></a>
                             @endif
                             <button type="button" class="lw-info-toggle" data-lw-info title="Ficha del lead" aria-label="Ficha del lead"><svg class="lw-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M15 3v18"/></svg></button>
                         </div>
@@ -369,9 +369,6 @@
                                 </form>
                             @endif
                         </div>
-                        <div class="lw-pane" data-pane="correo" hidden>
-                            @include('admin.leads-inbox.partials._email_composer', ['lead' => $selected, 'emailCompose' => $emailCompose ?? null])
-                        </div>
                         <div class="lw-pane lw-nota" data-pane="nota" hidden>
                             <form method="POST" action="{{ route('admin.leads-inbox.notes.store', $selected) }}">
                                 @csrf
@@ -412,7 +409,7 @@
                             <dt>WhatsApp</dt>
                             <dd>{{ $selected->whatsapp_display ? \App\Support\PhoneFormat::pretty($selected->whatsapp_display) : '—' }} @if ($phoneDigits)<a class="lw-mini" href="#" data-wa-open>Escribir</a>@endif</dd>
                             <dt>Correo</dt>
-                            <dd>{{ $selected->contact_email ?: '—' }} @if ($selected->contact_email)<a class="lw-mini" href="mailto:{{ $selected->contact_email }}">Escribir</a>@endif</dd>
+                            <dd>{{ $selected->contact_email ?: '—' }} @if ($selected->contact_email)<a class="lw-mini" href="mailto:{{ $selected->contact_email }}" data-lw-mail-open>Escribir</a>@endif</dd>
                             <dt>Sitio web</dt>
                             <dd>@if ($selected->contact_website)<a class="lw-mini" href="{{ $selected->contact_website }}" target="_blank" rel="noopener noreferrer">{{ preg_replace('#^https?://(www\.)?#i', '', rtrim($selected->contact_website, '/')) }}</a>@else —@endif</dd>
                         </dl>
@@ -512,6 +509,10 @@
                 @endif
             </aside>
         </div>
+        @endif
+
+        @if ($selected && ! $isBoard)
+            @include('admin.leads-inbox.partials._email_modal', ['lead' => $selected, 'emailCompose' => $emailCompose ?? null])
         @endif
     </div>
 
