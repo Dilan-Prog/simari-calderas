@@ -9,22 +9,23 @@
     })(window,document,'script','dataLayer','GTM-MXFK4BK9');</script>
     <!-- End Google Tag Manager -->
     {{--
-      Microsoft Clarity (mapas de calor y grabaciones de sesión). Solo en producción
+      Microsoft Clarity (mapas de calor y grabaciones de sesión). Solo en el dominio
+      real del sitio (no depende de APP_ENV, que en Hostinger no es "production")
       para que las visitas de desarrollo no ensucien el proyecto. Las páginas del
       checkout se marcan con data-clarity-mask="True" para que Clarity no grabe el
       contenido con datos personales (nombre, correo, teléfono, domicilio, RFC).
       Su CSP vive en App\Http\Middleware\SecurityHeaders.
     --}}
-    @production
+    @if (in_array(request()->getHost(), ['equitermindustries.com.mx', 'www.equitermindustries.com.mx'], true))
     <!-- Clarity tracking code for https://equitermindustries.com.mx/ -->
-    <script>
+    <script type="text/javascript">
         (function(c,l,a,r,i,t,y){
             c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
-            t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i+"?ref=bwt";
+            t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
             y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
         })(window, document, "clarity", "script", "z5x2zunsl6");
     </script>
-    @endproduction
+    @endif
     <meta name="csrf-token" content="{{ csrf_token() }}">
     @include('frontend.layouts.partials.head-meta')
     {{--
