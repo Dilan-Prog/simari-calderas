@@ -61,6 +61,7 @@ class QuoteService
                 'valid_until'       => $data['valid_until'] ?? null,
                 'notes'             => $data['notes'] ?? null,
                 'terms_conditions'  => $data['terms_conditions'] ?? null,
+                'terms_selection'   => $data['terms_selection'] ?? null,
             ]);
 
             foreach ($items as $index => $item) {
@@ -119,6 +120,7 @@ class QuoteService
                 'valid_until'      => $data['valid_until'] ?? null,
                 'notes'            => $data['notes'] ?? null,
                 'terms_conditions' => $data['terms_conditions'] ?? null,
+                'terms_selection'  => $data['terms_selection'] ?? null,
             ]);
 
             $quote->items()->delete();

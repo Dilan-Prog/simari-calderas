@@ -358,6 +358,7 @@ Route::controller(QuoteController::class)
         Route::post('/', 'store')->name('store')->middleware('permission:quotes,create');
         Route::get('/buscar-productos', 'searchProducts')->name('search-products');
         Route::get('/buscar-servicios', 'searchServices')->name('search-services');
+        Route::get('/terminos/preview', 'termsPreview')->name('terms-preview');
         Route::get('/{quote}', 'show')->name('show');
         Route::get('/{quote}/guardada', 'embeddedSaved')->name('embedded-saved');
         Route::get('/{quote}/editar', 'edit')->name('edit')->middleware('permission:quotes,edit');
@@ -898,6 +899,10 @@ Route::controller(\App\Http\Controllers\Backend\ErpSettingController::class)
         Route::get('/', 'index')->name('index');
         Route::put('/', 'update')->name('update')->middleware('permission:erp-settings,edit');
         Route::put('/terminos-cotizador', 'updateQuoteTerms')->name('quote-terms.update')->middleware('permission:erp-settings,edit');
+        Route::post('/terminos-cotizacion', 'storeQuoteTerm')->name('quote-term.store')->middleware('permission:erp-settings,create');
+        Route::put('/terminos-cotizacion/{quoteTerm}', 'updateQuoteTerm')->name('quote-term.update')->middleware('permission:erp-settings,edit');
+        Route::post('/terminos-cotizacion/{quoteTerm}/mover', 'moveQuoteTerm')->name('quote-term.move')->middleware('permission:erp-settings,edit');
+        Route::delete('/terminos-cotizacion/{quoteTerm}', 'destroyQuoteTerm')->name('quote-term.destroy')->middleware('permission:erp-settings,delete');
         Route::post('/tipos-servicio', 'storeServiceType')->name('service-types.store')->middleware('permission:erp-settings,create');
         Route::put('/tipos-servicio/{serviceType}', 'updateServiceType')->name('service-types.update')->middleware('permission:erp-settings,edit');
         Route::delete('/tipos-servicio/{serviceType}', 'destroyServiceType')->name('service-types.destroy')->middleware('permission:erp-settings,delete');

@@ -214,23 +214,7 @@
                               placeholder="Observaciones visibles solo para el equipo">{{ old('notes', $prefillNotes ?? '') }}</textarea>
                 </div>
 
-                <div class="form-group" style="margin-top:4px;">
-                    <label class="form-label" style="margin-bottom:8px;">Términos y condiciones</label>
-                    {{-- Se precarga el texto predeterminado de Configuración ERP; aquí solo se ajusta para esta cotización. --}}
-                    <details class="accordion-conditions" {{ old('terms_conditions', $defaultTerms) !== '' ? 'open' : '' }}>
-                        <summary class="accordion-conditions__summary">Editar condiciones</summary>
-                        <div class="accordion-conditions__body">
-                            <textarea name="terms_conditions" class="form-textarea" rows="8"
-                                      placeholder="Términos que aparecerán en el PDF de la cotización">{{ old('terms_conditions', $defaultTerms) }}</textarea>
-                            @if (Route::has('admin.erp-settings.index'))
-                                <p style="margin:6px 0 0; font-size:12px; color:#6b7280;">
-                                    {{ $defaultTerms === '' ? 'Aún no hay un texto predeterminado.' : 'Precargado desde el texto predeterminado.' }}
-                                    <a href="{{ route('admin.erp-settings.index') }}#quote-terms" target="_blank" rel="noopener">Editar texto predeterminado</a>
-                                </p>
-                            @endif
-                        </div>
-                    </details>
-                </div>
+                @include('admin.quotes.partials._terms')
             </div>
         </div>
 

@@ -104,6 +104,9 @@ class QuoteController extends Controller
 
         // Texto predeterminado de términos y condiciones (Configuración ERP) para precargar el campo.
         $defaultTerms = (string) Setting::get(ErpSettingController::QUOTE_TERMS_KEY, '');
+        $quoteTerms = \App\Models\QuoteTerm::active()->ordered()->get(['id', 'title', 'body', 'applies_to', 'is_default']);
+        $selectedTermIds = $quoteTerms->where('is_default', true)->pluck('id')->values()->all();
+        $customTerms = '';
 
         // Desde un correo de la Bandeja de leads: precarga las notas internas con el contexto del correo recibido.
         $prefillNotes = '';
@@ -119,7 +122,7 @@ class QuoteController extends Controller
             }
         }
 
-        return view('admin.quotes.create', compact('customers', 'defaultExchangeRate', 'prefillCustomer', 'defaultTerms', 'prefillNotes'));
+        return view('admin.quotes.create', compact('customers', 'defaultExchangeRate', 'prefillCustomer', 'defaultTerms', 'prefillNotes', 'quoteTerms', 'selectedTermIds', 'customTerms'));
     }
 
     public function store(Request $request)
@@ -143,6 +146,10 @@ class QuoteController extends Controller
             'exchange_rate'    => 'required|numeric|min:0.01',
             'notes'            => 'nullable|string',
             'terms_conditions' => 'nullable|string',
+            'terms_present'    => 'nullable|boolean',
+            'term_ids'         => 'nullable|array',
+            'term_ids.*'       => 'integer|exists:quote_terms,id',
+            'terms_custom'     => 'nullable|string|max:20000',
             'items_json'       => 'required|json',
             'deal_id'          => 'nullable|exists:deals,id',
             'embed'            => 'nullable|boolean',
@@ -160,6 +167,7 @@ class QuoteController extends Controller
             'currency', 'exchange_rate', 'notes', 'terms_conditions', 'service_page_id',
         ]);
         $data['items'] = $items;
+        $this->applyTermsSelection($request, $data);
 
         // Modo nuevo: los servicios salen de las páginas de servicio y exigen Servicio ID.
         if ($errors = app(ServiceIdService::class)->newModeItemErrors($items, $data['service_page_id'] ?? null)) {
@@ -179,6 +187,32 @@ class QuoteController extends Controller
 
         return redirect()->route('admin.quotes.show', $quote)
             ->with('success', "Cotización {$quote->quote_number} creada exitosamente.");
+    }
+
+    /**
+     * Si el formulario envia la seleccion de terminos (terms_present, term_ids o terms_custom), el servidor compone
+     * terms_conditions con QuoteTermsComposer y guarda terms_selection. Si no, se respeta terms_conditions tal cual.
+     */
+    private function applyTermsSelection(Request $request, array &$data): void
+    {
+        if (!($request->has('terms_present') || $request->has('term_ids') || $request->has('terms_custom'))) {
+            return;
+        }
+        $composer = app(\App\Services\QuoteTermsComposer::class);
+        $ids = $composer->normalizeIds((array) $request->input('term_ids', []));
+        $custom = trim((string) $request->input('terms_custom', ''));
+
+        $data['terms_conditions'] = $composer->compose($ids, $custom) ?: null;
+        $data['terms_selection'] = ['term_ids' => $ids, 'custom' => $custom];
+    }
+
+    /** Vista previa JSON del texto compuesto (misma logica que al guardar): ?term_ids[]=1&custom=... */
+    public function termsPreview(Request $request)
+    {
+        $text = app(\App\Services\QuoteTermsComposer::class)
+            ->compose((array) $request->input('term_ids', []), (string) $request->input('custom', ''));
+
+        return response()->json(['text' => $text]);
     }
 
     /** Pantalla mínima (iframe) que avisa a la página padre que la cotización se guardó. */
@@ -426,8 +460,13 @@ class QuoteController extends Controller
         $defaultExchangeRate = Products::exchangeRate();
 
         $defaultTerms = (string) Setting::get(ErpSettingController::QUOTE_TERMS_KEY, '');
+        $quoteTerms = \App\Models\QuoteTerm::active()->ordered()->get(['id', 'title', 'body', 'applies_to', 'is_default']);
+        $sel = is_array($quote->terms_selection) ? $quote->terms_selection : null;
+        $selectedTermIds = $sel ? array_values(array_map('intval', $sel['term_ids'] ?? [])) : [];
+        // Cotizacion antigua (sin seleccion): el texto actual completo pasa como personalizado.
+        $customTerms = $sel ? (string) ($sel['custom'] ?? '') : (string) $quote->terms_conditions;
 
-        return view('admin.quotes.edit', compact('quote', 'customers', 'defaultExchangeRate', 'defaultTerms'));
+        return view('admin.quotes.edit', compact('quote', 'customers', 'defaultExchangeRate', 'defaultTerms', 'quoteTerms', 'selectedTermIds', 'customTerms'));
     }
 
     public function update(Request $request, Quote $quote)
@@ -453,6 +492,10 @@ class QuoteController extends Controller
             'exchange_rate'    => 'required|numeric|min:0.01',
             'notes'            => 'nullable|string',
             'terms_conditions' => 'nullable|string',
+            'terms_present'    => 'nullable|boolean',
+            'term_ids'         => 'nullable|array',
+            'term_ids.*'       => 'integer|exists:quote_terms,id',
+            'terms_custom'     => 'nullable|string|max:20000',
             'items_json'       => 'required|json',
         ]);
 
@@ -468,6 +511,7 @@ class QuoteController extends Controller
             'currency', 'exchange_rate', 'notes', 'terms_conditions', 'service_page_id',
         ]);
         $data['items'] = $items;
+        $this->applyTermsSelection($request, $data);
 
         // Modo nuevo: los servicios salen de las páginas de servicio y exigen Servicio ID.
         $effectiveServiceId = $request->has('service_page_id') ? ($data['service_page_id'] ?? null) : $quote->service_page_id;

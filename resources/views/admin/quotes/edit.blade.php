@@ -217,28 +217,7 @@
                               placeholder="Observaciones visibles solo para el equipo">{{ old('notes', $quote->notes) }}</textarea>
                 </div>
 
-                <div class="form-group" style="margin-top:4px;">
-                    <label class="form-label" style="margin-bottom:8px;">Términos y condiciones</label>
-                    <details class="accordion-conditions" {{ $quote->terms_conditions ? 'open' : '' }}>
-                        <summary class="accordion-conditions__summary">Editar condiciones</summary>
-                        <div class="accordion-conditions__body">
-                            <textarea name="terms_conditions" id="quoteTermsField" class="form-textarea" rows="8"
-                                      placeholder="Términos que aparecerán en el PDF de la cotización">{{ old('terms_conditions', $quote->terms_conditions) }}</textarea>
-                            @if ($defaultTerms !== '')
-                                <p style="margin:6px 0 0; font-size:12px;">
-                                    <button type="button" class="btn-link" style="background:none;border:0;padding:0;color:#ff6213;cursor:pointer;font-size:12px;"
-                                            data-terms="{{ $defaultTerms }}"
-                                            onclick="var t=document.getElementById('quoteTermsField'); if(!t.value.trim() || confirm('Se reemplazará el texto actual por el predeterminado. ¿Continuar?')){ t.value=this.dataset.terms; }">
-                                        Usar el texto predeterminado
-                                    </button>
-                                    @if (Route::has('admin.erp-settings.index'))
-                                        · <a href="{{ route('admin.erp-settings.index') }}#quote-terms" target="_blank" rel="noopener">Editar texto predeterminado</a>
-                                    @endif
-                                </p>
-                            @endif
-                        </div>
-                    </details>
-                </div>
+                @include('admin.quotes.partials._terms')
             </div>
         </div>
 

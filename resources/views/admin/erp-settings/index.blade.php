@@ -46,25 +46,66 @@
                         </span>
                         <div class="erp-panel-heading">
                             <h2 class="pform-panel-title">Términos y condiciones del cotizador</h2>
-                            <p class="erp-panel-subtitle">Texto predeterminado que se precarga en cada cotización nueva y aparece en su PDF.</p>
+                            <p class="erp-panel-subtitle">Opciones de términos que se marcan al cotizar (por producto, servicio o ambos). El texto final se guarda en cada cotización y aparece en su PDF.</p>
                         </div>
                     </div>
 
-                    <form method="POST" action="{{ route('admin.erp-settings.quote-terms.update') }}">
-                        @csrf
-                        @method('PUT')
+                    @php
+                        $termFormFields = function ($t = null, $prefix = 'new') {
+                            return [
+                                'title' => $t->title ?? '', 'body' => $t->body ?? '', 'applies_to' => $t->applies_to ?? 'both',
+                                'is_default' => $t->is_default ?? false, 'is_active' => $t->is_active ?? true,
+                                'sort_order' => $t->sort_order ?? '',
+                            ];
+                        };
+                    @endphp
 
-                        <div class="pform-field">
-                            <label class="pform-label" for="erp_quote_terms">Texto predeterminado</label>
-                            <textarea id="erp_quote_terms" name="quote_terms" class="pform-textarea" rows="14" maxlength="20000"
-                                placeholder="Ej. Vigencia de la cotización, forma de pago, tiempos de entrega, garantía...">{{ old('quote_terms', $quoteTerms) }}</textarea>
-                            <p class="pform-hint">Cada cotización se puede ajustar sin cambiar este texto. Cambiarlo aquí no modifica las cotizaciones ya creadas.</p>
-                            @error('quote_terms')
-                                <p class="pform-hint" style="color:#c81e1e;">{{ $message }}</p>
-                            @enderror
+                    @if ($quoteTermOptions->isEmpty())
+                        <div class="erp-empty-state"><p>Aún no hay opciones. Agrega la primera abajo (p. ej. "Garantía 1 año con el fabricante").</p></div>
+                    @else
+                        <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:18px;">
+                            @foreach ($quoteTermOptions as $term)
+                                @php $f = $termFormFields($term); @endphp
+                                <details style="border:1px solid #e5e7eb;border-radius:8px;padding:10px 12px;" {{ $errors->any() && (int) old('_term_id') === $term->id ? 'open' : '' }}>
+                                    <summary style="cursor:pointer;display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+                                        <strong>{{ $term->title }}</strong>
+                                        <span class="pform-hint" style="margin:0;">{{ \App\Models\QuoteTerm::APPLIES[$term->applies_to] ?? $term->applies_to }}</span>
+                                        @if ($term->is_default)<span class="pform-hint" style="margin:0;">· Marcado por defecto</span>@endif
+                                        @if (!$term->is_active)<span class="pform-hint" style="margin:0;color:#c81e1e;">· Inactivo</span>@endif
+                                        <span class="pform-hint" style="margin:0;">· Orden {{ $term->sort_order }}</span>
+                                    </summary>
+
+                                    <div style="display:flex;gap:6px;margin:10px 0;">
+                                        @foreach (['up' => '↑ Subir', 'down' => '↓ Bajar'] as $dir => $lbl)
+                                            <form method="POST" action="{{ route('admin.erp-settings.quote-term.move', $term) }}">
+                                                @csrf
+                                                <input type="hidden" name="direction" value="{{ $dir }}">
+                                                <button type="submit" class="pform-btn outline" style="padding:6px 10px;">{{ $lbl }}</button>
+                                            </form>
+                                        @endforeach
+                                        <form method="POST" action="{{ route('admin.erp-settings.quote-term.destroy', $term) }}"
+                                            onsubmit="return confirm('¿Eliminar este término del catálogo? Las cotizaciones ya creadas conservan su texto.');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="pform-btn outline" style="padding:6px 10px;color:#c81e1e;">Eliminar</button>
+                                        </form>
+                                    </div>
+
+                                    <form method="POST" action="{{ route('admin.erp-settings.quote-term.update', $term) }}">
+                                        @csrf
+                                        @method('PUT')
+                                        <input type="hidden" name="_term_id" value="{{ $term->id }}">
+                                        @include('admin.erp-settings._quote-term-fields', ['f' => $f, 'idp' => 'qt' . $term->id, 'submit' => 'Guardar cambios'])
+                                    </form>
+                                </details>
+                            @endforeach
                         </div>
+                    @endif
 
-                        <button type="submit" class="pform-btn primary">Guardar términos</button>
+                    <h3 class="pform-label" style="margin-top:6px;">Agregar opción</h3>
+                    <form method="POST" action="{{ route('admin.erp-settings.quote-term.store') }}">
+                        @csrf
+                        @include('admin.erp-settings._quote-term-fields', ['f' => $termFormFields(null), 'idp' => 'qtNew', 'submit' => '+ Agregar', 'isNew' => true])
                     </form>
                 </div>
 

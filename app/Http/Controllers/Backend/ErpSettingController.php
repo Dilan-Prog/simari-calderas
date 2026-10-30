@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Backend;
 
 use App\Http\Controllers\Controller;
+use App\Models\QuoteTerm;
 use App\Models\Setting;
 use App\Models\ServiceType;
 use App\Models\ServiceReportType;
@@ -33,8 +34,9 @@ class ErpSettingController extends Controller
             : collect();
 
         $quoteTerms = (string) Setting::get(self::QUOTE_TERMS_KEY, '');
+        $quoteTermOptions = QuoteTerm::ordered()->get();
 
-        return view('admin.erp-settings.index', compact('settings', 'serviceTypes', 'serviceReportTypes', 'quoteTerms'));
+        return view('admin.erp-settings.index', compact('settings', 'serviceTypes', 'serviceReportTypes', 'quoteTerms', 'quoteTermOptions'));
     }
 
     // ── Términos y condiciones del cotizador ────────────────────────────────
@@ -58,6 +60,74 @@ class ErpSettingController extends Controller
 
         return redirect()->to(route('admin.erp-settings.index') . '#quote-terms')
             ->with('success', 'Términos y condiciones del cotizador actualizados. Se precargarán en las cotizaciones nuevas.');
+    }
+
+    // ── Catálogo de términos y condiciones (opciones que se marcan al cotizar) ──
+
+    private function quoteTermData(Request $request): array
+    {
+        $v = $request->validate([
+            'title'      => 'required|string|max:150',
+            'body'       => 'required|string|max:20000',
+            'applies_to' => 'required|in:product,service,both',
+            'sort_order' => 'nullable|integer|min:0|max:100000',
+        ]);
+        $v['is_default'] = $request->boolean('is_default');
+        $v['is_active'] = $request->boolean('is_active');
+        $v['title'] = trim($v['title']);
+        $v['body'] = trim($v['body']);
+
+        return $v;
+    }
+
+    private function quoteTermsBack(string $msg): RedirectResponse
+    {
+        return redirect()->to(route('admin.erp-settings.index') . '#quote-terms')->with('success', $msg);
+    }
+
+    public function storeQuoteTerm(Request $request): RedirectResponse
+    {
+        $data = $this->quoteTermData($request);
+        $data['sort_order'] = $data['sort_order'] ?? ((int) QuoteTerm::max('sort_order') + 1);
+        QuoteTerm::create($data);
+
+        return $this->quoteTermsBack('Término agregado al catálogo.');
+    }
+
+    public function updateQuoteTerm(Request $request, QuoteTerm $quoteTerm): RedirectResponse
+    {
+        $data = $this->quoteTermData($request);
+        $data['sort_order'] = $data['sort_order'] ?? $quoteTerm->sort_order;
+        $quoteTerm->update($data);
+
+        return $this->quoteTermsBack('Término actualizado. Las cotizaciones ya creadas conservan su texto.');
+    }
+
+    /** Sube/baja un término intercambiando posición; renumera para evitar empates. */
+    public function moveQuoteTerm(Request $request, QuoteTerm $quoteTerm): RedirectResponse
+    {
+        $request->validate(['direction' => 'required|in:up,down']);
+        $list = QuoteTerm::ordered()->get()->values();
+        $i = $list->search(fn ($t) => $t->id === $quoteTerm->id);
+        $j = $request->input('direction') === 'up' ? $i - 1 : $i + 1;
+        if ($j >= 0 && $j < $list->count()) {
+            $moved = $list->splice($i, 1)->first();
+            $list->splice($j, 0, [$moved]);
+            foreach ($list->values() as $pos => $t) {
+                if ((int) $t->sort_order !== $pos) {
+                    $t->update(['sort_order' => $pos]);
+                }
+            }
+        }
+
+        return $this->quoteTermsBack('Orden actualizado.');
+    }
+
+    public function destroyQuoteTerm(QuoteTerm $quoteTerm): RedirectResponse
+    {
+        $quoteTerm->delete();
+
+        return $this->quoteTermsBack('Término eliminado. Las cotizaciones ya creadas conservan su texto.');
     }
 
     public function update(Request $request): RedirectResponse

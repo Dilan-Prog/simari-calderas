@@ -46,6 +46,7 @@ class Quote extends Model
         'rejected_at',
         'notes',
         'terms_conditions',
+        'terms_selection',
         'converted_to_order_id',
     ];
 
@@ -59,6 +60,7 @@ class Quote extends Model
         'isr_retention_total'  => 'decimal:2',
         'total'                => 'decimal:2',
         'valid_until'          => 'date',
+        'terms_selection'      => 'array',
         'sent_at'              => 'datetime',
         'last_reminder_sent_at' => 'datetime',
         'accepted_at'          => 'datetime',
