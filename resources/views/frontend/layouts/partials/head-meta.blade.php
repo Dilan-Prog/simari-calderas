@@ -62,6 +62,13 @@
     "@type": "Organization",
     "name": "Equiterm Industries",
     "legalName": "Dilan Yovani Garcia Gonzalez",
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": "Tlaquiltenango",
+      "addressRegion": "Morelos",
+      "postalCode": "62980",
+      "addressCountry": "MX"
+    },
     "url": "https://equitermindustries.com.mx",
     "logo": "{{ asset('images/logo/equiterm-logo-blanco-color-3x.png') }}",
     "email": "administracion@equitermindustries.com.mx",
