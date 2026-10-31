@@ -208,12 +208,13 @@
                         <span x-text="open === 1 ? '−' : '+'">+</span>
                     </button>
                     <div class="product-accordion__answer" x-show="open === 1" x-cloak>
-                        @if (!$product->shipping_cost || $product->shipping_cost <= 0)
+                        @php $accShip = $product->shippingInfo(); @endphp
+                        @if ($accShip['cost'] <= 0)
                             <p>Envío gratis a toda la República Mexicana.</p>
                         @else
-                            <p>Costo de envío: ${{ number_format($product->shipping_cost, 2) }} MXN.
-                                @if ($product->free_shipping_threshold)
-                                    Gratis en compras desde ${{ number_format($product->free_shipping_threshold, 2) }} MXN.
+                            <p>Envío a toda la República Mexicana. Este producto no cuenta con envío gratis; costo de envío: ${{ number_format($accShip['cost'], 2) }} MXN.
+                                @if ($accShip['threshold'])
+                                    Gratis en compras desde ${{ number_format($accShip['threshold'], 2) }} MXN{{ $accShip['source'] === 'brand' ? ' en productos de esta marca' : ($accShip['source'] === 'category' ? ' en productos de esta línea' : '') }}.
                                 @endif
                             </p>
                         @endif

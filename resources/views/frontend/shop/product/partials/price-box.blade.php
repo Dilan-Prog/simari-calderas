@@ -55,22 +55,34 @@
     @endif
     <div class="product-price-box__price">${{ number_format($product->base_price, 2) }} {{ $currency }}</div>
     <div class="product-price-box__iva">Precio + IVA</div>
-    @if (!$product->shipping_cost || $product->shipping_cost <= 0)
-        <div class="product-price-box__shipping">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7h11l4 4v6h-2M3 7v10h2M3 7l2-3h7l2 3M7 21a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM17 21a2 2 0 1 0 0-4 2 2 0 0 0 0 4z"/></svg>
-            Envío a toda la República Mexicana
-        </div>
-    @elseif (!$product->free_shipping_threshold)
-        <div class="product-price-box__shipping-note">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7h11l4 4v6h-2M3 7v10h2M3 7l2-3h7l2 3M7 21a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM17 21a2 2 0 1 0 0-4 2 2 0 0 0 0 4z"/></svg>
-            Recíbelo por ${{ number_format($product->shipping_cost, 2) }} de envío
-        </div>
-    @else
-        <div class="product-price-box__shipping-note">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7h11l4 4v6h-2M3 7v10h2M3 7l2-3h7l2 3M7 21a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM17 21a2 2 0 1 0 0-4 2 2 0 0 0 0 4z"/></svg>
+    @php
+        // Misma precedencia que el carrito (Products::shippingInfo()):
+        // costo propio del producto > Regla de Envío de su marca > de su
+        // categoría > gratis. Antes aquí solo se miraba el costo propio y
+        // los productos cubiertos por una regla parecían sin cargo.
+        $shipInfo = $product->shippingInfo();
+        // A qué se suma el monto para el envío gratis: el carrito completo
+        // (costo propio del producto) o solo los productos de la misma
+        // marca/categoría de la regla (ver Cart::shippingGroups()).
+        $shipScope = match ($shipInfo['source']) {
+            'brand'    => $product->brand?->name ? 'en productos de la marca ' . $product->brand->name : 'en productos de esta marca',
+            'category' => $product->category?->name ? 'en productos de la línea ' . $product->category->name : 'en productos de esta línea',
+            default    => null,
+        };
+    @endphp
+    <div class="product-price-box__shipping {{ $shipInfo['cost'] > 0 ? 'product-price-box__shipping--paid' : '' }}">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7h11l4 4v6h-2M3 7v10h2M3 7l2-3h7l2 3M7 21a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM17 21a2 2 0 1 0 0-4 2 2 0 0 0 0 4z"/></svg>
+        Envío a toda la República Mexicana
+    </div>
+    @if ($shipInfo['cost'] > 0)
+        <div class="product-price-box__shipping-note product-price-box__shipping-note--warning" role="note">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="7" x2="12" y2="13"/><circle cx="12" cy="16.5" r="0.6" fill="currentColor"/></svg>
             <span class="product-price-box__shipping-text">
-                <strong>Envío gratis</strong> en compras desde ${{ number_format($product->free_shipping_threshold, 2) }} MXN.
-                <span class="product-price-box__shipping-sub">Antes de eso, el envío tiene un costo de ${{ number_format($product->shipping_cost, 2) }}.</span>
+                <strong>Este producto no cuenta con envío gratis.</strong>
+                @if ($shipInfo['threshold'])
+                    Para obtener envío gratis, tu compra {{ $shipScope ? $shipScope . ' ' : '' }}debe sumar al menos ${{ number_format($shipInfo['threshold'], 2) }} MXN.
+                @endif
+                <span class="product-price-box__shipping-sub">Costo de envío: ${{ number_format($shipInfo['cost'], 2) }} MXN.</span>
             </span>
         </div>
     @endif

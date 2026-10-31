@@ -327,6 +327,10 @@
 /* Escritorio: el contador "Disponibles: N" del eyebrow no se usa (queda en la fila de cantidad). */
 .eq-shop-product .product-price-box__eyebrow-stock { display: none; }
 .eq-shop-product .product-price-box__shipping-text { min-width: 0; }
+/* Producto con cargo de envío (costo propio o Regla de Envío): la línea deja de ir en verde y se avisa con "!". */
+.eq-shop-product .product-price-box__shipping--paid { color: var(--secondary-color); margin-bottom: 10px; }
+.eq-shop-product .product-price-box__shipping-note--warning { margin-top: 0; color: #9a3412; background: #fff7ed; border: 1px solid #fed7aa; }
+.eq-shop-product .product-price-box__shipping-note--warning strong { display: block; }
 
 @media (max-width: 720px) {
     /* "Disponibles: 100 | SKU ..." arriba; sin el contador suelto junto a la cantidad. */
