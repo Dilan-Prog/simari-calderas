@@ -209,10 +209,10 @@
                     </button>
                     <div class="product-accordion__answer" x-show="open === 1" x-cloak>
                         @php $accShip = $product->shippingInfo(); @endphp
-                        @if ($accShip['cost'] <= 0)
+                        @if ($accShip['cost'] <= 0 && !$accShip['quoted'])
                             <p>Envío gratis a toda la República Mexicana.</p>
                         @else
-                            <p>Envío a toda la República Mexicana. Este producto no cuenta con envío gratis; costo de envío: ${{ number_format($accShip['cost'], 2) }} MXN.
+                            <p>Envío a toda la República Mexicana. Este producto no cuenta con envío gratis; {{ $accShip['cost'] > 0 ? 'costo de envío: $' . number_format($accShip['cost'], 2) . ' MXN.' : 'el costo de envío se cotiza según tu ubicación y pedido.' }}
                                 @if ($accShip['threshold'])
                                     Gratis en compras desde ${{ number_format($accShip['threshold'], 2) }} MXN{{ $accShip['source'] === 'brand' ? ' en productos de esta marca' : ($accShip['source'] === 'category' ? ' en productos de esta línea' : '') }}.
                                 @endif

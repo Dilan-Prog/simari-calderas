@@ -425,8 +425,12 @@ class Products extends Model
      * Las reglas activas se leen una sola vez por request (cache "array"),
      * no una query por tarjeta.
      *
-     * @return array{cost: float, threshold: ?float, source: ?string}
+     * @return array{cost: float, threshold: ?float, source: ?string, quoted: bool}
      *   source: 'product' | 'brand' | 'category' | null (sin cargo)
+     *   quoted: true cuando la regla de marca/categoría tiene "Envío gratis
+     *   desde" pero SIN costo de envío fijo -- el envío se cotiza aparte.
+     *   cost sigue en 0 (tarjetas, filtro y carrito no cambian); solo la
+     *   ficha de producto lo usa para avisar que no hay envío gratis.
      */
     public function shippingInfo(): array
     {
@@ -435,6 +439,7 @@ class Products extends Model
                 'cost'      => (float) $this->shipping_cost,
                 'threshold' => $this->free_shipping_threshold ? (float) $this->free_shipping_threshold : null,
                 'source'    => 'product',
+                'quoted'    => false,
             ];
         }
 
@@ -451,10 +456,20 @@ class Products extends Model
                 'cost'      => (float) $rule->shipping_cost,
                 'threshold' => $rule->free_shipping_threshold ? (float) $rule->free_shipping_threshold : null,
                 'source'    => $rule->brand_id ? 'brand' : 'category',
+                'quoted'    => false,
             ];
         }
 
-        return ['cost' => 0.0, 'threshold' => null, 'source' => null];
+        if ($rule && $rule->free_shipping_threshold && (float) $rule->free_shipping_threshold > 0) {
+            return [
+                'cost'      => 0.0,
+                'threshold' => (float) $rule->free_shipping_threshold,
+                'source'    => $rule->brand_id ? 'brand' : 'category',
+                'quoted'    => true,
+            ];
+        }
+
+        return ['cost' => 0.0, 'threshold' => null, 'source' => null, 'quoted' => false];
     }
 
     /**

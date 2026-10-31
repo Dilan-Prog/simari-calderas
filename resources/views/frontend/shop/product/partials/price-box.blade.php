@@ -70,11 +70,12 @@
             default    => null,
         };
     @endphp
-    <div class="product-price-box__shipping {{ $shipInfo['cost'] > 0 ? 'product-price-box__shipping--paid' : '' }}">
+    @php $noFreeShipping = $shipInfo['cost'] > 0 || $shipInfo['quoted']; @endphp
+    <div class="product-price-box__shipping {{ $noFreeShipping ? 'product-price-box__shipping--paid' : '' }}">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7h11l4 4v6h-2M3 7v10h2M3 7l2-3h7l2 3M7 21a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM17 21a2 2 0 1 0 0-4 2 2 0 0 0 0 4z"/></svg>
         Envío a toda la República Mexicana
     </div>
-    @if ($shipInfo['cost'] > 0)
+    @if ($noFreeShipping)
         <div class="product-price-box__shipping-note product-price-box__shipping-note--warning" role="note">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="7" x2="12" y2="13"/><circle cx="12" cy="16.5" r="0.6" fill="currentColor"/></svg>
             <span class="product-price-box__shipping-text">
@@ -82,7 +83,13 @@
                 @if ($shipInfo['threshold'])
                     Para obtener envío gratis, tu compra {{ $shipScope ? $shipScope . ' ' : '' }}debe sumar al menos ${{ number_format($shipInfo['threshold'], 2) }} MXN.
                 @endif
-                <span class="product-price-box__shipping-sub">Costo de envío: ${{ number_format($shipInfo['cost'], 2) }} MXN.</span>
+                <span class="product-price-box__shipping-sub">
+                    @if ($shipInfo['cost'] > 0)
+                        Costo de envío: ${{ number_format($shipInfo['cost'], 2) }} MXN.
+                    @else
+                        El costo de envío se cotiza según tu ubicación y pedido.
+                    @endif
+                </span>
             </span>
         </div>
     @endif
