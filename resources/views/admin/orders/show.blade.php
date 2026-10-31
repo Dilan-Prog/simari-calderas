@@ -250,7 +250,10 @@
                 <div class="orders-card-header">Resumen</div>
                 <div class="orders-card-body">
                     <div class="orders-summary-row"><span>Subtotal</span><span>${{ number_format($order->subtotal, 2) }}</span></div>
-                    <div class="orders-summary-row"><span>Envío</span><span>${{ number_format($order->shipping_total, 2) }}</span></div>
+                    <div class="orders-summary-row"><span>Envío</span><span>${{ number_format($order->shipping_total, 2) }}@if ($order->shipping_pending_quote) <strong style="color:#c2410c;">+ por cotizar</strong>@endif</span></div>
+                    @if ($order->shipping_pending_quote)
+                        <div class="orders-summary-row" style="color:#c2410c;font-size:12.5px;"><span>Este pedido incluye productos con envío que se cotiza aparte: cotiza la guía a la dirección del cliente y cóbrasela por separado.</span></div>
+                    @endif
                     @if ($order->discount_total > 0)
                         <div class="orders-summary-row"><span>Descuento</span><span>-${{ number_format($order->discount_total, 2) }}</span></div>
                     @endif

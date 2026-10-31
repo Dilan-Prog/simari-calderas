@@ -256,7 +256,7 @@ class CatalogIndex
                         'd'    => $discount,
                         'st'   => $stock > 0 && $product->is_purchasable,
                         'f24'  => $stock > 0 && $product->availability === 'available',
-                        'fg'   => $product->shippingInfo()['cost'] <= 0,
+                        'fg'   => (fn ($s) => $s['cost'] <= 0 && !$s['quoted'])($product->shippingInfo()),
                         'ls'   => $product->availability === 'available' && $stock >= 1 && $stock <= $lastUnits,
                         'nw'   => (bool) $product->is_new || ($newSince !== null && $timestamp >= $newSince),
                         'ts'   => $timestamp,

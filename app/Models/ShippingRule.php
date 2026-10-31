@@ -22,12 +22,13 @@ class ShippingRule extends Model
     }
 
     protected $fillable = [
-        'brand_id', 'category_id', 'shipping_cost', 'free_shipping_threshold', 'is_active',
+        'brand_id', 'category_id', 'shipping_cost', 'free_shipping_threshold', 'quote_separately', 'is_active',
     ];
 
     protected $casts = [
         'shipping_cost' => 'decimal:2',
         'free_shipping_threshold' => 'decimal:2',
+        'quote_separately' => 'boolean',
         'is_active' => 'boolean',
     ];
 

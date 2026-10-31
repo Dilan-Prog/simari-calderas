@@ -58,7 +58,7 @@
             </div>
             <div class="checkout-summary__row">
                 <span>Envío</span>
-                <span>{{ $storeOrder->shipping_total > 0 ? '$' . number_format($storeOrder->shipping_total, 2) . ' MXN' : 'Gratis' }}</span>
+                <span>{{ $storeOrder->shipping_total > 0 ? '$' . number_format($storeOrder->shipping_total, 2) . ' MXN' : ($storeOrder->shipping_pending_quote ? 'Por cotizar' : 'Gratis') }}</span>
             </div>
             <div class="checkout-summary__row checkout-summary__row--total" style="margin-bottom:0;">
                 <span>Total</span>

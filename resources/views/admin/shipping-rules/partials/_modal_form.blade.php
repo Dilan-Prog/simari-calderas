@@ -92,6 +92,14 @@
                 regla.
             </p>
 
+            <label class="ap-primary-toggle" for="srQuoteSeparately">
+                <input type="checkbox" id="srQuoteSeparately" name="quote_separately">
+                <div>
+                    <strong>Envío se cotiza aparte</strong>
+                    <span>No se cobra un costo fijo: el envío se cotiza a la dirección del cliente después de la compra. Si su compra de esta marca/categoría llega a "Envío gratis desde", el envío es gratis. Ignora el "Costo de envío".</span>
+                </div>
+            </label>
+
             <label class="ap-primary-toggle" for="srIsActive">
                 <input type="checkbox" id="srIsActive" name="is_active" checked>
                 <div>

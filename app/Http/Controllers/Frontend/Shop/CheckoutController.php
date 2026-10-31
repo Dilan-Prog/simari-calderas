@@ -119,6 +119,7 @@ class CheckoutController extends Controller
             'subtotal'      => $subtotal,
             'taxTotal'      => $taxTotal,
             'shippingTotal' => $shippingTotal,
+            'shippingPendingQuote' => $cart->hasPendingShippingQuote(),
             'total'         => round($subtotal + $taxTotal + $shippingTotal, 2),
         ];
 
@@ -553,6 +554,7 @@ class CheckoutController extends Controller
                 'payment_method_id'       => $paymentMethodId,
                 'subtotal'                => $subtotal,
                 'shipping_total'          => $shippingTotal,
+                'shipping_pending_quote'  => $cart->hasPendingShippingQuote(),
                 'discount_total'          => 0,
                 'tax_total'               => $taxTotal,
                 'total'                   => $total,

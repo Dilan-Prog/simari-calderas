@@ -45,6 +45,7 @@
                 card.classList.toggle('active', card.dataset.scope === 'brand');
             });
             document.getElementById('srIsActive').checked = true;
+            document.getElementById('srQuoteSeparately').checked = false;
             shippingRuleErrors.style.display = 'none';
             shippingRuleErrors.innerHTML = '';
             currentShippingRuleId = null;
@@ -102,6 +103,7 @@
             shipping_cost: 'srShippingCost',
             free_shipping_threshold: 'srFreeShippingThreshold',
             is_active: 'srIsActive',
+            quote_separately: 'srQuoteSeparately',
         };
 
         // Submit (create/update)
@@ -116,6 +118,7 @@
             // Los checkboxes no marcados no se envían en FormData — se fija
             // explícitamente para que el backend siempre reciba el valor.
             formData.set('is_active', document.getElementById('srIsActive').checked ? '1' : '0');
+            formData.set('quote_separately', document.getElementById('srQuoteSeparately').checked ? '1' : '0');
 
             const url = isShippingRuleEditMode ?
                 `${shippingRuleUrl}/${currentShippingRuleId}` :
@@ -195,6 +198,7 @@
                         document.getElementById('srShippingCost').value = rule.shipping_cost ?? '';
                         document.getElementById('srFreeShippingThreshold').value = rule.free_shipping_threshold ?? '';
                         document.getElementById('srIsActive').checked = !!rule.is_active;
+                        document.getElementById('srQuoteSeparately').checked = !!rule.quote_separately;
 
                         syncSrScopeFields();
 

@@ -427,10 +427,10 @@ class Products extends Model
      *
      * @return array{cost: float, threshold: ?float, source: ?string, quoted: bool}
      *   source: 'product' | 'brand' | 'category' | null (sin cargo)
-     *   quoted: true cuando la regla de marca/categoría tiene "Envío gratis
-     *   desde" pero SIN costo de envío fijo -- el envío se cotiza aparte.
-     *   cost sigue en 0 (tarjetas, filtro y carrito no cambian); solo la
-     *   ficha de producto lo usa para avisar que no hay envío gratis.
+     *   quoted: true cuando la regla de marca/categoría tiene activado
+     *   "Envío se cotiza aparte" -- no hay costo fijo (cost = 0) y el envío
+     *   se cotiza a la dirección del cliente; threshold sigue indicando
+     *   desde qué monto (de esa marca/categoría) el envío es gratis.
      */
     public function shippingInfo(): array
     {
@@ -451,21 +451,21 @@ class Products extends Model
         $rule = ($this->brand_id ? $rules->firstWhere('brand_id', $this->brand_id) : null)
             ?? ($this->category_id ? $rules->firstWhere('category_id', $this->category_id) : null);
 
+        if ($rule && $rule->quote_separately) {
+            return [
+                'cost'      => 0.0,
+                'threshold' => $rule->free_shipping_threshold ? (float) $rule->free_shipping_threshold : null,
+                'source'    => $rule->brand_id ? 'brand' : 'category',
+                'quoted'    => true,
+            ];
+        }
+
         if ($rule && $rule->shipping_cost && (float) $rule->shipping_cost > 0) {
             return [
                 'cost'      => (float) $rule->shipping_cost,
                 'threshold' => $rule->free_shipping_threshold ? (float) $rule->free_shipping_threshold : null,
                 'source'    => $rule->brand_id ? 'brand' : 'category',
                 'quoted'    => false,
-            ];
-        }
-
-        if ($rule && $rule->free_shipping_threshold && (float) $rule->free_shipping_threshold > 0) {
-            return [
-                'cost'      => 0.0,
-                'threshold' => (float) $rule->free_shipping_threshold,
-                'source'    => $rule->brand_id ? 'brand' : 'category',
-                'quoted'    => true,
             ];
         }
 

@@ -87,7 +87,7 @@
                     @if ($shipInfo['cost'] > 0)
                         Costo de envío: ${{ number_format($shipInfo['cost'], 2) }} MXN.
                     @else
-                        El costo de envío se cotiza según tu ubicación y pedido.
+                        El envío se cotiza aparte según tu dirección y los productos de tu pedido; te contactaremos con el costo antes de enviarlo.
                     @endif
                 </span>
             </span>

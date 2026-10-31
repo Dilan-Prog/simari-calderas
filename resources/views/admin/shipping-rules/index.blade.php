@@ -54,7 +54,11 @@
                                         @endif
                                     </td>
                                     <td>
-                                        {{ $shippingRule->shipping_cost !== null ? '$' . number_format((float) $shippingRule->shipping_cost, 2) : '—' }}
+                                        @if ($shippingRule->quote_separately)
+                                            Se cotiza aparte
+                                        @else
+                                            {{ $shippingRule->shipping_cost !== null ? '$' . number_format((float) $shippingRule->shipping_cost, 2) : '—' }}
+                                        @endif
                                     </td>
                                     <td>
                                         {{ $shippingRule->free_shipping_threshold !== null ? '$' . number_format((float) $shippingRule->free_shipping_threshold, 2) : '—' }}

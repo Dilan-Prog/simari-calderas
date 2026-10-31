@@ -60,6 +60,7 @@ class ShippingRuleController extends Controller
             'scope_type' => 'required|in:brand,category',
             'shipping_cost' => 'nullable|numeric|min:0',
             'free_shipping_threshold' => 'nullable|numeric|min:0',
+            'quote_separately' => 'nullable|boolean',
             'is_active' => 'nullable|boolean',
         ]);
 
@@ -100,6 +101,7 @@ class ShippingRuleController extends Controller
         $shippingRule->category_id = $data['category_id'];
         $shippingRule->shipping_cost = $data['shipping_cost'] ?? null;
         $shippingRule->free_shipping_threshold = $data['free_shipping_threshold'] ?? null;
+        $shippingRule->quote_separately = $request->boolean('quote_separately');
         $shippingRule->is_active = $request->boolean('is_active', true);
         $shippingRule->save();
 
@@ -126,6 +128,7 @@ class ShippingRuleController extends Controller
         $shippingRule->category_id = $data['category_id'];
         $shippingRule->shipping_cost = $data['shipping_cost'] ?? null;
         $shippingRule->free_shipping_threshold = $data['free_shipping_threshold'] ?? null;
+        $shippingRule->quote_separately = $request->boolean('quote_separately');
         $shippingRule->is_active = $request->boolean('is_active', true);
         $shippingRule->save();
 

@@ -880,8 +880,11 @@
                 </div>
                 <div class="checkout-summary__row">
                     <span>Envío</span>
-                    <span>{{ $shippingTotal > 0 ? '$' . number_format($shippingTotal, 2) . ' MXN' : 'Gratis' }}</span>
+                    <span>{{ $shippingTotal > 0 ? '$' . number_format($shippingTotal, 2) . ' MXN' : ($summary['shippingPendingQuote'] ? 'Por cotizar' : 'Gratis') }}</span>
                 </div>
+                @if ($summary['shippingPendingQuote'])
+                    <div class="checkout-summary__price-note">El envío de algunos productos se cotiza aparte a tu dirección y no está incluido en el total. Te contactaremos con el costo antes de enviarlo.</div>
+                @endif
                 <div class="checkout-summary__row checkout-summary__row--total">
                     <span>Total</span>
                     <span>${{ number_format($subtotal + $taxTotal + $shippingTotal, 2) }} MXN</span>

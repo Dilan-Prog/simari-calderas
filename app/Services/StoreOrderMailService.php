@@ -247,7 +247,9 @@ class StoreOrderMailService
             ])->values()->all(),
             'subtotal'       => $this->money($order->subtotal),
             'tax'            => $this->money($order->tax_total),
-            'shipping'       => (float) $order->shipping_total > 0 ? $this->money($order->shipping_total) : 'Gratis',
+            'shipping'       => (float) $order->shipping_total > 0
+                ? $this->money($order->shipping_total) . ($order->shipping_pending_quote ? ' + por cotizar' : '')
+                : ($order->shipping_pending_quote ? 'Por cotizar (te contactaremos con el costo)' : 'Gratis'),
             'total'          => $this->money($order->total) . ' ' . $currency,
             'payment_method' => (string) ($order->paymentMethod?->name ?? 'No especificado'),
             'payment_title'  => $paymentTitle,

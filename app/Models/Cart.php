@@ -104,6 +104,12 @@ class Cart extends Model
      *      agrupan entre sí para ese cálculo, pero no se mezclan con otras
      *      marcas/categorías ni con el resto del carrito.
      *
+     *   2b) Regla con "Envío se cotiza aparte" (quote_separately): la línea
+     *      no suma cargo (charge = 0) pero el grupo queda "por cotizar"
+     *      hasta que el subtotal de esa marca/categoría alcance su
+     *      free_shipping_threshold -- entonces es gratis. Ver
+     *      hasPendingShippingQuote().
+     *
      *   3) Sin override y sin regla aplicable (o regla con shipping_cost
      *      nulo/0): envío estándar gratis, sin cambios.
      *
@@ -147,6 +153,17 @@ class Cart extends Model
             collect($this->shippingGroups())->sum(fn (array $group) => $group['charge']),
             2
         );
+    }
+
+    /**
+     * true si alguna línea cae bajo una regla "Envío se cotiza aparte" que
+     * todavía no alcanza su monto de envío gratis: el envío de ese pedido
+     * no va incluido en el total y se cotiza después a su dirección.
+     */
+    public function hasPendingShippingQuote(): bool
+    {
+        return collect($this->shippingGroups())
+            ->contains(fn (array $group) => $group['quoted'] && !$group['is_free']);
     }
 
     /**
@@ -224,6 +241,7 @@ class Cart extends Model
                     'threshold'        => $product->free_shipping_threshold !== null ? (float) $product->free_shipping_threshold : null,
                     'compare_subtotal' => $cartSubtotal,
                     'line_count'       => 1,
+                    'quoted'           => false,
                 ];
 
                 continue;
@@ -247,17 +265,19 @@ class Cart extends Model
 
             // Sin regla aplicable, o regla sin cargo (shipping_cost nulo/0):
             // envío estándar gratis para esta línea (caso 3), no forma grupo.
-            if (!$rule || !($rule->shipping_cost > 0)) {
+            if (!$rule || (!$rule->quote_separately && !($rule->shipping_cost > 0))) {
                 continue;
             }
 
             if (!isset($groups[$key])) {
                 $groups[$key] = [
                     'label'            => $label,
-                    'shipping_cost'    => (float) $rule->shipping_cost,
+                    // Por cotizar: sin cargo fijo en el carrito.
+                    'shipping_cost'    => $rule->quote_separately ? 0.0 : (float) $rule->shipping_cost,
                     'threshold'        => $rule->free_shipping_threshold !== null ? (float) $rule->free_shipping_threshold : null,
                     'compare_subtotal' => 0.0,
                     'line_count'       => 0,
+                    'quoted'           => (bool) $rule->quote_separately,
                 ];
             }
 

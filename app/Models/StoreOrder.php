@@ -33,6 +33,7 @@ class StoreOrder extends Model
         'payment_method_id',
         'subtotal',
         'shipping_total',
+        'shipping_pending_quote',
         'discount_total',
         'tax_total',
         'total',
@@ -52,6 +53,7 @@ class StoreOrder extends Model
     protected $casts = [
         'terms_accepted_at' => 'datetime',
         'requires_invoice'  => 'boolean',
+        'shipping_pending_quote' => 'boolean',
     ];
 
     protected static function logEntityType(): string
