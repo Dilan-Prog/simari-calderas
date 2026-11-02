@@ -317,9 +317,9 @@
 
               <div class="simari-terms-contact-box">
                 <p><strong>Titular:</strong> Dilan Yovani Garcia Gonzalez, que opera bajo el nombre comercial Equiterm Industries</p>
-                <p><strong>Domicilio:</strong> Tlaquiltenango, Morelos, C.P. 62980, México</p>
+                <p><strong>Domicilio:</strong> Calle Pascual Ortiz Rubio No. 7, Colonia Los Presidentes, C.P. 62980, Tlaquiltenango, Morelos, México</p>
                 <p><strong>Correo electrónico:</strong> <a class="simari-privacy-link" href="mailto:administracion@equitermindustries.com.mx">administracion@equitermindustries.com.mx</a></p>
-                <p><strong>Teléfono:</strong> +52 56 5595 4116</p>
+                <p><strong>Teléfono:</strong> +52 449 457 7320</p>
               </div>
             </div>
           </div>
