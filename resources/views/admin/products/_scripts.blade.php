@@ -577,15 +577,48 @@
                 saveIndexColumnsPreference();
             }));
 
+            // El menú se coloca con position:fixed dentro del área de contenido: anclado a la
+            // derecha del botón (right:0) se salía por la izquierda y el sidebar lo tapaba en
+            // laptop, donde el botón queda en el borde izquierdo de la fila de filtros.
+            function positionIndexColumnsMenu() {
+                const margin = 12;
+                const btn = indexColumnsBtn.getBoundingClientRect();
+                const contentLeft = (document.querySelector('.admin-main')?.getBoundingClientRect().left ?? 0) + margin;
+                const width = Math.min(640, window.innerWidth - contentLeft - margin);
+                const top = btn.bottom + 6;
+                let left = btn.right - width;                 // alineado a la derecha del botón
+                if (left < contentLeft) left = btn.left;      // no cabe: se alinea a su izquierda
+                left = Math.max(contentLeft, Math.min(left, window.innerWidth - width - margin));
+                Object.assign(indexColumnsMenu.style, {
+                    position: 'fixed',
+                    top: top + 'px',
+                    left: left + 'px',
+                    right: 'auto',
+                    width: width + 'px',
+                    maxHeight: Math.max(200, window.innerHeight - top - margin) + 'px',
+                    overflowY: 'auto',
+                });
+            }
+
             indexColumnsBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 indexColumnsMenu.classList.toggle('active');
+                if (indexColumnsMenu.classList.contains('active')) positionIndexColumnsMenu();
             });
             document.addEventListener('click', (e) => {
                 if (indexColumnsMenu.classList.contains('active') && !indexColumnsMenu.contains(e.target) && e.target !== indexColumnsBtn) {
                     indexColumnsMenu.classList.remove('active');
                 }
             });
+            window.addEventListener('resize', () => {
+                if (indexColumnsMenu.classList.contains('active')) positionIndexColumnsMenu();
+            });
+            // Fijo en pantalla: si se desplaza la página, se cierra para no quedar flotando lejos del botón.
+            document.addEventListener('scroll', (e) => {
+                if (indexColumnsMenu.classList.contains('active') && !indexColumnsMenu.contains(e.target)) {
+                    indexColumnsMenu.classList.remove('active');
+                }
+            }, true);
 
             loadStoredIndexColumns();
             applyIndexColumnVisibility();
