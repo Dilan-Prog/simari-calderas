@@ -33,16 +33,12 @@
     .sp-table .sp-sku { position:sticky; left:46px; z-index:2; background:#fff; font-weight:700; min-width:114px; }
     .sp-table thead .sp-sku { z-index:5; background:var(--sp-head); }
     .sp-table thead tr.sp-sum .sp-sku { background:var(--sp-orange-soft); }
-    .sp-table .sp-desc { min-width:354px; max-width:354px; overflow:hidden; text-overflow:ellipsis; border-right:2px solid #c9ccd2; }
-    .sp-table .sp-line { min-width:95px; }
-    .sp-table .sp-format { min-width:136px; }
-    .sp-table .sp-num { min-width:99px; text-align:right; font-variant-numeric:tabular-nums; }
+    .sp-table .sp-desc { min-width:354px; max-width:354px; overflow:hidden; text-overflow:ellipsis; }
+    .sp-table .sp-text { min-width:140px; max-width:260px; overflow:hidden; text-overflow:ellipsis; }
+    .sp-table .sp-num { min-width:110px; text-align:right; font-variant-numeric:tabular-nums; }
     .sp-table thead tr.sp-head th.sp-num { color:var(--sp-orange); text-align:right; }
-    .sp-table thead tr.sp-head th.sp-total, .sp-table td.sp-total { background:var(--sp-orange-soft); }
-    .sp-table td.sp-total { font-weight:700; background:#f7f8f9; min-width:120px; }
     .sp-table td.sp-zero { color:#a3a8b1; }
     .sp-table tbody tr:hover td:not(.sp-idx) { background:#fafafa; }
-    .sp-table tbody tr:hover td.sp-total { background:#f1f2f4; }
     .sp-table tbody tr.is-active td.sp-idx { background:#fde7d6; color:var(--sp-orange); font-weight:700; }
     .sp-table td.is-selected { outline:2px solid var(--sp-orange); outline-offset:-2px; }
     .sp-table tbody td { cursor:cell; }
@@ -70,8 +66,21 @@
               border-radius:7px; padding:0 10px; font:inherit; margin:4px 0 6px; }
     .sp-pop hr { border:0; border-top:1px solid var(--sp-line); margin:8px 0; }
     .sp-pop .sp-pop-foot { display:flex; justify-content:space-between; gap:8px; margin-top:6px; }
-    .sp-pop .sp-link { border:0; background:none; color:var(--sp-orange); font:600 13px 'Inter',sans-serif; cursor:pointer; padding:4px; }
-    .sp-pop .sp-list { max-height:220px; overflow:auto; }
+    .sp-link { border:0; background:none; color:var(--sp-orange); font:600 13px 'Inter',sans-serif; cursor:pointer; padding:4px; }
+    .sp-pop .sp-list { max-height:220px; overflow-y:auto; overflow-x:hidden; }
+    .sp-pop .sp-list-tools { display:flex; justify-content:space-between; gap:8px; margin:0 0 4px; }
+    .sp-pop .sp-list.is-tall { max-height:360px; }
+    .sp-pop .sp-range { display:flex; gap:8px; }
+
+    /* Menú "Columnas": mismo aspecto que el del listado de Productos (grupos en cuadrícula), pero se posiciona
+       dentro de la pantalla: ancho acotado al viewport y scroll propio, para que no se corte en laptop. */
+    .sp-pop.sp-pop--cols { width:min(640px, calc(100vw - 24px)); max-height:calc(100vh - 150px); overflow:auto; padding:16px; box-sizing:border-box; }
+    .sp-cols-grid { display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:16px; }
+    .sp-cols-group-title { margin:0 0 8px; font-size:11px; font-weight:700; letter-spacing:.03em; text-transform:uppercase; color:#9ca3af; }
+    .sp-cols-item { display:flex; align-items:center; gap:6px; padding:3px 0; font-size:13px; color:#374151; cursor:pointer; }
+    .sp-cols-item input { flex:none; }
+    .sp-cols-actions { display:flex; justify-content:space-between; gap:8px; margin-top:12px; padding-top:12px; border-top:1px solid var(--sp-line); }
+    @media (max-width:1100px) { .sp-cols-grid { grid-template-columns:repeat(2, minmax(0, 1fr)); } }
 </style>
 @endpush
 
@@ -91,11 +100,7 @@
             <input type="file" id="spImportFile" accept=".csv,.xlsx,.xls" hidden>
             <button type="button" class="sp-btn" id="spColumnsBtn">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16"/><path d="M15 4v16"/></svg>
-                Columnas <span class="sp-badge" id="spColumnsCount">5</span>
-            </button>
-            <button type="button" class="sp-btn" id="spPeriodBtn">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4"/><path d="M8 3v4"/><path d="M3 10h18"/></svg>
-                <span id="spPeriodLabel">Jul – dic {{ $year }}</span>
+                Columnas <span class="sp-badge" id="spColumnsCount">0</span>
             </button>
         </div>
     </div>
@@ -110,7 +115,7 @@
     <div class="sp-foot" id="spFoot"></div>
 </div>
 
-{{-- Popovers (filtro por columna, columnas visibles, periodo) --}}
+{{-- Popovers (filtro por columna y columnas visibles) --}}
 <div class="sp-pop" id="spPop" hidden></div>
 @endsection
 
@@ -118,158 +123,130 @@
 <script>
 (() => {
     const ROWS = @json($rows);
-    const YEAR = {{ (int) $year }};
-    const MONTHS = ['ENE', 'FEB', 'MAR', 'ABR', 'MAY', 'JUN', 'JUL', 'AGO', 'SEP', 'OCT', 'NOV', 'DIC'];
-    const MONTHS_LONG = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
-    const YY = String(YEAR).slice(-2);
-    const PERIODS = [
-        { label: `Ene – jun ${YEAR}`, from: 1, to: 6 },
-        { label: `Jul – dic ${YEAR}`, from: 7, to: 12 },
-        { label: `Ene – dic ${YEAR}`, from: 1, to: 12 },
-        { label: `Trimestre 3 ${YEAR}`, from: 7, to: 9 },
-        { label: `Trimestre 4 ${YEAR}`, from: 10, to: 12 },
-    ];
-
-    // Columnas informativas que se pueden ocultar (el badge "Columnas" cuenta las visibles).
-    const INFO_COLS = [
-        { key: 'sku', label: 'SKU', cls: 'sp-sku', type: 'text' },
-        { key: 'description', label: 'Descripción', cls: 'sp-desc', type: 'text' },
-        { key: 'line', label: 'Línea', cls: 'sp-line', type: 'list' },
-        { key: 'format', label: 'Formato', cls: 'sp-format', type: 'list' },
-    ];
+    const COLS = @json($columns);
 
     const state = {
-        period: PERIODS[1],
-        hidden: new Set(),        // claves de columnas ocultas (incluye 'total')
-        filters: {},              // key -> {text} | {values:Set} | {min}
+        hidden: new Set(COLS.filter(c => !c.default).map(c => c.key)),   // columnas ocultas
+        filters: {},              // key -> {text} | {values:Set} | {min,max}  (varios a la vez)
         sort: null,               // {key, dir}
         selected: null,           // {row, col}
     };
 
     const $ = (id) => document.getElementById(id);
     const table = $('spTable'), thead = table.tHead, tbody = table.tBodies[0], pop = $('spPop');
-    const fmt = (n) => Number(n).toLocaleString('en-US');
-    const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    const colOf = (key) => COLS.find(c => c.key === key);
+    const fmtNum = (n, fmt) => n === null ? '' : Number(n).toLocaleString('en-US',
+        fmt === 'money' ? { minimumFractionDigits: 2, maximumFractionDigits: 2 }
+        : fmt === 'dec' ? { maximumFractionDigits: 2 } : { maximumFractionDigits: 0 });
+    const cellClass = (c) => c.key === 'sku' ? 'sp-sku' : c.key === 'name' ? 'sp-desc' : c.type === 'num' ? 'sp-num' : 'sp-text';
 
-    const monthKeys = () => { const k = []; for (let m = state.period.from; m <= state.period.to; m++) k.push('m' + m); return k; };
-    const valueOf = (row, key) => {
-        if (key.startsWith('m')) return row.months[key.slice(1)] ?? 0;
-        if (key === 'total') return monthKeys().reduce((s, k) => s + valueOf(row, k), 0);
-        return row[key];
-    };
-    const colLabel = (key) => key === 'total' ? 'Total'
-        : key.startsWith('m') ? `${MONTHS[key.slice(1) - 1]}-${YY}`
-        : INFO_COLS.find(c => c.key === key).label;
-    const colType = (key) => key.startsWith('m') || key === 'total' ? 'num' : INFO_COLS.find(c => c.key === key).type;
+    const visibleColumns = () => COLS.filter(c => !state.hidden.has(c.key));
 
-    function visibleColumns() {
-        const cols = INFO_COLS.filter(c => !state.hidden.has(c.key)).map(c => ({ key: c.key, cls: c.cls }));
-        monthKeys().forEach(k => cols.push({ key: k, cls: 'sp-num' }));
-        if (!state.hidden.has('total')) cols.push({ key: 'total', cls: 'sp-num sp-total' });
-        return cols;
+    function matches(row, key, f) {
+        const v = row[key];
+        if (f.text) return String(v).toLowerCase().includes(f.text.toLowerCase());
+        if (f.values) return f.values.has(v);
+        const hasMin = f.min !== undefined && f.min !== '', hasMax = f.max !== undefined && f.max !== '';
+        if (hasMin || hasMax) {
+            if (v === null) return false;
+            return (!hasMin || v >= Number(f.min)) && (!hasMax || v <= Number(f.max));
+        }
+        return true;
     }
 
     function filteredRows() {
-        let rows = ROWS.filter(row => Object.entries(state.filters).every(([key, f]) => {
-            const v = valueOf(row, key);
-            if (f.text) return String(v).toLowerCase().includes(f.text.toLowerCase());
-            if (f.values) return f.values.has(v);
-            if (f.min !== undefined && f.min !== '') return Number(v) >= Number(f.min);
-            return true;
-        }));
+        let rows = ROWS.filter(row => Object.entries(state.filters).every(([key, f]) => matches(row, key, f)));
         if (state.sort) {
-            const { key, dir } = state.sort;
+            const { key, dir } = state.sort, sign = dir === 'asc' ? 1 : -1;
             rows = [...rows].sort((a, b) => {
-                const x = valueOf(a, key), y = valueOf(b, key);
-                const r = typeof x === 'number' ? x - y : String(x).localeCompare(String(y), 'es');
-                return dir === 'asc' ? r : -r;
+                const x = a[key], y = b[key];
+                if (x === null || y === null) return x === y ? 0 : x === null ? 1 : -1;   // vacíos siempre al final
+                return sign * (typeof x === 'number' ? x - y : String(x).localeCompare(String(y), 'es', { numeric: true }));
             });
         }
         return rows;
     }
 
-    const isFiltered = (key) => {
+    const hasFilter = (key) => {
         const f = state.filters[key];
-        return !!(f && (f.text || f.values || (f.min !== undefined && f.min !== ''))) || state.sort?.key === key;
+        return !!(f && (f.text || f.values || (f.min !== undefined && f.min !== '') || (f.max !== undefined && f.max !== '')));
     };
-    const filterIcon = (key) => `<button type="button" class="sp-filter-btn ${isFiltered(key) ? 'is-on' : ''}" data-filter="${key}" aria-label="Filtrar ${esc(colLabel(key))}">
-        <svg viewBox="0 0 24 24" fill="${isFiltered(key) ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 4h18l-7 8.5V19l-4 2v-8.5z"/></svg></button>`;
+    const isOn = (key) => hasFilter(key) || state.sort?.key === key;
+    const filterIconSvg = (fill = 'none') => `<svg viewBox="0 0 24 24" fill="${fill}" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 4h18l-7 8.5V19l-4 2v-8.5z"/></svg>`;
 
     function render() {
         const cols = visibleColumns();
         const rows = filteredRows();
 
-        // Encabezado: fila de totales + fila de títulos con filtro
         let sum = `<tr class="sp-sum"><th class="sp-idx">Σ</th>`;
         let head = `<tr class="sp-head"><th class="sp-idx"><span style="color:#9ca3af">${filterIconSvg()}</span></th>`;
-        let labelPlaced = false;
-        cols.forEach(c => {
-            if (c.key.startsWith('m') || c.key === 'total') {
-                sum += `<th class="${c.cls}">${fmt(rows.reduce((s, r) => s + valueOf(r, c.key), 0))}</th>`;
-            } else if (!labelPlaced) {
-                sum += `<th class="${c.cls} sp-sum-label">Total general</th>`; labelPlaced = true;
-            } else {
-                sum += `<th class="${c.cls}"></th>`;
-            }
-            head += `<th class="${c.cls}"><div class="sp-th"><span>${esc(colLabel(c.key))}</span>${filterIcon(c.key)}</div></th>`;
+        const labelAt = cols.findIndex(c => !c.sum);
+        cols.forEach((c, i) => {
+            const cls = cellClass(c);
+            if (c.sum) sum += `<th class="${cls}">${fmtNum(rows.reduce((s, r) => s + (r[c.key] ?? 0), 0), c.fmt)}</th>`;
+            else if (i === labelAt) sum += `<th class="${cls} sp-sum-label">Total general</th>`;
+            else sum += `<th class="${cls}"></th>`;
+            head += `<th class="${cls}"><div class="sp-th"><span>${esc(c.label)}</span>
+                <button type="button" class="sp-filter-btn ${isOn(c.key) ? 'is-on' : ''}" data-filter="${c.key}" aria-label="Ordenar y filtrar ${esc(c.label)}">${filterIconSvg(isOn(c.key) ? 'currentColor' : 'none')}</button></div></th>`;
         });
         thead.innerHTML = sum + '</tr>' + head + '</tr>';
 
-        // Cuerpo
-        if (!rows.length) {
+        if (!cols.length) {
+            tbody.innerHTML = `<tr class="sp-empty"><td>Activa al menos una columna en el botón «Columnas».</td></tr>`;
+        } else if (!rows.length) {
             tbody.innerHTML = `<tr class="sp-empty"><td colspan="${cols.length + 1}">Ningún producto coincide con los filtros.</td></tr>`;
         } else {
             tbody.innerHTML = rows.map((row, i) => {
                 const active = state.selected?.row === i;
                 return `<tr class="${active ? 'is-active' : ''}"><td class="sp-idx">${i + 1}</td>` + cols.map((c, j) => {
-                    const v = valueOf(row, c.key);
-                    const num = typeof v === 'number';
+                    const v = row[c.key];
                     const sel = active && state.selected.col === j ? ' is-selected' : '';
-                    const zero = num && v === 0 && c.key !== 'total' ? ' sp-zero' : '';
-                    return `<td class="${c.cls}${zero}${sel}" data-r="${i}" data-c="${j}" ${c.key === 'description' ? `title="${esc(v)}"` : ''}>${num ? fmt(v) : esc(v)}</td>`;
+                    const zero = c.type === 'num' && v === 0 ? ' sp-zero' : '';
+                    const text = c.type === 'num' ? fmtNum(v, c.fmt) : esc(v);
+                    return `<td class="${cellClass(c)}${zero}${sel}" data-r="${i}" data-c="${j}" title="${c.type === 'num' ? text : esc(v)}">${text}</td>`;
                 }).join('') + '</tr>';
             }).join('');
         }
 
-        $('spFoot').innerHTML = `Mostrando <strong>${rows.length}</strong> de ${ROWS.length} productos`;
-        $('spColumnsCount').textContent = INFO_COLS.filter(c => !state.hidden.has(c.key)).length + (state.hidden.has('total') ? 0 : 1);
-        $('spPeriodLabel').textContent = state.period.label;
-    }
-    function filterIconSvg() {
-        return `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 4h18l-7 8.5V19l-4 2v-8.5z"/></svg>`;
+        const nFilters = Object.keys(state.filters).filter(hasFilter).length;
+        $('spFoot').innerHTML = `Mostrando <strong>${rows.length}</strong> de ${ROWS.length} productos`
+            + (nFilters ? ` · ${nFilters} filtro${nFilters > 1 ? 's' : ''} activo${nFilters > 1 ? 's' : ''} <button type="button" class="sp-link" id="spClearAll">Limpiar todo</button>` : '');
+        $('spColumnsCount').textContent = cols.length;
     }
 
     // ---- Popovers ----
-    function openPop(anchor, html, bind) {
+    function openPop(anchor, html, bind, extraClass = '') {
+        pop.className = 'sp-pop ' + extraClass;
         pop.innerHTML = html;
         pop.hidden = false;
         const r = anchor.getBoundingClientRect();
         const w = pop.offsetWidth;
         pop.style.top = (r.bottom + 6) + 'px';
         pop.style.left = Math.max(8, Math.min(r.right - w, window.innerWidth - w - 8)) + 'px';
-        pop.dataset.anchor = anchor.id || anchor.dataset.filter || '';
         bind?.();
     }
     const closePop = () => { pop.hidden = true; pop.innerHTML = ''; };
     document.addEventListener('mousedown', (e) => {
-        if (!pop.hidden && !pop.contains(e.target) && !e.target.closest('[data-filter],#spColumnsBtn,#spPeriodBtn')) closePop();
+        if (!pop.hidden && !pop.contains(e.target) && !e.target.closest('[data-filter],#spColumnsBtn')) closePop();
     });
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closePop(); });
 
     function openFilter(btn) {
-        const key = btn.dataset.filter, type = colType(key), f = state.filters[key] || {};
+        const key = btn.dataset.filter, col = colOf(key), f = state.filters[key] || {};
         const sortOpt = (dir, txt) => `<button type="button" class="sp-opt ${state.sort?.key === key && state.sort.dir === dir ? 'is-on' : ''}" data-sort="${dir}">${txt}</button>`;
         let body = '';
-        if (type === 'text') {
+        if (col.type === 'text') {
             body = `<h4>Buscar</h4><input type="text" id="spFText" placeholder="Contiene…" value="${esc(f.text || '')}">`;
-        } else if (type === 'list') {
+        } else if (col.type === 'list') {
             const values = [...new Set(ROWS.map(r => r[key]))].sort((a, b) => a.localeCompare(b, 'es'));
-            body = `<h4>Valores</h4><div class="sp-list">` + values.map(v =>
+            body = `<h4>Valores</h4><div class="sp-list-tools"><button type="button" class="sp-link" id="spFAll">Marcar todo</button><button type="button" class="sp-link" id="spFNone">Desmarcar todo</button></div><div class="sp-list">` + values.map(v =>
                 `<label class="sp-opt"><input type="checkbox" value="${esc(v)}" ${!f.values || f.values.has(v) ? 'checked' : ''}> ${esc(v)}</label>`).join('') + `</div>`;
         } else {
-            body = `<h4>Mayor o igual a</h4><input type="number" id="spFMin" min="0" placeholder="0" value="${f.min ?? ''}">`;
+            body = `<h4>Rango</h4><div class="sp-range"><input type="number" id="spFMin" placeholder="Desde" value="${f.min ?? ''}"><input type="number" id="spFMax" placeholder="Hasta" value="${f.max ?? ''}"></div>`;
         }
-        openPop(btn, `<h4>Ordenar</h4>${sortOpt('asc', type === 'num' ? 'Menor a mayor' : 'A → Z')}${sortOpt('desc', type === 'num' ? 'Mayor a menor' : 'Z → A')}<hr>${body}
+        const num = col.type === 'num';
+        openPop(btn, `<h4>Ordenar</h4>${sortOpt('asc', num ? 'Menor a mayor' : 'A → Z')}${sortOpt('desc', num ? 'Mayor a menor' : 'Z → A')}<hr>${body}
             <div class="sp-pop-foot"><button type="button" class="sp-link" id="spFClear">Limpiar</button><button type="button" class="sp-link" id="spFApply">Aplicar</button></div>`, () => {
             pop.querySelectorAll('[data-sort]').forEach(b => b.onclick = () => {
                 const dir = b.dataset.sort;
@@ -277,15 +254,19 @@
                 state.selected = null; render(); closePop();
             });
             const apply = () => {
-                if (type === 'text') state.filters[key] = { text: $('spFText').value.trim() };
-                else if (type === 'list') {
+                if (col.type === 'text') state.filters[key] = { text: $('spFText').value.trim() };
+                else if (col.type === 'list') {
                     const boxes = [...pop.querySelectorAll('input[type=checkbox]')];
                     state.filters[key] = boxes.every(b => b.checked) ? {} : { values: new Set(boxes.filter(b => b.checked).map(b => b.value)) };
-                } else state.filters[key] = { min: $('spFMin').value };
+                } else state.filters[key] = { min: $('spFMin').value, max: $('spFMax').value };
                 state.selected = null; render(); closePop();
             };
+            const setAll = (checked) => pop.querySelectorAll('.sp-list input[type=checkbox]').forEach(b => b.checked = checked);
+            $('spFAll')?.addEventListener('click', () => setAll(true));
+            $('spFNone')?.addEventListener('click', () => setAll(false));
             $('spFApply').onclick = apply;
-            pop.querySelectorAll('input[type=text],input[type=number]').forEach(i => { i.focus(); i.onkeydown = (e) => { if (e.key === 'Enter') apply(); }; });
+            pop.querySelectorAll('input[type=text],input[type=number]').forEach(i => { i.onkeydown = (e) => { if (e.key === 'Enter') apply(); }; });
+            pop.querySelector('input[type=text],input[type=number]')?.focus();
             $('spFClear').onclick = () => {
                 delete state.filters[key];
                 if (state.sort?.key === key) state.sort = null;
@@ -298,28 +279,37 @@
         const btn = e.target.closest('[data-filter]');
         if (btn) openFilter(btn);
     });
+    $('spFoot').addEventListener('click', (e) => {
+        if (!e.target.closest('#spClearAll')) return;
+        state.filters = {}; state.sort = null; state.selected = null; render();
+    });
+
+    // ---- Columnas visibles: se recuerdan en este navegador (mismo criterio que el listado de Productos) ----
+    const COLS_STORAGE_KEY = 'admin_sales_products_visible_columns';
+    const saveHidden = () => {
+        try { localStorage.setItem(COLS_STORAGE_KEY, JSON.stringify(COLS.filter(c => !state.hidden.has(c.key)).map(c => c.key))); } catch (e) { /* sin almacenamiento: no persiste, no es fatal */ }
+    };
+    try {
+        const stored = JSON.parse(localStorage.getItem(COLS_STORAGE_KEY) || 'null');
+        if (Array.isArray(stored)) state.hidden = new Set(COLS.filter(c => !stored.includes(c.key)).map(c => c.key));
+    } catch (e) { /* valor corrupto: se queda con los predeterminados */ }
 
     $('spColumnsBtn').onclick = (e) => {
-        const all = [...INFO_COLS.map(c => ({ key: c.key, label: c.label })), { key: 'total', label: 'Total' }];
-        openPop(e.currentTarget, `<h4>Columnas visibles</h4>` + all.map(c =>
-            `<label class="sp-opt"><input type="checkbox" data-col="${c.key}" ${state.hidden.has(c.key) ? '' : 'checked'}> ${c.label}</label>`).join(''), () => {
+        const groups = {};
+        COLS.forEach(c => (groups[c.group] ||= []).push(c));
+        const html = `<div class="sp-cols-grid">` + Object.entries(groups).map(([name, cols]) =>
+            `<div><p class="sp-cols-group-title">${esc(name)}</p>` + cols.map(c =>
+                `<label class="sp-cols-item"><input type="checkbox" data-col="${c.key}" ${state.hidden.has(c.key) ? '' : 'checked'}> ${esc(c.label)}</label>`).join('') + `</div>`).join('') + `</div>
+            <div class="sp-cols-actions"><button type="button" class="sp-link" id="spColsAll">Mostrar todas</button><button type="button" class="sp-link" id="spColsReset">Restablecer</button></div>`;
+        openPop(e.currentTarget, html, () => {
+            const sync = () => pop.querySelectorAll('[data-col]').forEach(cb => cb.checked = !state.hidden.has(cb.dataset.col));
             pop.querySelectorAll('[data-col]').forEach(cb => cb.onchange = () => {
                 cb.checked ? state.hidden.delete(cb.dataset.col) : state.hidden.add(cb.dataset.col);
-                state.selected = null; render();
+                saveHidden(); state.selected = null; render();
             });
-        });
-    };
-
-    $('spPeriodBtn').onclick = (e) => {
-        openPop(e.currentTarget, `<h4>Periodo</h4>` + PERIODS.map((p, i) =>
-            `<button type="button" class="sp-opt ${p === state.period ? 'is-on' : ''}" data-period="${i}">${p.label}</button>`).join(''), () => {
-            pop.querySelectorAll('[data-period]').forEach(b => b.onclick = () => {
-                state.period = PERIODS[b.dataset.period];
-                Object.keys(state.filters).forEach(k => { if (k.startsWith('m')) delete state.filters[k]; });
-                if (state.sort?.key.startsWith('m')) state.sort = null;
-                state.selected = null; render(); closePop();
-            });
-        });
+            $('spColsAll').onclick = () => { state.hidden.clear(); saveHidden(); state.selected = null; render(); sync(); };
+            $('spColsReset').onclick = () => { state.hidden = new Set(COLS.filter(c => !c.default).map(c => c.key)); saveHidden(); state.selected = null; render(); sync(); };
+        }, 'sp-pop--cols');
     };
 
     // ---- Selección de celda (clic + flechas) ----
@@ -343,18 +333,16 @@
         tbody.querySelector('td.is-selected')?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
     });
 
-    // ---- Exportar (CSV de lo que se ve: columnas visibles + filtros) ----
+    // ---- Exportar (CSV de lo que se ve: columnas visibles + filtros + orden) ----
     $('spExport').onclick = () => {
         const cols = visibleColumns(), rows = filteredRows();
-        const cell = (v) => `"${String(v).replace(/"/g, '""')}"`;
-        const lines = [cols.map(c => cell(colLabel(c.key))).join(',')];
-        rows.forEach(r => lines.push(cols.map(c => cell(valueOf(r, c.key))).join(',')));
-        lines.push(cols.map((c, i) => c.key.startsWith('m') || c.key === 'total'
-            ? cell(rows.reduce((s, r) => s + valueOf(r, c.key), 0)) : cell(i === 0 ? 'Total general' : '')).join(','));
+        const cell = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`;
+        const lines = [cols.map(c => cell(c.label)).join(',')];
+        rows.forEach(r => lines.push(cols.map(c => cell(r[c.key])).join(',')));
         const blob = new Blob(['﻿' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8' });
         const a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
-        a.download = `productos-${MONTHS_LONG[state.period.from - 1]}-${MONTHS_LONG[state.period.to - 1]}-${YEAR}.csv`;
+        a.download = `productos-${new Date().toISOString().slice(0, 10)}.csv`;
         a.click();
         URL.revokeObjectURL(a.href);
     };
