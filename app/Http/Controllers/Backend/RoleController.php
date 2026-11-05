@@ -44,7 +44,7 @@ class RoleController extends Controller
                 'shipments', 'carriers', 'payment-methods', 'menu', 'settings',
             ],
             'ERP y Servicios' => [
-                'quotes', 'suppliers', 'purchase-orders', 'sales-orders',
+                'quotes', 'sales-products', 'suppliers', 'purchase-orders', 'sales-orders',
                 'material-delivery-reports', 'chemical-planning', 'erp-settings',
                 'technical-services', 'service-reports',
             ],

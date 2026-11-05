@@ -453,7 +453,7 @@ Route::get('/tareas', [TaskController::class, 'index'])->name('tasks.index');
 
 // Ventas > Productos: tabla de consulta para el equipo comercial
 Route::get('/ventas/productos', [SalesProductController::class, 'index'])
-    ->middleware('permission:products')
+    ->middleware('permission:sales-products')
     ->name('sales-products.index');
 
 Route::post('/tareas', [TaskController::class, 'store'])->name('tasks.store');

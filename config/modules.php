@@ -25,6 +25,14 @@ return [
         'route' => 'admin.products.index',
         'order' => 4,
     ],
+    // Panel "Productos" del grupo Ventas (tabla de consulta del equipo comercial). Permiso propio,
+    // independiente de 'products' (catálogo del Ecommerce), para poder asignarlo por rol.
+    'sales-products' => [
+        'name'  => 'Listado de Productos',
+        'icon'  => 'package',
+        'route' => 'admin.sales-products.index',
+        'order' => 4,
+    ],
     'categories' => [
         'name'  => 'Categorías',
         'icon'  => 'tag',

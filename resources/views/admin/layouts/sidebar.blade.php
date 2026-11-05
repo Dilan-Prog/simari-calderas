@@ -503,10 +503,11 @@
                     </div>
                 </a>
 
-                {{-- Productos (Ventas): tabla de consulta para el equipo comercial --}}
-                @if ($authUser->hasPermission('products'))
+                {{-- Listado de Productos (Ventas): tabla de consulta para el equipo comercial.
+                     Permiso propio 'sales-products', distinto del 'products' del catálogo Ecommerce. --}}
+                @if ($authUser->hasPermission('sales-products'))
                     <a class="sidebar-nav-item {{ $activeSection === 'ventas-productos' ? 'active' : '' }}"
-                        href="{{ route('admin.sales-products.index') }}" data-section="ventas-productos" data-label="Productos">
+                        href="{{ route('admin.sales-products.index') }}" data-section="ventas-productos" data-label="Listado de Productos">
                         <div class="sidebar-nav-item-left">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -515,7 +516,7 @@
                                 <path d="m3.3 7 8.7 5 8.7-5" />
                                 <path d="M12 22V12" />
                             </svg>
-                            <span class="sidebar-nav-item-label">Productos</span>
+                            <span class="sidebar-nav-item-label">Listado de Productos</span>
                         </div>
                     </a>
                 @endif
