@@ -26,10 +26,30 @@
 /* Brand carousel */
 :is(.eq-shop-home, .eq-shop-product, .eq-shop-collection, .eq-shop-catalog, .eq-shop-service) .brand-carousel { padding: 36px 0; border-bottom: 1px solid rgba(0,0,0,0.06); }
 :is(.eq-shop-home, .eq-shop-product, .eq-shop-collection, .eq-shop-catalog, .eq-shop-service) .brand-carousel__label { text-align: center; color: #4b5563; font-size: 12.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; margin-bottom: 22px; }
-:is(.eq-shop-home, .eq-shop-product, .eq-shop-collection, .eq-shop-catalog, .eq-shop-service) .brand-carousel__track { display: flex; gap: 16px; overflow-x: auto; width: 95%; margin: 0 auto; scrollbar-width: none; }
+:is(.eq-shop-home, .eq-shop-product, .eq-shop-collection, .eq-shop-catalog, .eq-shop-service) .brand-carousel__track { display: flex; gap: 16px; overflow: hidden; width: 95%; margin: 0 auto; }
+/* Dos grupos idénticos que avanzan juntos; al terminar uno (-100% del grupo
+   más el hueco) el otro ocupa su lugar y el bucle es continuo. La velocidad
+   depende de cuántas marcas hay (--brand-count) para que no se acelere con
+   catálogos largos. */
+:is(.eq-shop-home, .eq-shop-product, .eq-shop-collection, .eq-shop-catalog, .eq-shop-service) .brand-carousel__group {
+    display: flex; gap: 16px; flex: 0 0 auto; min-width: 100%; justify-content: space-around;
+    animation: brand-carousel-scroll calc(var(--brand-count, 6) * 5s) linear infinite;
+}
+:is(.eq-shop-home, .eq-shop-product, .eq-shop-collection, .eq-shop-catalog, .eq-shop-service) .brand-carousel__track:hover .brand-carousel__group { animation-play-state: paused; }
+@keyframes brand-carousel-scroll { to { transform: translateX(calc(-100% - 16px)); } }
+/* Sin animación (preferencia del sistema): se queda como tira que se desliza
+   con el dedo y se oculta la copia. */
+@media (prefers-reduced-motion: reduce) {
+    :is(.eq-shop-home, .eq-shop-product, .eq-shop-collection, .eq-shop-catalog, .eq-shop-service) .brand-carousel__track { overflow-x: auto; scrollbar-width: none; }
+    :is(.eq-shop-home, .eq-shop-product, .eq-shop-collection, .eq-shop-catalog, .eq-shop-service) .brand-carousel__group { animation: none; justify-content: flex-start; }
+    :is(.eq-shop-home, .eq-shop-product, .eq-shop-collection, .eq-shop-catalog, .eq-shop-service) .brand-carousel__group[aria-hidden="true"] { display: none; }
+}
 :is(.eq-shop-home, .eq-shop-product, .eq-shop-collection, .eq-shop-catalog, .eq-shop-service) .brand-carousel__item {
-    flex: 0 0 max(140px, calc((100% - 5*16px)/6)); min-width: 0; height: 80px; border: 1px solid rgba(0,0,0,0.08);
+    flex: 0 0 170px; min-width: 0; height: 80px; border: 1px solid rgba(0,0,0,0.08);
     border-radius: 8px; display: flex; align-items: center; justify-content: center; padding: 12px;
+}
+@media (max-width: 600px) {
+    :is(.eq-shop-home, .eq-shop-product, .eq-shop-collection, .eq-shop-catalog, .eq-shop-service) .brand-carousel__item { flex-basis: 140px; }
 }
 :is(.eq-shop-home, .eq-shop-product, .eq-shop-collection, .eq-shop-catalog, .eq-shop-service) .brand-carousel__item img { max-width: 100%; max-height: 100%; object-fit: contain; }
 :is(.eq-shop-home, .eq-shop-product, .eq-shop-collection, .eq-shop-catalog, .eq-shop-service) .brand-carousel__name { font-size: 14px; font-weight: 700; color: #374151; text-align: center; letter-spacing: .02em; }
