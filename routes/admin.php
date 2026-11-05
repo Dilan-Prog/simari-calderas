@@ -43,6 +43,7 @@ use App\Http\Controllers\Backend\ColumnPreferenceController;
 use App\Http\Controllers\Backend\InventoryController;
 use App\Http\Controllers\Backend\PaymentMethodController;
 use App\Http\Controllers\Backend\ShippingRuleController;
+use App\Http\Controllers\Backend\SalesProductController;
 use App\Http\Controllers\Backend\MaterialDeliveryReportController;
 use App\Http\Controllers\Backend\PipelineController;
 use App\Http\Controllers\Backend\DealController;
@@ -449,6 +450,12 @@ Route::controller(DealController::class)
 // Tareas (generadas por automatizaciones, ej. "sin correo"/"sin WhatsApp")
 // ============================================================
 Route::get('/tareas', [TaskController::class, 'index'])->name('tasks.index');
+
+// Ventas > Productos: tabla de consulta para el equipo comercial
+Route::get('/ventas/productos', [SalesProductController::class, 'index'])
+    ->middleware('permission:products')
+    ->name('sales-products.index');
+
 Route::post('/tareas', [TaskController::class, 'store'])->name('tasks.store');
 Route::get('/tareas/{task}', [TaskController::class, 'show'])->withTrashed()->name('tasks.show');
 Route::put('/tareas/{task}', [TaskController::class, 'update'])->name('tasks.update');

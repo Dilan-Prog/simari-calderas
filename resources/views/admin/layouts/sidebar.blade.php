@@ -40,6 +40,7 @@
             request()->routeIs('admin.clients.*') => 'clientes',
             request()->routeIs('admin.suppliers.*') => 'proveedores',
             request()->routeIs('admin.products.*') => 'productos',
+            request()->routeIs('admin.sales-products.*') => 'ventas-productos',
             request()->routeIs('admin.categories.*') => 'categorias',
             request()->routeIs('admin.brands.*') => 'marcas',
             request()->routeIs('admin.google-ads.*') => 'google-ads',
@@ -94,7 +95,7 @@
         // ni estructura de carpetas, solo cómo se muestran los módulos.
         $groupSections = [
             'ecommerce' => ['productos', 'categorias', 'marcas', 'colecciones', 'paginas-servicio', 'galeria', 'inicio-secciones', 'menus', 'configuracion-sitio', 'integraciones', 'metodos-de-pago', 'reglas-de-envio', 'carritos-abandonados', 'ordenes', 'correos-pedidos'],
-            'ventas' => ['tareas', 'cotizaciones', 'pedidos', 'pipelines', 'embudo-de-venta', 'negocios', 'automatizaciones', 'clientes'],
+            'ventas' => ['tareas', 'ventas-productos', 'cotizaciones', 'pedidos', 'pipelines', 'embudo-de-venta', 'negocios', 'automatizaciones', 'clientes'],
             'planeacion' => ['planeacion-quimicos'],
             'produccion' => ['reportes-servicio', 'servicios-tecnicos', 'monitoreo'],
             'logistica' => ['entrega-material', 'envios', 'deliveries'],
@@ -501,6 +502,23 @@
                         <span class="sidebar-nav-item-label">Tareas</span>
                     </div>
                 </a>
+
+                {{-- Productos (Ventas): tabla de consulta para el equipo comercial --}}
+                @if ($authUser->hasPermission('products'))
+                    <a class="sidebar-nav-item {{ $activeSection === 'ventas-productos' ? 'active' : '' }}"
+                        href="{{ route('admin.sales-products.index') }}" data-section="ventas-productos" data-label="Productos">
+                        <div class="sidebar-nav-item-left">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z" />
+                                <path d="m3.3 7 8.7 5 8.7-5" />
+                                <path d="M12 22V12" />
+                            </svg>
+                            <span class="sidebar-nav-item-label">Productos</span>
+                        </div>
+                    </a>
+                @endif
 
                 {{-- Cotizaciones --}}
                 @if ($authUser->hasPermission('quotes'))
