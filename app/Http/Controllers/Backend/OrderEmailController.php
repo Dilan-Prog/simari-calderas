@@ -38,7 +38,8 @@ class OrderEmailController extends Controller
         return view('admin.order-emails.index', [
             'enabled'      => $this->orderMail->enabled(),
             'events'       => $events,
-            'tokens'       => config('order_emails.tokens'),
+            'templates'    => $this->orderMail->templates(),
+            'tokens'      => config('order_emails.tokens'),
             'footer'       => $this->orderMail->footer(),
             'copyTo'       => $this->orderMail->copyTo(),
             'staffEnabled' => $this->orderMail->staffEnabled(),
@@ -62,6 +63,7 @@ class OrderEmailController extends Controller
         ];
         foreach ($events as $event) {
             $rules["events.$event.enabled"] = 'nullable|boolean';
+            $rules["events.$event.template"] = ['nullable', Rule::in(array_keys($this->orderMail->templates()))];
             $rules["events.$event.subject"] = 'required|string|max:200';
             $rules["events.$event.heading"] = 'required|string|max:150';
             $rules["events.$event.intro"] = 'required|string|max:3000';
@@ -91,6 +93,7 @@ class OrderEmailController extends Controller
         foreach ($events as $event) {
             $e = $data['events'][$event];
             $this->put("order_emails.$event.enabled", (bool) ($e['enabled'] ?? false), 'boolean');
+            $this->put("order_emails.$event.template", (string) ($e['template'] ?? config('order_emails.default_template', 'clasica')), 'string');
             $this->put("order_emails.$event.subject", trim($e['subject']), 'string');
             $this->put("order_emails.$event.heading", trim($e['heading']), 'string');
             $this->put("order_emails.$event.intro", trim($e['intro']), 'string');
@@ -100,11 +103,12 @@ class OrderEmailController extends Controller
     }
 
     /** HTML del correo con un pedido de ejemplo, para verlo antes de activarlo. */
-    public function preview(string $event): Response
+    public function preview(Request $request, string $event): Response
     {
         abort_unless(in_array($event, StoreOrderMailService::EVENTS, true), 404);
 
-        $data = $this->orderMail->viewData($this->orderMail->sampleOrder($event), $event);
+        // ?template=clave deja ver una plantilla sin guardarla; si no existe se usa la guardada.
+        $data = $this->orderMail->viewData($this->orderMail->sampleOrder($event), $event, $request->query('template'));
 
         return response(view('emails.store-order', $data)->render());
     }

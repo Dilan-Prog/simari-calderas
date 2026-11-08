@@ -1,3 +1,8 @@
+@php
+    // Plantilla elegida para este correo (config/order_emails.php > templates). Cambia colores y encabezado, no el contenido.
+    $t = $theme ?: config('order_emails.templates.clasica');
+    $layout = $t['layout'] ?? 'standard';
+@endphp
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -5,38 +10,58 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{{ $heading }}</title>
 </head>
-<body style="margin:0;padding:0;background:#f4f5f7;">
-<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f4f5f7;padding:24px 12px;">
+<body style="margin:0;padding:0;background:{{ $t['page'] }};">
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:{{ $t['page'] }};padding:24px 12px;">
 <tr><td align="center">
-<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:600px;background:#ffffff;border-radius:10px;overflow:hidden;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.5;color:#1f2933;">
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:600px;background:{{ $t['card'] }};border-radius:{{ $t['radius'] }};border:{{ $t['border'] }};overflow:hidden;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.5;color:{{ $t['text'] }};">
 
-    <tr><td style="background:#141516;padding:18px 28px;">
-        <span style="font-size:18px;font-weight:bold;color:#ffffff;letter-spacing:.3px;">{{ $company }}</span>
+    @if ($layout === 'banner')
+    <tr><td style="background:{{ $t['header_bg'] }};padding:22px 28px 24px;">
+        <div style="font-size:13px;font-weight:bold;color:{{ $t['header_color'] }};letter-spacing:.8px;text-transform:uppercase;opacity:.9;">{{ $company }}</div>
+        <h1 style="margin:10px 0 0;font-size:26px;line-height:1.25;color:{{ $t['header_color'] }};">{{ $heading }}</h1>
+    </td></tr>
+
+    <tr><td style="padding:24px 28px 8px;">
+        <div>{!! $intro_html !!}</div>
+    </td></tr>
+    @elseif ($layout === 'flat')
+    <tr><td style="border-top:4px solid {{ $t['accent'] }};padding:22px 28px 0;">
+        <span style="font-size:15px;font-weight:bold;color:{{ $t['header_color'] }};letter-spacing:.3px;">{{ $company }}</span>
+    </td></tr>
+
+    <tr><td style="padding:18px 28px 8px;">
+        <h1 style="margin:0 0 14px;font-size:22px;line-height:1.3;color:{{ $t['heading'] }};">{{ $heading }}</h1>
+        <div>{!! $intro_html !!}</div>
+    </td></tr>
+    @else
+    <tr><td style="background:{{ $t['header_bg'] }};padding:18px 28px;">
+        <span style="font-size:18px;font-weight:bold;color:{{ $t['header_color'] }};letter-spacing:.3px;">{{ $company }}</span>
     </td></tr>
 
     <tr><td style="padding:28px 28px 8px;">
-        <h1 style="margin:0 0 14px;font-size:22px;line-height:1.3;color:#141516;">{{ $heading }}</h1>
+        <h1 style="margin:0 0 14px;font-size:22px;line-height:1.3;color:{{ $t['heading'] }};">{{ $heading }}</h1>
         <div>{!! $intro_html !!}</div>
     </td></tr>
+    @endif
 
     @if (! empty($payment_rows))
     <tr><td style="padding:12px 28px 4px;">
-        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border:1px solid #ffd2b8;background:#fff6f0;border-radius:8px;">
-            <tr><td style="padding:14px 16px 6px;font-weight:bold;color:#c4480a;">{{ $payment_title }}</td></tr>
+        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border:1px solid {{ $t['accent_line'] }};background:{{ $t['accent_soft'] }};border-radius:8px;">
+            <tr><td style="padding:14px 16px 6px;font-weight:bold;color:{{ $t['accent_dark'] }};">{{ $payment_title }}</td></tr>
             @foreach ($payment_rows as $label => $value)
             <tr><td style="padding:3px 16px;">
-                <span style="color:#52606d;">{{ $label }}:</span>
+                <span style="color:{{ $t['muted'] }};">{{ $label }}:</span>
                 <strong>{{ $value }}</strong>
             </td></tr>
             @endforeach
             @if (! empty($payment_note))
-            <tr><td style="padding:8px 16px 4px;color:#52606d;font-size:13px;">{!! nl2br(e($payment_note), false) !!}</td></tr>
+            <tr><td style="padding:8px 16px 4px;color:{{ $t['muted'] }};font-size:13px;">{!! nl2br(e($payment_note), false) !!}</td></tr>
             @endif
             <tr><td style="padding-bottom:10px;"></td></tr>
         </table>
     </td></tr>
     @elseif (! empty($payment_note))
-    <tr><td style="padding:8px 28px 0;color:#52606d;font-size:13px;">{!! nl2br(e($payment_note), false) !!}</td></tr>
+    <tr><td style="padding:8px 28px 0;color:{{ $t['muted'] }};font-size:13px;">{!! nl2br(e($payment_note), false) !!}</td></tr>
     @endif
 
     @if (! empty($tracking))
@@ -44,17 +69,17 @@
         <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border:1px solid #e4e7eb;border-radius:8px;">
             <tr><td style="padding:14px 16px 6px;font-weight:bold;">Datos del envío</td></tr>
             @if (! empty($tracking['carrier']))
-            <tr><td style="padding:3px 16px;"><span style="color:#52606d;">Paquetería:</span> <strong>{{ $tracking['carrier'] }}</strong></td></tr>
+            <tr><td style="padding:3px 16px;"><span style="color:{{ $t['muted'] }};">Paquetería:</span> <strong>{{ $tracking['carrier'] }}</strong></td></tr>
             @endif
             @if (! empty($tracking['guia']))
-            <tr><td style="padding:3px 16px;"><span style="color:#52606d;">Guía:</span> <strong>{{ $tracking['guia'] }}</strong></td></tr>
+            <tr><td style="padding:3px 16px;"><span style="color:{{ $t['muted'] }};">Guía:</span> <strong>{{ $tracking['guia'] }}</strong></td></tr>
             @endif
             @if (! empty($tracking['eta']))
-            <tr><td style="padding:3px 16px;"><span style="color:#52606d;">Entrega estimada:</span> <strong>{{ $tracking['eta'] }}</strong></td></tr>
+            <tr><td style="padding:3px 16px;"><span style="color:{{ $t['muted'] }};">Entrega estimada:</span> <strong>{{ $tracking['eta'] }}</strong></td></tr>
             @endif
             @if (! empty($tracking['url']))
             <tr><td style="padding:10px 16px 14px;">
-                <a href="{{ $tracking['url'] }}" style="display:inline-block;background:#ff6213;color:#ffffff;text-decoration:none;padding:9px 18px;border-radius:6px;font-weight:bold;">Rastrear mi paquete</a>
+                <a href="{{ $tracking['url'] }}" style="display:inline-block;background:{{ $t['button_bg'] }};color:{{ $t['button_color'] }};text-decoration:none;padding:9px 18px;border-radius:6px;font-weight:bold;">Rastrear mi paquete</a>
             </td></tr>
             @else
             <tr><td style="padding-bottom:12px;"></td></tr>
@@ -64,20 +89,20 @@
     @endif
 
     <tr><td style="padding:16px 28px 4px;">
-        <div style="font-weight:bold;margin-bottom:8px;">Pedido {{ $order_number }}@if ($order_date) <span style="font-weight:normal;color:#52606d;">· {{ $order_date }}</span>@endif</div>
+        <div style="font-weight:bold;margin-bottom:8px;">Pedido {{ $order_number }}@if ($order_date) <span style="font-weight:normal;color:{{ $t['muted'] }};">· {{ $order_date }}</span>@endif</div>
         <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
             @foreach ($items as $item)
             <tr>
-                <td style="padding:7px 0;border-bottom:1px solid #eef0f2;">
+                <td style="padding:7px 0;border-bottom:1px solid {{ $t['line'] }};">
                     {{ $item['name'] }}
                     <span style="color:#7b8794;">· Cant. {{ $item['quantity'] }}</span>
                 </td>
-                <td align="right" style="padding:7px 0;border-bottom:1px solid #eef0f2;white-space:nowrap;">{{ $item['total'] }}</td>
+                <td align="right" style="padding:7px 0;border-bottom:1px solid {{ $t['line'] }};white-space:nowrap;">{{ $item['total'] }}</td>
             </tr>
             @endforeach
-            <tr><td style="padding:10px 0 2px;color:#52606d;">Subtotal</td><td align="right" style="padding:10px 0 2px;">{{ $subtotal }}</td></tr>
-            <tr><td style="padding:2px 0;color:#52606d;">IVA</td><td align="right" style="padding:2px 0;">{{ $tax }}</td></tr>
-            <tr><td style="padding:2px 0;color:#52606d;">Envío</td><td align="right" style="padding:2px 0;">{{ $shipping }}</td></tr>
+            <tr><td style="padding:10px 0 2px;color:{{ $t['muted'] }};">Subtotal</td><td align="right" style="padding:10px 0 2px;">{{ $subtotal }}</td></tr>
+            <tr><td style="padding:2px 0;color:{{ $t['muted'] }};">IVA</td><td align="right" style="padding:2px 0;">{{ $tax }}</td></tr>
+            <tr><td style="padding:2px 0;color:{{ $t['muted'] }};">Envío</td><td align="right" style="padding:2px 0;">{{ $shipping }}</td></tr>
             <tr><td style="padding:8px 0;font-weight:bold;font-size:16px;">Total</td><td align="right" style="padding:8px 0;font-weight:bold;font-size:16px;">{{ $total }}</td></tr>
         </table>
     </td></tr>
@@ -101,10 +126,10 @@
     </td></tr>
 
     @if ($footer !== '')
-    <tr><td style="padding:0 28px 22px;color:#52606d;font-size:13px;">{!! nl2br(e($footer), false) !!}</td></tr>
+    <tr><td style="padding:0 28px 22px;color:{{ $t['muted'] }};font-size:13px;">{!! nl2br(e($footer), false) !!}</td></tr>
     @endif
 
-    <tr><td style="background:#f4f5f7;padding:14px 28px;color:#7b8794;font-size:12px;">
+    <tr><td style="background:{{ $t['footer_bg'] }};padding:14px 28px;color:#7b8794;font-size:12px;@if ($layout === 'flat') border-top:1px solid {{ $t['line'] }}; @endif">
         Este correo se generó automáticamente por tu pedido en {{ $company }}. Puedes responderlo y te atenderemos.
     </td></tr>
 
