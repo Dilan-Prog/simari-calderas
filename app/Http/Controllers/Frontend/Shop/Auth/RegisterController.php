@@ -99,7 +99,9 @@ class RegisterController extends Controller
         Auth::guard('customer')->login($customer);
         $request->session()->regenerate();
 
+        // 'welcome' pinta la tarjeta de bienvenida con primeros pasos (partials/welcome); 'status' queda de respaldo.
         return redirect()->route('shop.account')
+            ->with('welcome', true)
             ->with('status', '¡Bienvenido, ' . $customer->first_name . '! Tu cuenta fue creada correctamente.');
     }
 }

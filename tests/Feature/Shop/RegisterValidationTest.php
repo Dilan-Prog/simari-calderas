@@ -114,4 +114,25 @@ class RegisterValidationTest extends TestCase
         $this->assertStringContainsString('Escribe una contraseña.', $html);
         $this->assertStringNotContainsString('field is required', $html);
     }
+
+    public function test_tras_registrarse_se_muestra_la_bienvenida_con_primeros_pasos(): void
+    {
+        $this->followingRedirects()
+            ->post(route('shop.register.store'), $this->payload(['first_name' => 'MARÍA JOSÉ', 'company' => '']))
+            ->assertOk()
+            ->assertSee('¡Bienvenido a Equiterm, María José!')
+            ->assertSee('Cuenta creada correctamente')
+            ->assertSee('Primeros pasos · 1 de 4')
+            ->assertSee('Completa tu perfil')
+            ->assertSee('Agrega una dirección de envío')
+            ->assertSee('Explorar el catálogo');
+    }
+
+    public function test_la_bienvenida_sale_solo_la_primera_vez(): void
+    {
+        $this->post(route('shop.register.store'), $this->payload())->assertRedirect(route('shop.account'));
+
+        $this->get(route('shop.account'))->assertOk()->assertSee('Primeros pasos');
+        $this->get(route('shop.account'))->assertOk()->assertDontSee('Primeros pasos');
+    }
 }

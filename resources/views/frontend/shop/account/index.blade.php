@@ -27,7 +27,9 @@
         @include('frontend.shop.account.partials.sidebar')
 
         <div class="portal-content">
-            @if (session('status'))
+            @if (session('welcome'))
+                @include('frontend.shop.account.partials.welcome')
+            @elseif (session('status'))
                 <div class="auth-status portal-flash">{{ session('status') }}</div>
             @endif
 
