@@ -41,6 +41,57 @@
                     @csrf
                     @method('PUT')
 
+                    {{-- ── Guía de uso ─────────────────────────────────────────── --}}
+                    <details class="pform-panel oe-acc oe-guide" open>
+                        <summary class="erp-panel-header oe-acc__summary">
+                            <span class="erp-panel-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="12" cy="12" r="10" />
+                                    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+                                    <path d="M12 17h.01" />
+                                </svg>
+                            </span>
+                            <div class="erp-panel-heading">
+                                <h2 class="pform-panel-title">Cómo configurar los correos de pedidos</h2>
+                                <p class="erp-panel-subtitle">Guía rápida de 6 pasos, de la configuración a la primera prueba.</p>
+                            </div>
+                            <span class="oe-acc__chev" aria-hidden="true"></span>
+                        </summary>
+
+                        <ol class="oe-guide__steps">
+                            <li>
+                                <strong>Revisa desde qué correo salen.</strong>
+                                En «Envío de correos», la línea <em>Sale desde</em> muestra el remitente. Si dice que es el remitente general (no-reply@), el cliente puede recibir el correo pero sus respuestas no llegan a nadie.
+                                Para que las respuestas lleguen a tu bandeja, configura el «Buzón de la bandeja de leads» en <a href="{{ route('admin.integrations.index') }}">Integraciones</a>. Si aparece un aviso en rojo, el correo todavía no está configurado y no saldrá nada hasta corregirlo.
+                            </li>
+                            <li>
+                                <strong>Enciende el envío.</strong>
+                                Marca «Enviar correos automáticos de pedidos». Mientras esté apagado no sale ningún correo al cliente, aunque el correo en particular esté activo. El «Aviso al equipo» tiene su propio interruptor y funciona aparte.
+                            </li>
+                            <li>
+                                <strong>Decide quién se entera de cada pedido.</strong>
+                                «Copia oculta interna» manda una copia de cada correo que recibe el cliente. «Aviso al equipo» manda un correo aparte, con los datos del cliente y del pedido, a las direcciones que pongas (varias, separadas por coma). Al responderlo le escribes directo al cliente.
+                            </li>
+                            <li>
+                                <strong>Ajusta cada correo.</strong>
+                                Abre el que quieras: Pedido recibido, Pago confirmado, Enviado, Entregado o Cancelado. Puedes apagarlo con su casilla y cambiar el asunto, el título y el mensaje. Usa «Vista previa» para verlo tal como lo recibe el cliente. Los datos que se pueden insertar (como el número de pedido o el nombre) están en el desplegable «Datos que se pueden insertar».
+                            </li>
+                            <li>
+                                <strong>Guarda y manda una prueba.</strong>
+                                Pulsa «Guardar correos de pedidos» y luego, en «Enviar una prueba», elige el correo y tu dirección. Usa un pedido de ejemplo, nunca datos de un cliente real. Si no llega en unos minutos, revisa la carpeta de spam.
+                            </li>
+                            <li>
+                                <strong>Vigila los envíos reales.</strong>
+                                En «Últimos correos» ves cada correo que salió. <em>Enviado</em> salió bien; <em>Falló</em> muestra el motivo (casi siempre el correo del remitente sin configurar); <em>Omitido</em> significa que no había un correo válido a dónde mandarlo. Con «Reenviar» lo mandas de nuevo sin tocar el pedido.
+                            </li>
+                        </ol>
+
+                        <div class="oe-guide__note">
+                            <strong>Cuándo sale cada correo.</strong>
+                            Las transferencias y otros métodos que no se cobran en línea mandan «Pedido recibido» al crear el pedido, con los datos para pagar. Los pagos con tarjeta o Mercado Pago no mandan ese aviso: el cliente recibe «Pago confirmado» cuando el pago se aprueba. «Enviado», «Entregado» y «Cancelado» salen al cambiar el estado del pedido en Órdenes. Los datos bancarios o instrucciones de pago se toman de «Métodos de pago».
+                        </div>
+                    </details>
+
                     {{-- ── General ─────────────────────────────────────────────── --}}
                     <details class="pform-panel oe-acc" open>
                         <summary class="erp-panel-header oe-acc__summary">
@@ -306,6 +357,12 @@
         .oe-acc__badge--count { background: #fff1e8; color: #c4480a; }
         .oe-acc__chev { flex: none; width: 10px; height: 10px; border-right: 2px solid #7b8794; border-bottom: 2px solid #7b8794; transform: rotate(45deg); margin: 0 6px 4px 4px; transition: transform .18s ease; }
         .oe-acc[open] > .oe-acc__summary .oe-acc__chev { transform: rotate(-135deg); margin-bottom: -4px; }
+        .oe-guide__steps { margin: 0; padding: 0; list-style: none; counter-reset: oe-step; display: grid; gap: 14px; }
+        .oe-guide__steps li { counter-increment: oe-step; position: relative; padding-left: 40px; font-size: 14px; line-height: 1.55; color: #3e4c59; }
+        .oe-guide__steps li::before { content: counter(oe-step); position: absolute; left: 0; top: 0; width: 26px; height: 26px; border-radius: 50%; background: #fff1e8; color: #c4480a; font-weight: 700; font-size: 13px; display: flex; align-items: center; justify-content: center; }
+        .oe-guide__steps li strong { display: block; color: #141516; margin-bottom: 2px; }
+        .oe-guide__note { margin-top: 18px; padding: 12px 14px; border-radius: 8px; background: #f7f8fa; border: 1px solid #eef0f2; font-size: 13px; line-height: 1.55; color: #52606d; }
+        .oe-guide__note strong { color: #141516; }
         .oe-acc__tools { display: flex; justify-content: flex-end; gap: 8px; margin-bottom: 12px; }
         @media (max-width: 640px) { .oe-acc__badge { display: none; } }
     </style>
