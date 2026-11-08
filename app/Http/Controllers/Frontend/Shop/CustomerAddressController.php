@@ -86,13 +86,34 @@ class CustomerAddressController extends Controller
             ->mapWithKeys(fn ($k) => [$k => $request->has($k) ? trim((string) $request->input($k)) : null])
             ->filter(fn ($v) => $v !== null)->all());
     }
+
+    /**
+     * Respuesta tras guardar/editar/eliminar. Desde el modal de Mi cuenta (trae `_am_form`) se queda en la pestaña
+     * Direcciones y manda un aviso con detalle + el id de la dirección para resaltarla; desde el checkout vuelve
+     * atrás con el aviso simple de siempre.
+     */
+    private function done(Request $request, string $action, CustomerAddress $address, string $fallback): RedirectResponse
+    {
+        if (! $request->filled('_am_form')) {
+            return back()->with('status', $fallback);
+        }
+
+        return redirect(route('shop.account') . '#direcciones')->with('address_saved', [
+            'action'     => $action,
+            'id'         => $action === 'deleted' ? null : $address->id,
+            'label'      => $address->label ?: 'Dirección',
+            'summary'    => trim($address->address_line1 . ', ' . $address->city . ', ' . $address->state, ' ,'),
+            'is_default' => (bool) $address->is_default,
+        ]);
+    }
+
     public function store(Request $request): RedirectResponse
     {
         $this->trimmed($request);
         $data = $request->validate($this->rules(), $this->messages());
         $customer = Auth::guard('customer')->user();
 
-        DB::transaction(function () use ($data, $request, $customer) {
+        $address = DB::transaction(function () use ($data, $request, $customer) {
             // La primera dirección de un cliente siempre queda predeterminada
             // -- sin esto, un cliente con una sola dirección guardada podría
             // quedarse sin ninguna marcada como default.
@@ -102,14 +123,14 @@ class CustomerAddressController extends Controller
                 $customer->customer_addresses()->update(['is_default' => false]);
             }
 
-            $customer->customer_addresses()->create([
+            return $customer->customer_addresses()->create([
                 ...$data,
                 'country'    => 'MX',
                 'is_default' => $makeDefault,
             ]);
         });
 
-        return back()->with('status', 'Dirección guardada.');
+        return $this->done($request, 'created', $address, 'Dirección guardada.');
     }
 
     public function update(Request $request, CustomerAddress $address): RedirectResponse
@@ -130,10 +151,10 @@ class CustomerAddressController extends Controller
             $address->update([...$data, 'is_default' => $makeDefault]);
         });
 
-        return back()->with('status', 'Dirección actualizada.');
+        return $this->done($request, 'updated', $address->fresh(), 'Dirección actualizada.');
     }
 
-    public function destroy(CustomerAddress $address): RedirectResponse
+    public function destroy(Request $request, CustomerAddress $address): RedirectResponse
     {
         abort_unless($address->customer_id === Auth::guard('customer')->id(), 403);
 
@@ -148,6 +169,6 @@ class CustomerAddressController extends Controller
             $customer->customer_addresses()->latest('id')->first()?->update(['is_default' => true]);
         }
 
-        return back()->with('status', 'Dirección eliminada.');
+        return $this->done($request, 'deleted', $address, 'Dirección eliminada.');
     }
 }

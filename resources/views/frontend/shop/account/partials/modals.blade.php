@@ -288,6 +288,7 @@
         <form method="POST" :action="modalData.actionUrl" style="display:contents;">
             @csrf
             @method('DELETE')
+            <input type="hidden" name="_am_form" value="address">
             <div class="eq-modal__actions">
                 <button type="button" class="eq-modal__btn" @click="closeModal()">Cancelar</button>
                 <button type="submit" class="eq-modal__btn eq-modal__btn--danger">Eliminar</button>

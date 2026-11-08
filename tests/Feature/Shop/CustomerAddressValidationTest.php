@@ -103,4 +103,49 @@ class CustomerAddressValidationTest extends TestCase
     {
         $this->get(route('shop.account'))->assertOk()->assertDontSee("openModal('address-form', {\"title\"", false);
     }
+
+    // ── Tras guardar: se queda en la pestaña Direcciones con un aviso claro ──────────────────────────────────
+
+    public function test_guardar_desde_mi_cuenta_se_queda_en_direcciones_con_aviso_y_resalta_la_nueva(): void
+    {
+        $this->from(route('shop.account'))
+            ->post(route('shop.addresses.store'), $this->payload(['_am_form' => 'address']))
+            ->assertRedirect(route('shop.account') . '#direcciones');
+
+        $address = Customer::first()->customer_addresses()->first();
+
+        $this->get(route('shop.account'))->assertOk()
+            ->assertSee('Dirección agregada')
+            ->assertSee('Oficina Corporativa · Av. Juárez #123 int. 4, Aguascalientes, Aguascalientes', false)
+            ->assertSee('Es tu dirección predeterminada')
+            ->assertSee('address-card is-flash', false)
+            ->assertDontSee('Dirección guardada.');
+
+        $this->assertDoesNotMatchRegularExpression('/address-card[^>]*>>/', $this->get(route('shop.account'))->getContent());
+
+        $this->get(route('shop.account'))->assertDontSee('Dirección agregada');
+        $this->assertNotNull($address);
+    }
+
+    public function test_guardar_desde_el_checkout_conserva_el_aviso_simple(): void
+    {
+        $this->from(route('catalog.index'))
+            ->post(route('shop.addresses.store'), $this->payload())
+            ->assertRedirect(route('catalog.index'))
+            ->assertSessionHas('status', 'Dirección guardada.');
+    }
+
+    public function test_editar_y_eliminar_desde_mi_cuenta_tambien_se_quedan_en_direcciones(): void
+    {
+        $this->post(route('shop.addresses.store'), $this->payload());
+        $address = Customer::first()->customer_addresses()->first();
+
+        $this->put(route('shop.addresses.update', $address), $this->payload(['_am_form' => 'address', 'city' => 'Zapopan', 'state' => 'Jalisco']))
+            ->assertRedirect(route('shop.account') . '#direcciones');
+        $this->get(route('shop.account'))->assertSee('Cambios guardados')->assertSee('Zapopan');
+
+        $this->delete(route('shop.addresses.destroy', $address), ['_am_form' => 'address'])
+            ->assertRedirect(route('shop.account') . '#direcciones');
+        $this->get(route('shop.account'))->assertSee('Dirección eliminada')->assertSee('ya no está en tu cuenta');
+    }
 }
