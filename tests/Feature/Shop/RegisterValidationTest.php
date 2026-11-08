@@ -88,4 +88,30 @@ class RegisterValidationTest extends TestCase
     {
         $this->post(route('shop.register.store'), $this->payload(['company' => '']))->assertRedirect(route('shop.account'));
     }
+
+    public function test_todos_los_avisos_salen_en_espanol(): void
+    {
+        $this->from(route('shop.register'))
+            ->post(route('shop.register.store'), ['first_name' => '', 'last_name' => '', 'email' => 'malo', 'phone' => '', 'password' => '123', 'visitor_uuid' => 'x']);
+
+        $msgs = collect(session('errors')->getBag('default')->all());
+        $this->assertGreaterThanOrEqual(6, $msgs->count());
+        foreach ($msgs as $m) {
+            $this->assertDoesNotMatchRegularExpression('/\b(field|must|The|is required)\b/', $m, "aviso en ingles: $m");
+        }
+        $this->assertContains('La contraseña debe tener al menos 8 caracteres.', $msgs->all());
+    }
+
+    public function test_los_errores_del_servidor_marcan_el_campo_en_rojo_con_su_descripcion(): void
+    {
+        $html = $this->from(route('shop.register'))
+            ->followingRedirects()
+            ->post(route('shop.register.store'), ['first_name' => 'Ana', 'last_name' => 'Lopez', 'email' => 'ana@example.com', 'phone' => '', 'password' => ''])
+            ->getContent();
+
+        $this->assertMatchesRegularExpression('/is-invalid[^>]*>\s*<label for="reg_phone"/', $html);
+        $this->assertStringContainsString('Escribe tu teléfono.', $html);
+        $this->assertStringContainsString('Escribe una contraseña.', $html);
+        $this->assertStringNotContainsString('field is required', $html);
+    }
 }
