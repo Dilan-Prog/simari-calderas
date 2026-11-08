@@ -32,13 +32,18 @@
 
             <div class="pform-panel-wrap" style="margin-top:20px;">
 
+                <div class="oe-acc__tools">
+                    <button type="button" class="pform-btn" data-oe-toggle="open">Expandir todo</button>
+                    <button type="button" class="pform-btn" data-oe-toggle="close">Contraer todo</button>
+                </div>
+
                 <form method="POST" action="{{ route('admin.order-emails.update') }}">
                     @csrf
                     @method('PUT')
 
                     {{-- ── General ─────────────────────────────────────────────── --}}
-                    <div class="pform-panel">
-                        <div class="erp-panel-header">
+                    <details class="pform-panel oe-acc" open>
+                        <summary class="erp-panel-header oe-acc__summary">
                             <span class="erp-panel-icon">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <rect width="20" height="16" x="2" y="4" rx="2" />
@@ -49,11 +54,13 @@
                                 <h2 class="pform-panel-title">Envío de correos</h2>
                                 <p class="erp-panel-subtitle">Mientras esté apagado no sale ningún correo de pedidos.</p>
                             </div>
-                        </div>
+                            <span class="oe-acc__badge" data-badge-for="oe_enabled" data-on="Activo" data-off="Apagado"></span>
+                            <span class="oe-acc__chev" aria-hidden="true"></span>
+                        </summary>
 
                         <div class="pform-field">
                             <label style="display:flex;align-items:center;gap:8px;font-weight:600;">
-                                <input type="checkbox" name="enabled" value="1" {{ old('enabled', $enabled) ? 'checked' : '' }}>
+                                <input type="checkbox" id="oe_enabled" name="enabled" value="1" {{ old('enabled', $enabled) ? 'checked' : '' }}>
                                 Enviar correos automáticos de pedidos
                             </label>
                         </div>
@@ -82,8 +89,33 @@
                         </div>
 
                         <div class="pform-field">
+                            <label class="pform-label" for="oe_footer">Texto al final de todos los correos (opcional)</label>
+                            <textarea id="oe_footer" name="footer" class="pform-textarea" rows="3" maxlength="2000"
+                                placeholder="Ej. Horario de atención, garantía, datos de contacto...">{{ old('footer', $footer) }}</textarea>
+                            @error('footer') <p class="pform-hint" style="color:#c81e1e;">{{ $message }}</p> @enderror
+                        </div>
+                    </details>
+
+                    {{-- ── Aviso interno ───────────────────────────────────────── --}}
+                    <details class="pform-panel oe-acc" @if ($errors->has('staff_to')) open @endif>
+                        <summary class="erp-panel-header oe-acc__summary">
+                            <span class="erp-panel-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
+                                    <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
+                                </svg>
+                            </span>
+                            <div class="erp-panel-heading">
+                                <h2 class="pform-panel-title">Aviso al equipo</h2>
+                                <p class="erp-panel-subtitle">Correo interno cuando entra un pedido nuevo en la tienda.</p>
+                            </div>
+                            <span class="oe-acc__badge" data-badge-for="oe_staff_enabled" data-on="Activo" data-off="Apagado"></span>
+                            <span class="oe-acc__chev" aria-hidden="true"></span>
+                        </summary>
+
+                        <div class="pform-field">
                             <label style="display:flex;align-items:center;gap:8px;font-weight:600;">
-                                <input type="checkbox" name="staff_enabled" value="1" {{ old('staff_enabled', $staffEnabled) ? 'checked' : '' }}>
+                                <input type="checkbox" id="oe_staff_enabled" name="staff_enabled" value="1" {{ old('staff_enabled', $staffEnabled) ? 'checked' : '' }}>
                                 Avisar al equipo cuando entre un pedido nuevo
                             </label>
                             <label class="pform-label" for="oe_staff_to" style="margin-top:10px;">Correo(s) que reciben el aviso</label>
@@ -92,29 +124,28 @@
                             <p class="pform-hint">Llega un correo con el cliente, los productos, el total y la dirección de envío. Al responderlo le escribes directo al cliente. Varias direcciones, separadas por coma. Los pedidos de Mercado Pago avisan hasta que el pago se aprueba.</p>
                             @error('staff_to') <p class="pform-hint" style="color:#c81e1e;">{{ $message }}</p> @enderror
                         </div>
+                    </details>
 
-                        <div class="pform-field">
-                            <label class="pform-label" for="oe_footer">Texto al final de todos los correos (opcional)</label>
-                            <textarea id="oe_footer" name="footer" class="pform-textarea" rows="3" maxlength="2000"
-                                placeholder="Ej. Horario de atención, garantía, datos de contacto...">{{ old('footer', $footer) }}</textarea>
-                            @error('footer') <p class="pform-hint" style="color:#c81e1e;">{{ $message }}</p> @enderror
-                        </div>
-                    </div>
-
-                    {{-- ── Un panel por correo ─────────────────────────────────── --}}
+                    {{-- ── Un desplegable por correo ───────────────────────────── --}}
                     @foreach ($events as $key => $event)
-                        <div class="pform-panel" id="evento-{{ $key }}">
-                            <div class="erp-panel-header">
+                        <details class="pform-panel oe-acc" id="evento-{{ $key }}"
+                            @if ($errors->hasAny(["events.$key.subject", "events.$key.heading", "events.$key.intro"])) open @endif>
+                            <summary class="erp-panel-header oe-acc__summary">
                                 <div class="erp-panel-heading">
                                     <h2 class="pform-panel-title">{{ $event['label'] }}</h2>
                                     <p class="erp-panel-subtitle">{{ $event['when'] }}</p>
                                 </div>
+                                <span class="oe-acc__badge" data-badge-for="oe_{{ $key }}_enabled" data-on="Activo" data-off="Apagado"></span>
+                                <span class="oe-acc__chev" aria-hidden="true"></span>
+                            </summary>
+
+                            <div class="pform-field" style="text-align:right;">
                                 <a href="{{ route('admin.order-emails.preview', $key) }}" target="_blank" rel="noopener" class="pform-btn">Vista previa</a>
                             </div>
 
                             <div class="pform-field">
                                 <label style="display:flex;align-items:center;gap:8px;font-weight:600;">
-                                    <input type="checkbox" name="events[{{ $key }}][enabled]" value="1"
+                                    <input type="checkbox" id="oe_{{ $key }}_enabled" name="events[{{ $key }}][enabled]" value="1"
                                         {{ old("events.$key.enabled", $event['enabled']) ? 'checked' : '' }}>
                                     Enviar este correo
                                 </label>
@@ -139,19 +170,24 @@
                                 <textarea id="oe_{{ $key }}_intro" name="events[{{ $key }}][intro]" class="pform-textarea" rows="5" maxlength="3000">{{ old("events.$key.intro", $event['intro']) }}</textarea>
                                 @error("events.$key.intro") <p class="pform-hint" style="color:#c81e1e;">{{ $message }}</p> @enderror
                             </div>
-                        </div>
+                        </details>
                     @endforeach
 
-                    <div class="pform-panel">
-                        <h2 class="pform-panel-title">Datos que se pueden insertar</h2>
-                        <p class="erp-panel-subtitle">Escríbelos tal cual en el asunto, el título o el mensaje; se reemplazan con los datos del pedido.</p>
+                    <details class="pform-panel oe-acc">
+                        <summary class="erp-panel-header oe-acc__summary">
+                            <div class="erp-panel-heading">
+                                <h2 class="pform-panel-title">Datos que se pueden insertar</h2>
+                                <p class="erp-panel-subtitle">Escríbelos tal cual en el asunto, el título o el mensaje; se reemplazan con los datos del pedido.</p>
+                            </div>
+                            <span class="oe-acc__chev" aria-hidden="true"></span>
+                        </summary>
                         <ul style="margin:10px 0 0;padding-left:18px;">
                             @foreach ($tokens as $token => $description)
                                 <li><code>{{ $token }}</code> — {{ $description }}</li>
                             @endforeach
                         </ul>
                         <p class="pform-hint" style="margin-top:10px;">Los datos del pedido (partidas, totales, dirección) y los datos bancarios o instrucciones de pago del método elegido se agregan solos; los configuras en Métodos de pago y en Envíos.</p>
-                    </div>
+                    </details>
 
                     @if ($canEdit)
                         <button type="submit" class="pform-btn primary">Guardar correos de pedidos</button>
@@ -160,9 +196,14 @@
 
                 {{-- ── Correo de prueba ────────────────────────────────────────── --}}
                 @if ($canEdit)
-                    <div class="pform-panel" style="margin-top:20px;">
-                        <h2 class="pform-panel-title">Enviar una prueba</h2>
-                        <p class="erp-panel-subtitle">Usa un pedido de ejemplo (nunca datos de un cliente real) y los textos que tengas guardados. Guarda primero si acabas de editar.</p>
+                    <details class="pform-panel oe-acc" style="margin-top:20px;" @if ($errors->has('test') || $errors->has('to')) open @endif>
+                        <summary class="erp-panel-header oe-acc__summary">
+                            <div class="erp-panel-heading">
+                                <h2 class="pform-panel-title">Enviar una prueba</h2>
+                                <p class="erp-panel-subtitle">Usa un pedido de ejemplo (nunca datos de un cliente real) y los textos que tengas guardados. Guarda primero si acabas de editar.</p>
+                            </div>
+                            <span class="oe-acc__chev" aria-hidden="true"></span>
+                        </summary>
                         <form method="POST" action="{{ route('admin.order-emails.test') }}" style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;align-items:flex-end;">
                             @csrf
                             <div class="pform-field" style="margin:0;">
@@ -181,12 +222,21 @@
                         </form>
                         @error('test') <p class="pform-hint" style="color:#c81e1e;">{{ $message }}</p> @enderror
                         @error('to') <p class="pform-hint" style="color:#c81e1e;">{{ $message }}</p> @enderror
-                    </div>
+                    </details>
                 @endif
 
                 {{-- ── Historial ──────────────────────────────────────────────── --}}
-                <div class="pform-panel" style="margin-top:20px;">
-                    <h2 class="pform-panel-title">Últimos correos</h2>
+                <details class="pform-panel oe-acc" style="margin-top:20px;" @if ($errors->has('resend')) open @endif>
+                    <summary class="erp-panel-header oe-acc__summary">
+                        <div class="erp-panel-heading">
+                            <h2 class="pform-panel-title">Últimos correos</h2>
+                            <p class="erp-panel-subtitle">Cada correo que salió, si se envió o falló, y por qué.</p>
+                        </div>
+                        @if ($logs->isNotEmpty())
+                            <span class="oe-acc__badge oe-acc__badge--count">{{ $logs->count() }}</span>
+                        @endif
+                        <span class="oe-acc__chev" aria-hidden="true"></span>
+                    </summary>
                     @error('resend') <p class="pform-hint" style="color:#c81e1e;">{{ $message }}</p> @enderror
                     @if ($logs->isEmpty())
                         <p class="erp-panel-subtitle">Todavía no ha salido ningún correo de pedidos.</p>
@@ -235,9 +285,68 @@
                             </table>
                         </div>
                     @endif
-                </div>
+                </details>
 
             </div>
         </section>
     </div>
 @endsection
+
+@push('scripts')
+    <style>
+        .oe-acc > .oe-acc__summary { list-style: none; cursor: pointer; display: flex; align-items: center; gap: 12px; user-select: none; margin-bottom: 0; }
+        .oe-acc > .oe-acc__summary::-webkit-details-marker { display: none; }
+        .oe-acc[open] > .oe-acc__summary { margin-bottom: 16px; padding-bottom: 14px; border-bottom: 1px solid #eef0f2; }
+        .oe-acc > .oe-acc__summary:hover .pform-panel-title { color: #ff6213; }
+        .oe-acc > .oe-acc__summary:focus-visible { outline: 2px solid #ff6213; outline-offset: 4px; border-radius: 6px; }
+        .oe-acc .erp-panel-heading { flex: 1; min-width: 0; }
+        .oe-acc__badge { flex: none; font-size: 12px; font-weight: 600; padding: 2px 10px; border-radius: 10px; background: #f1f2f4; color: #52606d; }
+        .oe-acc__badge.is-on { background: #e6f6ee; color: #0f7a4f; }
+        .oe-acc__badge.is-off { background: #f1f2f4; color: #7b8794; }
+        .oe-acc__badge--count { background: #fff1e8; color: #c4480a; }
+        .oe-acc__chev { flex: none; width: 10px; height: 10px; border-right: 2px solid #7b8794; border-bottom: 2px solid #7b8794; transform: rotate(45deg); margin: 0 6px 4px 4px; transition: transform .18s ease; }
+        .oe-acc[open] > .oe-acc__summary .oe-acc__chev { transform: rotate(-135deg); margin-bottom: -4px; }
+        .oe-acc__tools { display: flex; justify-content: flex-end; gap: 8px; margin-bottom: 12px; }
+        @media (max-width: 640px) { .oe-acc__badge { display: none; } }
+    </style>
+    <script>
+        (function () {
+            var panels = function () { return document.querySelectorAll('details.oe-acc'); };
+
+            // Etiqueta Activo/Apagado del encabezado, ligada a la casilla de cada desplegable.
+            function refreshBadge(badge) {
+                var box = document.getElementById(badge.getAttribute('data-badge-for'));
+                if (!box) { return; }
+                var on = box.checked;
+                badge.textContent = on ? badge.getAttribute('data-on') : badge.getAttribute('data-off');
+                badge.classList.toggle('is-on', on);
+                badge.classList.toggle('is-off', !on);
+            }
+            document.querySelectorAll('[data-badge-for]').forEach(function (badge) {
+                refreshBadge(badge);
+                var box = document.getElementById(badge.getAttribute('data-badge-for'));
+                if (box) { box.addEventListener('change', function () { refreshBadge(badge); }); }
+            });
+
+            // Si un campo no pasa la validación del navegador, abre su desplegable para que se vea.
+            document.addEventListener('invalid', function (e) {
+                var d = e.target.closest && e.target.closest('details');
+                if (d) { d.open = true; }
+            }, true);
+
+            // Expandir / contraer todo.
+            document.querySelectorAll('[data-oe-toggle]').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    var open = btn.getAttribute('data-oe-toggle') === 'open';
+                    panels().forEach(function (d) { d.open = open; });
+                });
+            });
+
+            // Enlace directo (#evento-paid): abre ese desplegable.
+            if (location.hash) {
+                var target = document.querySelector(location.hash);
+                if (target && target.tagName === 'DETAILS') { target.open = true; }
+            }
+        })();
+    </script>
+@endpush
