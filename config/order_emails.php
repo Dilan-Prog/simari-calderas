@@ -13,6 +13,15 @@
 
 return [
 
+    /*
+     | Aviso interno de pedido nuevo (le llega al equipo, no al cliente). Se puede cambiar el destino y apagarlo
+     | desde Ecommerce > Correos de pedidos; sin cambios sale a este correo. Varios destinos separados por coma.
+     */
+    'staff' => [
+        'enabled' => true,
+        'email'   => env('ORDER_ALERT_EMAIL', 'administracion@equitermindustries.com.mx'),
+    ],
+
     'tokens' => [
         '{{order_number}}'    => 'Folio del pedido (PW-2026-0001)',
         '{{customer_name}}'   => 'Nombre del cliente',
@@ -62,6 +71,11 @@ return [
             'subject'     => 'Cancelamos tu pedido {{order_number}}',
             'heading'     => 'Pedido cancelado',
             'intro'       => "Hola {{customer_name}},\n\nTu pedido {{order_number}} fue cancelado. Si no lo solicitaste o tienes dudas, responde a este correo y con gusto te ayudamos.",
+        ],
+
+        // Solo da nombre a la bitácora: el aviso interno no se redacta en el panel ni está en StoreOrderMailService::EVENTS.
+        'staff_new_order' => [
+            'label' => 'Aviso interno: pedido nuevo',
         ],
 
     ],

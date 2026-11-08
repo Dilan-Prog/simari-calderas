@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Mail\StaffNewOrderMail;
 use App\Mail\StoreOrderMail;
 use App\Models\Delivery;
 use App\Models\PaymentMethod;
@@ -22,8 +23,11 @@ use RuntimeException;
  *    referencia, crédito...). Los pedidos de Mercado Pago no mandan este: avisan al confirmarse el pago.
  *  - paid / shipped / delivered / cancelled: cuando el estatus del pedido cambia a ese valor.
  *
- * Todo está apagado hasta que se activa "Enviar correos de pedidos" en el panel. Cada evento sale
- * una sola vez por pedido (un registro `sent` en store_order_emails); reenviar es manual.
+ * Los correos al cliente vienen ACTIVOS por defecto; se apagan con "Enviar correos de pedidos" en el panel.
+ * Además sale un aviso interno de pedido nuevo al equipo (staff_new_order, por defecto a
+ * administracion@equitermindustries.com.mx), con su propio interruptor y destino en el panel; para los
+ * pedidos de Mercado Pago avisa al confirmarse el pago (no al crearlos, para no avisar de pagos abandonados).
+ * Cada evento sale una sola vez por pedido (un registro `sent` en store_order_emails); reenviar es manual.
  * Un fallo de correo nunca debe romper el checkout ni el cambio de estatus: se registra y se sigue.
  *
  * Remitente: el mismo de la bandeja de leads (Integraciones > Buzón de la bandeja) si está
@@ -32,6 +36,9 @@ use RuntimeException;
 class StoreOrderMailService
 {
     public const EVENTS = ['created_offline', 'paid', 'shipped', 'delivered', 'cancelled'];
+
+    /** Aviso interno al equipo; no está en EVENTS porque no se redacta en el panel. */
+    public const STAFF_EVENT = 'staff_new_order';
 
     private const STATUS_EVENTS = [
         'pagado'    => 'paid',
@@ -50,7 +57,32 @@ class StoreOrderMailService
 
     public function enabled(): bool
     {
-        return (bool) Setting::get('order_emails.enabled', false);
+        return (bool) Setting::get('order_emails.enabled', true);
+    }
+
+    public function staffEnabled(): bool
+    {
+        return (bool) Setting::get('order_emails.staff_enabled', (bool) config('order_emails.staff.enabled', true));
+    }
+
+    /** Destinos del aviso interno tal como se capturaron (el panel los muestra así). */
+    public function staffTo(): string
+    {
+        return trim((string) (Setting::get('order_emails.staff_to') ?: config('order_emails.staff.email', '')));
+    }
+
+    /** @return array<int,string> correos válidos y sin repetir; los inválidos se ignoran */
+    public function staffRecipients(): array
+    {
+        $out = [];
+        foreach (preg_split('/[,;\s]+/', $this->staffTo()) ?: [] as $item) {
+            $item = strtolower(trim($item));
+            if ($item !== '' && filter_var($item, FILTER_VALIDATE_EMAIL) && ! in_array($item, $out, true)) {
+                $out[] = $item;
+            }
+        }
+
+        return $out;
     }
 
     /** @return array{enabled:bool,subject:string,heading:string,intro:string} */
@@ -80,6 +112,11 @@ class StoreOrderMailService
 
     public function handleCreated(StoreOrder $order): void
     {
+        // El aviso al equipo no depende del interruptor de los correos al cliente.
+        if (! $this->paidOnline($order)) {
+            $this->dispatchStaff($order);
+        }
+
         if (! $this->enabled() || $this->paidOnline($order)) {
             return;
         }
@@ -89,6 +126,10 @@ class StoreOrderMailService
 
     public function handleStatusChanged(StoreOrder $order): void
     {
+        if ($order->status === 'pagado' && $this->paidOnline($order)) {
+            $this->dispatchStaff($order);
+        }
+
         $event = self::STATUS_EVENTS[$order->status] ?? null;
         if ($event === null || ! $this->enabled()) {
             return;
@@ -124,11 +165,131 @@ class StoreOrderMailService
         return $this->send($order, $event);
     }
 
+    private function dispatchStaff(StoreOrder $order): void
+    {
+        if (! $this->staffEnabled()) {
+            return;
+        }
+
+        $already = StoreOrderEmail::where('store_order_id', $order->id)
+            ->where('event', self::STAFF_EVENT)
+            ->where('status', StoreOrderEmail::STATUS_SENT)
+            ->exists();
+        if (! $already) {
+            $this->sendStaff($order);
+        }
+    }
+
     // ── Envío ────────────────────────────────────────────────────────────
+
+    /** Aviso interno de pedido nuevo al equipo. Registra el resultado y nunca lanza. */
+    public function sendStaff(StoreOrder $order, ?int $userId = null): StoreOrderEmail
+    {
+        $recipients = $this->staffRecipients();
+
+        $log = new StoreOrderEmail([
+            'store_order_id'  => $order->id,
+            'event'           => self::STAFF_EVENT,
+            'to_email'        => $recipients ? Str::limit(implode(', ', $recipients), 185, '') : null,
+            'sent_by_user_id' => $userId,
+        ]);
+
+        try {
+            if ($recipients === []) {
+                $log->status = StoreOrderEmail::STATUS_SKIPPED;
+                $log->error = 'No hay un correo válido de destino para el aviso interno.';
+            } else {
+                $log->subject = $this->deliverStaff($order, $recipients);
+                $log->status = StoreOrderEmail::STATUS_SENT;
+                $log->sent_at = now();
+            }
+        } catch (\Throwable $e) {
+            report($e);
+            $log->status = StoreOrderEmail::STATUS_FAILED;
+            $log->error = Str::limit(trim((string) $e->getMessage()), 300);
+        }
+
+        $log->save();
+
+        return $log;
+    }
+
+    /**
+     * @param  array<int,string>  $recipients
+     * @return string asunto con el que salió
+     */
+    private function deliverStaff(StoreOrder $order, array $recipients): string
+    {
+        if ($problem = $this->mail->smtpProblem()) {
+            throw new RuntimeException($problem);
+        }
+
+        $sender = $this->mail->sender();
+        $data = $this->staffViewData($order);
+
+        $replyTo = strtolower(trim((string) $order->contact_email));
+        $mailable = new StaffNewOrderMail(
+            $sender['address'],
+            $sender['name'],
+            $data['subject'],
+            $data,
+            filter_var($replyTo, FILTER_VALIDATE_EMAIL) ? $replyTo : null, // el equipo responde directo al cliente
+            (string) $order->contact_name,
+        );
+
+        $pending = $sender['mailbox'] ? $this->mail->inboxMailer($sender['mailbox'])->to($recipients) : Mail::to($recipients);
+        $pending->send($mailable);
+
+        return $data['subject'];
+    }
+
+    /** @return array<string,mixed> lo que consume la vista emails.store-order-staff */
+    public function staffViewData(StoreOrder $order): array
+    {
+        $order->loadMissing(['items', 'paymentMethod']);
+        $currency = $order->currency ?: 'MXN';
+        $paid = $order->status === 'pagado';
+
+        return [
+            'subject'        => 'Nuevo pedido ' . $order->order_number . ' · ' . $order->contact_name . ' · ' . $this->money($order->total) . ' ' . $currency,
+            'heading'        => 'Entró un pedido nuevo en la tienda',
+            'order_number'   => (string) $order->order_number,
+            'order_date'     => $order->created_at?->locale('es')->isoFormat('D MMM YYYY, HH:mm'),
+            'status_label'   => $paid ? 'Pagado en línea' : 'Pago pendiente',
+            'payment_method' => (string) ($order->paymentMethod?->name ?? 'No especificado'),
+            'customer'       => [
+                'name'  => (string) $order->contact_name,
+                'email' => (string) $order->contact_email,
+                'phone' => (string) $order->contact_phone,
+            ],
+            'items'          => $order->items->map(fn (StoreOrderItem $i) => [
+                'name'     => (string) $i->product_name,
+                'sku'      => (string) $i->product_sku,
+                'quantity' => (int) $i->quantity,
+                'total'    => $this->money($i->line_total),
+            ])->values()->all(),
+            'subtotal'       => $this->money($order->subtotal),
+            'tax'            => $this->money($order->tax_total),
+            'shipping'       => (float) $order->shipping_total > 0
+                ? $this->money($order->shipping_total) . ($order->shipping_pending_quote ? ' + por cotizar' : '')
+                : ($order->shipping_pending_quote ? 'Por cotizar' : 'Gratis'),
+            'total'          => $this->money($order->total) . ' ' . $currency,
+            'ship_to_lines'  => array_values(array_filter([
+                trim($order->shipping_address_line1 . ($order->shipping_address_line2 ? ', ' . $order->shipping_address_line2 : '')),
+                trim($order->shipping_city . ', ' . $order->shipping_state . ($order->shipping_postal_code ? ', C.P. ' . $order->shipping_postal_code : ''), ', '),
+                $order->shipping_reference ? 'Referencias: ' . $order->shipping_reference : null,
+            ])),
+            'admin_url'      => $order->exists ? route('admin.orders.show', $order) : null,
+        ];
+    }
 
     /** Envía y registra el resultado (enviado, fallido u omitido). Nunca lanza. */
     public function send(StoreOrder $order, string $event, ?int $userId = null): StoreOrderEmail
     {
+        if ($event === self::STAFF_EVENT) {
+            return $this->sendStaff($order, $userId);
+        }
+
         $to = strtolower(trim((string) $order->contact_email));
 
         $log = new StoreOrderEmail([

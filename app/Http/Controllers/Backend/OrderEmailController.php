@@ -41,6 +41,8 @@ class OrderEmailController extends Controller
             'tokens'       => config('order_emails.tokens'),
             'footer'       => $this->orderMail->footer(),
             'copyTo'       => $this->orderMail->copyTo(),
+            'staffEnabled' => $this->orderMail->staffEnabled(),
+            'staffTo'      => $this->orderMail->staffTo(),
             'sender'       => $sender,
             'smtpProblem'  => $this->leadMail->smtpProblem(),
             'logs'         => StoreOrderEmail::with('storeOrder:id,order_number')->latest('id')->limit(40)->get(),
@@ -55,6 +57,8 @@ class OrderEmailController extends Controller
             'enabled' => 'nullable|boolean',
             'copy_to' => 'nullable|string|max:500',
             'footer'  => 'nullable|string|max:2000',
+            'staff_enabled' => 'nullable|boolean',
+            'staff_to'      => 'nullable|string|max:500',
         ];
         foreach ($events as $event) {
             $rules["events.$event.enabled"] = 'nullable|boolean';
@@ -70,6 +74,16 @@ class OrderEmailController extends Controller
             return back()->withErrors(['copy_to' => $e->getMessage()])->withInput();
         }
 
+        // Destino del aviso interno: si se deja vacío vuelve al correo por defecto de config/order_emails.php.
+        $staffTo = trim((string) ($data['staff_to'] ?? ''));
+        foreach (preg_split('/[,;\s]+/', $staffTo, -1, PREG_SPLIT_NO_EMPTY) ?: [] as $mail) {
+            if (! filter_var($mail, FILTER_VALIDATE_EMAIL)) {
+                return back()->withErrors(['staff_to' => 'El correo «' . $mail . '» no es válido.'])->withInput();
+            }
+        }
+
+        $this->put('order_emails.staff_enabled', $request->boolean('staff_enabled'), 'boolean');
+        $this->put('order_emails.staff_to', $staffTo, 'string');
         $this->put('order_emails.enabled', $request->boolean('enabled'), 'boolean');
         $this->put('order_emails.copy_to', trim((string) ($data['copy_to'] ?? '')), 'string');
         $this->put('order_emails.footer', trim((string) ($data['footer'] ?? '')), 'string');

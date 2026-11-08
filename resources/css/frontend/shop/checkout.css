@@ -1110,10 +1110,10 @@
 /* Confirmación */
 .checkout-confirmation {
     text-align: center;
-    padding: 80px 20px;
+    padding: 64px 48px;
     border: 1px solid rgba(0, 0, 0, 0.08);
     border-radius: 10px;
-    max-width: 560px;
+    max-width: 820px;
     margin: 0 auto;
 }
 
@@ -1431,7 +1431,7 @@
     display: flex;
     flex-direction: column;
     gap: 14px;
-    max-width: 420px;
+    max-width: 680px;
     margin: 0 auto 24px;
     text-align: left;
 }
@@ -1480,7 +1480,7 @@
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 14px;
-    max-width: 420px;
+    max-width: 680px;
     margin: 0 auto 28px;
     text-align: left;
 }
@@ -1541,4 +1541,10 @@
     .mp-msi-breakdown { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; padding: 8px; }
     .mp-msi-breakdown__item { padding: 8px 10px; }
     .mp-secure-badge--inline { flex-wrap: wrap; gap: 4px 6px; }
+}
+
+/* Confirmación: el bloque de totales y la reducción de márgenes en pantallas chicas */
+.checkout-confirmation__totals { text-align: left; max-width: 440px; margin: 0 auto 28px; }
+@media (max-width: 640px) {
+    .checkout-confirmation { padding: 44px 16px; }
 }

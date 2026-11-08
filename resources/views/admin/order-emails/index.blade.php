@@ -82,6 +82,18 @@
                         </div>
 
                         <div class="pform-field">
+                            <label style="display:flex;align-items:center;gap:8px;font-weight:600;">
+                                <input type="checkbox" name="staff_enabled" value="1" {{ old('staff_enabled', $staffEnabled) ? 'checked' : '' }}>
+                                Avisar al equipo cuando entre un pedido nuevo
+                            </label>
+                            <label class="pform-label" for="oe_staff_to" style="margin-top:10px;">Correo(s) que reciben el aviso</label>
+                            <input type="text" id="oe_staff_to" name="staff_to" class="pform-input" maxlength="500"
+                                value="{{ old('staff_to', $staffTo) }}" placeholder="administracion@equitermindustries.com.mx">
+                            <p class="pform-hint">Llega un correo con el cliente, los productos, el total y la dirección de envío. Al responderlo le escribes directo al cliente. Varias direcciones, separadas por coma. Los pedidos de Mercado Pago avisan hasta que el pago se aprueba.</p>
+                            @error('staff_to') <p class="pform-hint" style="color:#c81e1e;">{{ $message }}</p> @enderror
+                        </div>
+
+                        <div class="pform-field">
                             <label class="pform-label" for="oe_footer">Texto al final de todos los correos (opcional)</label>
                             <textarea id="oe_footer" name="footer" class="pform-textarea" rows="3" maxlength="2000"
                                 placeholder="Ej. Horario de atención, garantía, datos de contacto...">{{ old('footer', $footer) }}</textarea>

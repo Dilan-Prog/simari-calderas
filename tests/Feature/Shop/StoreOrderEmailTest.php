@@ -40,6 +40,8 @@ class StoreOrderEmailTest extends TestCase
             'mail.default'      => 'array',
             'mail.from.address' => 'administracion@equiterm.test',
             'mail.from.name'    => 'Equiterm Industries',
+            // El aviso interno al equipo tiene sus propias pruebas (abajo); aquí se apaga para contar solo lo del cliente.
+            'order_emails.staff.enabled' => false,
         ]);
     }
 
@@ -115,6 +117,9 @@ class StoreOrderEmailTest extends TestCase
 
     public function test_no_sale_nada_mientras_este_apagado(): void
     {
+        Setting::updateOrCreate(['key' => 'order_emails.enabled'], ['value' => '0', 'type' => 'boolean', 'group_name' => 'integraciones']);
+        (new ReflectionProperty(Setting::class, 'cache'))->setValue(null, []);
+
         $this->order($this->transfer());
 
         $this->assertCount(0, $this->sent());
@@ -302,5 +307,147 @@ class StoreOrderEmailTest extends TestCase
 
         $this->assertCount(2, $this->sent());
         $this->assertSame(2, StoreOrderEmail::where('store_order_id', $order->id)->where('status', 'sent')->count());
+    }
+
+    // ── Correo al cliente activo por defecto + aviso interno al equipo ───────────────────────────────────
+
+    private function staffOn(array $settings = []): void
+    {
+        config(['order_emails.staff.enabled' => true]);
+        foreach ($settings as $key => $value) {
+            Setting::updateOrCreate(['key' => $key], ['value' => $value, 'type' => str_ends_with($key, 'enabled') ? 'boolean' : 'string', 'group_name' => 'integraciones']);
+        }
+        (new ReflectionProperty(Setting::class, 'cache'))->setValue(null, []);
+    }
+
+    /** @return array<string,\Symfony\Component\Mime\Email> correos enviados indexados por el primer destinatario */
+    private function sentByRecipient(): array
+    {
+        $out = [];
+        foreach ($this->sent() as $m) {
+            $email = $m->getOriginalMessage();
+            $out[$email->getTo()[0]->getAddress()] = $email;
+        }
+
+        return $out;
+    }
+
+    public function test_sin_configurar_nada_el_cliente_ya_recibe_su_correo(): void
+    {
+        $this->order($this->transfer()); // sin llamar a enable(): los correos al cliente vienen activos
+
+        $messages = $this->sent();
+        $this->assertCount(1, $messages);
+        $this->assertSame('carlos@cliente.com', $messages[0]->getOriginalMessage()->getTo()[0]->getAddress());
+    }
+
+    public function test_pedido_nuevo_avisa_al_equipo_por_defecto_a_administracion(): void
+    {
+        $this->staffOn();
+        $order = $this->order($this->transfer());
+
+        $by = $this->sentByRecipient();
+        $this->assertCount(2, $by);
+        $this->assertArrayHasKey('carlos@cliente.com', $by);
+
+        $staff = $by['administracion@equitermindustries.com.mx'];
+        $this->assertStringContainsString('Nuevo pedido ' . $order->order_number, $staff->getSubject());
+        $this->assertStringContainsString('Carlos Herrera', $staff->getSubject());
+        $this->assertSame('carlos@cliente.com', $staff->getReplyTo()[0]->getAddress()); // el equipo responde al cliente
+        $this->assertStringContainsString('5551112222', $staff->getTextBody());
+        $this->assertStringContainsString('Caldera 10HP', $staff->getHtmlBody());
+        $this->assertStringContainsString(route('admin.orders.show', $order), $staff->getHtmlBody());
+
+        $log = StoreOrderEmail::where('event', 'staff_new_order')->firstOrFail();
+        $this->assertSame('sent', $log->status);
+        $this->assertSame('administracion@equitermindustries.com.mx', $log->to_email);
+    }
+
+    public function test_el_aviso_al_equipo_sale_aunque_los_correos_al_cliente_esten_apagados(): void
+    {
+        $this->staffOn(['order_emails.enabled' => '0']);
+        $this->order($this->transfer());
+
+        $by = $this->sentByRecipient();
+        $this->assertSame(['administracion@equitermindustries.com.mx'], array_keys($by));
+    }
+
+    public function test_el_destino_del_aviso_se_puede_cambiar_y_acepta_varios(): void
+    {
+        $this->staffOn(['order_emails.staff_to' => 'ventas@equiterm.test, Gerencia@Equiterm.test']);
+        $this->order($this->transfer());
+
+        $staffMsg = collect($this->sent())->map->getOriginalMessage()->first(fn ($e) => str_contains($e->getSubject(), 'Nuevo pedido'));
+        $to = collect($staffMsg->getTo())->map->getAddress()->all();
+        $this->assertSame(['ventas@equiterm.test', 'gerencia@equiterm.test'], $to);
+    }
+
+    public function test_el_aviso_al_equipo_se_puede_apagar(): void
+    {
+        $this->staffOn(['order_emails.staff_enabled' => '0']);
+        $this->order($this->transfer());
+
+        $this->assertSame(['carlos@cliente.com'], array_keys($this->sentByRecipient()));
+        $this->assertSame(0, StoreOrderEmail::where('event', 'staff_new_order')->count());
+    }
+
+    public function test_pedido_de_mercado_pago_avisa_al_equipo_hasta_que_se_paga_y_una_sola_vez(): void
+    {
+        $this->staffOn();
+        $order = $this->order($this->mercadoPago());
+        $this->assertCount(0, $this->sent()); // pago abandonado: no avisa
+
+        $order->update(['status' => 'pagado']);
+        $order->update(['status' => 'en_preparacion']);
+        $order->update(['status' => 'pagado']);
+
+        $by = $this->sentByRecipient();
+        $this->assertArrayHasKey('administracion@equitermindustries.com.mx', $by);
+        $this->assertStringContainsString('Pagado en línea', $by['administracion@equitermindustries.com.mx']->getTextBody() . $by['administracion@equitermindustries.com.mx']->getHtmlBody());
+        $this->assertSame(1, StoreOrderEmail::where('event', 'staff_new_order')->where('status', 'sent')->count());
+    }
+
+    public function test_un_fallo_del_aviso_al_equipo_no_rompe_el_pedido_y_queda_registrado(): void
+    {
+        $this->staffOn(['order_emails.staff_to' => 'esto-no-es-un-correo']);
+        $order = $this->order($this->transfer());
+
+        $this->assertNotNull(StoreOrder::find($order->id));
+        $log = StoreOrderEmail::where('event', 'staff_new_order')->firstOrFail();
+        $this->assertSame('skipped', $log->status);
+    }
+
+    public function test_la_pantalla_guarda_el_destino_del_aviso_y_valida_los_correos(): void
+    {
+        $admin = $this->admin();
+        $payload = ['enabled' => '1', 'staff_enabled' => '1', 'staff_to' => 'ventas@equiterm.test', 'events' => []];
+        foreach (StoreOrderMailService::EVENTS as $event) {
+            $payload['events'][$event] = ['enabled' => '1', 'subject' => "Asunto $event", 'heading' => "Título $event", 'intro' => "Mensaje $event"];
+        }
+
+        $this->actingAs($admin)->put(route('admin.order-emails.update'), $payload)->assertSessionHasNoErrors();
+        (new ReflectionProperty(Setting::class, 'cache'))->setValue(null, []);
+        $this->assertSame('ventas@equiterm.test', app(StoreOrderMailService::class)->staffTo());
+        $this->assertTrue(app(StoreOrderMailService::class)->staffEnabled());
+
+        $this->actingAs($admin)->put(route('admin.order-emails.update'), ['staff_to' => 'malo@'] + $payload)->assertSessionHasErrors('staff_to');
+
+        $this->actingAs($admin)->get(route('admin.order-emails.index'))->assertOk()
+            ->assertSee('Avisar al equipo cuando entre un pedido nuevo');
+    }
+
+    public function test_reenviar_el_aviso_interno_manda_el_correo_del_equipo(): void
+    {
+        $admin = $this->admin();
+        $this->staffOn();
+        $this->order($this->transfer());
+        $log = StoreOrderEmail::where('event', 'staff_new_order')->firstOrFail();
+        $before = count($this->sent());
+
+        $this->actingAs($admin)->post(route('admin.order-emails.resend', $log->id))->assertSessionHasNoErrors();
+
+        $this->assertCount($before + 1, $this->sent());
+        $last = collect($this->sent())->last()->getOriginalMessage();
+        $this->assertSame('administracion@equitermindustries.com.mx', $last->getTo()[0]->getAddress());
     }
 }

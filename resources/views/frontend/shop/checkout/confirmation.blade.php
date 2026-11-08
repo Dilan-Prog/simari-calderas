@@ -47,7 +47,7 @@
             @endforeach
         </div>
 
-        <div style="text-align:left; max-width:320px; margin:0 auto 28px;">
+        <div class="checkout-confirmation__totals">
             <div class="checkout-summary__row">
                 <span>Subtotal</span>
                 <span>${{ number_format($storeOrder->subtotal, 2) }} MXN</span>
