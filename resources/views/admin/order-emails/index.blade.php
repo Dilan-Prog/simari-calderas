@@ -74,7 +74,7 @@
                             </li>
                             <li>
                                 <strong>Ajusta cada correo.</strong>
-                                Abre el que quieras: Pedido recibido, Pago confirmado, Enviado, Entregado o Cancelado. Puedes apagarlo con su casilla y cambiar el asunto, el título y el mensaje. Usa «Vista previa» para verlo tal como lo recibe el cliente. Los datos que se pueden insertar (como el número de pedido o el nombre) están en el desplegable «Datos que se pueden insertar».
+                                Abre el que quieras: Pedido recibido, Pago confirmado, Enviado, Entregado o Cancelado. Puedes apagarlo con su casilla, <b>elegir su plantilla</b> (el diseño: colores y encabezado; cada correo puede tener la suya) y cambiar el asunto, el título y el mensaje. Usa «Vista previa con esta plantilla» para verlo tal como lo recibe el cliente, aunque todavía no hayas guardado. Los datos que se pueden insertar (como el número de pedido o el nombre) están en el desplegable «Datos que se pueden insertar».
                             </li>
                             <li>
                                 <strong>Guarda y manda una prueba.</strong>
@@ -180,7 +180,7 @@
                     {{-- ── Un desplegable por correo ───────────────────────────── --}}
                     @foreach ($events as $key => $event)
                         <details class="pform-panel oe-acc" id="evento-{{ $key }}"
-                            @if ($errors->hasAny(["events.$key.subject", "events.$key.heading", "events.$key.intro"])) open @endif>
+                            @if ($errors->hasAny(["events.$key.subject", "events.$key.heading", "events.$key.intro", "events.$key.template"])) open @endif>
                             <summary class="erp-panel-header oe-acc__summary">
                                 <div class="erp-panel-heading">
                                     <h2 class="pform-panel-title">{{ $event['label'] }}</h2>
@@ -190,9 +190,7 @@
                                 <span class="oe-acc__chev" aria-hidden="true"></span>
                             </summary>
 
-                            <div class="pform-field" style="text-align:right;">
-                                <a href="{{ route('admin.order-emails.preview', $key) }}" target="_blank" rel="noopener" class="pform-btn">Vista previa</a>
-                            </div>
+                            @php $selectedTpl = old("events.$key.template", $event['template']); @endphp
 
                             <div class="pform-field">
                                 <label style="display:flex;align-items:center;gap:8px;font-weight:600;">
@@ -200,6 +198,29 @@
                                         {{ old("events.$key.enabled", $event['enabled']) ? 'checked' : '' }}>
                                     Enviar este correo
                                 </label>
+                            </div>
+
+                            <div class="pform-field">
+                                <div class="oe-tpl-head">
+                                    <span class="pform-label" style="margin:0;">Plantilla de este correo</span>
+                                    <a href="{{ route('admin.order-emails.preview', [$key, 'template' => $selectedTpl]) }}"
+                                        data-preview-base="{{ route('admin.order-emails.preview', $key) }}"
+                                        target="_blank" rel="noopener" class="pform-btn">Vista previa con esta plantilla</a>
+                                </div>
+                                <div class="oe-tpl-grid" role="radiogroup" aria-label="Plantilla de {{ $event['label'] }}">
+                                    @foreach ($templates as $tplKey => $tpl)
+                                        <label class="oe-tpl">
+                                            <input type="radio" name="events[{{ $key }}][template]" value="{{ $tplKey }}"
+                                                data-preview-for="{{ $key }}" {{ $selectedTpl === $tplKey ? 'checked' : '' }}>
+                                            <span class="oe-tpl__body">
+                                                @include('admin.order-emails._template-thumb', ['theme' => $tpl])
+                                                <span class="oe-tpl__name">{{ $tpl['name'] }}</span>
+                                                <span class="oe-tpl__desc">{{ $tpl['description'] }}</span>
+                                            </span>
+                                        </label>
+                                    @endforeach
+                                </div>
+                                @error("events.$key.template") <p class="pform-hint" style="color:#c81e1e;">{{ $message }}</p> @enderror
                             </div>
 
                             <div class="pform-field">
@@ -363,6 +384,26 @@
         .oe-guide__steps li strong { display: block; color: #141516; margin-bottom: 2px; }
         .oe-guide__note { margin-top: 18px; padding: 12px 14px; border-radius: 8px; background: #f7f8fa; border: 1px solid #eef0f2; font-size: 13px; line-height: 1.55; color: #52606d; }
         .oe-guide__note strong { color: #141516; }
+        .oe-tpl-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
+        .oe-tpl-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+        .oe-tpl { position: relative; display: block; cursor: pointer; }
+        .oe-tpl input { position: absolute; opacity: 0; pointer-events: none; }
+        .oe-tpl__body { display: flex; flex-direction: column; gap: 4px; height: 100%; padding: 8px; border: 2px solid #e4e7eb; border-radius: 10px; background: #fff; transition: border-color .15s, box-shadow .15s; }
+        .oe-tpl:hover .oe-tpl__body { border-color: #ffb48a; }
+        .oe-tpl input:checked + .oe-tpl__body { border-color: #ff6213; box-shadow: 0 0 0 3px rgba(255, 98, 19, .15); }
+        .oe-tpl input:focus-visible + .oe-tpl__body { outline: 2px solid #ff6213; outline-offset: 2px; }
+        .oe-tpl input:checked + .oe-tpl__body::after { content: "Elegida"; position: absolute; top: 14px; right: 14px; background: #ff6213; color: #fff; font-size: 11px; font-weight: 700; padding: 1px 8px; border-radius: 10px; }
+        .oe-tpl__name { font-size: 13px; font-weight: 700; color: #141516; margin-top: 4px; }
+        .oe-tpl__desc { font-size: 12px; line-height: 1.4; color: #7b8794; }
+        .oe-thumb { display: block; box-sizing: border-box; height: 104px; overflow: hidden; padding: 8px; border-radius: 6px; border: 1px solid #eef0f2; }
+        .oe-thumb__card { display: block; overflow: hidden; border: 1px solid rgba(0, 0, 0, .06); padding-bottom: 7px; }
+        .oe-thumb i { display: block; height: 4px; border-radius: 2px; background: #cfd5db; }
+        .oe-thumb__band { display: block; padding: 6px 7px; }
+        .oe-thumb__band--tall { padding: 8px 7px 9px; display: flex; flex-direction: column; gap: 5px; }
+        .oe-thumb__flat { display: block; padding: 7px 7px 0; }
+        .oe-thumb__heading { display: block; padding: 7px 7px 0; }
+        .oe-thumb__lines { display: flex; flex-direction: column; gap: 4px; padding: 7px 7px 0; }
+        .oe-thumb__box { display: flex; flex-direction: column; gap: 4px; margin: 7px 7px 0; padding: 6px; border: 1px solid; border-radius: 4px; }
         .oe-acc__tools { display: flex; justify-content: flex-end; gap: 8px; margin-bottom: 12px; }
         @media (max-width: 640px) { .oe-acc__badge { display: none; } }
     </style>
@@ -383,6 +424,16 @@
                 refreshBadge(badge);
                 var box = document.getElementById(badge.getAttribute('data-badge-for'));
                 if (box) { box.addEventListener('change', function () { refreshBadge(badge); }); }
+            });
+
+            // Al elegir una plantilla, «Vista previa» abre ese correo con ella (aunque todavía no se guarde).
+            document.querySelectorAll('input[data-preview-for]').forEach(function (radio) {
+                radio.addEventListener('change', function () {
+                    var link = radio.closest('.pform-field').querySelector('[data-preview-base]');
+                    if (link && radio.checked) {
+                        link.href = link.getAttribute('data-preview-base') + '?template=' + encodeURIComponent(radio.value);
+                    }
+                });
             });
 
             // Si un campo no pasa la validación del navegador, abre su desplegable para que se vea.

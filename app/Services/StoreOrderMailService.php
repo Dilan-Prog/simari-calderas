@@ -85,13 +85,35 @@ class StoreOrderMailService
         return $out;
     }
 
-    /** @return array{enabled:bool,subject:string,heading:string,intro:string} */
+    /** @return array<string,array<string,string>> catálogo de plantillas (config/order_emails.php) */
+    public function templates(): array
+    {
+        return (array) config('order_emails.templates', []);
+    }
+
+    /** Plantilla con la que sale un correo: la que eligió el admin, o la clásica si no hay o ya no existe. */
+    public function templateKey(string $event, ?string $override = null): string
+    {
+        $templates = $this->templates();
+        $default = (string) config('order_emails.default_template', 'clasica');
+
+        foreach ([$override, Setting::get("order_emails.$event.template")] as $candidate) {
+            if (is_string($candidate) && $candidate !== '' && isset($templates[$candidate])) {
+                return $candidate;
+            }
+        }
+
+        return isset($templates[$default]) ? $default : (string) array_key_first($templates);
+    }
+
+    /** @return array{enabled:bool,template:string,subject:string,heading:string,intro:string} */
     public function eventSettings(string $event): array
     {
         $defaults = (array) config("order_emails.events.$event", []);
 
         return [
             'enabled' => (bool) Setting::get("order_emails.$event.enabled", true),
+            'template' => $this->templateKey($event),
             'subject' => (string) (Setting::get("order_emails.$event.subject") ?: ($defaults['subject'] ?? '')),
             'heading' => (string) (Setting::get("order_emails.$event.heading") ?: ($defaults['heading'] ?? '')),
             'intro'   => (string) (Setting::get("order_emails.$event.intro") ?: ($defaults['intro'] ?? '')),
@@ -367,7 +389,7 @@ class StoreOrderMailService
     // ── Contenido ────────────────────────────────────────────────────────
 
     /** @return array<string,mixed> lo que consumen la vista emails.store-order y StoreOrderMail */
-    public function viewData(StoreOrder $order, string $event): array
+    public function viewData(StoreOrder $order, string $event, ?string $template = null): array
     {
         if ($order->exists) {
             $order->loadMissing(['items', 'paymentMethod', 'shipment.carrier']);
@@ -392,8 +414,11 @@ class StoreOrderMailService
             : [null, [], null];
 
         $currency = $order->currency ?: 'MXN';
+        $templateKey = $this->templateKey($event, $template);
 
         return [
+            'template'       => $templateKey,
+            'theme'          => $this->templates()[$templateKey] ?? [],
             'subject'        => strtr($settings['subject'], $tokens),
             'heading'        => strtr($settings['heading'], $tokens),
             'intro_text'     => $introText,

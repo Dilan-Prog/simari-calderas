@@ -450,4 +450,67 @@ class StoreOrderEmailTest extends TestCase
         $last = collect($this->sent())->last()->getOriginalMessage();
         $this->assertSame('administracion@equitermindustries.com.mx', $last->getTo()[0]->getAddress());
     }
+
+    // ── Plantillas de correo ─────────────────────────────────────────────
+
+    public function test_sin_elegir_plantilla_sale_la_clasica_y_la_vista_previa_puede_probar_otra(): void
+    {
+        $admin = $this->admin();
+        $this->transfer();
+
+        $this->assertSame('clasica', app(StoreOrderMailService::class)->templateKey('created_offline'));
+
+        // Clásica: franja negra #141516. Verde: franja #0f7a4f con el título dentro.
+        $this->actingAs($admin)->get(route('admin.order-emails.preview', 'created_offline'))->assertOk()->assertSee('#141516', false);
+        $this->actingAs($admin)->get(route('admin.order-emails.preview', ['created_offline', 'template' => 'verde']))
+            ->assertOk()->assertSee('#0f7a4f', false);
+
+        // Una plantilla que no existe no rompe la vista: cae en la clásica.
+        $this->actingAs($admin)->get(route('admin.order-emails.preview', ['created_offline', 'template' => 'no-existe']))
+            ->assertOk()->assertSee('#141516', false);
+    }
+
+    public function test_cada_correo_guarda_su_plantilla_y_el_correo_real_sale_con_ella(): void
+    {
+        $admin = $this->admin();
+        $payload = ['enabled' => '1', 'events' => []];
+        foreach (StoreOrderMailService::EVENTS as $event) {
+            $payload['events'][$event] = ['enabled' => '1', 'subject' => "Asunto $event", 'heading' => "Título $event", 'intro' => "Mensaje $event", 'template' => 'clasica'];
+        }
+        $payload['events']['paid']['template'] = 'corporativa';
+        $payload['events']['created_offline']['template'] = 'minimalista';
+
+        $this->actingAs($admin)->put(route('admin.order-emails.update'), $payload)->assertSessionHasNoErrors();
+        (new ReflectionProperty(Setting::class, 'cache'))->setValue(null, []);
+
+        $svc = app(StoreOrderMailService::class);
+        $this->assertSame('corporativa', $svc->templateKey('paid'));
+        $this->assertSame('minimalista', $svc->templateKey('created_offline'));
+        $this->assertSame('clasica', $svc->templateKey('shipped'));
+
+        // El correo del pedido sale con la plantilla de su evento.
+        $order = $this->order($this->transfer());
+        $html = (string) collect($this->sent())->last()->getOriginalMessage()->getHtmlBody();
+        $this->assertStringContainsString('border-top:4px solid #141516', $html); // minimalista (layout flat)
+
+        $order->update(['status' => 'pagado']);
+        $html = (string) collect($this->sent())->last()->getOriginalMessage()->getHtmlBody();
+        $this->assertStringContainsString('#12324f', $html); // corporativa azul
+    }
+
+    public function test_una_plantilla_invalida_no_se_guarda(): void
+    {
+        $admin = $this->admin();
+        $payload = ['enabled' => '1', 'events' => []];
+        foreach (StoreOrderMailService::EVENTS as $event) {
+            $payload['events'][$event] = ['enabled' => '1', 'subject' => 'a', 'heading' => 'b', 'intro' => 'c'];
+        }
+        $payload['events']['paid']['template'] = 'inventada';
+
+        $this->actingAs($admin)->put(route('admin.order-emails.update'), $payload)->assertSessionHasErrors('events.paid.template');
+
+        // Y la pantalla muestra el catálogo para elegir.
+        $this->actingAs($admin)->get(route('admin.order-emails.index'))->assertOk()
+            ->assertSee('Plantilla de este correo')->assertSee('Corporativa azul')->assertSee('Minimalista');
+    }
 }
