@@ -6,18 +6,27 @@
     $metaDescription = 'Empresa mexicana con sede en Aguascalientes, especializada en sistemas de vapor, agua caliente y tratamiento de agua para plantas industriales, alimentos, hoteles y hospitales.';
     $canonicalUrl = route('about');
 
-    // Fotos: se pegan como URL en Configuración del Sitio > Página Nosotros. Sin foto se muestra un recuadro neutro.
-    $photo = fn (string $slot): string => trim((string) \App\Models\Setting::get('about.image_' . $slot, ''));
+    // Fotos: se pegan como URL en Configuración del Sitio > Página Nosotros. Si el campo está vacío se usa la
+    // foto por defecto de public/images/about/<slot>.jpg (con "_" -> "-"); si tampoco existe, un recuadro neutro.
+    $photo = function (string $slot): string {
+        $custom = trim((string) \App\Models\Setting::get('about.image_' . $slot, ''));
+        if ($custom !== '') {
+            return $custom;
+        }
+        $file = 'images/about/' . str_replace('_', '-', $slot) . '.jpg';
+
+        return file_exists(public_path($file)) ? asset($file) : '';
+    };
 
     $whatsappUrl = 'https://wa.me/' . \App\Models\Setting::get('footer.phone_link', '5214494577320')
         . '?text=' . urlencode('Hola, me gustaría información sobre sus servicios.');
 
     $areas = [
-        ['slot' => 'area_1', 'alt' => 'Caldera en mantenimiento', 'title' => 'Mantenimiento de calderas y calentadores',
+        ['slot' => 'area_1', 'alt' => 'Caldera industrial en cuarto de máquinas', 'title' => 'Mantenimiento de calderas y calentadores',
          'icon' => '<rect x="4" y="6" width="16" height="13" rx="2"></rect><path d="M8 6V3h8v3M8 12h8M8 15.5h5"></path><circle cx="17" cy="15.5" r="1"></circle>'],
-        ['slot' => 'area_2', 'alt' => 'Quemador en calibración', 'title' => 'Calibración y conversión de quemadores',
+        ['slot' => 'area_2', 'alt' => 'Quemador de una caldera industrial', 'title' => 'Calibración y conversión de quemadores',
          'icon' => '<path d="M12 3c2.5 3 4.5 5.5 4.5 8.5a4.5 4.5 0 0 1-9 0c0-1.6.7-3 1.8-4.2.3 1.4 1 2.2 1.9 2.7C11 7.8 11.3 5.4 12 3z"></path><path d="M5 21h14"></path>'],
-        ['slot' => 'area_3', 'alt' => 'Producto Caldesim y análisis de agua', 'title' => 'Tratamiento de agua con la línea Caldesim',
+        ['slot' => 'area_3', 'alt' => 'Equipos de tratamiento de agua', 'title' => 'Tratamiento de agua con la línea Caldesim',
          'icon' => '<path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z"></path><path d="M9.5 14.5a2.5 2.5 0 0 0 2.5 2.5"></path>'],
     ];
 
@@ -30,11 +39,11 @@
     $sectors = [
         ['slot' => 'sector_1', 'alt' => 'Planta industrial', 'title' => 'Plantas industriales',
          'icon' => '<path d="M3 21V10l5 3V10l5 3V6h3l1-3h2l1 3v15H3z"></path><path d="M7 17h2M12 17h2"></path>'],
-        ['slot' => 'sector_2', 'alt' => 'Línea de alimentos', 'title' => 'Empresas de alimentos',
+        ['slot' => 'sector_2', 'alt' => 'Tuberías de acero inoxidable de una línea de proceso', 'title' => 'Empresas de alimentos',
          'icon' => '<path d="M7 3v8a2 2 0 0 0 2 2h0a2 2 0 0 0 2-2V3M9 13v8M17 21V3c-2 1-3 4-3 8h3"></path>'],
-        ['slot' => 'sector_3', 'alt' => 'Cuarto de máquinas de un hotel', 'title' => 'Hoteles',
+        ['slot' => 'sector_3', 'alt' => 'Edificios en una zona urbana', 'title' => 'Hoteles',
          'icon' => '<path d="M3 19V6M3 15h18v4M21 15v-3a3 3 0 0 0-3-3h-7v6"></path><circle cx="7" cy="11.5" r="1.8"></circle>'],
-        ['slot' => 'sector_4', 'alt' => 'Cuarto de máquinas de un hospital', 'title' => 'Hospitales',
+        ['slot' => 'sector_4', 'alt' => 'Equipo de control en un área técnica limpia', 'title' => 'Hospitales',
          'icon' => '<rect x="3" y="3" width="18" height="18" rx="2.5"></rect><path d="M12 8v8M8 12h8"></path>'],
     ];
 
@@ -87,14 +96,14 @@
                 </div>
                 <div class="eq-about__mosaic">
                     <div class="eq-about__mosaic-main">
-                        {!! $renderPhoto('hero', 'Equipo en campo') !!}
+                        {!! $renderPhoto('hero', 'Técnico revisando una caldera en campo') !!}
                         <span class="eq-about__tag">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ff6213" stroke-width="2" aria-hidden="true"><path d="M12 21s7-7.2 7-12a7 7 0 1 0-14 0c0 4.8 7 12 7 12z"></path><circle cx="12" cy="9" r="2.5"></circle></svg>
                             Aguascalientes
                         </span>
                     </div>
-                    {!! $renderPhoto('hero_2', 'Sala de calderas') !!}
-                    {!! $renderPhoto('hero_3', 'Quemador en operación') !!}
+                    {!! $renderPhoto('hero_2', 'Tuberías y válvulas de una sala de calderas') !!}
+                    {!! $renderPhoto('hero_3', 'Motor de quemador en revisión') !!}
                 </div>
             </div>
         </div>
@@ -124,7 +133,7 @@
     {{-- En cada servicio --}}
     <section class="eq-about__method" aria-labelledby="h-metodo">
         <div class="eq-about__wrap eq-about__method-grid">
-            <div class="eq-about__method-photo">{!! $renderPhoto('metodo', 'Técnico revisando una caldera') !!}</div>
+            <div class="eq-about__method-photo">{!! $renderPhoto('metodo', 'Dos especialistas evaluando una planta con una tableta') !!}</div>
             <div>
                 <h2 id="h-metodo">En cada servicio</h2>
                 <ol class="eq-about__steps">

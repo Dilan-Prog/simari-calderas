@@ -56,6 +56,13 @@
 .eq-about__lead { font-size: 17px; line-height: 1.7; color: #33373d; text-wrap: pretty; }
 .eq-about__areas { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 20px; }
 .eq-about__area { border: 1px solid rgba(0, 0, 0, 0.08); border-radius: 12px; overflow: hidden; background: #fff; display: flex; flex-direction: column; }
+/* Cajas de proporción fija: la foto se ajusta a la caja (no la estira) */
+.eq-about__area-photo,
+.eq-about__method-photo,
+.eq-about__sector-photo { position: relative; overflow: hidden; }
+.eq-about__area-photo .eq-about__img,
+.eq-about__method-photo .eq-about__img,
+.eq-about__sector-photo .eq-about__img { position: absolute; inset: 0; }
 .eq-about__area-photo { aspect-ratio: 16 / 10; width: 100%; }
 .eq-about__area-photo .eq-about__img { border-radius: 0; }
 .eq-about__area-body { padding: 20px 22px 24px; display: flex; gap: 14px; align-items: center; border-top: 1px solid rgba(0, 0, 0, 0.08); }
