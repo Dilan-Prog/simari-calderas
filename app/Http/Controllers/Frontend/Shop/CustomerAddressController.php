@@ -94,7 +94,13 @@ class CustomerAddressController extends Controller
      */
     private function done(Request $request, string $action, CustomerAddress $address, string $fallback): RedirectResponse
     {
-        if (! $request->filled('_am_form')) {
+        // También cuenta como "desde Mi cuenta" si el envío viene de esa página aunque el formulario sea de una
+        // versión anterior (pestaña abierta antes de un despliegue) y no traiga `_am_form`.
+        $accountPath = rtrim((string) parse_url(route('shop.account'), PHP_URL_PATH), '/');
+        $fromAccount = $request->filled('_am_form')
+            || rtrim((string) parse_url(url()->previous(), PHP_URL_PATH), '/') === $accountPath;
+
+        if (! $fromAccount) {
             return back()->with('status', $fallback);
         }
 

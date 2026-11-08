@@ -148,4 +148,15 @@ class CustomerAddressValidationTest extends TestCase
             ->assertRedirect(route('shop.account') . '#direcciones');
         $this->get(route('shop.account'))->assertSee('Dirección eliminada')->assertSee('ya no está en tu cuenta');
     }
+
+    public function test_una_pagina_de_mi_cuenta_con_formulario_viejo_tambien_se_queda_en_direcciones(): void
+    {
+        // Sin `_am_form` (pestaña abierta antes del despliegue) pero con origen en Mi cuenta.
+        $this->from(route('shop.account'))
+            ->post(route('shop.addresses.store'), $this->payload())
+            ->assertRedirect(route('shop.account') . '#direcciones')
+            ->assertSessionMissing('status');
+
+        $this->get(route('shop.account'))->assertSee('Dirección agregada')->assertDontSee('Dirección guardada.');
+    }
 }
