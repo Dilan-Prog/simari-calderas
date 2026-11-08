@@ -8,6 +8,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 
 /**
  * CRUD real de direcciones guardadas de un cliente (guard `customer`).
@@ -18,24 +19,77 @@ use Illuminate\Support\Facades\DB;
  */
 class CustomerAddressController extends Controller
 {
+    public const STATES = [
+        'Aguascalientes', 'Baja California', 'Baja California Sur', 'Campeche', 'Chiapas',
+        'Chihuahua', 'Ciudad de México', 'Coahuila', 'Colima', 'Durango', 'Estado de México',
+        'Guanajuato', 'Guerrero', 'Hidalgo', 'Jalisco', 'Michoacán', 'Morelos', 'Nayarit',
+        'Nuevo León', 'Oaxaca', 'Puebla', 'Querétaro', 'Quintana Roo', 'San Luis Potosí',
+        'Sinaloa', 'Sonora', 'Tabasco', 'Tamaulipas', 'Tlaxcala', 'Veracruz', 'Yucatán', 'Zacatecas',
+    ];
+
+    // Personas y ciudades: letras (con acentos), espacios, punto, apóstrofo y guion; sin números ni #$%.
+    private const NAME_REGEX = '/^[\pL\pM][\pL\pM\s.\'’\-]*$/u';
+
+    // Etiqueta: además admite números y . , & / ( ).
+    private const LABEL_REGEX = '/^[\pL\pN][\pL\pN\pM\s.,&\'’\-\/()]*$/u';
+
+    // Calle, colonia y referencias: números y # ° (p. ej. "Av. Juárez #123 int. 4"), pero no $ % @ etc.
+    private const STREET_REGEX = '/^[\pL\pN][\pL\pN\pM\s.,#°\'’\-\/()]*$/u';
+
+    private const PHONE_REGEX = '/^\+?[\d\s\-().]+$/';
+
     private function rules(): array
     {
         return [
-            'label'          => ['nullable', 'string', 'max:100'],
-            'recipient_name' => ['required', 'string', 'max:150'],
-            'phone'          => ['required', 'string', 'max:30'],
-            'postal_code'    => ['required', 'string', 'max:20'],
-            'state'          => ['required', 'string', 'max:100'],
-            'city'           => ['required', 'string', 'max:100'],
-            'address_line1'  => ['required', 'string', 'max:255'],
-            'address_line2'  => ['nullable', 'string', 'max:255'],
-            'reference'      => ['nullable', 'string', 'max:255'],
+            'label'          => ['nullable', 'string', 'max:100', 'regex:' . self::LABEL_REGEX],
+            'recipient_name' => ['required', 'string', 'max:150', 'regex:' . self::NAME_REGEX],
+            'phone'          => ['required', 'string', 'max:30', 'regex:' . self::PHONE_REGEX, function ($attr, $value, $fail) {
+                $digits = strlen(preg_replace('/\D/', '', (string) $value));
+                if ($digits < 10 || $digits > 15) {
+                    $fail('El teléfono debe tener entre 10 y 15 dígitos.');
+                }
+            }],
+            'postal_code'    => ['required', 'string', 'regex:/^\d{5}$/'],
+            'state'          => ['required', 'string', Rule::in(self::STATES)],
+            'city'           => ['required', 'string', 'max:100', 'regex:' . self::NAME_REGEX],
+            'address_line1'  => ['required', 'string', 'max:255', 'regex:' . self::STREET_REGEX],
+            'address_line2'  => ['nullable', 'string', 'max:255', 'regex:' . self::STREET_REGEX],
+            'reference'      => ['nullable', 'string', 'max:255', 'regex:' . self::STREET_REGEX],
         ];
     }
 
+    private function messages(): array
+    {
+        return [
+            'label.regex'              => 'La etiqueta solo puede llevar letras, números, espacios y . , & \' - / ( ).',
+            'recipient_name.required'  => 'Escribe el nombre de quien recibe.',
+            'recipient_name.regex'     => 'El nombre solo puede llevar letras, espacios, punto, apóstrofo y guion.',
+            'phone.required'           => 'Escribe un teléfono de contacto.',
+            'phone.regex'              => 'El teléfono solo puede llevar números, espacios, guiones, paréntesis y un + al inicio.',
+            'postal_code.required'     => 'Escribe tu código postal.',
+            'postal_code.regex'        => 'El código postal debe tener 5 dígitos.',
+            'state.required'           => 'Selecciona un estado.',
+            'state.in'                 => 'Selecciona un estado de la lista.',
+            'city.required'            => 'Escribe la ciudad.',
+            'city.regex'               => 'La ciudad solo puede llevar letras, espacios, punto, apóstrofo y guion.',
+            'address_line1.required'   => 'Escribe la calle y el número.',
+            'address_line1.regex'      => 'La calle solo puede llevar letras, números, espacios y . , # ° - / ( ).',
+            'address_line2.regex'      => 'La colonia solo puede llevar letras, números, espacios y . , # ° - / ( ).',
+            'reference.regex'          => 'Las referencias solo pueden llevar letras, números, espacios y . , # ° - / ( ).',
+        ];
+    }
+
+    /** Quita espacios sobrantes antes de validar para que "  Ana " no falle ni se guarde con ellos. */
+    private function trimmed(Request $request): void
+    {
+        $request->merge(collect(['label', 'recipient_name', 'phone', 'postal_code', 'city', 'address_line1', 'address_line2', 'reference'])
+            ->mapWithKeys(fn ($k) => [$k => $request->has($k) ? trim((string) $request->input($k)) : null])
+            ->filter(fn ($v) => $v !== null)->all());
+    }
     public function store(Request $request): RedirectResponse
     {
-        $data = $request->validate($this->rules());
+        $this->trimmed($request);
+        $data = $request->validate($this->rules(), $this->messages());
         $customer = Auth::guard('customer')->user();
 
         DB::transaction(function () use ($data, $request, $customer) {
@@ -62,7 +116,8 @@ class CustomerAddressController extends Controller
     {
         abort_unless($address->customer_id === Auth::guard('customer')->id(), 403);
 
-        $data = $request->validate($this->rules());
+        $this->trimmed($request);
+        $data = $request->validate($this->rules(), $this->messages());
         $customer = $address->customer;
 
         DB::transaction(function () use ($data, $request, $address, $customer) {
