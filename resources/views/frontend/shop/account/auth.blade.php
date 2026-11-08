@@ -84,42 +84,58 @@
                 <h1 class="auth-title">Crea tu cuenta</h1>
                 <p class="auth-subtitle">Regístrate para cotizar y comprar más rápido.</p>
 
-                <form method="POST" action="{{ route('shop.register.store') }}" novalidate>
+                @php $regErr = fn (string $k) => $registerAttempt ? $errors->first($k) : ''; @endphp
+                <form method="POST" action="{{ route('shop.register.store') }}" novalidate data-reg-form>
                     @csrf
                     <input type="hidden" name="visitor_uuid" id="visitorUuidField" value="">
 
+                    <p class="auth-required-note"><span class="auth-req" aria-hidden="true">*</span> Campos obligatorios</p>
+
                     <div class="auth-field auth-field--half">
-                        <input type="text" name="first_name" value="{{ old('first_name') }}" placeholder="Nombre" required>
-                        <input type="text" name="last_name" value="{{ old('last_name') }}" placeholder="Apellido" required>
-                    </div>
-                    <div class="auth-field">
-                        <input type="text" name="company" value="{{ old('company') }}" placeholder="Empresa (opcional)">
-                    </div>
-                    <div class="auth-field">
-                        <input type="email" name="email" value="{{ $registerAttempt ? old('email') : '' }}" placeholder="Correo electrónico" autocomplete="email" required>
-                    </div>
-                    <div class="auth-field">
-                        <input type="tel" name="phone" value="{{ old('phone') }}" placeholder="Teléfono" autocomplete="tel" required>
-                    </div>
-                    <div class="auth-field">
-                        <input type="password" name="password" placeholder="Contraseña" autocomplete="new-password" required>
-                    </div>
-                    <div class="auth-field">
-                        <input type="password" name="password_confirmation" placeholder="Confirmar contraseña" autocomplete="new-password" required>
-                    </div>
-
-                    <label class="auth-check auth-check--terms">
-                        <input type="checkbox" required>
-                        <span>Acepto los <a href="{{ route('terms-of-service') }}" class="auth-link" target="_blank">Términos y condiciones</a> y el <a href="{{ route('privacy-notice') }}" class="auth-link" target="_blank">Aviso de privacidad</a></span>
-                    </label>
-
-                    @if ($registerAttempt && $errors->any())
-                        <div class="auth-error">
-                            @foreach ($errors->all() as $error)
-                                <p>{{ $error }}</p>
-                            @endforeach
+                        <div class="auth-field__cell {{ $regErr('first_name') ? 'is-invalid' : '' }}">
+                            <label for="reg_first_name">Nombre <span class="auth-req" aria-hidden="true">*</span></label>
+                            <input type="text" id="reg_first_name" name="first_name" value="{{ old('first_name') }}" placeholder="Ej. María" maxlength="100" autocomplete="given-name" data-rule="name" required aria-required="true">
+                            <p class="auth-field-error" data-err-for="first_name">{{ $regErr('first_name') }}</p>
                         </div>
-                    @endif
+                        <div class="auth-field__cell {{ $regErr('last_name') ? 'is-invalid' : '' }}">
+                            <label for="reg_last_name">Apellido <span class="auth-req" aria-hidden="true">*</span></label>
+                            <input type="text" id="reg_last_name" name="last_name" value="{{ old('last_name') }}" placeholder="Ej. López" maxlength="100" autocomplete="family-name" data-rule="name" required aria-required="true">
+                            <p class="auth-field-error" data-err-for="last_name">{{ $regErr('last_name') }}</p>
+                        </div>
+                    </div>
+                    <div class="auth-field {{ $regErr('company') ? 'is-invalid' : '' }}">
+                        <label for="reg_company">Empresa <small class="auth-optional">(opcional)</small></label>
+                        <input type="text" id="reg_company" name="company" value="{{ old('company') }}" placeholder="Razón social o nombre comercial" maxlength="255" autocomplete="organization" data-rule="company">
+                        <p class="auth-field-error" data-err-for="company">{{ $regErr('company') }}</p>
+                    </div>
+                    <div class="auth-field {{ $regErr('email') ? 'is-invalid' : '' }}">
+                        <label for="reg_email">Correo electrónico <span class="auth-req" aria-hidden="true">*</span></label>
+                        <input type="email" id="reg_email" name="email" value="{{ $registerAttempt ? old('email') : '' }}" placeholder="tucorreo@empresa.com" maxlength="255" autocomplete="email" data-rule="email" required aria-required="true">
+                        <p class="auth-field-error" data-err-for="email">{{ $regErr('email') }}</p>
+                    </div>
+                    <div class="auth-field {{ $regErr('phone') ? 'is-invalid' : '' }}">
+                        <label for="reg_phone">Teléfono <span class="auth-req" aria-hidden="true">*</span></label>
+                        <input type="tel" id="reg_phone" name="phone" value="{{ old('phone') }}" placeholder="10 dígitos, ej. 449 123 4567" maxlength="20" inputmode="tel" autocomplete="tel" data-rule="phone" required aria-required="true">
+                        <p class="auth-field-error" data-err-for="phone">{{ $regErr('phone') }}</p>
+                    </div>
+                    <div class="auth-field {{ $regErr('password') ? 'is-invalid' : '' }}">
+                        <label for="reg_password">Contraseña <span class="auth-req" aria-hidden="true">*</span></label>
+                        <input type="password" id="reg_password" name="password" placeholder="Mínimo 8 caracteres" autocomplete="new-password" data-rule="password" required aria-required="true">
+                        <p class="auth-field-error" data-err-for="password">{{ $regErr('password') }}</p>
+                    </div>
+                    <div class="auth-field">
+                        <label for="reg_password_confirmation">Confirmar contraseña <span class="auth-req" aria-hidden="true">*</span></label>
+                        <input type="password" id="reg_password_confirmation" name="password_confirmation" placeholder="Repite tu contraseña" autocomplete="new-password" data-rule="confirm" required aria-required="true">
+                        <p class="auth-field-error" data-err-for="password_confirmation"></p>
+                    </div>
+
+                    <div class="auth-terms-wrap {{ $regErr('terms') ? 'is-invalid' : '' }}">
+                        <label class="auth-check auth-check--terms">
+                            <input type="checkbox" name="terms" value="1" data-rule="terms" required aria-required="true" @checked($registerAttempt && old('terms'))>
+                            <span><span class="auth-req" aria-hidden="true">*</span> Acepto los <a href="{{ route('terms-of-service') }}" class="auth-link" target="_blank">Términos y condiciones</a> y el <a href="{{ route('privacy-notice') }}" class="auth-link" target="_blank">Aviso de privacidad</a></span>
+                        </label>
+                        <p class="auth-field-error" data-err-for="terms">{{ $regErr('terms') }}</p>
+                    </div>
 
                     <button type="submit" class="auth-btn">Crear cuenta</button>
                 </form>
@@ -144,4 +160,115 @@
         </div>
     </div>
 </div>
+
+<style>
+    .eq-shop-account .auth-required-note { margin: 0 0 14px; font-size: 12.5px; color: #4b5563; }
+    .eq-shop-account .auth-req { color: #c81e1e; font-weight: 800; }
+    .eq-shop-account .auth-optional { font-weight: 500; color: #6b7280; }
+    .eq-shop-account .auth-field-error { margin: 5px 0 0; font-size: 12px; line-height: 1.35; color: #c81e1e; }
+    .eq-shop-account .auth-field-error:empty { display: none; }
+    .eq-shop-account .is-invalid input:not([type="checkbox"]) { border-color: #c81e1e; background: #fff8f8; }
+    .eq-shop-account .is-invalid input:not([type="checkbox"]):focus { box-shadow: 0 0 0 3px rgba(200, 30, 30, .12); }
+    .eq-shop-account .auth-terms-wrap { margin-bottom: 14px; }
+    .eq-shop-account .auth-terms-wrap .auth-check { margin-bottom: 0; }
+    .eq-shop-account .auth-terms-wrap .auth-field-error { margin-top: 6px; }
+    .eq-shop-account .auth-field__cell { min-width: 0; }
+</style>
+
+<script>
+    (function () {
+        var form = document.querySelector('form[data-reg-form]');
+        if (!form) return;
+
+        // Caracteres que NO se aceptan en cada tipo de campo (se descartan al escribir o pegar).
+        var STRIP = {
+            name: /[^\p{L}\p{M}\s.'’\-]/gu,
+            company: /[^\p{L}\p{N}\p{M}\s.,&'’\-\/()]/gu,
+            phone: /[^\d\s\-().+]/g
+        };
+        var HINT = {
+            name: 'Solo letras, espacios, punto, apóstrofo y guion.',
+            company: 'Solo letras, números, espacios y . , & \' - / ( ).',
+            phone: 'Solo números, espacios, guiones y paréntesis.'
+        };
+        var NAME_OK = /^[\p{L}\p{M}][\p{L}\p{M}\s.'’\-]*$/u;
+        var COMPANY_OK = /^[\p{L}\p{N}][\p{L}\p{N}\p{M}\s.,&'’\-\/()]*$/u;
+        var PHONE_OK = /^\+?[\d\s\-().]+$/;
+        var EMAIL_OK = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+        function errBox(el) { return form.querySelector('[data-err-for="' + el.name + '"]'); }
+        function wrap(el) { return el.closest('.auth-field__cell, .auth-field, .auth-terms-wrap'); }
+
+        function setError(el, msg) {
+            var box = errBox(el), w = wrap(el);
+            if (box) box.textContent = msg || '';
+            if (w) w.classList.toggle('is-invalid', !!msg);
+            el.setAttribute('aria-invalid', msg ? 'true' : 'false');
+            return msg;
+        }
+
+        function check(el) {
+            var rule = el.dataset.rule, v = el.value.trim();
+            if (rule === 'terms') return el.checked ? '' : 'Debes aceptar los Términos y condiciones y el Aviso de privacidad.';
+            if (rule === 'name') {
+                if (!v) return el.name === 'first_name' ? 'Escribe tu nombre.' : 'Escribe tu apellido.';
+                return NAME_OK.test(v) ? '' : HINT.name;
+            }
+            if (rule === 'company') return !v || COMPANY_OK.test(v) ? '' : HINT.company;
+            if (rule === 'email') {
+                if (!v) return 'Escribe tu correo electrónico.';
+                return EMAIL_OK.test(v) ? '' : 'Escribe un correo válido, por ejemplo nombre@empresa.com.';
+            }
+            if (rule === 'phone') {
+                if (!v) return 'Escribe tu teléfono.';
+                if (!PHONE_OK.test(v)) return HINT.phone;
+                var n = v.replace(/\D/g, '').length;
+                return n >= 10 && n <= 15 ? '' : 'El teléfono debe tener entre 10 y 15 dígitos.';
+            }
+            if (rule === 'password') {
+                if (!el.value) return 'Escribe una contraseña.';
+                return el.value.length >= 8 ? '' : 'La contraseña debe tener al menos 8 caracteres.';
+            }
+            if (rule === 'confirm') {
+                if (!el.value) return 'Confirma tu contraseña.';
+                return el.value === form.elements.password.value ? '' : 'Las contraseñas no coinciden.';
+            }
+            return '';
+        }
+
+        var fields = [].slice.call(form.querySelectorAll('[data-rule]'));
+        var touched = new WeakSet();
+
+        fields.forEach(function (el) {
+            el.addEventListener('input', function () {
+                var strip = STRIP[el.dataset.rule];
+                if (strip) {
+                    var clean = el.value.replace(strip, '');
+                    if (clean !== el.value) {
+                        el.value = clean;
+                        setError(el, HINT[el.dataset.rule]); // avisa por qué desapareció el carácter
+                        return;
+                    }
+                }
+                if (touched.has(el) || wrap(el).classList.contains('is-invalid')) setError(el, check(el));
+                if (el.dataset.rule === 'password' && form.elements.password_confirmation.value) {
+                    setError(form.elements.password_confirmation, check(form.elements.password_confirmation));
+                }
+            });
+            el.addEventListener(el.type === 'checkbox' ? 'change' : 'blur', function () {
+                touched.add(el);
+                setError(el, check(el));
+            });
+        });
+
+        form.addEventListener('submit', function (e) {
+            var first = null;
+            fields.forEach(function (el) {
+                touched.add(el);
+                if (setError(el, check(el)) && !first) first = el;
+            });
+            if (first) { e.preventDefault(); first.focus(); }
+        });
+    })();
+</script>
 @endsection
