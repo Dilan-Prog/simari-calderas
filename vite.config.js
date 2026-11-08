@@ -80,6 +80,7 @@ export default defineConfig({
                 'resources/css/frontend/shop/pool-calculator.css',
                 'resources/js/frontend/shop/pool-calculator.js',
                 'resources/css/frontend/shop/legal.css',
+                'resources/css/frontend/shop/about.css',
                 'resources/css/frontend/shop/checkout.css',
                 'resources/css/admin/pages/collections.css',
                 'resources/css/admin/pages/erp-settings.css',

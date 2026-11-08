@@ -21,6 +21,17 @@
             'pool_calculator.cop_nominal' => 'COP nominal (ficha técnica a 27°C)',
             'pool_calculator.horas_operacion_dia' => 'Horas de operación al día',
             'pool_calculator.ciudades_temp_ambiente' => 'Temperaturas ambiente de diseño por ciudad (JSON)',
+            'about.image_hero' => 'Portada — foto principal (equipo en campo)',
+            'about.image_hero_2' => 'Portada — foto 2 (sala de calderas)',
+            'about.image_hero_3' => 'Portada — foto 3 (quemador en operación)',
+            'about.image_area_1' => 'Qué hacemos — mantenimiento de calderas y calentadores',
+            'about.image_area_2' => 'Qué hacemos — calibración y conversión de quemadores',
+            'about.image_area_3' => 'Qué hacemos — tratamiento de agua Caldesim',
+            'about.image_metodo' => 'En cada servicio — foto (técnico revisando una caldera)',
+            'about.image_sector_1' => 'Sectores — plantas industriales',
+            'about.image_sector_2' => 'Sectores — empresas de alimentos',
+            'about.image_sector_3' => 'Sectores — hoteles',
+            'about.image_sector_4' => 'Sectores — hospitales',
         ];
 
         // Etiquetas, rangos y tipos de las claves catalog.* vienen del
@@ -40,6 +51,7 @@
             'pool_calculator' => 'Calculadora de Bombas de Calor',
             'inventory' => 'Inventario',
             'survey' => 'Encuestas',
+            'about' => 'Página Nosotros (fotos)',
         ];
 
         $groupDescriptions = [
@@ -49,6 +61,7 @@
             'pool_calculator' => 'Tarifa eléctrica, COP, horas de operación y temperaturas por ciudad',
             'inventory' => 'Almacén predeterminado y ajustes de inventario',
             'survey' => 'Valores predeterminados de las encuestas',
+            'about' => 'URL de cada foto de la página /nosotros (se pueden copiar desde Galería). Vacío = recuadro neutro',
         ];
 
         // Un grupo se abre solo si alguno de sus campos regresó con error de validación.

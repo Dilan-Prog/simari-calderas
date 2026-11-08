@@ -5,6 +5,7 @@ use App\Http\Controllers\Frontend\Shop\CartController;
 use App\Http\Controllers\Frontend\Shop\CatalogController;
 use App\Http\Controllers\Frontend\Shop\CheckoutController;
 use App\Http\Controllers\Frontend\Shop\CollectionController as ShopCollectionController;
+use App\Http\Controllers\Frontend\Shop\AboutController;
 use App\Http\Controllers\Frontend\Shop\LegalController;
 use App\Http\Controllers\Frontend\Shop\MercadoPagoCheckoutController;
 use App\Http\Controllers\Frontend\Shop\ProductController as ShopProductController;
@@ -124,6 +125,9 @@ Route::get('/servicios', [ShopServicePageController::class, 'hub'])->name('servi
 Route::get('/servicios/{level2}/{level3}', [ShopServicePageController::class, 'showNested'])->name('service-pages.level3');
 Route::get('/servicios/{level2}', [ShopServicePageController::class, 'category'])->name('service-pages.level2');
 Route::get('/servicio/{slug}', [ShopServicePageController::class, 'showLegacy'])->name('service-page.show');
+
+// Nosotros (quiénes somos, misión y visión)
+Route::get('/nosotros', [AboutController::class, 'show'])->name('about');
 
 // Aviso de Privacidad / Términos y Condiciones — únicas 2 páginas del sitio
 // viejo que sobreviven, migradas a shop porque el footer y el registro de

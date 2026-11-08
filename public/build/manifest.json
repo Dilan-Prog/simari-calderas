@@ -255,6 +255,11 @@
     "src": "resources/css/app.css",
     "isEntry": true
   },
+  "resources/css/frontend/shop/about.css": {
+    "file": "assets/about-BzMnaOND.css",
+    "src": "resources/css/frontend/shop/about.css",
+    "isEntry": true
+  },
   "resources/css/frontend/shop/account.css": {
     "file": "assets/account-YMaTuVwQ.css",
     "src": "resources/css/frontend/shop/account.css",

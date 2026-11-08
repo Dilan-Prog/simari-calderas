@@ -179,6 +179,13 @@
       @foreach ($headerMainItems as $item)
         <a href="{{ $item->resolved_url }}" target="{{ $item->target }}" @mouseenter="close()">{{ $item->title }}</a>
       @endforeach
+      {{-- "Nosotros" va fijo en el menú; si alguien ya lo agrega desde Menús (enlace a /nosotros) no se duplica. --}}
+      @php
+        $showAboutLink = ! $headerMainItems->contains(fn ($i) => rtrim((string) parse_url($i->resolved_url, PHP_URL_PATH), '/') === '/nosotros');
+      @endphp
+      @if ($showAboutLink)
+        <a href="{{ route('about') }}" @mouseenter="close()" @if (request()->routeIs('about')) aria-current="page" @endif>Nosotros</a>
+      @endif
 
       {{-- MEGA MENU: CATEGORÍAS --}}
       <div class="eq-mega" x-show="activeMenu === 'categorias'" x-cloak @mouseenter="cancelClose()" @mouseleave="close()">
@@ -393,6 +400,9 @@
       @foreach ($headerMainItems as $item)
         <a href="{{ $item->resolved_url }}" target="{{ $item->target }}" class="eq-mnav__big" @click="closeMobileNav()"><span>{{ $item->title }}</span></a>
       @endforeach
+      @if ($showAboutLink)
+        <a href="{{ route('about') }}" class="eq-mnav__big" @click="closeMobileNav()" @if (request()->routeIs('about')) aria-current="page" @endif><span>Nosotros</span></a>
+      @endif
 
       <div class="eq-mnav__secondary">
         @if ($mnavCustomer)

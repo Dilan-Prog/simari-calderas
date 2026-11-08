@@ -1,0 +1,106 @@
+@import 'shared.css';
+
+/* ============================================================
+   about.css — Página pública "Nosotros"
+   Diseño de Claude Design (Nosotros-contenido.html) llevado a clases.
+   Todo va bajo .eq-shop-about para no afectar otras páginas.
+   ============================================================ */
+
+.eq-shop-about {
+    color: #141516;
+    background: #fff;
+    -webkit-font-smoothing: antialiased;
+}
+.eq-shop-about a { color: #c23f00; text-decoration: none; }
+.eq-shop-about a:hover { color: #de4a00; }
+.eq-shop-about h1, .eq-shop-about h2, .eq-shop-about h3, .eq-shop-about p,
+.eq-shop-about ul, .eq-shop-about ol { margin: 0; padding: 0; }
+.eq-shop-about ul, .eq-shop-about ol { list-style: none; }
+
+.eq-about__wrap { width: min(1200px, calc(100% - 40px)); margin: 0 auto; }
+.eq-about__section { padding: clamp(56px, 8vw, 104px) 0; }
+.eq-about__section--flush { padding-bottom: 0; }
+
+.eq-about__h2 { font-size: clamp(28px, 3.4vw, 40px); line-height: 1.1; font-weight: 800; letter-spacing: -0.02em; }
+.eq-about__h2--md { font-size: clamp(26px, 3vw, 36px); line-height: 1.15; margin-bottom: 32px; }
+.eq-about__h2--sm { font-size: clamp(24px, 2.6vw, 30px); line-height: 1.15; }
+
+/* Fotos y recuadros neutros (mientras no haya foto configurada) */
+.eq-about__img { width: 100%; height: 100%; object-fit: cover; display: block; background: #e7e5e3; border-radius: 12px; }
+.eq-about__img--empty { display: flex; align-items: center; justify-content: center; color: #a8a29e; }
+
+/* Icono en recuadro */
+.eq-about__icon { flex-shrink: 0; width: 48px; height: 48px; border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+.eq-about__icon--lg { width: 52px; height: 52px; border-radius: 12px; margin-bottom: 22px; }
+.eq-about__icon--soft { background: rgba(255, 98, 19, 0.12); }
+.eq-about__icon--brand { background: #ff6213; }
+.eq-about__icon--dark { background: #141516; }
+
+/* Quiénes somos */
+.eq-about__hero { background: #faf9f8; border-bottom: 1px solid rgba(0, 0, 0, 0.08); padding: clamp(28px, 5vw, 56px) 0 clamp(40px, 7vw, 88px); }
+.eq-about__crumbs { font-size: 13.5px; color: #4b5563; display: flex; align-items: center; gap: 8px; margin-bottom: clamp(20px, 4vw, 40px); }
+.eq-shop-about .eq-about__crumbs a { color: #4b5563; min-height: 44px; display: inline-flex; align-items: center; text-decoration: underline; text-underline-offset: 3px; }
+.eq-about__crumbs span[aria-hidden] { color: #9ca3af; }
+.eq-about__crumbs span[aria-current] { color: #141516; font-weight: 600; }
+.eq-about__hero-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 440px), 1fr)); gap: clamp(28px, 5vw, 72px); align-items: center; }
+.eq-about__hero-copy { min-width: 0; }
+.eq-about__bar { width: 40px; height: 4px; background: #ff6213; border-radius: 2px; margin-bottom: 22px; }
+.eq-about__hero-copy h1 { font-size: clamp(36px, 5.2vw, 60px); line-height: 1.04; font-weight: 800; letter-spacing: -0.03em; margin-bottom: 24px; }
+.eq-about__hero-copy p { font-size: clamp(17px, 1.5vw, 19.5px); line-height: 1.65; color: #33373d; max-width: 620px; text-wrap: pretty; }
+.eq-about__mosaic { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); grid-template-rows: minmax(0, 1fr) minmax(0, 1fr); gap: 12px; aspect-ratio: 5 / 4; width: 100%; min-width: 0; }
+.eq-about__mosaic-main { grid-row: 1 / span 2; position: relative; min-width: 0; min-height: 0; }
+.eq-about__tag { position: absolute; left: 12px; bottom: 12px; display: flex; align-items: center; gap: 8px; background: #141516; color: #fff; font-size: 13px; font-weight: 700; padding: 8px 12px; border-radius: 8px; pointer-events: none; }
+
+/* Qué hacemos */
+.eq-about__split { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 360px), 1fr)); gap: clamp(14px, 4vw, 64px); align-items: start; margin-bottom: clamp(32px, 5vw, 56px); }
+.eq-about__lead { font-size: 17px; line-height: 1.7; color: #33373d; text-wrap: pretty; }
+.eq-about__areas { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 20px; }
+.eq-about__area { border: 1px solid rgba(0, 0, 0, 0.08); border-radius: 12px; overflow: hidden; background: #fff; display: flex; flex-direction: column; }
+.eq-about__area-photo { aspect-ratio: 16 / 10; width: 100%; }
+.eq-about__area-photo .eq-about__img { border-radius: 0; }
+.eq-about__area-body { padding: 20px 22px 24px; display: flex; gap: 14px; align-items: center; border-top: 1px solid rgba(0, 0, 0, 0.08); }
+.eq-about__area-body .eq-about__icon { width: 44px; height: 44px; }
+.eq-about__area-body h3 { font-size: 18px; line-height: 1.35; font-weight: 700; }
+
+/* En cada servicio */
+.eq-about__method { background: #141516; color: #fff; padding: clamp(48px, 7vw, 88px) 0; }
+.eq-about__method-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); gap: clamp(32px, 5vw, 64px); align-items: center; }
+.eq-about__method-photo { aspect-ratio: 16 / 11; width: 100%; }
+.eq-about__method h2 { font-size: clamp(26px, 3vw, 36px); line-height: 1.15; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 28px; }
+.eq-about__steps li { display: flex; gap: 18px; align-items: center; padding: 18px 0; border-top: 1px solid rgba(255, 255, 255, 0.12); font-size: 18px; font-weight: 600; line-height: 1.4; }
+.eq-about__steps li:last-child { border-bottom: 1px solid rgba(255, 255, 255, 0.12); }
+
+/* Sectores */
+.eq-about__sectors { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr)); gap: 16px; }
+.eq-about__sectors li { background: #f4f5f7; border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; }
+.eq-about__sector-photo { aspect-ratio: 4 / 3; width: 100%; }
+.eq-about__sector-photo .eq-about__img { border-radius: 0; }
+.eq-about__sector-label { display: flex; align-items: center; gap: 12px; padding: 16px 18px; }
+.eq-about__sector-label svg { flex-shrink: 0; }
+.eq-about__sector-label span { font-size: 17px; font-weight: 700; }
+
+/* Misión y visión */
+.eq-about__mv { background: #f4f5f7; padding: clamp(56px, 8vw, 104px) 0; }
+.eq-about__mv-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); gap: 20px; }
+.eq-about__card { background: #fff; border: 1px solid rgba(0, 0, 0, 0.08); border-radius: 12px; padding: clamp(26px, 4vw, 44px); }
+.eq-about__card h2 { margin-bottom: 16px; }
+.eq-about__card p { font-size: 17px; line-height: 1.7; color: #33373d; text-wrap: pretty; }
+
+/* Valores: 1 columna en móvil, 2 en tablet, 4 en escritorio */
+.eq-about__values { display: grid; gap: 16px; grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 560px) { .eq-about__values { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 1080px) { .eq-about__values { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.eq-about__values li { border: 1px solid rgba(0, 0, 0, 0.08); border-radius: 12px; padding: 26px 24px; display: flex; flex-direction: column; gap: 14px; }
+.eq-about__values h3 { font-size: 19px; font-weight: 700; }
+.eq-about__values p { font-size: 16px; line-height: 1.6; color: #33373d; text-wrap: pretty; }
+
+/* Cierre */
+.eq-about__cta { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 28px 48px; }
+.eq-about__cta h2 { font-size: clamp(26px, 3vw, 36px); line-height: 1.15; font-weight: 800; letter-spacing: -0.02em; max-width: 560px; flex: 1 1 320px; text-wrap: balance; }
+.eq-about__cta-actions { display: flex; flex-wrap: wrap; gap: 12px; flex: 1 1 300px; max-width: 520px; }
+.eq-about__btn { min-height: 52px; display: inline-flex; align-items: center; justify-content: center; gap: 10px; font-size: 16px; border-radius: 8px; padding: 0 22px; transition: background 0.15s, color 0.15s; }
+.eq-shop-about .eq-about__btn--primary { flex: 1 1 240px; background: #ff6213; color: #141516; font-weight: 800; }
+.eq-shop-about .eq-about__btn--primary:hover { background: #e8560c; color: #141516; }
+.eq-shop-about .eq-about__btn--outline { flex: 1 1 160px; border: 1.5px solid #141516; color: #141516; font-weight: 700; }
+.eq-shop-about .eq-about__btn--outline:hover { background: #141516; color: #fff; }
+.eq-about__btn:focus-visible, .eq-about__crumbs a:focus-visible { outline: 3px solid rgba(255, 98, 19, 0.55); outline-offset: 2px; }

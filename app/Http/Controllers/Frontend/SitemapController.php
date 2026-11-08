@@ -22,6 +22,7 @@ class SitemapController extends Controller
 
         // Páginas estáticas
         $sitemap->add(Url::create('/')->setPriority(1.0)->setChangeFrequency('weekly')->setLastModificationDate($hoy));
+        $sitemap->add(Url::create('/nosotros')->setPriority(0.5)->setChangeFrequency('yearly')->setLastModificationDate($hoy));
         $sitemap->add(Url::create('/aviso-privacidad')->setPriority(0.3)->setChangeFrequency('yearly')->setLastModificationDate($legal));
         $sitemap->add(Url::create('/terminos-condiciones')->setPriority(0.3)->setChangeFrequency('yearly')->setLastModificationDate($legal));
 

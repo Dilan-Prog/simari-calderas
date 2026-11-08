@@ -67,6 +67,7 @@
                             <a href="{{ route('login') }}">Iniciar Sesión</a>
                         @endauth
                     </li>
+                    <li><a href="{{ route('about') }}">Nosotros</a></li>
                     <li><a href="{{ route('privacy-notice') }}">Aviso de privacidad</a></li>
                     <li><a href="{{ route('terms-of-service') }}">Términos y condiciones</a></li>
                     <li><a href="{{ route('return-policy') }}">Política de devoluciones</a></li>
