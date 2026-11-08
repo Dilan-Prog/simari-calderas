@@ -34,12 +34,9 @@ class AuthenticatedSessionController extends Controller
             return redirect()->route('customer.dashboard');
         }
 
-        $roleName = Auth::user()->role?->name_role;
-
-        return match($roleName) {
-            'admin'   => redirect()->route('admin.dashboard'),
-            default   => redirect()->intended(RouteServiceProvider::HOME),
-        };
+        // Todo usuario interno (cualquier rol, incluidos los creados a mano) entra al panel admin;
+        // el menú y las rutas ya se limitan a los permisos de su rol.
+        return redirect()->route('admin.dashboard');
     }
 
     /**

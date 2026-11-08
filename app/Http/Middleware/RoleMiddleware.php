@@ -21,7 +21,7 @@ class RoleMiddleware
             // El usuario no tiene el rol requerido, redirige según lo que SÍ es
             return match($userRole) {
                 'admin'   => redirect()->route('admin.dashboard'),
-                'employe' => redirect()->route('employee.dashboard'),
+                'employe' => redirect()->route('admin.dashboard'),
                 default   => abort(403, 'No autorizado'),
             };
         }

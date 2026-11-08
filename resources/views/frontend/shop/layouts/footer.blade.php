@@ -52,17 +52,8 @@
       <nav class="footer-legal" aria-label="Enlaces legales">
                 <ul class="footer-legal-links">
                     <li>@auth
-                            @php $rol = auth()->user()->role?->name_role @endphp
-
-                            @if ($rol === 'admin')
-                                <a  href="{{ route('admin.dashboard') }}">Panel Admin</a>
-
-                            @elseif ($rol === 'employe')
-                                <a href="{{ route('employee.dashboard') }}">Mi Dashboard</a>
-
-                            @else
-                                <a href="{{ route('profile.edit') }}">Mi Cuenta</a>
-                            @endif
+                            {{-- Usuario interno (cualquier rol): su panel, con los permisos de su rol --}}
+                            <a href="{{ route('admin.dashboard') }}">Panel Admin</a>
                         @else
                             <a href="{{ route('login') }}">Iniciar Sesión</a>
                         @endauth

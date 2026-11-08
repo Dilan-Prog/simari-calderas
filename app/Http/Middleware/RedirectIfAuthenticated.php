@@ -29,9 +29,10 @@ class RedirectIfAuthenticated
                     return redirect()->route('customer.dashboard');
                 }
 
+                // Un usuario interno ya autenticado que abre /login va a su panel (no al inicio de la tienda).
                 return $guard === 'customer'
                     ? redirect()->route('shop.account')
-                    : redirect(RouteServiceProvider::HOME);
+                    : redirect()->route('admin.dashboard');
             }
         }
 
