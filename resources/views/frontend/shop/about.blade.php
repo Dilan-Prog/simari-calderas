@@ -97,10 +97,6 @@
                 <div class="eq-about__mosaic">
                     <div class="eq-about__mosaic-main">
                         {!! $renderPhoto('hero', 'Técnico revisando una caldera en campo') !!}
-                        <span class="eq-about__tag">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ff6213" stroke-width="2" aria-hidden="true"><path d="M12 21s7-7.2 7-12a7 7 0 1 0-14 0c0 4.8 7 12 7 12z"></path><circle cx="12" cy="9" r="2.5"></circle></svg>
-                            Aguascalientes
-                        </span>
                     </div>
                     {!! $renderPhoto('hero_2', 'Tuberías y válvulas de una sala de calderas') !!}
                     {!! $renderPhoto('hero_3', 'Motor de quemador en revisión') !!}
