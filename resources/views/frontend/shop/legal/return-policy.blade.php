@@ -1,7 +1,7 @@
 @extends('frontend.shop.layouts.master')
 
 @php
-    $shopVite = ['resources/css/frontend/shop/legal.css'];
+    $shopVite = ['resources/css/frontend/shop/legal.css', 'resources/js/frontend/shop/base.js'];
     $metaTitle = 'Política de Devoluciones — Equiterm Industries';
     $metaDescription = 'Condiciones para cancelar tu compra, devolver un producto y recibir tu reembolso en Equiterm Industries.';
     $canonicalUrl = route('return-policy');

@@ -79,6 +79,7 @@ export default defineConfig({
                 'resources/js/frontend/shop/service-page.js',
                 'resources/css/frontend/shop/pool-calculator.css',
                 'resources/js/frontend/shop/pool-calculator.js',
+                'resources/js/frontend/shop/base.js',
                 'resources/css/frontend/shop/legal.css',
                 'resources/css/frontend/shop/about.css',
                 'resources/css/frontend/shop/checkout.css',

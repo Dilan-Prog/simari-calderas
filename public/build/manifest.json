@@ -650,6 +650,15 @@
     "src": "resources/js/frontend/shop/ad-tracking.js",
     "isEntry": true
   },
+  "resources/js/frontend/shop/base.js": {
+    "file": "assets/base-IEYdAxHo.js",
+    "name": "base",
+    "src": "resources/js/frontend/shop/base.js",
+    "isEntry": true,
+    "imports": [
+      "_alpine-init-CvA_QR7z.js"
+    ]
+  },
   "resources/js/frontend/shop/catalog.js": {
     "file": "assets/catalog--GGXG9JQ.js",
     "name": "catalog",

@@ -1,7 +1,7 @@
 @extends('frontend.shop.layouts.master')
 
 @php
-    $shopVite = ['resources/css/frontend/shop/about.css'];
+    $shopVite = ['resources/css/frontend/shop/about.css', 'resources/js/frontend/shop/base.js'];
     $metaTitle = 'Nosotros — Equiterm Industries';
     $metaDescription = 'Empresa mexicana con sede en Aguascalientes, especializada en sistemas de vapor, agua caliente y tratamiento de agua para plantas industriales, alimentos, hoteles y hospitales.';
     $canonicalUrl = route('about');

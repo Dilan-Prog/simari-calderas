@@ -1,7 +1,7 @@
 @extends('frontend.shop.layouts.master')
 
 @php
-    $shopVite = ['resources/css/frontend/shop/checkout.css'];
+    $shopVite = ['resources/css/frontend/shop/checkout.css', 'resources/js/frontend/shop/base.js'];
 @endphp
 
 @section('title', 'Pedido confirmado — Equiterm Industries')

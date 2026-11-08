@@ -1,7 +1,7 @@
 @extends('frontend.shop.layouts.master')
 
 @php
-    $shopVite = ['resources/css/frontend/shop/legal.css'];
+    $shopVite = ['resources/css/frontend/shop/legal.css', 'resources/js/frontend/shop/base.js'];
     $metaTitle = 'Términos y Condiciones — Equiterm Industries';
     $metaDescription = 'Condiciones generales de uso del sitio web y contratación de servicios de Equiterm Industries.';
     $canonicalUrl = route('terms-of-service');

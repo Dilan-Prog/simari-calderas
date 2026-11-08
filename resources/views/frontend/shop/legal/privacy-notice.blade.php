@@ -1,7 +1,7 @@
 @extends('frontend.shop.layouts.master')
 
 @php
-    $shopVite = ['resources/css/frontend/shop/legal.css'];
+    $shopVite = ['resources/css/frontend/shop/legal.css', 'resources/js/frontend/shop/base.js'];
     $metaTitle = 'Aviso de Privacidad — Equiterm Industries';
     $metaDescription = 'Conoce cómo Equiterm Industries recaba, usa y protege tus datos personales, y cómo ejercer tus derechos ARCO.';
     $canonicalUrl = route('privacy-notice');
