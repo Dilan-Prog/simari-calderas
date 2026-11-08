@@ -283,9 +283,9 @@ img { max-width: 100%; height: auto; display: block; }
     align-items: center;
     gap: 6px;
     text-decoration: none;
-    cursor: default;
+    cursor: pointer;
 }
-.eq-header__nav > a:hover { color: var(--secondary-color); }
+.eq-header__nav > a:hover, .eq-header__nav-item:hover > span { color: var(--secondary-color); }
 
 /* Mega menus */
 .eq-mega {
