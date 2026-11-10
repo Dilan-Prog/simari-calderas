@@ -31,6 +31,7 @@ export default defineConfig({
                 'resources/css/material-delivery-reports.css',
                 'resources/css/admin/pages/usuarios.css',
                 'resources/css/admin/pages/usuarios-modals.css',
+                'resources/css/admin/pages/clientes-modals.css',
                 'resources/css/admin/pages/clientes.css',
                 'resources/css/admin/pages/proveedores.css',
                 'resources/css/admin/pages/categories.css',

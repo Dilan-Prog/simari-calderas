@@ -332,119 +332,8 @@
         gap: 16px;
     }
 
-    /* FIX QA (bug de arquitectura): esta regla vivía accidentalmente
-       ANIDADA dentro de "@media (max-width: 480px)" en el users.css
-       original (llave de cierre faltante), así que las tarjetas móviles
-       de Clientes solo se activaban por debajo de 480px — la mayoría de
-       los teléfonos en el rango 480-768px veían la tabla sin estilo. */
-    .table-container-clients-manager {
-        border: none;
-        box-shadow: none;
-        background: transparent;
-    }
-
-    .table-container-clients-manager table,
-    .table-container-clients-manager thead,
-    .table-container-clients-manager tbody,
-    .table-container-clients-manager tr,
-    .table-container-clients-manager th,
-    .table-container-clients-manager td {
-        display: block;
-        width: 100%;
-    }
-
-    .table-container-clients-manager thead {
-        display: none;
-    }
-
-    .table-container-clients-manager .table-scroll {
-        max-height: none;
-        overflow-x: visible;
-        overflow-y: auto;
-    }
-
-    .table-container-clients-manager tbody tr {
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-        background: white;
-        border-radius: 12px;
-        border: 1px solid var(--border-color);
-        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-        padding: 16px;
-        margin-bottom: 12px;
-    }
-
-    .table-container-clients-manager tbody tr td {
-        border-top: none;
-        padding: 0;
-        font-size: 13px;
-    }
-
-    .table-container-clients-manager .clients-manager-table-cell {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-
-    .table-container-clients-manager tbody tr td:not(:first-child) {
-        padding-top: 8px;
-        border-top: 1px solid #f3f4f6;
-    }
-
-    .table-container-clients-manager tbody tr td:nth-child(2)::before {
-        content: 'Cliente: ';
-        font-size: 11px;
-        font-weight: 700;
-        color: #9ca3af;
-        text-transform: uppercase;
-        display: block;
-        margin-bottom: 2px;
-    }
-
-    .table-container-clients-manager tbody tr td:nth-child(3)::before {
-        content: 'Contacto: ';
-        font-size: 11px;
-        font-weight: 700;
-        color: #9ca3af;
-        text-transform: uppercase;
-        display: block;
-        margin-bottom: 2px;
-    }
-
-    .table-container-clients-manager tbody tr td:nth-child(4)::before {
-        content: 'RFC: ';
-        font-size: 11px;
-        font-weight: 700;
-        color: #9ca3af;
-        text-transform: uppercase;
-        display: block;
-        margin-bottom: 2px;
-    }
-
-    .table-container-clients-manager tbody tr td:nth-child(5)::before {
-        content: 'Estado: ';
-        font-size: 11px;
-        font-weight: 700;
-        color: #9ca3af;
-        text-transform: uppercase;
-        display: block;
-        margin-bottom: 4px;
-    }
-
-    .table-container-clients-manager tbody tr td:last-child {
-        padding-top: 12px;
-        border-top: 1px solid #f1f5f9;
-    }
-
-    .table-container-clients-manager .header-right-user-manager {
-        justify-content: flex-end;
-        gap: 8px;
-    }
-
-    .clients-manager-main .button-primary.size-adjustment {
-        width: 100%;
-    }
+    /* Las tarjetas móviles del listado viven abajo, en el bloque
+       "LISTADO DE CLIENTES" (acotadas bajo .clients-index). */
 }
 
 /* ── "Sin Correo" / "RFC Genérico" (checkbox junto al campo) ── */
@@ -463,4 +352,310 @@
     width: auto;
     margin: 0;
     cursor: pointer;
+}
+
+/* ============================================================
+   LISTADO DE CLIENTES — tabla única + buscador + paginación.
+   Mismo patrón que .users-index (usuarios.css). Todo va acotado bajo
+   .clients-index (clase extra en la <section> de client/index.blade.php)
+   porque .clients-manager-*, .table-scroll y .table-container-clients-manager
+   también los usan otros módulos (pedidos, compras, ajustes ERP…).
+   ============================================================ */
+
+/* ── Barra de la tabla (buscador + estado + filas por página) ── */
+.clients-index .clients-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+    flex-wrap: wrap;
+}
+.clients-index .clients-search {
+    flex: 1 1 280px;
+    max-width: 460px;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    height: 40px;
+    padding: 0 0.75rem;
+    background: var(--background--white, #fff);
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    color: #9ca3af;
+    box-sizing: border-box;
+    transition: border-color 0.15s, box-shadow 0.15s;
+}
+.clients-index .clients-search:focus-within {
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 0 3px rgba(255, 98, 19, 0.12);
+}
+.clients-index .clients-search svg { flex-shrink: 0; }
+.clients-index .clients-search input {
+    flex: 1;
+    min-width: 0;
+    border: 0;
+    outline: none;
+    background: transparent;
+    font: 400 0.875rem var(--font-family);
+    color: #111827;
+}
+.clients-index .clients-toolbar__filters {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+.clients-index .clients-per-page {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.82rem;
+    color: #6b7280;
+    white-space: nowrap;
+}
+.clients-index .clients-status-filter,
+.clients-index .clients-per-page select {
+    height: 36px;
+    padding: 0 0.6rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    background: var(--background--white, #fff);
+    font: 500 0.82rem var(--font-family);
+    color: #374151;
+    cursor: pointer;
+    box-sizing: border-box;
+}
+.clients-index .clients-status-filter { height: 40px; }
+
+/* ── Tabla (escritorio): una sola <table>; la paginación sustituye al
+   scroll vertical interno, sólo se conserva el scroll horizontal. ── */
+.clients-index .table-scroll {
+    max-height: none;
+    overflow-x: auto;
+}
+.clients-index .clients-manager-table th:last-child,
+.clients-index .clients-manager-table td.clients-cell-actions {
+    width: 240px;
+}
+.clients-index .clients-actions {
+    gap: 8px;
+    height: auto;
+    overflow: visible;
+    justify-content: flex-start;
+}
+.clients-index .clients-company-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    flex-shrink: 0;
+    border-radius: 10px;
+    background: #f3f4f6;
+    color: #4b5563;
+}
+.clients-index .clients-company-text { min-width: 0; }
+.clients-index .clients-manager-name-client,
+.clients-index .clients-cell-contact .breadcrumb-clients-manager {
+    overflow-wrap: anywhere;
+}
+.clients-index .clients-client-inner {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+}
+.clients-index .clients-client-inner .breadcrumb-clients-manager {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+.clients-index .clients-cell-contact .breadcrumb-clients-manager {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.clients-index .clients-cell-contact .breadcrumb-clients-manager + .breadcrumb-clients-manager {
+    margin-top: 4px;
+}
+.clients-index .clients-cell-contact svg { flex-shrink: 0; }
+.clients-index .clients-manager-table tbody tr.is-paged-out,
+.clients-index .clients-manager-table tbody tr[hidden] {
+    display: none;
+}
+.clients-index .clients-empty {
+    text-align: center;
+    color: #9ca3af;
+    font-size: 0.85rem;
+    padding: 32px 16px;
+}
+
+/* ── Paginación ── */
+.clients-index .clients-pager {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    padding: 0.9rem 0.25rem 0;
+    font-size: 0.82rem;
+    color: #6b7280;
+}
+.clients-index .clients-pager__info strong { color: #374151; }
+.clients-index .clients-pager__nav { display: flex; gap: 0.35rem; flex-wrap: wrap; }
+.clients-index .clients-pager__btn {
+    min-width: 34px;
+    height: 34px;
+    padding: 0 0.55rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    background: var(--background--white, #fff);
+    color: #374151;
+    font: 600 0.82rem var(--font-family);
+    cursor: pointer;
+}
+.clients-index .clients-pager__btn:hover:not(:disabled) { border-color: #d1d5db; background: #f9fafb; }
+.clients-index .clients-pager__btn.is-current {
+    background: var(--secondary-color);
+    border-color: var(--secondary-color);
+    color: #fff;
+}
+.clients-index .clients-pager__btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* ── Responsive ─────────────────────────────────────────── */
+@media (max-width: 768px) {
+    /* Encabezado: el título envuelve; acciones a todo lo ancho */
+    .clients-index .clients-manager-main > div:first-child { min-width: 0; max-width: 100%; }
+    .clients-index .clients-manager-main h1 { overflow-wrap: anywhere; margin: 0; }
+    .clients-index .clients-header-actions { width: 100%; flex-wrap: nowrap; }
+    .clients-index .clients-header-actions .col-vis-btn { min-height: 44px; height: 44px; padding: 0 16px; width: auto; }
+    .clients-index .clients-header-actions .button-primary.size-adjustment.clients {
+        flex: 1 1 auto;
+        width: auto;
+        min-height: 44px;
+        white-space: nowrap;
+    }
+
+    /* Buscador + filtros (16px evita el zoom automático de iOS) */
+    .clients-index .clients-search { flex-basis: 100%; max-width: none; height: 44px; }
+    .clients-index .clients-search input { font-size: 16px; }
+    .clients-index .clients-toolbar__filters { width: 100%; flex-wrap: nowrap; }
+    .clients-index .clients-status-filter { flex: 1 1 auto; min-width: 0; height: 44px; font-size: 16px; }
+    .clients-index .clients-per-page select { height: 44px; font-size: 16px; }
+
+    /* Tabla -> tarjetas */
+    .clients-index .table-container-clients-manager {
+        border: none;
+        border-radius: 0;
+        box-shadow: none;
+        background: transparent;
+        overflow: visible;
+    }
+    .clients-index .table-scroll { overflow: visible; }
+    .clients-index .clients-manager-table { display: block; table-layout: auto; }
+    .clients-index .clients-manager-table thead { display: none; }
+    .clients-index .clients-manager-table tbody { display: grid; gap: 12px; }
+    .clients-index .clients-manager-table tbody tr.clients-row {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 10px;
+        padding: 16px;
+        background: var(--background--white, #fff);
+        border: 1px solid var(--border-color, #eef0f3);
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        min-width: 0;
+    }
+    .clients-index .clients-manager-table tbody tr.is-paged-out,
+    .clients-index .clients-manager-table tbody tr[hidden] { display: none; }
+    .clients-index .clients-manager-table tbody td {
+        display: block;
+        grid-column: 1 / -1;
+        width: auto;
+        padding: 0;
+        border: 0;
+        min-width: 0;
+        font-size: 13px;
+    }
+    /* .col-hidden (admin.css) ya es display:none !important; se repite por claridad */
+    .clients-index .clients-manager-table tbody td.col-hidden { display: none; }
+
+    /* Cabecera de la tarjeta: icono + empresa + ciudad, con el estado a la derecha */
+    .clients-index .clients-manager-table tbody td.clients-cell-company {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        grid-column: 1;
+        grid-row: 1;
+    }
+    .clients-index .clients-manager-table tbody td.clients-cell-status {
+        grid-column: 2;
+        grid-row: 1;
+        align-self: start;
+    }
+    .clients-index .clients-manager-table tbody td.clients-cell-status::before { content: none; }
+    .clients-index .clients-manager-table tbody td.clients-cell-status .users-manager-badge {
+        display: inline-block;
+        white-space: nowrap;
+    }
+    .clients-index .clients-company-icon { width: 40px; height: 40px; }
+
+    .clients-index .clients-manager-table tbody td[data-label]::before {
+        content: attr(data-label);
+        display: block;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: #9ca3af;
+        margin-bottom: 4px;
+    }
+    .clients-index .clients-manager-table tbody td.clients-cell-client {
+        padding-top: 10px;
+        border-top: 1px solid #f3f4f6;
+    }
+    .clients-index .clients-manager-table tbody td.clients-cell-client .avatar-user-manager {
+        width: 32px;
+        height: 32px;
+        min-width: 32px;
+        min-height: 32px;
+        font-size: 13px;
+    }
+    .clients-index .clients-manager-table tbody td.clients-cell-client .breadcrumb-clients-manager,
+    .clients-index .clients-cell-contact .breadcrumb-clients-manager,
+    .clients-index .clients-cell-rfc .breadcrumb-clients-manager {
+        font-size: 13px;
+        color: #374151;
+    }
+
+    /* Acciones: botones grandes a todo lo ancho, separados por un borde */
+    .clients-index .clients-manager-table tbody td.clients-cell-actions {
+        width: auto;
+        padding-top: 12px;
+        border-top: 1px solid #f3f4f6;
+    }
+    .clients-index .clients-actions { display: flex; gap: 8px; justify-content: stretch; }
+    .clients-index .clients-actions .table-users-manager-action-btn {
+        flex: 1 1 0;
+        width: auto;
+        min-width: 0;
+        height: 46px;
+    }
+
+    .clients-index .clients-manager-table tbody tr.clients-empty-row,
+    .clients-index .clients-manager-table tbody tr.clients-no-results {
+        display: block;
+        background: var(--background--white, #fff);
+        border: 1px solid var(--border-color, #eef0f3);
+        border-radius: 12px;
+    }
+    .clients-index .clients-manager-table tbody tr.clients-no-results[hidden] { display: none; }
+    .clients-index .clients-manager-table tbody tr.clients-empty-row td,
+    .clients-index .clients-manager-table tbody tr.clients-no-results td { padding: 24px 16px; }
+
+    /* Paginación centrada con botones más grandes */
+    .clients-index .clients-pager { justify-content: center; text-align: center; }
+    .clients-index .clients-pager__info { width: 100%; }
+    .clients-index .clients-pager__nav { justify-content: center; }
+    .clients-index .clients-pager__btn { min-width: 44px; height: 44px; }
 }

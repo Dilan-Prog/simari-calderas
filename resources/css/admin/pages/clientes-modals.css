@@ -1,0 +1,323 @@
+/* ============================================================
+   clientes-modals.css — Modales del panel de Clientes
+   (nuevo, editar, eliminar, panel de acceso) adaptados a celular.
+   Todo va acotado a .clients-page-modal para no afectar los
+   modales de otros módulos que comparten .user-manager-modal.
+   ============================================================ */
+
+/* Fondo bloqueado mientras haya un modal de clientes abierto
+   (script en _edit_modal.blade.php: index y detalle del cliente) */
+body.clients-scroll-lock {
+    overflow: hidden;
+}
+
+/* ── Nuevo / Editar: modal centrado, encabezado y botones fijos ──
+   Estructura: .user-manager-modal-content (columna)
+     > header (fijo) > form.user-manager-modal-body (columna)
+         > .clients-modal-scroll (único con scroll) + .user-manager-modal-footer (fijo) */
+.clients-page-modal.user-manager-modal {
+    inset: 0;
+    justify-content: center;
+    align-items: center;
+    padding: 1rem;
+    box-sizing: border-box;
+}
+
+.clients-page-modal .user-manager-modal-content {
+    width: min(760px, calc(100vw - 2rem));
+    max-width: none;
+    height: auto;
+    max-height: min(88vh, 900px);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border-radius: 14px;
+    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.2);
+    animation: clientsModalIn 0.2s ease;
+}
+
+@keyframes clientsModalIn {
+    from { opacity: 0; transform: translateY(8px) scale(0.98); }
+    to   { opacity: 1; transform: none; }
+}
+
+.clients-page-modal .user-manager-modal-header {
+    flex-shrink: 0;
+    gap: 12px;
+}
+
+.clients-page-modal .user-manager-modal-header h2 {
+    margin: 0;
+}
+
+.clients-page-modal form.user-manager-modal-body {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+}
+
+.clients-page-modal .clients-modal-scroll {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    padding: 4px 20px 20px;
+}
+
+.clients-page-modal .clients-modal-scroll > .user-manager-errors {
+    margin-top: 16px;
+}
+
+.clients-page-modal .user-manager-modal-footer {
+    flex-shrink: 0;
+    margin: 0;
+    padding: 14px 20px;
+    border-top: 1px solid rgb(219, 219, 219);
+    background: #fff;
+}
+
+/* Botón cerrar: área táctil ≥ 40px */
+.clients-page-modal .table-users-manager-action-btn.cancel {
+    min-width: 40px;
+    min-height: 40px;
+    flex-shrink: 0;
+}
+
+/* ── Acceso del cliente: misma idea (encabezado y pie fijos) ──
+   Estructura: .access-modal-box (columna) > .access-modal-header (fijo)
+     > form.access-modal-form (columna) > .clients-modal-scroll + .access-modal-footer */
+.clients-page-modal .access-modal-box {
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    overflow: hidden;
+}
+
+.clients-page-modal .access-modal-header {
+    flex-shrink: 0;
+    gap: 12px;
+    margin: 0;
+    padding: 22px 24px 16px;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.clients-page-modal .access-modal-close-btn {
+    justify-content: center;
+    min-width: 40px;
+    min-height: 40px;
+    margin: -8px -8px 0 0;
+    border-radius: 10px;
+}
+
+.clients-page-modal form.access-modal-form {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+}
+
+.clients-page-modal .access-modal-form .clients-modal-scroll {
+    padding: 16px 24px 4px;
+}
+
+.clients-page-modal .access-modal-hint {
+    margin-bottom: 12px;
+}
+
+/* Detalle de la solicitud de portal: textos largos (correos, URLs) no
+   deben ensanchar el modal */
+.clients-page-modal #portalRequestDetails {
+    overflow-wrap: anywhere;
+}
+
+.clients-page-modal .access-modal-footer {
+    flex-shrink: 0;
+    padding: 14px 24px;
+    border-top: 1px solid #f3f4f6;
+    background: #fff;
+}
+
+/* ── Celular ── */
+@media (max-width: 640px) {
+    /* Nuevo / Editar / Acceso: pantalla completa */
+    .clients-page-modal.user-manager-modal {
+        padding: 0;
+        align-items: stretch;
+    }
+
+    .clients-page-modal .user-manager-modal-content,
+    .clients-page-modal .access-modal-box {
+        width: 100vw;
+        max-width: none;
+        height: 100vh;
+        height: 100dvh;
+        max-height: none;
+        border-radius: 0;
+        box-shadow: none;
+        animation: clientsModalUp 0.22s ease;
+    }
+
+    .clients-page-modal.clients-access-overlay {
+        align-items: stretch;
+    }
+
+    @keyframes clientsModalUp {
+        from { opacity: 0; transform: translateY(16px); }
+        to   { opacity: 1; transform: none; }
+    }
+
+    .clients-page-modal .user-manager-modal-header,
+    .clients-page-modal .access-modal-header {
+        padding: 12px 16px;
+        padding-top: calc(12px + env(safe-area-inset-top));
+    }
+
+    .clients-page-modal .user-manager-modal-header h2 {
+        font-size: 1.15rem;
+    }
+
+    .clients-page-modal .access-modal-close-btn {
+        min-width: 44px;
+        min-height: 44px;
+        margin: -6px -8px 0 0;
+    }
+
+    .clients-page-modal .clients-modal-scroll,
+    .clients-page-modal .access-modal-form .clients-modal-scroll {
+        padding: 4px 16px 16px;
+    }
+
+    .clients-page-modal .access-modal-form .clients-modal-scroll {
+        padding-top: 16px;
+    }
+
+    /* Formularios en una columna (la cuadrícula de dirección es de 4
+       columnas con !important en admin.css) */
+    .clients-page-modal .user-manager-form,
+    .clients-page-modal .user-manager-form.client-modal-address-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* Leer Constancia SAT: botón a lo ancho */
+    .clients-page-modal .cfdi-reader-section {
+        padding: 1rem;
+    }
+
+    .clients-page-modal .cfdi-upload-row {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.5rem;
+    }
+
+    .clients-page-modal .cfdi-upload-row > button {
+        width: 100%;
+        height: auto;
+        min-height: 44px;
+    }
+
+    .clients-page-modal .cfdi-filename {
+        overflow-wrap: anywhere;
+    }
+
+    /* Casillas "Sin Correo", "RFC Genérico", "Misma que fiscal": área táctil */
+    .clients-page-modal .client-modal-checkbox-inline,
+    .clients-page-modal .client-modal-same-as-fiscal {
+        min-height: 44px;
+        align-items: center;
+    }
+
+    .clients-page-modal .client-modal-same-as-fiscal input[type="checkbox"],
+    .clients-page-modal .client-modal-checkbox-inline input[type="checkbox"] {
+        width: 20px;
+        height: 20px;
+    }
+
+    /* Evita el zoom automático de iOS y da altura táctil */
+    .clients-page-modal .users-manager-input,
+    .clients-page-modal .users-manager-select {
+        font-size: 16px;
+        min-height: 44px;
+    }
+
+    /* Acceso: estado de cuenta / portal, botón a lo ancho */
+    .clients-page-modal .access-status-row {
+        flex-wrap: wrap;
+    }
+
+    .clients-page-modal .access-status-row > button {
+        flex: 1 1 100%;
+        width: 100%;
+        height: auto;
+        min-height: 44px;
+    }
+
+    .clients-page-modal .access-password-toggle {
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        right: 2px;
+    }
+
+    /* Botones fijos abajo, grandes y lado a lado */
+    .clients-page-modal .user-manager-modal-footer,
+    .clients-page-modal .access-modal-footer,
+    .clients-page-modal .del-confirm-actions {
+        flex-direction: row;
+        gap: 10px;
+        padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+    }
+
+    .clients-page-modal .user-manager-modal-footer > button,
+    .clients-page-modal .access-modal-footer > button,
+    .clients-page-modal .del-confirm-actions > button {
+        flex: 1;
+        width: auto;
+        min-width: 0;
+    }
+
+    .clients-page-modal .user-manager-modal-footer button.size-adjustment,
+    .clients-page-modal .access-modal-footer button.size-adjustment,
+    .clients-page-modal .del-confirm-actions button.size-adjustment {
+        width: 100%;
+        height: auto;
+        min-height: 46px;
+        padding: 10px 12px;
+        font-size: 15px;
+        text-align: center;
+    }
+
+    .clients-page-modal .table-users-manager-action-btn.cancel {
+        width: 44px;
+        height: 44px;
+    }
+
+    /* Eliminar: hoja inferior */
+    .clients-page-modal.del-confirm-overlay:not(.clients-access-overlay) {
+        align-items: flex-end;
+    }
+
+    .clients-page-modal .del-confirm-box:not(.access-modal-box) {
+        width: 100%;
+        max-width: none;
+        max-height: 90dvh;
+        overflow-y: auto;
+        box-sizing: border-box;
+        border-radius: 16px 16px 0 0;
+        padding: 24px 16px 0;
+        animation: clientsSheetUp 0.22s ease;
+    }
+
+    .clients-page-modal .del-confirm-actions {
+        margin: 0 -16px;
+        border-top: 1px solid #f3f4f6;
+    }
+
+    @keyframes clientsSheetUp {
+        from { transform: translateY(100%); }
+        to   { transform: none; }
+    }
+}

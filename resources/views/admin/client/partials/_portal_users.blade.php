@@ -43,7 +43,7 @@
 @endpush
 
 {{-- ═════ Tab: Usuarios del portal ═════ --}}
-<div class="tab-content-show-client" id="portal-users">
+<div class="tab-content-show-client cshow-cards" id="portal-users">
     <p class="pu-note">
         La cuenta titular es el propio cliente. Los usuarios del equipo los da de alta el titular desde su portal
         (Usuarios y roles); aquí el personal puede activarlos, desactivarlos, cambiarles la contraseña o eliminarlos.
@@ -61,36 +61,36 @@
                 </thead>
                 <tbody>
                     <tr class="pu-owner">
-                        <td>{{ trim($customer->first_name . ' ' . $customer->last_name) ?: '—' }}<small>Titular de la cuenta</small></td>
-                        <td>{{ $customer->email ?: '—' }}</td>
-                        <td><span class="pu-badge owner">Titular</span></td>
-                        <td>
+                        <td class="pu-td-name cshow-full">{{ trim($customer->first_name . ' ' . $customer->last_name) ?: '—' }}<small>Titular de la cuenta</small></td>
+                        <td class="cshow-full" data-label="Correo">{{ $customer->email ?: '—' }}</td>
+                        <td data-label="Rol"><span class="pu-badge owner">Titular</span></td>
+                        <td data-label="Estado">
                             @if ($customer->portal_access)
                                 <span class="pu-badge on">Acceso al portal activo</span>
                             @else
                                 <span class="pu-badge off">Sin acceso al portal</span>
                             @endif
                         </td>
-                        <td>—</td>
-                        <td>{{ $customer->created_at?->format('d/m/Y') ?? '—' }}</td>
+                        <td data-label="Último acceso">—</td>
+                        <td data-label="Alta">{{ $customer->created_at?->format('d/m/Y') ?? '—' }}</td>
                         @if ($puCanEdit)<td></td>@endif
                     </tr>
                     @foreach ($puMembers as $m)
                         <tr>
-                            <td>{{ $m->full_name }}@if ($m->phone)<small>{{ $m->phone }}</small>@endif</td>
-                            <td>{{ $m->email }}</td>
-                            <td>{{ $m->role?->name ?? 'Sin rol' }}</td>
-                            <td>
+                            <td class="pu-td-name cshow-full">{{ $m->full_name }}@if ($m->phone)<small>{{ $m->phone }}</small>@endif</td>
+                            <td class="cshow-full" data-label="Correo">{{ $m->email }}</td>
+                            <td data-label="Rol">{{ $m->role?->name ?? 'Sin rol' }}</td>
+                            <td data-label="Estado">
                                 @if ($m->isActive())
                                     <span class="pu-badge on">Activo</span>
                                 @else
                                     <span class="pu-badge off">Inactivo</span>
                                 @endif
                             </td>
-                            <td>{{ $m->last_login_at ? $m->last_login_at->format('d/m/Y H:i') : 'Nunca' }}</td>
-                            <td>{{ $m->created_at?->format('d/m/Y') ?? '—' }}</td>
+                            <td data-label="Último acceso">{{ $m->last_login_at ? $m->last_login_at->format('d/m/Y H:i') : 'Nunca' }}</td>
+                            <td data-label="Alta">{{ $m->created_at?->format('d/m/Y') ?? '—' }}</td>
                             @if ($puCanEdit)
-                                <td>
+                                <td class="cshow-full">
                                     <div class="pu-actions">
                                         <form method="POST" action="{{ route('admin.clients.portal-users.toggle', [$customer->id, $m->id]) }}">
                                             @csrf @method('PATCH')
@@ -126,9 +126,9 @@
                     <tbody>
                         @foreach ($puRoles as $r)
                             <tr>
-                                <td>{{ $r->name }}@if ($r->is_system)<small>Rol del sistema</small>@endif</td>
-                                <td>{{ $r->description ?: '—' }}</td>
-                                <td style="text-align:right">{{ $r->users_count }}</td>
+                                <td class="pu-td-name cshow-full">{{ $r->name }}@if ($r->is_system)<small>Rol del sistema</small>@endif</td>
+                                <td data-label="Descripción">{{ $r->description ?: '—' }}</td>
+                                <td data-label="Usuarios" style="text-align:right">{{ $r->users_count }}</td>
                             </tr>
                         @endforeach
                     </tbody>
@@ -179,7 +179,20 @@
                         dlg.querySelector('[data-pu-name]').textContent = btn.dataset.name;
                         form.querySelectorAll('input[type=password]').forEach(i => i.value = '');
                         dlg.showModal();
+                        // En teléfono el diálogo es una hoja inferior: se bloquea el scroll de la página detrás.
+                        if (window.matchMedia('(max-width: 640px)').matches) {
+                            document.documentElement.style.overflow = 'hidden';
+                            document.body.style.overflow = 'hidden';
+                            const page = document.querySelector('.cshow-m');
+                            if (page) page.style.overflow = 'hidden';
+                        }
                     }));
+                    dlg.addEventListener('close', () => {
+                        document.documentElement.style.overflow = '';
+                        document.body.style.overflow = '';
+                        const page = document.querySelector('.cshow-m');
+                        if (page) page.style.overflow = '';
+                    });
                     dlg.querySelectorAll('[data-pu-close]').forEach(b => b.addEventListener('click', () => dlg.close()));
                 };
                 wire('[data-pu-password]', 'puPasswordDialog');

@@ -1,6 +1,7 @@
 @extends('admin.layouts.master')
 @push('styles')
     @vite('resources/css/admin/pages/clientes.css')
+    @vite('resources/css/admin/pages/clientes-modals.css')
 @endpush
 @section('title')
     Gestor de Clientes - Admin

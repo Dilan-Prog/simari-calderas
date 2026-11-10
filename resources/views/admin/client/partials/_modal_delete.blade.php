@@ -1,4 +1,5 @@
-<div id="deleteClientModal" class="del-confirm-overlay">
+<div id="deleteClientModal" class="del-confirm-overlay clients-page-modal" role="dialog" aria-modal="true"
+    aria-labelledby="deleteClientModalTitle">
     <div class="del-confirm-box">
         <div class="del-confirm-icon-wrap">
             <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none"
@@ -8,7 +9,7 @@
                 <path d="M12 17h.01"></path>
             </svg>
         </div>
-        <h2 class="del-confirm-title">¿Eliminar cliente?</h2>
+        <h2 class="del-confirm-title" id="deleteClientModalTitle">¿Eliminar cliente?</h2>
         <p class="del-confirm-desc">Esta acción no se puede deshacer. El cliente perderá acceso al sistema
             permanentemente.</p>
         <div class="del-confirm-user-card">
@@ -20,7 +21,7 @@
         </div>
         <div class="del-confirm-actions">
             <button type="button" class="button-secondary size-adjustment"
-                id="delClientConfirmCancel">Cancelar</button>
+                id="delClientConfirmCancel" data-clients-modal-close>Cancelar</button>
             <button type="button" id="delClientConfirmBtn"
                 class="button-primary size-adjustment delete-confirmation-modal-button">
                 Eliminar

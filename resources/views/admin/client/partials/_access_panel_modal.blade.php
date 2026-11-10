@@ -1,20 +1,32 @@
 {{-- Access Panel Modal --}}
-<div id="accessModalOverlay" class="del-confirm-overlay" style="z-index:100000">
+<div id="accessModalOverlay" class="del-confirm-overlay clients-page-modal clients-access-overlay" style="z-index:100000"
+    role="dialog" aria-modal="true" aria-labelledby="accessModalTitle">
     <div class="del-confirm-box access-modal-box">
 
         {{-- Header --}}
         <div class="access-modal-header">
             <div class="access-modal-header-text">
-                <h3 class="access-modal-title">Acceso del cliente</h3>
+                <h3 class="access-modal-title" id="accessModalTitle">Acceso del cliente</h3>
                 <p class="access-modal-subtitle">Controla el estado de la cuenta, el portal y la contraseña del cliente</p>
             </div>
-            <button type="button" class="access-modal-close-btn" onclick="closeAccessModal()">
+            <button type="button" class="access-modal-close-btn" onclick="closeAccessModal()"
+                aria-label="Cerrar" data-clients-modal-close>
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
                      fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M18 6 6 18M6 6l12 12"/>
                 </svg>
             </button>
         </div>
+
+        {{-- El formulario envuelve todo el cuerpo para que el pie (Cancelar /
+             Otorgar acceso) quede fijo abajo y solo .clients-modal-scroll haga
+             scroll (clientes-modals.css). Los botones de arriba son type="button",
+             así que no envían el formulario. --}}
+        <form id="accessForm" class="access-modal-form" novalidate>
+            @csrf
+            <input type="hidden" id="accessCustomerId">
+
+        <div class="clients-modal-scroll">
 
         {{-- Customer info --}}
         <div class="access-modal-customer-info">
@@ -77,11 +89,7 @@
             <span>Este cliente ya tiene acceso al portal. Si continúas, su contraseña actual será reemplazada.</span>
         </div>
 
-        {{-- Form --}}
-        <form id="accessForm">
-            @csrf
-            <input type="hidden" id="accessCustomerId">
-
+        {{-- Password fields --}}
             <div class="access-form-group">
                 <label class="supliers-manager-slider-label" for="accessPassword">Nueva contraseña</label>
                 <div class="access-password-wrapper">
@@ -137,6 +145,8 @@
                 </svg>
                 <span>La contraseña se almacenará de forma segura. El cliente podrá iniciar sesión con su email y esta contraseña.</span>
             </div>
+
+        </div>{{-- /.clients-modal-scroll --}}
 
             {{-- Footer --}}
             <div class="access-modal-footer">

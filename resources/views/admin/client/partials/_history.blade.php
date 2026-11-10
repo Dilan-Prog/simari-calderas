@@ -105,7 +105,7 @@
 
 {{-- ═════ Tabs por área ═════ --}}
 @foreach ($history['sections'] as $key => $section)
-    <div class="tab-content-show-client" id="hist-{{ $key }}">
+    <div class="tab-content-show-client cshow-cards" id="hist-{{ $key }}">
         @foreach ($section['groups'] as $group)
             <div class="ch-group">
                 <h3>{{ $group['label'] }} <span>{{ $group['total'] }} en total{{ $group['total'] > count($group['rows']) ? ' · se muestran las ' . count($group['rows']) . ' más recientes' : '' }}</span></h3>
@@ -120,11 +120,11 @@
                             <tbody>
                                 @foreach ($group['rows'] as $r)
                                     <tr>
-                                        <td>{{ $r['date']?->format('d/m/Y') ?? '—' }}</td>
-                                        <td>@if ($r['url'])<a href="{{ $r['url'] }}" @if ($r['type'] === 'purchase_order') target="_blank" rel="noopener" @endif>{{ $r['folio'] }}</a>@else{{ $r['folio'] }}@endif</td>
-                                        <td>{{ $r['title'] ?? '—' }}</td>
-                                        <td>@if ($r['status'])<span class="ch-badge">{{ $r['status'] }}</span>@else — @endif</td>
-                                        <td style="text-align:right">{{ $r['amount'] ?? '—' }}</td>
+                                        <td class="ch-td-date" data-label="Fecha">{{ $r['date']?->format('d/m/Y') ?? '—' }}</td>
+                                        <td class="ch-td-folio" data-label="Folio">@if ($r['url'])<a href="{{ $r['url'] }}" @if ($r['type'] === 'purchase_order') target="_blank" rel="noopener" @endif>{{ $r['folio'] }}</a>@else{{ $r['folio'] }}@endif</td>
+                                        <td class="ch-td-detail cshow-full" data-label="Detalle">{{ $r['title'] ?? '—' }}</td>
+                                        <td class="ch-td-status" data-label="Estado">@if ($r['status'])<span class="ch-badge">{{ $r['status'] }}</span>@else — @endif</td>
+                                        <td class="ch-td-amount" data-label="Monto" style="text-align:right">{{ $r['amount'] ?? '—' }}</td>
                                     </tr>
                                 @endforeach
                             </tbody>

@@ -6,28 +6,32 @@
      modal just reappeared closed with no feedback. Auto-open the modal and
      render the generic error list when $errors is populated, mirroring the
      #client-edit-errors container already used in the edit modal. --}}
-<div id="clientCreateModal" class="user-manager-modal client-manage-modal"
+<div id="clientCreateModal" class="user-manager-modal client-manage-modal clients-page-modal"
+    role="dialog" aria-modal="true" aria-labelledby="clientCreateModalTitle"
     @if ($errors->any()) style="display:flex" @endif>
     <div class="user-manager-modal-content client-modal-content">
 
         {{-- Header --}}
         <div class="user-manager-modal-header">
-            <h2>Nuevo Cliente</h2>
-            <button type="button" class="table-users-manager-action-btn cancel" id="closeClientModal">✕</button>
+            <h2 id="clientCreateModalTitle">Nuevo Cliente</h2>
+            <button type="button" class="table-users-manager-action-btn cancel" id="closeClientModal"
+                aria-label="Cerrar" data-clients-modal-close>✕</button>
         </div>
-
-        @if ($errors->any())
-            <div class="user-manager-errors">
-                @foreach ($errors->all() as $error)
-                    <p>{{ $error }}</p>
-                @endforeach
-            </div>
-        @endif
 
         {{-- Form --}}
         <form class="user-manager-modal-body" id="clientCreateForm"
             action="{{ route('admin.clients.store') }}" method="POST" novalidate>
             @csrf
+            {{-- Zona con scroll: encabezado y botones quedan fijos (clientes-modals.css) --}}
+            <div class="clients-modal-scroll">
+
+            @if ($errors->any())
+                <div class="user-manager-errors">
+                    @foreach ($errors->all() as $error)
+                        <p>{{ $error }}</p>
+                    @endforeach
+                </div>
+            @endif
 
             {{-- CFDI / Constancia SAT reader --}}
             <div class="cfdi-reader-section">
@@ -199,6 +203,8 @@
                     </select>
                 </div>
             </div>
+
+            </div>{{-- /.clients-modal-scroll --}}
 
             {{-- Footer --}}
             <div class="user-manager-modal-footer">
