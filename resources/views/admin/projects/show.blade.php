@@ -35,7 +35,7 @@
     ];
     $actionLabels = ['created' => 'Creado', 'updated' => 'Actualizado', 'deleted' => 'Eliminado'];
 @endphp
-<div class="erp-page prj-page">
+<div class="erp-page prj-page prj-show">
 
     <x-erp.object-header
         :eyebrow="'Proyecto · ' . $project->project_number"
@@ -66,7 +66,7 @@
             <a href="{{ route('admin.projects.edit', $project) }}" class="erp-btn erp-btn--primary">Editar</a>
         @endif
         @if ($canDelete)
-            <form method="POST" action="{{ route('admin.projects.destroy', $project) }}" onsubmit="return confirm('¿Eliminar este proyecto? Los documentos asociados se conservan.');">
+            <form method="POST" action="{{ route('admin.projects.destroy', $project) }}" class="prj-del-form" onsubmit="return confirm('¿Eliminar este proyecto? Los documentos asociados se conservan.');">
                 @csrf @method('DELETE')
                 <button type="submit" class="erp-btn erp-btn--danger">Eliminar</button>
             </form>
@@ -154,7 +154,7 @@
                                         <option value="{{ $k }}" @selected($ph->status === $k)>{{ $l }}</option>
                                     @endforeach
                                 </select>
-                                <input type="number" name="progress" min="0" max="100" value="{{ $ph->progress }}" class="erp-input prj-num-input" aria-label="Avance">
+                                <input type="number" name="progress" min="0" max="100" inputmode="numeric" value="{{ $ph->progress }}" class="erp-input prj-num-input" aria-label="Avance">
                                 <button type="submit" class="erp-btn erp-btn--sm">Actualizar</button>
                             </form>
                         @endif
@@ -201,19 +201,19 @@
                     <x-erp.empty title="Sin requerimientos de materiales" text="Aún no se ha generado un requerimiento (MRP) para este proyecto." />
                 @else
                     <div class="erp-table-wrap">
-                        <table class="erp-table">
+                        <table class="erp-table prj-cards-table">
                             <thead><tr><th>Folio</th><th>Estado</th><th>Requerido para</th><th class="is-num">Líneas</th></tr></thead>
                             <tbody>
                             @foreach ($requirements as $req)
-                                <tr>
-                                    <td class="erp-cell-folio">
+                                <tr class="prj-req-row">
+                                    <td class="erp-cell-folio prj-c-folio">
                                         @if (\Illuminate\Support\Facades\Route::has('admin.mrp.show'))
                                             <a href="{{ route('admin.mrp.show', $req->id) }}">{{ $req->number }}</a>
                                         @else {{ $req->number }} @endif
                                     </td>
-                                    <td><x-erp.status :value="$req->status" :label="\App\Models\MaterialRequirement::statusLabel($req->status)" :tone="\App\Models\MaterialRequirement::statusTone($req->status)" /></td>
-                                    <td>@if ($req->needed_by_date)<x-erp.due :date="$req->needed_by_date" :closed="in_array($req->status, ['cubierto', 'cancelado'], true)" />@else — @endif</td>
-                                    <td class="is-num">{{ $req->lines_count }}</td>
+                                    <td class="prj-c-status"><x-erp.status :value="$req->status" :label="\App\Models\MaterialRequirement::statusLabel($req->status)" :tone="\App\Models\MaterialRequirement::statusTone($req->status)" /></td>
+                                    <td class="prj-c-due" data-label="Requerido para">@if ($req->needed_by_date)<x-erp.due :date="$req->needed_by_date" :closed="in_array($req->status, ['cubierto', 'cancelado'], true)" />@else — @endif</td>
+                                    <td class="is-num prj-c-lines" data-label="Líneas">{{ $req->lines_count }}</td>
                                 </tr>
                             @endforeach
                             </tbody>

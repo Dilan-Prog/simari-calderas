@@ -1,5 +1,7 @@
 // ERP boms: JS del módulo (entrada de Vite).
 
+const isPhone = () => window.matchMedia('(max-width: 768px)').matches;
+
 function debounce(fn, ms) {
     let t;
     return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); };
@@ -41,6 +43,11 @@ function attachPicker(root, searchUrl, onPick, getExclude) {
     }, 250);
 
     input.addEventListener('input', run);
+    // En teléfono, al enfocar el buscador se sube al inicio de la pantalla para que la lista
+    // de resultados (en flujo, ver erp-boms.css) quede visible sobre el teclado.
+    input.addEventListener('focus', () => {
+        if (isPhone()) setTimeout(() => root.scrollIntoView({ block: 'start', behavior: 'smooth' }), 250);
+    });
     document.addEventListener('click', (e) => { if (!root.contains(e.target)) list.hidden = true; });
 }
 
@@ -76,16 +83,16 @@ function initForm(form) {
         const row = document.createElement('div');
         row.className = 'bom-line';
         row.innerHTML = `
-            <div class="bom-picker">
+            <div class="bom-picker bom-line-cell" data-label="Componente">
                 <input type="hidden" data-field="component_product_id">
                 <input type="hidden" data-field="component_name">
-                <input type="text" class="erp-input" autocomplete="off" placeholder="Buscar componente…" data-picker-input>
+                <input type="text" class="erp-input" autocomplete="off" placeholder="Buscar componente…" aria-label="Componente" data-picker-input>
                 <div class="bom-picker-list" hidden></div>
             </div>
-            <input type="number" class="erp-input" data-field="quantity" step="0.0001" min="0.0001" required>
-            <input type="text" class="erp-input" data-field="unit" maxlength="30" placeholder="pieza">
-            <input type="number" class="erp-input" data-field="scrap_percent" step="0.01" min="0" max="999.99">
-            <input type="text" class="erp-input" data-field="notes" maxlength="255">
+            <div class="bom-line-cell bom-line-qty" data-label="Cantidad"><input type="number" class="erp-input" data-field="quantity" step="0.0001" min="0.0001" inputmode="decimal" aria-label="Cantidad" required></div>
+            <div class="bom-line-cell bom-line-unit" data-label="Unidad"><input type="text" class="erp-input" data-field="unit" maxlength="30" placeholder="pieza" aria-label="Unidad"></div>
+            <div class="bom-line-cell bom-line-scrap" data-label="Merma %"><input type="number" class="erp-input" data-field="scrap_percent" step="0.01" min="0" max="999.99" inputmode="decimal" aria-label="Merma %"></div>
+            <div class="bom-line-cell bom-line-notes" data-label="Notas"><input type="text" class="erp-input" data-field="notes" maxlength="255" aria-label="Notas"></div>
             <div class="bom-line-actions">
                 <button type="button" class="erp-btn erp-btn--sm bom-icon-btn" data-up title="Subir" aria-label="Subir renglón">↑</button>
                 <button type="button" class="erp-btn erp-btn--sm bom-icon-btn" data-down title="Bajar" aria-label="Bajar renglón">↓</button>
@@ -118,9 +125,14 @@ function initForm(form) {
 
         container.appendChild(row);
         reindex();
+        return row;
     }
 
-    form.querySelector('[data-add-line]').addEventListener('click', () => addLine());
+    // Hay dos botones «Agregar componente» (cabecera y, en móvil, al pie de la lista).
+    form.querySelectorAll('[data-add-line]').forEach((btn) => btn.addEventListener('click', () => {
+        const row = addLine();
+        row.querySelector('[data-picker-input]').focus({ preventScroll: isPhone() });
+    }));
     initial.forEach(addLine);
     if (!initial.length) addLine();
 

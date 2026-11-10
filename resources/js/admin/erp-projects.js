@@ -8,6 +8,16 @@
     };
 
     // Las pestañas del show las maneja resources/js/admin/erp-ui.js ([data-erp-tabs]).
+    // En móvil la fila de pestañas se desplaza: mantiene visible la pestaña activa.
+    document.querySelectorAll('.prj-show .erp-tabnav').forEach((nav) => {
+        const reveal = (tab, smooth) => {
+            if (!tab || nav.scrollWidth <= nav.clientWidth) return;
+            const left = nav.scrollLeft + (tab.getBoundingClientRect().left - nav.getBoundingClientRect().left) - (nav.clientWidth - tab.offsetWidth) / 2;
+            nav.scrollTo({ left: Math.max(0, left), behavior: smooth ? 'smooth' : 'auto' });
+        };
+        nav.addEventListener('click', (e) => reveal(e.target.closest('.erp-tab'), true));
+        requestAnimationFrame(() => reveal(nav.querySelector('.erp-tab.is-active'), false));
+    });
 
     // ── Autocompletado de cliente ────────────────────────────────────────
     document.querySelectorAll('[data-customer-picker]').forEach((box) => {

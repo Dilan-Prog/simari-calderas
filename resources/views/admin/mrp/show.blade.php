@@ -30,7 +30,7 @@
 @endphp
 
 @section('content')
-<div class="erp-page mrp-page">
+<div class="erp-page mrp-page mrp-show">
     <x-erp.object-header
         :title="$requirement->number"
         :eyebrow="'REQUERIMIENTO DE MATERIAL · MRP1 · ' . strtoupper($requirement->originLabel()) . ($requirement->originNumber() ? ' ' . $requirement->originNumber() : '')"
@@ -114,19 +114,19 @@
                                     $tone = $l->tone();
                                     $avail = max(0, $l->on_hand - $l->reserved);
                                 @endphp
-                                <tr class="{{ $short && $tone === 'bad' ? 'is-short' : '' }}">
-                                    <td>
+                                <tr class="mrp-mrow {{ $short && $tone === 'bad' ? 'is-short' : '' }}">
+                                    <td class="mrp-m-mat">
                                         <div class="erp-cell-main">{{ $l->product->name ?? '—' }}</div>
                                         <div class="erp-cell-sub">{{ $l->product->sku ?? '' }}</div>
                                     </td>
-                                    <td>{{ \App\Models\MaterialRequirementLine::sourceLabel($l->source) }}</td>
-                                    <td class="is-num"><x-erp.matrix-cell :value="$n($l->required_quantity)" :unit="$l->unit" /></td>
-                                    <td class="is-num"><x-erp.matrix-cell :value="$n($l->on_hand)" /></td>
-                                    <td class="is-num"><x-erp.matrix-cell :value="$n($l->reserved)" /></td>
-                                    <td class="is-num"><x-erp.matrix-cell :value="$n($l->own_reserved)" /></td>
-                                    <td class="is-num"><x-erp.matrix-cell :value="$n($avail)" /></td>
-                                    <td class="is-num"><x-erp.matrix-cell :value="$n($l->shortfall)" :tone="$short ? 'bad' : null" :strong="$short" /></td>
-                                    <td>
+                                    <td class="mrp-m-src" data-label="Demanda">{{ \App\Models\MaterialRequirementLine::sourceLabel($l->source) }}</td>
+                                    <td class="is-num mrp-m-num" data-label="Requerido"><x-erp.matrix-cell :value="$n($l->required_quantity)" :unit="$l->unit" /></td>
+                                    <td class="is-num mrp-m-num" data-label="Existencia"><x-erp.matrix-cell :value="$n($l->on_hand)" /></td>
+                                    <td class="is-num mrp-m-num" data-label="Reservado (otros)"><x-erp.matrix-cell :value="$n($l->reserved)" /></td>
+                                    <td class="is-num mrp-m-num" data-label="Reservado (este)"><x-erp.matrix-cell :value="$n($l->own_reserved)" /></td>
+                                    <td class="is-num mrp-m-num" data-label="Disponible"><x-erp.matrix-cell :value="$n($avail)" /></td>
+                                    <td class="is-num mrp-m-num mrp-m-short{{ $short ? ' is-on' : '' }}" data-label="Faltante"><x-erp.matrix-cell :value="$n($l->shortfall)" :tone="$short ? 'bad' : null" :strong="$short" /></td>
+                                    <td class="mrp-m-state">
                                         @if (!$short)
                                             <x-erp.chip tone="ok" label="Cubierto" />
                                         @elseif ($tone === 'warn')
@@ -135,7 +135,7 @@
                                             <x-erp.chip tone="bad" label="Faltante" />
                                         @endif
                                     </td>
-                                    <td>
+                                    <td class="mrp-m-po" data-label="Orden de compra">
                                         @if ($l->purchaseOrder)
                                             @if ($poShowRoute)
                                                 <a class="mrp-link" href="{{ route($poShowRoute, $l->purchaseOrder->id) }}">{{ $l->purchaseOrder->po_number }}</a>
@@ -144,11 +144,14 @@
                                             @endif
                                         @else
                                             <span class="mrp-muted">—</span>
+                                            @if ($short && !$closed && $hasPurchasable && $can('create') && $canPo)
+                                                <a href="#mrp-compras" class="erp-btn erp-btn--primary mrp-m-only mrp-m-buy">Ver compra sugerida</a>
+                                            @endif
                                         @endif
                                     </td>
                                 </tr>
                             @empty
-                                <tr><td colspan="10" style="padding: 0; border: 0;">
+                                <tr class="mrp-row-empty"><td colspan="10" style="padding: 0; border: 0;">
                                     <x-erp.empty title="Sin demanda de materiales" text="El origen no genera demanda de materiales (¿sin productos de catálogo?)." />
                                 </td></tr>
                             @endforelse
@@ -222,7 +225,7 @@
 
                         @if ($can('create') && $canPo)
                             <div class="mrp-sug-footer">
-                                <span class="mrp-muted">Se creará una orden de compra (pendiente) por proveedor y moneda, con IVA 16%.</span>
+                                <span class="mrp-muted mrp-sug-footnote">Se creará una orden de compra (pendiente) por proveedor y moneda, con IVA 16%.</span>
                                 <button type="submit" class="erp-btn erp-btn--primary">Generar órdenes de compra</button>
                             </div>
                         @endif

@@ -22,7 +22,7 @@
 @endphp
 
 @section('content')
-<div class="erp-page mrp-page">
+<div class="erp-page mrp-page mrp-index{{ $canBatchPo ? ' mrp-index--batch' : '' }}">
     <x-erp.page-header title="Requerimientos de material" code="MRP2"
         desc="Qué se necesita, qué hay en existencia y qué falta comprar para pedidos, proyectos y servicios."
         :crumbs="[['MRP', null], ['Requerimientos de material', null]]">
@@ -72,6 +72,7 @@
         @if ($canBatchPo)
             <form method="POST" action="{{ route('admin.mrp.generate-purchase-orders-batch') }}" data-mrp-batch-form>
                 @csrf
+                <label class="mrp-m-only mrp-selall-m"><input type="checkbox" data-mrp-select-all-m> Seleccionar todos</label>
                 <x-erp.batch-bar noun="requerimientos">
                     <button type="submit" class="erp-btn">Generar órdenes de compra</button>
                 </x-erp.batch-bar>
@@ -99,34 +100,34 @@
                             $closed = in_array($r->status, ['cancelado', 'cubierto'], true);
                             $coverage = $r->lines_count > 0 ? (($r->lines_count - $r->short_lines_count) / $r->lines_count) * 100 : 0;
                         @endphp
-                        <tr>
+                        <tr class="mrp-row">
                             @if ($canBatchPo)
-                                <td class="mrp-col-check">
+                                <td class="mrp-col-check mrp-c-check">
                                     @unless ($r->status === 'cancelado')
-                                        <input type="checkbox" class="erp-row-check" value="{{ $r->id }}" aria-label="Seleccionar {{ $r->number }}">
+                                        <label class="mrp-check-hit"><input type="checkbox" class="erp-row-check" value="{{ $r->id }}" aria-label="Seleccionar {{ $r->number }}"></label>
                                     @endunless
                                 </td>
                             @endif
-                            <td class="erp-cell-folio"><a href="{{ route('admin.mrp.show', $r) }}">{{ $r->number }}</a></td>
-                            <td>
+                            <td class="erp-cell-folio mrp-c-folio"><a href="{{ route('admin.mrp.show', $r) }}">{{ $r->number }}</a></td>
+                            <td class="mrp-c-origin" data-label="Origen">
                                 <div class="erp-cell-main">{{ $r->originLabel() }}</div>
                                 @if ($r->originNumber())<div class="erp-cell-sub">{{ $r->originNumber() }}</div>@endif
                             </td>
-                            <td>{{ $r->customer ? trim($r->customer->first_name . ' ' . $r->customer->last_name) : '—' }}</td>
-                            <td class="is-num">{{ $r->lines_count }}</td>
-                            <td class="is-num">
+                            <td class="mrp-c-customer" data-label="Cliente">{{ $r->customer ? trim($r->customer->first_name . ' ' . $r->customer->last_name) : '—' }}</td>
+                            <td class="is-num mrp-c-lines" data-label="Partidas">{{ $r->lines_count }}</td>
+                            <td class="is-num mrp-c-short" data-label="Faltantes">
                                 @if ($r->short_lines_count > 0)
                                     <strong class="erp-tone-bad">{{ $r->short_lines_count }}</strong>
                                 @else
                                     <span class="erp-tone-ok">0</span>
                                 @endif
                             </td>
-                            <td><x-erp.progress :value="$coverage" /></td>
-                            <td>@if ($r->needed_by_date)<x-erp.due :date="$r->needed_by_date" :closed="$closed" />@else — @endif</td>
-                            <td><x-erp.status :value="$r->status" :label="\App\Models\MaterialRequirement::statusLabel($r->status)" :tone="\App\Models\MaterialRequirement::statusTone($r->status)" /></td>
+                            <td class="mrp-c-cov" data-label="Cobertura"><x-erp.progress :value="$coverage" /></td>
+                            <td class="mrp-c-due" data-label="Fecha requerida">@if ($r->needed_by_date)<x-erp.due :date="$r->needed_by_date" :closed="$closed" />@else — @endif</td>
+                            <td class="mrp-c-status"><x-erp.status :value="$r->status" :label="\App\Models\MaterialRequirement::statusLabel($r->status)" :tone="\App\Models\MaterialRequirement::statusTone($r->status)" /></td>
                         </tr>
                     @empty
-                        <tr><td colspan="{{ $colspan }}" style="padding: 0; border: 0;">
+                        <tr class="mrp-row-empty"><td colspan="{{ $colspan }}" style="padding: 0; border: 0;">
                             <x-erp.empty title="Aún no hay requerimientos" text="Crea uno con «Nuevo requerimiento» o desde la ficha de un pedido.">
                                 @if ($canCreate)<a href="{{ route('admin.mrp.create') }}" class="erp-btn erp-btn--primary">+ Nuevo requerimiento</a>@endif
                             </x-erp.empty>

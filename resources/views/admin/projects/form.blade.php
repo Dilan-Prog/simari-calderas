@@ -23,7 +23,7 @@
         ])
         : $phases;
 @endphp
-<div class="erp-page prj-page">
+<div class="erp-page prj-page prj-formpage">
     <x-erp.page-header
         :title="$isEdit ? 'Editar proyecto' : 'Nuevo proyecto'"
         :desc="!empty($preset['quote_number']) ? 'Se asociará a la cotización ' . $preset['quote_number'] . '.' : null"
@@ -108,7 +108,7 @@
             </template>
         </x-erp.card>
 
-        <div class="erp-form-actions">
+        <div class="erp-form-actions prj-form-actions">
             <a href="{{ $isEdit ? route('admin.projects.show', $project) : route('admin.projects.index') }}" class="erp-btn">Cancelar</a>
             <button type="submit" class="erp-btn erp-btn--primary">{{ $isEdit ? 'Guardar cambios' : 'Crear proyecto' }}</button>
         </div>

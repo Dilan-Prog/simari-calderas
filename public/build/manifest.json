@@ -101,7 +101,7 @@
     "isEntry": true
   },
   "resources/css/admin/pages/erp-boms.css": {
-    "file": "assets/erp-boms-BNbydHOQ.css",
+    "file": "assets/erp-boms-BpdDSv01.css",
     "src": "resources/css/admin/pages/erp-boms.css",
     "isEntry": true
   },
@@ -131,7 +131,7 @@
     "isEntry": true
   },
   "resources/css/admin/pages/erp-mrp.css": {
-    "file": "assets/erp-mrp-DDbJeXvN.css",
+    "file": "assets/erp-mrp-pHh1nxCH.css",
     "src": "resources/css/admin/pages/erp-mrp.css",
     "isEntry": true
   },
@@ -141,7 +141,7 @@
     "isEntry": true
   },
   "resources/css/admin/pages/erp-projects.css": {
-    "file": "assets/erp-projects-Hw8dJr7d.css",
+    "file": "assets/erp-projects-BYGoK2tE.css",
     "src": "resources/css/admin/pages/erp-projects.css",
     "isEntry": true
   },
@@ -373,7 +373,7 @@
     ]
   },
   "resources/js/admin/erp-boms.js": {
-    "file": "assets/erp-boms-C3wIYhRZ.js",
+    "file": "assets/erp-boms-DbzWACop.js",
     "name": "erp-boms",
     "src": "resources/js/admin/erp-boms.js",
     "isEntry": true
@@ -400,7 +400,7 @@
     "isEntry": true
   },
   "resources/js/admin/erp-mrp.js": {
-    "file": "assets/erp-mrp-DGhCyt9W.js",
+    "file": "assets/erp-mrp-B3b5M1yt.js",
     "name": "erp-mrp",
     "src": "resources/js/admin/erp-mrp.js",
     "isEntry": true
@@ -418,7 +418,7 @@
     "isEntry": true
   },
   "resources/js/admin/erp-projects.js": {
-    "file": "assets/erp-projects-DH6LozPA.js",
+    "file": "assets/erp-projects-BlUKwdSo.js",
     "name": "erp-projects",
     "src": "resources/js/admin/erp-projects.js",
     "isEntry": true

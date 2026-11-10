@@ -30,7 +30,7 @@
 @endphp
 
 @section('content')
-<div class="erp-page bom-page">
+<div class="erp-page bom-page bom-form">
     <x-erp.page-header :title="$isEdit ? 'Editar lista de materiales v' . $bom->version : 'Nueva lista de materiales'" code="PLA3"
         :crumbs="[['Planeación', null], ['Listas de materiales', route('admin.boms.index')], [$isEdit ? 'Editar v' . $bom->version : 'Nueva', null]]">
         <a href="{{ $backUrl }}" class="erp-btn">← Volver</a>
@@ -91,9 +91,10 @@
             </div>
             <div data-lines></div>
             <p class="bom-muted" data-lines-empty>Sin componentes. Usa «Agregar componente».</p>
+            <button type="button" class="erp-btn bom-add-line-bottom" data-add-line>+ Agregar componente</button>
         </x-erp.card>
 
-        <div class="erp-form-actions" style="border-top: 0;">
+        <div class="erp-form-actions bom-form-actions" style="border-top: 0;">
             <a href="{{ $backUrl }}" class="erp-btn">Cancelar</a>
             <button type="submit" class="erp-btn erp-btn--primary">{{ $isEdit ? 'Guardar cambios' : 'Crear lista de materiales' }}</button>
         </div>

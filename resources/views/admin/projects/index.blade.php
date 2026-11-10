@@ -47,7 +47,7 @@
     $fmtUser = fn ($u) => $u ? trim($u->first_name . ' ' . $u->last_name) : '—';
     $isBoard = $view === 'board';
 @endphp
-<div class="erp-page prj-page">
+<div class="erp-page prj-page prj-index">
 
     <x-erp.page-header
         :title="$isBoard ? 'Tablero de proyectos' : 'Proyectos'"
@@ -106,26 +106,26 @@
                     </thead>
                     <tbody>
                     @forelse ($projects as $p)
-                        <tr>
-                            <td class="erp-cell-folio"><a href="{{ route('admin.projects.show', $p) }}">{{ $p->project_number }}</a></td>
-                            <td>
+                        <tr class="prj-row">
+                            <td class="erp-cell-folio prj-c-folio"><a href="{{ route('admin.projects.show', $p) }}">{{ $p->project_number }}</a></td>
+                            <td class="prj-c-name">
                                 <div class="erp-cell-main"><a href="{{ route('admin.projects.show', $p) }}" class="prj-plain-link">{{ $p->name }}</a></div>
                                 <div class="erp-cell-sub">{{ $p->display_customer }}</div>
                             </td>
-                            <td>{{ $fmtUser($p->manager) }}</td>
-                            <td>{{ $p->currentPhaseLabel() ?? '—' }}</td>
-                            <td><x-erp.progress :value="$progress[$p->id] ?? 0" /></td>
-                            <td>
+                            <td class="prj-c-manager" data-label="Persona a cargo">{{ $fmtUser($p->manager) }}</td>
+                            <td class="prj-c-phase" data-label="Fase actual">{{ $p->currentPhaseLabel() ?? '—' }}</td>
+                            <td class="prj-c-progress" data-label="Avance"><x-erp.progress :value="$progress[$p->id] ?? 0" /></td>
+                            <td class="prj-c-due" data-label="Fecha límite">
                                 @if ($p->due_date)
                                     <x-erp.due :date="$p->due_date" :closed="$p->status === 'cerrado'" />
                                     @if ($dueHint($p))<div class="erp-cell-sub">{{ $dueHint($p) }}</div>@endif
                                 @else — @endif
                             </td>
-                            <td><x-erp.status :value="$p->status" :label="Project::statusLabel($p->status)" /></td>
-                            <td class="is-num">{{ ($amt = $p->quotesTotalMxn()) > 0 ? '$' . number_format($amt, 2) : '—' }}</td>
+                            <td class="prj-c-status"><x-erp.status :value="$p->status" :label="Project::statusLabel($p->status)" /></td>
+                            <td class="is-num prj-c-amount" data-label="Monto (MXN)">{{ ($amt = $p->quotesTotalMxn()) > 0 ? '$' . number_format($amt, 2) : '—' }}</td>
                         </tr>
                     @empty
-                        <tr><td colspan="8"><x-erp.empty title="No hay proyectos que coincidan" text="Ajusta los filtros o crea un proyecto nuevo." /></td></tr>
+                        <tr class="prj-row-empty"><td colspan="8"><x-erp.empty title="No hay proyectos que coincidan" text="Ajusta los filtros o crea un proyecto nuevo." /></td></tr>
                     @endforelse
                     </tbody>
                 </table>
