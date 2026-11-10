@@ -20,7 +20,7 @@
     misma página y old()/$errors son globales a la sesión, mismo criterio que
     admin/delivery/partials/_modal_create.blade.php con "_delivery_form".
 --}}
-<div class="orders-card">
+<div class="orders-card ordshow-sec-shipment">
     <div class="orders-card-header">
         Envío
         @if ($shipment)

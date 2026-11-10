@@ -3,7 +3,7 @@
 @section('title', 'Órdenes - Admin')
 
 @section('content')
-<div class="orders-page">
+<div class="orders-page orders-index">
 
     {{-- Header --}}
     <div class="orders-page-head">
@@ -15,7 +15,7 @@
                 Para pedidos B2B nacidos de una cotización, ve a <a href="{{ route('admin.sales-orders.index') }}">Pedidos</a>.
             </p>
         </div>
-        <a href="{{ route('admin.orders.export', request()->query()) }}" class="button-secondary size-adjustment">Exportar</a>
+        <a href="{{ route('admin.orders.export', request()->query()) }}" class="button-secondary size-adjustment orders-index-export">Exportar</a>
     </div>
 
     {{-- KPIs --}}
@@ -44,7 +44,7 @@
     @php
         $orderTabs = ['todos' => 'Todas'] + collect(\App\Support\StoreOrderStatus::META)->map(fn ($m) => $m['label'])->all();
     @endphp
-    <div class="orders-tabs">
+    <div class="orders-tabs" aria-label="Filtrar por estatus">
         @foreach ($orderTabs as $tabKey => $tabLabel)
             @php
                 $tabQuery = array_filter(
@@ -66,7 +66,7 @@
             <span class="orders-search-icon">
                 <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
             </span>
-            <input type="text" name="q" value="{{ $filters['q'] ?? '' }}" placeholder="Buscar por folio, cliente, correo o teléfono…">
+            <input type="text" name="q" value="{{ $filters['q'] ?? '' }}" aria-label="Buscar órdenes" placeholder="Buscar por folio, cliente, correo o teléfono…">
         </div>
 
         <select name="status" class="orders-filter-select">
@@ -77,12 +77,12 @@
         </select>
 
         <div class="orders-date-range">
-            <input type="date" name="from" value="{{ $filters['from'] ?? '' }}">
+            <input type="date" name="from" value="{{ $filters['from'] ?? '' }}" aria-label="Desde">
             <span class="orders-date-sep">–</span>
-            <input type="date" name="to" value="{{ $filters['to'] ?? '' }}">
+            <input type="date" name="to" value="{{ $filters['to'] ?? '' }}" aria-label="Hasta">
         </div>
 
-        <button type="submit" class="button-secondary size-adjustment">Filtrar</button>
+        <button type="submit" class="button-secondary size-adjustment orders-index-filter-btn">Filtrar</button>
 
         @include('admin.components._column_visibility_menu', [
             'tableKey' => 'orders.index',
@@ -128,9 +128,9 @@
                 @foreach ($orders as $order)
                     @php $rowMeta = \App\Support\StoreOrderStatus::meta($order->status); @endphp
                     <div class="orders-table-row" onclick="window.location.href='{{ route('admin.orders.show', $order) }}'">
-                        <span class="orders-table-cell orders-table-folio">{{ $order->order_number }}</span>
+                        <span class="orders-table-cell orders-table-folio orders-c-folio">{{ $order->order_number }}</span>
 
-                        <span class="orders-table-cell" data-col="cliente">
+                        <span class="orders-table-cell orders-c-cliente" data-col="cliente" data-label="Cliente">
                             <div class="orders-table-customer-name">
                                 {{ $order->customer ? trim($order->customer->first_name . ' ' . $order->customer->last_name) : $order->contact_name }}
                                 <span style="display:inline-block;font-size:10px;font-weight:700;padding:1px 6px;border-radius:6px;margin-left:4px;
@@ -141,23 +141,24 @@
                             <div class="orders-table-customer-email">{{ $order->contact_email }}</div>
                         </span>
 
-                        <span class="orders-table-cell orders-table-total" data-col="total">${{ number_format($order->total, 2) }}</span>
+                        <span class="orders-table-cell orders-table-total orders-c-total" data-col="total" data-label="Total">${{ number_format($order->total, 2) }}</span>
 
-                        <span class="orders-table-cell" data-col="metodo">{{ $order->paymentMethod?->name ?? '—' }}</span>
+                        <span class="orders-table-cell orders-c-metodo" data-col="metodo" data-label="Método de pago">{{ $order->paymentMethod?->name ?? '—' }}</span>
 
-                        <span class="orders-table-cell" data-col="estatus">
+                        <span class="orders-table-cell orders-c-estatus" data-col="estatus" data-label="Estatus">
                             <span class="orders-status-pill" style="color:{{ $rowMeta['color'] }};background:{{ $rowMeta['bg'] }};">
                                 <span class="orders-status-pill-dot"></span>{{ $rowMeta['label'] }}
                             </span>
                         </span>
 
-                        <span class="orders-table-cell" data-col="fecha">{{ $order->created_at->format('d M Y') }}</span>
+                        <span class="orders-table-cell orders-c-fecha" data-col="fecha" data-label="Creada">{{ $order->created_at->format('d M Y') }}</span>
 
-                        <span class="orders-table-cell orders-table-actions" style="gap:6px;">
-                            <a href="{{ route('admin.orders.show', $order) }}" class="orders-status-trigger" title="Ver detalle" onclick="event.stopPropagation()">
+                        <span class="orders-table-cell orders-table-actions orders-c-actions" style="gap:6px;">
+                            <a href="{{ route('admin.orders.show', $order) }}" class="orders-status-trigger" title="Ver detalle" aria-label="Ver detalle de {{ $order->order_number }}" onclick="event.stopPropagation()">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/></svg>
+                                <span class="orders-action-label">Ver</span>
                             </a>
-                            <button type="button" class="js-open-status-modal orders-status-trigger" title="Cambiar estatus"
+                            <button type="button" class="js-open-status-modal orders-status-trigger" title="Cambiar estatus" aria-label="Cambiar estatus de {{ $order->order_number }}"
                                 data-order-id="{{ $order->id }}"
                                 data-folio="{{ $order->order_number }}"
                                 data-current-status="{{ $order->status }}"
@@ -165,6 +166,7 @@
                                 data-update-url="{{ route('admin.orders.update-status', $order) }}"
                                 onclick="event.stopPropagation()">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m17 2 4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="m7 22-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/></svg>
+                                <span class="orders-action-label">Estatus</span>
                             </button>
                         </span>
                     </div>
@@ -173,12 +175,14 @@
             </div>{{-- /.orders-table-scroll-inner --}}
             </div>{{-- /.orders-table-scroll --}}
 
-            <div style="display:flex;justify-content:space-between;align-items:center;margin:14px 4px 0;">
+            <div class="orders-pagination-bar">
+            <div class="orders-pagination-summary" style="display:flex;justify-content:space-between;align-items:center;margin:14px 4px 0;">
                 <p style="margin:0;font-size:13px;color:#6b7280;">
                     Mostrando <strong>{{ $orders->firstItem() }}–{{ $orders->lastItem() }}</strong> de <strong>{{ $orders->total() }}</strong> órdenes
                 </p>
             </div>
             {{ $orders->links('admin.components.pagination') }}
+            </div>{{-- /.orders-pagination-bar --}}
         @endif
     </div>
 
