@@ -15,10 +15,14 @@
 @once
     @push('styles')
     <style>
+    /* Escritorio: caja centrada; encabezado (con acciones) fijo y solo el cuerpo con scroll. */
     .task-modal-overlay { display: none; position: fixed; inset: 0; background: rgba(23,25,28,.55); z-index: 10000; align-items: center; justify-content: center; padding: 16px; }
     .task-modal-overlay.active { display: flex; }
-    .task-modal-box { background: var(--erp-surface); border-radius: 16px; width: 100%; max-width: 720px; max-height: 92vh; overflow-y: auto; padding: 24px 26px; box-shadow: 0 20px 50px rgba(0,0,0,.25); }
-    .task-modal-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; margin-bottom: 18px; }
+    .task-modal-box { background: var(--erp-surface); border-radius: 16px; width: 100%; max-width: 720px; max-height: 92vh; display: flex; flex-direction: column; overflow: hidden; padding: 0; box-shadow: 0 20px 50px rgba(0,0,0,.25); }
+    .task-modal-box > form { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; margin: 0; }
+    .task-modal-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; flex-shrink: 0; padding: 24px 26px 15px; }
+    .task-modal-scroll { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; padding: 3px 26px 24px; }
+    .task-modal-x { display: none; }
     .task-modal-eyebrow { font-size: 11.5px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--erp-muted, #6b7280); margin: 0 0 2px; }
     .task-modal-title { font-size: 24px; font-weight: 800; color: var(--erp-ink); margin: 0; line-height: 1.15; }
     .task-modal-head-actions { display: flex; gap: 10px; flex-shrink: 0; }
@@ -33,13 +37,45 @@
     .task-modal-field input:focus, .task-modal-field select:focus, .task-modal-field textarea:focus { outline: none; border-color: var(--erp-accent); box-shadow: 0 0 0 3px rgba(249,115,22,.12); }
     .task-modal-field textarea { resize: vertical; min-height: 80px; }
     .task-seg { display: inline-flex; border: 1px solid #d4d7dc; border-radius: 8px; overflow: hidden; }
-    .task-seg label { margin: 0; cursor: pointer; }
+    .task-seg label { position: relative; margin: 0; cursor: pointer; }
     .task-seg input { position: absolute; opacity: 0; pointer-events: none; }
     .task-seg span { display: block; padding: 8px 18px; font-size: 13px; font-weight: 700; color: var(--erp-text); background: #fff; border-right: 1px solid #d4d7dc; }
     .task-seg label:last-child span { border-right: 0; }
     .task-seg input:checked + span { background: var(--erp-ink); color: #fff; }
     .task-seg input:focus-visible + span { box-shadow: inset 0 0 0 2px var(--erp-accent); }
-    @media (max-width: 640px) { .task-modal-grid { grid-template-columns: 1fr; } .task-modal-head { flex-direction: column; align-items: stretch; } }
+
+    /* Fondo bloqueado mientras el modal está abierto (clase puesta por el script de abajo). */
+    body.task-modal-open { overflow: hidden; }
+
+    /* Celular: pantalla completa; título + cerrar arriba, Cancelar/Guardar abajo, cuerpo con scroll en medio.
+       .task-modal-head usa display: contents para que título y acciones se reordenen con `order`
+       sin duplicar botones (el escritorio no cambia). */
+    @media (max-width: 640px) {
+        .task-modal-overlay { padding: 0; align-items: stretch; justify-content: stretch; }
+        .task-modal-box { width: 100vw; max-width: none; height: 100vh; height: 100dvh; max-height: none; border-radius: 0; box-shadow: none; }
+        .task-modal-head { display: contents; }
+        .task-modal-headline { order: 0; flex-shrink: 0; display: flex; align-items: center; gap: 12px; padding: calc(12px + env(safe-area-inset-top)) calc(16px + env(safe-area-inset-right)) 12px calc(16px + env(safe-area-inset-left)); border-bottom: 1px solid var(--erp-line, #e6e8eb); }
+        .task-modal-heading { flex: 1 1 auto; min-width: 0; }
+        .task-modal-title { font-size: 20px; overflow-wrap: anywhere; }
+        .task-modal-eyebrow { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .task-modal-x { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; width: 44px; height: 44px; padding: 0; border: 1px solid var(--erp-line, #e6e8eb); border-radius: 10px; background: transparent; color: var(--erp-ink); font-size: 26px; line-height: 1; cursor: pointer; }
+        .task-modal-scroll { order: 1; padding: 16px calc(16px + env(safe-area-inset-right)) 20px calc(16px + env(safe-area-inset-left)); }
+        .task-modal-head-actions { order: 2; display: flex; gap: 10px; padding: 12px calc(16px + env(safe-area-inset-right)) calc(12px + env(safe-area-inset-bottom)) calc(16px + env(safe-area-inset-left)); border-top: 1px solid var(--erp-line, #e6e8eb); background: var(--erp-surface, #fff); }
+        .task-modal-head-actions .erp-btn { flex: 1 1 0; min-height: 46px; justify-content: center; font-size: 15px; }
+        .task-modal-grid { grid-template-columns: 1fr; gap: 14px; }
+        .task-modal-field input[type="text"], .task-modal-field input[type="date"], .task-modal-field select, .task-modal-field textarea { font-size: 16px; min-height: 44px; }
+        .task-seg { display: flex; width: 100%; box-sizing: border-box; }
+        .task-seg label { flex: 1 1 0; min-width: 0; }
+        .task-seg span { display: flex; align-items: center; justify-content: center; min-height: 44px; padding: 8px 6px; text-align: center; font-size: 14px; }
+        .task-modal-box .task-due-quick button { min-height: 36px; padding: 6px 13px; font-size: 13px; }
+
+        /* Calendario (flatpickr, se monta en <body>): con el modal abierto se fija abajo y centrado
+           para no salirse de los 390px ni quedar recortado por el teclado/scroll. */
+        body.task-modal-open .flatpickr-calendar.open { position: fixed !important; top: auto !important; right: auto !important; left: 50% !important; bottom: calc(12px + env(safe-area-inset-bottom)) !important; transform: translateX(-50%); width: min(320px, calc(100vw - 24px)); max-width: calc(100vw - 24px); max-height: calc(100dvh - 24px); overflow-y: auto; box-sizing: border-box; animation: none; }
+        body.task-modal-open .flatpickr-calendar .flatpickr-innerContainer, body.task-modal-open .flatpickr-calendar .flatpickr-rContainer, body.task-modal-open .flatpickr-calendar .flatpickr-days { width: 100%; }
+        body.task-modal-open .flatpickr-calendar .flatpickr-weekdays { width: 100%; }
+        body.task-modal-open .flatpickr-calendar input.cur-year, body.task-modal-open .flatpickr-calendar .flatpickr-monthDropdown-months { font-size: 16px; }
+    }
     </style>
     @endpush
 @endonce
@@ -51,16 +87,20 @@
             @if ($isEdit) @method('PUT') @endif
             <input type="hidden" name="_modal" value="{{ $mode }}">
             <div class="task-modal-head">
-                <div>
-                    <p class="task-modal-eyebrow">{{ $isEdit ? 'Editar · TAR-' . str_pad((string) $task->id, 4, '0', STR_PAD_LEFT) : ($eyebrow ?? 'Seguimiento') }}</p>
-                    <h2 class="task-modal-title" id="{{ $uid }}Title">{{ $isEdit ? 'Editar tarea' : ($modalTitle ?? 'Nueva tarea') }}</h2>
+                <div class="task-modal-headline">
+                    <div class="task-modal-heading">
+                        <p class="task-modal-eyebrow">{{ $isEdit ? 'Editar · TAR-' . str_pad((string) $task->id, 4, '0', STR_PAD_LEFT) : ($eyebrow ?? 'Seguimiento') }}</p>
+                        <h2 class="task-modal-title" id="{{ $uid }}Title">{{ $isEdit ? 'Editar tarea' : ($modalTitle ?? 'Nueva tarea') }}</h2>
+                    </div>
+                    <button type="button" class="task-modal-x" data-task-modal-close aria-label="Cerrar">&times;</button>
                 </div>
                 <div class="task-modal-head-actions">
                     <button type="button" class="erp-btn" data-task-modal-close>Cancelar</button>
                     <button type="submit" class="erp-btn erp-btn--primary">Guardar</button>
                 </div>
             </div>
-            @if ($reopen) <div class="task-modal-error" role="alert">{{ $errors->first() }}</div> @endif
+            <div class="task-modal-scroll">
+                @if ($reopen) <div class="task-modal-error" role="alert">{{ $errors->first() }}</div> @endif
             <div class="task-modal-grid">
                 <div class="task-modal-field task-modal-field--full">
                     <label for="{{ $uid }}Name">Tarea <span class="req">*</span></label>
@@ -119,6 +159,7 @@
                     <textarea id="{{ $uid }}Desc" name="description">{{ old('description', $isEdit ? $task->description : '') }}</textarea>
                 </div>
             </div>
+            </div>
         </form>
     </div>
 </div>
@@ -129,19 +170,31 @@
     <script>
     (function () {
         function overlayFor(mode) { return document.querySelector('[data-task-modal="' + mode + '"]'); }
+        // Bloquea el scroll del fondo mientras haya un modal de tarea abierto.
+        function syncLock() { document.body.classList.toggle('task-modal-open', !!document.querySelector('[data-task-modal].active')); }
+        function closeModal(o) { o.classList.remove('active'); syncLock(); }
         document.addEventListener('click', function (e) {
             var btn = e.target.closest('[data-task-modal-open]');
             if (!btn) return;
             var o = overlayFor(btn.getAttribute('data-task-modal-open'));
-            if (o) { o.classList.add('active'); var f = o.querySelector('input[type="text"]'); if (f) f.focus(); }
+            if (!o) return;
+            o.classList.add('active');
+            syncLock();
+            var sc = o.querySelector('.task-modal-scroll'); if (sc) sc.scrollTop = 0;
+            // En celular no se enfoca para no abrir el teclado encima del formulario.
+            if (!window.matchMedia('(max-width: 640px)').matches) { var f = o.querySelector('input[type="text"]'); if (f) f.focus(); }
         });
         document.querySelectorAll('[data-task-modal]').forEach(function (o) {
-            o.addEventListener('click', function (e) { if (e.target === o) o.classList.remove('active'); });
-            o.querySelectorAll('[data-task-modal-close]').forEach(function (b) { b.addEventListener('click', function () { o.classList.remove('active'); }); });
+            o.addEventListener('click', function (e) { if (e.target === o) closeModal(o); });
+            o.querySelectorAll('[data-task-modal-close]').forEach(function (b) { b.addEventListener('click', function () { closeModal(o); }); });
+            var form = o.querySelector('form');
+            if (form) form.addEventListener('submit', function () { document.body.classList.remove('task-modal-open'); });
         });
         document.addEventListener('keydown', function (e) {
-            if (e.key === 'Escape') document.querySelectorAll('[data-task-modal].active').forEach(function (o) { o.classList.remove('active'); });
+            if (e.key === 'Escape') document.querySelectorAll('[data-task-modal].active').forEach(closeModal);
         });
+        // Reapertura automática tras error de validación ($reopen): aplica el bloqueo también.
+        syncLock();
     })();
     </script>
     @endpush

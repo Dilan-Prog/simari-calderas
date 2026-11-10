@@ -47,6 +47,57 @@
 .task-alert { padding: 10px 14px; margin-bottom: 12px; border-radius: 10px; font-size: 13px; }
 .task-alert--ok { color: var(--erp-ok); background: var(--erp-ok-bg); }
 .task-alert--bad { color: var(--erp-bad); background: var(--erp-bad-bg); }
+/* ── Móvil (≤768px): una columna, acciones táctiles, sin scroll horizontal ── */
+@media (max-width: 768px) {
+    .task-page { overflow-x: hidden; }
+    .task-page .erp-page { padding: 12px 16px; min-width: 0; }
+    .task-page .erp-objhead { padding: 14px; }
+    .task-page .erp-objhead-top { flex-direction: column; gap: 12px; }
+    .task-page .erp-objhead-main { min-width: 0; }
+    .task-page .erp-objhead-title { font-size: 20px; overflow-wrap: anywhere; }
+    .task-page .erp-objhead-sub { overflow-wrap: anywhere; }
+    .task-page .erp-objhead-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; width: 100%; }
+    .task-page .erp-objhead-actions > .task-inline-form { display: block; }
+    .task-page .erp-objhead-actions > .task-inline-form:first-of-type { order: -1; grid-column: 1 / -1; }
+    .task-page .erp-objhead-actions .erp-btn { width: 100%; min-height: 44px; justify-content: center; font-size: 14px; }
+    .task-page .erp-objhead-facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 16px; }
+    .task-page .erp-objhead-facts > div { min-width: 0; }
+    .task-page .erp-objhead-facts dd, .task-page .erp-fact-value { overflow-wrap: anywhere; }
+    .task-page .erp-tab { min-height: 44px; }
+    .task-page .erp-card-body { padding: 14px; }
+    .task-page .erp-card-head { flex-wrap: wrap; padding: 14px 14px 0; }
+    .task-page .erp-card-head > div:first-child { min-width: 0; }
+    .task-page .erp-card-sub { overflow-wrap: anywhere; }
+    .task-page .erp-head-actions .erp-btn { min-height: 44px; }
+    .task-page .task-general { grid-template-columns: minmax(0, 1fr); gap: 20px; }
+    .task-page .task-general > div { min-width: 0; }
+    .task-page .task-main { display: flex; flex-direction: column; }
+    .task-page .task-desc-block { order: -1; margin-bottom: 18px; }
+    .task-page .task-desc-block > h3 { margin-top: 0 !important; }
+    .task-page .task-side { border-top: 1px solid var(--erp-line-soft); padding-top: 16px; }
+    .task-page .erp-facts { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 16px; }
+    .task-page .erp-facts > div { min-width: 0; }
+    .task-page .task-desc, .task-page .task-note-text, .task-page .task-tl-body, .task-page .task-tl-title, .task-page .task-tl-meta { overflow-wrap: anywhere; }
+    .task-page .task-form .erp-select, .task-page .task-form textarea, .task-modal .erp-select { font-size: 16px; min-height: 44px; }
+    .task-page .task-form > .erp-btn, .task-modal-actions .erp-btn { width: 100%; min-height: 44px; justify-content: center; font-size: 14px; }
+    .task-modal-actions { flex-direction: column-reverse; }
+    .task-mail { max-width: 100%; min-width: 0; }
+    .task-mail > summary { padding: 12px; }
+    .task-mail-head { grid-template-columns: minmax(0, 1fr); gap: 0; }
+    .task-mail-head dt { margin-top: 6px; }
+    .task-mail-head dd { overflow-wrap: anywhere; }
+    .task-mail-body { overflow-wrap: anywhere; max-width: 100%; box-sizing: border-box; overflow-x: auto; }
+    .task-mail-body img, .task-mail-body video, .task-mail-body iframe { max-width: 100% !important; height: auto !important; }
+    .task-mail-body table, .task-mail-body pre { display: block; max-width: 100%; overflow-x: auto; }
+    .task-mail-body pre { white-space: pre; }
+    .task-mail-body * { max-width: 100%; box-sizing: border-box; }
+    .task-item { min-width: 0; }
+    .task-item img, .task-item-ph { width: 44px; height: 44px; }
+    .task-item-text { min-width: 0; flex: 1; overflow-wrap: anywhere; }
+}
+@media (max-width: 360px) {
+    .task-page .erp-facts, .task-page .erp-objhead-facts { grid-template-columns: minmax(0, 1fr); }
+}
 </style>
 @endpush
 
@@ -130,9 +181,9 @@
 
         <div class="erp-tabpanel is-active" data-panel="general">
             <div class="erp-card-body">
-                <div class="erp-grid erp-grid-2">
-                    <div>
-                        <x-erp.facts :items="[
+                <div class="erp-grid erp-grid-2 task-general">
+                    <div class="task-main">
+                        <x-erp.facts class="task-facts" :items="[
                             ['label' => 'Folio', 'value' => $folio],
                             ['label' => 'Estado', 'value' => $task->trashed() ? 'Eliminada' : \App\Models\Task::statusLabel($task->status)],
                             ['label' => 'Origen', 'value' => $origin],
@@ -143,15 +194,17 @@
                             ['label' => 'Cerrada el', 'value' => $task->closed_at?->format('d/m/Y H:i') ?? '—'],
                         ]" />
 
-                        <h3 class="erp-card-title" style="margin:22px 0 6px;">Descripción</h3>
-                        @if ($task->description)
-                            <p class="task-desc">{{ $task->description }}</p>
-                        @else
-                            <p class="erp-cell-sub" style="margin:0;">Sin descripción.</p>
-                        @endif
+                        <div class="task-desc-block">
+                            <h3 class="erp-card-title" style="margin:22px 0 6px;">Descripción</h3>
+                            @if ($task->description)
+                                <p class="task-desc">{{ $task->description }}</p>
+                            @else
+                                <p class="erp-cell-sub" style="margin:0;">Sin descripción.</p>
+                            @endif
+                        </div>
                     </div>
 
-                    <div>
+                    <div class="task-side">
                         @unless ($task->trashed())
                             <form method="POST" action="{{ route('admin.tasks.update', $task) }}" class="task-form">
                                 @csrf @method('PUT')
@@ -245,7 +298,7 @@
     </section>
 
     @if ($relatedLabel)
-        <x-erp.card title="Relacionado con" :sub="$relatedLabel">
+        <x-erp.card class="task-related" title="Relacionado con" :sub="$relatedLabel">
             <x-slot:actions>
                 @if ($relatedUrl)<a href="{{ $relatedUrl }}" class="erp-btn erp-btn--sm">Abrir</a>@endif
             </x-slot:actions>
@@ -280,7 +333,7 @@
                     @foreach ($items as $item)
                         <div class="task-item">
                             @if (! empty($item['image_url']))<img src="{{ $item['image_url'] }}" alt="">@else<span class="task-item-ph"></span>@endif
-                            <div>
+                            <div class="task-item-text">
                                 <div class="erp-cell-main">{{ $item['name'] }}</div>
                                 <div class="erp-cell-sub">{{ $item['sku'] ?? 'Sin SKU' }}</div>
                             </div>
