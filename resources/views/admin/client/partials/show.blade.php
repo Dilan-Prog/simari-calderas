@@ -1,6 +1,121 @@
 @extends('admin.layouts.master')
 @push('styles')
     @vite('resources/css/admin/pages/clientes.css')
+    @vite('resources/css/admin/pages/clientes-modals.css')
+@endpush
+
+@push('styles')
+<style>
+/* ── Ficha del cliente: adaptación a teléfono (solo ≤768px / ≤640px; escritorio sin cambios) ── */
+@media (max-width: 768px) {
+    .cshow-m { max-width: 100%; overflow-x: clip; }
+    .cshow-m .clients-manager-section.show { min-width: 0; }
+    .cshow-m .link-container-show { margin-bottom: 16px; }
+    .cshow-m .client-window-link { display: inline-flex; align-items: center; min-height: 44px; }
+
+    /* Header: identidad + acciones */
+    .cshow-m .client-header-show { padding: 16px; gap: 16px; margin-bottom: 16px; }
+    .cshow-m .client-left-show { flex-direction: row; align-items: flex-start; justify-content: flex-start; gap: 12px; min-width: 0; }
+    .cshow-m .avatar-show { width: 56px; height: 56px; flex: 0 0 56px; font-size: 20px; }
+    .cshow-m .information-client-show { gap: 6px; min-width: 0; flex: 1; }
+    .cshow-m .information-client-show h2 { font-size: 22px; line-height: 1.2; overflow-wrap: anywhere; }
+    .cshow-m .information-client-show .breadcrumb-users-manager { display: flex; align-items: flex-start; gap: 6px; margin: 0; overflow-wrap: anywhere; min-width: 0; }
+    .cshow-m .information-client-show .breadcrumb-users-manager svg { flex: 0 0 auto; margin-top: 2px; }
+    .cshow-m .client-actions-show.up { width: 100%; align-items: stretch; }
+    .cshow-m .client-actions-show.up > .client-actions-show { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; width: 100%; }
+    .cshow-m .client-actions-show .button-primary { width: 100%; min-height: 44px; height: auto; justify-content: center; align-items: center; text-align: center; white-space: normal; line-height: 1.25; padding: 10px 12px; font-size: 14px; margin: 0; }
+
+    /* Pestañas: una fila con desplazamiento horizontal */
+    .cshow-m .tabs-show-clients-container { flex-wrap: nowrap; overflow-x: auto; overflow-y: hidden; gap: 4px; margin: 0 0 16px; scrollbar-width: thin; overscroll-behavior-x: contain; scroll-padding-inline: 8px; }
+    .cshow-m .tab-show-client { flex: 0 0 auto; white-space: nowrap; min-height: 44px; padding: 10px 12px; }
+
+    /* Columnas apiladas: contacto/fiscal primero, notas después */
+    .cshow-m .grid-2-information-client-show { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+    .cshow-m .grid-2-information-client-show > * { min-width: 0; }
+    .cshow-m .card-information-show { padding: 16px; min-width: 0; }
+    .cshow-m .card-information-show .breadcrumb-users-manager { overflow-wrap: anywhere; word-break: normal; }
+    .cshow-m #info .card-information-show .breadcrumb-users-manager:not(.main) { display: flex; align-items: flex-start; gap: 2px; margin-top: 0; }
+    .cshow-m #info .card-information-show .breadcrumb-users-manager svg { flex: 0 0 auto; margin-top: 2px; }
+    .cshow-m .note-box-information-client { overflow-wrap: anywhere; }
+
+    /* Direcciones */
+    .cshow-m .card-information-show-header { flex-wrap: wrap; gap: 8px; }
+    .cshow-m .card-information-show-header h3 { margin: 0; overflow-wrap: anywhere; }
+    .cshow-m .btn-dashed { min-height: 44px; font-size: 15px; margin-top: 16px; }
+
+    /* Historial: KPIs, filtros y línea de tiempo */
+    .cshow-m .ch-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+    .cshow-m .ch-kpi { padding: 12px; min-width: 0; }
+    .cshow-m .ch-kpi strong { font-size: 16px; }
+    .cshow-m .ch-filters { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; scrollbar-width: thin; }
+    .cshow-m .ch-chip { flex: 0 0 auto; min-height: 44px; padding: 8px 14px; font-size: 14px; white-space: nowrap; }
+    .cshow-m .ch-list { padding-left: 14px; }
+    .cshow-m .ch-item::before { left: -21px; }
+    .cshow-m .ch-card { gap: 4px 10px; padding: 10px 12px; min-width: 0; }
+    .cshow-m .ch-main { flex: 1 1 100%; order: 3; min-width: 0; overflow-wrap: anywhere; }
+    .cshow-m .ch-badge { order: 4; white-space: normal; }
+    .cshow-m .ch-amount { order: 5; margin-left: auto; }
+    .cshow-m .ch-group h3 { overflow-wrap: anywhere; }
+    .cshow-m .ch-group h3 span { display: block; margin: 2px 0 0; }
+
+    /* Tablas del historial / portal / análisis → tarjetas apiladas */
+    .cshow-m .cshow-cards .table-scroll { max-height: none; overflow: visible; }
+    .cshow-m .cshow-cards table,
+    .cshow-m .cshow-cards tbody,
+    .cshow-m .cshow-cards tr { display: block; width: 100%; min-width: 0 !important; max-width: 100%; box-sizing: border-box; }
+    .cshow-m .cshow-cards .table-scroll,
+    .cshow-m .cshow-cards [class*="table-container"] { max-width: 100%; min-width: 0; box-sizing: border-box; }
+    .cshow-m .cshow-cards table { background: transparent; border: 0; border-radius: 0; overflow: visible; }
+    .cshow-m .cshow-cards thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+    .cshow-m .cshow-cards tbody tr { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 12px; padding: 12px; margin-bottom: 10px; background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; }
+    .cshow-m .cshow-cards td { display: block; min-width: 0; max-width: none; padding: 0; border: 0 !important; background: transparent; text-align: left !important; font-size: 13.5px; overflow-wrap: anywhere; white-space: normal !important; }
+    .cshow-m .cshow-cards td[data-label]::before { content: attr(data-label); display: block; margin-bottom: 2px; font-size: 10.5px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: #9ca3af; }
+    .cshow-m .cshow-cards td.cshow-full { grid-column: 1 / -1; }
+    .cshow-m .cshow-cards td:empty { display: none; }
+
+    /* Historial por área */
+    .cshow-m .ch-table td.ch-td-folio { font-size: 14.5px; }
+    .cshow-m .ch-table td.ch-td-amount { grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding-top: 8px; border-top: 1px dashed #e5e7eb !important; font-weight: 600; font-size: 14.5px; }
+    .cshow-m .ch-table td.ch-td-amount::before { margin: 0; }
+
+    /* Usuarios del portal */
+    .cshow-m .pu-owner { background: #fffaf5 !important; border-color: #fed7aa !important; }
+    .cshow-m .pu-owner td { background: transparent; }
+    .cshow-m .pu-table td.pu-td-name { font-size: 14.5px; font-weight: 600; }
+    .cshow-m .pu-table td.pu-td-name small { font-weight: 400; }
+    .cshow-m .pu-badge { white-space: normal; }
+    .cshow-m .pu-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; justify-content: stretch; padding-top: 4px; }
+    .cshow-m .pu-actions form { display: block; }
+    .cshow-m .pu-actions .pu-btn { width: 100%; min-height: 44px; font-size: 14px; padding: 10px 12px; white-space: normal; line-height: 1.25; }
+    .cshow-m .pu-actions [data-pu-password] { grid-column: 1 / -1; order: -1; }
+
+    /* Análisis químico */
+    .cshow-m #water-analysis .ma-head { align-items: stretch; }
+    .cshow-m #water-analysis .ma-head > div:first-child { min-width: 0; overflow-wrap: anywhere; }
+    .cshow-m #water-analysis .ma-head-right { width: 100%; justify-content: space-between; }
+    .cshow-m #water-analysis .ma-period { display: flex; width: 100%; }
+    .cshow-m #water-analysis .ma-period a { flex: 1; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; font-size: 14px; }
+    .cshow-m #water-analysis .wa-link { display: inline-flex; align-items: center; min-height: 44px; font-size: 14px; }
+    .cshow-m #water-analysis .ma-chips { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; }
+    .cshow-m #water-analysis .ma-chip { flex: 0 0 auto; min-height: 44px; font-size: 14px; white-space: nowrap; }
+    .cshow-m #water-analysis .ma-card { padding: 16px; }
+    .cshow-m .wa-table td.wa-td-date { font-size: 14.5px; }
+    .cshow-m .wa-table td.wa-notes { max-width: none; }
+    .cshow-m .wa-legend .wa-val { white-space: normal; }
+}
+
+/* Diálogos del portal (contraseña / eliminar): hoja inferior a pantalla completa en teléfono */
+@media (max-width: 640px) {
+    .cshow-m .pu-dialog { width: 100%; max-width: 100%; max-height: 92dvh; margin: auto 0 0; border-radius: 16px 16px 0 0; overflow-y: auto; overscroll-behavior: contain; }
+    .cshow-m .pu-dialog form { padding: 20px 16px calc(16px + env(safe-area-inset-bottom)); gap: 14px; }
+    .cshow-m .pu-dialog h4 { font-size: 18px; }
+    .cshow-m .pu-dialog p { font-size: 14px; overflow-wrap: anywhere; }
+    .cshow-m .pu-dialog label { font-size: 14px; }
+    .cshow-m .pu-dialog input[type=password] { font-size: 16px; min-height: 44px; width: 100%; box-sizing: border-box; }
+    .cshow-m .pu-dialog-actions { flex-direction: column-reverse; gap: 8px; }
+    .cshow-m .pu-dialog-actions .pu-btn { width: 100%; min-height: 44px; font-size: 15px; }
+}
+</style>
 @endpush
 
 @section('title')
@@ -8,7 +123,7 @@
 @endsection
 
 @section('content')
-    <div class="container user-manager show-information">
+    <div class="container user-manager show-information cshow-m">
         <section class="clients-manager-section show">
 
             {{-- Back link --}}
@@ -246,6 +361,14 @@
                 const hashBtn = document.querySelector('.tab-show-client[data-tab="' + location.hash.slice(1) + '"]');
                 if (hashBtn) activateClientTab(hashBtn);
             }
+            // En teléfono la barra de pestañas se desplaza en horizontal: deja visible la pestaña activa.
+            (function () {
+                const bar = document.querySelector('.tabs-show-clients-container');
+                const act = bar && bar.querySelector('.tab-show-client.active');
+                if (bar && act && bar.scrollWidth > bar.clientWidth) {
+                    bar.scrollLeft = Math.max(0, act.offsetLeft - bar.offsetLeft - 16);
+                }
+            })();
 
             // Edit client button in show page
             const editClientModal   = document.getElementById('clientEditModal');

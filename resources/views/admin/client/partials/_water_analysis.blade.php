@@ -55,7 +55,7 @@
         'headActions' => $waHeadActions,
     ])
 
-    <div class="wa-table-wrap">
+    <div class="wa-table-wrap cshow-cards">
         <h3>Últimos registros</h3>
         <p>Los 30 registros más recientes, sin importar el periodo seleccionado. Esta vista es solo de consulta.</p>
 
@@ -79,9 +79,10 @@
                     <tbody>
                         @foreach ($waRecent['rows'] as $row)
                             <tr>
-                                <td style="white-space:nowrap;font-weight:600">{{ $row['date'] }}</td>
-                                @foreach ($row['cells'] as $cell)
-                                    <td>
+                                <td class="wa-td-date cshow-full" data-label="Fecha" style="white-space:nowrap;font-weight:600">{{ $row['date'] }}</td>
+                                @foreach ($row['cells'] as $ci => $cell)
+                                    @php $waParam = $waRecent['parameters'][$ci] ?? null; @endphp
+                                    <td data-label="{{ $waParam ? $waParam['name'] . (($waParam['unit'] ?? null) && $waParam['unit'] !== '—' ? ' (' . $waParam['unit'] . ')' : '') : '' }}">
                                         @if ($cell['value'] === null)
                                             <span class="wa-none">—</span>
                                         @else
@@ -89,8 +90,8 @@
                                         @endif
                                     </td>
                                 @endforeach
-                                <td class="wa-notes">{{ $row['notes'] ?: '—' }}</td>
-                                <td style="white-space:nowrap">{{ $row['recorded_by'] }}</td>
+                                <td class="wa-notes cshow-full" data-label="Notas">{{ $row['notes'] ?: '—' }}</td>
+                                <td class="wa-td-by cshow-full" data-label="Registró" style="white-space:nowrap">{{ $row['recorded_by'] }}</td>
                             </tr>
                         @endforeach
                     </tbody>

@@ -61,7 +61,7 @@
     "isEntry": true
   },
   "resources/css/admin/pages/clientes.css": {
-    "file": "assets/clientes-CpuslFdl.css",
+    "file": "assets/clientes-RnMjsEuJ.css",
     "src": "resources/css/admin/pages/clientes.css",
     "isEntry": true
   },
@@ -737,6 +737,11 @@
   "resources/css/admin/pages/usuarios-modals.css": {
     "file": "assets/usuarios-modals-BNB5r_xO.css",
     "src": "resources/css/admin/pages/usuarios-modals.css",
+    "isEntry": true
+  },
+  "resources/css/admin/pages/clientes-modals.css": {
+    "file": "assets/clientes-modals-BJaoXw5T.css",
+    "src": "resources/css/admin/pages/clientes-modals.css",
     "isEntry": true
   }
 }
