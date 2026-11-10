@@ -132,9 +132,26 @@ function initBatch() {
     });
 }
 
+/** Listado (teléfono): «Seleccionar todos» visible sin cabecera de tabla; delega en el de la tabla (erp-ui.js). */
+function initMobileSelectAll() {
+    const m = document.querySelector('[data-mrp-select-all-m]');
+    const all = document.querySelector('[data-erp-select-all]');
+    if (!m || !all) return;
+    m.addEventListener('change', () => {
+        all.checked = m.checked;
+        all.dispatchEvent(new Event('change', { bubbles: true }));
+    });
+    document.addEventListener('change', (e) => {
+        if (e.target === m || !e.target.matches('.erp-row-check, [data-erp-select-all]')) return;
+        // erp-ui.js sincroniza la casilla de la tabla en el mismo evento; se copia después.
+        setTimeout(() => { m.checked = all.checked; m.indeterminate = all.indeterminate; }, 0);
+    });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     initPoGroups();
     initBatch();
+    initMobileSelectAll();
     const create = document.querySelector('[data-mrp-create]');
     if (create) initCreate(create);
     initShow();

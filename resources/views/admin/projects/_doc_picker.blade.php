@@ -58,7 +58,7 @@
             <span class="prj-muted">Sin proyecto</span>
         @endif
         @if ($canLink)
-            <form method="POST" action="{{ route('admin.projects.link-document') }}" style="display:inline-flex;gap:6px;align-items:center;">
+            <form method="POST" action="{{ route('admin.projects.link-document') }}" class="prj-docpicker-form" style="display:inline-flex;gap:6px;align-items:center;">
                 @csrf
                 <input type="hidden" name="type" value="{{ $type }}">
                 <input type="hidden" name="id" value="{{ $doc->id }}">
@@ -71,7 +71,7 @@
                         <option value="{{ $current->id }}" selected>{{ $current->project_number }} (cerrado)</option>
                     @endif
                 </select>
-                <button type="submit" class="prj-btn" style="padding:5px 10px;font-size:13px;">Guardar</button>
+                <button type="submit" class="prj-btn prj-docpicker-btn" style="padding:5px 10px;font-size:13px;">Guardar</button>
             </form>
             @if ($type === 'quote' && !$current && auth()->user()->hasPermission('projects', 'create'))
                 <a href="{{ route('admin.projects.create', ['quote' => $doc->id]) }}" class="prj-link">Crear proyecto desde esta cotización</a>

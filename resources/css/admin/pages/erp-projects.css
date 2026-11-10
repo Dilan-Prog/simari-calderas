@@ -151,3 +151,240 @@ a.prj-doc-row:hover { background: #fafbfc; }
     .prj-board { grid-auto-columns: 240px; }
     .prj-attach .prj-suggest { width: 100%; max-width: none; }
 }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   MÓVIL (≤ 768 px) — Proyectos. Solo afecta a teléfonos; escritorio sin cambios.
+   Envoltorios: .prj-index (listado/tablero), .prj-show (Object Page),
+   .prj-formpage (alta/edición). .prj-docpicker es el selector incluido en
+   cotizaciones / servicios técnicos.
+   ══════════════════════════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+    .prj-index, .prj-show, .prj-formpage { padding: 12px; overflow-x: hidden; overflow-x: clip; min-width: 0; }
+    .prj-index *, .prj-show *, .prj-formpage * { box-sizing: border-box; }
+
+    /* ── Encabezado de pantalla (x-erp.page-header) ── */
+    .prj-index .erp-page-head, .prj-formpage .erp-page-head { flex-direction: column; align-items: stretch; gap: 12px; margin-bottom: 14px; }
+    .prj-index .erp-page-head > div:first-child, .prj-formpage .erp-page-head > div:first-child { min-width: 0; }
+    .prj-index .erp-title, .prj-formpage .erp-title { font-size: 22px; overflow-wrap: anywhere; }
+    .prj-index .erp-subtitle, .prj-formpage .erp-subtitle { max-width: none; overflow-wrap: anywhere; }
+    .prj-index .erp-crumbs, .prj-formpage .erp-crumbs { flex-wrap: wrap; }
+    .prj-index .erp-head-actions { width: 100%; display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; }
+    .prj-index .erp-head-actions .erp-btn { width: 100%; justify-content: center; min-height: 44px; font-size: 14px; }
+    .prj-index .prj-viewtoggle { display: grid; grid-template-columns: 1fr 1fr; width: 100%; }
+    .prj-index .prj-viewtoggle a { display: flex; align-items: center; justify-content: center; min-height: 40px; font-size: 13.5px; }
+
+    /* ── KPIs: rejilla de 2 ── */
+    .prj-index .prj-kpis { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+    .prj-index .prj-kpi { min-width: 0; padding: 10px 12px; min-height: 52px; }
+    .prj-index .prj-kpi span { overflow-wrap: anywhere; line-height: 1.25; }
+    .prj-index .prj-kpi--plain { grid-column: 1 / -1; margin-left: 0; }
+
+    /* ── Vistas guardadas: una fila desplazable ── */
+    .prj-index .erp-views { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; padding: 10px 12px; gap: 6px; }
+    .prj-index .erp-views::-webkit-scrollbar { display: none; }
+    .prj-index .erp-views-label { display: none; }
+    .prj-index .erp-views .erp-pill { flex: 0 0 auto; white-space: nowrap; min-height: 36px; padding: 6px 14px; font-size: 13px; display: inline-flex; align-items: center; }
+
+    /* ── Barra de búsqueda / filtros ── */
+    .prj-index .erp-worklist > .erp-toolbar { padding: 12px; }
+    .prj-index .prj-toolbar-form { gap: 8px; min-width: 0; }
+    .prj-index .prj-toolbar-form .erp-search { flex: 1 1 100%; min-width: 0; }
+    .prj-index .prj-toolbar-form .erp-search input { width: 100%; font-size: 16px; min-height: 44px; }
+    .prj-index .prj-toolbar-form .erp-select { flex: 1 1 100%; max-width: 100%; min-width: 0; font-size: 16px; min-height: 44px; }
+    .prj-index .prj-toolbar-form .erp-btn { flex: 1 1 100%; justify-content: center; min-height: 44px; font-size: 14px; }
+    .prj-index .erp-chips-row { padding: 10px 12px 0; }
+    .prj-index .erp-chips-row .erp-pill { max-width: 100%; white-space: normal; overflow-wrap: anywhere; min-height: 32px; }
+
+    /* ── Lista → tarjetas ── */
+    .prj-index .erp-table-wrap { overflow-x: visible; }
+    .prj-index .prj-table, .prj-index .prj-table tbody { display: block; width: 100%; }
+    .prj-index .prj-table thead { display: none; }
+    .prj-index .prj-table tbody { padding: 12px; }
+    .prj-index .prj-table tbody tr.prj-row {
+        display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px 12px;
+        grid-template-areas: "folio status" "name name" "manager phase" "progress progress" "due amount";
+        padding: 12px 14px; margin-bottom: 10px; border: 1px solid var(--erp-line, #e6e8eb); border-radius: 10px;
+        background: #fff; box-shadow: 0 1px 2px rgba(16, 24, 40, .04);
+    }
+    .prj-index .prj-table tbody tr.prj-row:last-child { margin-bottom: 0; }
+    .prj-index .prj-table tbody tr.prj-row:has(.erp-due.is-overdue) { border-left: 3px solid var(--erp-bad-dot, #dc2626); }
+    .prj-index .prj-table tbody tr > td { display: block; padding: 0; border: 0; min-width: 0; font-size: 13px; overflow-wrap: anywhere; text-align: left; }
+    .prj-index .prj-c-folio { grid-area: folio; align-self: center; font-size: 13px; }
+    .prj-index .prj-c-folio a { display: inline-block; padding: 4px 0; }
+    .prj-index .prj-c-status { grid-area: status; justify-self: end; align-self: center; text-align: right !important; max-width: 100%; }
+    .prj-index .prj-c-name { grid-area: name; }
+    .prj-index .prj-c-name .erp-cell-main { font-size: 15px; line-height: 1.3; }
+    .prj-index .prj-c-name .erp-cell-main a { display: inline-block; padding: 2px 0; }
+    .prj-index .prj-c-name .erp-cell-sub { margin-top: 2px; font-size: 12.5px; }
+    .prj-index .prj-c-manager { grid-area: manager; padding-top: 10px !important; border-top: 1px solid var(--erp-line-soft, #eef0f2) !important; }
+    .prj-index .prj-c-phase { grid-area: phase; padding-top: 10px !important; border-top: 1px solid var(--erp-line-soft, #eef0f2) !important; }
+    .prj-index .prj-c-progress { grid-area: progress; }
+    .prj-index .prj-c-progress .erp-progress { display: flex; width: 100%; }
+    .prj-index .prj-c-progress .erp-progress-bar { flex: 1; width: auto !important; }
+    .prj-index .prj-c-due { grid-area: due; }
+    .prj-index .prj-c-amount { grid-area: amount; text-align: right !important; font-weight: 700; }
+    .prj-index .prj-row td[data-label]::before {
+        content: attr(data-label); display: block; margin-bottom: 3px;
+        font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--erp-faint, #9ca3af);
+    }
+    .prj-index .prj-row .erp-chip, .prj-index .prj-row .erp-due { white-space: normal; max-width: 100%; }
+    .prj-index .prj-row-empty { display: block; }
+    .prj-index .prj-row-empty > td { text-align: center; }
+
+    /* ── Pie: conteo + paginación ── */
+    .prj-index .erp-wl-footer { flex-direction: column; align-items: center; text-align: center; gap: 10px; padding: 12px; font-size: 13px; }
+    .prj-index .erp-wl-footer > div { width: 100%; }
+    .prj-index .admin-pagination { justify-content: center; margin-top: 0; }
+    .prj-index .admin-pagination-list { justify-content: center; flex-wrap: wrap; gap: 4px; }
+    .prj-index .admin-pagination-btn { min-width: 40px; min-height: 40px; padding: 0 8px; }
+    .prj-index .admin-pagination-dots { min-width: auto; }
+
+    /* ── Tablero: columnas deslizables con imán ── */
+    .prj-index .prj-board { grid-auto-columns: 84%; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+    .prj-index .prj-board .erp-col { scroll-snap-align: start; min-width: 0; }
+    .prj-index .erp-kcard { padding: 12px; }
+    .prj-index .erp-kcard-title { overflow-wrap: anywhere; }
+    .prj-index .erp-kcard-top { gap: 8px; }
+    .prj-index .erp-kcard-top span:last-child { text-align: right; min-width: 0; overflow-wrap: anywhere; }
+
+    /* ══ Object Page (show) ══ */
+    .prj-show .erp-objhead { padding: 14px; min-width: 0; }
+    .prj-show .erp-objhead-top { flex-direction: column; gap: 12px; }
+    .prj-show .erp-objhead-main { min-width: 0; }
+    .prj-show .erp-objhead-back { display: inline-flex; align-items: center; min-height: 32px; padding: 4px 10px; margin-bottom: 4px; }
+    .prj-show .erp-eyebrow { overflow-wrap: anywhere; }
+    .prj-show .erp-objhead-title { font-size: 20px; overflow-wrap: anywhere; min-width: 0; }
+    .prj-show .erp-objhead-sub { overflow-wrap: anywhere; }
+    .prj-show .erp-objhead-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; width: 100%; }
+    .prj-show .erp-objhead-actions > form { margin: 0; min-width: 0; }
+    .prj-show .erp-objhead-actions .prj-status-form { grid-column: 1 / -1; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; }
+    .prj-show .erp-objhead-actions .erp-select { width: 100%; min-width: 0; font-size: 16px; min-height: 44px; }
+    .prj-show .erp-objhead-actions .erp-btn { width: 100%; min-height: 44px; justify-content: center; font-size: 14px; }
+    .prj-show .erp-objhead-actions .prj-status-form .erp-btn { width: auto; }
+    .prj-show .erp-objhead-actions > :only-child, .prj-show .erp-objhead-actions > .prj-status-form + :last-child { grid-column: 1 / -1; }
+    .prj-show .erp-objhead-facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 16px; }
+    .prj-show .erp-objhead-facts > div { min-width: 0; }
+    .prj-show .erp-objhead-facts dd { overflow-wrap: anywhere; }
+    .prj-show .erp-objhead-process { min-width: 0; }
+    .prj-show .erp-chevrons { -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+    .prj-show .erp-chevrons::-webkit-scrollbar { display: none; }
+    .prj-show .erp-chevron { min-width: 104px; }
+
+    /* Pestañas: una fila desplazable, 44 px de alto */
+    .prj-show .erp-split { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+    .prj-show .erp-split > * { min-width: 0; }
+    .prj-show .erp-tabnav { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; padding: 0 6px; scroll-padding: 0 24px; }
+    .prj-show .erp-tabnav::-webkit-scrollbar { display: none; }
+    .prj-show .erp-tab { flex: 0 0 auto; min-height: 44px; padding: 10px 12px; font-size: 13.5px; }
+    .prj-show .prj-main .erp-tabpanel { padding: 14px; }
+    .prj-show .prj-h2 { margin-top: 18px; }
+    .prj-show .prj-section-head .erp-btn { min-height: 40px; }
+    .prj-show .prj-text, .prj-show .prj-muted, .prj-show .prj-tl-title, .prj-show .prj-log-changes { overflow-wrap: anywhere; }
+    .prj-show .prj-log-changes code { word-break: break-all; }
+    .prj-show .prj-progress-row { flex-wrap: wrap; gap: 6px 12px; }
+    .prj-show .prj-progress-row .prj-progress-wide { flex: 1 1 100%; }
+    .prj-show .erp-facts { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 16px; }
+    .prj-show .erp-facts > div { min-width: 0; overflow-wrap: anywhere; }
+    .prj-show .prj-panel { padding: 14px; }
+    .prj-show .prj-aside { position: static; }
+
+    /* Línea de tiempo (Gantt): desplazamiento dentro de la tarjeta */
+    .prj-show .prj-gantt { -webkit-overflow-scrolling: touch; margin: 0 -14px; padding: 0 14px 6px; }
+    .prj-show .prj-gantt-axis { margin-left: 130px; }
+    .prj-show .prj-gantt-row { min-width: 520px; }
+    .prj-show .prj-gantt-label { width: 130px; flex-basis: 130px; font-size: 12px; }
+    .prj-show .prj-gantt-legend { padding-left: 130px; }
+
+    /* Fases: tarjetas apiladas */
+    .prj-show .prj-phase-cards { grid-template-columns: minmax(0, 1fr); gap: 10px; }
+    .prj-show .prj-phasecard { padding: 12px; min-width: 0; }
+    .prj-show .prj-phasecard header { flex-wrap: wrap; gap: 6px 10px; }
+    .prj-show .prj-phasecard header strong { flex: 1 1 60%; min-width: 0; font-size: 14.5px; overflow-wrap: anywhere; }
+    .prj-show .prj-phasecard .prj-progress-wide .erp-progress-bar { height: 8px; }
+    .prj-show .prj-phasecard .prj-inline-form { display: grid; grid-template-columns: minmax(0, 1fr) 96px; gap: 8px; margin-top: 6px; padding-top: 10px; border-top: 1px solid var(--erp-line-soft, #eef0f2); }
+    .prj-show .prj-phasecard .prj-inline-form .erp-select,
+    .prj-show .prj-phasecard .prj-inline-form .erp-input { width: 100%; min-width: 0; font-size: 16px; min-height: 44px; }
+    .prj-show .prj-phasecard .prj-inline-form .erp-btn { grid-column: 1 / -1; width: 100%; min-height: 44px; justify-content: center; font-size: 14px; }
+
+    /* Tablas de documentos (_doc_table) y requerimientos → tarjetas */
+    .prj-show .erp-table-wrap { overflow-x: visible; }
+    .prj-show .prj-cards-table, .prj-show .prj-cards-table tbody { display: block; width: 100%; }
+    .prj-show .prj-cards-table thead { display: none; }
+    .prj-show .prj-cards-table tbody tr {
+        display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px 12px;
+        grid-template-areas: "folio status" "detail detail" "actions actions";
+        padding: 12px; margin-bottom: 8px; border: 1px solid var(--erp-line, #e6e8eb); border-radius: 10px; background: #fff;
+    }
+    .prj-show .prj-cards-table tbody tr.prj-req-row { grid-template-areas: "folio status" "due lines"; }
+    .prj-show .prj-cards-table tbody tr > td { display: block; padding: 0; border: 0; min-width: 0; font-size: 13px; overflow-wrap: anywhere; text-align: left; }
+    .prj-show .prj-cards-table .prj-c-folio { grid-area: folio; align-self: center; font-size: 13.5px; }
+    .prj-show .prj-cards-table .prj-c-status { grid-area: status; justify-self: end; align-self: center; text-align: right; }
+    .prj-show .prj-cards-table .prj-c-detail { grid-area: detail; }
+    .prj-show .prj-cards-table .prj-c-detail:empty { display: none; }
+    .prj-show .prj-cards-table .prj-c-due { grid-area: due; }
+    .prj-show .prj-cards-table .prj-c-lines { grid-area: lines; text-align: right; }
+    .prj-show .prj-cards-table td[data-label]::before {
+        content: attr(data-label); display: block; margin-bottom: 2px;
+        font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--erp-faint, #9ca3af);
+    }
+    .prj-show .prj-cards-table .prj-c-actions { grid-area: actions; display: flex; gap: 8px; padding-top: 8px; border-top: 1px solid var(--erp-line-soft, #eef0f2); }
+    .prj-show .prj-cards-table .prj-c-actions > a, .prj-show .prj-cards-table .prj-c-actions > form { flex: 1 1 0; min-width: 0; margin: 0; }
+    .prj-show .prj-cards-table .prj-c-actions .erp-btn { width: 100%; min-height: 44px; justify-content: center; font-size: 14px; border: 1px solid #d4d7dc; border-radius: 8px; }
+    .prj-show .prj-cards-table .erp-chip { white-space: normal; max-width: 100%; }
+
+    /* Asociar documento (_attach_box): campo, sugerencias en flujo y botón a lo ancho */
+    .prj-show .prj-attach { flex-direction: column; align-items: stretch; gap: 8px; }
+    .prj-show .prj-attach .erp-field { flex: 1 1 auto; max-width: none; }
+    .prj-show .prj-attach .erp-input { font-size: 16px; min-height: 44px; }
+    .prj-show .prj-attach .prj-suggest { position: static; width: 100%; max-width: none; max-height: 50vh; box-shadow: none; }
+    .prj-show .prj-attach > .erp-btn { width: 100%; min-height: 44px; justify-content: center; font-size: 14px; }
+    .prj-show .prj-suggest button, .prj-formpage .prj-suggest button { min-height: 44px; padding: 10px 12px; font-size: 15px; overflow-wrap: anywhere; border-bottom: 1px solid var(--erp-line-soft, #eef0f2); }
+
+    /* Documentos del flujo */
+    .prj-show .prj-doc-row { min-height: 52px; padding: 10px 4px; flex-wrap: wrap; gap: 6px 12px; }
+    .prj-show .prj-doc-main b, .prj-show .prj-doc-main small { overflow-wrap: anywhere; }
+
+    /* ══ Formulario (alta / edición) ══ */
+    .prj-formpage .prj-alert { overflow-wrap: anywhere; }
+    .prj-formpage .erp-card-head { flex-wrap: wrap; gap: 10px; padding: 14px 14px 0; }
+    .prj-formpage .erp-card-head > div:first-child { min-width: 0; flex: 1 1 60%; }
+    .prj-formpage .erp-card-head .erp-head-actions { flex: 1 1 100%; }
+    .prj-formpage .erp-card-head .erp-head-actions .erp-btn { width: 100%; min-height: 44px; justify-content: center; font-size: 14px; }
+    .prj-formpage .erp-card-body { padding: 14px; }
+    .prj-formpage .erp-form-grid { grid-template-columns: minmax(0, 1fr); gap: 14px; }
+    .prj-formpage .erp-field { min-width: 0; font-size: 13px; }
+    .prj-formpage .erp-input, .prj-formpage .erp-select { width: 100%; max-width: 100%; min-width: 0; font-size: 16px; min-height: 44px; }
+    .prj-formpage textarea.erp-input { min-height: 88px; }
+    .prj-formpage select[multiple].erp-select { min-height: 120px; }
+    .prj-formpage input[type="date"].erp-input { -webkit-appearance: none; appearance: none; display: block; }
+    .prj-formpage .prj-customer small a { display: inline-block; padding: 8px 0; }
+
+    /* Editor de fases (_phase_row) */
+    .prj-formpage .prj-phase { padding: 12px; gap: 12px; }
+    .prj-formpage .prj-phase-bar { flex-wrap: wrap; gap: 8px; }
+    .prj-formpage .prj-phase-handle { display: none; }
+    .prj-formpage .prj-phase-index { min-width: 28px; height: 28px; margin-right: auto; }
+    .prj-formpage .prj-phase-name { order: 10; flex: 1 1 100%; }
+    .prj-formpage .prj-icon-btn { width: 44px; height: 44px; font-size: 16px; }
+    .prj-formpage .prj-phase-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    .prj-formpage .prj-phase-grid > .erp-field { min-width: 0; }
+
+    /* Acciones: barra fija abajo, botones a lo ancho (Guardar arriba) */
+    .prj-formpage .prj-form-actions {
+        position: sticky; bottom: 0; z-index: 30; display: flex; flex-direction: column-reverse; gap: 8px;
+        margin: 16px -12px -12px; padding: 12px 12px calc(12px + env(safe-area-inset-bottom, 0px));
+        background: #fff; border-top: 1px solid var(--erp-line, #e6e8eb); box-shadow: 0 -4px 12px rgba(16, 24, 40, .06);
+    }
+    .prj-formpage .prj-form-actions .erp-btn { width: 100%; min-height: 44px; justify-content: center; font-size: 15px; }
+
+    /* ══ Selector "Proyecto" (cotizaciones / servicios técnicos) ══ */
+    .prj-docpicker { display: flex; max-width: 100%; min-width: 0; overflow-wrap: anywhere; }
+    .prj-docpicker .prj-docpicker-form { display: flex !important; flex-wrap: wrap; width: 100%; gap: 8px !important; }
+    .prj-docpicker .prj-docpicker-form select { flex: 1 1 100%; max-width: 100%; min-width: 0; font-size: 16px; min-height: 44px; }
+    .prj-docpicker .prj-docpicker-btn { flex: 1 1 100%; justify-content: center; min-height: 44px; font-size: 14px !important; }
+    .prj-docpicker .prj-link { display: inline-block; padding: 8px 0; }
+}
+@media (max-width: 360px) {
+    .prj-show .erp-objhead-facts, .prj-show .erp-facts { grid-template-columns: minmax(0, 1fr); }
+    .prj-formpage .prj-phase-grid { grid-template-columns: minmax(0, 1fr); }
+}

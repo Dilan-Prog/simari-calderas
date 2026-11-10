@@ -13,7 +13,7 @@
 @endphp
 
 @section('content')
-<div class="erp-page bom-page">
+<div class="erp-page bom-page bom-show">
     <x-erp.object-header
         :title="$product->name"
         eyebrow="LISTA DE MATERIALES · PLA3"
@@ -73,10 +73,10 @@
                     </div>
                     <div class="erp-tree-row erp-tree-row--bom erp-tree-row--root">
                         <span class="bom-node-main"><span class="bom-node-name">{{ $product->name }}</span> <span class="bom-muted">{{ $product->sku }}</span> <span class="bom-lvl">N1</span></span>
-                        <span class="is-num bom-col-qty">1 <span class="bom-muted">{{ $unitLabel }}</span></span>
-                        <span class="is-num bom-col-merma">—</span>
-                        <span class="is-num bom-col-unit">{{ $fmt($cost) }}</span>
-                        <span class="is-num bom-col-cost">{{ $fmt($cost) }}</span>
+                        <span class="is-num bom-col-qty" data-label="Cant.">1 <span class="bom-muted">{{ $unitLabel }}</span></span>
+                        <span class="is-num bom-col-merma" data-label="Merma">—</span>
+                        <span class="is-num bom-col-unit" data-label="Unit.">{{ $fmt($cost) }}</span>
+                        <span class="is-num bom-col-cost" data-label="Rama">{{ $fmt($cost) }}</span>
                     </div>
                     @if (count($tree))
                         <ul class="bom-tree">
@@ -97,16 +97,16 @@
                     <thead><tr><th>Versión</th><th>Estado</th><th class="is-right">Componentes</th><th>Actualizada</th><th></th></tr></thead>
                     <tbody>
                         @foreach ($otherVersions as $v)
-                            <tr>
-                                <td>
+                            <tr class="bom-ver-row">
+                                <td class="bom-v-version">
                                     <span class="erp-cell-main">v{{ $v->version }}</span>
                                     @if ($v->name)<span class="erp-cell-sub"> · {{ $v->name }}</span>@endif
                                     @if ($v->id === $bom->id)<span class="bom-muted">(esta)</span>@endif
                                 </td>
-                                <td><x-erp.status :value="$v->is_active ? 'Vigente' : 'No vigente'" :tone="$v->is_active ? 'ok' : 'neu'" /></td>
-                                <td class="is-num">{{ $v->lines_count }}</td>
-                                <td>{{ $v->updated_at?->format('d/m/Y') ?? '—' }}</td>
-                                <td>
+                                <td class="bom-v-status"><x-erp.status :value="$v->is_active ? 'Vigente' : 'No vigente'" :tone="$v->is_active ? 'ok' : 'neu'" /></td>
+                                <td class="is-num bom-v-lines" data-label="Componentes">{{ $v->lines_count }}</td>
+                                <td class="bom-v-updated" data-label="Actualizada">{{ $v->updated_at?->format('d/m/Y') ?? '—' }}</td>
+                                <td class="bom-v-actions">
                                     <div class="bom-versions-actions">
                                         @if ($v->id !== $bom->id)<a class="erp-btn erp-btn--sm" href="{{ route('admin.boms.show', $v) }}">Ver</a>@endif
                                         @if ($can('edit') && !$v->is_active)

@@ -24,7 +24,7 @@
 @endphp
 
 @section('content')
-<div class="erp-page bom-page">
+<div class="erp-page bom-page bom-index">
     <x-erp.page-header title="Listas de materiales" code="PLA3"
         desc="Estructura multinivel por producto con cantidades, merma, costo por rama y versiones."
         :crumbs="[['Planeación', null], ['Listas de materiales', null]]">
@@ -65,27 +65,27 @@
                             $price = $bom->product->base_price;
                             $margin = $price > 0 && $cost > 0 ? round((($price - $cost) / $price) * 100, 1) : null;
                         @endphp
-                        <tr>
-                            <td>
+                        <tr class="bom-row">
+                            <td class="bom-c-product">
                                 <div class="erp-cell-main"><a href="{{ route('admin.boms.show', $bom) }}" class="erp-cell-link">{{ $bom->product->name }}</a></div>
                                 <div class="erp-cell-sub">{{ $bom->product->sku }}</div>
                             </td>
-                            <td>v{{ $bom->version }}@if ($bom->name)<div class="erp-cell-sub">{{ $bom->name }}</div>@endif</td>
-                            <td class="is-num">{{ $bom->lines_count }}</td>
-                            <td class="is-num"><strong>{{ $cost > 0 ? '$' . number_format($cost, 2) : '—' }}</strong></td>
-                            <td class="is-num">{{ $price > 0 ? '$' . number_format($price, 2) : '—' }}</td>
-                            <td class="is-num">
+                            <td class="bom-c-version" data-label="Versión">v{{ $bom->version }}@if ($bom->name)<div class="erp-cell-sub">{{ $bom->name }}</div>@endif</td>
+                            <td class="is-num bom-c-lines" data-label="Componentes">{{ $bom->lines_count }}</td>
+                            <td class="is-num bom-c-cost" data-label="Costo estándar"><strong>{{ $cost > 0 ? '$' . number_format($cost, 2) : '—' }}</strong></td>
+                            <td class="is-num bom-c-price" data-label="Precio (s/IVA)">{{ $price > 0 ? '$' . number_format($price, 2) : '—' }}</td>
+                            <td class="is-num bom-c-margin" data-label="Margen">
                                 @if ($margin !== null)
                                     <span class="bom-margin erp-tone-{{ $margin < 0 ? 'bad' : ($margin < 15 ? 'warn' : 'ok') }}">{{ $margin }}%</span>
                                 @else
                                     —
                                 @endif
                             </td>
-                            <td>{{ $bom->updated_at?->format('d/m/Y') ?? '—' }}</td>
-                            <td><x-erp.status :value="$bom->is_active ? 'Vigente' : 'No vigente'" :tone="$bom->is_active ? 'ok' : 'neu'" /></td>
+                            <td class="bom-c-updated" data-label="Actualizada">{{ $bom->updated_at?->format('d/m/Y') ?? '—' }}</td>
+                            <td class="bom-c-status"><x-erp.status :value="$bom->is_active ? 'Vigente' : 'No vigente'" :tone="$bom->is_active ? 'ok' : 'neu'" /></td>
                         </tr>
                     @empty
-                        <tr><td colspan="8" style="padding: 0; border: 0;">
+                        <tr class="bom-row-empty"><td colspan="8" style="padding: 0; border: 0;">
                             <x-erp.empty title="Aún no hay listas de materiales" text="Crea la primera con «Nueva lista de materiales».">
                                 @if ($canCreate)<a href="{{ route('admin.boms.create') }}" class="erp-btn erp-btn--primary">+ Nueva lista de materiales</a>@endif
                             </x-erp.empty>

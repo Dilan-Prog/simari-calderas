@@ -12,7 +12,7 @@
 @endphp
 
 @section('content')
-<div class="erp-page mrp-page" data-mrp-create data-search-url="{{ route('admin.mrp.search-products') }}">
+<div class="erp-page mrp-page mrp-create" data-mrp-create data-search-url="{{ route('admin.mrp.search-products') }}">
     <x-erp.page-header title="Nuevo requerimiento de materiales" code="MRP1"
         desc="Elige de dónde viene la demanda. Se explotarán las listas de materiales y se compararán contra existencias y reservas."
         :crumbs="[['MRP', null], ['Requerimientos de material', route('admin.mrp.index')], ['Nuevo', null]]">
@@ -103,7 +103,7 @@
             </div>
         </x-erp.card>
 
-        <div class="erp-form-actions" style="border-top: 0;">
+        <div class="erp-form-actions mrp-create-actions" style="border-top: 0;">
             <a href="{{ route('admin.mrp.index') }}" class="erp-btn">Cancelar</a>
             <button type="submit" class="erp-btn erp-btn--primary">Calcular materiales</button>
         </div>
