@@ -16,7 +16,7 @@
 @endphp
 
 @section('content')
-<div class="erp-page prd-page" data-prd-form data-search-url="{{ route('admin.production-orders.search-products') }}">
+<div class="erp-page prd-page prd-form" data-prd-form data-search-url="{{ route('admin.production-orders.search-products') }}">
     <x-erp.page-header
         :title="$order ? 'Editar ' . $order->number : 'Nueva orden de producción'"
         code="PRD2"
@@ -93,7 +93,7 @@
             </div>
         </div>
 
-        <div class="erp-form-actions">
+        <div class="erp-form-actions prd-form-actions">
             <a href="{{ $order ? route('admin.production-orders.show', $order) : route('admin.production-orders.index') }}" class="erp-btn">Cancelar</a>
             <button type="submit" class="erp-btn erp-btn--primary">{{ $order ? 'Guardar cambios' : 'Crear orden' }}</button>
         </div>

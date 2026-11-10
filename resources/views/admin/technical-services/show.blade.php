@@ -7,18 +7,18 @@
 @endpush
 
 @section('content')
-<div class="ts-page">
+<div class="ts-page ts-admin ts-admin--show">
 
     {{-- ── Header ──────────────────────────────────── --}}
     <div class="ts-show-header">
-        <div style="display:flex;align-items:flex-start;gap:0.75rem">
+        <div class="ts-show-head-main" style="display:flex;align-items:flex-start;gap:0.75rem">
             <a href="{{ route('admin.technical-services.index') }}" class="ts-show-back" title="Volver">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
                      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="m12 19-7-7 7-7M19 12H5"/>
                 </svg>
             </a>
-            <div>
+            <div class="ts-show-head-text">
                 <div class="ts-breadcrumb" style="margin-bottom:0.25rem">
                     <span>Panel de Control</span>
                     <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
@@ -155,7 +155,7 @@
     </div>
 
     @if($service->is_customer_request)
-    <div class="ts-card" style="margin-bottom:1rem;background:#FFF7ED;border:1px solid #FED7AA">
+    <div class="ts-card ts-request-card" style="margin-bottom:1rem;background:#FFF7ED;border:1px solid #FED7AA">
         <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap">
             <div style="font-size:.875rem;color:#7C2D12">
                 <strong style="display:block;font-size:1rem">Solicitud enviada por el cliente desde el portal</strong>
@@ -281,7 +281,7 @@
             <p style="font-size:0.8125rem;color:#6B7280;margin:0.75rem 0 0.5rem;">
                 Este servicio no tiene una cotización de origen vinculada.
             </p>
-            <form method="POST" action="{{ route('admin.technical-services.attach-quote', $service) }}" style="display:flex;gap:0.5rem;">
+            <form method="POST" action="{{ route('admin.technical-services.attach-quote', $service) }}" class="ts-attach-quote-form" style="display:flex;gap:0.5rem;">
                 @csrf
                 @method('PATCH')
                 <select name="from_quote_id" class="ts-select-field" required style="flex:1">
@@ -377,7 +377,7 @@
     </div>
 
     {{-- ── Metadata ──────────────────────────────── --}}
-    <div class="ts-card" style="margin-top:1rem">
+    <div class="ts-card ts-show-meta" style="margin-top:1rem">
         <div style="display:flex;gap:2rem;flex-wrap:wrap">
             <div class="ts-detail-field">
                 <span class="ts-detail-label">Creado</span>
@@ -389,7 +389,7 @@
     </div>
 
     {{-- ── Mobile sticky action footer ──────────── --}}
-    <div class="ts-show-mobile-actions">
+    <div class="ts-show-mobile-actions" role="toolbar" aria-label="Acciones del servicio">
         @if($service->status === 'completed')
         <a href="{{ route('admin.technical-services.generate-report', $service) }}"
            class="ts-btn ts-btn--primary">

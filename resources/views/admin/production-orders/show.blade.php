@@ -35,7 +35,7 @@
 @endphp
 
 @section('content')
-<div class="erp-page prd-page">
+<div class="erp-page prd-page prd-show">
     <x-erp.object-header
         eyebrow="ORDEN DE PRODUCCIÓN · PRD2"
         :title="$order->number"
@@ -102,7 +102,7 @@
                 <p class="prd-muted">Producidas {{ $n($order->quantity_produced) }} de {{ $n($order->quantity_planned) }} @if($order->bom)· BOM v{{ $order->bom->version ?? $order->bom_id }}@endif</p>
 
                 @if ($running && $can('edit') && $remaining > 0)
-                    <form method="POST" action="{{ route('admin.production-orders.finish', $order) }}" class="prd-inline-form">
+                    <form method="POST" action="{{ route('admin.production-orders.finish', $order) }}" class="prd-inline-form prd-finish-form">
                         @csrf
                         <input type="hidden" name="token" value="{{ \Illuminate\Support\Str::random(24) }}">
                         <label>Terminar cantidad
@@ -146,7 +146,7 @@
                 @if ($canConsumeNow)
                     <form method="POST" action="{{ route('admin.production-orders.consume', $order) }}" id="prd-consume-form">@csrf</form>
                 @endif
-                <div class="erp-table-wrap">
+                <div class="erp-table-wrap prd-comp-wrap">
                     <table class="erp-table">
                         <thead>
                             <tr>
@@ -162,15 +162,15 @@
                         <tbody>
                             @foreach ($order->components as $c)
                                 @php $short = $cancelled ? 0 : $c->shortfall(); $isShort = $short > 0.00005 && $open; @endphp
-                                <tr class="{{ $isShort ? 'prd-row-short' : '' }}">
-                                    <td>
+                                <tr class="prd-crow {{ $isShort ? 'prd-row-short' : '' }}">
+                                    <td class="prd-cc-name">
                                         <div class="erp-cell-main">{{ $c->product->name ?? '—' }}</div>
                                         <div class="erp-cell-sub">{{ $c->product->sku ?? '' }}</div>
                                     </td>
-                                    <td class="is-num">{{ $n($c->required_quantity) }} <span class="erp-cell-sub">{{ $c->unit }}</span></td>
-                                    <td class="is-num">{{ $n($c->reserved_quantity) }}</td>
-                                    <td class="is-num">{{ $n($c->consumed_quantity) }}</td>
-                                    <td class="is-num">
+                                    <td class="is-num" data-label="Requerido">{{ $n($c->required_quantity) }} <span class="erp-cell-sub">{{ $c->unit }}</span></td>
+                                    <td class="is-num" data-label="Reservado">{{ $n($c->reserved_quantity) }}</td>
+                                    <td class="is-num" data-label="Consumido">{{ $n($c->consumed_quantity) }}</td>
+                                    <td class="is-num" data-label="Faltante">
                                         @if ($isShort)
                                             <span class="prd-short"><strong>{{ $n($short) }}</strong></span>
                                         @else
@@ -178,7 +178,7 @@
                                         @endif
                                     </td>
                                     @if ($canConsumeNow)
-                                        <td class="is-num">
+                                        <td class="is-num prd-cc-consume" data-label="Consumir ahora">
                                             @if ($c->pending() > 0.00005)
                                                 <input type="number" form="prd-consume-form" name="quantities[{{ $c->id }}]" class="erp-input prd-input-sm prd-input-num" min="0" max="{{ ceil($c->pending()) }}" step="1" placeholder="0" aria-label="Consumir {{ $c->product->name ?? 'componente' }}">
                                             @else
@@ -186,14 +186,14 @@
                                             @endif
                                         </td>
                                     @endif
-                                    <td class="is-num">{{ $money($c->unit_cost) }}</td>
+                                    <td class="is-num" data-label="Costo unit.">{{ $money($c->unit_cost) }}</td>
                                 </tr>
                             @endforeach
                         </tbody>
                     </table>
                 </div>
                 @if ($canConsumeNow)
-                    <div class="erp-form-actions">
+                    <div class="erp-form-actions prd-consume-actions">
                         <button class="erp-btn" type="submit" form="prd-consume-form" data-confirm="¿Consumir las cantidades capturadas? Se registrará la salida de inventario.">Consumir cantidades capturadas</button>
                     </div>
                     <small class="prd-muted">El inventario se mueve por unidades enteras: las fracciones se consumen redondeadas hacia arriba.</small>
@@ -203,21 +203,21 @@
             {{-- Bitácora --}}
             <div class="erp-tabpanel" data-panel="bitacora">
                 <h2 class="prd-h2">Bitácora</h2>
-                <div class="erp-table-wrap">
+                <div class="erp-table-wrap prd-log-wrap">
                     <table class="erp-table">
                         <thead><tr><th>Fecha</th><th>Acción</th><th>Estatus</th><th>Avance</th><th>Usuario</th><th>Nota</th></tr></thead>
                         <tbody>
                             @forelse ($order->logs as $l)
-                                <tr>
-                                    <td class="prd-nowrap">{{ $l->created_at?->format('d/m/Y H:i') }}</td>
-                                    <td>{{ ucfirst($l->action) }}</td>
-                                    <td>@if ($l->to_status)<x-erp.chip :tone="ErpUi::tone($l->to_status)" :label="ProductionOrder::statusLabel($l->to_status)" />@else — @endif</td>
-                                    <td>{{ $l->progress !== null ? $l->progress . '%' : '—' }}</td>
-                                    <td>{{ $l->user ? trim($l->user->first_name . ' ' . $l->user->last_name) : '—' }}</td>
-                                    <td>{{ $l->note }}</td>
+                                <tr class="prd-lrow">
+                                    <td class="prd-nowrap prd-lc-date">{{ $l->created_at?->format('d/m/Y H:i') }}</td>
+                                    <td class="prd-lc-action">{{ ucfirst($l->action) }}</td>
+                                    <td class="prd-lc-status">@if ($l->to_status)<x-erp.chip :tone="ErpUi::tone($l->to_status)" :label="ProductionOrder::statusLabel($l->to_status)" />@else — @endif</td>
+                                    <td data-label="Avance">{{ $l->progress !== null ? $l->progress . '%' : '—' }}</td>
+                                    <td data-label="Usuario">{{ $l->user ? trim($l->user->first_name . ' ' . $l->user->last_name) : '—' }}</td>
+                                    <td class="prd-lc-note" @if ($l->note) data-label="Nota" @endif>{{ $l->note }}</td>
                                 </tr>
                             @empty
-                                <tr><td colspan="6"><x-erp.empty title="Sin movimientos" /></td></tr>
+                                <tr class="prd-row-empty"><td colspan="6"><x-erp.empty title="Sin movimientos" /></td></tr>
                             @endforelse
                         </tbody>
                     </table>

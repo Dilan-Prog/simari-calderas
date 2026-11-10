@@ -21,7 +21,7 @@
 @endpush
 
 @section('content')
-<div class="sr-show-wrap">
+<div class="sr-show-wrap sr-admin-show">
 
     @if(session('success'))
         <div class="sr-flash-ok">{{ session('success') }}</div>
@@ -35,11 +35,11 @@
         @php
             $stepNames = ['Datos Generales','Mediciones / Act.','Observaciones','Evidencia','Resumen'];
         @endphp
-        <div style="background:#FFF7ED; border:1px solid #FDBA74; border-radius:8px; padding:12px 16px; margin-bottom:16px; display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap;">
+        <div class="sr-steps-banner" style="background:#FFF7ED; border:1px solid #FDBA74; border-radius:8px; padding:12px 16px; margin-bottom:16px; display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap;">
             <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ff6213" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>
                 <span style="font-size:13px; color:#92400E; font-weight:500;">Reporte incompleto — faltan pasos por completar</span>
-                <div style="display:flex; align-items:center; gap:6px;">
+                <div class="sr-steps-chips" style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
                     @foreach($stepNames as $i => $sName)
                         @php $sn = $i + 1; @endphp
                         <span style="display:inline-flex; align-items:center; gap:4px; font-size:11px; font-weight:500;
@@ -55,7 +55,7 @@
                     @endforeach
                 </div>
             </div>
-            <a href="{{ route('admin.service-reports.step', [$report, $report->current_step + 1]) }}"
+            <a href="{{ route('admin.service-reports.step', [$report, $report->current_step + 1]) }}" class="sr-steps-cta"
                style="flex-shrink:0; display:inline-flex; align-items:center; gap:6px; height:36px; padding:0 16px; border-radius:6px;
                       background:#ff6213; color:#fff; font-size:13px; font-weight:500; text-decoration:none; white-space:nowrap;">
                 Continuar → Paso {{ $report->current_step + 1 }}
@@ -208,12 +208,12 @@
                             <tbody>
                                 @foreach($report->measurements as $i => $m)
                                     <tr>
-                                        <td class="td-param">{{ $m->parameter }}</td>
-                                        <td class="td-unit">{{ $m->unit ?? '—' }}</td>
-                                        <td class="td-result">{{ $m->result ?? '—' }}</td>
-                                        <td class="td-num">{{ $m->limit_min !== null ? $m->limit_min : '—' }}</td>
-                                        <td class="td-num">{{ $m->limit_max !== null ? $m->limit_max : '—' }}</td>
-                                        <td>
+                                        <td class="td-param" data-label="Parámetro">{{ $m->parameter }}</td>
+                                        <td class="td-unit" data-label="Unidades">{{ $m->unit ?? '—' }}</td>
+                                        <td class="td-result" data-label="Resultado">{{ $m->result ?? '—' }}</td>
+                                        <td class="td-num" data-label="Mín.">{{ $m->limit_min !== null ? $m->limit_min : '—' }}</td>
+                                        <td class="td-num" data-label="Máx.">{{ $m->limit_max !== null ? $m->limit_max : '—' }}</td>
+                                        <td class="td-state" data-label="Estado">
                                             @if($m->in_range === true)
                                                 <span style="color:#16A34A; font-weight:500;">✓ Dentro</span>
                                             @elseif($m->in_range === false)
@@ -310,7 +310,7 @@
                                 <p class="sr-doc-photos-col-label">Antes del servicio</p>
                                 <div class="sr-doc-photos-inner">
                                     @foreach($report->images->take(2) as $img)
-                                        <div class="sr-photo-item" onclick="openLightbox('{{ $img->url }}')">
+                                        <div class="sr-photo-item" role="button" tabindex="0" aria-label="Ampliar foto" onclick="openLightbox('{{ $img->url }}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openLightbox('{{ $img->url }}');}">
                                             <img src="{{ $img->url }}" alt="Evidencia">
                                         </div>
                                     @endforeach
@@ -325,7 +325,7 @@
                                 <p class="sr-doc-photos-col-label">Después del servicio</p>
                                 <div class="sr-doc-photos-inner">
                                     @foreach($report->images->slice(2, 2) as $img)
-                                        <div class="sr-photo-item" onclick="openLightbox('{{ $img->url }}')">
+                                        <div class="sr-photo-item" role="button" tabindex="0" aria-label="Ampliar foto" onclick="openLightbox('{{ $img->url }}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openLightbox('{{ $img->url }}');}">
                                             <img src="{{ $img->url }}" alt="Evidencia">
                                         </div>
                                     @endforeach
@@ -587,14 +587,14 @@
         </a>
 
         @if($report->isEditable())
-            <a href="{{ route('admin.service-reports.edit', $report) }}" class="sr-btn sr-btn-outline">
+            <a href="{{ route('admin.service-reports.edit', $report) }}" class="sr-btn sr-btn-outline sr-mbar-secondary">
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/></svg>
                 Editar
             </a>
         @endif
 
         @if($report->isDeletable())
-            <form method="POST" action="{{ route('admin.service-reports.destroy', $report) }}"
+            <form method="POST" action="{{ route('admin.service-reports.destroy', $report) }}" class="sr-mbar-secondary"
                   style="display:contents"
                   onsubmit="return confirm('¿Eliminar este reporte? Esta acción no se puede deshacer.')">
                 @csrf @method('DELETE')
@@ -608,15 +608,15 @@
          un "× Evidencia" roto al pie de la página y el zoom de fotos no
          funcionaba. Dentro del wrapper los estilos ya lo ocultan/posicionan. --}}
     <div class="sr-lightbox" id="srLightbox" onclick="closeLightbox()">
-        <button class="sr-lightbox-close" onclick="closeLightbox()">×</button>
+        <button type="button" class="sr-lightbox-close" onclick="closeLightbox()" aria-label="Cerrar">×</button>
         <img src="" id="srLightboxImg" alt="Evidencia" onclick="event.stopPropagation()">
     </div>
 
 </div>{{-- /sr-show-wrap --}}
 
 {{-- Modal PDF --}}
-<div id="sr-pdf-modal" style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,.65); align-items:center; justify-content:center;">
-    <div style="background:#fff; border-radius:8px; width:90vw; max-width:960px; height:90vh; display:flex; flex-direction:column; overflow:hidden; box-shadow:0 20px 60px rgba(0,0,0,.4);">
+<div id="sr-pdf-modal" class="sr-admin-pdf-modal" style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,.65); align-items:center; justify-content:center;">
+    <div class="sr-admin-pdf-modal__panel" style="background:#fff; border-radius:8px; width:90vw; max-width:960px; height:90vh; display:flex; flex-direction:column; overflow:hidden; box-shadow:0 20px 60px rgba(0,0,0,.4);">
         <div style="display:flex; align-items:center; justify-content:space-between; padding:12px 18px; background:#1a1a1a; border-bottom:2px solid #ff6213; flex-shrink:0;">
             <span style="color:#fff; font-size:14px; font-weight:600;">Vista previa — {{ $report->report_number }}</span>
             <div style="display:flex; gap:10px; align-items:center;">
@@ -625,7 +625,7 @@
                     <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17V3"/><path d="m6 11 6 6 6-6"/><path d="M19 21H5"/></svg>
                     Descargar PDF
                 </a>
-                <button onclick="closePdfModal()" style="background:transparent; border:none; cursor:pointer; color:#9CA3AF; font-size:20px; line-height:1; padding:4px 8px;" title="Cerrar">&times;</button>
+                <button type="button" class="sr-admin-pdf-modal__x" onclick="closePdfModal()" aria-label="Cerrar" style="background:transparent; border:none; cursor:pointer; color:#9CA3AF; font-size:20px; line-height:1; padding:4px 8px;" title="Cerrar">&times;</button>
             </div>
         </div>
         <iframe id="sr-pdf-frame" src="" style="flex:1; border:none; background:#525659;" title="Vista previa PDF"></iframe>
@@ -645,12 +645,43 @@
 
 @push('scripts')
 <script>
+/* Bloqueo de scroll compartido por lightbox y modal PDF. El contenido puede
+   desplazarse en <body> o dentro de .sr-show-wrap (overflow-y:auto), así que
+   se bloquean ambos y se restaura el estado previo al cerrar. */
+var srScrollLocks = 0, srSavedOverflow = null;
+function srLockScroll() {
+    if (srScrollLocks++ > 0) return;
+    var wrap = document.querySelector('.sr-admin-show');
+    srSavedOverflow = {
+        html: document.documentElement.style.overflow,
+        body: document.body.style.overflow,
+        wrap: wrap ? wrap.style.overflow : ''
+    };
+    document.documentElement.style.overflow = 'hidden';
+    document.body.style.overflow = 'hidden';
+    if (wrap) wrap.style.overflow = 'hidden';
+}
+function srUnlockScroll() {
+    if (srScrollLocks === 0 || --srScrollLocks > 0) return;
+    var wrap = document.querySelector('.sr-admin-show');
+    document.documentElement.style.overflow = srSavedOverflow ? srSavedOverflow.html : '';
+    document.body.style.overflow = srSavedOverflow ? srSavedOverflow.body : '';
+    if (wrap) wrap.style.overflow = srSavedOverflow ? srSavedOverflow.wrap : '';
+}
+
 function openLightbox(src) {
+    var lb = document.getElementById('srLightbox');
     document.getElementById('srLightboxImg').src = src;
-    document.getElementById('srLightbox').classList.add('open');
+    if (!lb.classList.contains('open')) {
+        lb.classList.add('open');
+        srLockScroll();
+    }
 }
 function closeLightbox() {
-    document.getElementById('srLightbox').classList.remove('open');
+    var lb = document.getElementById('srLightbox');
+    if (!lb.classList.contains('open')) return;
+    lb.classList.remove('open');
+    srUnlockScroll();
 }
 
 function openPdfModal() {
@@ -663,15 +694,18 @@ function openPdfModal() {
     }
     const modal = document.getElementById('sr-pdf-modal');
     const frame = document.getElementById('sr-pdf-frame');
+    if (modal.style.display === 'flex') return;
     modal.style.display = 'flex';
     if (!frame.src || frame.src === window.location.href) {
         frame.src = '{{ route('admin.service-reports.pdf-preview', $report) }}';
     }
-    document.body.style.overflow = 'hidden';
+    srLockScroll();
 }
 function closePdfModal() {
-    document.getElementById('sr-pdf-modal').style.display = 'none';
-    document.body.style.overflow = '';
+    var modal = document.getElementById('sr-pdf-modal');
+    if (modal.style.display !== 'flex') return;
+    modal.style.display = 'none';
+    srUnlockScroll();
 }
 document.getElementById('sr-pdf-modal').addEventListener('click', function (e) {
     if (e.target === this) closePdfModal();

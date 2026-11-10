@@ -23,7 +23,7 @@
     if ($filters['q'] !== '') $chips[] = ['label' => 'Búsqueda: ' . $filters['q'], 'url' => $url([], ['q'])];
     if ($filters['status'] !== '' && isset($statuses[$filters['status']])) $chips[] = ['label' => 'Estado: ' . $statuses[$filters['status']], 'url' => $url([], ['status'])];
 @endphp
-<div class="erp-page mon-page">
+<div class="erp-page mon-page mon-admin mon-index">
 
     <x-erp.page-header
         title="Monitoreo de Clientes"
@@ -74,7 +74,7 @@
         </x-slot:toolbar>
 
         <div class="erp-table-wrap">
-            <table class="erp-table">
+            <table class="erp-table mon-cards-table">
                 <thead>
                     <tr>
                         <th>Cliente</th>
@@ -104,26 +104,26 @@
                         $comp = $s['compliance'];
                         $compTone = $comp === null ? 'neu' : ($comp >= 90 ? 'ok' : ($comp >= 70 ? 'warn' : 'bad'));
                     @endphp
-                    <tr>
-                        <td>
+                    <tr class="mon-card-row">
+                        <td class="mon-c-head" data-label="Cliente">
                             <div class="erp-cell-main">{{ MonitoringController::customerName($p->customer) }}</div>
                             @if ($p->customer?->company)<div class="erp-cell-sub">{{ $p->customer->company }}</div>@endif
                         </td>
-                        <td>
+                        <td class="mon-c-full" data-label="Programa">
                             <a href="{{ route('admin.monitoring.show', $p) }}" class="mon-link">{{ $p->name }}</a>
                             <div class="erp-cell-sub">{{ $p->start_date->format('d/m/Y') }} – {{ $p->endDate()->format('d/m/Y') }}</div>
                         </td>
-                        <td class="mon-num">{{ $equipmentCounts[$p->customer_id] ?? 0 }}</td>
-                        <td>{{ $weekText }}</td>
-                        <td><x-erp.chip :tone="$tone" :label="$p->status_label" /></td>
-                        <td class="mon-num">
+                        <td class="mon-num" data-label="Equipos">{{ $equipmentCounts[$p->customer_id] ?? 0 }}</td>
+                        <td data-label="Avance">{{ $weekText }}</td>
+                        <td data-label="Estado"><x-erp.chip :tone="$tone" :label="$p->status_label" /></td>
+                        <td class="mon-num" data-label="Cumplimiento">
                             @if ($comp === null) <span class="mon-muted">—</span>
                             @else <x-erp.chip :tone="$compTone" :label="$comp . '%'" /> @endif
                         </td>
-                        <td class="mon-num">
+                        <td class="mon-num" data-label="Fuera de rango">
                             @if ($s['out_of_range'] > 0) <span class="mon-bad">{{ $s['out_of_range'] }}</span> @else 0 @endif
                         </td>
-                        <td>
+                        <td data-label="Último registro">
                             @if ($s['last_entry_date'])
                                 {{ Carbon::parse($s['last_entry_date'])->format('d/m/Y') }}
                                 <div class="erp-cell-sub">{{ Carbon::parse($s['last_entry_date'])->diffForHumans() }}</div>
@@ -133,7 +133,7 @@
                         </td>
                     </tr>
                 @empty
-                    <tr><td colspan="8">
+                    <tr class="mon-empty-row"><td colspan="8">
                         <x-erp.empty title="No hay programas de monitoreo" text="Crea un programa para un cliente, define los parámetros y químicos a seguir y el cliente podrá capturar sus lecturas desde su portal.">
                             @if ($canCreate)<a href="{{ route('admin.monitoring.create') }}" class="erp-btn erp-btn--primary">+ Nuevo programa</a>@endif
                         </x-erp.empty>

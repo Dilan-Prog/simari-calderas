@@ -868,3 +868,223 @@
 @media (max-width: 639px) {
     .sr-show-wrap .sr-quick-actions { display: none !important; }
 }
+
+/* ============================================================
+   === MÓVIL — REPORTE DE SERVICIOS (admin index + show) ===
+   Todo este bloque va acotado a wrappers que SOLO existen en
+   admin/service-reports/index.blade.php (.sr-admin-index) y
+   admin/service-reports/show.blade.php (.sr-admin-show,
+   .sr-admin-pdf-modal). No toca el asistente (.sr-create-wrap /
+   steps) ni el portal de clientes (customers/service-reports),
+   que comparten esta hoja pero no llevan esas clases.
+   ============================================================ */
+
+/* ── Index: piezas solo-teléfono, ocultas por defecto ── */
+.sr-admin-index .sr-m-only,
+.sr-admin-index .sr-m-date-lbl,
+.sr-admin-index .sr-m-clear,
+.sr-admin-index .sr-mc,
+.sr-admin-index .sr-m-pager { display: none; }
+
+/* Paginación de la vista de tarjetas: visible en el mismo rango donde la
+   tabla (y su paginación) se ocultan y se muestran tarjetas (≤1440px). */
+.sr-admin-index .sr-m-pager__info { margin: 0; font-size: 13px; color: var(--text-description-color); text-align: center; }
+.sr-admin-index .sr-m-pager__nav { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; }
+.sr-admin-index .sr-m-pager__btn {
+    min-width: 40px; height: 40px; padding: 0 10px; box-sizing: border-box; border-radius: 8px;
+    border: 1px solid #D1D5DB; background: #fff; color: #374151; font-size: 15px; font-weight: 600;
+    display: inline-flex; align-items: center; justify-content: center; text-decoration: none;
+}
+.sr-admin-index .sr-m-pager__btn.is-active { background: var(--secondary-color); border-color: var(--secondary-color); color: #fff; }
+.sr-admin-index .sr-m-pager__btn.is-disabled { opacity: .4; pointer-events: none; }
+@media (max-width: 1440px) {
+    .sr-admin-index .sr-m-pager { display: flex; flex-direction: column; align-items: center; gap: 10px; margin: 4px 0 16px; }
+}
+
+@media (max-width: 768px) {
+    /* ── Index ── */
+    .sr-wrapper.sr-admin-index { padding: 16px 16px calc(96px + env(safe-area-inset-bottom, 0px)); overflow-x: clip; }
+    .sr-admin-index .sr-page-header { flex-direction: column; align-items: stretch; gap: 8px; margin-bottom: 16px; }
+    .sr-admin-index .sr-page-title { font-size: 22px; }
+    /* La tabla no se muestra en teléfono: el menú de columnas y el botón (ya oculto) sobran */
+    .sr-admin-index .sr-head-tools { display: none !important; }
+
+    .sr-admin-index .sr-filters { padding: 12px; margin-bottom: 16px; }
+    .sr-admin-index .sr-filters-grid { grid-template-columns: minmax(0, 1fr); gap: 10px; }
+    .sr-admin-index .sr-filters-grid > * { grid-column: 1 / -1; min-width: 0; }
+    .sr-admin-index .sr-input,
+    .sr-admin-index .sr-select,
+    .sr-admin-index .sr-btn-filter { height: 46px; font-size: 16px; border-radius: 8px; }
+    .sr-admin-index .sr-date-range { gap: 10px !important; }
+    .sr-admin-index .sr-date-range .sr-input-wrap { min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+    .sr-admin-index .sr-m-date-lbl { display: block; font-size: 12px; font-weight: 600; color: var(--text-description-color); }
+    .sr-admin-index .sr-date-range input[type="date"] {
+        display: block; width: 100%; min-width: 0; padding: 0 10px !important;
+        -webkit-appearance: none; appearance: none; text-align: left; line-height: 44px;
+    }
+    .sr-admin-index .sr-date-range input[type="date"]::-webkit-date-and-time-value { text-align: left; }
+    .sr-admin-index .sr-btn-filter { gap: 8px; font-weight: 600; }
+    .sr-admin-index .sr-btn-filter .sr-m-only { display: inline; }
+    .sr-admin-index .sr-m-clear {
+        display: flex; align-items: center; justify-content: center; min-height: 44px;
+        font-size: 14px; font-weight: 500; color: var(--text-description-color); text-decoration: underline;
+    }
+
+    /* Tarjetas */
+    .sr-admin-index .sr-mobile-card { padding: 14px; min-width: 0; }
+    .sr-admin-index .sr-mobile-card__top { align-items: flex-start; gap: 8px; margin-bottom: 8px; }
+    .sr-admin-index .sr-mobile-card__num {
+        font-size: 14px; min-height: 32px; display: inline-flex; align-items: center;
+        min-width: 0; overflow-wrap: anywhere;
+    }
+    .sr-admin-index .sr-mc-legacy { display: none; }
+    .sr-admin-index .sr-mc { display: block; }
+    .sr-admin-index .sr-mc__client { margin: 0 0 10px; font-size: 15px; font-weight: 700; line-height: 1.3; color: #111827; overflow-wrap: anywhere; }
+    .sr-admin-index .sr-mc__grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 12px; margin: 0 0 12px; }
+    .sr-admin-index .sr-mc__item { min-width: 0; }
+    .sr-admin-index .sr-mc__item--full { grid-column: 1 / -1; }
+    .sr-admin-index .sr-mc__item::before {
+        content: attr(data-label); display: block; margin-bottom: 2px;
+        font-size: 10.5px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: #9CA3AF;
+    }
+    .sr-admin-index .sr-mc__val { display: block; font-size: 13.5px; line-height: 1.35; color: #374151; overflow-wrap: anywhere; }
+    .sr-admin-index .sr-mc__stars { font-size: 16px; letter-spacing: 1px; color: #F59E0B; }
+    .sr-admin-index .sr-mc__stars i { font-style: normal; color: #D1D5DB; }
+    .sr-admin-index .sr-mc__score { margin-left: 6px; font-weight: 700; color: #111827; }
+    .sr-admin-index .sr-mc__muted { color: #9CA3AF; }
+    .sr-admin-index .sr-mc__actions { display: flex; gap: 8px; padding-top: 12px; border-top: 1px solid #F3F4F6; }
+    .sr-admin-index .sr-mc__btn {
+        flex: 1 1 0; min-width: 0; min-height: 44px; padding: 0 10px; box-sizing: border-box;
+        display: inline-flex; align-items: center; justify-content: center; text-align: center;
+        border-radius: 8px; border: 1px solid #D1D5DB; background: #fff; color: #374151;
+        font-size: 14px; font-weight: 600; text-decoration: none;
+    }
+    .sr-admin-index .sr-mc__btn--primary { flex-grow: 2; background: var(--button-primary-color); border-color: var(--button-primary-color); color: #fff; }
+    .sr-admin-index .sr-mc__btn--primary:hover { background: var(--button-primary-color-hover); color: #fff; }
+
+    .sr-admin-index .sr-m-pager__btn { min-width: 44px; height: 44px; }
+    .sr-admin-index .sr-mobile-new-btn { bottom: calc(16px + env(safe-area-inset-bottom, 0px)); }
+
+    /* ── Show: contenedor ── */
+    .sr-show-wrap.sr-admin-show { padding: 16px 16px calc(96px + env(safe-area-inset-bottom, 0px)); overflow-x: clip; }
+
+    /* Banner de pasos pendientes (estilos inline en la vista) */
+    .sr-admin-show .sr-steps-banner { padding: 12px !important; }
+    .sr-admin-show .sr-steps-cta {
+        width: 100%; box-sizing: border-box; justify-content: center;
+        height: auto !important; min-height: 44px; font-size: 14px !important;
+    }
+
+    /* Encabezado + acciones: cuadrícula de 2 columnas, botones ≥44px.
+       "Firmar / Continuar" vive en la barra fija inferior. */
+    .sr-admin-show .sr-show-topbar { flex-direction: column; align-items: stretch; gap: 12px; margin-bottom: 16px; }
+    .sr-admin-show .sr-show-topbar-left { min-width: 0; }
+    .sr-admin-show .sr-show-title-row { gap: 10px; }
+    .sr-admin-show .sr-btn-back { width: 44px; height: 44px; }
+    .sr-admin-show .sr-show-title { font-size: 20px; min-width: 0; overflow-wrap: anywhere; }
+    .sr-show-wrap.sr-admin-show .sr-show-actions {
+        display: grid !important; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; width: 100%; flex-shrink: 1;
+    }
+    .sr-admin-show .sr-show-actions > * { min-width: 0; }
+    .sr-admin-show .sr-show-actions > form { display: block !important; margin: 0; }
+    .sr-admin-show .sr-show-actions .sr-btn {
+        width: 100%; box-sizing: border-box; height: auto; min-height: 44px; padding: 10px 12px;
+        justify-content: center; text-align: center; white-space: normal; line-height: 1.25; font-size: 14px;
+    }
+    .sr-admin-show .sr-show-actions .sr-btn-sign { display: none; }
+
+    /* Barra fija inferior compacta: acción principal + PDF en una fila */
+    .sr-show-wrap.sr-admin-show .sr-show-mobile-actions {
+        display: flex; gap: 8px; padding: 8px 12px calc(8px + env(safe-area-inset-bottom, 0px));
+    }
+    .sr-show-wrap.sr-admin-show .sr-show-mobile-actions > * { flex: 1 1 0; min-width: 0; }
+    .sr-show-wrap.sr-admin-show .sr-show-mobile-actions > .sr-btn-sign { flex-grow: 1.6; }
+    .sr-show-wrap.sr-admin-show .sr-show-mobile-actions .sr-mbar-secondary { display: none !important; }
+    .sr-show-wrap.sr-admin-show .sr-show-mobile-actions .sr-btn { height: 48px; font-size: 15px; padding: 0 10px; }
+
+    /* Columnas apiladas, sin desborde horizontal */
+    .sr-admin-show .sr-show-grid { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+    .sr-admin-show .sr-show-grid > * { min-width: 0; }
+    .sr-admin-show .sr-doc-header { padding: 16px; flex-wrap: wrap; gap: 12px; }
+    .sr-admin-show .sr-doc-header-brand { min-width: 0; }
+    .sr-admin-show .sr-doc-header-folio { text-align: left; }
+    .sr-admin-show .sr-doc-rpt-number { font-size: 17px; overflow-wrap: anywhere; }
+    .sr-admin-show .sr-doc-body { padding: 16px; }
+    .sr-admin-show .sr-doc-info-grid { grid-template-columns: minmax(0, 1fr); gap: 20px; }
+    .sr-admin-show .sr-doc-kv-row { font-size: 13px; }
+    .sr-admin-show .sr-doc-kv-key,
+    .sr-admin-show .sr-info-key { flex-shrink: 0; max-width: 45%; }
+    .sr-admin-show .sr-doc-kv-val,
+    .sr-admin-show .sr-info-val,
+    .sr-admin-show .sr-doc-client-name,
+    .sr-admin-show .sr-doc-client-sub,
+    .sr-admin-show .sr-doc-obs-block p,
+    .sr-admin-show .sr-doc-activity p,
+    .sr-admin-show .sr-doc-sig-val,
+    .sr-admin-show .sr-rate-comment,
+    .sr-admin-show .sr-timeline-label { min-width: 0; overflow-wrap: anywhere; }
+    .sr-admin-show .sr-check-chip,
+    .sr-admin-show .sr-rate-chip { max-width: 100%; overflow-wrap: anywhere; }
+    .sr-admin-show .sr-doc-obs-block { padding: 12px; }
+
+    /* Parámetros de medición: tabla → tarjetas */
+    .sr-admin-show .sr-doc-meas-wrap { overflow: visible; }
+    .sr-admin-show .sr-doc-meas-table,
+    .sr-admin-show .sr-doc-meas-table tbody,
+    .sr-admin-show .sr-doc-meas-table tr { display: block; width: 100%; }
+    .sr-admin-show .sr-doc-meas-table thead {
+        position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap;
+    }
+    .sr-admin-show .sr-doc-meas-table tbody tr,
+    .sr-admin-show .sr-doc-meas-table tbody tr:nth-child(even) {
+        display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px 12px;
+        height: auto; padding: 12px; margin-bottom: 8px; box-sizing: border-box;
+        border: 1px solid #E5E7EB; border-radius: 10px; background: #fff;
+    }
+    .sr-admin-show .sr-doc-meas-table tbody td { display: block; padding: 0; min-width: 0; font-size: 13px; overflow-wrap: anywhere; }
+    .sr-admin-show .sr-doc-meas-table tbody td::before {
+        content: attr(data-label); display: block; margin-bottom: 2px;
+        font-size: 10px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: #9CA3AF;
+    }
+    .sr-admin-show .sr-doc-meas-table tbody td.td-param { grid-column: 1 / -1; font-size: 14px; font-weight: 600; }
+    .sr-admin-show .sr-doc-meas-table tbody td.td-param::before { display: none; }
+
+    /* Evidencia fotográfica: 2 columnas de fotos (Antes / Después apilados) */
+    .sr-admin-show .sr-doc-photos-grid { grid-template-columns: minmax(0, 1fr); gap: 14px; }
+    .sr-admin-show .sr-doc-photos-inner { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+    .sr-admin-show .sr-doc-photos-col-label { font-size: 12px; font-weight: 600; }
+
+    /* Lightbox usable con el pulgar */
+    .sr-admin-show .sr-lightbox {
+        padding: calc(56px + env(safe-area-inset-top, 0px)) 12px calc(16px + env(safe-area-inset-bottom, 0px));
+        box-sizing: border-box; overscroll-behavior: contain;
+    }
+    .sr-admin-show .sr-lightbox img { max-width: 100%; max-height: 100%; object-fit: contain; }
+    .sr-admin-show .sr-lightbox-close {
+        top: calc(6px + env(safe-area-inset-top, 0px)); right: 6px; width: 44px; height: 44px;
+        display: flex; align-items: center; justify-content: center; font-size: 34px;
+    }
+
+    /* Firma */
+    .sr-admin-show .sr-doc-sig { padding-top: 16px; }
+    .sr-admin-show .sr-doc-sig-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    .sr-admin-show .sr-doc-sig-grid > :last-child { grid-column: 1 / -1; }
+    .sr-admin-show .sr-doc-sig-img-wrap { height: 96px; padding: 4px; box-sizing: border-box; }
+    .sr-admin-show .sr-doc-sig-img-wrap img { max-height: 100%; max-width: 100%; width: auto; }
+
+    /* Panel lateral */
+    .sr-admin-show .sr-panel-card { padding: 16px; }
+    .sr-admin-show .sr-info-row { font-size: 13.5px; }
+    .sr-admin-show .sr-action-btn { height: auto; min-height: 44px; font-size: 14px; }
+    .sr-admin-show .sr-panel-card .sr-btn { min-height: 44px; height: auto; white-space: normal; text-align: center; justify-content: center; }
+    .sr-admin-show .sr-rate-link { display: inline-flex; align-items: center; min-height: 44px; margin-top: 4px; }
+
+    /* Modal PDF (vive fuera del wrapper): pantalla completa */
+    .sr-admin-pdf-modal { align-items: stretch !important; justify-content: stretch !important; }
+    .sr-admin-pdf-modal .sr-admin-pdf-modal__panel {
+        width: 100% !important; max-width: none !important; height: 100% !important; height: 100dvh !important; border-radius: 0 !important;
+    }
+    .sr-admin-pdf-modal .sr-admin-pdf-modal__x {
+        min-width: 44px; min-height: 44px; display: inline-flex !important; align-items: center; justify-content: center; font-size: 28px !important;
+    }
+}

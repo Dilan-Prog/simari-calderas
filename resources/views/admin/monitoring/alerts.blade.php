@@ -7,7 +7,7 @@
 @php
     use App\Http\Controllers\Backend\MonitoringController;
 @endphp
-<div class="erp-page mon-page">
+<div class="erp-page mon-page mon-admin mon-alerts-page">
 
     <x-erp.page-header
         title="Alertas de monitoreo"
@@ -16,7 +16,7 @@
         <a href="{{ route('admin.monitoring.index') }}" class="erp-btn">Ver programas</a>
     </x-erp.page-header>
 
-    <div class="mon-kpis" style="grid-template-columns: repeat(3, minmax(0, 1fr));">
+    <div class="mon-kpis mon-kpis--3" style="grid-template-columns: repeat(3, minmax(0, 1fr));">
         <div class="mon-kpi">
             <span><i class="erp-dot erp-dot--{{ $alerts->count() > 0 ? 'bad' : 'ok' }}"></i>Lecturas fuera de rango</span>
             <b>{{ $alerts->count() }}</b>

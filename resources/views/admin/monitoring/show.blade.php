@@ -49,7 +49,7 @@
         return $min !== null ? '≥ ' . $fmtNum($min) : '≤ ' . $fmtNum($max);
     };
 @endphp
-<div class="erp-page mon-page">
+<div class="erp-page mon-page mon-admin mon-show">
 
     <x-erp.object-header
         :eyebrow="'Programa de monitoreo'"
@@ -154,26 +154,26 @@
                     </x-erp.empty>
                 @else
                     <div class="erp-table-wrap" style="margin-bottom:22px;">
-                        <table class="erp-table">
+                        <table class="erp-table mon-cards-table mon-items-table">
                             <thead><tr><th>Elemento</th><th>Tipo</th><th>Rango / dosis planeada</th><th>Semanas</th><th class="mon-num">Registros</th></tr></thead>
                             <tbody>
                             @foreach ($items as $it)
-                                <tr>
-                                    <td>
+                                <tr class="mon-card-row">
+                                    <td class="mon-c-head" data-label="Elemento">
                                         <div class="erp-cell-main">{{ $it->name }}</div>
                                         @if ($it->isChemical() && $it->product)<div class="erp-cell-sub">Producto: {{ $it->product->name }}</div>@endif
                                         @if ($it->added_by === 'customer')<span class="mon-badge mon-badge--cust">Agregado por el cliente</span>@endif
                                     </td>
-                                    <td><span class="mon-badge {{ $it->isChemical() ? 'mon-badge--chem' : 'mon-badge--param' }}">{{ $it->isChemical() ? 'Químico' : 'Parámetro' }}</span></td>
-                                    <td>
+                                    <td data-label="Tipo"><span class="mon-badge {{ $it->isChemical() ? 'mon-badge--chem' : 'mon-badge--param' }}">{{ $it->isChemical() ? 'Químico' : 'Parámetro' }}</span></td>
+                                    <td class="mon-c-full" data-label="Rango / dosis planeada">
                                         @if ($it->isChemical())
                                             {{ $it->planned_daily_dose !== null ? $fmtNum($it->planned_daily_dose) . ' ' . $it->unit . ' / día' : '—' }}
                                         @else
                                             {{ $rangeText($it->limit_min, $it->limit_max) }} {{ $it->unit }}
                                         @endif
                                     </td>
-                                    <td>{{ $it->start_week }} – {{ $it->end_week }}</td>
-                                    <td class="mon-num">{{ $it->entries_count }}</td>
+                                    <td data-label="Semanas">{{ $it->start_week }} – {{ $it->end_week }}</td>
+                                    <td class="mon-num" data-label="Registros">{{ $it->entries_count }}</td>
                                 </tr>
                             @endforeach
                             </tbody>
@@ -244,7 +244,43 @@
 
             {{-- ═════════════ GANTT ═════════════ --}}
             @if ($tab === 'gantt')
-                <x-monitoring.gantt :data="$gantt" />
+                @php
+                    $gRows = collect($gantt['rows'] ?? []);
+                    $gCurrent = collect($gantt['weeks'] ?? [])->firstWhere('is_current', true);
+                    $gSorted = $gRows->sortByDesc(fn ($r) => ($r['out_of_range'] ?? 0) * 1000 - ($r['progress'] ?? 0))->values();
+                    $gOor = $gRows->filter(fn ($r) => ($r['out_of_range'] ?? 0) > 0)->count();
+                @endphp
+                @if ($gRows->isNotEmpty())
+                    {{-- Resumen compacto solo para teléfono (oculto en escritorio) --}}
+                    <section class="mon-gsum" aria-label="Resumen del diagrama">
+                        <div class="mon-gsum-head">
+                            <strong>{{ $gCurrent ? 'Semana ' . $gCurrent['n'] . ' (actual)' : $weekText }}</strong>
+                            @if ($gCurrent)<span class="mon-muted">{{ Carbon::parse($gCurrent['start'])->format('d/m') }} – {{ Carbon::parse($gCurrent['end'])->format('d/m') }}</span>@endif
+                            <span class="mon-gsum-oor {{ $gOor ? 'mon-bad' : '' }}">{{ $gOor ? $gOor . ' con lecturas fuera de rango' : 'Todo en rango' }}</span>
+                        </div>
+                        <ul class="mon-gsum-list">
+                            @foreach ($gSorted as $r)
+                                @php $isChemRow = ($r['kind'] ?? '') === 'chemical'; @endphp
+                                <li class="mon-gsum-item {{ ($r['out_of_range'] ?? 0) > 0 ? 'is-bad' : '' }}">
+                                    <div class="mon-gsum-top">
+                                        <span class="mon-gsum-name">{{ $r['label'] }}{{ ! empty($r['unit']) ? ' (' . $r['unit'] . ')' : '' }}</span>
+                                        <span class="mon-badge {{ $isChemRow ? 'mon-badge--chem' : 'mon-badge--param' }}">{{ $isChemRow ? 'Químico' : 'Lectura' }}</span>
+                                    </div>
+                                    <div class="mon-gsum-bar {{ $isChemRow ? 'is-chem' : '' }}" aria-hidden="true"><i style="width: {{ (int) ($r['progress'] ?? 0) }}%;"></i></div>
+                                    <div class="mon-gsum-meta">
+                                        <span>Sem {{ $r['start_week'] }}–{{ $r['end_week'] }}</span>
+                                        <span>{{ $r['logged_days'] ?? 0 }}/{{ $r['planned_days'] ?? 0 }} días · {{ (int) ($r['progress'] ?? 0) }}%</span>
+                                        @if (($r['out_of_range'] ?? 0) > 0)<span class="mon-bad">● {{ $r['out_of_range'] }} fuera de rango</span>@endif
+                                    </div>
+                                </li>
+                            @endforeach
+                        </ul>
+                        <p class="mon-muted mon-gsum-hint">Desliza el diagrama horizontalmente para ver todas las semanas.</p>
+                    </section>
+                @endif
+                <div class="mon-gantt-wrap">
+                    <x-monitoring.gantt :data="$gantt" />
+                </div>
             @endif
 
             {{-- ═════════════ GRÁFICAS ═════════════ --}}
@@ -292,7 +328,7 @@
                 </div>
 
                 <div class="erp-table-wrap">
-                    <table class="erp-table">
+                    <table class="erp-table mon-cards-table mon-entries-table">
                         <thead>
                             <tr>
                                 <th>Fecha</th><th>Equipo</th><th>Elemento</th><th class="mon-num">Valor</th><th>Rango</th>
@@ -307,24 +343,24 @@
                                     ? ['Personal', $recorders['users'][$e->recorded_by_user_id] ?? '—']
                                     : ($e->recorded_by_customer_id ? ['Cliente', $recorders['customers'][$e->recorded_by_customer_id] ?? '—'] : ['', '—']);
                             @endphp
-                            <tr>
-                                <td>{{ $e->entry_date->format('d/m/Y') }}<div class="erp-cell-sub">Semana {{ $program->weekOf($e->entry_date) }}</div></td>
-                                <td>{{ $eqLabel($e->equipment) }}</td>
-                                <td>
+                            <tr class="mon-card-row">
+                                <td class="mon-c-head" data-label="Fecha">{{ $e->entry_date->format('d/m/Y') }}<div class="erp-cell-sub">Semana {{ $program->weekOf($e->entry_date) }}</div></td>
+                                <td data-label="Equipo">{{ $eqLabel($e->equipment) }}</td>
+                                <td data-label="Elemento">
                                     {{ $e->item?->name ?? '—' }}
                                     <div class="erp-cell-sub">{{ $e->entry_type === 'dose' ? 'Dosificación' : 'Lectura' }}</div>
                                 </td>
-                                <td class="mon-num"><b>{{ $fmtNum($e->value) }}</b> {{ $e->item?->unit }}</td>
-                                <td class="mon-muted">{{ $e->entry_type === 'dose' ? '—' : $rangeText($e->item?->limit_min, $e->item?->limit_max) }}</td>
-                                <td>
+                                <td class="mon-num" data-label="Valor"><b>{{ $fmtNum($e->value) }}</b> {{ $e->item?->unit }}</td>
+                                <td class="mon-muted" data-label="Rango">{{ $e->entry_type === 'dose' ? '—' : $rangeText($e->item?->limit_min, $e->item?->limit_max) }}</td>
+                                <td data-label="Estado">
                                     @if ($e->in_range === null) <span class="mon-muted">—</span>
                                     @elseif ($e->in_range) <x-erp.chip tone="ok" label="En rango" />
                                     @else <x-erp.chip tone="bad" label="Fuera de rango" /> @endif
                                 </td>
-                                <td style="max-width:220px;">{{ $e->note ?: '—' }}</td>
-                                <td>{{ $by[1] }}@if ($by[0])<div class="erp-cell-sub">{{ $by[0] }}</div>@endif</td>
+                                <td class="mon-c-full" data-label="Nota" style="max-width:220px;">{{ $e->note ?: '—' }}</td>
+                                <td data-label="Registró">{{ $by[1] }}@if ($by[0])<div class="erp-cell-sub">{{ $by[0] }}</div>@endif</td>
                                 @if ($canEdit || $canDelete)
-                                    <td style="white-space:nowrap;">
+                                    <td class="mon-c-actions" style="white-space:nowrap;">
                                         @if ($canEdit)
                                             <button type="button" class="erp-btn erp-btn--sm" data-entry-edit
                                                 data-id="{{ $e->id }}" data-item="{{ $e->item_id }}" data-equipment="{{ $e->equipment_id }}"
@@ -340,12 +376,12 @@
                                 @endif
                             </tr>
                         @empty
-                            <tr><td colspan="9"><x-erp.empty title="Sin registros" text="Aún no hay registros con estos filtros. El cliente los captura desde su portal; también puedes agregarlos tú en su nombre." /></td></tr>
+                            <tr class="mon-empty-row"><td colspan="9"><x-erp.empty title="Sin registros" text="Aún no hay registros con estos filtros. El cliente los captura desde su portal; también puedes agregarlos tú en su nombre." /></td></tr>
                         @endforelse
                         </tbody>
                     </table>
                 </div>
-                <div class="erp-wl-footer" style="border-top:0;padding-left:0;padding-right:0;">
+                <div class="erp-wl-footer mon-entries-footer" style="border-top:0;padding-left:0;padding-right:0;">
                     <span>{{ $entries->total() }} {{ $entries->total() === 1 ? 'registro' : 'registros' }}</span>
                     @if ($entries->hasPages())<div>{{ $entries->links() }}</div>@endif
                 </div>
@@ -372,7 +408,7 @@
 
 {{-- ═════════════ MODAL: registro ═════════════ --}}
 @if ($canCreate || $canEdit)
-<div class="mon-modal" id="monEntryModal" role="dialog" aria-modal="true" aria-labelledby="monEntryTitle">
+<div class="mon-modal mon-admin-modal" id="monEntryModal" role="dialog" aria-modal="true" aria-labelledby="monEntryTitle">
     <div class="mon-modal-box">
         <div class="mon-modal-head">
             <h3 id="monEntryTitle">Agregar registro</h3>
@@ -426,7 +462,7 @@
 @endif
 
 {{-- ═════════════ MODAL: equipos del cliente ═════════════ --}}
-<div class="mon-modal" id="monEquipmentModal" role="dialog" aria-modal="true" aria-labelledby="monEquipmentTitle">
+<div class="mon-modal mon-admin-modal" id="monEquipmentModal" role="dialog" aria-modal="true" aria-labelledby="monEquipmentTitle">
     <div class="mon-modal-box mon-modal-box--wide">
         <div class="mon-modal-head">
             <h3 id="monEquipmentTitle">Equipos de {{ $customerName }}</h3>
@@ -509,8 +545,10 @@
 @push('scripts')
 <script>
 (function () {
-    const open = (el) => el && el.classList.add('is-open');
-    const close = (el) => el && el.classList.remove('is-open');
+    // Bloqueo de scroll del fondo (solo tiene efecto en teléfono vía CSS).
+    const syncLock = () => document.documentElement.classList.toggle('mon-modal-open', !!document.querySelector('.mon-modal.is-open'));
+    const open = (el) => { if (el) { el.classList.add('is-open'); syncLock(); } };
+    const close = (el) => { if (el) { el.classList.remove('is-open'); syncLock(); } };
 
     document.querySelectorAll('[data-open]').forEach((b) => b.addEventListener('click', () => open(document.getElementById(b.dataset.open))));
     document.querySelectorAll('.mon-modal').forEach((m) => {
@@ -560,10 +598,10 @@
                 document.getElementById('monEntryMethod').disabled = false;
                 document.getElementById('monEntryTitle').textContent = 'Editar registro';
             }
-            m.classList.add('is-open');
+            open(m);
         })();
     @elseif (old('_modal') === 'equipment' && $errors->any())
-        document.getElementById('monEquipmentModal').classList.add('is-open');
+        open(document.getElementById('monEquipmentModal'));
     @endif
 })();
 </script>

@@ -7,7 +7,7 @@
 @endpush
 
 @section('content')
-<div class="ts-page" id="ts-page">
+<div class="ts-page ts-admin ts-admin--index" id="ts-page">
 
     {{-- Toolbar móvil (oculto en desktop) --}}
     <div class="ts-mobile-toolbar">
@@ -21,7 +21,7 @@
         <div class="ts-mobile-select-wrap">
             <select class="ts-mobile-status-select" id="ts-mobile-status-filter">
                 <option value="">Todos los estados</option>
-                <option value="requested">Solicitudes de clientes</option>
+                <option value="requested" @selected(request('status') === 'requested')>Solicitudes de clientes</option>
                 <option value="scheduled">Programado</option>
                 <option value="in_progress">En Proceso</option>
                 <option value="completed">Completado</option>
@@ -32,6 +32,38 @@
                 <path d="m6 9 6 6 6-6"/>
             </svg>
         </div>
+        {{-- Filtros extra en móvil: técnico y rango de fechas --}}
+        <details class="ts-mobile-more" id="ts-mobile-more">
+            <summary class="ts-mobile-more__summary">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z"/>
+                </svg>
+                Más filtros
+                <span class="ts-mobile-more__count" id="ts-mobile-more-count" hidden></span>
+            </summary>
+            <div class="ts-mobile-more__body">
+                <label class="ts-mobile-more__field ts-mobile-more__field--full">
+                    <span>Técnico</span>
+                    <select class="ts-mobile-status-select" id="ts-mobile-tech-filter">
+                        <option value="">Todos los técnicos</option>
+                        @foreach($technicians as $tech)
+                            <option value="{{ $tech->id }}">{{ $tech->full_name }}</option>
+                        @endforeach
+                    </select>
+                </label>
+                <label class="ts-mobile-more__field">
+                    <span>Desde</span>
+                    <input type="date" class="ts-mobile-date" id="ts-mobile-date-from">
+                </label>
+                <label class="ts-mobile-more__field">
+                    <span>Hasta</span>
+                    <input type="date" class="ts-mobile-date" id="ts-mobile-date-to">
+                </label>
+                <button type="button" class="ts-mobile-more__clear" id="ts-mobile-filters-clear">Limpiar filtros</button>
+            </div>
+        </details>
+        <div class="ts-mobile-results" id="ts-mobile-results" aria-live="polite"></div>
     </div>
 
     {{-- Breadcrumb --}}
@@ -347,44 +379,67 @@
         ];
     @endphp
     @forelse($services as $service)
-    <div class="ts-mobile-card"
+    @php
+        $mDate  = $service->service_date ? \Carbon\Carbon::parse($service->service_date) : null;
+        $mTechs = $service->assignedTechnicians;
+    @endphp
+    <article class="ts-mobile-card"
          data-status="{{ $service->is_customer_request ? 'requested' : $service->status }}"
-         data-search="{{ strtolower($service->service_number . ' ' . $service->customer_name . ' ' . $service->service_type_label . ' ' . ($service->customer_company ?? '')) }}">
+         data-techs=",{{ $mTechs->pluck('id')->implode(',') }},"
+         data-date="{{ $mDate ? $mDate->format('Y-m-d') : '' }}"
+         data-search="{{ mb_strtolower($service->service_number . ' ' . $service->customer_name . ' ' . $service->service_type_label . ' ' . ($service->customer_company ?? '') . ' ' . $mTechs->pluck('full_name')->implode(' ')) }}">
         <div class="ts-mobile-card__top">
-            <span class="ts-mobile-card__num">{{ $service->service_number }}</span>
+            <span class="ts-mobile-card__num" data-label="Folio">{{ $service->service_number }}</span>
             @if($service->is_customer_request)
-                <span class="ts-badge ts-badge--request">Solicitud de cliente</span>
+                <span class="ts-badge ts-badge--request" data-label="Estado">Solicitud de cliente</span>
             @else
-                <span class="ts-badge {{ $mStatusClasses[$service->status] ?? '' }}">
+                <span class="ts-badge {{ $mStatusClasses[$service->status] ?? '' }}" data-label="Estado">
                     {{ $mStatusLabels[$service->status] ?? $service->status }}
                 </span>
             @endif
         </div>
-        <div class="ts-mobile-card__type">{{ $service->service_type_label }}</div>
-        <div class="ts-mobile-card__meta">
-            <span>📅 {{ $service->service_date ? \Carbon\Carbon::parse($service->service_date)->format('d M Y') : '—' }}</span>
-            @if($service->service_time)
-                <span>⏰ {{ $service->service_time }}</span>
+        <div class="ts-mobile-card__type" data-label="Servicio">{{ $service->service_type_label }}</div>
+        <dl class="ts-mcard-fields">
+            <div class="ts-mcard-field ts-mcard-field--full" data-label="Cliente">
+                <dt>Cliente</dt>
+                <dd>{{ $service->customer_name }}{{ $service->customer_company && $service->customer_company !== $service->customer_name ? ' — ' . $service->customer_company : '' }}</dd>
+            </div>
+            <div class="ts-mcard-field" data-label="Fecha">
+                <dt>Fecha</dt>
+                <dd>{{ $mDate ? $mDate->format('d M Y') : '—' }}@if($service->service_time) <span class="ts-mcard-muted">· {{ substr($service->service_time, 0, 5) }}</span>@endif</dd>
+            </div>
+            <div class="ts-mcard-field" data-label="Técnico">
+                <dt>{{ $mTechs->count() > 1 ? 'Técnicos' : 'Técnico' }}</dt>
+                <dd class="{{ $mTechs->isEmpty() ? 'ts-mcard-muted' : '' }}">{{ $mTechs->pluck('full_name')->implode(', ') ?: 'Sin técnicos' }}</dd>
+            </div>
+        </dl>
+        <div class="ts-mobile-card__footer">
+            <a href="{{ route('admin.technical-services.show', $service) }}" class="ts-mobile-card__btn ts-mobile-card__btn--primary">
+                Ver detalle
+            </a>
+            @if($service->isEditable())
+            <a href="{{ route('admin.technical-services.edit', $service) }}" class="ts-mobile-card__btn">
+                Editar
+            </a>
             @endif
         </div>
-        <div class="ts-mobile-card__company">
-            🏢 {{ $service->customer_name }}{{ $service->customer_company ? ' — ' . $service->customer_company : '' }}
-        </div>
-        <div class="ts-mobile-card__divider"></div>
-        <div class="ts-mobile-card__footer">
-            <span class="ts-mobile-card__techs">
-                👤 {{ $service->assignedTechnicians->pluck('full_name')->implode(', ') ?: 'Sin técnicos' }}
-            </span>
-            <a href="{{ route('admin.technical-services.show', $service) }}" class="ts-mobile-card__btn">
-                Ver →
-            </a>
-        </div>
-    </div>
+    </article>
     @empty
     <div class="ts-mobile-empty">
         <p>No hay servicios registrados</p>
     </div>
     @endforelse
+    <div class="ts-mobile-empty ts-mobile-noresults" id="ts-mobile-noresults" hidden>
+        <p>Ningún servicio coincide con los filtros</p>
+    </div>
+    @if(is_object($services) && method_exists($services, 'links') && $services->hasPages())
+    <div class="ts-mobile-pagination">
+        <span class="ts-mobile-pagination__info">
+            {{ $services->firstItem() }}–{{ $services->lastItem() }} de {{ $services->total() }}
+        </span>
+        {{ $services->links('admin.components.pagination') }}
+    </div>
+    @endif
     </div>
 
     {{-- FAB: Nuevo Servicio (solo mobile) --}}
@@ -398,7 +453,7 @@
 </div>{{-- /ts-page --}}
 
 {{-- Quick create modal (calendar cell click) --}}
-<div class="ts-overlay" id="ts-quick-overlay">
+<div class="ts-overlay ts-admin-sheet" id="ts-quick-overlay">
     <div class="ts-modal" id="ts-quick-modal">
         <div class="ts-modal__header">
             <span class="ts-modal__title">Nuevo Servicio</span>
@@ -450,17 +505,53 @@
 (function () {
     var searchInput  = document.getElementById('ts-mobile-search');
     var statusSelect = document.getElementById('ts-mobile-status-filter');
+    var techSelect   = document.getElementById('ts-mobile-tech-filter');
+    var dateFrom     = document.getElementById('ts-mobile-date-from');
+    var dateTo       = document.getElementById('ts-mobile-date-to');
+    var clearBtn     = document.getElementById('ts-mobile-filters-clear');
+    var moreCount    = document.getElementById('ts-mobile-more-count');
+    var resultsEl    = document.getElementById('ts-mobile-results');
+    var noResults    = document.getElementById('ts-mobile-noresults');
     var cards        = document.querySelectorAll('#ts-mobile-cards .ts-mobile-card');
 
     function filterCards() {
         var q      = (searchInput ? searchInput.value.trim().toLowerCase() : '');
         var status = (statusSelect ? statusSelect.value : '');
+        var tech   = (techSelect ? techSelect.value : '');
+        var from   = (dateFrom ? dateFrom.value : '');
+        var to     = (dateTo ? dateTo.value : '');
+        var visible = 0;
         cards.forEach(function (card) {
+            var d = card.dataset.date || '';
             var matchSearch = !q      || (card.dataset.search || '').includes(q);
             var matchStatus = !status || card.dataset.status === status;
-            card.classList.toggle('ts-mobile-card--hidden', !(matchSearch && matchStatus));
+            var matchTech   = !tech   || (card.dataset.techs || '').indexOf(',' + tech + ',') !== -1;
+            var matchFrom   = !from   || (d && d >= from);
+            var matchTo     = !to     || (d && d <= to);
+            var show = matchSearch && matchStatus && matchTech && matchFrom && matchTo;
+            card.classList.toggle('ts-mobile-card--hidden', !show);
+            if (show) visible++;
         });
+        var extra = (tech ? 1 : 0) + (from ? 1 : 0) + (to ? 1 : 0);
+        if (moreCount) { moreCount.hidden = !extra; moreCount.textContent = extra; }
+        if (resultsEl && cards.length) {
+            resultsEl.textContent = visible === cards.length
+                ? cards.length + (cards.length === 1 ? ' servicio' : ' servicios')
+                : visible + ' de ' + cards.length + ' servicios';
+        }
+        if (noResults) noResults.hidden = !(cards.length && visible === 0);
     }
+
+    if (clearBtn) clearBtn.addEventListener('click', function () {
+        if (techSelect) techSelect.value = '';
+        if (dateFrom) dateFrom.value = '';
+        if (dateTo) dateTo.value = '';
+        filterCards();
+    });
+    [techSelect, dateFrom, dateTo].forEach(function (el) {
+        if (el) el.addEventListener('change', filterCards);
+    });
+    filterCards();
 
     // "Revisar solicitudes" (?status=requested) abre directo la vista de tabla ya filtrada.
     @if(request('status') === 'requested')

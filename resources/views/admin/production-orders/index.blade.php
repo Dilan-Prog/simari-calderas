@@ -21,11 +21,13 @@
         ['label' => 'En proceso', 'url' => $base . '?status=en_proceso', 'active' => $noExtra && $filters['status'] === 'en_proceso' && $filters['overdue'] === ''],
         ['label' => 'Terminadas', 'url' => $base . '?status=terminada', 'active' => $noExtra && $filters['status'] === 'terminada' && $filters['overdue'] === ''],
     ];
+    $projNum = $projects->pluck('project_number', 'id');
+    $orders->getCollection()->loadMissing('salesOrder:id,order_number');
     $wlChips = collect($chips)->map(fn ($c) => ['label' => $c['label'] . ': ' . $c['value'], 'url' => $c['url']])->all();
 @endphp
 
 @section('content')
-<div class="erp-page prd-page">
+<div class="erp-page prd-page prd-index">
     <x-erp.page-header
         title="Órdenes de producción"
         code="PRD2"
@@ -79,17 +81,23 @@
                 </thead>
                 <tbody>
                     @forelse ($orders as $o)
-                        @php $days = $o->daysToDue(); @endphp
-                        <tr>
-                            <td class="erp-cell-folio"><a href="{{ route('admin.production-orders.show', $o) }}">{{ $o->number }}</a></td>
-                            <td>
+                        @php
+                            $days = $o->daysToDue();
+                            $origin = array_filter([
+                                $o->project_id ? 'Proyecto ' . ($projNum[$o->project_id] ?? '#' . $o->project_id) : null,
+                                $o->salesOrder?->order_number ? 'Pedido ' . $o->salesOrder->order_number : null,
+                            ]);
+                        @endphp
+                        <tr class="prd-row">
+                            <td class="erp-cell-folio prd-c-folio"><a href="{{ route('admin.production-orders.show', $o) }}">{{ $o->number }}</a></td>
+                            <td class="prd-c-product" data-label="Producto">
                                 <div class="erp-cell-main">{{ $o->product->name ?? '—' }}</div>
                                 <div class="erp-cell-sub">{{ $o->product->sku ?? '' }}</div>
                             </td>
-                            <td class="is-num">{{ $n($o->quantity_produced) }} / {{ $n($o->quantity_planned) }}</td>
-                            <td><x-erp.chip :tone="ErpUi::tone($o->status)" :label="ProductionOrder::statusLabel($o->status)" /></td>
-                            <td><x-erp.progress :value="$o->progress" /></td>
-                            <td>
+                            <td class="is-num prd-c-qty" data-label="Producido / plan">{{ $n($o->quantity_produced) }} / {{ $n($o->quantity_planned) }}</td>
+                            <td class="prd-c-status"><x-erp.chip :tone="ErpUi::tone($o->status)" :label="ProductionOrder::statusLabel($o->status)" /></td>
+                            <td class="prd-c-progress" data-label="Avance"><x-erp.progress :value="$o->progress" /></td>
+                            <td class="prd-c-due" data-label="Fecha límite">
                                 @if ($o->due_date)
                                     <x-erp.due :date="$o->due_date" :closed="!$o->isOpen()" />
                                     @if ($o->isOpen() && $days !== null)
@@ -98,10 +106,12 @@
                                 @else
                                     <span class="erp-cell-sub">Sin fecha</span>
                                 @endif
+                                @if ($o->start_date)<div class="erp-cell-sub prd-m-only">Inicio {{ $o->start_date->format('d/m/Y') }}</div>@endif
                             </td>
+                            <td class="prd-m-only prd-c-origin" data-label="Origen">{{ $origin ? implode(' · ', $origin) : 'Stock (sin proyecto ni pedido)' }}</td>
                         </tr>
                     @empty
-                        <tr><td colspan="6">
+                        <tr class="prd-row-empty"><td colspan="6">
                             <x-erp.empty title="Aún no hay órdenes de producción" text="Crea la primera orden para reservar componentes y registrar la fabricación.">
                                 @if ($canCreate)<a href="{{ route('admin.production-orders.create') }}" class="erp-btn erp-btn--primary">+ Nueva orden</a>@endif
                             </x-erp.empty>

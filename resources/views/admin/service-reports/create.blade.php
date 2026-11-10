@@ -4,9 +4,10 @@
 @push('styles')
     @vite('resources/css/service-reports.css')
 @endpush
+@include('admin.service-reports.steps._mobile')
 
 @section('content')
-<div class="sr-create-wrap sr-page-create">
+<div class="sr-create-wrap sr-wizard-m sr-page-create">
 
     {{-- Breadcrumb --}}
     <div style="font-size:12px; color:#6B7280; margin-bottom:16px; display:flex; align-items:center; gap:6px;">
@@ -22,7 +23,7 @@
         @endphp
         @foreach($steps as $i => $label)
             @php $n = $i + 1; @endphp
-            <div class="sr-step-item {{ $n === 1 ? 'active' : '' }}">
+            <div data-n="{{ $n }}" class="sr-step-item {{ $n === 1 ? 'active' : '' }}">
                 <div class="sr-step-circle">{{ $n }}</div>
                 <span class="sr-step-label">{{ $label }}</span>
             </div>
@@ -134,7 +135,7 @@
 
                     <div class="sr-field">
                         <label class="sr-label" for="week_number">Número de Semana</label>
-                        <input type="number" id="week_number" name="week_number" class="sr-input" value="{{ old('week_number') }}" min="1" max="53" placeholder="1–53">
+                        <input type="number" id="week_number" name="week_number" inputmode="numeric" class="sr-input" value="{{ old('week_number') }}" min="1" max="53" placeholder="1–53">
                     </div>
 
                     <div class="sr-field">
@@ -167,12 +168,12 @@
 
                     <div class="sr-field">
                         <label class="sr-label" for="customer_rfc">RFC</label>
-                        <input type="text" id="customer_rfc" name="customer_rfc" class="sr-input" value="{{ old('customer_rfc', $fromService?->customer?->rfc) }}" maxlength="20">
+                        <input type="text" id="customer_rfc" name="customer_rfc" autocapitalize="characters" class="sr-input" value="{{ old('customer_rfc', $fromService?->customer?->rfc) }}" maxlength="20">
                     </div>
 
                     <div class="sr-field">
                         <label class="sr-label" for="customer_phone">Teléfono</label>
-                        <input type="text" id="customer_phone" name="customer_phone" class="sr-input" value="{{ old('customer_phone', $fromService?->customer?->phone) }}" maxlength="30">
+                        <input type="text" id="customer_phone" name="customer_phone" inputmode="tel" class="sr-input" value="{{ old('customer_phone', $fromService?->customer?->phone) }}" maxlength="30">
                     </div>
                 </div>
 
