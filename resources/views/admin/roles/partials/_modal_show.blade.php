@@ -1,5 +1,5 @@
 ﻿<div id="roles-modal-show" class="roles-modal" style="display:none">
-    <div class="roles-modal__box">
+    <div class="roles-modal__box" role="dialog" aria-modal="true">
         <div class="roles-modal__header">
             <h3 class="roles-modal__title">Detalle del Rol</h3>
             <button class="roles-drawer__close" type="button" onclick="closeShowModal()">

@@ -7,10 +7,10 @@
     // "_role_form" identifica a qué formulario pertenece el intento fallido.
     $isCreateFormError = old('_role_form') === 'create';
 ?>
-<div id="roles-drawer-create" class="roles-drawer {{ $errors->any() && $isCreateFormError ? 'is-open' : '' }}">
+<div id="roles-drawer-create" role="dialog" aria-modal="true" aria-labelledby="roles-create-title" class="roles-drawer {{ $errors->any() && $isCreateFormError ? 'is-open' : '' }}">
     <div class="roles-drawer__header">
         <div>
-            <h2 class="roles-drawer__title">Nuevo Rol</h2>
+            <h2 class="roles-drawer__title" id="roles-create-title">Nuevo Rol</h2>
             <p class="roles-drawer__subtitle">Define nombre, descripción y permisos</p>
         </div>
         <button class="roles-drawer__close" type="button" onclick="closeCreateDrawer()">

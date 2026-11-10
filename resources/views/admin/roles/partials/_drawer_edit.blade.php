@@ -9,10 +9,10 @@
     // reabrir el drawer apuntando al rol correcto tras un redirect()->back().
     $editRoleId = old('_role_id');
 ?>
-<div id="roles-drawer-edit" class="roles-drawer {{ $errors->any() && $isEditFormError ? 'is-open' : '' }}">
+<div id="roles-drawer-edit" role="dialog" aria-modal="true" aria-labelledby="roles-edit-title" class="roles-drawer {{ $errors->any() && $isEditFormError ? 'is-open' : '' }}">
     <div class="roles-drawer__header">
         <div>
-            <h2 class="roles-drawer__title">Editar Rol</h2>
+            <h2 class="roles-drawer__title" id="roles-edit-title">Editar Rol</h2>
             <p class="roles-drawer__subtitle">Modifica nombre, descripción y permisos</p>
         </div>
         <button class="roles-drawer__close" type="button" onclick="closeEditDrawer()">

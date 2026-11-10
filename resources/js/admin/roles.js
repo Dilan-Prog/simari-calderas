@@ -12,8 +12,17 @@
     var modalShow    = document.getElementById('roles-modal-show');
     var modalDelete  = document.getElementById('roles-modal-delete');
 
-    function showOverlay() { overlay.classList.add('is-visible'); }
-    function hideOverlay()  { overlay.classList.remove('is-visible'); }
+    function showOverlay() { overlay.classList.add('is-visible'); syncScrollLock(); }
+    function hideOverlay()  { overlay.classList.remove('is-visible'); syncScrollLock(); }
+
+    // Con un modal abierto el fondo no debe desplazarse (sobre todo en celular).
+    function syncScrollLock() {
+        var anyOpen = drawerCreate.classList.contains('is-open') ||
+                      drawerEdit.classList.contains('is-open') ||
+                      modalShow.style.display === 'flex' ||
+                      modalDelete.style.display === 'flex';
+        document.body.classList.toggle('roles-scroll-lock', anyOpen);
+    }
 
     function noOtherOpen() {
         return !drawerCreate.classList.contains('is-open') &&
@@ -25,6 +34,7 @@
     window.openCreateDrawer = function () {
         drawerCreate.classList.add('is-open');
         showOverlay();
+        setTimeout(function () { document.getElementById('create-name').focus(); }, 50);
     };
 
     window.closeCreateDrawer = function () {
@@ -70,6 +80,7 @@
         var body = document.getElementById('roles-modal-show-body');
         body.innerHTML = '<div class="roles-modal-loading">Cargando...</div>';
         modalShow.style.display = 'flex';
+        syncScrollLock();
 
         fetch(urlShow + '/' + id, {
             headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
@@ -114,6 +125,7 @@
     window.closeShowModal = function () {
         modalShow.style.display = 'none';
         if (noOtherOpen()) hideOverlay();
+        syncScrollLock();
     };
 
     window.openDeleteModal = function (id, name, usersCount) {
@@ -123,11 +135,13 @@
             : 'Esta acción no se puede deshacer.';
         document.getElementById('roles-delete-form').action = urlDelete + '/' + id;
         modalDelete.style.display = 'flex';
+        syncScrollLock();
     };
 
     window.closeDeleteModal = function () {
         modalDelete.style.display = 'none';
         if (noOtherOpen()) hideOverlay();
+        syncScrollLock();
     };
 
     var ACTION_LABELS = {
@@ -224,6 +238,65 @@
     document.addEventListener('keydown', function (e) {
         if (e.key === 'Escape') { closeAll(); }
     });
+
+    // ── Tabla: buscador + paginación (todo en el navegador; los roles son pocos) ──
+    var searchInput = document.getElementById('roles-search');
+    var perPageSel  = document.getElementById('roles-per-page');
+    var pagerInfo   = document.getElementById('roles-pager-info');
+    var pagerNav    = document.getElementById('roles-pager-nav');
+    var noResults   = document.querySelector('.roles-no-results');
+    var allRows     = Array.prototype.slice.call(document.querySelectorAll('.roles-table tbody tr.roles-row'));
+    var currentPage = 1;
+
+    function normalize(str) {
+        return String(str || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    }
+
+    function renderTable() {
+        if (!pagerInfo) return;
+        var term    = normalize(searchInput ? searchInput.value.trim() : '');
+        var perPage = parseInt(perPageSel ? perPageSel.value : '10', 10) || 10;
+        var matches = allRows.filter(function (tr) {
+            var hit = !term || normalize(tr.dataset.search).indexOf(term) !== -1;
+            tr.hidden = !hit;
+            return hit;
+        });
+
+        var pages = Math.max(1, Math.ceil(matches.length / perPage));
+        currentPage = Math.min(Math.max(1, currentPage), pages);
+        var from = (currentPage - 1) * perPage;
+        var to   = Math.min(from + perPage, matches.length);
+        matches.forEach(function (tr, i) { tr.classList.toggle('is-paged-out', i < from || i >= to); });
+
+        if (noResults) noResults.hidden = !(allRows.length && !matches.length);
+        pagerInfo.innerHTML = matches.length
+            ? 'Mostrando <strong>' + (from + 1) + '–' + to + '</strong> de <strong>' + matches.length + '</strong> ' + (matches.length === 1 ? 'rol' : 'roles')
+            : (allRows.length ? 'Sin resultados' : '');
+
+        var html = '';
+        if (pages > 1) {
+            html += '<button type="button" class="roles-pager__btn" data-page="' + (currentPage - 1) + '"' + (currentPage === 1 ? ' disabled' : '') + ' aria-label="Página anterior">‹</button>';
+            for (var p = 1; p <= pages; p++) {
+                html += '<button type="button" class="roles-pager__btn' + (p === currentPage ? ' is-current' : '') + '" data-page="' + p + '"' + (p === currentPage ? ' aria-current="page"' : '') + '>' + p + '</button>';
+            }
+            html += '<button type="button" class="roles-pager__btn" data-page="' + (currentPage + 1) + '"' + (currentPage === pages ? ' disabled' : '') + ' aria-label="Página siguiente">›</button>';
+        }
+        pagerNav.innerHTML = html;
+    }
+
+    if (searchInput) searchInput.addEventListener('input', function () { currentPage = 1; renderTable(); });
+    if (perPageSel)  perPageSel.addEventListener('change', function () { currentPage = 1; renderTable(); });
+    if (pagerNav) pagerNav.addEventListener('click', function (e) {
+        var btn = e.target.closest('[data-page]');
+        if (!btn || btn.disabled) return;
+        currentPage = parseInt(btn.dataset.page, 10);
+        renderTable();
+        var wrap = document.querySelector('.roles-toolbar');
+        if (wrap) wrap.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+    renderTable();
+    // Si el servidor regresó con un error de validación, el modal ya viene abierto.
+    syncScrollLock();
 
     function escHtml(str) {
         return String(str)
