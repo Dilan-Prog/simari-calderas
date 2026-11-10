@@ -97,6 +97,26 @@
     </div>
 
     {{-- Tabla --}}
+    {{-- Barra de la tabla: buscador + filas por página --}}
+    <div class="roles-toolbar">
+        <label class="roles-search">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+            </svg>
+            <input type="search" id="roles-search" placeholder="Buscar rol o descripción…" autocomplete="off"
+                aria-label="Buscar roles">
+        </label>
+        <label class="roles-per-page">
+            Mostrar
+            <select id="roles-per-page" aria-label="Roles por página">
+                <option value="10" selected>10</option>
+                <option value="25">25</option>
+                <option value="50">50</option>
+            </select>
+        </label>
+    </div>
+
     <div class="roles-table-wrap">
         <table class="roles-table">
             <thead>
@@ -111,8 +131,8 @@
             </thead>
             <tbody>
                 @forelse($roles as $role)
-                <tr>
-                    <td>
+                <tr class="roles-row" data-search="{{ mb_strtolower($role->name_role . ' ' . $role->description_role) }}">
+                    <td class="roles-cell-main">
                         <div class="roles-cell-role">
                             @if($role->isAdmin())
                             <div class="roles-role-icon roles-role-icon--orange">
@@ -135,23 +155,23 @@
                             <span class="roles-role-name">{{ $role->name_role }}</span>
                         </div>
                     </td>
-                    <td class="roles-cell-desc" data-col="descripcion">{{ $role->description_role }}</td>
-                    <td data-col="usuarios">
+                    <td class="roles-cell-desc" data-col="descripcion" data-label="Descripción">{{ $role->description_role }}</td>
+                    <td data-col="usuarios" data-label="Usuarios">
                         <span class="roles-users-count">
                             {{ $role->users_count }} {{ $role->users_count === 1 ? 'usuario' : 'usuarios' }}
                         </span>
                     </td>
-                    <td data-col="permisos">
+                    <td data-col="permisos" data-label="Permisos">
                         @if($role->isAdmin())
                             <span class="roles-badge roles-badge--admin">Todos los módulos</span>
                         @else
                             <span class="roles-badge roles-badge--default">{{ $role->modules_count }} módulos</span>
                         @endif
                     </td>
-                    <td class="roles-cell-date" data-col="creado">
+                    <td class="roles-cell-date" data-col="creado" data-label="Creado">
                         {{ $role->created_at ? \Carbon\Carbon::parse($role->created_at)->format('d M Y') : '—' }}
                     </td>
-                    <td>
+                    <td class="roles-cell-actions">
                         <div class="roles-actions">
                             <button class="roles-action-btn" type="button" title="Ver"
                                 onclick="openShowModal({{ $role->id }})">
@@ -198,7 +218,7 @@
                     </td>
                 </tr>
                 @empty
-                <tr>
+                <tr class="roles-empty-row">
                     <td colspan="6" class="roles-empty">
                         <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none"
                             stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
@@ -208,8 +228,17 @@
                     </td>
                 </tr>
                 @endforelse
+                <tr class="roles-no-results" hidden>
+                    <td colspan="6" class="roles-empty"><p>Ningún rol coincide con la búsqueda.</p></td>
+                </tr>
             </tbody>
         </table>
+    </div>
+
+    {{-- Pie de la tabla: conteo + paginación (roles.js) --}}
+    <div class="roles-pager" id="roles-pager">
+        <span class="roles-pager__info" id="roles-pager-info"></span>
+        <div class="roles-pager__nav" id="roles-pager-nav"></div>
     </div>
 
 </div>

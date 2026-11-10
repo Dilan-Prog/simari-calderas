@@ -1,5 +1,5 @@
 ﻿<div id="roles-modal-delete" class="roles-modal" style="display:none">
-    <div class="roles-modal__box roles-modal__box--sm">
+    <div class="roles-modal__box roles-modal__box--sm" role="dialog" aria-modal="true">
         <div class="roles-modal__header">
             <h3 class="roles-modal__title">Eliminar Rol</h3>
             <button class="roles-drawer__close" type="button" onclick="closeDeleteModal()">
