@@ -1,5 +1,5 @@
 {{-- Delete confirmation modal --}}
-<div id="deleteUserModal" class="del-confirm-overlay">
+<div id="deleteUserModal" class="del-confirm-overlay users-page-modal" role="dialog" aria-modal="true" aria-labelledby="deleteUserModalTitle">
     <div class="del-confirm-box">
         <div class="del-confirm-icon-wrap">
             <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
@@ -9,7 +9,7 @@
                 <path d="M12 17h.01"></path>
             </svg>
         </div>
-        <h2 class="del-confirm-title">¿Eliminar usuario?</h2>
+        <h2 class="del-confirm-title" id="deleteUserModalTitle">¿Eliminar usuario?</h2>
         <p class="del-confirm-desc">Esta acción no se puede deshacer. El usuario perderá acceso al sistema
             permanentemente.</p>
         <div class="del-confirm-user-card">

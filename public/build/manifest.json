@@ -221,7 +221,7 @@
     "isEntry": true
   },
   "resources/css/admin/pages/usuarios.css": {
-    "file": "assets/usuarios-DZrUzb5x.css",
+    "file": "assets/usuarios-YKPHoefz.css",
     "src": "resources/css/admin/pages/usuarios.css",
     "isEntry": true
   },
@@ -733,5 +733,10 @@
     "imports": [
       "_alpine-init-CvA_QR7z.js"
     ]
+  },
+  "resources/css/admin/pages/usuarios-modals.css": {
+    "file": "assets/usuarios-modals-BNB5r_xO.css",
+    "src": "resources/css/admin/pages/usuarios-modals.css",
+    "isEntry": true
   }
 }

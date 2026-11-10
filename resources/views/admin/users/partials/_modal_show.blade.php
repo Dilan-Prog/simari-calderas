@@ -1,11 +1,11 @@
-<div class="show-user-overlay" id="showUserModal">
+<div class="show-user-overlay users-page-modal" id="showUserModal" role="dialog" aria-modal="true" aria-labelledby="showUserModalTitle">
     <div class="show-user-panel">
 
         {{-- Header --}}
         <div class="show-user-header">
-            <h2 class="show-user-header-title">Detalles del Usuario</h2>
+            <h2 class="show-user-header-title" id="showUserModalTitle">Detalles del Usuario</h2>
             <button type="button" class="table-users-manager-action-btn cancel show-user-close-btn"
-                id="closeShowModal">✕</button>
+                id="closeShowModal" aria-label="Cerrar">✕</button>
         </div>
 
         {{-- Body scrollable --}}
