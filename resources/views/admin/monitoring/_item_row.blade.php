@@ -15,7 +15,7 @@
         </select>
         @if ($fromCustomer)<span class="mon-badge mon-badge--cust">Agregado por el cliente</span>@endif
         @if ($entriesCount > 0)<span class="mon-badge">{{ $entriesCount }} {{ $entriesCount === 1 ? 'registro' : 'registros' }}</span>@endif
-        <span style="margin-left:auto;display:flex;gap:4px;">
+        <span class="mon-item-actions" style="margin-left:auto;display:flex;gap:4px;">
             <button type="button" class="erp-btn erp-btn--sm" data-item-up title="Subir" aria-label="Subir">↑</button>
             <button type="button" class="erp-btn erp-btn--sm" data-item-down title="Bajar" aria-label="Bajar">↓</button>
             <button type="button" class="erp-btn erp-btn--sm erp-btn--danger" data-item-remove>Quitar</button>

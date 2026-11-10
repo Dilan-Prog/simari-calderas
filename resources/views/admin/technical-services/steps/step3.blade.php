@@ -52,7 +52,7 @@ window.__tsConfig = {
                 <ul class="inline-product-search__list" id="inlineProductList"></ul>
             </div>
         </div>
-        <div style="overflow-x:auto">
+        <div class="ts-materials-wrap" style="overflow-x:auto">
             <table class="ts-materials-table">
                 <thead>
                     <tr>

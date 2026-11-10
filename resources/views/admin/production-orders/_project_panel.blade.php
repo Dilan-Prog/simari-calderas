@@ -15,7 +15,7 @@
     @push('styles')
         @vite(['resources/css/admin/pages/erp-core.css', 'resources/css/admin/pages/erp-production.css'])
     @endpush
-    <div class="prj-panel">
+    <div class="prj-panel prd-prj-panel">
         <div class="prj-panel-head">
             <h2>Producción y servicios</h2>
             @if ($__canCreate && \Illuminate\Support\Facades\Route::has('admin.production-orders.create'))
@@ -33,7 +33,7 @@
             </div>
         </div>
         @if ($__canView && $__prd->isNotEmpty())
-            <div class="prd-box-list">
+            <div class="prd-box-list prd-prj-list">
                 @foreach ($__prd as $p)
                     <div class="prd-box-row">
                         <a href="{{ route('admin.production-orders.show', $p) }}" class="prd-link">{{ $p->number }}</a>

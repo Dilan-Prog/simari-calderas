@@ -117,6 +117,32 @@ function initCalendar(root) {
     const MAX_MONTH_EVENTS = 3;
     let dragged = null;
 
+    // Teléfono: el detalle del servicio se abre como hoja inferior con bloqueo de scroll del fondo.
+    const phone = window.matchMedia('(max-width: 768px)');
+    const backdrop = el('div', 'cal-sheet-backdrop');
+    backdrop.hidden = true;
+    backdrop.addEventListener('click', () => select(null));
+    root.appendChild(backdrop);
+    if (panel) {
+        panel.setAttribute('tabindex', '-1');
+    }
+    function syncSheet() {
+        const open = !!(panel && state.selected && phone.matches);
+        if (panel) {
+            panel.classList.toggle('is-sheet-open', open);
+            if (phone.matches) panel.setAttribute('aria-modal', open ? 'true' : 'false');
+            else panel.removeAttribute('aria-modal');
+        }
+        backdrop.hidden = !open;
+        document.documentElement.classList.toggle('prd-sheet-lock', open);
+    }
+    const onPhoneChange = () => syncSheet();
+    if (phone.addEventListener) phone.addEventListener('change', onPhoneChange);
+    else if (phone.addListener) phone.addListener(onPhoneChange);
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && state.selected && phone.matches) select(null);
+    });
+
     const todayIso = () => iso(new Date());
     const isLate = (ev) => !['completed', 'cancelled'].includes(ev.status) && ev.date < todayIso();
 
@@ -174,6 +200,7 @@ function initCalendar(root) {
         const ev = state.selected;
         if (!ev) {
             panel.appendChild(el('div', 'cal-panel-empty', 'Selecciona un servicio del calendario para ver su detalle.'));
+            syncSheet();
             return;
         }
         panel.appendChild(el('span', 'erp-eyebrow', 'SERVICIO TÉCNICO'));
@@ -210,14 +237,20 @@ function initCalendar(root) {
         close.addEventListener('click', () => select(null));
         actions.appendChild(close);
         panel.appendChild(actions);
-        if (canEdit && ev.editable) panel.appendChild(el('p', 'cal-panel-hint', 'Arrastra la tarjeta a otro día para reprogramar.'));
+        if (canEdit && ev.editable) {
+            panel.appendChild(el('p', 'cal-panel-hint cal-hint-drag', 'Arrastra la tarjeta a otro día para reprogramar.'));
+            panel.appendChild(el('p', 'cal-panel-hint cal-hint-touch', 'Para reprogramar usa el campo «Mover a» de la agenda.'));
+        }
+        syncSheet();
     }
 
     function select(ev) {
         state.selected = ev;
         root.querySelectorAll('.cal-ev').forEach((n) => n.classList.toggle('is-selected', !!ev && Number(n.dataset.id) === ev.id));
         renderPanel();
-        if (ev && window.matchMedia('(max-width: 1000px)').matches && panel) panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        if (!ev || !panel) return;
+        if (phone.matches) panel.focus({ preventScroll: true });
+        else if (window.matchMedia('(max-width: 1000px)').matches) panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
 
     /* ── Alertas calculadas con el periodo cargado ── */
@@ -441,7 +474,7 @@ function initCalendar(root) {
             const evs = map[key] || [];
             if (!evs.length) continue;
             any = true;
-            list.appendChild(el('div', 'cal-agenda-day', `${DOW_LONG[d.getDay()]} ${d.getDate()} de ${MONTHS[d.getMonth()]}`));
+            list.appendChild(el('div', 'cal-agenda-day' + (key === todayIso() ? ' is-today' : ''), `${DOW_LONG[d.getDay()]} ${d.getDate()} de ${MONTHS[d.getMonth()]}`));
             evs.forEach((ev) => {
                 const row = el('div', 'cal-agenda-row');
                 row.appendChild(eventEl(ev));
@@ -452,7 +485,9 @@ function initCalendar(root) {
                     inp.title = 'Reprogramar';
                     inp.setAttribute('aria-label', `Reprogramar ${ev.title}`);
                     inp.addEventListener('change', () => { if (inp.value) reschedule(ev, inp.value, null); });
-                    row.appendChild(inp);
+                    const move = el('label', 'cal-agenda-move');
+                    move.append(el('span', null, 'Mover a'), inp);
+                    row.appendChild(move);
                 }
                 list.appendChild(row);
             });

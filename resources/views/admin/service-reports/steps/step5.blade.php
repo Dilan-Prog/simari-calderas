@@ -4,9 +4,10 @@
 @push('styles')
     @vite('resources/css/service-reports.css')
 @endpush
+@include('admin.service-reports.steps._mobile')
 
 @section('content')
-<div class="sr-create-wrap sr-page-step5">
+<div class="sr-create-wrap sr-wizard-m sr-page-step5">
 
     <div style="font-size:12px; color:#6B7280; margin-bottom:16px; display:flex; align-items:center; gap:6px;">
         <a href="{{ route('admin.service-reports.index') }}" style="color:#6B7280; text-decoration:none;">Reportes</a>
@@ -18,7 +19,7 @@
         @php $stepLabels = ['Datos Generales','Mediciones / Actividades','Observaciones','Evidencia','Resumen','Firma']; @endphp
         @foreach($stepLabels as $i => $label)
             @php $n = $i + 1; $cls = $n < 5 ? 'done' : ($n === 5 ? 'active' : ''); @endphp
-            <div class="sr-step-item {{ $cls }}">
+            <div data-n="{{ $n }}" class="sr-step-item {{ $cls }}">
                 <div class="sr-step-circle">@if($n < 5) ✓ @else {{ $n }} @endif</div>
                 <span class="sr-step-label">{{ $label }}</span>
             </div>
@@ -97,16 +98,16 @@
                     <tbody>
                         @foreach($report->measurements as $m)
                             <tr>
-                                <td>{{ $m->parameter }}</td>
-                                <td>{{ $m->unit ?? '—' }}</td>
-                                <td><strong>{{ $m->result ?? '—' }}</strong></td>
-                                <td style="color:#6B7280;">
+                                <td data-label="Parámetro">{{ $m->parameter }}</td>
+                                <td data-label="Unidad">{{ $m->unit ?? '—' }}</td>
+                                <td data-label="Resultado"><strong>{{ $m->result ?? '—' }}</strong></td>
+                                <td data-label="Límites" style="color:#6B7280;">
                                     @if($m->limit_min !== null || $m->limit_max !== null)
                                         {{ $m->limit_min ?? '∞' }} – {{ $m->limit_max ?? '∞' }}
                                     @else —
                                     @endif
                                 </td>
-                                <td>
+                                <td data-label="Rango">
                                     @if($m->in_range === true) <span class="sr-dot-ok"></span> Dentro
                                     @elseif($m->in_range === false) <span class="sr-dot-bad"></span> Fuera
                                     @else <span class="sr-dot-nd"></span> N/D

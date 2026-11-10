@@ -11,7 +11,7 @@
 @endpush
 
 @section('content')
-<div class="erp-page prd-page cal-page"
+<div class="erp-page prd-page cal-page prd-cal"
      data-service-calendar
      data-events-url="{{ route('admin.service-calendar.events') }}"
      data-reschedule-url="{{ route('admin.service-calendar.reschedule', ['service' => '__ID__']) }}"

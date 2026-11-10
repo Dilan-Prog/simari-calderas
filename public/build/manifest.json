@@ -136,7 +136,7 @@
     "isEntry": true
   },
   "resources/css/admin/pages/erp-production.css": {
-    "file": "assets/erp-production-CnOu0J4E.css",
+    "file": "assets/erp-production-DWe_qrXo.css",
     "src": "resources/css/admin/pages/erp-production.css",
     "isEntry": true
   },
@@ -246,7 +246,7 @@
     "isEntry": true
   },
   "resources/css/admin/technical-services.css": {
-    "file": "assets/technical-services-DzOT8hDh.css",
+    "file": "assets/technical-services-lrtI3idh.css",
     "src": "resources/css/admin/technical-services.css",
     "isEntry": true
   },
@@ -311,7 +311,7 @@
     "isEntry": true
   },
   "resources/css/service-reports.css": {
-    "file": "assets/service-reports-Bak5nJs3.css",
+    "file": "assets/service-reports-Du67cgwT.css",
     "src": "resources/css/service-reports.css",
     "isEntry": true
   },
@@ -412,7 +412,7 @@
     "isEntry": true
   },
   "resources/js/admin/erp-production.js": {
-    "file": "assets/erp-production-Dcjqcglb.js",
+    "file": "assets/erp-production-DCphFbc5.js",
     "name": "erp-production",
     "src": "resources/js/admin/erp-production.js",
     "isEntry": true

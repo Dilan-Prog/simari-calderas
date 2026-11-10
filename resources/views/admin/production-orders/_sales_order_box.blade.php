@@ -9,7 +9,7 @@
         @vite(['resources/css/admin/pages/erp-core.css', 'resources/css/admin/pages/erp-production.css'])
     @endpush
     @if ($__prd->isNotEmpty() || ($__canCreate && $order->status !== 'cancelado'))
-        <div class="prd-box">
+        <div class="prd-box prd-so-box">
             <div class="prd-box-head">
                 <strong>Producción</strong>
                 @if ($__canCreate && $order->status !== 'cancelado')

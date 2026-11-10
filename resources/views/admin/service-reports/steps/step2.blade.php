@@ -4,9 +4,10 @@
 @push('styles')
     @vite('resources/css/service-reports.css')
 @endpush
+@include('admin.service-reports.steps._mobile')
 
 @section('content')
-<div class="sr-create-wrap sr-page-step2">
+<div class="sr-create-wrap sr-wizard-m sr-page-step2">
 
     {{-- Breadcrumb --}}
     <div style="font-size:12px; color:#6B7280; margin-bottom:16px; display:flex; align-items:center; gap:6px;">
@@ -20,7 +21,7 @@
         @php $stepLabels = ['Datos Generales','Mediciones / Actividades','Observaciones','Evidencia','Resumen','Firma']; @endphp
         @foreach($stepLabels as $i => $label)
             @php $n = $i + 1; $cls = $n < 2 ? 'done' : ($n === 2 ? 'active' : ''); @endphp
-            <div class="sr-step-item {{ $cls }}">
+            <div data-n="{{ $n }}" class="sr-step-item {{ $cls }}">
                 <div class="sr-step-circle">
                     @if($n < 2) ✓ @else {{ $n }} @endif
                 </div>
@@ -79,8 +80,8 @@
                                         <td data-label="Parámetro"><input type="text" name="measurements[{{ $idx }}][parameter]" class="sr-input" value="{{ old("measurements.$idx.parameter", $m->parameter) }}" required placeholder="Ej: pH"></td>
                                         <td data-label="Unidad"><input type="text" name="measurements[{{ $idx }}][unit]"      class="sr-input" value="{{ old("measurements.$idx.unit", $m->unit) }}" placeholder="Unidad pH"></td>
                                         <td data-label="Resultado"><input type="text" name="measurements[{{ $idx }}][result]"   class="sr-input sr-result" value="{{ old("measurements.$idx.result", $m->result) }}" placeholder="7.4"></td>
-                                        <td data-label="Límite Mín."><input type="number" step="any" name="measurements[{{ $idx }}][limit_min]" class="sr-input sr-lmin" value="{{ old("measurements.$idx.limit_min", $m->limit_min) }}" placeholder="6.5"></td>
-                                        <td data-label="Límite Máx."><input type="number" step="any" name="measurements[{{ $idx }}][limit_max]" class="sr-input sr-lmax" value="{{ old("measurements.$idx.limit_max", $m->limit_max) }}" placeholder="8.5"></td>
+                                        <td data-label="Límite Mín."><input type="number" step="any" inputmode="decimal" name="measurements[{{ $idx }}][limit_min]" class="sr-input sr-lmin" value="{{ old("measurements.$idx.limit_min", $m->limit_min) }}" placeholder="6.5"></td>
+                                        <td data-label="Límite Máx."><input type="number" step="any" inputmode="decimal" name="measurements[{{ $idx }}][limit_max]" class="sr-input sr-lmax" value="{{ old("measurements.$idx.limit_max", $m->limit_max) }}" placeholder="8.5"></td>
                                         <td data-label="Rango" style="min-width:110px;">
                                             <span class="sr-range-badge sr-range-nd">— S/L</span>
                                             <div class="sr-range-bar-wrap" style="display:none;">
@@ -101,8 +102,8 @@
                                         <td data-label="Parámetro"><input type="text" name="measurements[0][parameter]" class="sr-input" required placeholder="Ej: pH"></td>
                                         <td data-label="Unidad"><input type="text" name="measurements[0][unit]"      class="sr-input" placeholder="Unidad pH"></td>
                                         <td data-label="Resultado"><input type="text" name="measurements[0][result]"    class="sr-input sr-result" placeholder="7.4"></td>
-                                        <td data-label="Límite Mín."><input type="number" step="any" name="measurements[0][limit_min]" class="sr-input sr-lmin" placeholder="6.5"></td>
-                                        <td data-label="Límite Máx."><input type="number" step="any" name="measurements[0][limit_max]" class="sr-input sr-lmax" placeholder="8.5"></td>
+                                        <td data-label="Límite Mín."><input type="number" step="any" inputmode="decimal" name="measurements[0][limit_min]" class="sr-input sr-lmin" placeholder="6.5"></td>
+                                        <td data-label="Límite Máx."><input type="number" step="any" inputmode="decimal" name="measurements[0][limit_max]" class="sr-input sr-lmax" placeholder="8.5"></td>
                                         <td data-label="Rango" style="min-width:110px;">
                                             <span class="sr-range-badge sr-range-nd">— S/L</span>
                                             <div class="sr-range-bar-wrap" style="display:none;">
@@ -292,8 +293,8 @@
             <td data-label="Parámetro"><input type="text" name="measurements[${idx}][parameter]" class="sr-input" required placeholder="Ej: Dureza Total"></td>
             <td data-label="Unidad"><input type="text" name="measurements[${idx}][unit]"      class="sr-input" placeholder="Mg/l"></td>
             <td data-label="Resultado"><input type="text" name="measurements[${idx}][result]"    class="sr-input sr-result" placeholder="0.0"></td>
-            <td data-label="Límite Mín."><input type="number" step="any" name="measurements[${idx}][limit_min]" class="sr-input sr-lmin" placeholder="0"></td>
-            <td data-label="Límite Máx."><input type="number" step="any" name="measurements[${idx}][limit_max]" class="sr-input sr-lmax" placeholder="0"></td>
+            <td data-label="Límite Mín."><input type="number" step="any" inputmode="decimal" name="measurements[${idx}][limit_min]" class="sr-input sr-lmin" placeholder="0"></td>
+            <td data-label="Límite Máx."><input type="number" step="any" inputmode="decimal" name="measurements[${idx}][limit_max]" class="sr-input sr-lmax" placeholder="0"></td>
             <td data-label="Rango" style="min-width:110px;">
                 <span class="sr-range-badge sr-range-nd">— S/L</span>
                 <div class="sr-range-bar-wrap" style="display:none;">

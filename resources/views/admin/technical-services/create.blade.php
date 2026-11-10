@@ -7,20 +7,20 @@
 @endpush
 
 @section('content')
-<div class="ts-page">
+@php
+    $steps = [1 => 'Datos Generales', 2 => 'Técnicos', 3 => 'Materiales', 4 => 'Confirmar'];
+    $currentStep = $step ?? $service?->current_step ?? 1;
+@endphp
+<div class="ts-page ts-admin ts-admin--wizard" data-ts-current-step="{{ $currentStep }}">
 
     {{-- ── Wizard progress bar ────────────────────── --}}
-    @php
-        $steps = [1 => 'Datos Generales', 2 => 'Técnicos', 3 => 'Materiales', 4 => 'Confirmar'];
-        $currentStep = $step ?? $service?->current_step ?? 1;
-    @endphp
 
-    <div class="ts-wizard-bar">
+    <div class="ts-wizard-bar" aria-label="Paso {{ $currentStep }} de {{ count($steps) }}: {{ $steps[$currentStep] ?? '' }}">
         @foreach($steps as $num => $label)
             @php
                 $stepState = $num < $currentStep ? 'completed' : ($num === $currentStep ? 'active' : 'pending');
             @endphp
-            <div class="ts-step {{ $stepState }}">
+            <div class="ts-step {{ $stepState }}" data-ts-step="{{ $num }}" @if($num === $currentStep) aria-current="step" @endif>
                 <div class="ts-step__circle">
                     @if($num < $currentStep)
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -41,7 +41,7 @@
 
     {{-- ── Page header ─────────────────────────────── --}}
     <div class="ts-form-container">
-        <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1.5rem">
+        <div class="ts-wizard-head" style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1.5rem">
             <a href="{{ route('admin.technical-services.index') }}" class="ts-show-back" title="Volver">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
                      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -69,7 +69,7 @@
                     {{ $service?->id ? 'Editar Servicio' : 'Programar Nuevo Servicio' }}
                 </h1>
             </div>
-            <div style="margin-left:auto;display:flex;align-items:center;gap:0.5rem">
+            <div class="ts-wizard-head__autosave" style="margin-left:auto;display:flex;align-items:center;gap:0.5rem">
                 <span class="ts-autosave" id="ts-autosave"></span>
             </div>
         </div>

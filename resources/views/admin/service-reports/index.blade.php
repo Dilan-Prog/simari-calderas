@@ -5,7 +5,12 @@
     @vite('resources/css/service-reports.css')
 @endpush
 @section('content')
-<div class="sr-wrapper">
+<div class="sr-wrapper sr-admin-index">
+    @php
+        // Móvil: la tarjeta muestra la calificación del cliente. Se carga en
+        // una sola consulta para la página actual (evita N+1 por tarjeta).
+        $reports->getCollection()->loadMissing('rating');
+    @endphp
 
     {{-- ── PAGE HEADER ── --}}
     <div class="sr-page-header">
@@ -21,7 +26,8 @@
             <p class="sr-page-subtitle">Gestiona y genera reportes técnicos de los servicios realizados</p>
         </div>
 
-        <div style="display:flex;align-items:center;gap:10px;">
+        <div class="sr-head-tools" style="display:flex;align-items:center;gap:10px;">
+            <div class="sr-colvis-slot">
             @include('admin.components._column_visibility_menu', [
                 'tableKey' => 'service-reports.index',
                 'columnDefs' => [
@@ -32,6 +38,7 @@
                     'fecha' => 'Fecha',
                 ],
             ])
+            </div>
             <a href="{{ route('admin.service-reports.create') }}" class="sr-btn-new">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M5 12h14"/><path d="M12 5v14"/>
@@ -100,8 +107,9 @@
                 </div>
 
                 {{-- Rango de fechas --}}
-                <div style="display:flex; gap:8px;">
+                <div class="sr-date-range" style="display:flex; gap:8px;">
                     <div class="sr-input-wrap" style="flex:1;">
+                        <span class="sr-m-date-lbl">Desde</span>
                         <input
                             type="date"
                             name="date_from"
@@ -112,6 +120,7 @@
                         >
                     </div>
                     <div class="sr-input-wrap" style="flex:1;">
+                        <span class="sr-m-date-lbl">Hasta</span>
                         <input
                             type="date"
                             name="date_to"
@@ -124,11 +133,17 @@
                 </div>
 
                 {{-- Botón Filtrar --}}
-                <button type="submit" class="sr-btn-filter">
+                <button type="submit" class="sr-btn-filter" aria-label="Filtrar">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M10 20a1 1 0 0 0 .553.895l2 1A1 1 0 0 0 14 21v-7a2 2 0 0 1 .517-1.341L21.74 4.67A1 1 0 0 0 21 3H3a1 1 0 0 0-.742 1.67l7.225 7.989A2 2 0 0 1 10 14z"/>
                     </svg>
+                    <span class="sr-m-only">Filtrar</span>
                 </button>
+
+                {{-- Móvil: limpiar filtros (oculto en escritorio) --}}
+                @if(collect(['search', 'type', 'status', 'date_from', 'date_to'])->contains(fn ($k) => request()->filled($k)))
+                    <a href="{{ route('admin.service-reports.index') }}" class="sr-m-clear">Limpiar filtros</a>
+                @endif
 
             </div>
         </form>
@@ -368,6 +383,11 @@
                         default       => $report->status,
                     };
                 @endphp
+                @php
+                    $mRating  = $report->rating;
+                    $mRated   = $mRating && $mRating->status === \App\Models\ServiceRating::STATUS_SUBMITTED && $mRating->rating;
+                    $mDate    = $report->service_date ? $report->service_date->format('d/m/Y') : '—';
+                @endphp
                 <div class="sr-mobile-card">
                     <div class="sr-mobile-card__top">
                         <a href="{{ route('admin.service-reports.show', $report) }}" class="sr-mobile-card__num">
@@ -375,20 +395,91 @@
                         </a>
                         <span class="sr-badge {{ $mBadgeClass }}">{{ $mBadgeLabel }}</span>
                     </div>
-                    <div class="sr-mobile-card__type">{{ $report->service_type_label }}</div>
-                    <div class="sr-mobile-card__meta">📅 {{ $report->service_date }}</div>
-                    <div class="sr-mobile-card__company">🏢 {{ $report->customer_name }}</div>
-                    <div class="sr-mobile-card__analyst">👤 Encargado: {{ $report->assigned_user_name }}</div>
-                    <div class="sr-mobile-card__divider"></div>
-                    <div class="sr-mobile-card__footer">
-                        <a href="{{ route('admin.service-reports.show', $report) }}" class="sr-mobile-card__btn">
-                            Ver →
-                        </a>
+
+                    {{-- Vista original (tablet / laptop) --}}
+                    <div class="sr-mc-legacy">
+                        <div class="sr-mobile-card__type">{{ $report->service_type_label }}</div>
+                        <div class="sr-mobile-card__meta">📅 {{ $report->service_date }}</div>
+                        <div class="sr-mobile-card__company">🏢 {{ $report->customer_name }}</div>
+                        <div class="sr-mobile-card__analyst">👤 Encargado: {{ $report->assigned_user_name }}</div>
+                        <div class="sr-mobile-card__divider"></div>
+                        <div class="sr-mobile-card__footer">
+                            <a href="{{ route('admin.service-reports.show', $report) }}" class="sr-mobile-card__btn">
+                                Ver →
+                            </a>
+                        </div>
+                    </div>
+
+                    {{-- Vista teléfono (≤768px) --}}
+                    <div class="sr-mc">
+                        <p class="sr-mc__client">{{ $report->customer_company ?: $report->customer_name }}</p>
+                        <div class="sr-mc__grid">
+                            <div class="sr-mc__item sr-mc__item--full" data-label="Servicio / Equipo">
+                                <span class="sr-mc__val">{{ $report->service_type_label }}@if($report->location) · {{ $report->location }}@endif</span>
+                            </div>
+                            <div class="sr-mc__item" data-label="Técnico">
+                                <span class="sr-mc__val">{{ $report->assigned_user_name ?: '—' }}</span>
+                            </div>
+                            <div class="sr-mc__item" data-label="Fecha">
+                                <span class="sr-mc__val">{{ $mDate }}</span>
+                            </div>
+                            <div class="sr-mc__item sr-mc__item--full" data-label="Calificación">
+                                <span class="sr-mc__val">
+                                    @if($mRated)
+                                        <span class="sr-mc__stars" aria-label="{{ $mRating->rating }} de 5">{{ str_repeat('★', $mRating->rating) }}<i>{{ str_repeat('★', 5 - $mRating->rating) }}</i></span>
+                                        <span class="sr-mc__score">{{ $mRating->rating }}/5</span>
+                                    @elseif($report->status === 'signed')
+                                        <span class="sr-mc__muted">Sin calificar</span>
+                                    @else
+                                        <span class="sr-mc__muted">—</span>
+                                    @endif
+                                </span>
+                            </div>
+                        </div>
+                        <div class="sr-mc__actions">
+                            <a href="{{ route('admin.service-reports.show', $report) }}" class="sr-mc__btn sr-mc__btn--primary">Ver reporte</a>
+                            @if($report->isEditable())
+                                <a href="{{ route('admin.service-reports.edit', $report) }}" class="sr-mc__btn">Editar</a>
+                            @endif
+                            <a href="{{ route('admin.service-reports.download-pdf', $report) }}" class="sr-mc__btn" target="_blank" rel="noopener">PDF</a>
+                        </div>
                     </div>
                 </div>
             @endforeach
         @endif
     </div>
+
+    {{-- ── Paginación para la vista de tarjetas (la de la tabla queda oculta) ── --}}
+    @if($reports->hasPages())
+        @php
+            $mpCur  = $reports->currentPage();
+            $mpLast = $reports->lastPage();
+            $mpFrom = max(1, $mpCur - 1);
+            $mpTo   = min($mpLast, $mpCur + 1);
+        @endphp
+        <nav class="sr-m-pager" aria-label="Paginación">
+            <p class="sr-m-pager__info">{{ $reports->firstItem() }}–{{ $reports->lastItem() }} de {{ $reports->total() }} reportes</p>
+            <div class="sr-m-pager__nav">
+                @if($reports->onFirstPage())
+                    <span class="sr-m-pager__btn is-disabled" aria-hidden="true">‹</span>
+                @else
+                    <a href="{{ $reports->appends(request()->query())->previousPageUrl() }}" class="sr-m-pager__btn" aria-label="Página anterior">‹</a>
+                @endif
+                @for($pg = $mpFrom; $pg <= $mpTo; $pg++)
+                    @if($pg === $mpCur)
+                        <span class="sr-m-pager__btn is-active" aria-current="page">{{ $pg }}</span>
+                    @else
+                        <a href="{{ $reports->appends(request()->query())->url($pg) }}" class="sr-m-pager__btn">{{ $pg }}</a>
+                    @endif
+                @endfor
+                @if($reports->hasMorePages())
+                    <a href="{{ $reports->appends(request()->query())->nextPageUrl() }}" class="sr-m-pager__btn" aria-label="Página siguiente">›</a>
+                @else
+                    <span class="sr-m-pager__btn is-disabled" aria-hidden="true">›</span>
+                @endif
+            </div>
+        </nav>
+    @endif
 
     {{-- Botón nuevo reporte flotante en mobile --}}
     <a href="{{ route('admin.service-reports.create') }}" class="sr-mobile-new-btn">

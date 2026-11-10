@@ -38,7 +38,7 @@
     }
     $startValue = old('start_date', $program->start_date?->format('Y-m-d'));
 @endphp
-<div class="erp-page mon-page">
+<div class="erp-page mon-page mon-admin mon-form-page">
     <x-erp.page-header
         :title="$isEdit ? 'Editar programa' : 'Nuevo programa de monitoreo'"
         desc="Define el periodo, los parámetros del agua a medir y los químicos a dosificar. Las semanas inicio/fin de cada elemento forman las barras del diagrama de Gantt."
@@ -58,13 +58,13 @@
 
         <x-erp.card title="General">
             <div class="erp-form-grid">
-                <label class="erp-field mon-rel" id="monCustomerBox" data-url="{{ route('admin.monitoring.customers.search') }}" style="grid-column: span 2;">Cliente *
+                <label class="erp-field mon-rel mon-f-wide" id="monCustomerBox" data-url="{{ route('admin.monitoring.customers.search') }}" style="grid-column: span 2;">Cliente *
                     <input type="hidden" name="customer_id" value="{{ $customerId }}" id="monCustomerId">
                     <input type="text" class="erp-input" id="monCustomerInput" placeholder="Buscar cliente por nombre, empresa o correo…" autocomplete="off" value="{{ $customerLabel }}">
                     <div class="mon-suggest" id="monCustomerList" hidden></div>
                     <small>Escribe al menos 2 letras y elige un cliente de la lista.</small>
                 </label>
-                <label class="erp-field" style="grid-column: span 2;">Nombre del programa *
+                <label class="erp-field mon-f-wide" style="grid-column: span 2;">Nombre del programa *
                     <input type="text" name="name" class="erp-input" maxlength="150" required value="{{ old('name', $program->name) }}" placeholder="Ej. Monitoreo caldera Planta 1 – octubre">
                 </label>
                 <label class="erp-field">Fecha de inicio *
@@ -110,7 +110,7 @@
             </template>
         </x-erp.card>
 
-        <div class="erp-form-actions">
+        <div class="erp-form-actions mon-savebar">
             <a href="{{ $isEdit ? route('admin.monitoring.show', $program) : route('admin.monitoring.index') }}" class="erp-btn">Cancelar</a>
             <button type="submit" class="erp-btn erp-btn--primary">{{ $isEdit ? 'Guardar cambios' : 'Crear programa' }}</button>
         </div>

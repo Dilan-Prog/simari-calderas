@@ -1926,3 +1926,477 @@ input[type="time"].ts-input {
     color: #9ca3af;
     text-align: center;
 }
+
+/* ============================================================
+   ADMIN · TELÉFONOS  (wrapper .ts-admin)
+   Todo lo de aquí abajo va bajo .ts-admin / .ts-admin-sheet, clases que
+   solo llevan las vistas admin/technical-services/*. Este archivo también
+   lo cargan las vistas del portal de clientes (resources/views/customers/**),
+   que nunca tienen .ts-admin, así que no les afecta.
+   ============================================================ */
+
+/* ── Índice: filtros extra y tarjetas (visibles < 1024px) ── */
+.ts-admin .ts-mobile-more {
+    border: 1px solid var(--ts-border);
+    border-radius: 8px;
+    background: var(--ts-bg-white);
+}
+.ts-admin .ts-mobile-more__summary {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 44px;
+    padding: 0 0.75rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--ts-text-body);
+    cursor: pointer;
+    list-style: none;
+    user-select: none;
+}
+.ts-admin .ts-mobile-more__summary::-webkit-details-marker { display: none; }
+.ts-admin .ts-mobile-more__summary::after {
+    content: "";
+    margin-left: auto;
+    width: 8px;
+    height: 8px;
+    border-right: 2px solid currentColor;
+    border-bottom: 2px solid currentColor;
+    transform: rotate(45deg) translateY(-2px);
+    transition: transform 0.15s;
+}
+.ts-admin .ts-mobile-more[open] > .ts-mobile-more__summary::after { transform: rotate(-135deg) translateY(-2px); }
+.ts-admin .ts-mobile-more__count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    border-radius: 999px;
+    background: var(--ts-primary);
+    color: #fff;
+    font-size: 0.6875rem;
+    font-weight: 700;
+}
+.ts-admin .ts-mobile-more__count[hidden] { display: none; }
+.ts-admin .ts-mobile-more__body {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 0.625rem;
+    padding: 0 0.75rem 0.75rem;
+}
+.ts-admin .ts-mobile-more__field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    min-width: 0;
+}
+.ts-admin .ts-mobile-more__field > span {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--ts-text-muted);
+}
+.ts-admin .ts-mobile-more__field--full,
+.ts-admin .ts-mobile-more__clear { grid-column: 1 / -1; }
+.ts-admin #ts-mobile-tech-filter {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+}
+.ts-admin .ts-mobile-date {
+    width: 100%;
+    min-width: 0;
+    height: 48px;
+    padding: 0 0.625rem;
+    border-radius: 8px;
+    border: 1px solid var(--ts-border);
+    background: var(--ts-bg-white);
+    color: var(--ts-text-body);
+    font-size: 16px;
+    font-family: var(--ts-font);
+    box-sizing: border-box;
+    -webkit-appearance: none;
+    appearance: none;
+}
+.ts-admin .ts-mobile-date:focus { outline: none; border-color: var(--ts-primary); }
+.ts-admin .ts-mobile-more__clear {
+    min-height: 44px;
+    border: 1px solid var(--ts-border);
+    border-radius: 8px;
+    background: #F9FAFB;
+    color: var(--ts-text-body);
+    font-size: 0.875rem;
+    font-weight: 500;
+    font-family: var(--ts-font);
+    cursor: pointer;
+}
+.ts-admin .ts-mobile-results {
+    font-size: 0.75rem;
+    color: var(--ts-text-muted);
+    padding: 0 0.125rem;
+}
+.ts-admin .ts-mobile-results:empty { display: none; }
+
+.ts-admin .ts-mobile-card { min-width: 0; }
+.ts-admin .ts-mobile-card__top { gap: 0.5rem; flex-wrap: wrap; }
+.ts-admin .ts-mobile-card__type { overflow-wrap: anywhere; }
+.ts-admin .ts-mcard-fields {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 0.625rem 0.75rem;
+    margin: 0 0 0.75rem;
+    padding: 0.75rem 0 0;
+    border-top: 1px solid var(--ts-border-light);
+}
+.ts-admin .ts-mcard-field { min-width: 0; }
+.ts-admin .ts-mcard-field--full { grid-column: 1 / -1; }
+.ts-admin .ts-mcard-field dt {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--ts-text-light);
+    margin: 0 0 0.125rem;
+}
+.ts-admin .ts-mcard-field dd {
+    margin: 0;
+    font-size: 0.875rem;
+    color: var(--ts-text-body);
+    overflow-wrap: anywhere;
+}
+.ts-admin .ts-mcard-muted { color: var(--ts-text-light); }
+.ts-admin .ts-mobile-card__footer { gap: 0.5rem; }
+.ts-admin .ts-mobile-card__btn { flex: 1 1 0; justify-content: center; }
+.ts-admin .ts-mobile-card__btn--primary { background: var(--ts-primary); color: #fff; }
+.ts-admin .ts-mobile-card__btn--primary:hover { background: var(--ts-primary-hover); color: #fff; }
+.ts-admin .ts-mobile-noresults[hidden] { display: none; }
+.ts-admin .ts-mobile-pagination {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0 1rem;
+}
+.ts-admin .ts-mobile-pagination__info { font-size: 0.75rem; color: var(--ts-text-muted); }
+.ts-admin .ts-mobile-pagination .admin-pagination { justify-content: center; margin-top: 0; max-width: 100%; }
+.ts-admin .ts-mobile-pagination .admin-pagination-list { justify-content: center; }
+.ts-admin .ts-mobile-pagination .admin-pagination-btn { min-width: 40px; min-height: 40px; }
+
+/* ── Teléfono ── */
+@media (max-width: 768px) {
+    .ts-admin { overflow-x: hidden; }
+    .ts-admin .ts-breadcrumb { flex-wrap: wrap; row-gap: 2px; }
+    .ts-admin .ts-title { font-size: 1.25rem; overflow-wrap: anywhere; }
+    .ts-admin .ts-card { padding: 16px; }
+    .ts-admin .ts-btn { min-height: 44px; }
+
+    /* ── Índice ── */
+    .ts-admin--index .ts-request-banner { padding: 12px; }
+    .ts-admin--index .ts-request-banner .ts-btn {
+        width: 100%;
+        height: 44px;
+        justify-content: center;
+        box-sizing: border-box;
+    }
+    .ts-admin--index .ts-mobile-cards { padding-bottom: calc(88px + env(safe-area-inset-bottom, 0px)); }
+    .ts-admin--index .ts-mobile-card__techs { min-width: 0; }
+    .ts-admin--index ~ .ts-fab-new,
+    .ts-admin--index .ts-fab-new { bottom: calc(20px + env(safe-area-inset-bottom, 0px)); right: 16px; }
+
+    /* ── Detalle ── */
+    .ts-admin--show { padding: 16px 16px 0; }
+    .ts-admin--show .ts-show-header { margin-bottom: 1rem; }
+    .ts-admin--show .ts-show-head-main { width: 100%; min-width: 0; }
+    .ts-admin--show .ts-show-head-text { flex: 1 1 auto; min-width: 0; }
+    .ts-admin--show .ts-show-back { width: 44px; height: 44px; }
+    .ts-admin--show .ts-show-title-row { gap: 0.5rem; }
+    .ts-admin--show .ts-show-title { font-size: 1.25rem; overflow-wrap: anywhere; }
+    .ts-admin--show .prj-docpicker { max-width: 100%; min-width: 0; overflow-wrap: anywhere; }
+    .ts-admin--show .prj-docpicker select { max-width: 100%; min-width: 0; }
+    .ts-admin--show .ts-request-card .ts-btn { width: 100%; justify-content: center; box-sizing: border-box; }
+    .ts-admin--show .ts-timeline { padding: 12px; }
+    .ts-admin--show .ts-detail-value { overflow-wrap: anywhere; }
+    .ts-admin--show .ts-attach-quote-form { flex-direction: column; }
+    .ts-admin--show .ts-attach-quote-form .ts-select-field { flex: none !important; min-width: 0; padding-right: 12px; }
+    .ts-admin--show .ts-attach-quote-form .ts-btn { width: 100%; height: 44px; justify-content: center; }
+    .ts-admin--show .ts-tech-item { min-width: 0; }
+    .ts-admin--show .ts-tech-info { min-width: 0; overflow-wrap: anywhere; }
+    /* Materiales y bitácora como tarjetas */
+    .ts-admin--show .ts-mat-list { gap: 8px; }
+    .ts-admin--show .ts-mat-item {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: baseline;
+        gap: 2px 8px;
+        padding: 10px 12px;
+        background: #F9FAFB;
+        border: 1px solid var(--ts-border-light);
+        border-radius: 8px;
+        min-width: 0;
+        overflow-wrap: anywhere;
+    }
+    .ts-admin--show .ts-mat-item:last-child { border-bottom: 1px solid var(--ts-border-light); }
+    .ts-admin--show .ts-mat-item__name { flex: 1 1 100%; min-width: 0; }
+    .ts-admin--show .ts-mat-item__qty { text-align: left; font-weight: 600; color: var(--ts-text-body); }
+    .ts-admin--show .ts-show-meta { margin-bottom: 0; }
+    /* Barra de acciones inferior: rejilla de 2 columnas, botones de 46px */
+    .ts-admin--show .ts-show-mobile-actions {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        gap: 8px;
+        margin: 16px -16px 0;
+        padding: 10px 16px calc(10px + env(safe-area-inset-bottom, 0px));
+        z-index: 30;
+    }
+    .ts-admin--show .ts-show-mobile-actions:not(:has(.ts-btn)) { display: none; }
+    .ts-admin--show .ts-show-mobile-actions .ts-btn {
+        height: 46px;
+        min-width: 0;
+        padding: 0 10px;
+        font-size: 0.875rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .ts-admin--show .ts-show-mobile-actions > .ts-btn:first-child:nth-last-child(odd) { grid-column: 1 / -1; }
+
+    /* ── Asistente (crear / editar) ── */
+    .ts-admin--wizard { padding: 0; }
+    .ts-admin--wizard .ts-form-container { padding: 16px 16px 0; max-width: none; }
+    .ts-admin--wizard .ts-wizard-head { flex-wrap: wrap; margin-bottom: 1rem !important; }
+    .ts-admin--wizard .ts-wizard-head > div:nth-child(2) { flex: 1 1 0; min-width: 0; }
+    .ts-admin--wizard .ts-wizard-head__autosave { flex: 1 1 100%; margin-left: 0 !important; }
+    .ts-admin--wizard .ts-wizard-head__autosave:has(.ts-autosave:empty) { display: none !important; }
+    .ts-admin--wizard .ts-show-back { width: 44px; height: 44px; }
+
+    /* Barra de progreso compacta: círculos + "Paso N de 4 · Nombre" */
+    .ts-admin--wizard .ts-wizard-bar {
+        justify-content: space-between;
+        flex-wrap: nowrap;
+        overflow: visible;
+        padding: 12px 16px 36px;
+    }
+    .ts-admin--wizard .ts-step { gap: 0; flex-shrink: 0; cursor: default; }
+    .ts-admin--wizard .ts-step__circle { width: 28px; height: 28px; font-size: 12px; }
+    .ts-admin--wizard .ts-step-connector {
+        flex: 1 1 auto;
+        width: auto;
+        min-width: 8px;
+        margin: 0 6px;
+    }
+    .ts-admin--wizard .ts-step.active .ts-step__label {
+        display: block;
+        position: absolute;
+        left: 16px;
+        right: 16px;
+        bottom: 10px;
+        text-align: center;
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--ts-text-title);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .ts-admin--wizard .ts-step.active .ts-step__label::before { font-weight: 500; color: var(--ts-text-muted); }
+    .ts-admin--wizard .ts-step[data-ts-step="1"].active .ts-step__label::before { content: "Paso 1 de 4 · "; }
+    .ts-admin--wizard .ts-step[data-ts-step="2"].active .ts-step__label::before { content: "Paso 2 de 4 · "; }
+    .ts-admin--wizard .ts-step[data-ts-step="3"].active .ts-step__label::before { content: "Paso 3 de 4 · "; }
+    .ts-admin--wizard .ts-step[data-ts-step="4"].active .ts-step__label::before { content: "Paso 4 de 4 · "; }
+
+    /* Formularios: una columna, 16px (sin zoom en iOS), ≥44px */
+    .ts-admin--wizard .ts-form-grid--2,
+    .ts-admin--wizard .ts-form-grid--3 { grid-template-columns: minmax(0, 1fr); }
+    .ts-admin--wizard .ts-field { min-width: 0; }
+    .ts-admin--wizard .ts-input,
+    .ts-admin--wizard .ts-select-field,
+    .ts-admin--wizard .ts-textarea,
+    .ts-admin--wizard input[type="date"].ts-input,
+    .ts-admin--wizard input[type="time"].ts-input {
+        font-size: 16px;
+        height: 48px;
+        min-width: 0;
+        max-width: 100%;
+        line-height: normal;
+    }
+    .ts-admin--wizard .ts-select-field { padding-right: 2.25rem; }
+    .ts-admin--wizard .ts-textarea { height: auto; min-height: 96px; }
+    .ts-admin--wizard input[type="date"].ts-input,
+    .ts-admin--wizard input[type="time"].ts-input {
+        display: block;
+        -webkit-appearance: none;
+        appearance: none;
+        text-align: left;
+    }
+    .ts-admin--wizard .ts-quote-banner { padding: 10px 12px; }
+    .ts-admin--wizard .ts-quote-banner .ts-btn { min-height: 44px; }
+
+    /* Buscadores: listas dentro del flujo (no flotan sobre el teclado ni la barra inferior) */
+    .ts-admin--wizard .client-dropdown,
+    .ts-admin--wizard .inline-product-search__dropdown,
+    .ts-admin--wizard .smp-list {
+        position: static;
+        margin-top: 6px;
+        min-width: 0;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, .08);
+    }
+    .ts-admin--wizard .client-dropdown { max-height: 50vh; }
+    .ts-admin--wizard .client-dropdown__item { min-height: 44px; padding: 12px 14px; justify-content: center; box-sizing: border-box; }
+    .ts-admin--wizard .client-dropdown__name { font-size: 15px; }
+    .ts-admin--wizard .smp { min-width: 0; }
+    .ts-admin--wizard .smp-input { font-size: 16px; min-height: 48px; padding-right: 40px; }
+    .ts-admin--wizard .smp-clear { width: 40px; height: 40px; right: 2px; }
+    .ts-admin--wizard .smp-list li { padding: 12px 12px; font-size: 15px; }
+    .ts-admin--wizard .inline-product-search__list { max-height: 50vh; }
+    .ts-admin--wizard .inline-product-search__item { min-height: 44px; }
+    .ts-admin--wizard .inline-product-search__clear { min-width: 40px; min-height: 40px; }
+    .ts-admin--wizard .inline-product-search__add-btn { min-width: 40px; min-height: 40px; }
+
+    /* Paso 2: técnicos */
+    .ts-admin--wizard .ts-tech-results { max-height: 50vh; }
+    .ts-admin--wizard .ts-tech-result-item { min-height: 48px; font-size: 15px; }
+    .ts-admin--wizard details > summary { min-height: 44px; display: flex; align-items: center; }
+    .ts-admin--wizard .ts-assigned-item { min-width: 0; }
+    .ts-admin--wizard .ts-assigned-item > div:nth-child(2) { min-width: 0; overflow-wrap: anywhere; }
+    .ts-admin--wizard .ts-remove-tech { width: 44px; height: 44px; }
+
+    /* Paso 3: cada fila de material es una tarjeta */
+    .ts-admin--wizard .ts-materials-wrap { overflow: visible !important; }
+    .ts-admin--wizard .ts-materials-table { margin-top: 12px; }
+    .ts-admin--wizard .ts-materials-table tbody { display: flex; flex-direction: column; gap: 10px; }
+    .ts-admin--wizard .ts-materials-table tbody tr {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 44px;
+        grid-template-rows: auto;
+        gap: 10px;
+        padding: 12px;
+        background: var(--ts-bg-white);
+        border: 1px solid var(--ts-border);
+        border-radius: 10px;
+    }
+    .ts-admin--wizard .ts-materials-table td { display: block; min-width: 0; padding: 0; border: none; }
+    .ts-admin--wizard .ts-materials-table td:nth-child(1) { grid-column: 1 / 3; grid-row: 1; }
+    .ts-admin--wizard .ts-materials-table td:nth-child(2) { grid-column: 1;     grid-row: 2; }
+    .ts-admin--wizard .ts-materials-table td:nth-child(3) { grid-column: 2 / 4; grid-row: 2; }
+    .ts-admin--wizard .ts-materials-table td:nth-child(4) { grid-column: 1 / -1; grid-row: 3; }
+    .ts-admin--wizard .ts-materials-table td:nth-child(5) {
+        grid-column: 3; grid-row: 1;
+        display: flex; align-items: flex-end; justify-content: center;
+    }
+    .ts-admin--wizard .ts-materials-table td:nth-child(-n+4)::before {
+        display: block;
+        margin-bottom: 4px;
+        font-size: 0.6875rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: var(--ts-text-muted);
+    }
+    .ts-admin--wizard .ts-materials-table td:nth-child(1)::before { content: "Material / descripción"; }
+    .ts-admin--wizard .ts-materials-table td:nth-child(2)::before { content: "Cantidad"; }
+    .ts-admin--wizard .ts-materials-table td:nth-child(3)::before { content: "Unidad"; }
+    .ts-admin--wizard .ts-materials-table td:nth-child(4)::before { content: "Notas"; }
+    .ts-admin--wizard .ts-mat-input { height: 44px; font-size: 16px; border-radius: 6px; box-sizing: border-box; min-width: 0; }
+    .ts-admin--wizard .ts-materials-table .ts-action-btn { width: 44px; height: 44px; }
+    .ts-admin--wizard .ts-btn-add-row {
+        width: 100%;
+        min-height: 44px;
+        justify-content: center;
+        box-sizing: border-box;
+    }
+
+    /* Paso 4: filas de confirmación */
+    .ts-admin--wizard .ts-confirm-row { flex-wrap: wrap; align-items: flex-start; gap: 2px 12px; padding: 6px 0; }
+    .ts-admin--wizard .ts-confirm-row__key { flex: 0 1 auto; min-width: 0; }
+    .ts-admin--wizard .ts-confirm-row__val { flex: 1 1 auto; min-width: 0; text-align: right; overflow-wrap: anywhere; }
+
+    /* Barra inferior fija: Atrás · Siguiente / Confirmar */
+    .ts-admin--wizard .ts-wizard-footer {
+        position: sticky;
+        bottom: 0;
+        z-index: 40;
+        display: flex;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        margin: 16px -16px 0;
+        padding: 10px 16px calc(10px + env(safe-area-inset-bottom, 0px));
+        background: var(--ts-bg-white);
+        border-top: 1px solid var(--ts-border-light);
+        box-shadow: 0 -4px 16px rgba(0, 0, 0, .06);
+    }
+    .ts-admin--wizard .ts-wizard-footer .ts-btn {
+        height: 46px;
+        min-width: 46px;
+        justify-content: center;
+        font-size: 15px;
+        white-space: nowrap;
+        box-sizing: border-box;
+    }
+    .ts-admin--wizard #ts-btn-back,
+    .ts-admin--wizard .ts-wizard-footer__back {
+        order: 1;
+        flex: 0 0 auto;
+        width: auto;
+        padding: 0 14px;
+    }
+    .ts-admin--wizard #ts-btn-back.ts-btn--ghost { border-color: var(--ts-border); color: var(--ts-text-body); }
+    .ts-admin--wizard #ts-btn-next {
+        order: 2;
+        flex: 1 1 auto;
+        min-width: 0;
+        padding: 0 12px;
+    }
+    .ts-admin--wizard .ts-wizard-footer__submit {
+        order: 2;
+        flex: 1 1 auto;
+        min-width: 0;
+        display: flex !important;
+        width: auto;
+    }
+    .ts-admin--wizard .ts-wizard-footer__submit .ts-btn { width: 100%; padding: 0 12px; }
+}
+
+/* Teléfonos angostos: "Atrás" solo con ícono (el texto queda para lectores de pantalla vía title/contexto) */
+@media (max-width: 360px) {
+    .ts-admin--wizard #ts-btn-back,
+    .ts-admin--wizard .ts-wizard-footer__back {
+        width: 46px;
+        padding: 0;
+        gap: 0;
+        font-size: 0;
+    }
+    .ts-admin--wizard #ts-btn-back svg,
+    .ts-admin--wizard .ts-wizard-footer__back svg { width: 18px; height: 18px; }
+}
+
+/* ── Modal rápido (index): hoja inferior + bloqueo de scroll de fondo ── */
+@media (max-width: 768px) {
+    .ts-overlay.ts-admin-sheet { align-items: flex-end; padding: 0; }
+    .ts-admin-sheet .ts-modal {
+        max-width: none;
+        width: 100%;
+        margin: 0;
+        max-height: 90vh;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        border-radius: 16px 16px 0 0;
+        padding: 20px 16px calc(16px + env(safe-area-inset-bottom, 0px));
+        box-sizing: border-box;
+    }
+    .ts-admin-sheet .ts-modal-close { width: 44px; height: 44px; }
+    .ts-admin-sheet .ts-modal__footer { flex-direction: column-reverse; gap: 8px; }
+    .ts-admin-sheet .ts-modal__footer .ts-btn { width: 100%; height: 46px; justify-content: center; }
+    html:has(.ts-admin-sheet.ts-overlay--open),
+    body:has(.ts-admin-sheet.ts-overlay--open),
+    body:has(.ts-admin-sheet.ts-overlay--open) .admin-main,
+    body:has(.ts-admin-sheet.ts-overlay--open) .ts-admin {
+        overflow: hidden;
+        overscroll-behavior: contain;
+    }
+}

@@ -4,9 +4,10 @@
 @push('styles')
     @vite('resources/css/service-reports.css')
 @endpush
+@include('admin.service-reports.steps._mobile')
 
 @section('content')
-<div class="sr-create-wrap sr-page-step3">
+<div class="sr-create-wrap sr-wizard-m sr-page-step3">
 
     <div style="font-size:12px; color:#6B7280; margin-bottom:16px; display:flex; align-items:center; gap:6px;">
         <a href="{{ route('admin.service-reports.index') }}" style="color:#6B7280; text-decoration:none;">Reportes</a>
@@ -18,7 +19,7 @@
         @php $stepLabels = ['Datos Generales','Mediciones / Actividades','Observaciones','Evidencia','Resumen','Firma']; @endphp
         @foreach($stepLabels as $i => $label)
             @php $n = $i + 1; $cls = $n < 3 ? 'done' : ($n === 3 ? 'active' : ''); @endphp
-            <div class="sr-step-item {{ $cls }}">
+            <div data-n="{{ $n }}" class="sr-step-item {{ $cls }}">
                 <div class="sr-step-circle">@if($n < 3) ✓ @else {{ $n }} @endif</div>
                 <span class="sr-step-label">{{ $label }}</span>
             </div>
@@ -63,7 +64,7 @@
                             {{ old('include_sampling', $report->include_sampling) ? 'checked' : '' }}>
                         <span class="sr-toggle-slider"></span>
                     </label>
-                    <span class="sr-toggle-label">Incluir datos de muestreo</span>
+                    <label class="sr-toggle-label" for="includeSampling">Incluir datos de muestreo</label>
                 </div>
 
                 <div id="samplingBlock" style="{{ old('include_sampling', $report->include_sampling) ? '' : 'display:none;' }}">
@@ -72,17 +73,17 @@
                         <div class="sr-grid-3">
                             <div class="sr-field">
                                 <label class="sr-label">Día <span class="sr-req">*</span></label>
-                                <input type="number" name="sampling_date_day" class="sr-input" min="1" max="31"
+                                <input type="number" name="sampling_date_day" class="sr-input" inputmode="numeric" min="1" max="31"
                                     value="{{ old('sampling_date_day', $report->sampling_date_day) }}" placeholder="DD">
                             </div>
                             <div class="sr-field">
                                 <label class="sr-label">Mes <span class="sr-req">*</span></label>
-                                <input type="number" name="sampling_date_month" class="sr-input" min="1" max="12"
+                                <input type="number" name="sampling_date_month" class="sr-input" inputmode="numeric" min="1" max="12"
                                     value="{{ old('sampling_date_month', $report->sampling_date_month) }}" placeholder="MM">
                             </div>
                             <div class="sr-field">
                                 <label class="sr-label">Año <span class="sr-req">*</span></label>
-                                <input type="number" name="sampling_date_year" class="sr-input" min="2000" max="2099"
+                                <input type="number" name="sampling_date_year" class="sr-input" inputmode="numeric" min="2000" max="2099"
                                     value="{{ old('sampling_date_year', $report->sampling_date_year) }}" placeholder="YYYY">
                             </div>
                         </div>

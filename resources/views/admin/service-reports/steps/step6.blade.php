@@ -4,9 +4,10 @@
 @push('styles')
     @vite('resources/css/service-reports.css')
 @endpush
+@include('admin.service-reports.steps._mobile')
 
 @section('content')
-<div class="sr-create-wrap sr-page-step6">
+<div class="sr-create-wrap sr-wizard-m sr-page-step6">
 
     <div style="font-size:12px; color:#6B7280; margin-bottom:16px; display:flex; align-items:center; gap:6px;">
         <a href="{{ route('admin.service-reports.index') }}" style="color:#6B7280; text-decoration:none;">Reportes</a>
@@ -18,7 +19,7 @@
         @php $stepLabels = ['Datos Generales','Mediciones / Actividades','Observaciones','Evidencia','Resumen','Firma']; @endphp
         @foreach($stepLabels as $i => $label)
             @php $n = $i + 1; $cls = $n < 6 ? 'done' : ($n === 6 ? 'active' : ''); @endphp
-            <div class="sr-step-item {{ $cls }}">
+            <div data-n="{{ $n }}" class="sr-step-item {{ $cls }}">
                 <div class="sr-step-circle">@if($n < 6) ✓ @else {{ $n }} @endif</div>
                 <span class="sr-step-label">{{ $label }}</span>
             </div>
@@ -79,7 +80,7 @@
                     </div>
                     <div class="sr-field">
                         <label class="sr-label" for="signature_phone">Teléfono</label>
-                        <input type="text" id="signature_phone" name="signature_phone" class="sr-input"
+                        <input type="text" id="signature_phone" name="signature_phone" class="sr-input" inputmode="tel" autocomplete="tel"
                             value="{{ old('signature_phone') }}" maxlength="30">
                     </div>
                 </div>
@@ -117,21 +118,42 @@
         ctx.lineCap     = 'round';
         ctx.lineJoin    = 'round';
     }
+    // Móvil: los navegadores disparan 'resize' al mostrar/ocultar la barra de
+    // direcciones o el teclado. Antes cada evento reasignaba el bitmap (lo que
+    // borra el canvas) aunque el tamaño no cambiara, y al girar el teléfono la
+    // firma se restauraba sin escalar (quedaba recortada). Ahora solo se
+    // redimensiona si cambia el tamaño CSS, se ignora un canvas oculto (0px) y
+    // la firma previa se reescala para que quepa completa. El dato guardado
+    // sigue siendo el mismo PNG (toDataURL) a 1 px CSS = 1 px de bitmap.
+    let lastW = 0, lastH = 0;
     function resize() {
         const w = canvas.offsetWidth;
         const h = canvas.offsetHeight || 200;
-        const saved = canvas.toDataURL();
+        if (!w || (w === lastW && h === lastH)) return;
+        const prevW = canvas.width, prevH = canvas.height;
+        const saved = hasStroke ? canvas.toDataURL() : null;
         canvas.width  = w;
         canvas.height = h;
+        lastW = w; lastH = h;
         applyCtxStyles();
-        if (hasStroke) {
+        if (saved) {
             const img = new Image();
-            img.onload = () => ctx.drawImage(img, 0, 0);
+            img.onload = () => {
+                const s = Math.min(1, w / prevW, h / prevH);
+                ctx.drawImage(img, 0, 0, prevW * s, prevH * s);
+            };
             img.src = saved;
         }
     }
     resize();
-    window.addEventListener('resize', resize);
+    let resizeTimer = null;
+    function scheduleResize() {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(resize, 150);
+    }
+    window.addEventListener('resize', scheduleResize);
+    window.addEventListener('orientationchange', scheduleResize);
+    if (window.ResizeObserver) new ResizeObserver(scheduleResize).observe(canvas);
 
     function getPos(e) {
         const rect = canvas.getBoundingClientRect();

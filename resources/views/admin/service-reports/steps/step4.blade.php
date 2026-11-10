@@ -4,9 +4,10 @@
 @push('styles')
     @vite('resources/css/service-reports.css')
 @endpush
+@include('admin.service-reports.steps._mobile')
 
 @section('content')
-<div class="sr-create-wrap sr-page-step4">
+<div class="sr-create-wrap sr-wizard-m sr-page-step4">
 
     <div style="font-size:12px; color:#6B7280; margin-bottom:16px; display:flex; align-items:center; gap:6px;">
         <a href="{{ route('admin.service-reports.index') }}" style="color:#6B7280; text-decoration:none;">Reportes</a>
@@ -18,7 +19,7 @@
         @php $stepLabels = ['Datos Generales','Mediciones / Actividades','Observaciones','Evidencia','Resumen','Firma']; @endphp
         @foreach($stepLabels as $i => $label)
             @php $n = $i + 1; $cls = $n < 4 ? 'done' : ($n === 4 ? 'active' : ''); @endphp
-            <div class="sr-step-item {{ $cls }}">
+            <div data-n="{{ $n }}" class="sr-step-item {{ $cls }}">
                 <div class="sr-step-circle">@if($n < 4) ✓ @else {{ $n }} @endif</div>
                 <span class="sr-step-label">{{ $label }}</span>
             </div>
