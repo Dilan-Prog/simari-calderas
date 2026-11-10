@@ -272,110 +272,234 @@
     background: var(--bg-light);
 }
 
+/* ============================================================
+   LISTADO DE USUARIOS — tabla única + buscador + paginación.
+   Todo va acotado bajo .users-index (clase extra en la <section> de
+   users/index.blade.php) porque .users-manager-*, .table-scroll y
+   .table-container-users-manager también los usan otros módulos.
+   ============================================================ */
+
+/* ── Barra de la tabla (buscador + filas por página) ── */
+.users-index .users-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+    flex-wrap: wrap;
+}
+.users-index .users-search {
+    flex: 1 1 280px;
+    max-width: 420px;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    height: 40px;
+    padding: 0 0.75rem;
+    background: var(--background--white, #fff);
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    color: #9ca3af;
+    box-sizing: border-box;
+    transition: border-color 0.15s, box-shadow 0.15s;
+}
+.users-index .users-search:focus-within {
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 0 3px rgba(255, 98, 19, 0.12);
+}
+.users-index .users-search input {
+    flex: 1;
+    min-width: 0;
+    border: 0;
+    outline: none;
+    background: transparent;
+    font: 400 0.875rem var(--font-family);
+    color: #111827;
+}
+.users-index .users-per-page {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.82rem;
+    color: #6b7280;
+}
+.users-index .users-per-page select {
+    height: 36px;
+    padding: 0 0.6rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    background: var(--background--white, #fff);
+    font: 500 0.82rem var(--font-family);
+    color: #374151;
+    cursor: pointer;
+}
+
+/* ── Tabla (escritorio): una sola <table>; la paginación sustituye al
+   scroll vertical interno, sólo se conserva el scroll horizontal. ── */
+.users-index .table-scroll {
+    max-height: none;
+    overflow-x: auto;
+}
+.users-index .users-manager-table th:last-child,
+.users-index .users-manager-table td.users-cell-actions {
+    width: 170px;
+}
+.users-index .users-actions {
+    gap: 8px;
+    height: auto;
+    overflow: visible;
+}
+.users-index .users-email {
+    overflow-wrap: anywhere;
+}
+.users-index .users-manager-table tbody tr.is-paged-out,
+.users-index .users-manager-table tbody tr[hidden] {
+    display: none;
+}
+.users-index .users-empty {
+    text-align: center;
+    color: #9ca3af;
+    font-size: 0.85rem;
+    padding: 32px 16px;
+}
+
+/* ── Paginación ── */
+.users-index .users-pager {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    padding: 0.9rem 0.25rem 0;
+    font-size: 0.82rem;
+    color: #6b7280;
+}
+.users-index .users-pager__info strong { color: #374151; }
+.users-index .users-pager__nav { display: flex; gap: 0.35rem; flex-wrap: wrap; }
+.users-index .users-pager__btn {
+    min-width: 34px;
+    height: 34px;
+    padding: 0 0.55rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    background: var(--background--white, #fff);
+    color: #374151;
+    font: 600 0.82rem var(--font-family);
+    cursor: pointer;
+}
+.users-index .users-pager__btn:hover:not(:disabled) { border-color: #d1d5db; background: #f9fafb; }
+.users-index .users-pager__btn.is-current {
+    background: var(--secondary-color);
+    border-color: var(--secondary-color);
+    color: #fff;
+}
+.users-index .users-pager__btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
 /* ── Responsive ─────────────────────────────────────────── */
 @media (max-width: 768px) {
-    /* ── Usuarios table → cards ── */
-    .table-container-users-manager {
+    /* Encabezado: el título envuelve; acciones a todo lo ancho */
+    .users-index .users-manager-main > div:first-child { min-width: 0; max-width: 100%; }
+    .users-index .users-manager-main h1 { overflow-wrap: anywhere; margin: 0; }
+    .users-index .users-header-actions { width: 100%; flex-wrap: nowrap; }
+    .users-index .users-header-actions .col-vis-btn { min-height: 44px; height: 44px; padding: 0 16px; width: auto; }
+    .users-index .users-header-actions #btnNewUser {
+        flex: 1 1 auto;
+        width: auto;
+        min-height: 44px;
+        white-space: nowrap;
+    }
+
+    /* Buscador */
+    .users-index .users-search { max-width: none; height: 44px; }
+    .users-index .users-search input { font-size: 16px; } /* evita el zoom automático de iOS */
+    .users-index .users-per-page select { height: 40px; }
+
+    /* Tabla -> tarjetas */
+    .users-index .table-container-users-manager {
         border: none;
+        border-radius: 0;
         box-shadow: none;
         background: transparent;
+        overflow: visible;
     }
-
-    .table-container-users-manager table,
-    .table-container-users-manager thead,
-    .table-container-users-manager tbody,
-    .table-container-users-manager tr,
-    .table-container-users-manager th,
-    .table-container-users-manager td {
-        display: block;
-        width: 100%;
-    }
-
-    .table-container-users-manager thead {
-        display: none;
-    }
-
-    .table-container-users-manager .table-scroll {
-        max-height: none;
-        overflow-x: visible;
-    }
-
-    .table-container-users-manager .table-row-user-manager {
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-        background: white;
-        border-radius: 12px;
-        border: 1px solid var(--border-color);
-        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    .users-index .table-scroll { overflow: visible; }
+    .users-index .users-manager-table { display: block; table-layout: auto; }
+    .users-index .users-manager-table thead { display: none; }
+    .users-index .users-manager-table tbody { display: grid; gap: 12px; }
+    .users-index .users-manager-table tbody tr.table-row-user-manager {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        gap: 10px;
         padding: 16px;
-        margin-bottom: 12px;
+        background: var(--background--white, #fff);
+        border: 1px solid var(--border-color, #eef0f3);
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        min-width: 0;
     }
-
-    .table-container-users-manager .table-row-user-manager td {
-        border-top: none;
+    .users-index .users-manager-table tbody tr.is-paged-out,
+    .users-index .users-manager-table tbody tr[hidden] { display: none; }
+    .users-index .users-manager-table tbody td {
+        display: block;
+        width: auto;
         padding: 0;
+        border: 0;
+        min-width: 0;
         font-size: 13px;
     }
+    /* .col-hidden (admin.css) ya es display:none !important; se repite por claridad */
+    .users-index .users-manager-table tbody td.col-hidden { display: none; }
 
-    /* display:flex explícito: la regla ".table-container-users-manager td
-       { display:block }" de arriba tiene más especificidad que la base
-       ".user-manager-table-cell { display:flex }" (ui-kit.css) y la pisaba,
-       dejando el avatar apilado sobre el nombre en vez de al lado. */
-    .table-container-users-manager .user-manager-table-cell {
+    /* Avatar + nombre + fecha, en fila (pisar el display:block de arriba) */
+    .users-index .users-manager-table tbody td.user-manager-table-cell {
         display: flex;
         align-items: center;
         gap: 10px;
     }
+    .users-index .users-manager-name-user { overflow-wrap: anywhere; }
 
-    .table-container-users-manager .table-row-user-manager td:not(:first-child) {
-        padding-top: 10px;
-        border-top: 1px solid #f3f4f6;
-    }
-
-    .table-container-users-manager .table-row-user-manager td:nth-child(2)::before {
-        content: 'Email: ';
+    .users-index .users-manager-table tbody td[data-label]::before {
+        content: attr(data-label);
+        display: block;
         font-size: 11px;
         font-weight: 600;
-        color: #9ca3af;
         text-transform: uppercase;
-        display: block;
-        margin-bottom: 2px;
-    }
-
-    .table-container-users-manager .table-row-user-manager td:nth-child(3)::before {
-        content: 'Rol: ';
-        font-size: 11px;
-        font-weight: 600;
+        letter-spacing: 0.04em;
         color: #9ca3af;
-        text-transform: uppercase;
-        display: block;
         margin-bottom: 4px;
     }
+    .users-index .users-manager-table tbody td[data-label] .users-manager-badge { display: inline-block; }
 
-    .table-container-users-manager .table-row-user-manager td:nth-child(4)::before {
-        content: 'Estado: ';
-        font-size: 11px;
-        font-weight: 600;
-        color: #9ca3af;
-        text-transform: uppercase;
-        display: block;
-        margin-bottom: 4px;
-    }
-
-    .table-container-users-manager .table-row-user-manager td:last-child {
+    /* Acciones: 3 botones grandes a todo lo ancho, separados por un borde */
+    .users-index .users-manager-table tbody td.users-cell-actions {
+        width: auto;
         padding-top: 12px;
         border-top: 1px solid #f3f4f6;
     }
-
-    .table-container-users-manager .header-right-user-manager {
-        justify-content: flex-end;
-        gap: 8px;
+    .users-index .users-actions { display: flex; gap: 8px; }
+    .users-index .users-actions .table-users-manager-action-btn {
+        flex: 1 1 0;
+        width: auto;
+        min-width: 0;
+        height: 46px;
     }
 
-    .users-manager-main .button-primary.size-adjustment {
-        width: 100%;
+    .users-index .users-manager-table tbody tr.users-empty-row,
+    .users-index .users-manager-table tbody tr.users-no-results {
+        display: block;
+        background: var(--background--white, #fff);
+        border: 1px solid var(--border-color, #eef0f3);
+        border-radius: 12px;
     }
+    .users-index .users-manager-table tbody tr.users-no-results[hidden] { display: none; }
+    .users-index .users-manager-table tbody tr.users-empty-row td,
+    .users-index .users-manager-table tbody tr.users-no-results td { padding: 24px 16px; }
+
+    /* Paginación centrada con botones más grandes */
+    .users-index .users-pager { justify-content: center; text-align: center; }
+    .users-index .users-pager__info { width: 100%; }
+    .users-index .users-pager__nav { justify-content: center; }
+    .users-index .users-pager__btn { min-width: 44px; height: 44px; }
 }
 
 @media (max-width: 480px) {

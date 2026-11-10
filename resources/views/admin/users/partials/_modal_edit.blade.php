@@ -1,19 +1,21 @@
 {{-- Edit user --}}
-<div id="editUserModal" class="user-manager-modal">
+<div id="editUserModal" class="user-manager-modal users-page-modal" role="dialog" aria-modal="true" aria-labelledby="editUserModalTitle">
     <div class="user-manager-modal-content">
         <!-- Header -->
         <div class="user-manager-modal-header">
-            <h2>Editar Usuario</h2>
-            <button class="table-users-manager-action-btn cancel" id="closeEditModal">x</button>
+            <h2 id="editUserModalTitle">Editar Usuario</h2>
+            <button type="button" class="table-users-manager-action-btn cancel" id="closeEditModal" aria-label="Cerrar">x</button>
         </div>
         <div class="user-manager-photo-container">
             <div class="user-manager-icon-container"></div>
         </div>
 
         <!-- Form Body -->
-        <div id="edit-errors-container" class="edit-errors" style="display:none;"></div>
         <form id="editUserForm" class="user-manager-modal-body" method="POST" enctype="multipart/form-data">
             @csrf
+            {{-- Zona con scroll: encabezado y botones quedan fijos (usuarios-modals.css) --}}
+            <div class="users-modal-scroll">
+            <div id="edit-errors-container" class="edit-errors" style="display:none;"></div>
             <h3>Información Personal</h3>
             <div class="user-manager-avatar-upload-container">
                 <div class="user-manager-avatar-upload">
@@ -145,6 +147,7 @@
                     </div>
                 </div>
             </div>
+            </div>{{-- /.users-modal-scroll --}}
             <div class="user-manager-modal-footer">
                 <button type="button" id="cancelEditModal"
                     class="button-secondary size-adjustment">Cancelar</button>

@@ -111,11 +111,14 @@
     // ── Helpers ─────────────────────────────────────────────
     const closeModalWithAnim = (m) => {
         const mc = m.querySelector('.user-manager-modal-content');
+        // Modal centrado (usuarios-modals.css): se desvanece en lugar de
+        // deslizarse a la derecha.
         if (mc) {
-            mc.style.transform = 'translateX(100%)';
+            mc.style.transform = 'translateY(8px) scale(0.98)';
             mc.style.transition = 'transform 0.2s ease-in';
         }
         m.style.transition = 'opacity 0.2s ease-in';
+        m.style.opacity = '0';
         setTimeout(() => {
             m.style.display = 'none';
             if (mc) {
@@ -123,6 +126,7 @@
                 mc.style.transition = '';
             }
             m.style.transition = '';
+            m.style.opacity = '';
         }, 300);
     };
 
@@ -869,6 +873,53 @@
                 `<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line>`;
         });
     });
+
+    // ── Bloqueo de scroll del fondo + Escape (celular) ───────
+    // Se observa el estado de los 4 modales (style.display en crear/editar,
+    // clase .active en ver/eliminar), así cualquier forma de abrir o cerrar
+    // —botones, clic en el fondo, Escape, tras guardar— actualiza el bloqueo
+    // sin tocar la lógica existente.
+    const isUsersModalOpen = (m) => {
+        if (!m) return false;
+        if (m === modal || m === editModal) return m.style.display === 'flex';
+        return m.classList.contains('active');
+    };
+    const usersModals = [modal, editModal, showModal, deleteModal].filter(Boolean);
+    const syncScrollLock = () => {
+        document.body.classList.toggle('users-scroll-lock', usersModals.some(isUsersModalOpen));
+    };
+    let createWasOpen = isUsersModalOpen(modal);
+    const usersModalObserver = new MutationObserver(() => {
+        syncScrollLock();
+        const createOpen = isUsersModalOpen(modal);
+        if (createOpen && !createWasOpen && createUserForm) {
+            const first = createUserForm.querySelector('input:not([type="hidden"])');
+            if (first) setTimeout(() => {
+                try { first.focus({ preventScroll: true }); } catch (_) {}
+            }, 50);
+        }
+        createWasOpen = createOpen;
+    });
+    usersModals.forEach(m => usersModalObserver.observe(m, {
+        attributes: true,
+        attributeFilter: ['style', 'class']
+    }));
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key !== 'Escape') return;
+        // Cierra solo el de arriba: eliminar > editar/crear > ver
+        if (isUsersModalOpen(deleteModal)) deleteModal.classList.remove('active');
+        else if (isUsersModalOpen(editModal)) closeModalWithAnim(editModal);
+        else if (isUsersModalOpen(modal)) closeModalWithAnim(modal);
+        else if (isUsersModalOpen(showModal)) showModal.classList.remove('active');
+    });
+
+    // Tras un error de validación del servidor, reabrir "Nuevo Usuario"
+    // para que se vean los errores (el observer aplica el bloqueo).
+    @if ($errors->any())
+        if (modal) modal.style.display = 'flex';
+    @endif
+    syncScrollLock();
 
     if (sessionStorage.getItem('userCreatedToast')) {
         sessionStorage.removeItem('userCreatedToast');

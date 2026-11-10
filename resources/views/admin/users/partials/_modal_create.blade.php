@@ -1,21 +1,11 @@
 {{-- Create user --}}
-<div id="userModal" class="user-manager-modal">
+<div id="userModal" class="user-manager-modal users-page-modal" role="dialog" aria-modal="true" aria-labelledby="userModalTitle">
     <div class="user-manager-modal-content">
         <!-- Header -->
         <div class="user-manager-modal-header">
-            <h2>Nuevo Usuario</h2>
-            <button class="table-users-manager-action-btn cancel" id="closeModal">x</button>
+            <h2 id="userModalTitle">Nuevo Usuario</h2>
+            <button type="button" class="table-users-manager-action-btn cancel" id="closeModal" aria-label="Cerrar">x</button>
         </div>
-        @if ($errors->any())
-            <div
-                style="background:#fee2e2;border:1px solid #f87171;border-radius:6px;padding:12px 16px;margin:12px 16px 0;">
-                <ul style="margin:0;padding-left:16px;color:#b91c1c;font-size:0.875rem;">
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif
         <div class="user-manager-photo-container">
             <div class="user-manager-icon-container">
             </div>
@@ -28,6 +18,18 @@
         <form id="userCreateForm" class="user-manager-modal-body" action="{{ route('admin.users.store') }}"
             method="POST" enctype="multipart/form-data" novalidate>
             @csrf
+            {{-- Zona con scroll: encabezado y botones quedan fijos (usuarios-modals.css) --}}
+            <div class="users-modal-scroll">
+                @if ($errors->any())
+                    <div
+                        style="background:#fee2e2;border:1px solid #f87171;border-radius:6px;padding:12px 16px;margin:12px 0 0;">
+                        <ul style="margin:0;padding-left:16px;color:#b91c1c;font-size:0.875rem;">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
             <h3>Información Personal</h3>
             <div class="user-manager-avatar-upload-container">
                 <div class="user-manager-avatar-upload">
@@ -173,6 +175,8 @@
                  those errors were computed and then silently dropped. Mirrors
                  #edit-errors-container from _modal_edit.blade.php for consistency. --}}
             <div id="create-user-errors" class="edit-errors" style="display:none;"></div>
+
+            </div>{{-- /.users-modal-scroll --}}
 
             <!-- BUTTON -->
             <div class="user-manager-modal-footer">
