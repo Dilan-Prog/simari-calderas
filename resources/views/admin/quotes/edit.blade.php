@@ -7,7 +7,7 @@
 @endpush
 
 @section('content')
-<div class="quotes-page">
+<div class="quotes-page quotes-page--wizard">
 
     {{-- ── Header ─────────────────────────────────────── --}}
     <header class="quotes-header">
@@ -475,6 +475,17 @@
             <button type="button" id="qwizNextBtn" class="qwiz-btn--primary">
                 Siguiente
                 <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+            </button>
+            {{-- Solo móvil (≤768px, ver admin-quotes.css): total en vivo + acción
+                 principal en la barra fija inferior del paso 4. En escritorio
+                 permanecen ocultos y se usa el botón del panel "Resumen". --}}
+            <div class="qwiz-footer__total">
+                <span class="qwiz-footer__total-label">Total</span>
+                <strong class="qwiz-footer__total-amount" id="qwizFooterTotal">$0.00</strong>
+            </div>
+            <button type="submit" class="qwiz-btn--primary qwiz-footer__submit">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                Actualizar
             </button>
         </div>
     </form>

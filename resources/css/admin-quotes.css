@@ -1482,3 +1482,346 @@
     .qwiz-btn--primary, .qwiz-btn--ghost { justify-content: center; }
 }
 
+/* ════════════════════════════════════════════
+   WIZARD — ADAPTACIÓN A TELÉFONOS (create / edit)
+   Todo va acotado a .quotes-page--wizard (solo create/edit), así que la
+   página show —que también carga este CSS— no se ve afectada.
+   Escritorio (>768px) sin cambios: los dos elementos nuevos de la barra
+   inferior (total + botón guardar) solo existen en móvil.
+════════════════════════════════════════════ */
+.qwiz-footer__total,
+.qwiz-footer__submit { display: none; }
+
+@media (max-width: 768px) {
+    /* ── Página y encabezado ── */
+    .quotes-page--wizard { padding: 16px 16px 0; }
+    .quotes-page--wizard .quotes-header { margin-bottom: 16px; }
+    .quotes-page--wizard .breadcrumb { flex-wrap: wrap; row-gap: 2px; }
+    .quotes-page--wizard .quotes-header__title { font-size: 20px; }
+    .quotes-page--wizard .quotes-header__subtitle { font-size: 13px; }
+    .quotes-page--wizard .quotes-card { padding: 16px; }
+    .quotes-page--wizard .quotes-card__header { margin-bottom: 16px; padding-bottom: 12px; }
+    .quotes-page--wizard .quotes-layout,
+    .quotes-page--wizard .quotes-main { gap: 16px; }
+
+    /* ── Barra de progreso compacta: círculos + "Paso N de 4 · Nombre" ── */
+    .quotes-page--wizard .qwiz-bar {
+        position: relative;
+        flex-wrap: nowrap;
+        justify-content: space-between;
+        padding: 12px 16px 38px;
+        margin-bottom: 16px;
+    }
+    .quotes-page--wizard .qwiz-step { gap: 0; flex-shrink: 0; }
+    .quotes-page--wizard .qwiz-step__circle { width: 28px; height: 28px; font-size: 12px; }
+    .quotes-page--wizard .qwiz-step-connector {
+        flex: 1 1 auto;
+        width: auto;
+        min-width: 8px;
+        margin: 0 6px;
+    }
+    .quotes-page--wizard .qwiz-step__label { display: none; }
+    .quotes-page--wizard .qwiz-step.active .qwiz-step__label {
+        display: block;
+        position: absolute;
+        left: 16px;
+        right: 16px;
+        bottom: 11px;
+        text-align: center;
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--aq-text);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .quotes-page--wizard .qwiz-step.active .qwiz-step__label::before {
+        font-weight: 500;
+        color: var(--aq-text-sec);
+    }
+    .quotes-page--wizard .qwiz-step[data-qwiz-step-item="1"].active .qwiz-step__label::before { content: "Paso 1 de 4 · "; }
+    .quotes-page--wizard .qwiz-step[data-qwiz-step-item="2"].active .qwiz-step__label::before { content: "Paso 2 de 4 · "; }
+    .quotes-page--wizard .qwiz-step[data-qwiz-step-item="3"].active .qwiz-step__label::before { content: "Paso 3 de 4 · "; }
+    .quotes-page--wizard .qwiz-step[data-qwiz-step-item="4"].active .qwiz-step__label::before { content: "Paso 4 de 4 · "; }
+
+    /* ── Formularios: 1 columna, 16px (evita zoom en iOS), ≥44px ── */
+    .quotes-page--wizard .form-grid { grid-template-columns: 1fr; gap: 0; }
+    .quotes-page--wizard .form-grid > .form-group { margin-bottom: 16px; }
+    .quotes-page--wizard .form-group--highlighted { padding: 12px; }
+    .quotes-page--wizard .form-group--highlighted .form-grid > .form-group:last-child { margin-bottom: 0; }
+    .quotes-page--wizard .form-label { font-size: 13px; }
+    .quotes-page--wizard .form-input,
+    .quotes-page--wizard .form-select,
+    .quotes-page--wizard .form-textarea,
+    .quotes-page--wizard .smp-input {
+        font-size: 16px;
+        min-height: 44px;
+        min-width: 0;
+        max-width: 100%;
+    }
+    .quotes-page--wizard .form-input,
+    .quotes-page--wizard .form-select { height: 44px; }
+    .quotes-page--wizard .form-textarea { min-height: 96px; }
+    .quotes-page--wizard .form-hint { font-size: 12px !important; }
+
+    /* Selector "Servicio (web)" (partial compartido): solo se ajusta aquí */
+    .quotes-page--wizard .smp,
+    .quotes-page--wizard .smp-list { min-width: 0; }
+    .quotes-page--wizard .smp-input { padding: 10px 40px 10px 12px; border-radius: var(--aq-radius-sm); }
+    .quotes-page--wizard .smp-clear { width: 40px; height: 40px; right: 2px; font-size: 22px; }
+    .quotes-page--wizard .smp-list { max-height: 50vh; }
+    .quotes-page--wizard .smp-list li { padding: 12px; font-size: 15px; }
+
+    /* Buscador de cliente: lista dentro del flujo (no flota sobre el teclado) */
+    .quotes-page--wizard .client-dropdown { max-height: 50vh; }
+    .quotes-page--wizard .client-dropdown__item { min-height: 48px; justify-content: center; padding: 10px 14px; }
+    .quotes-page--wizard .client-dropdown__name { font-size: 15px; }
+    .quotes-page--wizard .client-dropdown__company { font-size: 13px; }
+
+    /* Términos y condiciones */
+    .quotes-page--wizard .accordion-conditions__summary { min-height: 46px; font-size: 14px; }
+    .quotes-page--wizard .qterms-item { padding: 12px; gap: 12px; }
+    .quotes-page--wizard .qterms-item input[type="checkbox"] { width: 20px; height: 20px; margin-top: 1px; }
+    .quotes-page--wizard .qterms-item__title { font-size: 14px; }
+    .quotes-page--wizard .qterms-item__body { font-size: 13px; }
+    .quotes-page--wizard .qterms-more { min-height: 32px; font-size: 13px; }
+
+    /* ── Paso 3: tarjetas de tipo ── */
+    .quotes-page--wizard .qwiz-type-cards { grid-template-columns: 1fr; gap: 12px; }
+    .quotes-page--wizard .qwiz-type-card { padding: 16px; min-height: 44px; }
+    .quotes-page--wizard .qwiz-type-card:hover { transform: none; }
+
+    /* ── Paso 4: buscadores y botón "Agregar línea libre" ── */
+    .quotes-page--wizard .products-toolbar { flex-direction: column; gap: 12px; }
+    .quotes-page--wizard .btn-add-row {
+        width: 100%;
+        height: 46px;
+        justify-content: center;
+        font-size: 15px;
+    }
+    .quotes-page--wizard .inline-product-search { min-width: 0; max-width: none; width: 100%; }
+    .quotes-page--wizard .inline-product-search__input { font-size: 16px; min-height: 44px; min-width: 0; }
+    .quotes-page--wizard .inline-product-search__clear {
+        width: 40px;
+        height: 40px;
+        margin-right: -8px;
+        font-size: 15px;
+        flex-shrink: 0;
+    }
+    .quotes-page--wizard .inline-product-search__dropdown,
+    .quotes-page--wizard .inline-product-search__list { max-height: 60vh; }
+    .quotes-page--wizard .inline-product-search__item { gap: 10px; padding: 10px 6px; }
+    .quotes-page--wizard .inline-product-search__item-img { width: 44px; height: 44px; }
+    .quotes-page--wizard .inline-product-search__add-btn { width: 44px; height: 44px; border-radius: 8px; }
+
+    /* ── Líneas: la tabla se convierte en tarjetas apiladas ──
+       Las filas las genera public/js/quotes.js con <td class="col-*">; se
+       reacomodan solo con CSS (las etiquetas salen de ::before), sin tocar
+       clases, ids ni la serialización de items. */
+    .quotes-page--wizard .products-table-wrap { border: 0; border-radius: 0; overflow: visible; }
+    .quotes-page--wizard .products-table { display: block; min-width: 0; width: 100%; }
+    .quotes-page--wizard .products-table thead { display: none; }
+    .quotes-page--wizard .products-table tbody { display: flex; flex-direction: column; gap: 12px; }
+    .quotes-page--wizard .products-table tbody tr,
+    .quotes-page--wizard .products-table tbody tr:last-child {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        gap: 12px;
+        padding: 12px;
+        background: var(--aq-card-bg);
+        border: 1px solid var(--aq-border);
+        border-radius: var(--aq-radius);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, .04);
+    }
+    .quotes-page--wizard .products-table tbody tr:hover { background: var(--aq-card-bg); }
+    .quotes-page--wizard .products-table td {
+        display: block;
+        width: auto;
+        min-width: 0;
+        padding: 0;
+        text-align: left;
+    }
+    .quotes-page--wizard .products-table td.col-num   { order: 1; align-self: center; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; }
+    .quotes-page--wizard .products-table td.col-num::before { content: "Línea "; }
+    .quotes-page--wizard .products-table td.col-del   { order: 2; justify-self: end; align-self: center; }
+    .quotes-page--wizard .products-table td.col-name  { order: 3; grid-column: 1 / -1; }
+    .quotes-page--wizard .products-table td.col-sku   { order: 4; grid-column: 1 / -1; }
+    .quotes-page--wizard .products-table td.col-qty   { order: 5; }
+    .quotes-page--wizard .products-table td.col-price { order: 6; }
+    .quotes-page--wizard .products-table td.col-disc  { order: 7; }
+    .quotes-page--wizard .products-table td.col-total {
+        order: 8;
+        padding-right: 0 !important;
+        font-size: 16px;
+        line-height: 44px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    /* SKU vacío de solo lectura (servicios): no aporta nada en móvil */
+    .quotes-page--wizard .products-table td.col-sku:has(> input.sku-readonly[value=""]) { display: none; }
+
+    .quotes-page--wizard .products-table td.col-sku::before,
+    .quotes-page--wizard .products-table td.col-qty::before,
+    .quotes-page--wizard .products-table td.col-price::before,
+    .quotes-page--wizard .products-table td.col-disc::before,
+    .quotes-page--wizard .products-table td.col-total::before {
+        display: block;
+        margin-bottom: 4px;
+        font-size: 11px;
+        font-weight: 700;
+        line-height: 1.3;
+        letter-spacing: .4px;
+        text-transform: uppercase;
+        color: var(--aq-text-sec);
+    }
+    .quotes-page--wizard .products-table td.col-sku::before   { content: "SKU"; }
+    .quotes-page--wizard .products-table td.col-qty::before   { content: "Cantidad"; }
+    .quotes-page--wizard .products-table td.col-price::before { content: "Precio unit."; }
+    .quotes-page--wizard .products-table td.col-disc::before  { content: "Desc. %"; }
+    .quotes-page--wizard .products-table td.col-total::before { content: "Subtotal"; }
+
+    .quotes-page--wizard .products-table .cell-input {
+        font-size: 16px;
+        min-height: 44px;
+        padding: 10px 12px;
+        min-width: 0;
+    }
+    .quotes-page--wizard .item-name-row { gap: 8px; }
+    .quotes-page--wizard .item-desc-toggle { width: 44px; height: 44px; border-radius: var(--aq-radius-sm); }
+    .quotes-page--wizard .item-desc { min-height: 96px; font-size: 16px; }
+    .quotes-page--wizard .qform-del-btn {
+        width: 44px;
+        height: 44px;
+        border-radius: var(--aq-radius-sm);
+        border-color: var(--aq-border);
+        color: var(--aq-text-muted);
+    }
+
+    /* Fila vacía */
+    .quotes-page--wizard .products-table tbody tr.products-table-empty,
+    .quotes-page--wizard .products-table tbody tr.products-table-empty:last-child {
+        display: block;
+        padding: 0;
+        border-style: dashed;
+        box-shadow: none;
+    }
+    .quotes-page--wizard .products-table tr.products-table-empty td { padding: 28px 16px !important; text-align: center; }
+
+    /* ── Resumen ── */
+    .quotes-page--wizard .summary-panel { gap: 16px; }
+    .quotes-page--wizard .summary-totals__row { font-size: 14px; padding: 10px 0; gap: 12px; }
+    .quotes-page--wizard .discount-input { font-size: 16px; height: 44px; width: 130px; padding: 8px 10px; }
+    .quotes-page--wizard .summary-total-block { padding: 14px 16px; gap: 12px; }
+    .quotes-page--wizard .summary-total-block__amount { font-size: 24px; min-width: 0; overflow-wrap: anywhere; }
+    /* La acción principal vive en la barra inferior fija en móvil */
+    .quotes-page--wizard .summary-panel .btn-primary--full { display: none; }
+    .quotes-page--wizard .btn-cancel { height: 44px; margin-top: 4px; font-size: 14px; }
+
+    /* ── Barra inferior fija: Atrás · (Total) · Siguiente/Guardar ── */
+    .quotes-page--wizard .qwiz-footer {
+        position: sticky;
+        bottom: 0;
+        z-index: 50;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        align-items: center;
+        gap: 10px;
+        margin: 16px -16px 0;
+        padding: 10px 16px calc(10px + env(safe-area-inset-bottom, 0px));
+        background: var(--aq-card-bg);
+        border-top: 1px solid var(--aq-border);
+        box-shadow: 0 -4px 16px rgba(0, 0, 0, .06);
+    }
+    .quotes-page--wizard .qwiz-btn--primary,
+    .quotes-page--wizard .qwiz-btn--ghost {
+        height: 46px;
+        min-width: 46px;
+        justify-content: center;
+        font-size: 15px;
+        margin-left: 0;
+    }
+    .quotes-page--wizard .qwiz-btn--primary:hover { transform: none; }
+    .quotes-page--wizard #qwizBackBtn { order: 1; flex: 0 0 auto; padding: 0 14px; }
+    .quotes-page--wizard .qwiz-footer__total { order: 2; }
+    .quotes-page--wizard #qwizNextBtn,
+    .quotes-page--wizard .qwiz-footer__submit { order: 3; flex: 1 1 auto; }
+
+    /* En el paso 4 (último) aparecen total + guardar */
+    .quotes-page--wizard .qwiz-step-panel[data-qwiz-step="4"].active ~ .qwiz-footer .qwiz-footer__total {
+        display: flex;
+        flex-direction: column;
+        flex: 1 1 auto;
+        min-width: 0;
+        line-height: 1.15;
+    }
+    .quotes-page--wizard .qwiz-step-panel[data-qwiz-step="4"].active ~ .qwiz-footer .qwiz-footer__submit {
+        display: inline-flex;
+        flex: 0 0 auto;
+        padding: 0 18px;
+    }
+    /* Paso 4: "Atrás" queda solo con el ícono (el texto sigue para lectores
+       de pantalla) para dejar espacio al total */
+    .quotes-page--wizard .qwiz-step-panel[data-qwiz-step="4"].active ~ .qwiz-footer #qwizBackBtn {
+        width: 46px;
+        padding: 0;
+        gap: 0;
+        font-size: 0;
+    }
+    .quotes-page--wizard .qwiz-step-panel[data-qwiz-step="4"].active ~ .qwiz-footer #qwizBackBtn svg { width: 18px; height: 18px; }
+    .quotes-page--wizard .qwiz-footer__total-label {
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: .5px;
+        color: var(--aq-text-sec);
+    }
+    .quotes-page--wizard .qwiz-footer__total-amount {
+        font-size: 18px;
+        font-weight: 800;
+        color: var(--aq-orange);
+        font-variant-numeric: tabular-nums;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+}
+
+/* ── Modal de confirmación: hoja inferior + scroll de fondo bloqueado ── */
+@media (max-width: 640px) {
+    .quotes-page--wizard .qwiz-confirm-backdrop {
+        align-items: flex-end;
+        padding: 0;
+    }
+    .quotes-page--wizard .qwiz-confirm-modal {
+        width: 100%;
+        max-height: 90vh;
+        overflow-y: auto;
+        border-radius: 16px 16px 0 0;
+        padding: 20px 16px calc(16px + env(safe-area-inset-bottom, 0px));
+    }
+    .quotes-page--wizard .qwiz-confirm-modal p { font-size: 15px; }
+    .quotes-page--wizard .qwiz-confirm-modal__actions { flex-direction: column-reverse; gap: 8px; }
+    .quotes-page--wizard .qwiz-confirm-modal__actions .qwiz-btn--primary,
+    .quotes-page--wizard .qwiz-confirm-modal__actions .qwiz-btn--ghost {
+        width: 100%;
+        height: 46px;
+        justify-content: center;
+        margin-left: 0;
+    }
+    body:has(.quotes-page--wizard .qwiz-confirm-backdrop.active),
+    body:has(.quotes-page--wizard .qwiz-confirm-backdrop.active) .admin-main {
+        overflow: hidden;
+        overscroll-behavior: contain;
+    }
+
+    /* Listas de búsqueda (cliente / productos / servicios): dentro del flujo
+       de la página en vez de flotar, para que no queden tapadas por el
+       teclado ni por la barra inferior; la página hace scroll normal. */
+    .quotes-page--wizard .client-dropdown,
+    .quotes-page--wizard .inline-product-search__dropdown {
+        position: static;
+        margin-top: 6px;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, .08);
+    }
+}
