@@ -26,6 +26,19 @@ trait ImageUploadTrait
             $filename = uniqid() . '.' . $ext;
             $path     = $folder . '/' . $filename;
 
+            // FIX (fotos de teléfono -> error 500): GD abre la imagen completa
+            // en memoria antes de redimensionarla (~5 bytes por píxel). Una
+            // foto de cámara de 24-48 MP necesita 100-250 MB y, con el límite
+            // típico de PHP en hosting (128 MB), eso es un error FATAL de
+            // memoria que el catch de abajo no puede atrapar: tumbaba la
+            // petición completa con la página de error 500. Antes de
+            // decodificar se calcula la memoria necesaria y se sube el
+            // límite solo si hace falta; si ni así alcanza, se omite esa
+            // imagen (el llamador ya reporta las omitidas al usuario).
+            if (!$this->ensureMemoryForImage($file, $width)) {
+                continue;
+            }
+
             try {
                 Image::make($file)
                     ->resize($width, null, function ($constraint) {
@@ -47,6 +60,66 @@ trait ImageUploadTrait
         }
 
         return $paths;
+    }
+
+    /**
+     * Garantiza memoria suficiente para que GD decodifique $file y genere la
+     * versión de $width px. Devuelve false si la imagen es tan grande que no
+     * se puede procesar con seguridad (el llamador la trata como omitida).
+     */
+    private function ensureMemoryForImage($file, int $width): bool
+    {
+        $info = @getimagesize(is_string($file) ? $file : $file->getRealPath());
+        if (!$info || empty($info[0]) || empty($info[1])) {
+            // No se pudo leer el encabezado: que Intervention decida (si no
+            // la puede abrir lanza excepción y el catch la omite).
+            return true;
+        }
+
+        [$w, $h] = $info;
+        $targetH = $w > 0 ? (int) ceil($h * min(1, $width / $w)) : $h;
+        // ~5 bytes/píxel (truecolor + estructuras de GD) para el original y
+        // la copia redimensionada, más margen para el resto de la petición.
+        $needed = (int) (($w * $h + min($w, $width) * $targetH) * 5) + 48 * 1024 * 1024;
+
+        $hardCap = 1024 * 1024 * 1024; // nunca más de 1 GB
+        if ($needed > $hardCap) {
+            return false;
+        }
+
+        $limit = $this->memoryLimitBytes();
+        if ($limit < 0) {
+            return true; // sin límite
+        }
+
+        $required = memory_get_usage(true) + $needed;
+        if ($required <= $limit) {
+            return true;
+        }
+
+        $newLimit = (int) (ceil($required / (64 * 1024 * 1024)) * 64); // MB, múltiplos de 64
+        if (@ini_set('memory_limit', $newLimit . 'M') === false) {
+            return false;
+        }
+
+        return $this->memoryLimitBytes() >= $required || $this->memoryLimitBytes() < 0;
+    }
+
+    private function memoryLimitBytes(): int
+    {
+        $raw = trim((string) ini_get('memory_limit'));
+        if ($raw === '' || $raw === '-1') {
+            return -1;
+        }
+        $unit = strtolower(substr($raw, -1));
+        $num  = (float) $raw;
+
+        return (int) match ($unit) {
+            'g'     => $num * 1024 * 1024 * 1024,
+            'm'     => $num * 1024 * 1024,
+            'k'     => $num * 1024,
+            default => $num,
+        };
     }
 
     /**

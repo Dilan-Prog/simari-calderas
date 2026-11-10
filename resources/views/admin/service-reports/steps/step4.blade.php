@@ -164,6 +164,7 @@
     const previewGrid  = document.getElementById('previewGrid');
     const cameraInput  = document.getElementById('cameraInput');
     const galleryInput = document.getElementById('galleryInput');
+    const form         = document.getElementById('uploadForm');
 
     // Signed report viewed by a non-admin: the upload form isn't rendered
     // at all (read-only view), so there's nothing to wire up here.
@@ -221,10 +222,84 @@
         });
     }
 
+    // FIX (fotos desde teléfono): las fotos de cámara modernas son de 12-48 MP.
+    // El servidor las abría completas con GD para redimensionarlas y, en
+    // hosting con límite de memoria de PHP (p. ej. 128 MB), una foto de
+    // 24-48 MP agotaba la memoria -> error fatal -> página de error 500.
+    // Ahora cada imagen se reduce AQUÍ, en el navegador, a máx. 2400 px por
+    // lado en JPEG (respetando la orientación EXIF) antes de subirla: llega
+    // ligera (< 1 MB aprox.), sube rápido con datos móviles y nunca pasa el
+    // límite de 5 MB. Si el navegador no puede decodificar el archivo (raro),
+    // se envía el original y el servidor decide.
+    const MAX_SIDE = 2400;
+    const QUALITY  = 0.85;
+    const submitBtns = form ? form.querySelectorAll('button[type="submit"]') : [];
+    let pending = 0;
+
+    function setBusy(delta) {
+        pending += delta;
+        submitBtns.forEach(function (b) {
+            b.disabled = pending > 0;
+            if (pending > 0) {
+                if (!b.dataset.label) b.dataset.label = b.textContent;
+                b.textContent = 'Preparando fotos…';
+            } else if (b.dataset.label) {
+                b.textContent = b.dataset.label;
+            }
+        });
+    }
+
+    function decode(file) {
+        if (window.createImageBitmap) {
+            return createImageBitmap(file, { imageOrientation: 'from-image' })
+                .catch(function () { return createImageBitmap(file); });
+        }
+        return new Promise(function (resolve, reject) {
+            const url = URL.createObjectURL(file);
+            const img = new Image();
+            img.onload = function () { resolve(img); };
+            img.onerror = function (e) { URL.revokeObjectURL(url); reject(e); };
+            img.src = url;
+        });
+    }
+
+    function shrink(file) {
+        if (!/^image\//.test(file.type) || file.type === 'image/gif') return Promise.resolve(file);
+        return decode(file).then(function (src) {
+            const w = src.width, h = src.height;
+            const scale = Math.min(1, MAX_SIDE / Math.max(w, h));
+            // Ya es chica y ligera: se sube tal cual.
+            if (scale === 1 && file.size <= 1.5 * 1024 * 1024 && /jpe?g|png|webp/.test(file.type)) {
+                if (src.close) src.close();
+                return file;
+            }
+            const canvas = document.createElement('canvas');
+            canvas.width = Math.round(w * scale);
+            canvas.height = Math.round(h * scale);
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(src, 0, 0, canvas.width, canvas.height);
+            if (src.close) src.close();
+            return new Promise(function (resolve) {
+                canvas.toBlob(function (blob) {
+                    if (!blob) return resolve(file);
+                    const name = (file.name || 'foto').replace(/\.[^.]+$/, '') + '.jpg';
+                    resolve(new File([blob], name, { type: 'image/jpeg', lastModified: Date.now() }));
+                }, 'image/jpeg', QUALITY);
+            });
+        }).catch(function () { return file; });
+    }
+
     function addFiles(fileList) {
-        Array.from(fileList).forEach(function (f) { acc.items.add(f); });
-        syncInput();
-        renderPreviews();
+        const files = Array.from(fileList);
+        if (!files.length) return;
+        setBusy(1);
+        Promise.all(files.map(shrink)).then(function (ready) {
+            ready.forEach(function (f) { acc.items.add(f); });
+            syncInput();
+            renderPreviews();
+        }).finally(function () { setBusy(-1); });
     }
 
     input.addEventListener('change', function () {
