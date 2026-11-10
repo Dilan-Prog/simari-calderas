@@ -26,7 +26,7 @@
     "name": "sortable.esm"
   },
   "resources/css/admin-quotes.css": {
-    "file": "assets/admin-quotes-9qvIeIKG.css",
+    "file": "assets/admin-quotes-D1jRTPH4.css",
     "src": "resources/css/admin-quotes.css",
     "isEntry": true
   },
@@ -499,7 +499,7 @@
     "isEntry": true
   },
   "resources/js/admin/quote-wizard.js": {
-    "file": "assets/quote-wizard-CyHBlgge.js",
+    "file": "assets/quote-wizard-DGiFr1oG.js",
     "name": "quote-wizard",
     "src": "resources/js/admin/quote-wizard.js",
     "isEntry": true

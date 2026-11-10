@@ -223,6 +223,114 @@
     .quotes-btn-new { justify-content: center; }
     .quotes-dp-quick { display: none; }
 }
+
+/* Etiquetas de acción: solo visibles en tarjetas móviles */
+.quotes-action-label { display: none; }
+
+/* ══════════════════════════════════════════
+   MÓVIL (≤768px) — encabezado apilado, filtros a ancho completo,
+   tabla → tarjetas, selector de fechas como hoja inferior.
+══════════════════════════════════════════ */
+@media (max-width: 768px) {
+    .quotes-page { padding: 12px; gap: 14px; overflow-x: clip; min-width: 0; }
+    .quotes-page * { box-sizing: border-box; }
+
+    /* Header */
+    .quotes-header { flex-direction: column; align-items: stretch; gap: 12px; }
+    .quotes-header > div:first-child { min-width: 0; }
+    .quotes-breadcrumb { flex-wrap: wrap; }
+    .quotes-title { font-size: 22px; overflow-wrap: anywhere; }
+    .quotes-subtitle { overflow-wrap: anywhere; }
+    .quotes-header-actions { width: 100%; flex-shrink: 1 !important; }
+    .quotes-header-actions .col-vis-wrap { position: relative; flex: 0 0 auto; }
+    .quotes-header-actions .col-vis-btn { height: 44px; padding: 0 14px; font-size: 14px; border-radius: 8px; }
+    .quotes-header-actions .col-vis-menu { left: 0; top: calc(100% + 6px); max-width: calc(100vw - 24px); }
+    .quotes-btn-new { flex: 1 1 auto; min-width: 0; justify-content: center; height: auto; min-height: 44px; font-size: 14px; }
+
+    /* Filtros */
+    .quotes-filters-card { padding: 12px; }
+    .quotes-filters-grid { grid-template-columns: 1fr; gap: 10px; }
+    .quotes-filter-field:first-child { grid-column: 1; }
+    .quotes-filter-input, .quotes-filter-select { height: 44px; font-size: 16px; } /* evita el zoom de iOS */
+    .quotes-dp-trigger { height: 44px; font-size: 15px; }
+    .quotes-btn-filter { height: 44px; font-size: 14px; }
+    .quotes-active-filters { flex-wrap: wrap; }
+    .quotes-active-filters a { display: inline-flex; align-items: center; min-height: 40px; }
+
+    /* Tabla → tarjetas */
+    .quotes-table-card { background: transparent; box-shadow: none; overflow: visible; }
+    .quotes-table-scroll { overflow-x: visible; }
+    .quotes-table { display: block; min-width: 0; }
+    .quotes-table thead { display: none; }
+    .quotes-table tbody { display: grid; gap: 10px; max-height: none; overflow: visible; scrollbar-gutter: auto; }
+    .quotes-table tbody tr.quotes-row {
+        display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px 12px;
+        grid-template-areas: "folio estado" "receptor receptor" "empresa empresa" "total valido" "actions actions";
+        height: auto; padding: 12px 14px; background: #fff; border: 1px solid #EEF0F3; border-radius: 12px;
+        box-shadow: var(--shadow-sm); table-layout: auto;
+    }
+    .quotes-table tbody tr.quotes-row:last-child { border-bottom: 1px solid #EEF0F3; }
+    .quotes-table tbody tr.quotes-row:hover { background: #fff; }
+    .quotes-table tbody tr.quotes-row > td { display: block; padding: 0; min-width: 0; overflow-wrap: anywhere; }
+    .quotes-table tbody tr.quotes-row > td.col-hidden { display: none !important; }
+    .quotes-table tbody tr.quotes-row > td[data-label]::before {
+        content: attr(data-label); display: block; margin-bottom: 2px;
+        font-size: 10.5px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; color: #9CA3AF;
+    }
+    .quotes-c-folio { grid-area: folio; align-self: center; }
+    .quotes-c-folio .quotes-td-folio { font-size: 14px; display: inline-block; padding: 4px 0; }
+    .quotes-c-estado { grid-area: estado; justify-self: end; align-self: center; }
+    .quotes-c-receptor { grid-area: receptor; font-weight: 600; font-size: 15px; }
+    .quotes-table tbody tr.quotes-row > td.quotes-c-receptor::before { display: none; }
+    .quotes-c-empresa { grid-area: empresa; }
+    .quotes-c-total { grid-area: total; font-size: 16px; font-weight: 700; }
+    .quotes-c-valido { grid-area: valido; }
+    .quotes-c-actions { grid-area: actions; padding-top: 10px !important; border-top: 1px solid #F3F4F6; }
+    .quotes-actions { gap: 8px; }
+    .quotes-actions > .quotes-action-btn, .quotes-action-form { flex: 1 1 0; min-width: 0; }
+    .quotes-action-btn { width: 100%; height: 44px; gap: 6px; border: 1px solid #E5E7EB; background: #fff; color: #374151; font-size: 13px; font-weight: 500; font-family: var(--font-family); }
+    .quotes-action-btn-delete { color: #DC2626; border-color: #FECACA; }
+    .quotes-action-label { display: inline; }
+
+    .quotes-table tbody tr.quotes-empty-row { display: block; height: auto; background: #fff; border-radius: 12px; box-shadow: var(--shadow-sm); }
+    .quotes-table tbody tr.quotes-empty-row td { display: block; padding: 32px 16px; }
+
+    /* Paginación */
+    .quotes-pagination-bar { flex-direction: column; align-items: center; text-align: center; gap: 10px; padding: 12px 0 0; border-top: 0; }
+    .quotes-pagination-bar nav { justify-content: center; width: 100%; }
+    .quotes-pagination-bar .admin-pagination { justify-content: center; margin-top: 0; }
+    .quotes-pagination-bar .admin-pagination-list { flex-wrap: wrap; justify-content: center; gap: 4px; }
+    .quotes-pagination-bar .admin-pagination-btn { min-width: 40px; min-height: 40px; padding: 0 8px; }
+    .quotes-pagination-bar .admin-pagination-dots { min-width: auto; }
+
+    /* Selector de fechas: hoja inferior */
+    html.quotes-dp-locked, html.quotes-dp-locked body { overflow: hidden; }
+    .quotes-dp-overlay { align-items: flex-end; padding: 0; }
+    .quotes-dp-modal {
+        max-width: none; max-height: 92vh; max-height: 92dvh; border-radius: 16px 16px 0 0;
+        display: flex; flex-direction: column; transform: translateY(24px);
+    }
+    .quotes-dp-header { padding: 12px 16px; flex-shrink: 0; }
+    .quotes-dp-close { width: 40px; height: 40px; }
+    .quotes-dp-body { flex-direction: column; overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; min-height: 0; }
+    .quotes-dp-quick {
+        display: flex; width: auto; gap: 6px; padding: 10px 16px; border-right: 0; border-bottom: 1px solid #F3F4F6;
+        overflow-x: auto; scrollbar-width: none; flex-shrink: 0;
+    }
+    .quotes-dp-quick::-webkit-scrollbar { display: none; }
+    .quotes-dp-quick-label { display: none; }
+    .quotes-dp-quick-btn { flex: 0 0 auto; width: auto; white-space: nowrap; margin: 0; min-height: 36px; padding: 8px 12px; border: 1px solid #E5E7EB; background: #fff; border-radius: 999px; font-size: 13px; }
+    .quotes-dp-calendars { padding: 12px 16px; }
+    .quotes-dp-nav-btn { width: 40px; height: 40px; }
+    .quotes-dp-month-title { font-size: 14px; }
+    .quotes-dp-day-cell { height: 42px; }
+    .quotes-dp-day-btn { width: 100%; max-width: 44px; height: 40px; font-size: 14px; }
+    .quotes-dp-footer { flex-shrink: 0; flex-direction: column; align-items: stretch; gap: 10px; padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); }
+    .quotes-dp-footer-dates { width: 100%; }
+    .quotes-dp-date-box { flex: 1 1 0; min-width: 0; font-size: 13px; }
+    .quotes-dp-footer-actions { width: 100%; }
+    .quotes-dp-footer-actions button { flex: 1 1 0; min-width: 0; height: 44px; font-size: 14px; padding: 0 8px; }
+}
 </style>
 @endpush
 
@@ -240,7 +348,7 @@
             <h1 class="quotes-title">Gestión de Cotizaciones</h1>
             <p class="quotes-subtitle">Crea y administra cotizaciones para tus clientes</p>
         </div>
-        <div style="display:flex; align-items:center; gap:8px; flex-shrink:0;">
+        <div class="quotes-header-actions" style="display:flex; align-items:center; gap:8px; flex-shrink:0;">
             @include('admin.components._column_visibility_menu', [
                 'tableKey' => 'quotes.index',
                 'columnDefs' => [
@@ -307,7 +415,7 @@
 
     @php $hasQuoteFilters = request()->hasAny(['search','status','date_from','date_to']) && collect(request()->only(['search','status','date_from','date_to']))->filter()->isNotEmpty(); @endphp
     @if($hasQuoteFilters)
-    <div id="quotes-active-filters" style="display:flex;align-items:center;gap:12px;margin:10px 2px;font-size:13px;color:#4B5563;">
+    <div id="quotes-active-filters" class="quotes-active-filters" style="display:flex;align-items:center;gap:12px;margin:10px 2px;font-size:13px;color:#4B5563;">
         <span><strong>{{ $quotes->total() }}</strong> {{ $quotes->total() === 1 ? 'resultado' : 'resultados' }}</span>
         <a href="{{ route('admin.quotes.index') }}" style="color:#ff6213;text-decoration:none;">Limpiar filtros</a>
     </div>
@@ -330,12 +438,12 @@
                 </thead>
                 <tbody>
                     @forelse($quotes as $quote)
-                    <tr>
-                        <td><a href="{{ route('admin.quotes.show', $quote) }}" class="quotes-td-folio">{{ $quote->quote_number }}</a></td>
-                        <td class="quotes-td-receptor" data-col="receptor">{{ $quote->guest_name }}</td>
-                        <td class="quotes-td-empresa" data-col="empresa">{{ $quote->guest_company ?? '—' }}</td>
-                        <td class="quotes-td-total" data-col="total">{{ $quote->currency }} ${{ number_format($quote->total, 2) }}</td>
-                        <td data-col="estado">
+                    <tr class="quotes-row">
+                        <td class="quotes-c-folio"><a href="{{ route('admin.quotes.show', $quote) }}" class="quotes-td-folio">{{ $quote->quote_number }}</a></td>
+                        <td class="quotes-td-receptor quotes-c-receptor" data-col="receptor" data-label="Receptor">{{ $quote->guest_name }}</td>
+                        <td class="quotes-td-empresa quotes-c-empresa" data-col="empresa" data-label="Empresa">{{ $quote->guest_company ?? '—' }}</td>
+                        <td class="quotes-td-total quotes-c-total" data-col="total" data-label="Total">{{ $quote->currency }} ${{ number_format($quote->total, 2) }}</td>
+                        <td class="quotes-c-estado" data-col="estado">
                             @php
                                 $badgeMap = [
                                     'draft'    => ['class' => 'quotes-badge-draft',    'label' => 'Borrador'],
@@ -348,21 +456,24 @@
                             @endphp
                             <span class="quotes-badge {{ $badge['class'] }}">{{ $badge['label'] }}</span>
                         </td>
-                        <td class="quotes-td-fecha" data-col="valido_hasta">{{ $quote->valid_until ? $quote->valid_until->format('d M Y') : '—' }}</td>
-                        <td>
+                        <td class="quotes-td-fecha quotes-c-valido" data-col="valido_hasta" data-label="Válido hasta">{{ $quote->valid_until ? $quote->valid_until->format('d M Y') : '—' }}</td>
+                        <td class="quotes-c-actions">
                             <div class="quotes-actions">
                                 <a href="{{ route('admin.quotes.show', $quote) }}" class="quotes-action-btn" title="Ver">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/></svg>
+                                    <span class="quotes-action-label">Ver</span>
                                 </a>
                                 @if($quote->isEditable())
                                 <a href="{{ route('admin.quotes.edit', $quote) }}" class="quotes-action-btn" title="Editar">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/></svg>
+                                    <span class="quotes-action-label">Editar</span>
                                 </a>
                                 @endif
-                                <form method="POST" action="{{ route('admin.quotes.destroy', $quote) }}" onsubmit="return confirm('¿Cancelar esta cotización?')">
+                                <form method="POST" action="{{ route('admin.quotes.destroy', $quote) }}" class="quotes-action-form" onsubmit="return confirm('¿Cancelar esta cotización?')">
                                     @csrf @method('DELETE')
                                     <button type="submit" class="quotes-action-btn quotes-action-btn-delete" title="Cancelar">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
+                                        <span class="quotes-action-label">Cancelar</span>
                                     </button>
                                 </form>
                             </div>
@@ -528,6 +639,8 @@
     /* ── open / close ──────────────────────── */
     function openModal() {
         document.getElementById('datePickerOverlay').classList.add('quotes-dp-open');
+        // Bloquea el scroll de fondo (solo surte efecto en móvil, ver CSS ≤768px).
+        document.documentElement.classList.add('quotes-dp-locked');
         renderCalendars();
         updateFooter();
         updateApplyBtn();
@@ -535,6 +648,7 @@
 
     function closeModal() {
         document.getElementById('datePickerOverlay').classList.remove('quotes-dp-open');
+        document.documentElement.classList.remove('quotes-dp-locked');
         state.hoverDate = null;
     }
 

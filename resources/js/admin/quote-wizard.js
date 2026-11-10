@@ -105,11 +105,26 @@
         if (stepNumber === 4) applyTypeFilter();
     }
 
+    // ── Móvil: refleja el total del panel "Resumen" (#displayTotal, que
+    // calcula quotes.js) en la barra fija inferior (#qwizFooterTotal).
+    // Solo lectura: no toca la lógica de cálculo.
+    function initFooterTotal() {
+        var source = q('displayTotal');
+        var target = q('qwizFooterTotal');
+        if (!source || !target) return;
+        function sync() { target.textContent = source.textContent; }
+        sync();
+        if (window.MutationObserver) {
+            new MutationObserver(sync).observe(source, { childList: true, characterData: true, subtree: true });
+        }
+    }
+
     document.addEventListener('DOMContentLoaded', function () {
         if (!document.getElementById('quoteForm') && !document.getElementById('quoteEditForm')) return;
         if (!window.AdminWizard) return;
 
         initTypeCards();
+        initFooterTotal();
 
         window.AdminWizard.init({
             totalSteps: 4,

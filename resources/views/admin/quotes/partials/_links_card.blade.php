@@ -1,7 +1,7 @@
 {{-- Tarjeta "Vínculos" de la cotización: Proyecto + Servicio ID. Vars: $quote --}}
 @push('styles')
 <style>
-    .ql-card { margin-top: 16px; display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 14px; max-width: 900px; }
+    .ql-card { margin-top: 16px; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr)); gap: 14px; max-width: 900px; }
     .ql-field { min-width: 0; padding: 14px 16px 16px; background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; box-shadow: 0 1px 2px rgba(16, 24, 40, .04); }
     .ql-label { display: flex; align-items: center; gap: 6px; margin-bottom: 10px; font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: #6b7280; }
     .ql-label svg { color: var(--aq-orange, #ff6213); flex: none; }
@@ -29,7 +29,11 @@
     .ql-field .smp-list li:hover, .ql-field .smp-list li.is-active { background: #fff7ed; }
     .ql-field .smp-status { min-height: 0; margin-top: 6px; }
     @media (max-width: 640px) {
-        .ql-card { grid-template-columns: 1fr; }
+        .ql-card { grid-template-columns: 1fr; max-width: 100%; }
+        .ql-field { padding: 12px 14px 14px; }
+        .ql-control, .ql-btn, .ql-field .smp-input { height: 44px; font-size: 16px; }
+        .ql-chip { min-height: 36px; }
+        .ql-linkbtn { min-height: 44px; align-items: center; margin-top: 4px; }
         .ql-row { flex-wrap: wrap; }
         .ql-btn { flex: 1 0 100%; }
     }
