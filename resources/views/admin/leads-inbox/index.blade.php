@@ -1,12 +1,20 @@
 @extends('admin.layouts.master')
 @section('title')
-    Bandeja de leads - Admin
+    {{ ($inbox ?? 'entrada') === 'correo' ? 'Inbox de correo' : 'Inbox de entrada' }} - Admin
 @endsection
 @push('styles')
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&display=swap">
     @vite(['resources/css/admin/pages/erp-core.css', 'resources/css/admin/pages/erp-crm.css'])
+    <style>
+        /* Cambio entre Inbox de entrada e Inbox de correo (mismo estilo que el selector Bandeja/Embudo). */
+        .lw-inboxes { display: inline-flex; background: var(--erp-neu-bg); border-radius: 8px; padding: 3px; gap: 2px; }
+        .lw-inboxes a { display: inline-flex; align-items: center; gap: 6px; height: 30px; padding: 0 12px; border-radius: 6px; font-size: 13px; font-weight: 700; color: var(--erp-text); text-decoration: none; }
+        .lw-inboxes a.is-on { background: var(--erp-accent); color: #fff; }
+        .lw-inboxes a b { min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px; background: var(--erp-acc, #c81e1e); color: #fff; font-size: 11px; line-height: 18px; text-align: center; }
+        .lw-inboxes a.is-on b { background: #fff; color: var(--erp-accent-dark, #c4480a); }
+    </style>
 @endpush
 @push('scripts')
     @vite(['resources/js/admin/erp-crm.js', 'resources/js/admin/hot-highlight.js'])
@@ -14,7 +22,12 @@
 @section('content')
     @php
         $isBoard = ($view ?? 'bandeja') === 'embudo';
+        $inbox = $inbox ?? 'entrada';
+        $isMailInbox = $inbox === 'correo';
+        $inboxTitle = $isMailInbox ? 'Inbox de correo' : 'Inbox de entrada';
         $query = request()->query();
+        // La bandeja activa viaja en todos los enlaces y formularios (aunque se haya deducido de ?lead=).
+        $query['inbox'] = $inbox;
         // URL de la bandeja conservando los parametros actuales; $drop los quita, $set los fija.
         $inboxUrl = function (array $set = [], array $drop = []) use ($query) {
             $params = array_merge(\Illuminate\Support\Arr::except($query, $drop), $set);
@@ -78,7 +91,16 @@
         @endif
 
         <header class="lw-top">
-            <h1 class="lw-title">Bandeja de leads</h1>
+            <h1 class="lw-title">{{ $inboxTitle }}</h1>
+            {{-- Cambio rápido entre las dos bandejas (también están en el menú Ventas > Bandeja de leads). --}}
+            <nav class="lw-inboxes" aria-label="Bandejas">
+                @foreach (['entrada' => 'Entrada', 'correo' => 'Correo'] as $ik => $il)
+                    <a class="{{ $inbox === $ik ? 'is-on' : '' }}" href="{{ route('admin.leads-inbox.index', ['inbox' => $ik]) }}" @if ($inbox === $ik) aria-current="page" @endif>
+                        {{ $il }}
+                        @if (($inboxCounts[$ik]['nuevos'] ?? 0) > 0)<b title="Sin atender">{{ $inboxCounts[$ik]['nuevos'] }}</b>@endif
+                    </a>
+                @endforeach
+            </nav>
             <div class="lw-toggle" role="tablist" aria-label="Vista">
                 <a class="{{ ! $isBoard ? 'is-on' : '' }}" href="{{ $inboxUrl(['view' => 'bandeja'], ['lead']) }}" role="tab" aria-selected="{{ $isBoard ? 'false' : 'true' }}">Bandeja</a>
                 <a href="{{ route('admin.whatsapp-funnel.index') }}" role="tab" aria-selected="false" title="Ir al Embudo de Venta">Embudo</a>
@@ -94,7 +116,7 @@
                     <label class="erp-field">Origen
                         <select class="erp-select" name="source">
                             @foreach (\App\Models\Lead::SOURCES as $k => $label)
-                                <option value="{{ $k }}" @selected($k === 'manual')>{{ $label }}</option>
+                                <option value="{{ $k }}" @selected($k === ($isMailInbox ? 'correo' : 'manual'))>{{ $label }}</option>
                             @endforeach
                         </select>
                     </label>
@@ -123,13 +145,14 @@
         <div class="lw">
             {{-- ───────── Panel izquierdo: lista ───────── --}}
             <aside class="lw-list" aria-label="Leads">
+                {{-- Canales solo en la bandeja de entrada; en la de correo todo es correo. --}}
+                @unless ($isMailInbox)
                 <div class="lw-tiles">
                     @php
                         $tiles = [
                             [null, 'Todos', $channels['todos'] ?? 0],
                             ['whatsapp', 'WhatsApp', $channels['whatsapp'] ?? 0],
                             ['llamada', 'Llamadas', $channels['llamada'] ?? 0],
-                            ['correo', 'Correo', $channels['correo'] ?? 0],
                             ['formulario', 'Formulario', $channels['formulario'] ?? 0],
                         ];
                     @endphp
@@ -145,6 +168,7 @@
                         </a>
                     @endforeach
                 </div>
+                @endunless
 
                 <form method="GET" action="{{ route('admin.leads-inbox.index') }}" class="lw-search" role="search">
                     @foreach (\Illuminate\Support\Arr::except($query, ['q', 'lead', 'page']) as $k => $v)

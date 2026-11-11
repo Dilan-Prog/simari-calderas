@@ -32,13 +32,32 @@ class LeadInboxController extends Controller
     }
 
     /**
+     * Bandeja activa: ?inbox=entrada|correo. Si no viene (avisos, redirecciones que solo traen ?lead=),
+     * se deduce del origen de ese lead para que la lista y el menú queden en la bandeja correcta.
+     */
+    private function inboxFor(Request $request): string
+    {
+        $given = $request->input('inbox');
+        if (in_array($given, [Lead::INBOX_ENTRADA, Lead::INBOX_CORREO], true)) {
+            return $given;
+        }
+        if ($request->filled('lead')) {
+            return Lead::inboxOf(Lead::whereKey((int) $request->input('lead'))->value('source'));
+        }
+
+        return Lead::INBOX_ENTRADA;
+    }
+
+    /**
      * @param bool $withStatus false para el tablero (las columnas ya son por estado)
      */
     private function filtered(Request $request, bool $withStatus = true, bool $withChip = true)
     {
-        $q = Lead::query()->with(['assignee', 'customer']);
+        $inbox = $this->inboxFor($request);
+        $q = Lead::query()->with(['assignee', 'customer'])->inbox($inbox);
 
-        if ($request->filled('source')) {
+        // Los canales (WhatsApp, llamadas, formulario) solo existen en la bandeja de entrada.
+        if ($request->filled('source') && $inbox === Lead::INBOX_ENTRADA) {
             $q->where('source', $request->source);
         }
         if ($withStatus) {
@@ -83,6 +102,9 @@ class LeadInboxController extends Controller
     public function index(Request $request)
     {
         $view = $request->input('view') === 'embudo' ? 'embudo' : 'bandeja';
+        $inbox = $this->inboxFor($request);
+        // El menú lateral lo lee para resaltar la bandeja correcta aunque la URL solo traiga ?lead=.
+        $request->attributes->set('leads_inbox', $inbox);
 
         $leads = $this->filtered($request)->orderByDesc('last_activity_at')->orderByDesc('id')->limit(60)->get();
         $this->attachPreviews($leads);
@@ -117,24 +139,24 @@ class LeadInboxController extends Controller
             $nextTask = $openTasks->first();
         }
 
-        $bySource = Lead::open()->selectRaw('source, count(*) as c')->groupBy('source')->pluck('c', 'source');
+        $bySource = Lead::inbox($inbox)->open()->selectRaw('source, count(*) as c')->groupBy('source')->pluck('c', 'source');
+        // Conteos de la bandeja activa. «correo» ya no es un canal de la entrada: tiene su propia bandeja.
         $channels = [
             'todos'      => (int) $bySource->sum(),
             'whatsapp'   => (int) ($bySource['whatsapp'] ?? 0),
             'llamada'    => (int) ($bySource['llamada'] ?? 0),
-            'correo'     => (int) ($bySource['correo'] ?? 0),
             'formulario' => (int) ($bySource['formulario'] ?? 0),
         ];
 
         $uid = $request->user()?->id ?? 0;
         $chipCounts = [
             'todos'       => $channels['todos'],
-            'sin_atender' => Lead::where('status', 'nuevo')->count(),
-            'mios'        => Lead::open()->where('assigned_to', $uid)->count(),
-            'sin_asignar' => Lead::open()->whereNull('assigned_to')->count(),
+            'sin_atender' => Lead::inbox($inbox)->where('status', 'nuevo')->count(),
+            'mios'        => Lead::inbox($inbox)->open()->where('assigned_to', $uid)->count(),
+            'sin_asignar' => Lead::inbox($inbox)->open()->whereNull('assigned_to')->count(),
         ];
 
-        $times = Lead::whereNotNull('first_contact_at')->where('created_at', '>=', now()->subDays(30))
+        $times = Lead::inbox($inbox)->whereNotNull('first_contact_at')->where('created_at', '>=', now()->subDays(30))
             ->get(['created_at', 'first_contact_at'])
             ->map(fn ($l) => max(0, $l->created_at->diffInMinutes($l->first_contact_at, false)));
         $kpis = [
@@ -144,6 +166,17 @@ class LeadInboxController extends Controller
 
         return view('admin.leads-inbox.index', [
             'view'       => $view,
+            'inbox'      => $inbox,
+            'inboxCounts' => [
+                Lead::INBOX_ENTRADA => [
+                    'abiertos' => Lead::inbox(Lead::INBOX_ENTRADA)->open()->count(),
+                    'nuevos'   => Lead::inbox(Lead::INBOX_ENTRADA)->where('status', 'nuevo')->count(),
+                ],
+                Lead::INBOX_CORREO => [
+                    'abiertos' => Lead::inbox(Lead::INBOX_CORREO)->open()->count(),
+                    'nuevos'   => Lead::inbox(Lead::INBOX_CORREO)->where('status', 'nuevo')->count(),
+                ],
+            ],
             'chips'      => $this->activeChips($request),
             'leads'      => $leads,
             'selected'   => $selected,

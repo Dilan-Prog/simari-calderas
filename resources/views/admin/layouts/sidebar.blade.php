@@ -608,7 +608,8 @@
                 @endif
 
 
-                @include('admin.layouts.partials.sidebar-erp-item', ['perm' => 'leads-inbox'])
+                {{-- Bandeja de leads dividida: Inbox de entrada (WhatsApp, etc.) e Inbox de correo --}}
+                @include('admin.layouts.partials.sidebar-leads-inbox')
 
                 @include('admin.layouts.partials.sidebar-erp-item', ['perm' => 'google-conversions'])
 

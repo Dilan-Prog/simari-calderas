@@ -25,6 +25,10 @@ class Lead extends Model
         'manual'     => 'Manual',
     ];
 
+    /** Las dos bandejas del menú Ventas > Bandeja de leads. */
+    public const INBOX_ENTRADA = 'entrada';
+    public const INBOX_CORREO = 'correo';
+
     public const STATUSES = [
         'nuevo'      => 'Nuevo',
         'contactado' => 'Contactado',
@@ -121,6 +125,22 @@ class Lead extends Model
     public function scopeOpen($query)
     {
         return $query->whereIn('status', self::OPEN_STATUSES);
+    }
+
+    /**
+     * Bandeja a la que pertenece un lead: «entrada» (WhatsApp, llamadas, formularios, manuales y lo que
+     * se integre después) o «correo» (los que llegaron por correo). Juntas cubren todos los leads.
+     */
+    public function scopeInbox($query, string $inbox)
+    {
+        return $inbox === self::INBOX_CORREO
+            ? $query->where('source', 'correo')
+            : $query->where(fn ($q) => $q->where('source', '!=', 'correo')->orWhereNull('source'));
+    }
+
+    public static function inboxOf(?string $source): string
+    {
+        return $source === 'correo' ? self::INBOX_CORREO : self::INBOX_ENTRADA;
     }
 
     public function isOpen(): bool

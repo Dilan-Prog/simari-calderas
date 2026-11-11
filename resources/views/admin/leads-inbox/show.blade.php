@@ -20,7 +20,7 @@
             :subtitle="'Lead #' . $lead->id . ' · ' . $lead->source_label"
             :status="$lead->status_label"
             :tone="$lead->status_tone"
-            :back="route('admin.leads-inbox.index')"
+            :back="route('admin.leads-inbox.index', ['inbox' => \App\Models\Lead::inboxOf($lead->source)])"
             eyebrow="BANDEJA DE LEADS · VTA1"
             :facts="[
                 ['label' => 'Teléfono', 'value' => \App\Support\PhoneFormat::pretty($lead->contact_phone)],

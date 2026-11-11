@@ -108,7 +108,10 @@ class LeadWorkspaceTest extends TestCase
         // Sin nada
         $empty = $this->lead();
 
-        $leads = $this->data(['todos' => 1], 'leads')->keyBy('id');
+        // Las dos bandejas (entrada y correo) juntas cubren todos los leads.
+        $leads = $this->data(['todos' => 1, 'inbox' => 'entrada'], 'leads')
+            ->merge($this->data(['todos' => 1, 'inbox' => 'correo'], 'leads'))
+            ->keyBy('id');
 
         $this->assertStringContainsString('Hola, quiero una caldera', $leads[$wa->id]->preview);
         $this->assertStringContainsString('boiler', $leads[$mail->id]->preview);
@@ -131,11 +134,18 @@ class LeadWorkspaceTest extends TestCase
         $this->lead(['source' => 'formulario', 'status' => 'descartado']);
         $this->lead(['source' => 'llamada', 'status' => 'convertido']);
 
-        $res = $this->data(['source' => 'correo']); // los conteos ignoran los filtros
-        $this->assertSame(['todos' => 3, 'whatsapp' => 2, 'llamada' => 0, 'correo' => 1, 'formulario' => 0], $res->viewData('channels'));
-        $this->assertSame(['todos' => 3, 'sin_atender' => 2, 'mios' => 1, 'sin_asignar' => 2], $res->viewData('chipCounts'));
-        $this->assertSame(2, $res->viewData('kpis')['sin_atender']);
+        // Inbox de entrada (todo menos el correo); los conteos ignoran los filtros.
+        $res = $this->data(['inbox' => 'entrada', 'source' => 'whatsapp']);
+        $this->assertSame(['todos' => 2, 'whatsapp' => 2, 'llamada' => 0, 'formulario' => 0], $res->viewData('channels'));
+        $this->assertSame(['todos' => 2, 'sin_atender' => 1, 'mios' => 1, 'sin_asignar' => 1], $res->viewData('chipCounts'));
+        $this->assertSame(1, $res->viewData('kpis')['sin_atender']);
         $this->assertSame(30, $res->viewData('kpis')['primera_respuesta_min']);
+
+        // Inbox de correo: solo el lead de correo.
+        $mail = $this->data(['inbox' => 'correo']);
+        $this->assertSame(['todos' => 1, 'sin_atender' => 1, 'mios' => 0, 'sin_asignar' => 1], $mail->viewData('chipCounts'));
+        $this->assertSame(1, $mail->viewData('kpis')['sin_atender']);
+        $this->assertNull($mail->viewData('kpis')['primera_respuesta_min']);
     }
 
     public function test_embudo_tiene_cuatro_columnas_con_totales(): void
@@ -148,14 +158,14 @@ class LeadWorkspaceTest extends TestCase
 
         $this->assertSame([], $this->data([], 'board'));
 
-        $board = $this->data(['view' => 'embudo'], 'board');
+        $board = $this->data(['view' => 'embudo', 'inbox' => 'entrada'], 'board');
         $this->assertSame(['nuevo', 'contactado', 'calificado', 'convertido'], array_column($board, 'status'));
         $this->assertSame(['Nuevo', 'Contactado', 'Calificado', 'Convertido'], array_column($board, 'label'));
-        $this->assertSame([2, 1, 0, 1], array_column($board, 'total'));
-        $this->assertCount(2, $board[0]['leads']);
+        $this->assertSame([1, 1, 0, 1], array_column($board, 'total'));
+        $this->assertCount(1, $board[0]['leads']);
         $this->assertTrue($board[0]['leads']->first()->preview !== null);
 
-        $filtered = $this->data(['view' => 'embudo', 'source' => 'correo'], 'board');
+        $filtered = $this->data(['view' => 'embudo', 'inbox' => 'correo'], 'board');
         $this->assertSame([1, 0, 0, 0], array_column($filtered, 'total'));
         $this->assertSame('embudo', $this->data(['view' => 'embudo'], 'view'));
     }
