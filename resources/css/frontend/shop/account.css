@@ -603,6 +603,16 @@
 .eq-shop-account .address-card__lines { font-size: 13px; color: #4b5563; line-height: 1.6; }
 .eq-shop-account .address-card__actions { display: flex; gap: 14px; margin-top: 14px; }
 .eq-shop-account .address-card__actions .auth-link { font-size: 12.5px; font-weight: 700; }
+/* Botones: Editar naranja y Eliminar rojo, texto blanco. */
+.eq-shop-account .address-card__actions .auth-link {
+    display: inline-flex; align-items: center; justify-content: center;
+    padding: 6px 14px; border-radius: 8px; line-height: 1.2;
+    background: var(--secondary-color); color: #fff;
+}
+.eq-shop-account .address-card__actions .auth-link:hover { background: #de4a00; color: #fff; }
+.eq-shop-account .address-card__actions .auth-link--danger { background: #c81e1e; color: #fff; }
+.eq-shop-account .address-card__actions .auth-link--danger:hover { background: #a81616; color: #fff; }
+@media (max-width: 640px) { .eq-shop-account .address-card__actions .auth-link { min-height: 36px; padding: 8px 16px; } }
 
 /* Tarjetas bancarias */
 .eq-shop-account .card-grid {

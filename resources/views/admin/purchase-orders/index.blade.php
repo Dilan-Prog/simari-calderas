@@ -6,6 +6,7 @@
     Órdenes de Compra - Admin
 @endsection
 @section('content')
+<x-erp.datagrid-assets />
 <div class="container user-manager po-index">
 <section class="clients-manager-section">
 
@@ -19,16 +20,6 @@
             <p class="breadcrumb-clients-manager">Gestiona las órdenes de compra a proveedores</p>
         </div>
         <div class="po-head-tools" style="display:flex; align-items:center; gap:10px;">
-            @include('admin.components._column_visibility_menu', [
-                'tableKey' => 'purchase-orders.index',
-                'columnDefs' => [
-                    'proveedor' => 'Proveedor',
-                    'productos' => 'Productos',
-                    'total' => 'Total',
-                    'estado' => 'Estado',
-                    'fecha' => 'Fecha',
-                ],
-            ])
             @permiso('purchase-orders','create')
             <a href="{{ route('admin.purchase-orders.create') }}"
                 class="button-primary size-adjustment po-new-btn"
@@ -139,21 +130,19 @@
 
     {{-- Table --}}
     <main class="table-container-clients-manager">
-        <table class="clients-manager-table brand-table">
-            <thead>
-                <tr>
-                    <th>FOLIO</th>
-                    <th data-col="proveedor">PROVEEDOR</th>
-                    <th data-col="productos">PRODUCTOS</th>
-                    <th data-col="total">TOTAL</th>
-                    <th data-col="estado">ESTADO</th>
-                    <th data-col="fecha">FECHA</th>
-                    <th>ACCIONES</th>
-                </tr>
-            </thead>
-        </table>
         <div class="table-scroll">
-            <table class="clients-manager-table po-list">
+            <table class="clients-manager-table po-list" data-dg="finanzas-ordenes-compra" data-dg-noun="órdenes de compra" data-dg-search="#poSearch" data-dg-sum-label="{{ $orders->hasPages() ? 'Total de esta página' : 'Total general' }}">
+                <thead>
+                <tr>
+                    <th data-dg-key="folio" data-dg-type="text">FOLIO</th>
+                    <th data-col="proveedor" data-dg-key="proveedor" data-dg-type="list">PROVEEDOR</th>
+                    <th data-col="productos" data-dg-key="productos" data-dg-type="num">PRODUCTOS</th>
+                    <th data-col="total" data-dg-key="total" data-dg-type="num" data-dg-sum>TOTAL</th>
+                    <th data-col="estado" data-dg-key="estado" data-dg-type="list">ESTADO</th>
+                    <th data-col="fecha" data-dg-key="fecha" data-dg-type="date">FECHA</th>
+                    <th data-dg-skip>ACCIONES</th>
+                </tr>
+                </thead>
                 <tbody>
                 @forelse ($orders as $order)
                     @php
@@ -164,30 +153,30 @@
                             default    => ['label' => 'Pendiente',  'color' => '#d97706', 'bg' => '#fffbeb', 'border' => '#d9780640'],
                         };
                     @endphp
-                    <tr class="po-row" style="border-bottom:1px solid #f1f5f9;"
+                    <tr class="po-row" data-dg-row style="border-bottom:1px solid #f1f5f9;"
                         data-search="{{ strtolower($order->po_number . ' ' . $order->supplier->company_name) }}"
                         data-status="{{ $order->status }}">
-                        <td class="po-c-folio" style="padding:14px 16px;">
+                        <td class="po-c-folio" style="padding:14px 16px;" data-dg-v="{{ $order->po_number }}">
                             <p style="margin:0;font-weight:700;color:#ff6213;font-size:14px;">
                                 {{ $order->po_number }}
                             </p>
                         </td>
-                        <td class="po-c-proveedor" style="padding:14px 16px;" data-col="proveedor" data-label="Proveedor">
+                        <td class="po-c-proveedor" style="padding:14px 16px;" data-col="proveedor" data-label="Proveedor" data-dg-v="{{ strtoupper($order->supplier->company_name) }}">
                             <p style="margin:0;font-weight:600;font-size:14px;color:#111827;">
                                 {{ strtoupper($order->supplier->company_name) }}
                             </p>
                         </td>
-                        <td class="po-c-productos" style="padding:14px 16px;" data-col="productos" data-label="Productos">
+                        <td class="po-c-productos" style="padding:14px 16px;" data-col="productos" data-label="Productos" data-dg-v="{{ $order->items_count }}">
                             <p style="margin:0;font-size:13px;color:#6b7280;">
                                 {{ $order->items_count }} producto{{ $order->items_count !== 1 ? 's' : '' }}
                             </p>
                         </td>
-                        <td class="po-c-total" style="padding:14px 16px;" data-col="total" data-label="Total">
+                        <td class="po-c-total" style="padding:14px 16px;" data-col="total" data-label="Total" data-dg-v="{{ $order->total }}" data-dg-cur="{{ $order->currency ?: 'MXN' }}">
                             <p style="margin:0;font-weight:700;font-size:14px;color:#111827;">
                                 ${{ number_format($order->total, 2) }}
                             </p>
                         </td>
-                        <td class="po-c-estado" style="padding:14px 16px;" data-col="estado" data-label="Estado">
+                        <td class="po-c-estado" style="padding:14px 16px;" data-col="estado" data-label="Estado" data-dg-v="{{ $statusConfig['label'] }}">
                             <span style="display:inline-block;padding:4px 12px;border-radius:20px;
                                 font-size:12px;font-weight:600;
                                 background:{{ $statusConfig['bg'] }};
@@ -196,7 +185,7 @@
                                 {{ $statusConfig['label'] }}
                             </span>
                         </td>
-                        <td class="po-c-fecha" style="padding:14px 16px;" data-col="fecha" data-label="Fecha">
+                        <td class="po-c-fecha" style="padding:14px 16px;" data-col="fecha" data-label="Fecha" data-dg-v="{{ $order->order_date->format('Y-m-d') }}">
                             <p style="margin:0;font-size:13px;color:#374151;">
                                 {{ $order->order_date->format('j M Y') }}
                             </p>
@@ -344,23 +333,9 @@
         if (e.target === deletePoModal) closeDeletePoModal();
     });
 
-    // Search filter
-    document.getElementById('poSearch').addEventListener('input', function () {
-        const s = this.value.toLowerCase();
-        document.querySelectorAll('tbody tr[data-search]').forEach(row => {
-            row.style.display = row.dataset.search.includes(s) ? '' : 'none';
-        });
-    });
 </script>
 </div>
 @endsection
 @push('scripts')
-    <script src="{{ asset('js/admin/column-visibility.js') }}"></script>
-    <script>
-        initColumnVisibility({
-            tableKey: 'purchase-orders.index',
-            savedColumns: @json($visibleColumns),
-            saveUrl: '{{ route('admin.column-preferences.update') }}',
-        });
-    </script>
+    {{-- La búsqueda, el orden, los filtros y el menú de columnas los maneja la tabla de datos (erp-datagrid.js). --}}
 @endpush

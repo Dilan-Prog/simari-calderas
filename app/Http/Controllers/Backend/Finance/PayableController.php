@@ -43,6 +43,14 @@ class PayableController extends FinanceDocumentController
             ->orWhere('supplier_invoice', 'like', "%{$s}%");
     }
 
+    protected function formData($doc, ?Request $request = null): array
+    {
+        return parent::formData($doc, $request) + [
+            // Select de orden de compra (en vez de teclear su número interno).
+            'purchaseOrders' => \App\Support\FinanceOriginOptions::purchaseOrders($doc?->purchase_order_id),
+        ];
+    }
+
     private function rules(): array
     {
         return $this->documentRules() + [

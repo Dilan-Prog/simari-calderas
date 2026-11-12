@@ -6,6 +6,7 @@
     {{ $cfg['title'] }} - Admin
 @endsection
 @section('content')
+<x-erp.datagrid-assets />
 @php
     $r = $cfg['route'];
     $pc = $cfg['party_col'];
@@ -94,19 +95,19 @@
         @endif
 
         <div class="erp-table-wrap">
-            <table class="erp-table">
+            <table class="erp-table" data-dg="finanzas-{{ $cfg['kind'] }}" data-dg-noun="{{ strtolower($cfg['plural']) }}" data-dg-sum-label="{{ $docs->hasPages() ? 'Total de esta página' : 'Total general' }}">
                 <thead>
                     <tr>
                         @if ($user->hasPermission('payments', 'create'))
-                            <th class="fin-check"><input type="checkbox" data-erp-select-all aria-label="Seleccionar todos"></th>
+                            <th class="fin-check" data-dg-skip><input type="checkbox" data-erp-select-all aria-label="Seleccionar todos"></th>
                         @endif
-                        <th>Folio</th><th>{{ $cfg['party_label'] }}</th><th>Emisión</th><th>Vencimiento</th>
-                        <th class="is-num">Total</th><th class="is-num">Pagado</th><th class="is-num">Saldo</th><th>Estatus</th>
+                        <th data-dg-key="folio" data-dg-type="text">Folio</th><th data-dg-key="party" data-dg-type="list">{{ $cfg['party_label'] }}</th><th data-dg-key="issue" data-dg-type="date">Emisión</th><th data-dg-key="due" data-dg-type="date">Vencimiento</th>
+                        <th class="is-num" data-dg-key="total" data-dg-type="num" data-dg-sum>Total</th><th class="is-num" data-dg-key="paid" data-dg-type="num" data-dg-sum>Pagado</th><th class="is-num" data-dg-key="balance" data-dg-type="num" data-dg-sum>Saldo</th><th data-dg-key="status" data-dg-type="list">Estatus</th>
                     </tr>
                 </thead>
                 <tbody>
                 @forelse ($docs as $d)
-                    <tr class="fin-row {{ $d->isOpen() && $d->daysToDue() < 0 ? 'is-overdue' : '' }}">
+                    <tr data-dg-row class="fin-row {{ $d->isOpen() && $d->daysToDue() < 0 ? 'is-overdue' : '' }}">
                         @if ($user->hasPermission('payments', 'create'))
                             <td class="fin-check fin-c-check">
                                 @if ($d->isOpen())
@@ -114,22 +115,22 @@
                                 @endif
                             </td>
                         @endif
-                        <td class="erp-cell-folio fin-c-folio"><a href="{{ route($r . '.show', $d->id) }}">{{ $d->number }}</a></td>
-                        <td class="fin-c-party" data-label="{{ $cfg['party_label'] }}">
+                        <td class="erp-cell-folio fin-c-folio" data-dg-v="{{ $d->number }}"><a href="{{ route($r . '.show', $d->id) }}">{{ $d->number }}</a></td>
+                        <td class="fin-c-party" data-label="{{ $cfg['party_label'] }}" data-dg-v="{{ $d->partyName() }}">
                             <div class="erp-cell-main">{{ $d->partyName() }}</div>
                             <div class="erp-cell-sub"><a href="{{ route($r . '.statement', $d->{$pc}) }}" class="fin-link">Estado de cuenta</a></div>
                         </td>
-                        <td class="fin-c-issue" data-label="Emisión">{{ $d->issue_date->format('d/m/Y') }}</td>
-                        <td class="fin-c-due" data-label="Vencimiento">
+                        <td class="fin-c-issue" data-label="Emisión" data-dg-v="{{ $d->issue_date->format('Y-m-d') }}">{{ $d->issue_date->format('d/m/Y') }}</td>
+                        <td class="fin-c-due" data-label="Vencimiento" data-dg-v="{{ $d->due_date->format('Y-m-d') }}">
                             <x-erp.due :date="$d->due_date" :closed="!$d->isOpen()" />
                             @if ($d->isOpen())
                                 <span class="fin-due-note {{ $d->daysToDue() < 0 ? 'is-bad' : '' }}">{{ $d->daysToDue() < 0 ? 'Vencida hace ' . abs($d->daysToDue()) . ' d' : ($d->daysToDue() === 0 ? 'Vence hoy' : 'Faltan ' . $d->daysToDue() . ' d') }}</span>
                             @endif
                         </td>
-                        <td class="is-num fin-c-total" data-label="Total">${{ number_format($d->total, 2) }}<span class="fin-cur">{{ $d->currency }}</span></td>
-                        <td class="is-num fin-c-paid" data-label="Pagado">${{ number_format($d->paid_amount, 2) }}</td>
-                        <td class="is-num fin-c-bal" data-label="Saldo"><strong>${{ number_format($d->balance, 2) }}</strong></td>
-                        <td class="fin-c-status"><x-erp.chip :tone="$d::statusTone($d->status)" :label="$d::statusLabel($d->status)" /></td>
+                        <td class="is-num fin-c-total" data-label="Total" data-dg-v="{{ $d->total }}" data-dg-cur="{{ $d->currency }}">${{ number_format($d->total, 2) }}<span class="fin-cur">{{ $d->currency }}</span></td>
+                        <td class="is-num fin-c-paid" data-label="Pagado" data-dg-v="{{ $d->paid_amount }}" data-dg-cur="{{ $d->currency }}">${{ number_format($d->paid_amount, 2) }}</td>
+                        <td class="is-num fin-c-bal" data-label="Saldo" data-dg-v="{{ $d->balance }}" data-dg-cur="{{ $d->currency }}"><strong>${{ number_format($d->balance, 2) }}</strong></td>
+                        <td class="fin-c-status" data-dg-v="{{ $d::statusLabel($d->status) }}"><x-erp.chip :tone="$d::statusTone($d->status)" :label="$d::statusLabel($d->status)" /></td>
                     </tr>
                 @empty
                     <tr class="fin-row-empty"><td colspan="9" style="padding: 0;">
