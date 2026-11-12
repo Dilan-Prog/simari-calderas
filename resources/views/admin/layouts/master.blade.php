@@ -31,6 +31,16 @@
     @if (request()->boolean('embed'))
         {{-- Modo incrustado (iframe dentro de un modal): sin menú lateral ni barra móvil. --}}
         <style>#adminSidebar, .sidebar-backdrop, .admin-mobile-bar, #adminNavOverlay { display: none !important; } .admin-main { margin-left: 0 !important; }</style>
+        <script>
+            /* Todo formulario de la página incrustada manda embed=1: así la redirección (KeepEmbedMode) sigue incrustada. */
+            document.addEventListener('submit', function (e) {
+                var f = e.target;
+                if (!f || f.tagName !== 'FORM' || f.querySelector('input[name="embed"]')) return;
+                var i = document.createElement('input');
+                i.type = 'hidden'; i.name = 'embed'; i.value = '1';
+                f.appendChild(i);
+            }, true);
+        </script>
     @endif
     <style>
     .val-error-input,.val-error-select{border-color:#e3342f!important;box-shadow:0 0 0 2px rgba(227,52,47,.18)!important;}

@@ -520,6 +520,17 @@ class LeadService
             $lead->save();
             self::clearReplyPending($lead);
 
+            // Responder desde el correo (Outlook/webmail) cuenta como atender la solicitud: se cierra la tarea
+            // y el lead pasa a «contactado», igual que al responder desde la bandeja. Un correo enviado ANTES de
+            // que existiera la tarea (p. ej. al leer Enviados por primera vez) no la cierra.
+            if (($data['close_task'] ?? true) && $task->status !== 'closed' && $sentAt->greaterThanOrEqualTo($task->created_at->copy()->subMinute())) {
+                $task->update(['status' => 'closed', 'closed_at' => $task->closed_at ?: $sentAt]);
+                $task->logEvent('status', 'Estatus actualizado a «' . Task::statusLabel('closed') . '» al responder desde el correo', null);
+            }
+            if ($lead->status === 'nuevo') {
+                $this->changeStatus($lead, 'contactado');
+            }
+
             return ['matched' => true, 'duplicate' => false, 'lead_id' => $lead->id, 'task_id' => $task->id, 'outbound_email_id' => $email->id];
         });
     }

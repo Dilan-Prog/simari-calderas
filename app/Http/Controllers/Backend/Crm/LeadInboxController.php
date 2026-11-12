@@ -265,7 +265,7 @@ class LeadInboxController extends Controller
                 $cands[] = [$m->sent_at ?? $m->created_at, $m->content ?: '(' . $m->message_type . ')'];
             }
             if ($e = $mail[$lead->id] ?? null) {
-                $cands[] = [$e->received_at ?? $e->created_at, trim((string) ($e->excerpt ?: $e->subject))];
+                $cands[] = [$e->received_at ?? $e->created_at, trim(\App\Support\EmailBodyFormatter::preview($e->excerpt) ?: (string) $e->subject)];
             }
             if ($c = $call[$lead->id] ?? null) {
                 $cands[] = [$c->started_at, 'Llamada ' . ($c->status === 'perdida' ? 'perdida' : 'contestada') . ($c->notes ? ' · ' . $c->notes : '')];
@@ -400,7 +400,7 @@ class LeadInboxController extends Controller
                 'type'     => 'correo',
                 'out'      => true,
                 'title'    => 'Correo enviado: ' . ($m->subject ?: '(sin asunto)'),
-                'body'     => Str::limit(trim((string) $m->body), 600),
+                'body'     => Str::limit(trim((string) $m->body), 4000),
                 'email_id' => $m->id,
                 'dir'      => 'out',
                 'sent_by'  => $m->sentBy?->full_name,
@@ -530,6 +530,12 @@ class LeadInboxController extends Controller
         $conversation = $lead->whatsappConversation;
         if ($conversation?->account?->is_active) {
             return $conversation->account;
+        }
+
+        // La cuenta elegida en Embudo de Venta > Configuración (si es de la API oficial) va primero.
+        $preferred = WhatsappAccount::funnelDefault();
+        if ($preferred && ($preferred->connection_type === null || $preferred->connection_type === 'meta_cloud_api')) {
+            return $preferred;
         }
 
         return WhatsappAccount::active()

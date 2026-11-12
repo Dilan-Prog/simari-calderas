@@ -37,27 +37,48 @@ class RoleController extends Controller
      */
     private function moduleGroups(): array
     {
-        return [
+        $groups = [
             'Ecommerce' => [
                 'dashboard', 'products', 'categories', 'brands', 'collections',
-                'service-pages', 'gallery', 'home-sections', 'orders', 'inventory',
-                'shipments', 'carriers', 'payment-methods', 'menu', 'settings',
+                'service-pages', 'gallery', 'home-sections', 'orders', 'abandoned-carts', 'inventory',
+                'shipments', 'carriers', 'payment-methods', 'shipping-rules', 'menu', 'settings',
             ],
             'ERP y Servicios' => [
                 'quotes', 'sales-products', 'suppliers', 'purchase-orders', 'sales-orders',
                 'material-delivery-reports', 'chemical-planning', 'erp-settings',
-                'technical-services', 'service-reports',
+                'technical-services', 'service-reports', 'monitoring',
+            ],
+            'Planeación y Producción' => [
+                'projects', 'boms', 'mrp', 'production-orders', 'service-calendar',
+            ],
+            'Logística y Almacén' => [
+                'pickups', 'warehouse-transfers', 'stock-counts',
+            ],
+            'Finanzas' => [
+                'receivables', 'payables', 'payments',
             ],
             'Administración' => [
-                'roles', 'users', 'google-ads', 'email-marketing', 'analytics',
-                'audit', 'blog', 'seo', 'whatsapp',
+                'roles', 'users', 'credentials', 'google-ads', 'ad-tracking', 'email-marketing', 'analytics',
+                'crm-reports', 'statistics', 'audit', 'blog', 'seo', 'whatsapp',
             ],
             'CRM' => [
-                'clients', 'pipeline', 'deals', 'automations',
+                'clients', 'leads-inbox', 'pipeline', 'sales-funnel', 'deals', 'automations',
+                'google-conversions', 'pool-calculator-leads',
             ],
-            // Una casilla por tipo de aviso (solo 'view' = "Recibir"); ver config/notifications.php.
-            'Notificaciones' => array_keys(config('notifications.permissions', [])),
         ];
+
+        // Red de seguridad: cualquier módulo nuevo de config/modules.php que se olvide de listar arriba
+        // aparece igual en "Otros módulos" en vez de quedar fuera de Roles (y sin poder asignarse).
+        $listed = collect($groups)->flatten()->all();
+        $others = array_values(array_diff(array_keys(config('modules')), $listed));
+        if ($others) {
+            $groups['Otros módulos'] = $others;
+        }
+
+        // Una casilla por tipo de aviso (solo 'view' = "Recibir"); ver config/notifications.php.
+        $groups['Notificaciones'] = array_keys(config('notifications.permissions', []));
+
+        return $groups;
     }
 
     /** Los permisos notif-* no son módulos de menú: se agregan solo al grid de Roles (nombre = etiqueta del tipo). */
@@ -70,6 +91,9 @@ class RoleController extends Controller
 
     public function index()
     {
+        // Crea las filas de permiso que falten (módulos agregados después de sembrar la tabla).
+        Permission::syncFromConfig();
+
         $roles = Role::withCount([
                 'users',
                 'permissions as modules_count' => fn ($q) => $q->where('action', 'view'),
@@ -144,6 +168,8 @@ class RoleController extends Controller
      */
     private function resolvePermissionIds(array $permissions)
     {
+        Permission::syncFromConfig();
+
         $pairs = collect($permissions)
             ->map(fn ($p) => explode(':', $p, 2))
             ->filter(fn ($p) => count($p) === 2);

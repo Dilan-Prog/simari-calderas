@@ -100,4 +100,12 @@ class WhatsappAccount extends Model
     {
         return $query->where('is_active', true);
     }
+
+    /** Cuenta preferida para atender (Embudo de Venta > Configuración), o null si no hay una activa elegida. */
+    public static function funnelDefault(): ?self
+    {
+        $id = (int) Setting::get('funnel.whatsapp_account_id');
+
+        return $id > 0 ? static::active()->find($id) : null;
+    }
 }

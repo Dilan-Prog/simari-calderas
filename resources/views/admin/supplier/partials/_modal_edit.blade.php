@@ -1,4 +1,4 @@
-<div id="supplierEditModal" class="user-manager-modal client-manage-modal">
+<div id="supplierEditModal" class="user-manager-modal client-manage-modal clients-page-modal" role="dialog" aria-modal="true">
     <div class="user-manager-modal-content client-modal-content">
         <div class="user-manager-modal-header">
             <h2>Editar Proveedor</h2>
@@ -9,6 +9,8 @@
 
         <form class="user-manager-modal-body" id="supplierEditForm" method="POST">
             @csrf
+            {{-- Zona con scroll: encabezado y botones quedan fijos (clientes-modals.css) --}}
+            <div class="clients-modal-scroll">
 
             <h3>Información de la Empresa</h3>
             <div class="show-user-divider"></div>
@@ -102,6 +104,8 @@
                         placeholder="Notas privadas sobre el proveedor..."></textarea>
                 </div>
             </div>
+
+            </div>{{-- /clients-modal-scroll --}}
 
             <div class="user-manager-modal-footer">
                 <button type="button" id="cancelSupplierEditModal"

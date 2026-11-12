@@ -33,7 +33,9 @@
                 </div>
             @endif
 
-            {{-- CFDI / Constancia SAT reader --}}
+            {{-- Lector de Constancia SAT (CIF): apagado en Nuevo Cliente; los datos se capturan a mano.
+                 Para volver a activarlo: config(['clients.cfdi_reader' => true]) o clients.cfdi_reader=true en config. --}}
+            @if (config('clients.cfdi_reader', false))
             <div class="cfdi-reader-section">
                 <h3 style="margin-top:0">Leer Constancia SAT</h3>
                 <div class="cfdi-upload-row">
@@ -45,6 +47,7 @@
                 </div>
                 <div id="cfdiStatus" class="cfdi-status" style="display:none"></div>
             </div>
+            @endif
 
             {{-- Section: Personal info --}}
             <h3>Información Personal</h3>

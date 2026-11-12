@@ -297,7 +297,7 @@
         const content = supplierModal?.querySelector('.user-manager-modal-content');
         if (content) {
             content.style.transition = 'transform 0.2s ease-in';
-            content.style.transform  = 'translateX(100%)';
+            content.style.transform  = 'translateY(8px) scale(0.98)';
         }
         supplierModal.style.transition = 'opacity 0.2s ease-in';
         supplierModal.style.opacity    = '0';
@@ -431,7 +431,7 @@
         const content = supplierEditModal?.querySelector('.user-manager-modal-content');
         if (content) {
             content.style.transition = 'transform 0.2s ease-in';
-            content.style.transform  = 'translateX(100%)';
+            content.style.transform  = 'translateY(8px) scale(0.98)';
         }
         supplierEditModal.style.transition = 'opacity 0.2s ease-in';
         supplierEditModal.style.opacity    = '0';

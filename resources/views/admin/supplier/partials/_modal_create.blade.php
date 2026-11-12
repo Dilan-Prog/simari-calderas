@@ -1,4 +1,4 @@
-<div id="supplierCreateModal" class="user-manager-modal client-manage-modal">
+<div id="supplierCreateModal" class="user-manager-modal client-manage-modal clients-page-modal" role="dialog" aria-modal="true">
     <div class="user-manager-modal-content client-modal-content">
         <div class="user-manager-modal-header">
             <h2>Nuevo Proveedor</h2>
@@ -16,6 +16,8 @@
         <form class="user-manager-modal-body" id="supplierCreateForm" action="{{ route('admin.suppliers.store') }}"
             method="POST" novalidate>
             @csrf
+            {{-- Zona con scroll: encabezado y botones quedan fijos (clientes-modals.css) --}}
+            <div class="clients-modal-scroll">
 
             {{-- Constancia SAT reader --}}
             <div class="cfdi-reader-section">
@@ -138,6 +140,8 @@
                         placeholder="Notas privadas sobre el proveedor...">{{ old('notes') }}</textarea>
                 </div>
             </div>
+
+            </div>{{-- /clients-modal-scroll --}}
 
             <div class="user-manager-modal-footer">
                 <button type="button" id="cancelSupplierCreateModal"

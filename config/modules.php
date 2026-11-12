@@ -345,6 +345,13 @@ return [
         'route' => 'admin.leads-inbox.index',
         'order' => 43,
     ],
+    // Embudo de Venta (kanban de WhatsApp/leads). Antes colgaba del permiso 'whatsapp'; ahora es asignable por separado.
+    'sales-funnel' => [
+        'name'  => 'Embudo de Venta',
+        'icon'  => 'filter',
+        'route' => 'admin.whatsapp-funnel.index',
+        'order' => 45,
+    ],
     'google-conversions' => [
         'name'  => 'Conversiones a Google',
         'icon'  => 'line-chart',
