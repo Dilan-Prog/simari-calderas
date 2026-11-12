@@ -231,7 +231,7 @@ class LeadLog
     private function emails(Lead $lead, Collection $e): void
     {
         foreach (LeadInboundEmail::where('lead_id', $lead->id)->latest('id')->limit(50)->get() as $m) {
-            $e->push($this->entry($m->received_at ?? $m->created_at, 'correo', 'Correo recibido' . ($m->subject ? ': ' . $m->subject : ''), $this->excerpt($m->excerpt, 150)));
+            $e->push($this->entry($m->received_at ?? $m->created_at, 'correo', 'Correo recibido' . ($m->subject ? ': ' . $m->subject : ''), $this->excerpt(EmailBodyFormatter::preview($m->excerpt), 150)));
         }
         foreach (LeadOutboundEmail::where('lead_id', $lead->id)->latest('id')->limit(50)->get() as $m) {
             $e->push($this->entry(

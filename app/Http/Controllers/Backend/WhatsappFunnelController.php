@@ -151,6 +151,10 @@ class WhatsappFunnelController extends Controller
 
         $agents = User::orderBy('first_name')->get();
         $accounts = WhatsappAccount::active()->orderBy('name')->get();
+        // La cuenta elegida en Configuración va primero: es la que se preselecciona en chats nuevos y da las plantillas.
+        if ($preferred = WhatsappAccount::funnelDefault()) {
+            $accounts = $accounts->sortBy(fn ($a) => $a->id === $preferred->id ? 0 : 1)->values();
+        }
         $templateAccount = $accounts->first();
         $templates = $templateAccount
             ? $this->resolveService($templateAccount)->approvedTemplates($templateAccount)
@@ -461,7 +465,7 @@ class WhatsappFunnelController extends Controller
                 ], 422);
             }
 
-            $account = WhatsappAccount::active()->first();
+            $account = WhatsappAccount::funnelDefault() ?? WhatsappAccount::active()->first();
 
             if (!$account) {
                 return response()->json([

@@ -64,6 +64,7 @@ class LeadEmailController extends Controller
             'body'          => 'nullable|string|max:200000',
             'sent_at'       => 'nullable|date',
             'in_reply_to'   => 'nullable|string|max:255',
+            'close_task'    => 'nullable|boolean',
             'attachments'   => 'nullable|array',
             'attachments.*' => 'nullable|string|max:255',
         ]);

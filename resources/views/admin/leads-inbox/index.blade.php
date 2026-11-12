@@ -14,10 +14,36 @@
         .lw-inboxes a.is-on { background: var(--erp-accent); color: #fff; }
         .lw-inboxes a b { min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px; background: var(--erp-acc, #c81e1e); color: #fff; font-size: 11px; line-height: 18px; text-align: center; }
         .lw-inboxes a.is-on b { background: #fff; color: var(--erp-accent-dark, #c4480a); }
+        /* Historial citado / aviso legal de un correo, plegado bajo el mensaje. */
+        .lw-bubble-b a { color: inherit; text-decoration: underline; word-break: break-all; }
+        .lw-more { margin-top: 8px; border-top: 1px dashed rgba(0,0,0,.14); padding-top: 6px; }
+        .lw-more > summary { cursor: pointer; font-size: 12px; font-weight: 700; color: var(--erp-muted, #6b7280); list-style: none; }
+        .lw-more > summary::-webkit-details-marker { display: none; }
+        .lw-more > summary::before { content: '▸ '; }
+        .lw-more[open] > summary::before { content: '▾ '; }
+        .lw-more-b { margin-top: 6px; font-size: 12px; color: var(--erp-muted, #6b7280); max-height: 340px; overflow: auto; }
     </style>
 @endpush
 @push('scripts')
     @vite(['resources/js/admin/erp-crm.js', 'resources/js/admin/hot-highlight.js'])
+    <script>
+        /* La actualizacion en vivo reemplaza la conversacion: se recuerda que historiales estaban abiertos. */
+        (function () {
+            if (window.__lwMoreOpen) return;
+            var open = window.__lwMoreOpen = new Set();
+            document.addEventListener('toggle', function (e) {
+                var d = e.target;
+                if (d && d.matches && d.matches('details[data-lw-more]')) {
+                    if (d.open) open.add(d.getAttribute('data-lw-more')); else open.delete(d.getAttribute('data-lw-more'));
+                }
+            }, true);
+            new MutationObserver(function () {
+                document.querySelectorAll('details[data-lw-more]').forEach(function (d) {
+                    if (open.has(d.getAttribute('data-lw-more')) && !d.open) d.open = true;
+                });
+            }).observe(document.body, { childList: true, subtree: true });
+        })();
+    </script>
 @endpush
 @section('content')
     @php
@@ -325,7 +351,13 @@
                                         @elseif ($t === 'nota')
                                             <div class="lw-bubble-h"><span class="lw-bubble-ch">Nota interna{{ ! empty($ev['title']) ? ' de ' . \Illuminate\Support\Str::after($ev['title'], 'Nota de ') : '' }} · solo equipo</span></div>
                                         @endif
-                                        @if (! empty($ev['body']))<div class="lw-bubble-b">{{ $ev['body'] }}</div>@endif
+                                        @if ($t === 'correo' && ! empty($ev['body']))
+                                            @php $mail = \App\Support\EmailBodyFormatter::split($ev['body']); @endphp
+                                            <div class="lw-bubble-b">{!! \App\Support\EmailBodyFormatter::html($mail['main']) !!}</div>
+                                            @if ($mail['hidden'] !== '')
+                                                <details class="lw-more" data-lw-more="{{ ($ev['dir'] ?? 'x') . '-' . ($ev['email_id'] ?? $loop->index) }}"><summary>Ver historial y texto completo del correo</summary><div class="lw-bubble-b lw-more-b">{!! \App\Support\EmailBodyFormatter::html($mail['hidden']) !!}</div></details>
+                                            @endif
+                                        @elseif (! empty($ev['body']))<div class="lw-bubble-b">{{ $ev['body'] }}</div>@endif
                                         @if ($t === 'correo')
                                             @include('admin.leads-inbox.partials._email_actions', ['ev' => $ev, 'lead' => $selected])
                                         @endif

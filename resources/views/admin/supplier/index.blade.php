@@ -1,6 +1,6 @@
 @extends('admin.layouts.master')
 @push('styles')
-    @vite('resources/css/admin/pages/proveedores.css')
+    @vite(['resources/css/admin/pages/proveedores.css', 'resources/css/admin/pages/clientes-modals.css'])
 @endpush
 @section('title')
     Gestor de Proveedores - Admin

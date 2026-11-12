@@ -75,6 +75,7 @@
             // corre esa redirección.
             request()->routeIs('admin.integrations.*', 'admin.whatsapp-accounts.*') => 'integraciones',
             request()->routeIs('admin.audit.*') => 'audit',
+            request()->routeIs('admin.whatsapp-funnel.settings*') => 'embudo-configuracion',
             request()->routeIs('admin.whatsapp-funnel.*') => 'embudo-de-venta',
             request()->routeIs('admin.payment-methods.*') => 'metodos-de-pago',
             request()->routeIs('admin.shipping-rules.*') => 'reglas-de-envio',
@@ -153,6 +154,7 @@
             || $authUser->hasPermission('clients')
             || $authUser->hasPermission('pipeline')
             || $authUser->hasPermission('whatsapp')
+            || $authUser->hasPermission('sales-funnel')
             || $authUser->hasPermission('deals')
             || $authUser->hasPermission('automations');
 
@@ -575,7 +577,7 @@
                 @endif
 
                 {{-- Embudo de Venta (kanban de conversaciones de WhatsApp) --}}
-                @if ($authUser->hasPermission('whatsapp'))
+                @if ($authUser->hasPermission('sales-funnel'))
                     <a class="sidebar-nav-item {{ $activeSection === 'embudo-de-venta' ? 'active' : '' }}"
                         data-section="embudo-de-venta" data-label="Embudo de Venta"
                         href="{{ route('admin.whatsapp-funnel.index') }}">
@@ -589,6 +591,26 @@
                             <span class="sidebar-nav-item-label">Embudo de Venta</span>
                         </div>
                     </a>
+                    {{-- Debajo del embudo: con qué WhatsApp se atiende y desde qué correo se contesta. --}}
+                    @if ($authUser->hasPermission('sales-funnel', 'edit'))
+                        <a class="sidebar-nav-item sidebar-nav-child {{ $activeSection === 'embudo-configuracion' ? 'active' : '' }}"
+                            data-section="embudo-configuracion" data-label="Configuración del embudo"
+                            href="{{ route('admin.whatsapp-funnel.settings') }}">
+                            <div class="sidebar-nav-item-left">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
+                                    <circle cx="12" cy="12" r="3" />
+                                </svg>
+                                <span class="sidebar-nav-item-label">Configuración</span>
+                            </div>
+                        </a>
+                        <style>
+                            .sidebar-nav-item.sidebar-nav-child { padding-left: 34px; }
+                            .admin-sidebar.collapsed .sidebar-nav-item.sidebar-nav-child { padding-left: 0; }
+                        </style>
+                    @endif
                 @endif
 
                 {{-- Negocios (Deals) --}}
