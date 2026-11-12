@@ -9,7 +9,7 @@
 
 @section('content')
     <div class="container user-manager show-information">
-        <section class="clients-manager-section show-information-supplier">
+        <section class="clients-manager-section show-information-supplier suppliers-show">
             <div class="link-container-show">
                 <a class="client-window-link" href="{{ route('admin.suppliers.index') }}">
                     <span>&lt;</span> &nbsp; Volver a Proveedores
@@ -55,7 +55,7 @@
 
 
             {{-- Tabs --}}
-            <div class="tabs-show-clients-container supplier-tabs">
+            <div class="tabs-show-clients-container supplier-tabs" role="tablist">
                 <button class="tab-show-client active" data-tab="general">Información General</button>
                 <button class="tab-show-client" data-tab="products">Productos ({{ $supplier->products->count() }})</button>
                 <button class="tab-show-client" data-tab="evaluation">Evaluación</button>
@@ -176,7 +176,7 @@
 
             {{-- Tab: Products --}}
             <div class="tab-content-show-client" id="products">
-                <div class="card-information-show" style="background:#eff6ff;border:1px solid #bfdbfe;margin-bottom:16px;">
+                <div class="card-information-show sup-total-card" style="background:#eff6ff;border:1px solid #bfdbfe;margin-bottom:16px;">
                     <div style="display:flex;justify-content:space-between;align-items:center;">
                         <h3 style="margin:0;">Total Comprado</h3>
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" x2="12" y1="2" y2="22"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
@@ -185,25 +185,27 @@
                     <p class="breadcrumb-clients-manager">Suma de órdenes de compra aceptadas</p>
                 </div>
 
-                <div class="card-information-show">
-                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:12px;">
+                <div class="card-information-show sup-products-card">
+                    <div class="sup-products-head">
                         <h3 style="margin:0;">Productos del Proveedor</h3>
-                        <div class="supplier-header-actions">
+                        <div class="supplier-header-actions sup-products-actions">
                             <button type="button" id="btnOpenSupplierProductImportModal"
-                                class="button-secondary size-adjustment" style="font-size:14px;padding:8px 20px;">
+                                class="button-secondary size-adjustment">
                                 Importar
                             </button>
                             <a href="{{ route('admin.suppliers.products.bulk-edit.index', ['supplier_id' => $supplier->id]) }}"
-                                class="button-secondary size-adjustment" style="font-size:14px;padding:8px 20px;">
+                                class="button-secondary size-adjustment">
                                 Editar en lote
                             </a>
-                            <button type="button" id="btnAssignProduct" class="button-primary size-adjustment"
-                                style="font-size:14px;padding:8px 20px;">
+                            <button type="button" id="btnAssignProduct" class="button-primary size-adjustment">
                                 + Asignar Producto
                             </button>
                         </div>
                     </div>
-                    <table class="clients-manager-table">
+                    {{-- Escritorio: tabla con scroll horizontal propio. Celular (≤768px):
+                         cada fila es una tarjeta con etiquetas (data-label). --}}
+                    <div class="sup-products-table-wrap">
+                    <table class="clients-manager-table sup-products-table">
                         <thead>
                             <tr>
                                 <th>PRODUCTO</th>
@@ -224,7 +226,7 @@
                                     data-cost="{{ $product->pivot->cost }}"
                                     data-lead-time="{{ $product->pivot->lead_time_days }}"
                                     data-is-primary="{{ $product->pivot->is_primary ? 1 : 0 }}">
-                                    <td>
+                                    <td class="sup-prod-name">
                                         <div style="display:flex;align-items:center;gap:8px;">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
                                                 viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2"
@@ -238,9 +240,9 @@
                                             {{ $product->name }}
                                         </div>
                                     </td>
-                                    <td><span class="breadcrumb-clients-manager">{{ $product->pivot->sku ?? '—' }}</span></td>
-                                    <td><strong>${{ number_format($product->pivot->cost ?? 0, 2) }}</strong></td>
-                                    <td>
+                                    <td data-label="SKU"><span class="breadcrumb-clients-manager">{{ $product->pivot->sku ?? '—' }}</span></td>
+                                    <td data-label="Costo"><strong>${{ number_format($product->pivot->cost ?? 0, 2) }}</strong></td>
+                                    <td data-label="Lead time">
                                         <span style="display:flex;align-items:center;gap:4px;">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"
                                                 viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -251,7 +253,7 @@
                                             {{ $product->pivot->lead_time_days ?? 0 }} días
                                         </span>
                                     </td>
-                                    <td>
+                                    <td data-label="Primario">
                                         @if ($product->pivot->is_primary)
                                             <span style="display:flex;align-items:center;gap:4px;color:#16a34a;">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"
@@ -266,7 +268,7 @@
                                             <span class="breadcrumb-clients-manager">No</span>
                                         @endif
                                     </td>
-                                    <td>
+                                    <td data-label="Comprado">
                                         @php $bought = $purchasedByProduct->get($product->id); @endphp
                                         @if ($bought)
                                             <strong>${{ number_format($bought['total'], 2) }}</strong>
@@ -275,9 +277,10 @@
                                             <span class="breadcrumb-clients-manager">—</span>
                                         @endif
                                     </td>
-                                    <td>
-                                        <div class="header-right-user-manager">
-                                            <button type="button" class="table-users-manager-action-btn edit btn-edit-supplier-product">
+                                    <td class="sup-prod-actions">
+                                        <div class="header-right-user-manager sup-actions">
+                                            <button type="button" class="table-users-manager-action-btn edit btn-edit-supplier-product"
+                                                title="Editar" aria-label="Editar producto del proveedor">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
                                                     viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -286,7 +289,8 @@
                                                     </path>
                                                 </svg>
                                             </button>
-                                            <button type="button" class="table-users-manager-action-btn delete btn-delete-supplier-product">
+                                            <button type="button" class="table-users-manager-action-btn delete btn-delete-supplier-product"
+                                                title="Quitar" aria-label="Quitar producto del proveedor">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
                                                     viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -303,7 +307,7 @@
                                     </td>
                                 </tr>
                             @empty
-                                <tr>
+                                <tr class="sup-products-empty">
                                     <td colspan="7" style="text-align:center;padding:24px;">
                                         <p class="breadcrumb-clients-manager">Sin productos asignados.</p>
                                     </td>
@@ -311,12 +315,13 @@
                             @endforelse
                         </tbody>
                     </table>
+                    </div>{{-- /sup-products-table-wrap --}}
                 </div>
             </div>
 
             {{-- Tab: Evaluation --}}
             <div class="tab-content-show-client" id="evaluation">
-                <div class="show-user-grid" style="margin-bottom:20px;">
+                <div class="show-user-grid sup-eval-grid" style="margin-bottom:20px;">
                     <div class="card-information-show" style="background:#fefce8;border:1px solid #fef08a;">
                         <div style="display:flex;justify-content:space-between;align-items:center;">
                             <h3 style="margin:0;">Rating de Calidad</h3>

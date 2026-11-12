@@ -94,3 +94,294 @@ a.fin-list-row:hover { background: #f7f8f9; }
     body { background: #fff !important; }
     .erp-table thead th, .erp-table tbody td { padding: 6px 8px; font-size: 12px; }
 }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   MÓVIL (≤768px) — Finanzas · Panel (FIN1), CXC/CXP (FIN2/FIN3): documentos,
+   detalle, formulario, antigüedad de saldos y estado de cuenta.
+   Todo acotado a .fin-dash / .fin-docs-index / .fin-docs-show / .fin-docs-form /
+   .fin-aging-page / .fin-statement (pagos/* NO lleva estas clases y no cambia).
+   Solo pantalla: la impresión conserva las tablas. Fuera del @media solo se oculta
+   el elemento nuevo y exclusivo del móvil (.fin-m-only).
+   ══════════════════════════════════════════════════════════════════════════ */
+.fin-m-only { display: none; }
+
+@media screen and (max-width: 768px) {
+    :is(.fin-dash, .fin-docs-index, .fin-docs-show, .fin-docs-form, .fin-aging-page, .fin-statement) { padding: 12px; overflow-x: hidden; }
+    :is(.fin-dash, .fin-docs-index, .fin-docs-show, .fin-docs-form, .fin-aging-page, .fin-statement) * { box-sizing: border-box; }
+
+    /* ── Encabezado de pantalla: apilado, acciones en rejilla de 44px ── */
+    :is(.fin-dash, .fin-docs-index, .fin-docs-form, .fin-aging-page, .fin-statement) .erp-page-head { flex-direction: column; align-items: stretch; gap: 12px; margin-bottom: 14px; }
+    :is(.fin-dash, .fin-docs-index, .fin-docs-form, .fin-aging-page, .fin-statement) .erp-page-head > div:first-child { min-width: 0; }
+    :is(.fin-dash, .fin-docs-index, .fin-docs-form, .fin-aging-page, .fin-statement) .erp-title { font-size: 22px; overflow-wrap: anywhere; }
+    :is(.fin-dash, .fin-docs-index, .fin-docs-form, .fin-aging-page, .fin-statement) .erp-subtitle { max-width: none; overflow-wrap: anywhere; }
+    /* Acciones de 2 en 2 (la principal arriba a todo lo ancho; un botón suelto se estira) */
+    :is(.fin-dash, .fin-docs-index, .fin-aging-page, .fin-statement) .erp-page-head > .erp-head-actions { display: flex; flex-wrap: wrap; gap: 8px; width: 100%; }
+    :is(.fin-dash, .fin-docs-index, .fin-docs-form, .fin-aging-page, .fin-statement) .erp-page-head > .erp-head-actions:empty { display: none; }
+    :is(.fin-dash, .fin-docs-index, .fin-aging-page, .fin-statement) .erp-page-head > .erp-head-actions .erp-btn { flex: 1 1 calc(50% - 4px); min-width: 0; min-height: 44px; justify-content: center; text-align: center; font-size: 14px; white-space: normal; }
+    :is(.fin-dash, .fin-docs-index, .fin-aging-page, .fin-statement) .erp-page-head > .erp-head-actions .erp-btn--primary { flex-basis: 100%; order: -1; }
+
+    /* ── KPIs en 2 columnas ── */
+    :is(.fin-dash, .fin-docs-index, .fin-aging-page) .erp-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 12px !important; margin-bottom: 12px; }
+    :is(.fin-dash, .fin-docs-index, .fin-aging-page) .erp-tile { min-width: 0; min-height: 0; padding: 12px; gap: 3px; }
+    :is(.fin-dash, .fin-docs-index, .fin-aging-page) .erp-tile:nth-child(odd):last-child { grid-column: 1 / -1; }
+    :is(.fin-dash, .fin-docs-index, .fin-aging-page) .erp-tile-title { font-size: 12px; }
+    :is(.fin-dash, .fin-docs-index, .fin-aging-page) .erp-tile-value { font-size: 17px; letter-spacing: -.01em; overflow-wrap: anywhere; word-break: break-word; margin-top: 4px; }
+    :is(.fin-dash, .fin-docs-index, .fin-aging-page) .erp-tile-cap { font-size: 11px; overflow-wrap: anywhere; }
+
+    /* ── Pestañas (Documentos / Antigüedad · Resumen / Pagos / Historial): fila desplazable ── */
+    :is(.fin-docs-index, .fin-aging-page, .fin-docs-show) .erp-tabnav { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; padding: 0 4px; }
+    :is(.fin-docs-index, .fin-aging-page, .fin-docs-show) .erp-tabnav::-webkit-scrollbar { display: none; }
+    :is(.fin-docs-index, .fin-aging-page, .fin-docs-show) .erp-tab { flex: 0 0 auto; display: inline-flex; align-items: center; min-height: 44px; padding: 10px 14px; font-size: 14px; }
+
+    /* ── Tarjetas: cabecera apilada ── */
+    :is(.fin-dash, .fin-aging-page, .fin-statement) .erp-card-head { flex-direction: column; align-items: stretch; gap: 8px; padding: 14px 14px 0; }
+    :is(.fin-dash, .fin-aging-page, .fin-statement) .erp-card-head > div { min-width: 0; }
+    :is(.fin-dash, .fin-aging-page, .fin-statement) .erp-card-sub { overflow-wrap: anywhere; }
+    :is(.fin-dash, .fin-aging-page, .fin-statement) .erp-card-head .erp-head-actions .erp-btn { flex: 1 1 100%; min-height: 44px; justify-content: center; font-size: 14px; }
+    :is(.fin-dash, .fin-aging-page, .fin-statement) .erp-card-body { padding: 12px 14px 14px; }
+
+    /* Barra de antigüedad: leyenda en 2 columnas (el componente fija las columnas en línea) */
+    :is(.fin-dash, .fin-aging-page) .erp-agebar-legend { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 8px; }
+    :is(.fin-dash, .fin-aging-page) .erp-agebar-legend > div { min-width: 0; padding: 8px 10px; border: 1px solid var(--erp-line-soft); border-radius: 8px; background: #fafbfc; }
+    :is(.fin-dash, .fin-aging-page) .erp-agebar-legend > div:nth-child(odd):last-child { grid-column: 1 / -1; }
+    :is(.fin-dash, .fin-aging-page) .erp-agebar-legend dd { overflow-wrap: anywhere; font-size: 13.5px; }
+
+    /* ── Filtros (barra del worklist / estado de cuenta): a todo lo ancho, 16px / 44px ── */
+    :is(.fin-docs-index, .fin-aging-page) .erp-worklist > .erp-toolbar { padding: 12px; }
+    :is(.fin-docs-index, .fin-aging-page, .fin-statement) .fin-filterform { gap: 8px; min-width: 0; align-items: stretch; }
+    :is(.fin-docs-index, .fin-aging-page, .fin-statement) .fin-filterform .erp-search { flex: 1 1 100%; min-width: 0; }
+    :is(.fin-docs-index, .fin-aging-page, .fin-statement) .fin-filterform .erp-search input { min-height: 44px; font-size: 16px; }
+    :is(.fin-docs-index, .fin-aging-page, .fin-statement) .fin-filterform .erp-select,
+    :is(.fin-docs-index, .fin-aging-page, .fin-statement) .fin-filterform .erp-input { flex: 1 1 100%; width: 100%; min-width: 0; max-width: 100%; min-height: 44px; font-size: 16px; }
+    :is(.fin-docs-index, .fin-aging-page, .fin-statement) .fin-filterform label { flex: 1 1 calc(50% - 4px); min-width: 0; font-size: 12px; }
+    :is(.fin-docs-index, .fin-aging-page, .fin-statement) .fin-filterform label .erp-input { flex: 0 0 auto; }
+    :is(.fin-docs-index, .fin-aging-page, .fin-statement) .fin-filterform .erp-btn { flex: 1 1 100%; min-height: 44px; justify-content: center; font-size: 14px; }
+    :is(.fin-docs-index, .fin-aging-page, .fin-statement) .fin-filterform .erp-pill { flex: 1 1 100%; justify-content: center; min-height: 44px; font-size: 14px; }
+    .fin-docs-index .erp-chips-row { padding: 10px 12px 0; }
+    .fin-docs-index .erp-chips-row .erp-pill { max-width: 100%; white-space: normal; overflow-wrap: anywhere; min-height: 32px; }
+
+    /* ── Documentos (CXC/CXP): vistas desplazables ── */
+    .fin-docs-index .erp-views { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; padding: 10px 12px; gap: 6px; }
+    .fin-docs-index .erp-views::-webkit-scrollbar { display: none; }
+    .fin-docs-index .erp-views-label { display: none; }
+    .fin-docs-index .erp-views .erp-pill { flex: 0 0 auto; white-space: nowrap; min-height: 36px; padding: 6px 14px; font-size: 13px; }
+
+    /* Selección en lote: «Seleccionar todos» visible y barra fija abajo */
+    .fin-docs-index .fin-selall-m { display: flex; align-items: center; gap: 10px; min-height: 44px; margin: 10px 12px 0; padding: 0 12px; border: 1px solid var(--erp-line); border-radius: 10px; font-size: 14px; font-weight: 600; color: var(--erp-text); cursor: pointer; }
+    .fin-docs-index .fin-selall-m input { width: 20px; height: 20px; margin: 0; accent-color: var(--erp-accent); }
+    .fin-docs-index .erp-batch.is-open { position: fixed; left: 12px; right: 12px; bottom: calc(12px + env(safe-area-inset-bottom, 0px)); z-index: 60; margin: 0; flex-wrap: wrap; gap: 8px; padding: 10px 12px; box-shadow: 0 8px 24px rgba(0, 0, 0, .25); font-size: 13.5px; }
+    .fin-docs-index .erp-batch.is-open > span { flex: 1 1 auto; }
+    .fin-docs-index .erp-batch .erp-btn { min-height: 44px; padding: 8px 14px; font-size: 14px; justify-content: center; }
+    .fin-docs-index:has(.erp-batch.is-open) { padding-bottom: 96px; }
+
+    /* Tabla de documentos → tarjetas */
+    .fin-docs-index .erp-table-wrap { overflow-x: visible; }
+    .fin-docs-index .erp-table, .fin-docs-index .erp-table tbody { display: block; width: 100%; }
+    .fin-docs-index .erp-table thead { display: none; }
+    .fin-docs-index .erp-table tbody { padding: 12px; }
+    .fin-docs-index .erp-table tbody tr.fin-row {
+        display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px 12px;
+        grid-template-areas: "folio status" "party party" "issue due" "total paid" "bal bal";
+        padding: 12px 14px; margin-bottom: 10px; border: 1px solid var(--erp-line); border-radius: 10px;
+        background: #fff; box-shadow: 0 1px 2px rgba(16, 24, 40, .04);
+    }
+    .fin-docs-index.fin-docs-index--batch .erp-table tbody tr.fin-row {
+        grid-template-columns: 36px minmax(0, 1fr) minmax(0, 1fr);
+        grid-template-areas: "check folio status" "party party party" "issue issue due" "total total paid" "bal bal bal";
+    }
+    .fin-docs-index .erp-table tbody tr.fin-row:last-child { margin-bottom: 0; }
+    .fin-docs-index .erp-table tbody tr.fin-row:hover { background: #fff; }
+    .fin-docs-index .erp-table tbody tr.fin-row.is-overdue { border-left: 3px solid var(--erp-bad-dot, #ef4444); background: #fffafa; }
+    .fin-docs-index .erp-table tbody tr.fin-row > td { display: block; padding: 0; border: 0; min-width: 0; width: auto; text-align: left; font-size: 13px; overflow-wrap: anywhere; }
+    .fin-docs-index .fin-row td[data-label]::before { content: attr(data-label); display: block; margin-bottom: 3px; font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--erp-faint); }
+    .fin-docs-index .fin-c-check { grid-area: check; align-self: center; }
+    .fin-docs-index .fin-check-hit { display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; margin: -6px 0 -6px -10px; cursor: pointer; }
+    .fin-docs-index .fin-c-check input { width: 22px !important; height: 22px !important; margin: 0; }
+    .fin-docs-index .fin-c-folio { grid-area: folio; align-self: center; font-size: 15px; white-space: normal; }
+    .fin-docs-index .fin-c-folio a { display: inline-flex; align-items: center; min-height: 36px; }
+    .fin-docs-index .fin-c-status { grid-area: status; justify-self: end; align-self: center; text-align: right !important; max-width: 100%; }
+    .fin-docs-index .fin-c-status .erp-chip { white-space: normal; }
+    .fin-docs-index .fin-c-party { grid-area: party; padding-top: 10px !important; border-top: 1px solid var(--erp-line-soft) !important; }
+    .fin-docs-index .fin-c-party .erp-cell-main { font-size: 14px; }
+    .fin-docs-index .fin-c-party .fin-link { display: inline-flex; align-items: center; min-height: 32px; font-size: 12.5px; }
+    .fin-docs-index .fin-c-issue { grid-area: issue; }
+    .fin-docs-index .fin-c-due { grid-area: due; }
+    .fin-docs-index .fin-c-due .erp-due { white-space: normal; }
+    .fin-docs-index .fin-c-total { grid-area: total; }
+    .fin-docs-index .fin-c-paid { grid-area: paid; }
+    .fin-docs-index .fin-c-bal { grid-area: bal; display: flex !important; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 10px !important; border-radius: 8px; background: #f6f7f9; }
+    .fin-docs-index .fin-c-bal::before { margin: 0 !important; }
+    .fin-docs-index .fin-c-bal strong { font-size: 16px; font-variant-numeric: tabular-nums; }
+    .fin-docs-index .fin-row.is-overdue .fin-c-bal { background: var(--erp-bad-bg, #fef2f2); color: var(--erp-bad); }
+    .fin-docs-index .fin-row.is-overdue .fin-c-bal::before { color: var(--erp-bad); }
+    .fin-docs-index .erp-table tbody tr.fin-row-empty, .fin-docs-index .erp-table tbody tr.fin-row-empty > td { display: block; width: 100%; }
+
+    /* Pie: conteo + paginación (≥40px) */
+    :is(.fin-docs-index, .fin-aging-page) .erp-wl-footer { flex-direction: column; align-items: center; text-align: center; gap: 10px; padding: 12px; font-size: 13px; }
+    .fin-docs-index .erp-wl-footer > div { width: 100%; }
+    .fin-docs-index .admin-pagination { justify-content: center; margin-top: 0; }
+    .fin-docs-index .admin-pagination-list { justify-content: center; flex-wrap: wrap; gap: 4px; }
+    .fin-docs-index .admin-pagination-btn { min-width: 40px; min-height: 40px; padding: 0 8px; display: inline-flex; align-items: center; justify-content: center; }
+    .fin-docs-index .admin-pagination-dots { min-width: auto; }
+
+    /* ── Detalle del documento: cabecera, acciones 44px, datos en 2 columnas ── */
+    .fin-docs-show .erp-objhead { padding: 14px; }
+    .fin-docs-show .erp-objhead-top { flex-direction: column; gap: 12px; }
+    .fin-docs-show .erp-objhead-main { min-width: 0; }
+    .fin-docs-show .erp-objhead-back { display: inline-flex; align-items: center; min-height: 36px; padding: 4px 12px; margin-bottom: 6px; }
+    .fin-docs-show .erp-eyebrow { display: block; overflow-wrap: anywhere; line-height: 1.4; }
+    .fin-docs-show .erp-objhead-title { font-size: 22px; overflow-wrap: anywhere; }
+    .fin-docs-show .erp-objhead-sub { overflow-wrap: anywhere; }
+    .fin-docs-show .erp-objhead-actions { display: flex; flex-wrap: wrap; gap: 8px; width: 100%; }
+    .fin-docs-show .erp-objhead-actions > * { flex: 1 1 calc(50% - 4px); min-width: 0; }
+    .fin-docs-show .erp-objhead-actions > .fin-inline-form { display: block; margin: 0; }
+    .fin-docs-show .erp-objhead-actions .erp-btn { width: 100%; min-height: 44px; justify-content: center; font-size: 14px; text-align: center; white-space: normal; }
+    .fin-docs-show .erp-objhead-actions > .erp-btn--primary { flex-basis: 100%; order: -1; }
+    .fin-docs-show .erp-objhead-facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 14px; }
+    .fin-docs-show .erp-objhead-facts > div { min-width: 0; }
+    .fin-docs-show .erp-objhead-facts dd { font-size: 13.5px; overflow-wrap: anywhere; }
+    .fin-docs-show .erp-objhead-process { min-width: 0; }
+    .fin-docs-show .erp-chevrons { max-width: 100%; }
+    .fin-docs-show .erp-chevron { flex: 1 1 0; min-width: 0; padding: 6px 8px 6px 16px; font-size: 10.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .fin-docs-show .erp-chevron:first-child { padding-left: 10px; }
+    .fin-docs-show .erp-chevron.is-current { flex-grow: 1.6; }
+    .fin-docs-show .erp-split { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+    .fin-docs-show .erp-split > * { min-width: 0; }
+    .fin-docs-show .erp-tabpanel { padding: 14px; }
+    .fin-docs-show .erp-facts { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 14px; }
+    .fin-docs-show .erp-facts > div { min-width: 0; }
+    .fin-docs-show .erp-fact-value { font-size: 13.5px; overflow-wrap: anywhere; }
+    .fin-docs-show .erp-fact-value .fin-link { display: inline-flex; align-items: center; min-height: 32px; }
+    .fin-docs-show .fin-note { overflow-wrap: anywhere; }
+
+    /* Pagos aplicados → tarjetas */
+    .fin-docs-show .fin-paytable, .fin-docs-show .fin-paytable tbody, .fin-docs-show .fin-paytable tfoot { display: block; width: 100%; }
+    .fin-docs-show .erp-tabpanel .erp-table-wrap { overflow-x: visible; }
+    .fin-docs-show .fin-paytable thead { display: none; }
+    .fin-docs-show .fin-paytable tbody tr.fin-prow {
+        display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px 12px;
+        grid-template-areas: "folio status" "date method" "amt amt";
+        padding: 12px 14px; margin-bottom: 10px; border: 1px solid var(--erp-line); border-radius: 10px; background: #fff;
+    }
+    .fin-docs-show .fin-paytable tbody tr.fin-prow:hover { background: #fff; }
+    .fin-docs-show .fin-paytable tbody tr.fin-prow > td { display: block; padding: 0; border: 0; min-width: 0; text-align: left; font-size: 13px; overflow-wrap: anywhere; }
+    .fin-docs-show .fin-prow td[data-label]::before { content: attr(data-label); display: block; margin-bottom: 3px; font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--erp-faint); }
+    .fin-docs-show .fin-p-folio { grid-area: folio; align-self: center; font-size: 15px; white-space: normal; }
+    .fin-docs-show .fin-p-folio a { display: inline-flex; align-items: center; min-height: 36px; }
+    .fin-docs-show .fin-p-status { grid-area: status; justify-self: end; align-self: center; text-align: right !important; }
+    .fin-docs-show .fin-p-status .erp-chip { white-space: normal; }
+    .fin-docs-show .fin-p-date { grid-area: date; padding-top: 10px !important; border-top: 1px solid var(--erp-line-soft) !important; }
+    .fin-docs-show .fin-p-method { grid-area: method; padding-top: 10px !important; border-top: 1px solid var(--erp-line-soft) !important; }
+    .fin-docs-show .fin-p-amt { grid-area: amt; display: grid !important; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 2px 10px; padding: 8px 10px !important; border-radius: 8px; background: #f6f7f9; font-size: 16px !important; font-weight: 800; }
+    .fin-docs-show .fin-p-amt::before { margin: 0 !important; }
+    .fin-docs-show .fin-p-amt .erp-cell-sub { grid-column: 1 / -1; text-align: right; font-weight: 500; }
+    .fin-docs-show .fin-paytable tbody tr.fin-row-empty, .fin-docs-show .fin-paytable tbody tr.fin-row-empty > td { display: block; width: 100%; }
+    .fin-docs-show .fin-paytable tfoot tr.fin-tfoot-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 12px 14px; border-radius: 10px; background: #f8f9fa; border: 1px solid var(--erp-line); }
+    .fin-docs-show .fin-paytable tfoot tr.fin-tfoot-row > td { display: block; padding: 0; border: 0; background: transparent; font-size: 14px; }
+    .fin-docs-show .fin-paytable tfoot tr.fin-tfoot-row > td.is-num { font-size: 16px; }
+    .fin-docs-show .fin-paytable tfoot .fin-tf-empty { display: none !important; }
+    .fin-docs-show .fin-timeline b { overflow-wrap: anywhere; }
+    .fin-docs-show .erp-docflow { margin-bottom: 0; }
+
+    /* ── Formulario CXC/CXP: una columna, controles 44px / 16px, guardar fijo abajo ── */
+    .fin-docs-form .erp-card { overflow: visible; }
+    .fin-docs-form .fin-form-card .erp-card-body { padding: 14px 14px 0; }
+    .fin-docs-form .erp-form-grid { grid-template-columns: minmax(0, 1fr); gap: 14px; }
+    .fin-docs-form .erp-field { min-width: 0; font-size: 13px; }
+    .fin-docs-form .erp-select, .fin-docs-form .erp-input { width: 100%; max-width: 100%; min-height: 44px; font-size: 16px; }
+    .fin-docs-form textarea.erp-input { min-height: 88px; }
+    .fin-docs-form .erp-field small { font-size: 12px; overflow-wrap: anywhere; }
+    .fin-docs-form .erp-form-actions {
+        position: sticky; bottom: 0; z-index: 20; flex-direction: column-reverse; gap: 8px;
+        margin: 16px -14px 0; padding: 12px 14px calc(12px + env(safe-area-inset-bottom, 0px));
+        background: #fff; border-top: 1px solid var(--erp-line); border-radius: 0 0 12px 12px; box-shadow: 0 -6px 16px rgba(16, 24, 40, .06);
+    }
+    .fin-docs-form .erp-form-actions .erp-btn { width: 100%; justify-content: center; min-height: 44px; font-size: 15px; }
+
+    /* ── Antigüedad de saldos: una tarjeta por contraparte con sus tramos ── */
+    .fin-aging-page .erp-worklist .erp-table-wrap { overflow-x: visible; }
+    .fin-aging-page .fin-aging, .fin-aging-page .fin-aging tbody, .fin-aging-page .fin-aging tfoot { display: block; width: 100%; }
+    .fin-aging-page .fin-aging thead { display: none; }
+    .fin-aging-page .fin-aging tbody { padding: 12px 12px 0; }
+    .fin-aging-page .fin-aging tfoot { padding: 0 12px 12px; }
+    .fin-aging-page .fin-aging tr.fin-arow, .fin-aging-page .fin-aging tr.fin-atotal {
+        display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px;
+        padding: 12px 14px; margin-bottom: 10px; border: 1px solid var(--erp-line); border-radius: 10px; background: #fff;
+    }
+    .fin-aging-page .fin-aging tr.fin-arow:hover { background: #fff; }
+    .fin-aging-page .fin-aging tr.fin-arow:has(.b-d90p:not(.is-zero)), .fin-aging-page .fin-aging tr.fin-arow:has(.b-d90:not(.is-zero)) { border-left: 3px solid var(--erp-bad-dot, #ef4444); }
+    .fin-aging-page .fin-aging tr.fin-atotal { margin-top: 2px; margin-bottom: 0; background: #f8f9fa; border-width: 2px; }
+    .fin-aging-page .fin-aging tr > td { display: block; padding: 0; border: 0; min-width: 0; text-align: left; font-size: 13px; overflow-wrap: anywhere; }
+    .fin-aging-page .fin-aging tfoot td { background: transparent; border-top: 0; }
+    .fin-aging-page .fin-aging td[data-label]::before { content: attr(data-label); display: block; margin-bottom: 2px; font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--erp-faint); }
+    .fin-aging-page .fin-a-party { grid-column: 1 / 2; align-self: center; }
+    .fin-aging-page .fin-a-party .erp-cell-main { font-size: 14.5px; }
+    .fin-aging-page .fin-atotal .fin-a-party { grid-column: 1 / -1; font-size: 14px; font-weight: 800; }
+    .fin-aging-page .fin-a-state { grid-column: 2 / 3; grid-row: 1; justify-self: end; align-self: center; text-align: right !important; }
+    .fin-aging-page .fin-a-state .erp-chip { white-space: normal; }
+    .fin-aging-page .fin-a-b { padding: 6px 8px !important; border-radius: 6px; font-variant-numeric: tabular-nums; font-weight: 700; }
+    .fin-aging-page .fin-a-b.is-zero { background: #f8f9fa !important; color: #c4c8ce; }
+    .fin-aging-page .fin-atotal .fin-a-b { background: #fff; border: 1px solid var(--erp-line-soft); }
+    .fin-aging-page .fin-a-total { grid-column: 1 / -1; display: flex !important; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 10px !important; border-radius: 8px; background: #f1f2f4; font-size: 16px !important; font-weight: 800; }
+    .fin-aging-page .fin-a-total::before { margin: 0 !important; }
+    .fin-aging-page .fin-atotal .fin-a-total { background: var(--erp-ink); color: #fff; }
+    .fin-aging-page .fin-atotal .fin-a-total::before { color: #cbd0d6 !important; }
+    .fin-aging-page .fin-a-act { grid-column: 1 / -1; }
+    .fin-aging-page .fin-a-act .erp-btn { display: flex; width: 100%; min-height: 44px; justify-content: center; font-size: 14px; }
+    .fin-aging-page .fin-a-blank { display: none !important; }
+    .fin-aging-page .fin-aging tbody tr.fin-row-empty, .fin-aging-page .fin-aging tbody tr.fin-row-empty > td { display: block; width: 100%; }
+    .fin-aging-page .fin-aging tbody:has(tr.fin-row-empty) { padding-bottom: 12px; }
+
+    /* ── Estado de cuenta: movimientos → tarjetas, saldo destacado ── */
+    .fin-statement .erp-card .erp-table-wrap { overflow-x: visible; }
+    .fin-statement .fin-stmt-table, .fin-statement .fin-stmt-table tbody, .fin-statement .fin-stmt-table tfoot { display: block; width: 100%; }
+    .fin-statement .fin-stmt-table thead { display: none; }
+    .fin-statement .fin-stmt-table tr.fin-stmt-row {
+        display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px 12px;
+        grid-template-areas: "doc date" "concept concept" "charge credit" "bal bal";
+        padding: 12px; margin-bottom: 10px; border: 1px solid var(--erp-line); border-radius: 10px; background: #fff;
+    }
+    .fin-statement .fin-stmt-table tr.fin-stmt-row:hover { background: #fff; }
+    .fin-statement .fin-stmt-table tr > td { display: block; padding: 0; border: 0; min-width: 0; text-align: left; font-size: 13px; overflow-wrap: anywhere; }
+    .fin-statement .fin-stmt-table td[data-label]::before { content: attr(data-label); display: block; margin-bottom: 2px; font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--erp-faint); }
+    .fin-statement .fin-s-doc { grid-area: doc; align-self: center; font-size: 15px; white-space: normal; }
+    .fin-statement .fin-s-doc a { display: inline-flex; align-items: center; min-height: 36px; }
+    .fin-statement .fin-s-date { grid-area: date; justify-self: end; align-self: center; color: var(--erp-muted) !important; font-weight: 600; }
+    .fin-statement .fin-s-concept { grid-area: concept; color: var(--erp-ink) !important; }
+    .fin-statement .fin-s-charge { grid-area: charge; font-weight: 700; }
+    .fin-statement .fin-s-credit { grid-area: credit; font-weight: 700; color: var(--erp-ok) !important; }
+    .fin-statement .fin-stmt-table td.is-blank::after { content: "—"; color: var(--erp-faint); font-weight: 400; }
+    .fin-statement .fin-s-bal { grid-area: bal; display: flex !important; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 10px !important; border-radius: 8px; background: #f6f7f9; }
+    .fin-statement .fin-s-bal::before { margin: 0 !important; }
+    .fin-statement .fin-s-bal strong { font-size: 16px; font-variant-numeric: tabular-nums; }
+    .fin-statement .fin-stmt-table tr.fin-stmt-opening { display: flex; padding: 10px 12px; margin-bottom: 10px; border: 1px dashed var(--erp-line); border-radius: 10px; background: #fafbfc; }
+    .fin-statement .fin-stmt-table tr.fin-stmt-opening > td:first-child { display: none; }
+    .fin-statement .fin-stmt-table tr.fin-stmt-opening > td.is-num { flex: 1 1 auto; display: flex; justify-content: space-between; align-items: center; font-size: 15px; font-weight: 800; color: var(--erp-ink); }
+    .fin-statement .fin-stmt-table tr.fin-stmt-opening > td.is-num::before { margin: 0; }
+    .fin-statement .fin-stmt-table tr.fin-stmt-total {
+        display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 12px;
+        padding: 12px; border: 2px solid var(--erp-line); border-radius: 10px; background: #f8f9fa;
+    }
+    .fin-statement .fin-stmt-table tfoot td { background: transparent; border-top: 0; }
+    .fin-statement .fin-s-tlabel { grid-column: 1 / -1; font-size: 13.5px !important; }
+    .fin-statement .fin-s-closing { grid-column: 1 / -1; display: flex !important; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 12px !important; border-radius: 8px; background: var(--erp-ink) !important; color: #fff !important; font-size: 17px !important; }
+    .fin-statement .fin-s-closing::before { margin: 0 !important; color: #cbd0d6 !important; }
+    .fin-statement .fin-stmt-table tbody tr.fin-row-empty, .fin-statement .fin-stmt-table tbody tr.fin-row-empty > td { display: block; width: 100%; }
+    .fin-statement .fin-stmt-table tbody:has(tr.fin-row-empty) { margin-bottom: 10px; }
+
+    /* ── Panel FIN1: gráficas al ancho, listas → tarjetas ── */
+    .fin-dash .fin-dash-grid { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+    .fin-dash .fin-dash-grid > .erp-card { min-width: 0; }
+    .fin-dash .fin-legend { flex-wrap: wrap; }
+    .fin-dash .fin-flow { height: 150px; gap: 6px; margin-top: 12px; }
+    .fin-dash .fin-flow-bars { gap: 3px; }
+    .fin-dash .fin-flow-bars span { width: 36%; }
+    .fin-dash .fin-flow-label { font-size: 10px; line-height: 1.25; overflow-wrap: anywhere; }
+    .fin-dash .fin-flow-net { font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .fin-dash .fin-list-row { flex-wrap: wrap; gap: 6px 10px; min-height: 44px; padding: 10px 12px; margin-bottom: 8px; border: 1px solid var(--erp-line); border-radius: 10px; background: #fff; }
+    .fin-dash .fin-list-row:last-child { margin-bottom: 0; }
+    .fin-dash .fin-list-row .fin-grow { flex: 1 1 calc(100% - 20px); white-space: normal; overflow: visible; overflow-wrap: anywhere; font-size: 13.5px; }
+    .fin-dash .fin-list-row .erp-chip { white-space: normal; }
+    .fin-dash .fin-list-row .fin-muted { font-size: 12px; }
+    .fin-dash .fin-list-row .fin-amt { margin-left: auto; font-size: 15px; }
+}

@@ -1,23 +1,23 @@
-<div id="supplierCreateModal" class="user-manager-modal client-manage-modal clients-page-modal" role="dialog" aria-modal="true">
+<div id="supplierCreateModal" class="user-manager-modal client-manage-modal suppliers-page-modal" role="dialog" aria-modal="true" aria-labelledby="supplierCreateModalTitle">
     <div class="user-manager-modal-content client-modal-content">
         <div class="user-manager-modal-header">
-            <h2>Nuevo Proveedor</h2>
-            <button type="button" class="table-users-manager-action-btn cancel" id="closeSupplierCreateModal">✕</button>
+            <h2 id="supplierCreateModalTitle">Nuevo Proveedor</h2>
+            <button type="button" class="table-users-manager-action-btn cancel" id="closeSupplierCreateModal" aria-label="Cerrar" data-suppliers-modal-close>✕</button>
         </div>
-
-        {{-- FIX: the submit handler in _scripts.blade.php already looked up
-             this container by id to show client- and server-side (422)
-             errors, but no element with this id existed anywhere in this
-             modal — so validation failures (phone > 20 chars, rating out of
-             1-5) failed completely silently: click Guardar, nothing visibly
-             happens. --}}
-        <div id="supplier-create-errors" class="user-manager-errors" style="display:none;"></div>
 
         <form class="user-manager-modal-body" id="supplierCreateForm" action="{{ route('admin.suppliers.store') }}"
             method="POST" novalidate>
             @csrf
-            {{-- Zona con scroll: encabezado y botones quedan fijos (clientes-modals.css) --}}
-            <div class="clients-modal-scroll">
+            {{-- Zona con scroll: encabezado y botones quedan fijos (proveedores.css, .suppliers-page-modal) --}}
+            <div class="suppliers-modal-scroll">
+
+            {{-- FIX: the submit handler in _scripts.blade.php already looked up
+                 this container by id to show client- and server-side (422)
+                 errors, but no element with this id existed anywhere in this
+                 modal — so validation failures (phone > 20 chars, rating out of
+                 1-5) failed completely silently: click Guardar, nothing visibly
+                 happens. Va dentro de la zona con scroll para que se vea. --}}
+            <div id="supplier-create-errors" class="user-manager-errors" style="display:none;"></div>
 
             {{-- Constancia SAT reader --}}
             <div class="cfdi-reader-section">
@@ -141,7 +141,7 @@
                 </div>
             </div>
 
-            </div>{{-- /clients-modal-scroll --}}
+            </div>{{-- /suppliers-modal-scroll --}}
 
             <div class="user-manager-modal-footer">
                 <button type="button" id="cancelSupplierCreateModal"

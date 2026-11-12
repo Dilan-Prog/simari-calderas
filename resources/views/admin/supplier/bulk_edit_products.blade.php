@@ -1,9 +1,12 @@
 @extends('admin.layouts.master')
+@push('styles')
+    @vite('resources/css/admin/pages/proveedores.css')
+@endpush
 @section('title')
     Editar en lote - Proveedores Productos - Admin
 @endsection
 @section('content')
-    <div class="prod-page prod-bulk-edit-page">
+    <div class="prod-page prod-bulk-edit-page sp-bulk-edit-page">
         <div class="prod-page-header">
             <div class="prod-header-top">
                 <div>
@@ -101,31 +104,35 @@
                     </thead>
                     <tbody>
                         @forelse ($links as $link)
-                            <tr data-row-id="{{ $link->id }}">
-                                <td class="prod-bulk-readonly" data-col="product">
+                            <tr class="sp-bulk-row" data-row-id="{{ $link->id }}">
+                                <td class="prod-bulk-readonly sp-bulk-cell-product" data-col="product" data-label="Producto">
                                     {{ $link->product->name ?? '—' }}
                                     <br><span style="color:#9ca3af">{{ $link->product->sku ?? '' }}</span>
                                 </td>
-                                <td class="prod-bulk-readonly" data-col="supplier">{{ $link->supplier->company_name ?? '—' }}</td>
-                                <td data-col="sku">
-                                    <input type="text" class="prod-bulk-input" data-id="{{ $link->id }}"
+                                <td class="prod-bulk-readonly sp-bulk-cell-supplier" data-col="supplier" data-label="Proveedor">{{ $link->supplier->company_name ?? '—' }}</td>
+                                <td data-col="sku" data-label="SKU proveedor">
+                                    <input type="text" class="prod-bulk-input" aria-label="SKU proveedor" data-id="{{ $link->id }}"
                                         data-field="sku" value="{{ $link->sku }}" maxlength="100">
                                 </td>
-                                <td data-col="cost">
-                                    <input type="text" class="prod-bulk-input" data-id="{{ $link->id }}"
+                                <td data-col="cost" data-label="Costo">
+                                    <input type="text" inputmode="decimal" class="prod-bulk-input" aria-label="Costo" data-id="{{ $link->id }}"
                                         data-field="cost" value="{{ $link->cost }}">
                                 </td>
-                                <td data-col="lead_time_days">
-                                    <input type="number" min="0" class="prod-bulk-input" data-id="{{ $link->id }}"
+                                <td data-col="lead_time_days" data-label="Lead time (días)">
+                                    <input type="number" min="0" inputmode="numeric" class="prod-bulk-input" aria-label="Lead time (días)" data-id="{{ $link->id }}"
                                         data-field="lead_time_days" value="{{ $link->lead_time_days }}">
                                 </td>
                                 <td class="prod-bulk-checkbox-cell" data-col="is_primary">
-                                    <input type="checkbox" class="prod-bulk-input" data-id="{{ $link->id }}"
-                                        data-field="is_primary" @checked($link->is_primary)>
+                                    {{-- En celular la casilla y su texto forman una fila táctil (proveedores.css) --}}
+                                    <label class="sp-bulk-primary-label">
+                                        <input type="checkbox" class="prod-bulk-input" data-id="{{ $link->id }}"
+                                            data-field="is_primary" @checked($link->is_primary)>
+                                        <span class="sp-bulk-primary-text">Es principal</span>
+                                    </label>
                                 </td>
                             </tr>
                         @empty
-                            <tr>
+                            <tr class="sp-bulk-empty-row">
                                 <td colspan="6">
                                     <p class="prod-empty">No se encontraron vínculos proveedor-producto con los filtros
                                         actuales.</p>
@@ -146,7 +153,7 @@
         </div>
     </div>
 
-    <div id="spBulkEditBar" class="prod-bulk-bar">
+    <div id="spBulkEditBar" class="prod-bulk-bar sp-bulk-bar">
         <span class="prod-bulk-count"><span id="spBulkEditCount">0</span> cambio(s) sin guardar</span>
         <button type="button" class="prod-bulk-btn" id="spBulkEditDiscardBtn">Descartar cambios</button>
         <button type="button" class="prod-bulk-btn" id="spBulkEditSaveBtn">Guardar cambios</button>

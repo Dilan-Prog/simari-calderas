@@ -12,7 +12,7 @@
             default => ['label' => 'Pendiente', 'color' => '#d97706', 'bg' => '#fffbeb', 'border' => '#d9780640'],
         };
     @endphp
-    <div class="po-page">
+    <div class="po-page po-show">
 
         {{-- Header --}}
         <header class="po-header">
@@ -42,7 +42,7 @@
             <div class="po-main">
 
                 {{-- Datos del Proveedor --}}
-                <div class="po-card">
+                <div class="po-card po-show-supplier">
                     <h2 class="po-card__header">
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
                             fill="none" stroke="#ff6213" stroke-width="2" stroke-linecap="round"
@@ -117,7 +117,7 @@
                     </h2>
 
                     <div class="po-table-wrap">
-                        <table class="po-table">
+                        <table class="po-table po-show-items">
                             <thead>
                                 <tr>
                                     <th class="po-col-num">#</th>
@@ -131,9 +131,9 @@
                             </thead>
                             <tbody>
                                 @forelse ($order->items as $index => $item)
-                                    <tr>
+                                    <tr class="po-show-item">
                                         <td class="po-col-num">{{ $index + 1 }}</td>
-                                        <td class="po-col-name">
+                                        <td class="po-col-name" data-label="Producto">
                                             <p class="po-item-name">{{ $item->product_name }}</p>
                                             @if ($item->comment)
                                                 <p style="margin:0;font-size:12px;color:#9ca3af;">
@@ -141,11 +141,11 @@
                                                 </p>
                                             @endif
                                         </td>
-                                        <td class="po-col-sku">{{ $item->product_sku ?? '—' }}</td>
-                                        <td class="po-col-qty">{{ $item->quantity }}</td>
-                                        <td class="po-col-price">${{ number_format($item->unit_price, 2) }}</td>
-                                        <td class="po-col-disc">{{ number_format($item->discount_percent, 2) }}%</td>
-                                        <td class="po-col-total">
+                                        <td class="po-col-sku" data-label="SKU">{{ $item->product_sku ?? '—' }}</td>
+                                        <td class="po-col-qty" data-label="Cantidad">{{ $item->quantity }}</td>
+                                        <td class="po-col-price" data-label="Precio unit.">${{ number_format($item->unit_price, 2) }}</td>
+                                        <td class="po-col-disc" data-label="Desc.">{{ number_format($item->discount_percent, 2) }}%</td>
+                                        <td class="po-col-total" data-label="Subtotal">
                                             <span class="po-item-total">${{ number_format($item->line_total, 2) }}</span>
                                         </td>
                                     </tr>
@@ -165,7 +165,7 @@
             <aside class="po-sidebar">
 
                 {{-- Resumen --}}
-                <div class="po-card">
+                <div class="po-card po-show-summary">
                     <h2 class="po-card__header">Resumen de la Orden</h2>
                     <div class="po-summary">
                         <div class="po-summary__row">
@@ -204,9 +204,9 @@
                 </div>
 
                 {{-- Estado --}}
-                <div class="po-card">
+                <div class="po-card po-show-status">
                     <h2 class="po-card__header">Estado de la Orden</h2>
-                    <span style="display:inline-block;padding:6px 16px;border-radius:20px;
+                    <span class="po-show-status__badge" style="display:inline-block;padding:6px 16px;border-radius:20px;
                         font-size:13px;font-weight:600;
                         background:{{ $statusConfig['bg'] }};
                         color:{{ $statusConfig['color'] }};
@@ -216,7 +216,7 @@
                 </div>
 
                 {{-- Info adicional --}}
-                <div class="po-card">
+                <div class="po-card po-show-info">
                     <h2 class="po-card__header">Información adicional</h2>
                     <div class="po-info-row">
                         <span class="po-info-row__label">Creada por</span>
@@ -239,18 +239,20 @@
                     </div>
                 </div>
 
+                {{-- Acciones (en escritorio el contenedor es display:contents → sin cambio visual) --}}
+                <div class="po-show-actions">
                 {{-- Finanzas: generar cuenta por pagar desde la OC aceptada/recibida --}}
                 @if (in_array($order->status, ['accepted', 'received'], true) && Route::has('admin.payables.from-purchase-order') && auth()->user()->hasPermission('payables', 'view'))
                     @php
                         $existingCxp = \App\Models\Payable::where('purchase_order_id', $order->id)->where('status', '!=', 'cancelada')->first();
                     @endphp
                     @if ($existingCxp)
-                        <a href="{{ route('admin.payables.show', $existingCxp->id) }}" class="po-btn-draft"
+                        <a href="{{ route('admin.payables.show', $existingCxp->id) }}" class="po-btn-draft po-show-act--cxp"
                             style="display:block;text-align:center;text-decoration:none;">
                             Cuenta por pagar {{ $existingCxp->number }}
                         </a>
                     @elseif (auth()->user()->hasPermission('payables', 'create'))
-                        <form method="POST" action="{{ route('admin.payables.from-purchase-order', $order->id) }}">
+                        <form method="POST" action="{{ route('admin.payables.from-purchase-order', $order->id) }}" class="po-show-act--cxp">
                             @csrf
                             <button type="submit" class="po-btn-draft" style="display:block;width:100%;text-align:center;cursor:pointer;">
                                 Generar cuenta por pagar
@@ -260,18 +262,19 @@
                 @endif
 
                 {{-- Actions --}}
-                <a href="{{ route('admin.purchase-orders.edit', $order->id) }}" class="po-btn-save"
+                <a href="{{ route('admin.purchase-orders.edit', $order->id) }}" class="po-btn-save po-show-act--edit"
                     style="display:block;text-align:center;text-decoration:none;">
                     Editar Orden
                 </a>
-                <a href="{{ route('admin.purchase-orders.pdf', $order->id) }}" class="po-btn-draft"
+                <a href="{{ route('admin.purchase-orders.pdf', $order->id) }}" class="po-btn-draft po-show-act--pdf"
                     style="display:block;text-align:center;text-decoration:none;">
                     Exportar PDF
                 </a>
-                <a href="{{ route('admin.purchase-orders.index') }}" class="po-btn-draft"
+                <a href="{{ route('admin.purchase-orders.index') }}" class="po-btn-draft po-show-act--back"
                     style="display:block;text-align:center;text-decoration:none;">
                     Volver
                 </a>
+                </div>
 
             </aside>
         </div>

@@ -21,7 +21,7 @@
     $netFmt = fn ($v) => ($v >= 0 ? '+' : '−') . '$' . number_format(abs($v) / 1000, 0) . ' k';
     $netTotal = $cash['net'];
 @endphp
-<div class="erp-page fin-page">
+<div class="erp-page fin-page fin-dash">
 
     <x-erp.page-header
         title="Panel de finanzas" code="FIN1"

@@ -171,8 +171,16 @@
     })();
 
     // ── Filter ──────────────────────────────────────────────
-    function filterSuppliers() {
-        const search    = document.getElementById('supplierSearch')?.value.toLowerCase()  ?? '';
+    // Marca cada fila con [hidden] según los filtros; la paginación
+    // (window.suppliersPager, script inline de index.blade.php) reparte
+    // después las filas visibles en páginas. keepPage = true conserva la
+    // página actual (p. ej. tras editar una fila sin recargar).
+    function supplierNormalize(str) {
+        return String(str || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    }
+
+    function filterSuppliers(keepPage) {
+        const search    = supplierNormalize(document.getElementById('supplierSearch')?.value.trim() ?? '');
         const status    = document.getElementById('supplierStatusFilter')?.value          ?? 'all';
         const payment   = document.getElementById('supplierPaymentFilter')?.value         ?? 'all';
         const ratingLabelEl = document.getElementById('rating-label');
@@ -180,7 +188,8 @@
         const minRating     = parseInt(ratingText.replace('Rating mínimo: ', '').split('/')[0]) || 0;
 
         document.querySelectorAll('.supplier-row').forEach(row => {
-            const rowText     = row.textContent.toLowerCase();
+            // data-search + texto visible (queda al día si se edita la fila sin recargar)
+            const rowText     = supplierNormalize((row.dataset.search || '') + ' ' + row.textContent);
             const statusBadge = row.querySelector('.supplier-status-badge');
             const paymentEl   = row.querySelector('.supplier-payment');
             const starsEls    = row.querySelectorAll('.supplier-stars-svg[data-rating]');
@@ -195,13 +204,18 @@
             const matchPayment = payment === 'all' || rowPayment === payment;
             const matchRating  = minRating === 0   || qualRating >= minRating || compRating >= minRating;
 
-            row.style.display = matchSearch && matchStatus && matchPayment && matchRating ? '' : 'none';
+            row.style.display = '';
+            row.hidden = !(matchSearch && matchStatus && matchPayment && matchRating);
         });
+
+        if (window.suppliersPager) {
+            keepPage === true ? window.suppliersPager.render() : window.suppliersPager.reset();
+        }
     }
 
-    document.getElementById('supplierSearch')?.addEventListener('input',        filterSuppliers);
-    document.getElementById('supplierStatusFilter')?.addEventListener('change', filterSuppliers);
-    document.getElementById('supplierPaymentFilter')?.addEventListener('change',filterSuppliers);
+    document.getElementById('supplierSearch')?.addEventListener('input',        () => filterSuppliers());
+    document.getElementById('supplierStatusFilter')?.addEventListener('change', () => filterSuppliers());
+    document.getElementById('supplierPaymentFilter')?.addEventListener('change', () => filterSuppliers());
 
     // ── Toast ───────────────────────────────────────────────
     const showSupplierToast = (message, type = 'success') => {
@@ -256,11 +270,39 @@
         if (!editBtn) return;
         const row = editBtn.closest('tr');
 
-        const nameEl = row.querySelector('.supplier-name');
-        if (nameEl) nameEl.textContent = supplier.company_name ?? '—';
+        // FIX: buscaba '.supplier-name', clase que no existe en la fila
+        // (la empresa lleva '.supplier-company'), así que el nombre nunca se
+        // actualizaba tras editar. Se actualizan también RFC, email,
+        // teléfono, condiciones de pago y el texto de búsqueda.
+        const setText = (sel, val) => {
+            const el = row.querySelector(sel);
+            if (!el) return;
+            // Conserva el icono SVG de email/teléfono: sólo cambia el último nodo de texto.
+            const svg = el.querySelector('svg');
+            if (svg) {
+                while (svg.nextSibling) svg.nextSibling.remove();
+                el.appendChild(document.createTextNode(' ' + val));
+            } else {
+                el.textContent = val;
+            }
+        };
+        setText('.supplier-company', supplier.company_name ?? '—');
+        setText('.supplier-rfc',     supplier.rfc          || '—');
+        setText('.supplier-contact', supplier.contact_name || '—');
+        setText('.supplier-email',   supplier.email        || '—');
+        setText('.supplier-phone',   supplier.phone        || '—');
 
-        const contactEl = row.querySelector('.supplier-contact');
-        if (contactEl) contactEl.textContent = supplier.contact_name ?? '—';
+        const avatarEl = row.querySelector('.sup-avatar');
+        if (avatarEl && supplier.company_name) avatarEl.textContent = supplier.company_name.charAt(0).toUpperCase();
+
+        const paymentEl = row.querySelector('.supplier-payment');
+        if (paymentEl) {
+            paymentEl.textContent     = supplier.payment_terms || '—';
+            paymentEl.dataset.payment = supplier.payment_terms ?? '';
+        }
+
+        row.dataset.search = [supplier.company_name, supplier.contact_name, supplier.rfc,
+            supplier.email, supplier.phone, supplier.payment_terms].filter(Boolean).join(' ').toLowerCase();
 
         const statusBadge = row.querySelector('.supplier-status-badge');
         if (statusBadge) {
@@ -286,12 +328,18 @@
             deleteBtn.dataset.name  = supplier.company_name ?? '';
             deleteBtn.dataset.email = supplier.email        ?? '';
         }
+
+        // La fila editada puede dejar de cumplir los filtros activos.
+        filterSuppliers(true);
     };
 
     // ── Create modal ────────────────────────────────────────
     const supplierModal       = document.getElementById('supplierCreateModal');
-    const closeSupplierModal  = document.getElementById('closeSupplierModal');
-    const cancelSupplierModal = document.getElementById('cancelSupplierModal');
+    // FIX: se buscaban los ids 'closeSupplierModal' / 'cancelSupplierModal',
+    // que no existen (el modal usa closeSupplierCreateModal /
+    // cancelSupplierCreateModal), así que ✕ y Cancelar no cerraban el modal.
+    const closeSupplierModal  = document.getElementById('closeSupplierCreateModal') || document.getElementById('closeSupplierModal');
+    const cancelSupplierModal = document.getElementById('cancelSupplierCreateModal') || document.getElementById('cancelSupplierModal');
 
     const closeCreateWithAnim = () => {
         const content = supplierModal?.querySelector('.user-manager-modal-content');

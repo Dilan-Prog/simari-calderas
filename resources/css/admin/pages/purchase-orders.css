@@ -570,6 +570,7 @@
 
 .po-btn-draft {
     width: 100%;
+    box-sizing: border-box; /* <a> con width:100% + padding se desbordaba */
     padding: 12px;
     border-radius: 8px;
     border: 1.5px solid #e5e7eb;
@@ -905,3 +906,214 @@
         justify-content: center;
     }
 }
+
+/* ============================================================
+   MÓVIL — Órdenes de Compra: listado (.po-index) y detalle (.po-show)
+   TODO acotado a esas dos envolturas: este archivo también lo cargan
+   sales-orders/* (.so-index / .so-show) y el wizard create/edit, que
+   NO llevan estas clases → no les afecta.
+   Fuera del media query solo hay dos reglas neutras para escritorio:
+   ocultar las etiquetas de texto de los botones de acción del listado
+   y hacer "transparente" (display: contents) el contenedor de acciones
+   del detalle, de modo que el escritorio se ve exactamente igual.
+   ============================================================ */
+.po-index .po-act-text { display: none; }
+.po-show .po-show-actions { display: contents; }
+
+@media (max-width: 768px) {
+    /* ── Listado ─────────────────────────────────────────── */
+    .po-index { max-width: 100%; overflow-x: clip; }
+    .po-index * { box-sizing: border-box; }
+    .po-index .clients-manager-section { padding: 12px; }
+
+    /* Encabezado + herramientas apiladas */
+    .po-index .header-of-purchase-orders-section { flex-direction: column; align-items: stretch; gap: 12px; margin-bottom: 16px; }
+    .po-index .content-of-header-of-purchase-orders-section { min-width: 0; }
+    .po-index .content-of-header-of-purchase-orders-section h1 { margin: 6px 0; font-size: 22px; line-height: 1.2; }
+    .po-index .breadcrumb-clients-manager { overflow-wrap: anywhere; }
+    .po-index .po-head-tools { display: grid !important; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px !important; width: 100%; }
+    .po-index .po-head-tools > :only-child { grid-column: 1 / -1; }
+    .po-index .po-head-tools .col-vis-wrap { position: relative; width: 100%; min-width: 0; }
+    .po-index .po-head-tools .col-vis-btn { width: 100%; min-height: 44px; justify-content: center; font-size: 14px; }
+    .po-index .po-head-tools .col-vis-menu { left: 0; top: calc(100% + 6px); min-width: 0 !important; width: max(220px, 100%); max-width: calc(100vw - 24px); }
+    .po-index .po-head-tools .col-vis-item { min-height: 44px; font-size: 15px; }
+    .po-index .po-head-tools .col-vis-item input { width: 20px; height: 20px; flex-shrink: 0; }
+    .po-index .po-head-tools .po-new-btn { width: 100%; min-height: 44px; justify-content: center; font-size: 14px; }
+
+    /* Estadísticas 2 × 2 */
+    .po-index .po-stats { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 10px !important; margin-bottom: 16px !important; }
+    .po-index .po-stats .stat-card-of-purchase-orders-section { padding: 12px; gap: 10px; min-width: 0; align-items: flex-start; }
+    .po-index .po-stats .stat-card-of-purchase-orders-section > div:first-child { width: 36px !important; height: 36px !important; border-radius: 10px !important; }
+    .po-index .po-stats .stat-card-of-purchase-orders-section > div:last-child { min-width: 0; }
+    .po-index .po-stats h2 { font-size: 1.4rem !important; line-height: 1.1; }
+    .po-index .po-stats p { font-size: 12.5px !important; line-height: 1.3; overflow-wrap: anywhere; }
+
+    /* Filtros: búsqueda y estado a lo ancho; Fecha/Filtrar en 2 columnas */
+    .po-index .po-filters { display: grid !important; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px !important; margin-bottom: 12px !important; }
+    .po-index .po-filters .filters-clients-manager-search,
+    .po-index .po-filters .filters-clients-manager-select { grid-column: 1 / -1; min-width: 0; }
+    .po-index .po-filters input,
+    .po-index .po-filters select { width: 100%; font-size: 16px; min-height: 44px; }
+    .po-index .po-filters .po-filter-btn { justify-content: center; min-height: 44px; width: 100%; font-size: 14px !important; }
+
+    /* Pestañas de estado: tira desplazable, objetivos ≥44px */
+    .po-index .po-tabs { overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; margin-bottom: 14px !important; }
+    .po-index .po-tabs::-webkit-scrollbar { display: none; }
+    .po-index .po-tabs > a { flex-shrink: 0; white-space: nowrap; min-height: 44px; display: inline-flex; align-items: center; padding: 10px 14px !important; }
+
+    /* Tabla → tarjetas */
+    .po-index .table-container-clients-manager { border: 0; box-shadow: none; border-radius: 0; overflow: visible; }
+    .po-index .clients-manager-table.brand-table { display: none; }
+    .po-index .table-scroll { max-height: none; overflow: visible; }
+    .po-index .po-list, .po-index .po-list tbody { display: block; width: 100%; table-layout: auto; }
+    .po-index .po-list tbody tr.po-row {
+        display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px 12px;
+        grid-template-areas: "folio estado" "proveedor proveedor" "productos total" "fecha fecha" "actions actions";
+        padding: 12px 14px; margin-bottom: 10px; border: 1px solid #e5e7eb !important; border-radius: 12px;
+        background: #fff; box-shadow: 0 1px 2px rgba(16, 24, 40, .05);
+    }
+    .po-index .po-list tbody tr.po-row:last-child { margin-bottom: 0; }
+    .po-index .po-list tbody tr.po-row > td { display: block; padding: 0 !important; border: 0; min-width: 0; font-size: 13px; overflow-wrap: anywhere; }
+    .po-index .po-row td[data-label]::before {
+        content: attr(data-label); display: block; margin-bottom: 3px;
+        font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: #9ca3af;
+    }
+    .po-index .po-c-folio { grid-area: folio; align-self: center; }
+    .po-index .po-c-folio p { font-size: 15px !important; }
+    .po-index .po-c-estado { grid-area: estado; justify-self: end; align-self: center; text-align: right; }
+    .po-index .po-c-estado::before { display: none !important; }
+    .po-index .po-c-proveedor { grid-area: proveedor; }
+    .po-index .po-c-proveedor p { font-size: 15px !important; line-height: 1.3; }
+    .po-index .po-c-productos { grid-area: productos; padding-top: 10px !important; border-top: 1px solid #f1f5f9 !important; }
+    .po-index .po-c-total { grid-area: total; padding-top: 10px !important; border-top: 1px solid #f1f5f9 !important; text-align: right; }
+    .po-index .po-c-total p { font-size: 16px !important; }
+    .po-index .po-c-fecha { grid-area: fecha; }
+    .po-index .po-c-actions { grid-area: actions; padding-top: 10px !important; border-top: 1px solid #f1f5f9 !important; }
+    .po-index .po-actions { display: grid; grid-template-columns: repeat(auto-fit, minmax(64px, 1fr)); gap: 8px; height: auto; overflow: visible; }
+    .po-index .po-actions .table-users-manager-action-btn {
+        width: 100%; height: auto; min-height: 44px; padding: 0 8px; gap: 6px; border-radius: 10px;
+        font-size: 13px; font-weight: 600; color: #374151; text-decoration: none; overflow: visible;
+    }
+    .po-index .po-actions .table-users-manager-action-btn svg { margin: 0; flex-shrink: 0; }
+    .po-index .po-actions .table-users-manager-action-btn.delete { color: #dc2626; border-color: #fecaca; }
+    .po-index .po-act-text { display: inline; }
+    /* Columnas ocultas desde el menú "Columnas": siguen ocultas en tarjeta */
+    .po-index .po-row > td.col-hidden { display: none !important; }
+
+    /* Estado vacío */
+    .po-index .po-list tbody tr.po-empty { display: block; }
+    .po-index .po-list tbody tr.po-empty > td { display: block; padding: 32px 16px !important; border: 1px dashed #e5e7eb; border-radius: 12px; }
+
+    /* Conteo + paginación */
+    .po-index .po-count { flex-direction: column; justify-content: center !important; text-align: center; padding: 0 !important; margin-top: 12px !important; }
+    .po-index .admin-pagination { justify-content: center; margin-top: 10px; }
+    .po-index .admin-pagination-list { flex-wrap: wrap; justify-content: center; gap: 4px; }
+    .po-index .admin-pagination-btn { min-width: 40px; min-height: 40px; padding: 0 8px; display: inline-flex; align-items: center; justify-content: center; }
+    .po-index .admin-pagination-dots { min-width: auto; }
+
+    /* ── Detalle ─────────────────────────────────────────── */
+    .po-show { max-width: 100%; overflow-x: clip; padding: 12px; }
+    .po-show * { box-sizing: border-box; }
+    .po-show a, .po-show p, .po-show span, .po-show label { overflow-wrap: anywhere; }
+    .po-show .po-header { margin-bottom: 14px; }
+    .po-show .po-breadcrumb { line-height: 1.5; }
+    .po-show .po-breadcrumb a { display: inline-block; padding: 6px 0; }
+    .po-show .po-header__title-row { flex-wrap: nowrap; }
+    .po-show .po-back-btn { width: 44px; height: 44px; }
+    .po-show .po-header__title { font-size: 20px; line-height: 1.25; min-width: 0; }
+    .po-show .po-card { padding: 16px; }
+    .po-show .po-card__header { margin-bottom: 14px; }
+
+    /* Orden en teléfono: estado y acciones arriba, luego datos y partidas */
+    .po-show .po-layout { display: flex; flex-direction: column; gap: 14px; }
+    .po-show .po-sidebar { display: contents; }
+    .po-show .po-main { order: 3; gap: 14px; min-width: 0; }
+    .po-show .po-show-status { order: 1; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
+    .po-show .po-show-status .po-card__header { margin: 0; }
+    .po-show .po-show-actions { order: 2; }
+    .po-show .po-show-summary { order: 4; }
+    .po-show .po-show-info { order: 5; }
+
+    /* Acciones: rejilla 2 columnas, ≥44px */
+    .po-show .po-show-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+    .po-show .po-show-actions > * { min-width: 0; margin: 0; }
+    .po-show .po-show-actions .po-btn-save,
+    .po-show .po-show-actions .po-btn-draft {
+        display: flex !important; align-items: center; justify-content: center; width: 100%; min-height: 44px;
+        padding: 10px 12px; font-size: 14px; line-height: 1.25; text-align: center; white-space: normal;
+    }
+    .po-show .po-show-act--edit,
+    .po-show .po-show-act--cxp { grid-column: 1 / -1; }
+
+    /* Proveedor: etiqueta sobre valor */
+    .po-show .po-supplier-card { padding: 12px; }
+    .po-show .po-supplier-card__grid { grid-template-columns: minmax(0, 1fr); gap: 0; }
+    .po-show .po-supplier-card__label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; margin-top: 8px; }
+    .po-show .po-supplier-card__label:first-child { margin-top: 0; }
+    .po-show .po-form-grid { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+
+    /* Resumen / información */
+    .po-show .po-summary__row { flex-wrap: nowrap; gap: 12px; }
+    .po-show .po-summary__row > span:first-child { min-width: 0; }
+    .po-show .po-summary__val { text-align: right; white-space: nowrap; }
+    .po-show .po-info-row { gap: 12px; }
+    .po-show .po-info-row__val { text-align: right; min-width: 0; }
+
+    /* Partidas → tarjetas */
+    .po-show .po-table-wrap { overflow: visible; }
+    .po-show .po-show-items { min-width: 0; display: block; width: 100%; }
+    .po-show .po-show-items thead { display: none; }
+    .po-show .po-show-items tbody { display: block; }
+    .po-show .po-show-items tbody tr.po-show-item {
+        display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px;
+        grid-template-areas: "name name name" "sku sku sku" "qty price disc" "total total total";
+        padding: 12px; margin-bottom: 10px; border: 1px solid #e5e7eb; border-radius: 12px; background: #fff;
+    }
+    .po-show .po-show-items tbody tr.po-show-item:last-child { margin-bottom: 0; }
+    .po-show .po-show-items tbody tr.po-show-item > td { display: block; width: auto; padding: 0; min-width: 0; font-size: 13px; text-align: left; }
+    .po-show .po-show-item td[data-label]::before {
+        content: attr(data-label); display: block; margin-bottom: 3px;
+        font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: #9ca3af;
+    }
+    .po-show .po-show-item .po-col-num { display: none; }
+    .po-show .po-show-item .po-col-name { grid-area: name; }
+    .po-show .po-show-item .po-col-name::before { display: none; }
+    .po-show .po-show-item .po-item-name { font-size: 15px; line-height: 1.3; }
+    .po-show .po-show-item .po-col-sku { grid-area: sku; font-size: 12.5px; color: #6b7280; }
+    .po-show .po-show-item .po-col-sku::before { display: inline; margin: 0 4px 0 0; }
+    .po-show .po-show-item .po-col-qty,
+    .po-show .po-show-item .po-col-price,
+    .po-show .po-show-item .po-col-disc { padding: 8px 10px; border-radius: 8px; background: #f9fafb; font-size: 14px; font-weight: 600; color: #111827; }
+    .po-show .po-show-item .po-col-qty { grid-area: qty; }
+    .po-show .po-show-item .po-col-price { grid-area: price; }
+    .po-show .po-show-item .po-col-disc { grid-area: disc; }
+    .po-show .po-show-item .po-col-total {
+        grid-area: total; display: flex; align-items: baseline; justify-content: space-between; gap: 12px;
+        padding-top: 10px; border-top: 1px solid #f1f5f9;
+    }
+    .po-show .po-show-item .po-col-total::before { margin: 0; }
+    .po-show .po-show-item .po-item-total { padding: 0; font-size: 16px; }
+    .po-show .po-show-items .po-table__empty { display: block; }
+    .po-show .po-show-items .po-table__empty td { display: block; padding: 24px 12px; border: 1px dashed #e5e7eb; border-radius: 12px; }
+
+    /* Bloqueo de scroll del fondo con el modal abierto */
+    html:has(body.po-modal-open), body.po-modal-open { overflow: hidden; }
+    body.po-modal-open .admin-main, body.po-modal-open .container.po-index { overflow: hidden !important; }
+}
+
+/* Modal "Eliminar orden" del listado: hoja inferior en teléfono */
+@media (max-width: 640px) {
+    .po-modal.del-confirm-overlay.active { align-items: flex-end; justify-content: stretch; }
+    .po-modal .del-confirm-box {
+        width: 100%; max-width: none; max-height: 90dvh; overflow-y: auto; overscroll-behavior: contain;
+        border-radius: 16px 16px 0 0; padding: 22px 16px 16px; padding-bottom: calc(16px + env(safe-area-inset-bottom));
+        animation: poSheetIn .2s ease;
+    }
+    .po-modal .del-confirm-desc { overflow-wrap: anywhere; }
+    .po-modal .del-confirm-user-card { min-width: 0; }
+    .po-modal .del-confirm-user-card > div:last-child { min-width: 0; overflow-wrap: anywhere; }
+    .po-modal .del-confirm-actions { flex-direction: column-reverse; gap: 10px; }
+    .po-modal .del-confirm-actions > *,
+    .po-modal .del-confirm-actions form button { width: 100%; min-height: 46px; font-size: 15px; }
+}
+@keyframes poSheetIn { from { transform: translateY(24px); opacity: 0; } to { transform: none; opacity: 1; } }
