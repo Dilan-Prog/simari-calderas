@@ -29,7 +29,7 @@
         ['label' => 'Pagadas', 'url' => $viewUrl('pagada'), 'active' => request('status') === 'pagada'],
     ];
 @endphp
-<div class="erp-page fin-page">
+<div class="erp-page fin-page fin-docs-index {{ $user->hasPermission('payments', 'create') ? 'fin-docs-index--batch' : '' }}">
 
     <x-erp.page-header
         :title="$cfg['title']"
@@ -82,6 +82,9 @@
         <x-erp.filter-chips :chips="$chips" :clear-url="route($r . '.index')" />
 
         @if ($user->hasPermission('payments', 'create'))
+            @if ($docs->contains(fn ($d) => $d->isOpen()))
+                <label class="fin-m-only fin-selall-m"><input type="checkbox" data-fin-select-all-m> Seleccionar todos los abiertos</label>
+            @endif
             <x-erp.batch-bar noun="documentos">
                 <button type="button" class="erp-btn erp-btn--sm" data-fin-batch-pay
                         data-url="{{ route('admin.payments.create') }}" data-direction="{{ $isRec ? 'in' : 'out' }}" data-party-param="{{ $pc }}">
@@ -103,33 +106,33 @@
                 </thead>
                 <tbody>
                 @forelse ($docs as $d)
-                    <tr>
+                    <tr class="fin-row {{ $d->isOpen() && $d->daysToDue() < 0 ? 'is-overdue' : '' }}">
                         @if ($user->hasPermission('payments', 'create'))
-                            <td class="fin-check">
+                            <td class="fin-check fin-c-check">
                                 @if ($d->isOpen())
-                                    <input type="checkbox" class="erp-row-check" value="{{ $d->id }}" data-party="{{ $d->{$pc} }}" aria-label="Seleccionar {{ $d->number }}">
+                                    <label class="fin-check-hit"><input type="checkbox" class="erp-row-check" value="{{ $d->id }}" data-party="{{ $d->{$pc} }}" aria-label="Seleccionar {{ $d->number }}"></label>
                                 @endif
                             </td>
                         @endif
-                        <td class="erp-cell-folio"><a href="{{ route($r . '.show', $d->id) }}">{{ $d->number }}</a></td>
-                        <td>
+                        <td class="erp-cell-folio fin-c-folio"><a href="{{ route($r . '.show', $d->id) }}">{{ $d->number }}</a></td>
+                        <td class="fin-c-party" data-label="{{ $cfg['party_label'] }}">
                             <div class="erp-cell-main">{{ $d->partyName() }}</div>
                             <div class="erp-cell-sub"><a href="{{ route($r . '.statement', $d->{$pc}) }}" class="fin-link">Estado de cuenta</a></div>
                         </td>
-                        <td>{{ $d->issue_date->format('d/m/Y') }}</td>
-                        <td>
+                        <td class="fin-c-issue" data-label="Emisión">{{ $d->issue_date->format('d/m/Y') }}</td>
+                        <td class="fin-c-due" data-label="Vencimiento">
                             <x-erp.due :date="$d->due_date" :closed="!$d->isOpen()" />
                             @if ($d->isOpen())
                                 <span class="fin-due-note {{ $d->daysToDue() < 0 ? 'is-bad' : '' }}">{{ $d->daysToDue() < 0 ? 'Vencida hace ' . abs($d->daysToDue()) . ' d' : ($d->daysToDue() === 0 ? 'Vence hoy' : 'Faltan ' . $d->daysToDue() . ' d') }}</span>
                             @endif
                         </td>
-                        <td class="is-num">${{ number_format($d->total, 2) }}<span class="fin-cur">{{ $d->currency }}</span></td>
-                        <td class="is-num">${{ number_format($d->paid_amount, 2) }}</td>
-                        <td class="is-num"><strong>${{ number_format($d->balance, 2) }}</strong></td>
-                        <td><x-erp.chip :tone="$d::statusTone($d->status)" :label="$d::statusLabel($d->status)" /></td>
+                        <td class="is-num fin-c-total" data-label="Total">${{ number_format($d->total, 2) }}<span class="fin-cur">{{ $d->currency }}</span></td>
+                        <td class="is-num fin-c-paid" data-label="Pagado">${{ number_format($d->paid_amount, 2) }}</td>
+                        <td class="is-num fin-c-bal" data-label="Saldo"><strong>${{ number_format($d->balance, 2) }}</strong></td>
+                        <td class="fin-c-status"><x-erp.chip :tone="$d::statusTone($d->status)" :label="$d::statusLabel($d->status)" /></td>
                     </tr>
                 @empty
-                    <tr><td colspan="9" style="padding: 0;">
+                    <tr class="fin-row-empty"><td colspan="9" style="padding: 0;">
                         <x-erp.empty :title="'No hay ' . strtolower($cfg['plural']) . ' con estos filtros'" text="Prueba quitando algún filtro o cambia de vista." />
                     </td></tr>
                 @endforelse
@@ -147,4 +150,23 @@
 @endsection
 @push('scripts')
     @vite(['resources/js/admin/erp-finance.js'])
+    <script>
+        // Móvil: «Seleccionar todos» visible (la casilla de la cabecera se oculta en tarjetas).
+        (function () {
+            const all = document.querySelector('[data-fin-select-all-m]');
+            if (!all) return;
+            const checks = () => Array.from(document.querySelectorAll('.erp-row-check'));
+            all.addEventListener('change', function () {
+                const list = checks();
+                list.forEach(function (c) { c.checked = all.checked; });
+                if (list[0]) list[0].dispatchEvent(new Event('change', { bubbles: true }));
+            });
+            document.addEventListener('change', function (e) {
+                if (!e.target.matches('.erp-row-check, [data-erp-select-all]')) return;
+                const list = checks(), n = list.filter(function (c) { return c.checked; }).length;
+                all.checked = list.length > 0 && n === list.length;
+                all.indeterminate = n > 0 && n < list.length;
+            });
+        })();
+    </script>
 @endpush

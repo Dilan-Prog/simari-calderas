@@ -122,7 +122,9 @@ class PurchaseOrderController extends Controller
 
         // Redirect based on action button
         if ($request->action === 'save') {
-            return redirect()->route('admin.purchase-orders.index', $order->id)
+            // "Guardar y ver": abre la orden recién creada (antes mandaba a la
+            // lista con el id como query string: /ordenes-compra?11).
+            return redirect()->route('admin.purchase-orders.show', $order->id)
                 ->with('success', 'Orden de compra creada correctamente.');
         }
 

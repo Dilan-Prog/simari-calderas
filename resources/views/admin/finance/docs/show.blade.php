@@ -19,7 +19,7 @@
     $dueText = $doc->due_date->format('d/m/Y') . ($doc->isOpen() && $doc->daysToDue() < 0 ? ' (vencida hace ' . abs($doc->daysToDue()) . ' d)' : '');
     $creator = $doc->createdBy ? trim($doc->createdBy->first_name . ' ' . $doc->createdBy->last_name) : null;
 @endphp
-<div class="erp-page fin-page">
+<div class="erp-page fin-page fin-docs-show">
 
     <x-erp.object-header
         :title="$doc->number"
@@ -107,28 +107,28 @@
 
             <div class="erp-tabpanel" data-panel="pagos">
                 <div class="erp-table-wrap">
-                    <table class="erp-table">
+                    <table class="erp-table fin-paytable">
                         <thead><tr><th>Pago</th><th>Fecha</th><th>Método / referencia</th><th class="is-num">Aplicado ({{ $symbol }})</th><th>Estatus</th></tr></thead>
                         <tbody>
                         @forelse ($applications as $a)
                             @php $p = $a->payment; @endphp
-                            <tr>
-                                <td class="erp-cell-folio"><a href="{{ route('admin.payments.show', $p->id) }}">{{ $p->number }}</a></td>
-                                <td>{{ $p->payment_date->format('d/m/Y') }}</td>
-                                <td>{{ $p->paymentMethod?->name ?? '—' }}@if ($p->reference)<div class="erp-cell-sub">{{ $p->reference }}</div>@endif</td>
-                                <td class="is-num">${{ number_format($a->amount_applied, 2) }}
+                            <tr class="fin-prow">
+                                <td class="erp-cell-folio fin-p-folio"><a href="{{ route('admin.payments.show', $p->id) }}">{{ $p->number }}</a></td>
+                                <td class="fin-p-date" data-label="Fecha">{{ $p->payment_date->format('d/m/Y') }}</td>
+                                <td class="fin-p-method" data-label="Método / referencia">{{ $p->paymentMethod?->name ?? '—' }}@if ($p->reference)<div class="erp-cell-sub">{{ $p->reference }}</div>@endif</td>
+                                <td class="is-num fin-p-amt" data-label="Aplicado ({{ $symbol }})">${{ number_format($a->amount_applied, 2) }}
                                     @if ($p->currency !== $doc->currency)
                                         <div class="erp-cell-sub">de ${{ number_format($a->amount_payment, 2) }} {{ $p->currency }}</div>
                                     @endif
                                 </td>
-                                <td><x-erp.chip :tone="\App\Models\Payment::statusTone($p->status)" :label="\App\Models\Payment::statusLabel($p->status)" /></td>
+                                <td class="fin-p-status"><x-erp.chip :tone="\App\Models\Payment::statusTone($p->status)" :label="\App\Models\Payment::statusLabel($p->status)" /></td>
                             </tr>
                         @empty
-                            <tr><td colspan="5" style="padding: 0;"><x-erp.empty title="Aún no hay pagos aplicados" text="Registra un pago y aplícalo a este documento para reducir su saldo." /></td></tr>
+                            <tr class="fin-row-empty"><td colspan="5" style="padding: 0;"><x-erp.empty title="Aún no hay pagos aplicados" text="Registra un pago y aplícalo a este documento para reducir su saldo." /></td></tr>
                         @endforelse
                         </tbody>
                         @if ($applications->isNotEmpty())
-                            <tfoot><tr><td colspan="3">Total pagado</td><td class="is-num">${{ number_format($doc->paid_amount, 2) }}</td><td></td></tr></tfoot>
+                            <tfoot><tr class="fin-tfoot-row"><td colspan="3">Total pagado</td><td class="is-num">${{ number_format($doc->paid_amount, 2) }}</td><td class="fin-tf-empty"></td></tr></tfoot>
                         @endif
                     </table>
                 </div>

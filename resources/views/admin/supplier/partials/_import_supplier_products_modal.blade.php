@@ -2,9 +2,9 @@
      (desde la pestaña Productos de un proveedor), la importación queda
      bloqueada a ese proveedor — la columna "Proveedor" del archivo se vuelve
      opcional y, si se llena, debe coincidir con él. --}}
-<div id="importSupplierProductsModal" class="del-confirm-overlay">
+<div id="importSupplierProductsModal" class="del-confirm-overlay suppliers-page-modal sup-import-modal" role="dialog" aria-modal="true" aria-labelledby="spImportModalTitle">
     <div class="del-confirm-box prod-import-box">
-        <h2 class="del-confirm-title">
+        <h2 class="del-confirm-title" id="spImportModalTitle">
             @if (isset($scopedSupplier))
                 Importar Productos de {{ $scopedSupplier->company_name }}
             @else
@@ -46,7 +46,7 @@
         <div id="spImportResultDetail" class="prod-import-result" style="display:none"></div>
 
         <div class="del-confirm-actions">
-            <button type="button" class="button-secondary size-adjustment" id="spImportModalCancel">Cerrar</button>
+            <button type="button" class="button-secondary size-adjustment" id="spImportModalCancel" data-suppliers-modal-close>Cerrar</button>
             <button type="button" class="button-primary size-adjustment" id="btnDoSupplierProductImport" disabled>
                 Subir e Importar
             </button>

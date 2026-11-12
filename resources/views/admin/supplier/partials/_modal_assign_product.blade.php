@@ -2,8 +2,10 @@
      Compartido para "agregar" y "editar" — se rellena vía JS a partir de los
      data-* de la fila cuando se abre en modo edición. Modal centrado (mismo
      patrón que .del-confirm-overlay / la importación) con selector de
-     producto buscable en vez de un <select> plano de cientos de opciones. --}}
-<div id="assignProductModal" class="del-confirm-overlay">
+     producto buscable en vez de un <select> plano de cientos de opciones.
+     Encabezado y botones fijos; sólo .ap-modal-scroll tiene scroll. En
+     celular (≤640px) ocupa toda la pantalla (proveedores.css). --}}
+<div id="assignProductModal" class="del-confirm-overlay suppliers-page-modal" role="dialog" aria-modal="true" aria-labelledby="assignProductModalTitle">
     <div class="del-confirm-box ap-modal-box">
         <div class="ap-modal-header">
             <div class="ap-modal-icon-wrap">
@@ -23,9 +25,10 @@
                     Vincula un producto del catálogo a este proveedor con su SKU, costo y tiempo de entrega.
                 </p>
             </div>
-            <button type="button" class="table-users-manager-action-btn cancel" id="closeAssignProductModal">✕</button>
+            <button type="button" class="table-users-manager-action-btn cancel" id="closeAssignProductModal" aria-label="Cerrar" data-suppliers-modal-close>✕</button>
         </div>
 
+        <div class="ap-modal-scroll">
         <div id="assign-product-errors" class="ap-modal-errors" style="display:none;"></div>
 
         <div class="ap-modal-body">
@@ -54,13 +57,13 @@
                     <label class="supliers-manager-slider-label">Costo</label>
                     <div class="ap-input-prefix">
                         <span>$</span>
-                        <input class="users-manager-input" type="number" id="apCost" step="0.01" min="0"
+                        <input class="users-manager-input" type="number" id="apCost" step="0.01" min="0" inputmode="decimal"
                             placeholder="0.00">
                     </div>
                 </div>
                 <div class="ap-field-group">
                     <label class="supliers-manager-slider-label">Lead time (días)</label>
-                    <input class="users-manager-input" type="number" id="apLeadTime" min="0" placeholder="0">
+                    <input class="users-manager-input" type="number" id="apLeadTime" min="0" inputmode="numeric" placeholder="0">
                 </div>
             </div>
 
@@ -73,6 +76,7 @@
                 </div>
             </label>
         </div>
+        </div>{{-- /ap-modal-scroll --}}
 
         <div class="ap-modal-footer">
             <button type="button" id="cancelAssignProductModal" class="button-secondary size-adjustment">Cancelar</button>

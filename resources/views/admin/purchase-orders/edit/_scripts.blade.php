@@ -126,6 +126,8 @@
                 document.getElementById('summaryBase').textContent = fmt(base);
                 document.getElementById('summaryTax').textContent = fmt(tax);
                 document.getElementById('summaryTotal').textContent = fmt(total);
+                const footerTotal = document.getElementById('powizFooterTotal');
+                if (footerTotal) footerTotal.textContent = fmt(total);
                 document.getElementById('hiddenSubtotal').value = subtotal.toFixed(2);
                 document.getElementById('hiddenTaxTotal').value = tax.toFixed(2);
                 document.getElementById('hiddenTotal').value = total.toFixed(2);
@@ -153,8 +155,8 @@
                     tr.dataset.id = item.id;
 
                     tr.innerHTML = `
-                <td style="color:#9ca3af;font-size:13px;">${index + 1}</td>
-                <td>
+                <td class="po-td-num" style="color:#9ca3af;font-size:13px;">${index + 1}</td>
+                <td class="po-td-name">
                     ${item.fromCatalog
                         ? `<p class="po-item-name">${item.name}</p>`
                         : `<input type="text" class="po-item-input" data-field="name"
@@ -173,31 +175,31 @@
                     <input type="hidden" name="items[${index}][line_total]"       value="${item.lineTotal ?? 0}" class="h-line">
                     <input type="hidden" name="items[${index}][sort_order]"       value="${index}">
                 </td>
-                <td>
+                <td class="po-td-sku" data-label="SKU">
                     <input type="text"
                         class="po-item-input ${item.fromCatalog ? 'po-item-input--readonly' : ''}"
                         data-field="sku" value="${item.sku}" placeholder="SKU"
                         ${item.fromCatalog ? 'readonly' : ''}>
                 </td>
-                <td>
-                    <input type="number" class="po-item-input" data-field="qty"
+                <td class="po-td-qty" data-label="Cantidad">
+                    <input type="number" class="po-item-input" data-field="qty" inputmode="decimal"
                         value="${item.qty}" min="1" style="text-align:center;">
                 </td>
-                <td>
-                    <input type="number" class="po-item-input" data-field="price"
+                <td class="po-td-price" data-label="Precio unit.">
+                    <input type="number" class="po-item-input" data-field="price" inputmode="decimal"
                         value="${item.price}" min="0" step="0.01" style="text-align:center;">
                 </td>
-                <td>
-                    <input type="number" class="po-item-input" data-field="disc"
+                <td class="po-td-disc" data-label="Desc. %">
+                    <input type="number" class="po-item-input" data-field="disc" inputmode="decimal"
                         value="${item.disc}" min="0" max="100" step="0.01" style="text-align:center;">
                 </td>
-                <td>
+                <td class="po-td-total" data-label="Subtotal">
                     <span id="po-line-${item.id}" class="po-item-total">
                         ${fmt(item.lineTotal ?? 0)}
                     </span>
                 </td>
-                <td>
-                    <button type="button" class="po-item-remove" data-remove="${item.id}">✕</button>
+                <td class="po-td-del">
+                    <button type="button" class="po-item-remove" data-remove="${item.id}" aria-label="Quitar línea">✕</button>
                 </td>
             `;
 

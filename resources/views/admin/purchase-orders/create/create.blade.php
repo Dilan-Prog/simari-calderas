@@ -9,7 +9,7 @@
 @endpush
 
 @section('content')
-<div class="po-page">
+<div class="po-page po-page--wizard">
 
     {{-- Si un submit falló la validación server-side en un campo de los
          Pasos 2 o 3, el wizard (que siempre arranca en el Paso 1 vía
@@ -54,17 +54,17 @@
 
     {{-- Barra de progreso del wizard --}}
     <div class="powiz-bar">
-        <div class="powiz-step active">
+        <div class="powiz-step active" data-powiz-step-item="1">
             <div class="powiz-step__circle">1</div>
             <div class="powiz-step__label">Proveedor</div>
         </div>
         <div class="powiz-step-connector"></div>
-        <div class="powiz-step">
+        <div class="powiz-step" data-powiz-step-item="2">
             <div class="powiz-step__circle">2</div>
             <div class="powiz-step__label">Moneda y configuración</div>
         </div>
         <div class="powiz-step-connector"></div>
-        <div class="powiz-step">
+        <div class="powiz-step" data-powiz-step-item="3">
             <div class="powiz-step__circle">3</div>
             <div class="powiz-step__label">Productos</div>
         </div>
@@ -171,7 +171,7 @@
                     </div>
                     <div class="po-form-group">
                         <label class="po-label">TIPO DE CAMBIO (USD → MXN) <span class="po-req">*</span></label>
-                        <input type="number" name="exchange_rate" id="exchangeRate" class="po-input {{ $errors->has('exchange_rate') ? 'is-invalid' : '' }}"
+                        <input type="number" name="exchange_rate" id="exchangeRate" inputmode="decimal" class="po-input {{ $errors->has('exchange_rate') ? 'is-invalid' : '' }}"
                             step="0.0001" min="0.01" value="{{ old('exchange_rate', $defaultExchangeRate) }}">
                         @error('exchange_rate')
                             <span class="field-error-msg">{{ $message }}</span>
@@ -292,7 +292,7 @@
                             <div class="po-summary__row">
                                 <span>Descuento global</span>
                                 <div class="po-summary__input-group">
-                                    <input type="number" name="discount_total" id="globalDiscount"
+                                    <input type="number" name="discount_total" id="globalDiscount" inputmode="decimal"
                                         class="po-summary__input" value="0" min="0" max="100" step="0.01">
                                     <span class="po-summary__pct">%</span>
                                     <span id="summaryDiscount" class="po-summary__val po-summary__val--red">-$0.00</span>
@@ -305,7 +305,7 @@
                             <div class="po-summary__row">
                                 <span>IVA</span>
                                 <div class="po-summary__input-group">
-                                    <input type="number" name="tax_rate" id="taxRate"
+                                    <input type="number" name="tax_rate" id="taxRate" inputmode="decimal"
                                         class="po-summary__input {{ $errors->has('tax_rate') ? 'is-invalid' : '' }}" value="{{ old('tax_rate', 16) }}" min="0" max="100" step="0.01">
                                     <span class="po-summary__pct">%</span>
                                     <span id="summaryTax" class="po-summary__val">$0.00</span>
@@ -366,6 +366,12 @@
         <div class="powiz-footer">
             <button type="button" id="powizBackBtn" class="powiz-btn--ghost">← Atrás</button>
             <button type="button" id="powizNextBtn" class="powiz-btn--primary">Siguiente →</button>
+            {{-- Solo móvil (≤768px, ver _wizard_mobile): total + guardar en la barra fija del Paso 3 --}}
+            <div class="powiz-footer__total">
+                <span class="powiz-footer__total-label">Total</span>
+                <strong class="powiz-footer__total-amount" id="powizFooterTotal">$0.00</strong>
+            </div>
+            <button type="submit" name="action" value="save" class="powiz-btn--primary powiz-footer__submit">Guardar y ver</button>
         </div>
     </form>
 
@@ -382,6 +388,7 @@
 
 </div>
 @endsection
+@include('admin.purchase-orders._wizard_mobile')
 @include('admin.purchase-orders.create._scripts')
 @push('scripts')
     @vite(['resources/js/admin/wizard-core.js', 'resources/js/admin/po-wizard.js'])

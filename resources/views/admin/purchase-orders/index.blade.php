@@ -6,7 +6,7 @@
     Órdenes de Compra - Admin
 @endsection
 @section('content')
-<div class="container user-manager">
+<div class="container user-manager po-index">
 <section class="clients-manager-section">
 
     {{-- Header --}}
@@ -18,7 +18,7 @@
             <h1>Órdenes de Compra</h1>
             <p class="breadcrumb-clients-manager">Gestiona las órdenes de compra a proveedores</p>
         </div>
-        <div style="display:flex; align-items:center; gap:10px;">
+        <div class="po-head-tools" style="display:flex; align-items:center; gap:10px;">
             @include('admin.components._column_visibility_menu', [
                 'tableKey' => 'purchase-orders.index',
                 'columnDefs' => [
@@ -31,7 +31,7 @@
             ])
             @permiso('purchase-orders','create')
             <a href="{{ route('admin.purchase-orders.create') }}"
-                class="button-primary size-adjustment"
+                class="button-primary size-adjustment po-new-btn"
                 style="background:#ff6213;border-color:#ff6213;text-decoration:none;
                        display:flex;align-items:center;gap:6px;">
                 + Nueva Orden
@@ -41,7 +41,7 @@
     </div>
 
     {{-- Stats --}}
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px;">
+    <div class="po-stats" style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px;">
         @php
             $statCards = [
                 ['icon' => 'M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4zM3 6h18M16 10a4 4 0 0 1-8 0', 'color' => '#ff6213', 'bg' => '#fff3ec', 'value' => $stats['total'],    'label' => 'Total OCs',   'sub' => 'este mes'],
@@ -71,7 +71,7 @@
     </div>
 
     {{-- Filters --}}
-    <div style="display:flex;gap:12px;align-items:center;margin-bottom:20px;">
+    <div class="po-filters" style="display:flex;gap:12px;align-items:center;margin-bottom:20px;">
         <div class="filters-clients-manager-search" style="flex:1;">
             <span class="search-icon-clients-manager">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
@@ -90,7 +90,7 @@
                 <option value="rejected" {{ request('status') === 'rejected' ? 'selected' : '' }}>Rechazadas</option>
             </select>
         </div>
-        <button type="button" id="poDateBtn"
+        <button type="button" id="poDateBtn" class="po-filter-btn"
             style="display:flex;align-items:center;gap:6px;padding:8px 16px;
                    border:1.5px solid #d1d5db;background:white;color:#374151;
                    border-radius:8px;font-weight:500;cursor:pointer;font-size:14px;">
@@ -103,7 +103,7 @@
             </svg>
             Fecha
         </button>
-        <button type="button" id="poFilterBtn"
+        <button type="button" id="poFilterBtn" class="po-filter-btn"
             style="display:flex;align-items:center;gap:6px;padding:8px 16px;
                    border:1.5px solid #ff6213;background:white;color:#ff6213;
                    border-radius:8px;font-weight:600;cursor:pointer;font-size:14px;">
@@ -116,7 +116,7 @@
     </div>
 
     {{-- Status tabs --}}
-    <div style="display:flex;gap:0;border-bottom:2px solid #e5e7eb;margin-bottom:20px;">
+    <div class="po-tabs" style="display:flex;gap:0;border-bottom:2px solid #e5e7eb;margin-bottom:20px;">
         @php
             $tabs = [
                 ['label' => 'Todas',      'value' => 'all',      'count' => $stats['total']],
@@ -153,7 +153,7 @@
             </thead>
         </table>
         <div class="table-scroll">
-            <table class="clients-manager-table">
+            <table class="clients-manager-table po-list">
                 <tbody>
                 @forelse ($orders as $order)
                     @php
@@ -164,30 +164,30 @@
                             default    => ['label' => 'Pendiente',  'color' => '#d97706', 'bg' => '#fffbeb', 'border' => '#d9780640'],
                         };
                     @endphp
-                    <tr style="border-bottom:1px solid #f1f5f9;"
+                    <tr class="po-row" style="border-bottom:1px solid #f1f5f9;"
                         data-search="{{ strtolower($order->po_number . ' ' . $order->supplier->company_name) }}"
                         data-status="{{ $order->status }}">
-                        <td style="padding:14px 16px;">
+                        <td class="po-c-folio" style="padding:14px 16px;">
                             <p style="margin:0;font-weight:700;color:#ff6213;font-size:14px;">
                                 {{ $order->po_number }}
                             </p>
                         </td>
-                        <td style="padding:14px 16px;" data-col="proveedor">
+                        <td class="po-c-proveedor" style="padding:14px 16px;" data-col="proveedor" data-label="Proveedor">
                             <p style="margin:0;font-weight:600;font-size:14px;color:#111827;">
                                 {{ strtoupper($order->supplier->company_name) }}
                             </p>
                         </td>
-                        <td style="padding:14px 16px;" data-col="productos">
+                        <td class="po-c-productos" style="padding:14px 16px;" data-col="productos" data-label="Productos">
                             <p style="margin:0;font-size:13px;color:#6b7280;">
                                 {{ $order->items_count }} producto{{ $order->items_count !== 1 ? 's' : '' }}
                             </p>
                         </td>
-                        <td style="padding:14px 16px;" data-col="total">
+                        <td class="po-c-total" style="padding:14px 16px;" data-col="total" data-label="Total">
                             <p style="margin:0;font-weight:700;font-size:14px;color:#111827;">
                                 ${{ number_format($order->total, 2) }}
                             </p>
                         </td>
-                        <td style="padding:14px 16px;" data-col="estado">
+                        <td class="po-c-estado" style="padding:14px 16px;" data-col="estado" data-label="Estado">
                             <span style="display:inline-block;padding:4px 12px;border-radius:20px;
                                 font-size:12px;font-weight:600;
                                 background:{{ $statusConfig['bg'] }};
@@ -196,13 +196,13 @@
                                 {{ $statusConfig['label'] }}
                             </span>
                         </td>
-                        <td style="padding:14px 16px;" data-col="fecha">
+                        <td class="po-c-fecha" style="padding:14px 16px;" data-col="fecha" data-label="Fecha">
                             <p style="margin:0;font-size:13px;color:#374151;">
                                 {{ $order->order_date->format('j M Y') }}
                             </p>
                         </td>
-                        <td style="padding:14px 16px;">
-                            <div class="header-right-user-manager">
+                        <td class="po-c-actions" style="padding:14px 16px;">
+                            <div class="header-right-user-manager po-actions">
                                 {{-- Ver --}}
                                 <a href="{{ route('admin.purchase-orders.show', $order->id) }}"
                                     class="table-users-manager-action-btn edit" title="Ver">
@@ -212,6 +212,7 @@
                                         <path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/>
                                         <circle cx="12" cy="12" r="3"/>
                                     </svg>
+                                    <span class="po-act-text">Ver</span>
                                 </a>
                                 {{-- Editar --}}
                                 @permiso('purchase-orders','edit')
@@ -222,6 +223,7 @@
                                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                         <path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/>
                                     </svg>
+                                    <span class="po-act-text">Editar</span>
                                 </a>
                                 @endpermiso
                                 {{-- PDF --}}
@@ -234,6 +236,7 @@
                                         <path d="M14 2v4a2 2 0 0 0 2 2h4"/>
                                         <path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/>
                                     </svg>
+                                    <span class="po-act-text">PDF</span>
                                 </a>
                                 {{-- Eliminar --}}
                                 @permiso('purchase-orders','delete')
@@ -252,13 +255,14 @@
                                         <line x1="10" x2="10" y1="11" y2="17"/>
                                         <line x1="14" x2="14" y1="11" y2="17"/>
                                     </svg>
+                                    <span class="po-act-text">Eliminar</span>
                                 </button>
                                 @endpermiso
                             </div>
                         </td>
                     </tr>
                 @empty
-                    <tr>
+                    <tr class="po-empty">
                         <td colspan="7" style="text-align:center;padding:40px;color:#9ca3af;">
                             No hay órdenes de compra registradas.
                         </td>
@@ -269,7 +273,7 @@
         </div>
 
         @if ($orders->hasPages())
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:16px;padding:0 4px;">
+            <div class="po-count" style="display:flex;justify-content:space-between;align-items:center;margin-top:16px;padding:0 4px;">
                 <p style="margin:0;font-size:13px;color:#6b7280;">
                     Mostrando <strong>{{ $orders->firstItem() }}–{{ $orders->lastItem() }}</strong>
                     de <strong>{{ $orders->total() }}</strong> órdenes
@@ -281,7 +285,7 @@
 </section>
 
 {{-- Delete modal --}}
-<div id="deletePoModal" class="del-confirm-overlay">
+<div id="deletePoModal" class="del-confirm-overlay po-modal">
     <div class="del-confirm-box">
         <div class="del-confirm-icon-wrap">
             <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
@@ -327,12 +331,17 @@
             document.getElementById('delPoAvatar').textContent   = btn.dataset.folio.charAt(0);
             deletePoForm.action = deletePoUrl + '/' + btn.dataset.id;
             deletePoModal.classList.add('active');
+            document.body.classList.add('po-modal-open');
         });
     });
 
-    delPoCancel.addEventListener('click', () => deletePoModal.classList.remove('active'));
+    function closeDeletePoModal() {
+        deletePoModal.classList.remove('active');
+        document.body.classList.remove('po-modal-open');
+    }
+    delPoCancel.addEventListener('click', closeDeletePoModal);
     deletePoModal.addEventListener('click', (e) => {
-        if (e.target === deletePoModal) deletePoModal.classList.remove('active');
+        if (e.target === deletePoModal) closeDeletePoModal();
     });
 
     // Search filter

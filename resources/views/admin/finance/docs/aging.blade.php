@@ -17,7 +17,7 @@
     ])->values()->all();
     $overdueTotal = round($totals['total'] - $totals['current'], 2);
 @endphp
-<div class="erp-page fin-page">
+<div class="erp-page fin-page fin-aging-page">
 
     <x-erp.page-header
         title="Antigüedad de saldos"
@@ -74,32 +74,32 @@
                     @php
                         $worst = $row['d90p'] > 0 ? ['bad', '+90 días'] : ($row['d90'] > 0 ? ['bad', 'Vencido 61–90'] : ($row['d60'] > 0 ? ['warn', 'Vencido 31–60'] : ($row['d30'] > 0 ? ['warn', 'Vencido 1–30'] : ['ok', 'Al corriente'])));
                     @endphp
-                    <tr>
-                        <td>
+                    <tr class="fin-arow">
+                        <td class="fin-a-party">
                             <div class="erp-cell-main">{{ $row['party'] }}</div>
                             <div class="erp-cell-sub">{{ $row['count'] }} {{ $row['count'] === 1 ? 'documento' : 'documentos' }}</div>
                         </td>
                         @foreach ($buckets as $key => $label)
-                            <td class="is-num b-{{ $key }} {{ $row[$key] <= 0 ? 'is-zero' : '' }}">{{ $row[$key] > 0 ? '$' . number_format($row[$key], 2) : '—' }}</td>
+                            <td class="is-num fin-a-b b-{{ $key }} {{ $row[$key] <= 0 ? 'is-zero' : '' }}" data-label="{{ $segLabel($key, $label) }}">{{ $row[$key] > 0 ? '$' . number_format($row[$key], 2) : '—' }}</td>
                         @endforeach
-                        <td class="is-num"><strong>${{ number_format($row['total'], 2) }}</strong></td>
-                        <td><x-erp.chip :tone="$worst[0]" :label="$worst[1]" /></td>
-                        <td class="fin-noprint"><a class="erp-btn erp-btn--sm" href="{{ route($r . '.statement', $row['party_id']) }}">Estado de cuenta</a></td>
+                        <td class="is-num fin-a-total" data-label="Total"><strong>${{ number_format($row['total'], 2) }}</strong></td>
+                        <td class="fin-a-state"><x-erp.chip :tone="$worst[0]" :label="$worst[1]" /></td>
+                        <td class="fin-noprint fin-a-act"><a class="erp-btn erp-btn--sm" href="{{ route($r . '.statement', $row['party_id']) }}">Estado de cuenta</a></td>
                     </tr>
                 @empty
-                    <tr><td colspan="{{ count($buckets) + 4 }}" style="padding: 0;"><x-erp.empty title="No hay saldos abiertos" text="Cuando existan documentos con saldo aparecerán aquí por antigüedad." /></td></tr>
+                    <tr class="fin-row-empty"><td colspan="{{ count($buckets) + 4 }}" style="padding: 0;"><x-erp.empty title="No hay saldos abiertos" text="Cuando existan documentos con saldo aparecerán aquí por antigüedad." /></td></tr>
                 @endforelse
                 </tbody>
                 @if (count($report['rows']))
                     <tfoot>
-                        <tr>
-                            <td>Total</td>
+                        <tr class="fin-atotal">
+                            <td class="fin-a-party">Total</td>
                             @foreach ($buckets as $key => $label)
-                                <td class="is-num">${{ number_format($totals[$key], 2) }}</td>
+                                <td class="is-num fin-a-b" data-label="{{ $segLabel($key, $label) }}">${{ number_format($totals[$key], 2) }}</td>
                             @endforeach
-                            <td class="is-num">${{ number_format($totals['total'], 2) }}</td>
-                            <td></td>
-                            <td class="fin-noprint"></td>
+                            <td class="is-num fin-a-total" data-label="Total">${{ number_format($totals['total'], 2) }}</td>
+                            <td class="fin-a-blank"></td>
+                            <td class="fin-noprint fin-a-blank"></td>
                         </tr>
                     </tfoot>
                 @endif

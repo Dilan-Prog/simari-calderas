@@ -13,7 +13,7 @@
     $v = fn ($key, $default = null) => old($key, $doc?->{$key} ?? $default);
     $money = fn ($key) => old($key, $doc ? number_format((float) $doc->{$key}, 2, '.', '') : null);
 @endphp
-<div class="erp-page fin-page">
+<div class="erp-page fin-page fin-docs-form">
 
     <x-erp.page-header
         :title="$doc ? 'Editar ' . $doc->number : 'Nueva ' . $cfg['singular']"
