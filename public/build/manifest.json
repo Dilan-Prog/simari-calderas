@@ -60,6 +60,11 @@
     "src": "resources/css/admin/pages/categories.css",
     "isEntry": true
   },
+  "resources/css/admin/pages/clientes-modals.css": {
+    "file": "assets/clientes-modals-BJaoXw5T.css",
+    "src": "resources/css/admin/pages/clientes-modals.css",
+    "isEntry": true
+  },
   "resources/css/admin/pages/clientes.css": {
     "file": "assets/clientes-RnMjsEuJ.css",
     "src": "resources/css/admin/pages/clientes.css",
@@ -113,6 +118,11 @@
   "resources/css/admin/pages/erp-crm.css": {
     "file": "assets/erp-crm-DCeKIebQ.css",
     "src": "resources/css/admin/pages/erp-crm.css",
+    "isEntry": true
+  },
+  "resources/css/admin/pages/erp-datagrid.css": {
+    "file": "assets/erp-datagrid-CU2_LyuR.css",
+    "src": "resources/css/admin/pages/erp-datagrid.css",
     "isEntry": true
   },
   "resources/css/admin/pages/erp-finance.css": {
@@ -220,6 +230,11 @@
     "src": "resources/css/admin/pages/statistics.css",
     "isEntry": true
   },
+  "resources/css/admin/pages/usuarios-modals.css": {
+    "file": "assets/usuarios-modals-BNB5r_xO.css",
+    "src": "resources/css/admin/pages/usuarios-modals.css",
+    "isEntry": true
+  },
   "resources/css/admin/pages/usuarios.css": {
     "file": "assets/usuarios-YKPHoefz.css",
     "src": "resources/css/admin/pages/usuarios.css",
@@ -261,7 +276,7 @@
     "isEntry": true
   },
   "resources/css/frontend/shop/account.css": {
-    "file": "assets/account-Dc6KkLF2.css",
+    "file": "assets/account-KazgCQG5.css",
     "src": "resources/css/frontend/shop/account.css",
     "isEntry": true
   },
@@ -386,6 +401,12 @@
     "css": [
       "assets/erp-crm-jYtN_A8w.css"
     ]
+  },
+  "resources/js/admin/erp-datagrid.js": {
+    "file": "assets/erp-datagrid-BEXfemjT.js",
+    "name": "erp-datagrid",
+    "src": "resources/js/admin/erp-datagrid.js",
+    "isEntry": true
   },
   "resources/js/admin/erp-finance.js": {
     "file": "assets/erp-finance-B6PR2B8s.js",
@@ -733,15 +754,5 @@
     "imports": [
       "_alpine-init-CvA_QR7z.js"
     ]
-  },
-  "resources/css/admin/pages/usuarios-modals.css": {
-    "file": "assets/usuarios-modals-BNB5r_xO.css",
-    "src": "resources/css/admin/pages/usuarios-modals.css",
-    "isEntry": true
-  },
-  "resources/css/admin/pages/clientes-modals.css": {
-    "file": "assets/clientes-modals-BJaoXw5T.css",
-    "src": "resources/css/admin/pages/clientes-modals.css",
-    "isEntry": true
   }
 }

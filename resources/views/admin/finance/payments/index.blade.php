@@ -105,6 +105,7 @@
     Pagos - Admin
 @endsection
 @section('content')
+<x-erp.datagrid-assets />
 @php
     $user = auth()->user();
     $canEdit = $user->hasPermission('payments', 'edit');
@@ -189,17 +190,17 @@
         @endif
 
         <div class="erp-table-wrap">
-            <table class="erp-table">
+            <table class="erp-table" data-dg="finanzas-pagos" data-dg-noun="pagos" data-dg-sum-label="{{ $payments->hasPages() ? 'Total de esta página' : 'Total general' }}">
                 <thead>
                     <tr>
-                        @if ($canEdit)<th class="fin-check"><input type="checkbox" data-erp-select-all aria-label="Seleccionar todos"></th>@endif
-                        <th>Folio</th><th>Tipo</th><th>Cliente / proveedor</th><th>Fecha</th><th>Método / referencia</th>
-                        <th class="is-num">Monto</th><th class="is-num">Sin aplicar</th><th>Estatus</th>
+                        @if ($canEdit)<th class="fin-check" data-dg-skip><input type="checkbox" data-erp-select-all aria-label="Seleccionar todos"></th>@endif
+                        <th data-dg-key="folio" data-dg-type="text">Folio</th><th data-dg-key="type" data-dg-type="list">Tipo</th><th data-dg-key="party" data-dg-type="list">Cliente / proveedor</th><th data-dg-key="date" data-dg-type="date">Fecha</th><th data-dg-key="method" data-dg-type="list">Método / referencia</th>
+                        <th class="is-num" data-dg-key="amount" data-dg-type="num" data-dg-sum>Monto</th><th class="is-num" data-dg-key="free" data-dg-type="num" data-dg-sum>Sin aplicar</th><th data-dg-key="status" data-dg-type="list">Estatus</th>
                     </tr>
                 </thead>
                 <tbody>
                 @forelse ($payments as $p)
-                    <tr class="pay-row">
+                    <tr class="pay-row" data-dg-row>
                         @if ($canEdit)
                             <td class="fin-check pay-c-check">
                                 @if ($p->status === 'aplicado')
@@ -207,14 +208,14 @@
                                 @endif
                             </td>
                         @endif
-                        <td class="erp-cell-folio pay-c-folio"><a href="{{ route('admin.payments.show', $p->id) }}">{{ $p->number }}</a></td>
-                        <td class="pay-c-type" data-label="Tipo"><x-erp.chip :tone="$p->isIncoming() ? 'ok' : 'info'" :label="$p->isIncoming() ? 'Recibido' : 'Emitido'" /></td>
-                        <td class="erp-cell-main pay-c-party" data-label="Cliente / proveedor">{{ $p->partyName() }}</td>
-                        <td class="pay-c-date" data-label="Fecha">{{ $p->payment_date->format('d/m/Y') }}</td>
-                        <td class="pay-c-method" data-label="Método / referencia">{{ $p->paymentMethod?->name ?? '—' }}@if ($p->reference)<div class="erp-cell-sub">{{ $p->reference }}</div>@endif</td>
-                        <td class="is-num pay-c-amount" data-label="Monto"><strong>${{ number_format($p->amount, 2) }}</strong><span class="fin-cur">{{ $p->currency }}</span></td>
-                        <td class="is-num pay-c-free" data-label="Sin aplicar">{{ $p->status === 'cancelado' ? '—' : '$' . number_format($p->unappliedAmount(), 2) }}</td>
-                        <td class="pay-c-status"><x-erp.chip :tone="\App\Models\Payment::statusTone($p->status)" :label="\App\Models\Payment::statusLabel($p->status)" /></td>
+                        <td class="erp-cell-folio pay-c-folio" data-dg-v="{{ $p->number }}"><a href="{{ route('admin.payments.show', $p->id) }}">{{ $p->number }}</a></td>
+                        <td class="pay-c-type" data-label="Tipo" data-dg-v="{{ $p->isIncoming() ? 'Recibido' : 'Emitido' }}"><x-erp.chip :tone="$p->isIncoming() ? 'ok' : 'info'" :label="$p->isIncoming() ? 'Recibido' : 'Emitido'" /></td>
+                        <td class="erp-cell-main pay-c-party" data-label="Cliente / proveedor" data-dg-v="{{ $p->partyName() }}">{{ $p->partyName() }}</td>
+                        <td class="pay-c-date" data-label="Fecha" data-dg-v="{{ $p->payment_date->format('Y-m-d') }}">{{ $p->payment_date->format('d/m/Y') }}</td>
+                        <td class="pay-c-method" data-label="Método / referencia" data-dg-v="{{ $p->paymentMethod?->name ?? '—' }}">{{ $p->paymentMethod?->name ?? '—' }}@if ($p->reference)<div class="erp-cell-sub">{{ $p->reference }}</div>@endif</td>
+                        <td class="is-num pay-c-amount" data-label="Monto" data-dg-v="{{ $p->amount }}" data-dg-cur="{{ $p->currency }}"><strong>${{ number_format($p->amount, 2) }}</strong><span class="fin-cur">{{ $p->currency }}</span></td>
+                        <td class="is-num pay-c-free" data-label="Sin aplicar" data-dg-v="{{ $p->status === 'cancelado' ? '' : $p->unappliedAmount() }}" data-dg-cur="{{ $p->currency }}">{{ $p->status === 'cancelado' ? '—' : '$' . number_format($p->unappliedAmount(), 2) }}</td>
+                        <td class="pay-c-status" data-dg-v="{{ \App\Models\Payment::statusLabel($p->status) }}"><x-erp.chip :tone="\App\Models\Payment::statusTone($p->status)" :label="\App\Models\Payment::statusLabel($p->status)" /></td>
                     </tr>
                 @empty
                     <tr class="pay-row-empty"><td colspan="9" style="padding: 0;">

@@ -4,10 +4,12 @@ namespace App\Http\Controllers\Backend\Finance;
 
 use App\Models\Receivable;
 use App\Models\SalesOrder;
+use App\Support\FinanceOriginOptions;
 use DomainException;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 
 class ReceivableController extends FinanceDocumentController
 {
@@ -43,8 +45,38 @@ class ReceivableController extends FinanceDocumentController
             ->orWhere('first_name', 'like', "%{$s}%")->orWhere('last_name', 'like', "%{$s}%"));
     }
 
+    protected function formData($doc, ?Request $request = null): array
+    {
+        return parent::formData($doc, $request) + [
+            // Selects de documento de origen y proyecto (en vez de teclear números internos).
+            'origins'  => FinanceOriginOptions::receivableOrigins($doc),
+            'projects' => FinanceOriginOptions::projects($doc),
+        ];
+    }
+
+    /**
+     * El formulario manda un solo select "tipo:id" (source_document); se convierte a source_type + source_id
+     * (los campos que ya usaban la validación y el servicio). Sin select, se respetan los campos directos.
+     */
+    private function mergeOrigin(Request $request): void
+    {
+        if (! $request->has('source_document')) {
+            return;
+        }
+
+        $raw = trim((string) $request->input('source_document'));
+        $origin = FinanceOriginOptions::parseOrigin($raw);
+
+        if ($raw !== '' && (! $origin || ! (Receivable::SOURCE_TYPES[$origin['type']])::find($origin['id']))) {
+            throw ValidationException::withMessages(['source_document' => 'El documento de origen elegido ya no existe.']);
+        }
+
+        $request->merge(['source_type' => $origin['type'] ?? null, 'source_id' => $origin['id'] ?? null]);
+    }
+
     public function store(Request $request)
     {
+        $this->mergeOrigin($request);
         $data = $request->validate($this->documentRules() + [
             'customer_id' => 'required|exists:customers,id',
             'source_type' => ['nullable', Rule::in(array_keys(Receivable::SOURCE_TYPES))],
@@ -65,6 +97,7 @@ class ReceivableController extends FinanceDocumentController
     public function update(Request $request, $id)
     {
         $doc = Receivable::findOrFail($id);
+        $this->mergeOrigin($request);
         $data = $request->validate($this->documentRules() + [
             'customer_id' => 'required|exists:customers,id',
             'source_type' => ['nullable', Rule::in(array_keys(Receivable::SOURCE_TYPES))],

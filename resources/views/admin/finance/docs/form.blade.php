@@ -69,23 +69,43 @@
             </label>
 
             @if ($isRec)
-                <label class="erp-field">Origen
-                    <select name="source_type" class="erp-select">
-                        <option value="">Manual</option>
-                        @foreach (['sales_order' => 'Pedido', 'quote' => 'Cotización', 'project' => 'Proyecto', 'store_order' => 'Orden de tienda'] as $k => $label)
-                            <option value="{{ $k }}" @selected($v('source_type') === $k)>{{ $label }}</option>
+                @php
+                    $currentOrigin = old('source_document', ($doc && $doc->source_type && $doc->source_id) ? $doc->source_type . ':' . $doc->source_id : '');
+                @endphp
+                <label class="erp-field fin-full">Documento de origen
+                    <select name="source_document" class="erp-select" data-fin-party-filter>
+                        <option value="">Ninguno (captura manual)</option>
+                        @foreach ($origins as $group)
+                            @if (count($group['items']))
+                                <optgroup label="{{ $group['label'] }}">
+                                    @foreach ($group['items'] as $item)
+                                        <option value="{{ $item['value'] }}" data-party="{{ $item['party'] }}" @selected($currentOrigin === $item['value'])>{{ $item['label'] }}</option>
+                                    @endforeach
+                                </optgroup>
+                            @endif
                         @endforeach
                     </select>
+                    <small>El pedido, cotización, proyecto u orden de tienda del que viene este cobro. Al elegir un cliente solo se muestran sus documentos.</small>
+                    @error('source_document')<small style="color:#b91c1c">{{ $message }}</small>@enderror
                 </label>
-                <label class="erp-field">ID del origen
-                    <input type="number" min="1" name="source_id" class="erp-input" value="{{ $v('source_id') }}">
-                </label>
-                <label class="erp-field">ID de proyecto
-                    <input type="number" min="1" name="project_id" class="erp-input" value="{{ $v('project_id') }}">
+                <label class="erp-field fin-full">Proyecto (opcional)
+                    <select name="project_id" class="erp-select" data-fin-party-filter>
+                        <option value="">Sin proyecto</option>
+                        @foreach ($projects as $item)
+                            <option value="{{ $item['value'] }}" data-party="{{ $item['party'] }}" @selected((int) old('project_id', $doc?->project_id ?? 0) === (int) $item['value'])>{{ $item['label'] }}</option>
+                        @endforeach
+                    </select>
+                    <small>Sirve para saber cuánto se cobra por cada proyecto.</small>
                 </label>
             @else
-                <label class="erp-field">Orden de compra (ID)
-                    <input type="number" min="1" name="purchase_order_id" class="erp-input" value="{{ $v('purchase_order_id') }}">
+                <label class="erp-field fin-full">Orden de compra (opcional)
+                    <select name="purchase_order_id" class="erp-select" data-fin-party-filter>
+                        <option value="">Sin orden de compra</option>
+                        @foreach ($purchaseOrders as $item)
+                            <option value="{{ $item['value'] }}" data-party="{{ $item['party'] }}" @selected((int) old('purchase_order_id', $doc?->purchase_order_id ?? 0) === (int) $item['value'])>{{ $item['label'] }}</option>
+                        @endforeach
+                    </select>
+                    <small>Al elegir un proveedor solo se muestran sus órdenes de compra.</small>
                 </label>
                 <label class="erp-field">Folio de factura del proveedor
                     <input type="text" maxlength="60" name="supplier_invoice" class="erp-input" value="{{ $v('supplier_invoice') }}">
@@ -109,3 +129,42 @@
 @push('scripts')
     @vite(['resources/js/admin/erp-finance.js'])
 @endpush
+@push('scripts')
+    <script>
+        /* Selects de documento / proyecto / orden de compra: al elegir cliente o proveedor solo se muestran sus documentos. */
+        (function () {
+            var party = document.querySelector('select[name="{{ $pc }}"]');
+            var selects = Array.prototype.slice.call(document.querySelectorAll('select[data-fin-party-filter]'));
+            if (!party || !selects.length) return;
+
+            selects.forEach(function (sel) {
+                var all = Array.prototype.slice.call(sel.children).map(function (n) { return n.cloneNode(true); });
+                var apply = function (initial) {
+                    var p = party.value, keep = sel.value;
+                    var cur = sel.options[sel.selectedIndex];
+                    /* Al cambiar de cliente/proveedor, un documento de otro se deselecciona. */
+                    if (initial !== true && cur && cur.getAttribute('data-party') && p && cur.getAttribute('data-party') !== p) keep = '';
+                    var matches = function (o) {
+                        var dp = o.getAttribute('data-party');
+                        return !p || !dp || dp === p || o.value === keep;
+                    };
+                    sel.innerHTML = '';
+                    all.forEach(function (node) {
+                        if (node.tagName === 'OPTGROUP') {
+                            var g = node.cloneNode(false);
+                            Array.prototype.slice.call(node.children).forEach(function (o) { if (matches(o)) g.appendChild(o.cloneNode(true)); });
+                            if (g.children.length) sel.appendChild(g);
+                        } else if (matches(node)) {
+                            sel.appendChild(node.cloneNode(true));
+                        }
+                    });
+                    sel.value = keep;
+                    if (sel.value !== keep) sel.value = '';
+                };
+                party.addEventListener('change', function () { apply(false); });
+                apply(true);
+            });
+        })();
+    </script>
+@endpush
+

@@ -59,6 +59,8 @@ export default defineConfig({
                 'resources/js/admin/erp-logistics.js',
                 'resources/css/admin/pages/erp-finance.css',
                 'resources/js/admin/erp-finance.js',
+                'resources/css/admin/pages/erp-datagrid.css',
+                'resources/js/admin/erp-datagrid.js',
                 'resources/css/admin/pages/erp-warehouse.css',
                 'resources/js/admin/erp-warehouse.js',
                 'resources/css/admin/pages/erp-crm.css',
