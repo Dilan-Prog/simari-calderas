@@ -17,12 +17,12 @@ class BrandController extends Controller
 
     // Campos editables desde la edición masiva — 'name' no está aquí porque
     // va fijo/pinneado en la tabla (ver BULK_EDIT_VIEW_COLUMNS más abajo).
-    private const BULK_EDIT_FIELDS = ['name', 'slug', 'description', 'logo_url', 'logo_alt', 'is_active', 'seo_title', 'seo_description'];
+    private const BULK_EDIT_FIELDS = ['name', 'slug', 'description', 'logo_url', 'logo_alt', 'is_active', 'show_on_site', 'seo_title', 'seo_description'];
 
     // Copiada a mano (no derivada de BULK_EDIT_FIELDS) para que un cambio
     // futuro a una lista no afecte silenciosamente a la otra: son las
     // columnas que el usuario puede mostrar/ocultar en el editor en lote.
-    private const BULK_EDIT_VIEW_COLUMNS = ['slug', 'description', 'logo_url', 'logo_alt', 'is_active', 'seo_title', 'seo_description'];
+    private const BULK_EDIT_VIEW_COLUMNS = ['slug', 'description', 'logo_url', 'logo_alt', 'is_active', 'show_on_site', 'seo_title', 'seo_description'];
 
     // Columna fija/pegada de la tabla (nunca ocultable, por eso no vive en
     // BULK_EDIT_VIEW_COLUMNS) — sí necesita poder guardar un ancho ajustado,
@@ -72,6 +72,7 @@ class BrandController extends Controller
             // Solo http(s) o ruta relativa del sitio -- nunca javascript: u otros esquemas.
             'redirect_url' => ['nullable', 'string', 'max:500', 'regex:#^(https?://|/)#i'],
             'is_active'   => 'nullable|boolean',
+            'show_on_site' => 'nullable|boolean',
         ]);
 
         $brand = new Brand();
@@ -83,6 +84,9 @@ class BrandController extends Controller
         $brand->logo_alt    = $brand->logo_url ? (trim((string) $request->logo_alt) ?: null) : null;
         $brand->redirect_url = trim((string) $request->redirect_url) ?: null;
         $brand->is_active   = $request->boolean('is_active', true);
+        if (Brand::supportsSiteVisibility()) {
+            $brand->show_on_site = $request->boolean('show_on_site', true);
+        }
         $brand->save();
 
         return response()->json([
@@ -114,6 +118,7 @@ class BrandController extends Controller
             // Solo http(s) o ruta relativa del sitio -- nunca javascript: u otros esquemas.
             'redirect_url' => ['nullable', 'string', 'max:500', 'regex:#^(https?://|/)#i'],
             'is_active'   => 'nullable|boolean',
+            'show_on_site' => 'nullable|boolean',
         ]);
 
         $brand->name        = $request->name;
@@ -123,6 +128,9 @@ class BrandController extends Controller
         $brand->logo_alt    = $brand->logo_url ? (trim((string) $request->logo_alt) ?: null) : null;
         $brand->redirect_url = trim((string) $request->redirect_url) ?: null;
         $brand->is_active   = $request->boolean('is_active', true);
+        if (Brand::supportsSiteVisibility()) {
+            $brand->show_on_site = $request->boolean('show_on_site', true);
+        }
         $brand->save();
 
         return response()->json([
@@ -253,6 +261,12 @@ class BrandController extends Controller
 
             case 'is_active':
                 return [true, (bool) $value, null];
+
+            case 'show_on_site':
+                // Sin la columna (migración pendiente) el cambio se rechaza con un aviso claro, sin romper el guardado.
+                return Brand::supportsSiteVisibility()
+                    ? [true, (bool) $value, null]
+                    : [false, null, 'Falta ejecutar la migración de «Mostrar en sitio web».'];
         }
 
         return [false, null, 'Campo no soportado.'];

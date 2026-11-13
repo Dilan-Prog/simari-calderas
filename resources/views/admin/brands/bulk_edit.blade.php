@@ -12,12 +12,17 @@
             ['key' => 'logo_url', 'label' => 'Logo', 'group' => 'Básicos', 'type' => 'image-picker'],
             ['key' => 'logo_alt', 'label' => 'ALT del logotipo', 'group' => 'Básicos', 'type' => 'text', 'maxlength' => 255],
             ['key' => 'is_active', 'label' => 'Activa', 'group' => 'Básicos', 'type' => 'checkbox'],
+            ['key' => 'show_on_site', 'label' => 'Mostrar en sitio web', 'group' => 'Básicos', 'type' => 'checkbox'],
 
             ['key' => 'seo_title', 'label' => 'Título SEO', 'group' => 'SEO', 'type' => 'text', 'maxlength' => 60],
             ['key' => 'seo_description', 'label' => 'Descripción SEO', 'group' => 'SEO', 'type' => 'textarea', 'maxlength' => 160],
         ];
         // Todas visibles por defecto — con tan pocas columnas no hace falta
         // arrancar con un subconjunto reducido como en Productos.
+        // Sin la columna en la BD (migración pendiente) no se ofrece "Mostrar en sitio web".
+        if (! \App\Models\Brand::supportsSiteVisibility()) {
+            $bulkEditColumns = array_values(array_filter($bulkEditColumns, fn ($c) => $c['key'] !== 'show_on_site'));
+        }
         $defaultVisibleColumns = collect($bulkEditColumns)->pluck('key')->all();
         $columnGroups = collect($bulkEditColumns)->groupBy('group');
     @endphp
