@@ -19,6 +19,8 @@ class WaterAnalysisTest extends TestCase
     {
         parent::setUp();
         $this->withoutVite();
+        // Las migraciones fijan límites iniciales; las pruebas parten de parámetros sin límites.
+        WaterAnalysisParameter::query()->update(['min_value' => null, 'max_value' => null]);
     }
 
     private function customer(string $company = 'ACME'): Customer
@@ -81,13 +83,26 @@ class WaterAnalysisTest extends TestCase
 
     // ── Migración ───────────────────────────────────────────────────────────
 
-    public function test_la_migracion_siembra_los_cinco_parametros_sin_limites(): void
+    public function test_la_migracion_siembra_los_cinco_parametros_y_fija_sus_limites_iniciales(): void
     {
         $params = WaterAnalysisParameter::ordered()->get();
 
         $this->assertSame(['hardness', 'ph', 'alkalinity', 'conductivity', 'tds'], $params->pluck('code')->all());
         $this->assertSame('Sólidos Totales Disueltos (STD/TDS)', $this->param('tds')->name);
-        $this->assertTrue($params->every(fn ($p) => $p->min_value === null && $p->max_value === null && $p->is_active));
+        $this->assertTrue($params->every(fn ($p) => $p->is_active));
+
+        // setUp deja los límites vacíos; la migración de límites iniciales los fija.
+        $this->assertTrue($params->every(fn ($p) => $p->min_value === null && $p->max_value === null));
+        (require database_path('migrations/2026_11_13_100000_set_water_analysis_default_limits.php'))->up();
+
+        $limits = WaterAnalysisParameter::ordered()->get()->mapWithKeys(fn ($p) => [$p->code => [(float) $p->min_value, (float) $p->max_value]])->all();
+        $this->assertSame([
+            'hardness' => [80.0, 120.0],
+            'ph' => [10.5, 11.5],
+            'alkalinity' => [10.5, 11.5],
+            'conductivity' => [2300.0, 3850.0],
+            'tds' => [1500.0, 2500.0],
+        ], $limits);
     }
 
     // ── Estado (ok / bajo / alto / sin rango) ──────────────────────────────
