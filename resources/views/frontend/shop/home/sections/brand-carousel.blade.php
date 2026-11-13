@@ -1,5 +1,6 @@
 @php
-    $brands = \App\Models\Brand::where('is_active', true)->orderBy('name')->get();
+    // Solo marcas activas con "Mostrar en sitio web" encendido (Marcas > Gestión de Marcas).
+    $brands = \App\Models\Brand::visibleOnSite()->orderBy('name')->get();
 @endphp
 
 @if ($brands->count() > 0)

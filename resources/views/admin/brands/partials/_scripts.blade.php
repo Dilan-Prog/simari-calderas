@@ -32,6 +32,7 @@
             brandForm.reset();
             document.getElementById('brandSlug').value = '';
             document.getElementById('brandIsActive').value = '1';
+            document.getElementById('brandShowOnSite').value = '1';
             brandErrors.style.display = 'none';
             brandErrors.innerHTML = '';
             currentBrandId = null;
@@ -196,6 +197,15 @@
                 badge.dataset.status = brand.is_active ? 'active' : 'inactive';
             }
 
+            // Columna "Sitio web": Visible / Oculta
+            const siteBadge = row.querySelector('.brand-site-badge');
+            if (siteBadge) {
+                const shown = brand.show_on_site !== false;
+                siteBadge.textContent = shown ? 'Visible' : 'Oculta';
+                siteBadge.className = 'brand-status-badge brand-site-badge ' + (shown ? 'status-active' : 'status-inactive');
+                siteBadge.dataset.site = shown ? 'visible' : 'hidden';
+            }
+
             const deleteBtn = row.querySelector('.btn-delete-brand');
             if (deleteBtn) {
                 deleteBtn.dataset.name = brand.name;
@@ -231,6 +241,7 @@
                         updateBrandLogoAltCount();
                         document.getElementById('brandRedirectUrl').value = brand.redirect_url ?? '';
                         document.getElementById('brandIsActive').value = brand.is_active ? '1' : '0';
+                        document.getElementById('brandShowOnSite').value = brand.show_on_site === false ? '0' : '1';
                         brandErrors.style.display = 'none';
                         brandModal.style.display = 'flex';
                     })

@@ -79,7 +79,8 @@ class BrandRedirectUrlTest extends TestCase
         $this->assertMatchesRegularExpression('#<a href="/catalogo/interna"(?![^>]*target=)[^>]*>#', $html);
         // Sin URL y con esquema peligroso: nunca enlace
         $this->assertStringNotContainsString('javascript:', $html);
-        $this->assertSame(2, substr_count($html, 'brand-carousel__item--link'));
+        // El carrusel repite el grupo de marcas (desplazamiento infinito): 2 enlaces x 2 grupos.
+        $this->assertSame(4, substr_count($html, 'brand-carousel__item--link'));
         $this->assertStringContainsString('Sin URL', $html);
         $this->assertStringContainsString('Peligrosa', $html);
     }

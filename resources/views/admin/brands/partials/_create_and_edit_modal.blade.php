@@ -95,6 +95,19 @@
                                 <option value="0">Inactiva</option>
                             </select>
                         </div>
+                        <div>
+                            <label class="supliers-manager-slider-label">
+                                Mostrar en sitio web <span style="color:red">*</span>
+                            </label>
+                            <select class="users-manager-select" name="show_on_site" id="brandShowOnSite">
+                                <option value="1">Sí, mostrar</option>
+                                <option value="0">No, ocultar</option>
+                            </select>
+                            <small style="display:block;margin-top:4px;color:#6b7280;font-size:12px;">
+                                Controla si la marca sale en la tienda: carrusel de marcas y filtro «Marcas» del catálogo.
+                                Sigue activa para productos y cotizaciones.
+                            </small>
+                        </div>
                     </div>
 
                     <div class="user-manager-modal-footer">

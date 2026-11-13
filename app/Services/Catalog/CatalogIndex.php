@@ -31,7 +31,7 @@ use Illuminate\Support\Facades\Cache;
  * disponibilidad salen de los accessors de Products (fuente única de verdad).
  * 'cats' incluye TODAS las categorías (también inactivas, el alcance por
  * subárbol las necesita); 'groups' solo grupos activos con al menos una opción
- * activa; 'brands' solo marcas activas.
+ * activa; 'brands' solo marcas activas y visibles en el sitio.
  *
  * Una sola caché global (clave 'catalog.index'), invalidada al cambiar
  * CatalogCache::version() y por TTL (catalog.cache_ttl_minutes); la
@@ -281,7 +281,7 @@ class CatalogIndex
         }
 
         $brands = [];
-        foreach (Brand::query()->where('is_active', true)->get(['id', 'name']) as $brand) {
+        foreach (Brand::query()->visibleOnSite()->get(['id', 'name']) as $brand) {
             $brands[(int) $brand->id] = ['id' => (int) $brand->id, 'name' => (string) $brand->name];
         }
 

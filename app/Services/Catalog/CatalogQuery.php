@@ -123,7 +123,7 @@ class CatalogQuery
 
         $brands = [];
         if ($state['brandCounts']) {
-            foreach (Brand::query()->whereIn('id', array_keys($state['brandCounts']))->get(['id', 'name']) as $brand) {
+            foreach (Brand::query()->visibleOnSite()->whereIn('id', array_keys($state['brandCounts']))->get(['id', 'name']) as $brand) {
                 $brands[] = ['id' => (int) $brand->id, 'name' => $brand->name, 'count' => $state['brandCounts'][$brand->id]];
             }
         }

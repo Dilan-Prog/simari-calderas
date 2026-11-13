@@ -25,6 +25,7 @@
                             'slug' => 'Slug',
                             'descripcion' => 'Descripción',
                             'estado' => 'Estado',
+                            'sitio_web' => 'Sitio web',
                         ],
                     ])
                     @permiso('brands','edit')
@@ -78,6 +79,7 @@
                                 <th data-col="slug">SLUG</th>
                                 <th data-col="descripcion">DESCRIPCIÓN</th>
                                 <th data-col="estado">ESTADO</th>
+                                <th data-col="sitio_web">SITIO WEB</th>
                                 <th>ACCIONES</th>
                             </tr>
                         </thead>
@@ -132,6 +134,15 @@
                                         </span>
                                     </td>
 
+                                    <td data-col="sitio_web">
+                                        @php $onSite = ($brand->show_on_site ?? true) !== false; @endphp
+                                        <span
+                                            class="brand-status-badge brand-site-badge {{ $onSite ? 'status-active' : 'status-inactive' }}"
+                                            data-site="{{ $onSite ? 'visible' : 'hidden' }}">
+                                            {{ $onSite ? 'Visible' : 'Oculta' }}
+                                        </span>
+                                    </td>
+
                                     <td>
                                         <div class="actions-container">
                                             @permiso('brands','edit')
@@ -165,7 +176,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="6" style="text-align:center; padding:40px; color:#6b7280;">
+                                    <td colspan="7" style="text-align:center; padding:40px; color:#6b7280;">
                                         No hay marcas registradas.
                                     </td>
                                 </tr>

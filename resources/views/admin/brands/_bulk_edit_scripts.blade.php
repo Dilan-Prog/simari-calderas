@@ -225,7 +225,7 @@
             const MIN_COL_WIDTH = 50;
             const MAX_COL_WIDTH = 800;
             const DEFAULT_COL_WIDTHS = {
-                name: 180, slug: 150, description: 200, logo_url: 160, logo_alt: 180, is_active: 90,
+                name: 180, slug: 150, description: 200, logo_url: 160, logo_alt: 180, is_active: 90, show_on_site: 120,
                 seo_title: 160, seo_description: 200,
             };
 
