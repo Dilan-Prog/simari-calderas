@@ -4,26 +4,38 @@ namespace App\Http\Controllers\Backend;
 
 use App\Http\Controllers\Controller;
 use App\Models\Category;
+use App\Models\Redirect;
+use App\Services\Catalog\CategorySlugs;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class CategoryController extends Controller
 {
     /**
-     * FIX (SEO slugs): Str::slug() strips "/" entirely instead of treating
-     * it as a path separator (Str::slug('a/b') === 'ab'), which silently
-     * defeated the admin JS's attempt to build a hierarchical "parent/child"
-     * slug. Sanitizes each "/"-separated segment on its own so the
-     * separator survives.
+     * Slug final de la categoría: SIEMPRE la ruta completa con sus ancestros ("padre/hija"), sin importar lo
+     * que se haya escrito en el campo (solo cuenta su último segmento). Así una subcategoría nunca queda con
+     * un slug suelto ("boiler-de-paso") que rompe la URL pública y el SEO. Valida que no choque con otra
+     * categoría ni exceda el largo de la columna.
      */
-    private function slugifyPath(string $raw): string
+    private function resolveSlug(Request $request, ?int $ignoreId = null): string
     {
-        return collect(explode('/', $raw))
-            ->filter(fn ($seg) => $seg !== '')
-            ->map(fn ($seg) => Str::slug($seg))
-            ->implode('/');
-    }
+        $parent = $request->filled('parent_id') ? Category::find($request->parent_id) : null;
+        $slug = CategorySlugs::build($parent, (string) $request->slug);
 
+        if ($slug === '') {
+            throw ValidationException::withMessages(['slug' => 'El slug no puede quedar vacío.']);
+        }
+        if (mb_strlen($slug) > CategorySlugs::MAX_LENGTH) {
+            throw ValidationException::withMessages(['slug' => 'La URL completa (con la ruta del padre) supera ' . CategorySlugs::MAX_LENGTH . ' caracteres; acorta el slug.']);
+        }
+        $taken = Category::where('slug', $slug)->when($ignoreId, fn ($q) => $q->where('id', '!=', $ignoreId))->exists();
+        if ($taken) {
+            throw ValidationException::withMessages(['slug' => 'Ya existe otra categoría con la URL /catalogo/' . $slug . '.']);
+        }
+
+        return $slug;
+    }
     /**
      * Preguntas frecuentes personalizadas por categoría. Mismo patrón de
      * FAQs que products.faqs/collections.faqs (trim, descartar pares
@@ -68,7 +80,7 @@ class CategoryController extends Controller
     {
         $request->validate([
             'name'        => 'required|string|max:120',
-            'slug'        => 'required|string|max:150|unique:product_categories,slug',
+            'slug'        => 'required|string|max:150',
             'parent_id'   => 'nullable|exists:product_categories,id',
             'description' => 'nullable|string',
             'image_url'   => 'nullable|string|max:255',
@@ -81,9 +93,11 @@ class CategoryController extends Controller
             'seo_description.max' => 'La meta description no puede tener más de 160 caracteres.',
         ]);
 
+        $slug = $this->resolveSlug($request);
+
         $category = new Category();
         $category->name        = $request->name;
-        $category->slug        = $this->slugifyPath($request->slug);
+        $category->slug        = $slug;
         $category->parent_id   = $request->parent_id   ?? null;
         $category->description = $request->description ?? null;
         $category->image_url   = $request->image_url   ?? null;
@@ -112,7 +126,7 @@ class CategoryController extends Controller
 
         $request->validate([
             'name'        => 'required|string|max:120',
-            'slug'        => 'required|string|max:150|unique:product_categories,slug,' . $id,
+            'slug'        => 'required|string|max:150',
             'parent_id'   => 'nullable|exists:product_categories,id',
             'description' => 'nullable|string',
             'image_url'   => 'nullable|string|max:255',
@@ -130,8 +144,15 @@ class CategoryController extends Controller
             'seo_description.max' => 'La meta description no puede tener más de 160 caracteres.',
         ]);
 
+        // Una categoría no puede colgar de sí misma ni de una de sus descendientes (rompería la ruta).
+        if ($request->filled('parent_id') && CategorySlugs::isSelfOrDescendant((int) $category->id, (int) $request->parent_id)) {
+            throw ValidationException::withMessages(['parent_id' => 'La categoría padre no puede ser ella misma ni una de sus subcategorías.']);
+        }
+        $oldSlug = $category->slug;
+        $slug = $this->resolveSlug($request, (int) $category->id);
+
         $category->name        = $request->name;
-        $category->slug        = $this->slugifyPath($request->slug);
+        $category->slug        = $slug;
         $category->parent_id   = $request->parent_id   ?? null;
         $category->description = $request->description ?? null;
         $category->image_url   = $request->image_url   ?? null;
@@ -140,7 +161,14 @@ class CategoryController extends Controller
         $category->seo_title     = $request->seo_title     ?? null;
         $category->seo_description = $request->seo_description ?? null;
         $this->fillFaqs($category, $request);
-        $category->save();
+
+        // Si la URL cambió, la vieja redirige (301) a la nueva; los descendientes los registra Category::saved().
+        DB::transaction(function () use ($category, $oldSlug) {
+            $category->save();
+            if ($category->wasChanged('slug')) {
+                Redirect::record('/catalogo/' . $oldSlug, '/catalogo/' . $category->slug);
+            }
+        });
 
         return response()->json([
             'success'  => true,
