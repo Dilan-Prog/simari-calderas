@@ -456,6 +456,12 @@ Route::get('/tareas', [TaskController::class, 'index'])->name('tasks.index');
 Route::get('/ventas/productos', [SalesProductController::class, 'index'])
     ->middleware('permission:sales-products')
     ->name('sales-products.index');
+// Vistas personalizadas: preferencia personal de cada usuario, basta con poder ver el panel.
+Route::middleware('permission:sales-products')->prefix('/ventas/productos/vistas')->name('sales-products.views.')->group(function () {
+    Route::post('/', [SalesProductController::class, 'storeView'])->name('store');
+    Route::put('/{id}', [SalesProductController::class, 'updateView'])->name('update');
+    Route::delete('/{id}', [SalesProductController::class, 'destroyView'])->name('destroy');
+});
 
 Route::post('/tareas', [TaskController::class, 'store'])->name('tasks.store');
 Route::get('/tareas/{task}', [TaskController::class, 'show'])->withTrashed()->name('tasks.show');
@@ -683,16 +689,16 @@ Route::controller(WhatsappFunnelController::class)
     ->name('whatsapp-funnel.')
     ->group(function () {
         Route::get('/', 'index')->name('index');
+        // Configuración del embudo: qué WhatsApp se usa y desde qué correo se contesta.
+        Route::get('/configuracion', [\App\Http\Controllers\Backend\FunnelSettingsController::class, 'edit'])->name('settings')->middleware('permission:sales-funnel,edit');
+        Route::post('/configuracion', [\App\Http\Controllers\Backend\FunnelSettingsController::class, 'update'])->name('settings.update')->middleware('permission:sales-funnel,edit');
+        Route::post('/configuracion/probar-correo', [\App\Http\Controllers\Backend\FunnelSettingsController::class, 'testMail'])->name('settings.test-mail')->middleware(['permission:sales-funnel,edit', 'throttle:6,1']);
         // Fase 14 (quick action "WhatsApp" de la tarjeta de Deal): busca o
         // crea la WhatsappConversation vinculada a ese deal_id (vía su
         // customer_id) y devuelve a dónde redirigir para abrir el modal de
         // chat ya existente de esta misma página — no se duplica el modal.
         // Declarada antes de '/nuevo-chat' por si algún día 'desde-negocio'
         // colisionara con un segmento futuro, aunque hoy no hay wildcard
-        // Configuración del embudo: qué WhatsApp se usa y desde qué correo se contesta.
-        Route::get('/configuracion', [\App\Http\Controllers\Backend\FunnelSettingsController::class, 'edit'])->name('settings')->middleware('permission:sales-funnel,edit');
-        Route::post('/configuracion', [\App\Http\Controllers\Backend\FunnelSettingsController::class, 'update'])->name('settings.update')->middleware('permission:sales-funnel,edit');
-        Route::post('/configuracion/probar-correo', [\App\Http\Controllers\Backend\FunnelSettingsController::class, 'testMail'])->name('settings.test-mail')->middleware(['permission:sales-funnel,edit', 'throttle:6,1']);
         // aquí que lo capture.
         Route::post('/desde-negocio/{deal}', 'fromDeal')->name('from-deal');
         Route::post('/nuevo-chat', 'newChat')->name('new-chat');

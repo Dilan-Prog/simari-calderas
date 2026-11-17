@@ -4,6 +4,9 @@ namespace App\Http\Controllers\Backend;
 
 use App\Http\Controllers\Controller;
 use App\Models\Products;
+use App\Models\SalesProductView;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
 /**
@@ -24,7 +27,113 @@ class SalesProductController extends Controller
         return view('admin.sales-products.index', [
             'columns' => array_map(fn (array $c) => $c + ['group' => $groups[$c['key']]], $this->columns()),
             'rows'    => $this->rows(),
+            'views'   => SalesProductView::where('user_id', auth()->id())->orderBy('name')->get(['id', 'name', 'config']),
         ]);
+    }
+
+    // ── Vistas personalizadas (por usuario) ──────────────────────────
+
+    private const VIEWS_MAX_PER_USER = 10;
+
+    public function storeView(Request $request): JsonResponse
+    {
+        $request->validate($this->viewRules());
+
+        if (SalesProductView::where('user_id', auth()->id())->count() >= self::VIEWS_MAX_PER_USER) {
+            return $this->viewError('Ya tienes el máximo de ' . self::VIEWS_MAX_PER_USER . ' vistas guardadas. Elimina una para poder guardar otra.');
+        }
+        if ($this->viewNameTaken($request->name)) {
+            return $this->viewError('Ya tienes una vista guardada con ese nombre.');
+        }
+        $config = $this->cleanConfig($request->input('config'));
+        if (! $config['visible']) {
+            return $this->viewError('La vista necesita al menos una columna visible.');
+        }
+
+        $view = SalesProductView::create(['user_id' => auth()->id(), 'name' => trim($request->name), 'config' => $config]);
+
+        return response()->json(['success' => true, 'view' => $view->only(['id', 'name', 'config'])]);
+    }
+
+    public function updateView(Request $request, int $id): JsonResponse
+    {
+        $view = SalesProductView::findOrFail($id);
+        abort_if($view->user_id !== auth()->id(), 403);
+        $request->validate($this->viewRules());
+
+        if ($this->viewNameTaken($request->name, $view->id)) {
+            return $this->viewError('Ya tienes una vista guardada con ese nombre.');
+        }
+        $config = $this->cleanConfig($request->input('config'));
+        if (! $config['visible']) {
+            return $this->viewError('La vista necesita al menos una columna visible.');
+        }
+
+        $view->update(['name' => trim($request->name), 'config' => $config]);
+
+        return response()->json(['success' => true, 'view' => $view->only(['id', 'name', 'config'])]);
+    }
+
+    public function destroyView(int $id): JsonResponse
+    {
+        $view = SalesProductView::findOrFail($id);
+        abort_if($view->user_id !== auth()->id(), 403);
+        $view->delete();
+
+        return response()->json(['success' => true]);
+    }
+
+    private function viewError(string $message): JsonResponse
+    {
+        return response()->json(['success' => false, 'message' => $message], 422);
+    }
+
+    private function viewRules(): array
+    {
+        return [
+            'name'               => ['required', 'string', 'max:60'],
+            'config'             => ['required', 'array'],
+            'config.visible'     => ['required', 'array', 'min:1'],
+            'config.visible.*'   => ['string'],
+            'config.order'       => ['required', 'array'],
+            'config.order.*'     => ['string'],
+            'config.widths'      => ['nullable', 'array'],
+            'config.widths.*'    => ['integer', 'min:40', 'max:1200'],
+            'config.row_height'  => ['required', 'integer', 'min:24', 'max:160'],
+        ];
+    }
+
+    /**
+     * Deja solo claves de columna que existen hoy: si luego se agrega o quita una
+     * columna, las vistas viejas no se rompen (las nuevas quedan al final y ocultas).
+     *
+     * @return array{visible: array<int, string>, order: array<int, string>, widths: array<string, int>, row_height: int}
+     */
+    private function cleanConfig(array $config): array
+    {
+        $keys = array_column($this->columns(), 'key');
+
+        $widths = [];
+        foreach (($config['widths'] ?? []) as $key => $width) {
+            if (in_array($key, $keys, true)) {
+                $widths[$key] = (int) $width;
+            }
+        }
+
+        return [
+            'visible'    => array_values(array_intersect($config['visible'], $keys)),
+            'order'      => array_values(array_unique(array_merge(array_intersect($config['order'], $keys), $keys))),
+            'widths'     => $widths,
+            'row_height' => (int) $config['row_height'],
+        ];
+    }
+
+    private function viewNameTaken(string $name, ?int $excludeId = null): bool
+    {
+        return SalesProductView::where('user_id', auth()->id())
+            ->when($excludeId, fn ($q) => $q->where('id', '!=', $excludeId))
+            ->whereRaw('LOWER(name) = ?', [strtolower(trim($name))])
+            ->exists();
     }
 
     /**
