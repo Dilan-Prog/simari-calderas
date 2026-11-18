@@ -265,7 +265,7 @@
     .quotes-table tbody { display: grid; gap: 10px; max-height: none; overflow: visible; scrollbar-gutter: auto; }
     .quotes-table tbody tr.quotes-row {
         display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px 12px;
-        grid-template-areas: "folio estado" "receptor receptor" "empresa empresa" "total valido" "actions actions";
+        grid-template-areas: "folio estado" "receptor receptor" "empresa empresa" "total valido" "elaboro elaboro" "actions actions";
         height: auto; padding: 12px 14px; background: #fff; border: 1px solid #EEF0F3; border-radius: 12px;
         box-shadow: var(--shadow-sm); table-layout: auto;
     }
@@ -285,6 +285,7 @@
     .quotes-c-empresa { grid-area: empresa; }
     .quotes-c-total { grid-area: total; font-size: 16px; font-weight: 700; }
     .quotes-c-valido { grid-area: valido; }
+    .quotes-c-elaboro { grid-area: elaboro; }
     .quotes-c-actions { grid-area: actions; padding-top: 10px !important; border-top: 1px solid #F3F4F6; }
     .quotes-actions { gap: 8px; }
     .quotes-actions > .quotes-action-btn, .quotes-action-form { flex: 1 1 0; min-width: 0; }
@@ -357,6 +358,7 @@
                     'total' => 'Total',
                     'estado' => 'Estado',
                     'valido_hasta' => 'Válido hasta',
+                    'elaboro' => 'Elaboró',
                 ],
             ])
             <a href="{{ route('admin.quotes.create') }}" class="quotes-btn-new">
@@ -433,6 +435,7 @@
                         <th data-col="total">Total</th>
                         <th data-col="estado">Estado</th>
                         <th data-col="valido_hasta">Válido hasta</th>
+                        <th data-col="elaboro">Elaboró</th>
                         <th>Acciones</th>
                     </tr>
                 </thead>
@@ -457,6 +460,7 @@
                             <span class="quotes-badge {{ $badge['class'] }}">{{ $badge['label'] }}</span>
                         </td>
                         <td class="quotes-td-fecha quotes-c-valido" data-col="valido_hasta" data-label="Válido hasta">{{ $quote->valid_until ? $quote->valid_until->format('d M Y') : '—' }}</td>
+                        <td class="quotes-c-elaboro" data-col="elaboro" data-label="Elaboró">{{ $quote->createdBy ? trim($quote->createdBy->first_name . ' ' . $quote->createdBy->last_name) : '—' }}</td>
                         <td class="quotes-c-actions">
                             <div class="quotes-actions">
                                 <a href="{{ route('admin.quotes.show', $quote) }}" class="quotes-action-btn" title="Ver">
@@ -481,7 +485,7 @@
                     </tr>
                     @empty
                     <tr class="quotes-empty-row">
-                        <td colspan="7">
+                        <td colspan="8">
                             <div class="quotes-empty-inner">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/><path d="M8 13h8"/><path d="M8 17h5"/></svg>
                                 <p>No se encontraron cotizaciones con los filtros actuales.</p>
