@@ -13,6 +13,7 @@ use App\Support\UploadPath;
 use DomainException;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
+use App\Support\PerPage;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -60,7 +61,7 @@ class PaymentController extends Controller
 
     public function index(Request $request)
     {
-        $payments = $this->filtered($request)->latest('payment_date')->latest('id')->paginate(20)->withQueryString();
+        $payments = PerPage::paginate($this->filtered($request)->latest('payment_date')->latest('id'), $request);
 
         return view('admin.finance.payments.index', [
             'payments' => $payments,
@@ -89,7 +90,7 @@ class PaymentController extends Controller
         $filters->request->remove('status');
         $q = $this->filtered($filters)
             ->whereIn('status', $view === 'pendientes' ? ['aplicado'] : ($view === 'conciliados' ? ['conciliado'] : ['aplicado', 'conciliado']));
-        $payments = $q->with('applications')->latest('payment_date')->latest('id')->paginate(25)->withQueryString();
+        $payments = PerPage::paginate($q->with('applications')->latest('payment_date')->latest('id'), $request);
         $payments->getCollection()->each(function ($p) {
             $p->setRelation('docs', $p->applications->map(fn ($a) => $a->document())->filter()->values());
         });

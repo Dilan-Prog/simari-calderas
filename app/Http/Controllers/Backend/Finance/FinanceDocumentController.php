@@ -9,6 +9,7 @@ use App\Services\FinanceService;
 use DomainException;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
+use App\Support\PerPage;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -71,8 +72,8 @@ abstract class FinanceDocumentController extends Controller
     public function index(Request $request)
     {
         $c = $this->cfg();
-        $docs = $this->filtered($request)->orderByRaw("FIELD(status,'vencida','parcial','pendiente','pagada','cancelada')")
-            ->orderBy('due_date')->paginate(20)->withQueryString();
+        $docs = PerPage::paginate($this->filtered($request)->orderByRaw("FIELD(status,'vencida','parcial','pendiente','pagada','cancelada')")
+            ->orderBy('due_date'), $request);
 
         return view('admin.finance.docs.index', [
             'cfg'      => $c,
