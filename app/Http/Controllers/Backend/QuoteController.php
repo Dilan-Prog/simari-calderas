@@ -646,6 +646,133 @@ class QuoteController extends Controller
         return $pdf->stream("{$quote->quote_number}.pdf");
     }
 
+    /**
+     * Vista previa del PDF con los datos AÚN NO GUARDADOS del asistente (create/edit).
+     * Recibe el mismo formulario que store()/update() (FormData del wizard) y arma un
+     * Quote + QuoteItems en memoria — nunca se llama save()/create(), así que no hay
+     * folio, eventos, bitácora ni automatizaciones. Por seguridad todo corre dentro de
+     * una transacción que siempre se revierte. Validación laxa: con datos incompletos
+     * igual se genera el PDF (lo que falte se muestra como "—").
+     */
+    public function pdfDraft(Request $request)
+    {
+        $num = fn ($v, $default = 0.0) => is_numeric($v) ? (float) $v : $default;
+        $str = fn ($v) => is_scalar($v) && trim((string) $v) !== '' ? trim((string) $v) : null;
+
+        // Edición: se toma el folio/fecha/autor de la cotización existente (solo lectura).
+        $base = $request->filled('quote_id') ? Quote::find((int) $request->input('quote_id')) : null;
+
+        $rawItems = json_decode((string) $request->input('items_json', '[]'), true);
+        $rawItems = is_array($rawItems) ? array_values(array_filter($rawItems, 'is_array')) : [];
+
+        $taxRate = $num($request->input('tax_rate'), 16.0);
+        $items = [];
+        foreach ($rawItems as $i => $it) {
+            $qty = $num($it['quantity'] ?? null, 1.0);
+            $price = $num($it['unit_price'] ?? null);
+            $disc = $num($it['discount_percent'] ?? null);
+            $items[] = [
+                'product_id'       => is_numeric($it['product_id'] ?? null) ? (int) $it['product_id'] : null,
+                'service_page_id'  => is_numeric($it['service_page_id'] ?? null) ? (int) $it['service_page_id'] : null,
+                'product_name'     => $str($it['product_name'] ?? null) ?? '—',
+                'product_sku'      => $str($it['product_sku'] ?? null),
+                'quantity'         => (int) $qty,
+                'unit_price'       => $price,
+                'discount_percent' => $disc,
+                'tax_percent'      => $num($it['tax_percent'] ?? null, $taxRate),
+                // Igual que store(): se usa el line_total del formulario; si falta, se recalcula como quotes.js.
+                'line_total'       => $num($it['line_total'] ?? null, $qty * $price * (1 - $disc / 100)),
+                'notes'            => $str($it['notes'] ?? null),
+                'sort_order'       => $i,
+            ];
+        }
+
+        $isrRate = $num($request->input('isr_retention_rate'));
+        $totals = $this->quoteService->calculateTotals($items, $num($request->input('discount_total')), $taxRate, $isrRate);
+
+        $data = ['terms_conditions' => $str($request->input('terms_conditions'))];
+        $this->applyTermsSelection($request, $data); // solo lee el catálogo de términos
+
+        $currency = in_array($request->input('currency'), ['MXN', 'USD'], true) ? $request->input('currency') : 'MXN';
+        $validUntil = null;
+        if ($str($request->input('valid_until'))) {
+            try {
+                $validUntil = \Carbon\Carbon::parse($request->input('valid_until'));
+            } catch (\Throwable) {
+                $validUntil = null;
+            }
+        }
+
+        $pdfOutput = null;
+        DB::beginTransaction();
+        try {
+            $quote = new Quote();
+            $quote->forceFill([
+                'quote_number'        => $base?->quote_number ?? 'COT-BORRADOR',
+                'created_by_user_id'  => $base?->created_by_user_id ?? auth()->id(),
+                'customer_id'         => is_numeric($request->input('customer_id')) ? (int) $request->input('customer_id') : $base?->customer_id,
+                'service_page_id'     => is_numeric($request->input('service_page_id')) ? (int) $request->input('service_page_id') : $base?->service_page_id,
+                'status'              => $base?->status ?? 'draft',
+                'guest_name'          => $str($request->input('guest_name')) ?? '—',
+                'guest_email'         => $str($request->input('guest_email')),
+                'guest_phone'         => $str($request->input('guest_phone')),
+                'guest_company'       => $str($request->input('guest_company')),
+                'guest_rfc'           => $str($request->input('guest_rfc')),
+                'currency'            => $currency,
+                'exchange_rate'       => is_numeric($request->input('exchange_rate')) ? (float) $request->input('exchange_rate') : null,
+                'subtotal'            => $totals['subtotal'],
+                'discount_total'      => $totals['discount_total'],
+                'tax_rate'            => $taxRate,
+                'tax_total'           => $totals['tax_total'],
+                'isr_retention_rate'  => $isrRate,
+                'isr_retention_total' => $totals['isr_retention_total'],
+                'total'               => $totals['total'],
+                'valid_until'         => $validUntil,
+                'notes'               => $str($request->input('notes')),
+                'terms_conditions'    => $data['terms_conditions'] ?? null,
+                'terms_selection'     => $data['terms_selection'] ?? null,
+                'created_at'          => $base?->created_at ?? now(),
+                'updated_at'          => now(),
+            ]);
+            if ($base) {
+                $quote->id = $base->id; // solo para plantillas que armen URLs; exists sigue en false
+            }
+
+            $quote->setRelation('items', collect($items)->map(fn ($row) => (new \App\Models\QuoteItem())->forceFill($row + ['quote_id' => $base?->id])));
+            $quote->setRelation('createdBy', $base ? $base->createdBy : auth()->user());
+            $quote->setRelation('customer', $quote->customer_id ? \App\Models\Customer::find($quote->customer_id) : null);
+
+            $pdfOutput = Pdf::loadView('admin.quotes.pdf', ['quote' => $quote])
+                ->setPaper('a4', 'portrait')
+                ->output();
+        } finally {
+            DB::rollBack(); // nada de la vista previa se persiste
+        }
+
+        return response($pdfOutput, 200, [
+            'Content-Type'        => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="vista-previa.pdf"',
+            'Cache-Control'       => 'no-store, private',
+        ]);
+    }
+
+    /**
+     * "Regenerar PDF": versión mejorada del PDF (admin.quotes.pdf_v2) — las
+     * descripciones largas continúan en varias páginas sin hojas en blanco ni
+     * texto cortado, el formato Markdown pegado (tablas, negritas, viñetas)
+     * se convierte y los términos salen en lista. Es opcional: descargar,
+     * correo, portal y vista previa siguen usando el formato anterior
+     * (admin.quotes.pdf) hasta que se decida adoptarlo por defecto.
+     */
+    public function regeneratedPdf(Quote $quote)
+    {
+        $quote->load('items', 'createdBy');
+        $pdf = Pdf::loadView('admin.quotes.pdf_v2', compact('quote'))
+            ->setPaper('a4', 'portrait');
+
+        return $pdf->stream("{$quote->quote_number}.pdf");
+    }
+
     public function sendEmail(Quote $quote)
     {
         $quote->load('items', 'createdBy', 'customer', 'servicePage');
