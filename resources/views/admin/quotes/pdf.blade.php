@@ -143,7 +143,9 @@ thead { display: table-header-group; }
 .items-table thead th.th-right { text-align: right; }
 
 .items-table tbody tr { page-break-inside: avoid; }
-.items-table tbody tr:nth-child(even) { background: #f5f5f5; }
+/* Fondo alterno por PARTIDA (no por fila): cada partida ahora puede ocupar
+   varias filas (fila principal + una fila por párrafo/punto de su descripción). */
+.items-table tbody tr.item-alt td { background: #f7f7f7; }
 .items-table tbody td {
     padding: 9px 8px;
     font-size: 11px;
@@ -159,6 +161,41 @@ thead { display: table-header-group; }
     font-size: 9px; font-weight: normal; color: #555;
     margin-top: 4px; line-height: 1.55;
 }
+.item-desc-ref { font-size: 8.5px; font-weight: normal; color: #ff6213; margin-top: 3px; }
+
+/* Descripción de la partida a TODO el ancho, una fila por bloque: DomPDF no
+   parte una fila entre páginas, pero sí puede cortar ENTRE filas, así que
+   una descripción larga ya no deja hojas en blanco ni se recorta. */
+.items-table tbody tr.desc-row td {
+    padding: 0 8px 4px 8px; border-bottom: none;
+    font-size: 9.5px; color: #4a4a4a; line-height: 1.5; font-weight: normal;
+}
+.items-table tbody tr.desc-row.desc-first td { padding-top: 0; }
+.items-table tbody tr.desc-row.desc-last td { padding-bottom: 9px; border-bottom: 1px solid #eee; }
+.items-table tbody tr.item-main.has-desc td { border-bottom: none; }
+
+/* Bloques de texto formateado (descripción, alcance, notas, términos). */
+.blk-p   { margin: 0 0 4px 0; }
+.blk-h   { margin: 6px 0 3px 0; font-weight: bold; color: #1a1a2e; }
+.blk-li, .blk-ol, .blk-kv { margin: 0 0 3px 0; padding-left: 14px; position: relative; }
+.blk-li .mk, .blk-ol .mk { position: absolute; left: 0; top: 0; color: #ff6213; font-weight: bold; }
+.blk-ol { padding-left: 20px; }
+.blk-kv { padding-left: 10px; border-left: 2px solid #ffd2bb; }
+.blk-p strong, .blk-li strong, .blk-ol strong, .blk-kv strong, .blk-h strong { color: #1a1a2e; }
+
+/* Alcance detallado (descripciones extensas). Son <div>: fluyen entre páginas. */
+.scope-section { margin: 4px 0 18px 0; }
+.scope-title {
+    font-size: 9px; font-weight: bold; color: #999; text-transform: uppercase;
+    letter-spacing: .8px; margin-bottom: 8px; border-top: 1px solid #eee; padding-top: 14px;
+}
+.scope-item { margin-bottom: 12px; }
+.scope-item-head {
+    font-size: 11px; font-weight: bold; color: #1a1a2e; margin-bottom: 6px;
+    border-left: 3px solid #ff6213; padding-left: 8px;
+}
+.scope-item-head span { color: #ff6213; }
+.scope-body { font-size: 9.5px; color: #4a4a4a; line-height: 1.55; }
 
 
 /* ════════════════════════════════════════════════════
@@ -193,12 +230,12 @@ thead { display: table-header-group; }
    NOTAS Y TÉRMINOS
    ════════════════════════════════════════════════════ */
 .notes-section {
-    display: table; width: 100%;
     border-top: 1px solid #eee; padding-top: 16px;
     margin-bottom: 16px;
 }
-.notes-col { display: table-cell; width: 50%; vertical-align: top; padding-right: 20px; }
-.notes-col:last-child { padding-right: 0; }
+/* Antes eran dos celdas lado a lado (display: table): unos términos largos
+   no podían pasar a la siguiente página. Ahora van uno debajo del otro. */
+.notes-col { margin-bottom: 14px; }
 .notes-label {
     font-size: 9px; font-weight: bold; color: #999;
     text-transform: uppercase; letter-spacing: .8px; margin-bottom: 6px;
@@ -312,6 +349,7 @@ thead { display: table-header-group; }
         @endif
     </div>
 
+    @php $longItems = []; @endphp
     {{-- Tabla de productos --}}
     <table class="items-table">
         <thead>
@@ -327,12 +365,19 @@ thead { display: table-header-group; }
         </thead>
         <tbody>
             @foreach($quote->items as $i => $item)
-            <tr>
+            @php
+                $alt       = $i % 2 === 1 ? 'item-alt' : '';
+                $isLong    = $item->notes && \App\Support\QuoteTextFormatter::isLong($item->notes);
+                $descBlocks = ($item->notes && !$isLong) ? \App\Support\QuoteTextFormatter::blocks($item->notes) : [];
+                if ($isLong) { $longItems[] = ['n' => $i + 1, 'item' => $item]; }
+            @endphp
+            <tr class="item-main {{ $alt }} {{ $descBlocks ? 'has-desc' : '' }}">
                 <td style="text-align:center;color:#aaa;">{{ $i + 1 }}</td>
                 <td class="td-name">
                     {{ $item->product_name }}
-                    @if($item->notes)
-                    <div class="item-desc-text">{!! nl2br(e($item->notes)) !!}</div>
+                    @if($isLong)
+                    <div class="item-desc-text">{{ \App\Support\QuoteTextFormatter::summary($item->notes) }}</div>
+                    <div class="item-desc-ref">Ver alcance detallado de la partida {{ $i + 1 }} más abajo.</div>
                     @endif
                 </td>
                 <td class="td-sku">{{ $item->product_sku ?? '—' }}</td>
@@ -341,9 +386,32 @@ thead { display: table-header-group; }
                 <td class="td-right" style="white-space:nowrap;">{{ $item->discount_percent > 0 ? $item->discount_percent . '%' : '—' }}</td>
                 <td class="td-right" style="font-weight:bold;white-space:nowrap;">${{ number_format($item->line_total, 2) }}</td>
             </tr>
+            @foreach($descBlocks as $b => $block)
+            <tr class="desc-row {{ $alt }} {{ $b === 0 ? 'desc-first' : '' }} {{ $b === count($descBlocks) - 1 ? 'desc-last' : '' }}">
+                <td></td>
+                <td colspan="6">@include('admin.quotes.partials._pdf_block', ['block' => $block])</td>
+            </tr>
+            @endforeach
             @endforeach
         </tbody>
     </table>
+
+    {{-- Alcance detallado: descripciones extensas, completas y con formato. --}}
+    @if($longItems)
+    <div class="scope-section">
+        <div class="scope-title">Alcance detallado</div>
+        @foreach($longItems as $long)
+        <div class="scope-item">
+            <div class="scope-item-head"><span>Partida {{ $long['n'] }}</span> · {{ $long['item']->product_name }}</div>
+            <div class="scope-body">
+                @foreach(\App\Support\QuoteTextFormatter::blocks($long['item']->notes) as $block)
+                    @include('admin.quotes.partials._pdf_block', ['block' => $block])
+                @endforeach
+            </div>
+        </div>
+        @endforeach
+    </div>
+    @endif
 
     {{-- Totales --}}
     <div class="totals-wrap">
@@ -382,13 +450,21 @@ thead { display: table-header-group; }
         @if($quote->notes)
         <div class="notes-col">
             <div class="notes-label">Notas</div>
-            <div class="notes-text">{{ $quote->notes }}</div>
+            <div class="notes-text">
+                @foreach(\App\Support\QuoteTextFormatter::blocks($quote->notes) as $block)
+                    @include('admin.quotes.partials._pdf_block', ['block' => $block])
+                @endforeach
+            </div>
         </div>
         @endif
         @if($quote->terms_conditions)
         <div class="notes-col">
             <div class="notes-label">Términos y Condiciones</div>
-            <div class="notes-text">{{ $quote->terms_conditions }}</div>
+            <div class="notes-text">
+                @foreach(\App\Support\QuoteTextFormatter::blocks($quote->terms_conditions) as $block)
+                    @include('admin.quotes.partials._pdf_block', ['block' => $block])
+                @endforeach
+            </div>
         </div>
         @endif
     </div>
