@@ -145,12 +145,14 @@
 
             {{-- Regenerar PDF: abre la versión mejorada (pdf_v2) en otra pestaña. --}}
             <span class="btn-regen-wrap">
-                <a href="{{ route('admin.quotes.pdf-regenerated', $quote) }}" target="_blank" rel="noopener"
+                {{-- Primero muestra la vista previa del PDF regenerado (mismo modal que
+                     "Vista previa PDF"); desde ahí se descarga o se abre en pestaña. --}}
+                <button type="button" onclick="openPdfModal('regen')"
                    class="btn-action btn-action--secondary btn-regen"
                    aria-describedby="regenPdfHelp">
                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
                     Regenerar PDF
-                </a>
+                </button>
                 <span class="btn-regen-help" tabindex="0" role="button" aria-label="¿Para qué sirve Regenerar PDF?">?
                     <span class="btn-regen-tip" id="regenPdfHelp" role="tooltip">Para una visualización correcta: descripciones largas completas en varias páginas, sin hojas en blanco y con formato (listas y negritas).</span>
                 </span>
@@ -491,7 +493,7 @@
 
         {{-- Barra superior del modal --}}
         <div class="qshow-modal__bar" style="display:flex;align-items:center;justify-content:space-between;padding:12px 18px;background:#1a1a1a;border-bottom:2px solid #ff6213;flex-shrink:0;">
-            <span class="qshow-modal__title" style="color:#fff;font-size:14px;font-weight:600;">
+            <span class="qshow-modal__title" id="pdf-modal-title" style="color:#fff;font-size:14px;font-weight:600;">
                 Vista previa — {{ $quote->quote_number }}
             </span>
             <div style="display:flex;gap:10px;align-items:center;">
@@ -499,7 +501,7 @@
                    href="{{ route('admin.quotes.pdf', $quote) }}"
                    style="display:inline-flex;align-items:center;gap:6px;background:#ff6213;color:#fff;border:none;padding:7px 14px;border-radius:5px;font-size:12px;font-weight:600;cursor:pointer;text-decoration:none;">
                     <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17V3"/><path d="m6 11 6 6 6-6"/><path d="M19 21H5"/></svg>
-                    Descargar PDF
+                    <span id="pdf-download-label">Descargar PDF</span>
                 </a>
                 <button type="button" class="qshow-modal__x" onclick="closePdfModal()" aria-label="Cerrar" style="background:transparent;border:none;cursor:pointer;color:#9CA3AF;font-size:20px;line-height:1;padding:4px 8px;" title="Cerrar">&times;</button>
             </div>
@@ -513,8 +515,8 @@
 
         {{-- Barra inferior (solo móvil ≤640px) --}}
         <div class="qshow-modal__mfoot">
-            <a href="{{ route('admin.quotes.pdf-preview', $quote) }}" target="_blank" rel="noopener" class="qshow-mbtn qshow-mbtn--ghost">Abrir en pestaña</a>
-            <a href="{{ route('admin.quotes.pdf', $quote) }}" class="qshow-mbtn qshow-mbtn--primary">Descargar PDF</a>
+            <a id="pdf-open-tab-m" href="{{ route('admin.quotes.pdf-preview', $quote) }}" target="_blank" rel="noopener" class="qshow-mbtn qshow-mbtn--ghost">Abrir en pestaña</a>
+            <a id="pdf-download-m" href="{{ route('admin.quotes.pdf', $quote) }}" class="qshow-mbtn qshow-mbtn--primary">Descargar PDF</a>
         </div>
     </div>
 </div>
@@ -667,12 +669,36 @@ document.getElementById('send-email-modal')?.addEventListener('click', function(
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') closeSendEmailModal();
 });
-function openPdfModal() {
+// Un solo modal para los dos PDFs: 'normal' (Vista previa PDF) y 'regen'
+// (Regenerar PDF: primero se ve la vista previa del PDF mejorado y desde
+// ahí se descarga o se abre en otra pestaña).
+const PDF_MODES = {
+    normal: {
+        title: 'Vista previa — {{ $quote->quote_number }}',
+        view: '{{ route('admin.quotes.pdf-preview', $quote) }}',
+        download: '{{ route('admin.quotes.pdf', $quote) }}',
+        label: 'Descargar PDF',
+    },
+    regen: {
+        title: 'Vista previa — PDF regenerado · {{ $quote->quote_number }}',
+        view: '{{ route('admin.quotes.pdf-regenerated', $quote) }}',
+        download: '{{ route('admin.quotes.pdf-regenerated', ['quote' => $quote, 'descargar' => 1]) }}',
+        label: 'Descargar PDF regenerado',
+    },
+};
+function openPdfModal(mode) {
+    const cfg = PDF_MODES[mode] || PDF_MODES.normal;
     const modal = document.getElementById('pdf-modal');
     const frame = document.getElementById('pdf-frame');
+    document.getElementById('pdf-modal-title').textContent = cfg.title;
+    document.getElementById('pdf-download-btn').href = cfg.download;
+    document.getElementById('pdf-download-label').textContent = cfg.label;
+    const openM = document.getElementById('pdf-open-tab-m'); if (openM) openM.href = cfg.view;
+    const dlM = document.getElementById('pdf-download-m'); if (dlM) { dlM.href = cfg.download; dlM.textContent = cfg.label; }
     modal.style.display = 'flex';
-    if (!frame.src || frame.src === window.location.href) {
-        frame.src = '{{ route('admin.quotes.pdf-preview', $quote) }}';
+    if (frame.dataset.mode !== (mode || 'normal')) {
+        frame.dataset.mode = mode || 'normal';
+        frame.src = cfg.view;
     }
     document.body.style.overflow = 'hidden';
 }
