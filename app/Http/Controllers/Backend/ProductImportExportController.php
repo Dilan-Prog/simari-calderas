@@ -10,6 +10,8 @@ use App\Imports\ProductsImport;
 use App\Imports\ProductsUpdateImport;
 use App\Models\Brand;
 use App\Models\Category;
+use App\Models\Products;
+use App\Services\Products\ProductFilters;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -61,6 +63,12 @@ class ProductImportExportController extends Controller
             )));
         }
 
+        // Sin selección pero con filtros activos en el listado (marca,
+        // categoría, búsqueda, proveedor, etc.): exporta solo lo filtrado.
+        if ($ids === null && $this->hasProductFilters($request)) {
+            $ids = $this->filteredIdsQuery($request)->pluck('id')->all();
+        }
+
         if ($request->input('format') === 'pdf') {
             $products = \App\Models\Products::with(['category.parent.parent', 'brand'])
                 ->when($ids !== null, fn ($q) => $q->whereIn('id', $ids))
@@ -71,6 +79,34 @@ class ProductImportExportController extends Controller
         }
 
         return Excel::download(new ProductsExport($ids), 'productos-' . now()->format('Y-m-d') . '.xlsx');
+    }
+
+    /**
+     * IDs de todos los productos que cumplen los filtros actuales del
+     * listado (no solo la página visible). Lo usa "Seleccionar los N del
+     * filtro" en la barra de acciones masivas.
+     */
+    public function filteredIds(Request $request)
+    {
+        return response()->json([
+            'ids' => $this->filteredIdsQuery($request)->pluck('id')->map(fn ($id) => (string) $id)->all(),
+        ]);
+    }
+
+    private function filteredIdsQuery(Request $request)
+    {
+        $query = Products::query()->select('id')->orderBy('id');
+        ProductFilters::apply($query, $request);
+
+        return $query;
+    }
+
+    /** ¿Trae el request algún filtro del listado (no solo paginación/formato)? */
+    private function hasProductFilters(Request $request): bool
+    {
+        return collect($request->except(['ids', 'format', 'page', 'per_page', 'view', '_token']))
+            ->filter(fn ($v) => is_array($v) ? count(array_filter($v, fn ($x) => $x !== null && $x !== '')) > 0 : ($v !== null && $v !== ''))
+            ->isNotEmpty();
     }
 
     public function import(Request $request)

@@ -334,7 +334,32 @@
             });
 
             // ── Fase A: selección + acciones masivas (estilo Shopify) ──
-            const selectedIds = new Set();
+            // La selección se conserva al cambiar de página, filtro o vista
+            // (sessionStorage de esta pestaña); "Cancelar selección", las
+            // acciones masivas y eliminar la limpian.
+            const SELECTION_KEY = 'admin.products.selection';
+            const selectedIds = new Set((() => {
+                try { return JSON.parse(sessionStorage.getItem(SELECTION_KEY) || '[]').map(String); }
+                catch (e) { return []; }
+            })());
+            // Si la selección es exactamente "todo el filtro" (botón Seleccionar
+            // los N del filtro), Exportar selección usa la URL del filtro en vez
+            // de mandar miles de ids en la URL (que puede rebasar el límite del servidor).
+            const FILTER_SEL_KEY = 'admin.products.selection.filter';
+            let filterSelection = (() => {
+                try { return JSON.parse(sessionStorage.getItem(FILTER_SEL_KEY) || 'null'); } catch (e) { return null; }
+            })();
+            function sameAsFilterSelection() {
+                return !!filterSelection && filterSelection.ids.length === selectedIds.size
+                    && filterSelection.ids.every(id => selectedIds.has(id));
+            }
+            function persistSelection() {
+                if (filterSelection && !sameAsFilterSelection()) filterSelection = null;
+                try {
+                    sessionStorage.setItem(SELECTION_KEY, JSON.stringify(Array.from(selectedIds)));
+                    sessionStorage.setItem(FILTER_SEL_KEY, JSON.stringify(filterSelection));
+                } catch (e) {}
+            }
             const bulkBar = document.getElementById('prodBulkBar');
             const bulkCount = document.getElementById('prodBulkCount');
             const selectAllList = document.getElementById('prodSelectAllList');
@@ -370,13 +395,24 @@
             const bulkExportBtn = document.getElementById('prodBulkExportBtn');
             const exportBaseUrl = '{{ route('admin.products.export') }}';
 
+            const selectFilteredBtn = document.getElementById('prodBulkSelectFilteredBtn');
+
             function syncBulkBar() {
+                persistSelection();
                 bulkCount.textContent = selectedIds.size;
+                if (selectFilteredBtn) {
+                    const total = parseInt(selectFilteredBtn.dataset.total || '0', 10);
+                    // Solo tiene sentido si el filtro trae más productos de los que hay en esta página.
+                    selectFilteredBtn.hidden = !(selectedIds.size > 0 && selectedIds.size < total
+                        && total > allRowCheckboxIds().length
+                        && allRowCheckboxIds().every(id => selectedIds.has(id)));
+                }
                 bulkBar.classList.toggle('active', selectedIds.size > 0);
                 // "Exportar selección": download-format.js lee esta URL al hacer clic.
                 if (bulkExportBtn) {
-                    bulkExportBtn.setAttribute('data-download-url',
-                        exportBaseUrl + '?ids=' + Array.from(selectedIds).join(','));
+                    bulkExportBtn.setAttribute('data-download-url', sameAsFilterSelection()
+                        ? filterSelection.exportUrl
+                        : exportBaseUrl + '?ids=' + Array.from(selectedIds).join(','));
                 }
                 syncCheckboxesUI();
             }
@@ -406,8 +442,38 @@
 
             document.getElementById('prodBulkCancelBtn').addEventListener('click', () => {
                 selectedIds.clear();
+                persistSelection();
                 syncBulkBar();
             });
+
+            if (selectFilteredBtn) {
+                selectFilteredBtn.addEventListener('click', async () => {
+                    selectFilteredBtn.disabled = true;
+                    try {
+                        const res = await fetch(selectFilteredBtn.dataset.url, { headers: { 'Accept': 'application/json' } });
+                        const data = await res.json();
+                        const ids = (data.ids || []).map(String);
+                        // Selección = exactamente el filtro -> exportar por filtro.
+                        if (selectedIds.size === 0 || Array.from(selectedIds).every(id => ids.includes(id))) {
+                            selectedIds.clear();
+                            ids.forEach(id => selectedIds.add(id));
+                            filterSelection = { ids, exportUrl: selectFilteredBtn.dataset.exportUrl };
+                        } else {
+                            ids.forEach(id => selectedIds.add(id));
+                        }
+                        syncBulkBar();
+                        showProductToast(`${selectedIds.size} producto(s) seleccionado(s).`);
+                    } catch (err) {
+                        console.error('Error selecting filtered products:', err);
+                        showProductToast('No se pudo seleccionar todo el filtro. Intenta de nuevo.', 'error');
+                    } finally {
+                        selectFilteredBtn.disabled = false;
+                    }
+                });
+            }
+
+            // Restaura la selección guardada al cargar la página.
+            syncBulkBar();
 
             const bulkActionLabels = {
                 activate: 'activado(s)',
@@ -438,6 +504,7 @@
 
                     showProductToast(`${data.updated} producto(s) ${bulkActionLabels[action]}.`);
                     selectedIds.clear();
+                persistSelection();
                     setTimeout(() => window.location.reload(), 1200);
                 } catch (err) {
                     console.error('Error running bulk action:', err);
@@ -500,6 +567,7 @@
 
                     showProductToast(`${data.deleted.length} producto(s) eliminados.`);
                     selectedIds.clear();
+                persistSelection();
 
                     if (data.blocked.length) {
                         // Se queda abierto mostrando el detalle de lo que no se

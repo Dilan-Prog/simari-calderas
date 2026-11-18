@@ -55,14 +55,22 @@
                     <p class="prod-subtitle">Gestiona el catálogo de productos industriales</p>
                 </div>
                 <div class="prod-header-actions">
-                    <button type="button" class="prod-btn-outline" data-download-url="{{ route('admin.products.export') }}">
+                    @php
+                        // "Exportar" respeta los filtros activos (marca, categoría, búsqueda,
+                        // proveedor…): con filtros exporta solo esos productos; sin filtros, todo.
+                        $prodExportFilters = collect(request()->except(['page', 'per_page', 'view']))
+                            ->filter(fn ($v) => is_array($v) ? count(array_filter($v, fn ($x) => $x !== null && $x !== '')) > 0 : ($v !== null && $v !== ''))
+                            ->all();
+                    @endphp
+                    <button type="button" class="prod-btn-outline" data-download-url="{{ route('admin.products.export', $prodExportFilters) }}"
+                        title="{{ $prodExportFilters ? 'Exporta los ' . $totalFiltered . ' productos que cumplen los filtros actuales' : 'Exporta todo el catálogo' }}">
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M12 15V3" />
                             <path d="m7 10 5 5 5-5" />
                             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
                         </svg>
-                        Exportar
+                        {{ $prodExportFilters ? 'Exportar filtrados (' . $totalFiltered . ')' : 'Exportar' }}
                     </button>
                     <button class="prod-btn-outline" type="button" id="btnOpenImportModal">
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
