@@ -764,13 +764,16 @@ class QuoteController extends Controller
      * correo, portal y vista previa siguen usando el formato anterior
      * (admin.quotes.pdf) hasta que se decida adoptarlo por defecto.
      */
-    public function regeneratedPdf(Quote $quote)
+    public function regeneratedPdf(Request $request, Quote $quote)
     {
         $quote->load('items', 'createdBy');
         $pdf = Pdf::loadView('admin.quotes.pdf_v2', compact('quote'))
             ->setPaper('a4', 'portrait');
 
-        return $pdf->stream("{$quote->quote_number}.pdf");
+        // ?descargar=1 -> descarga; sin parámetro -> vista previa en el modal.
+        return $request->boolean('descargar')
+            ? $pdf->download("{$quote->quote_number}.pdf")
+            : $pdf->stream("{$quote->quote_number}.pdf");
     }
 
     public function sendEmail(Quote $quote)
