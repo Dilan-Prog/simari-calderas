@@ -66,8 +66,34 @@
     .sp-resize { position:absolute; top:0; right:-3px; bottom:0; width:7px; cursor:col-resize; z-index:6; }
     .sp-resize:hover, .sp-resize.is-active { background:var(--sp-orange); opacity:.55; }
 
-    .sp-foot { border-top:1px solid var(--sp-line); background:var(--sp-head); padding:7px 16px; font-size:12.5px; color:var(--sp-muted); }
+    .sp-foot { border-top:1px solid var(--sp-line); background:var(--sp-head); padding:7px 16px; font-size:12.5px; color:var(--sp-muted);
+               display:flex; align-items:center; justify-content:space-between; gap:8px 16px; flex-wrap:wrap; }
     .sp-foot strong { color:var(--sp-text); }
+    .sp-foot-info { min-width:0; }
+    .sp-foot-note { display:block; font-size:11.5px; }
+
+    /* Paginación (se aplica después de filtros y orden) */
+    .sp-pager-wrap { display:flex; align-items:center; gap:8px 14px; flex-wrap:wrap; }
+    .sp-size { display:inline-flex; align-items:center; gap:6px; white-space:nowrap; }
+    .sp-size select { height:30px; border:1px solid var(--sp-line); border-radius:7px; background:#fff; padding:0 6px;
+                      font:600 12.5px 'Inter',sans-serif; color:var(--sp-text); cursor:pointer; }
+    .sp-pager { display:flex; align-items:center; gap:3px; margin:0; padding:0; list-style:none; }
+    .sp-pg { min-width:30px; height:30px; padding:0 7px; box-sizing:border-box; display:inline-flex; align-items:center; justify-content:center;
+             border:1px solid var(--sp-line); border-radius:7px; background:#fff; color:var(--sp-text); font:600 12.5px 'Inter',sans-serif;
+             font-variant-numeric:tabular-nums; cursor:pointer; }
+    .sp-pg:hover:not(:disabled):not(.is-current) { background:#f3f4f6; }
+    .sp-pg:focus-visible, .sp-size select:focus-visible { outline:2px solid var(--sp-orange); outline-offset:1px; }
+    .sp-pg.is-current { background:var(--sp-orange); border-color:var(--sp-orange); color:#fff; cursor:default; }
+    .sp-pg:disabled { opacity:.4; cursor:not-allowed; }
+    .sp-pg-gap { min-width:18px; text-align:center; color:var(--sp-muted); }
+    @media (max-width:767px), (pointer:coarse) {
+        .sp-foot { padding:8px 12px; }
+        .sp-pager-wrap { width:100%; justify-content:space-between; }
+        .sp-pg { min-width:40px; height:40px; font-size:13.5px; border-radius:8px; }
+        .sp-pager { gap:2px; }
+        .sp-pg-gap { min-width:12px; }
+        .sp-size select { height:40px; font-size:13.5px; }
+    }
     .sp-empty td { text-align:center; color:var(--sp-muted); height:80px; }
 
     .sp-pop { position:fixed; z-index:1000; background:#fff; border:1px solid var(--sp-line); border-radius:10px;
@@ -150,7 +176,19 @@
         </table>
     </div>
 
-    <div class="sp-foot" id="spFoot"></div>
+    <div class="sp-foot" id="spFoot">
+        <div class="sp-foot-info" id="spFootInfo" aria-live="polite"></div>
+        <div class="sp-pager-wrap">
+            <label class="sp-size">Filas por página
+                <select id="spPageSize">
+                    <option value="10">10</option><option value="20">20</option><option value="30">30</option>
+                    <option value="50">50</option><option value="100">100</option><option value="200">200</option>
+                    <option value="500">500</option><option value="0">Todos</option>
+                </select>
+            </label>
+            <nav aria-label="Paginación de productos"><ul class="sp-pager" id="spPager"></ul></nav>
+        </div>
+    </div>
 </div>
 
 {{-- Popovers (filtro por columna y columnas visibles) --}}
@@ -196,8 +234,20 @@
         viewId: null,             // vista personalizada aplicada (null = predeterminada)
         filters: {},              // key -> {text} | {values:Set} | {min,max}  (varios a la vez)
         sort: null,               // {key, dir}
-        selected: null,           // {row, col}
+        selected: null,           // {row, col}  (row = posición en la lista filtrada completa)
+        page: 1,
+        pageSize: 10,             // 0 = Todos
     };
+
+    // Filas por página: preferencia de este navegador (la primera vez, 10)
+    const PAGE_SIZE_KEY = 'admin_sales_products_page_size';
+    const PAGE_SIZES = [10, 20, 30, 50, 100, 200, 500, 0];
+    try {
+        const ps = localStorage.getItem(PAGE_SIZE_KEY);
+        if (ps !== null && PAGE_SIZES.includes(Number(ps))) state.pageSize = Number(ps);
+    } catch (e) { /* sin almacenamiento: se queda en 10 */ }
+    const view = { start: 0, end: 0, pages: 1 };   // rango visible de la página actual (lo calcula render)
+    let lastQuerySig = null;                        // al cambiar filtros u orden se regresa a la página 1
     const visibleKeys = () => state.order.filter(k => !state.hidden.has(k));
     const currentLayout = () => ({ visible: visibleKeys(), order: [...state.order], widths: { ...state.widths }, row_height: state.rowHeight });
     function applyLayout(cfg) {
@@ -271,11 +321,67 @@
     const isOn = (key) => hasFilter(key) || state.sort?.key === key;
     const filterIconSvg = (fill = 'none') => `<svg viewBox="0 0 24 24" fill="${fill}" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 4h18l-7 8.5V19l-4 2v-8.5z"/></svg>`;
 
+    // Páginas a mostrar: primera, última y vecinas de la actual; «…» donde se brinca más de una
+    function pageItems(cur, total, sib) {
+        const keep = new Set([1, total]);
+        for (let p = cur - sib; p <= cur + sib; p++) keep.add(p);
+        if (cur <= 2 + sib) for (let p = 2; p <= 3 + 2 * sib; p++) keep.add(p);                 // ancho estable cerca de los extremos
+        if (cur >= total - 1 - sib) for (let p = total - 2 - 2 * sib; p < total; p++) keep.add(p);
+        const list = [...keep].filter(p => p >= 1 && p <= total).sort((a, b) => a - b);
+        const out = [];
+        list.forEach((p, i) => {
+            const prev = list[i - 1];
+            if (prev !== undefined && p - prev === 2) out.push(prev + 1);
+            else if (prev !== undefined && p - prev > 2) out.push('…');
+            out.push(p);
+        });
+        return out;
+    }
+    const narrowMq = window.matchMedia('(max-width: 480px)');
+
+    function renderPager() {
+        const pager = $('spPager');
+        const focused = pager.contains(document.activeElement) ? document.activeElement.dataset.nav : null;
+        const { pages } = view, cur = state.page;
+        if (pages <= 1) { pager.innerHTML = ''; return; }
+        const btn = (nav, page, label, aria, disabled = false, current = false) =>
+            `<li><button type="button" class="sp-pg${current ? ' is-current' : ''}" data-nav="${nav}" data-page="${page}" aria-label="${aria}"${current ? ' aria-current="page"' : ''}${disabled ? ' disabled' : ''}>${label}</button></li>`;
+        let html = btn('first', 1, '«', 'Primera página', cur === 1) + btn('prev', cur - 1, '‹', 'Página anterior', cur === 1);
+        pageItems(cur, pages, narrowMq.matches ? 0 : 1).forEach(p => {
+            html += p === '…' ? `<li class="sp-pg-gap" aria-hidden="true">…</li>` : btn('p' + p, p, p, `Página ${p} de ${pages}`, false, p === cur);
+        });
+        html += btn('next', cur + 1, '›', 'Página siguiente', cur === pages) + btn('last', pages, '»', 'Última página', cur === pages);
+        pager.innerHTML = html;
+        if (focused) {
+            const again = pager.querySelector(`[data-nav="${focused}"]:not(:disabled)`) || pager.querySelector('.is-current');
+            again?.focus();
+        }
+    }
+    function goToPage(p) {
+        const next = clamp(p, 1, view.pages);
+        if (next === state.page) return;
+        state.page = next; state.selected = null;
+        render();
+        $('spScroll').scrollTop = 0;
+    }
+
     function render() {
         const cols = visibleColumns();
         const rows = filteredRows();
 
-        let sum = `<tr class="sp-sum"><th class="sp-idx">Σ</th>`;
+        // Paginación sobre lo ya filtrado y ordenado; filtros u orden nuevos => página 1
+        const sig = JSON.stringify([state.sort, Object.entries(state.filters).map(([k, f]) => [k, f.text, f.values ? [...f.values] : null, f.min, f.max])]);
+        if (sig !== lastQuerySig) { lastQuerySig = sig; state.page = 1; }
+        const size = state.pageSize || rows.length || 1;
+        view.pages = Math.max(1, Math.ceil(rows.length / size));
+        state.page = clamp(state.page, 1, view.pages);
+        view.start = (state.page - 1) * size;
+        view.end = Math.min(rows.length, view.start + size);
+        if (state.selected && (state.selected.row < view.start || state.selected.row >= view.end)) state.selected = null;
+        const pageRows = rows.slice(view.start, view.end);
+
+        const sumTitle = `Suma de los ${rows.length} productos filtrados (todas las páginas, no solo la visible)`;
+        let sum = `<tr class="sp-sum" title="${sumTitle}"><th class="sp-idx">Σ</th>`;
         let head = `<tr class="sp-head"><th class="sp-idx"><span style="color:#9ca3af">${filterIconSvg()}</span></th>`;
         const labelAt = cols.findIndex(c => !c.sum);
         cols.forEach((c, i) => {
@@ -294,7 +400,8 @@
         } else if (!rows.length) {
             tbody.innerHTML = `<tr class="sp-empty"><td colspan="${cols.length + 1}">Ningún producto coincide con los filtros.</td></tr>`;
         } else {
-            tbody.innerHTML = rows.map((row, i) => {
+            tbody.innerHTML = pageRows.map((row, k) => {
+                const i = view.start + k;   // la numeración continúa entre páginas
                 const active = state.selected?.row === i;
                 return `<tr class="${active ? 'is-active' : ''}"><td class="sp-idx" title="Arrastra el borde inferior para cambiar el alto de las filas">${i + 1}</td>` + cols.map((c, j) => {
                     const v = row[c.key];
@@ -307,10 +414,30 @@
         }
 
         const nFilters = Object.keys(state.filters).filter(hasFilter).length;
-        $('spFoot').innerHTML = `Mostrando <strong>${rows.length}</strong> de ${ROWS.length} productos`
-            + (nFilters ? ` · ${nFilters} filtro${nFilters > 1 ? 's' : ''} activo${nFilters > 1 ? 's' : ''} <button type="button" class="sp-link" id="spClearAll">Limpiar todo</button>` : '');
+        const n = (x) => x.toLocaleString('es-MX');
+        const range = rows.length ? `<strong>${n(view.start + 1)}–${n(view.end)}</strong>` : '<strong>0</strong>';
+        $('spFootInfo').innerHTML = `Mostrando ${range} de <strong>${n(rows.length)}</strong> producto${rows.length === 1 ? '' : 's'}`
+            + (rows.length !== ROWS.length ? ` (filtrados de ${n(ROWS.length)})` : '')
+            + (nFilters ? ` · ${nFilters} filtro${nFilters > 1 ? 's' : ''} activo${nFilters > 1 ? 's' : ''} <button type="button" class="sp-link" id="spClearAll">Limpiar todo</button>` : '')
+            + (view.pages > 1 && cols.some(c => c.sum) ? `<span class="sp-foot-note">Σ Total general = los ${n(rows.length)} filtrados (todas las páginas).</span>` : '');
         $('spColumnsCount').textContent = cols.length;
+        renderPager();
     }
+
+    // ---- Paginación: tamaño de página y botones ----
+    $('spPageSize').value = String(state.pageSize);
+    $('spPageSize').onchange = (e) => {
+        state.pageSize = Number(e.target.value);
+        try { localStorage.setItem(PAGE_SIZE_KEY, String(state.pageSize)); } catch (err) { /* no persiste, no es fatal */ }
+        state.page = 1; state.selected = null;
+        render();
+        $('spScroll').scrollTop = 0;
+    };
+    $('spPager').addEventListener('click', (e) => {
+        const b = e.target.closest('button[data-page]');
+        if (b && !b.disabled) goToPage(Number(b.dataset.page));
+    });
+    narrowMq.addEventListener?.('change', renderPager);
     const refresh = () => { applyColumnStyles(); applyRowHeight(); render(); };
 
     // ---- Mensajes breves ----
@@ -594,16 +721,16 @@
         const moves = { ArrowUp: [-1, 0], ArrowDown: [1, 0], ArrowLeft: [0, -1], ArrowRight: [0, 1] };
         if (!moves[e.key]) return;
         e.preventDefault();
-        const maxR = filteredRows().length - 1, maxC = visibleColumns().length - 1;
+        const maxC = visibleColumns().length - 1;   // las flechas no salen de la página visible
         state.selected = {
-            row: Math.max(0, Math.min(maxR, state.selected.row + moves[e.key][0])),
+            row: Math.max(view.start, Math.min(view.end - 1, state.selected.row + moves[e.key][0])),
             col: Math.max(0, Math.min(maxC, state.selected.col + moves[e.key][1])),
         };
         render();
         tbody.querySelector('td.is-selected')?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
     });
 
-    // ---- Exportar (CSV de lo que se ve: columnas visibles en su orden + filtros + orden) ----
+    // ---- Exportar (CSV: columnas visibles en su orden + filtros + orden; TODAS las filas filtradas, no solo la página) ----
     $('spExport').onclick = () => {
         const cols = visibleColumns(), rows = filteredRows();
         const cell = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`;
