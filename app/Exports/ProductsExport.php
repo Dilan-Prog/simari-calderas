@@ -10,11 +10,23 @@ use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithStyles;
+use Maatwebsite\Excel\Concerns\WithTitle;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class ProductsExport implements FromQuery, WithHeadings, WithMapping, ShouldAutoSize, WithStyles
+class ProductsExport implements FromQuery, WithHeadings, WithMapping, ShouldAutoSize, WithStyles, WithTitle
 {
+    /**
+     * La hoja se llama "Productos" -- el mismo nombre que busca
+     * ProductsUpdateImport::sheets(). Antes quedaba "Worksheet" y un archivo
+     * exportado (selección / filtrado / todo) no se podía volver a subir por
+     * "Actualizar productos" ("Undefined array key Productos").
+     */
+    public function title(): string
+    {
+        return 'Productos';
+    }
+
     /**
      * @param  int[]|null  $ids  Solo estos productos; null = todo el catálogo.
      */

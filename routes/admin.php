@@ -288,6 +288,7 @@ Route::controller(ProductImportExportController::class)
         Route::get('/productos/importar/plantilla-actualizacion', 'downloadUpdateTemplate')->name('products.import.template.update');
         Route::post('/productos/importar/actualizar', 'importUpdate')->name('products.import.update')->middleware('permission:products,edit');
         Route::get('/productos/exportar', 'export')->name('products.export');
+        Route::get('/productos/exportar/ids-filtrados', 'filteredIds')->name('products.filtered-ids');
     });
 
 // ============================================================
