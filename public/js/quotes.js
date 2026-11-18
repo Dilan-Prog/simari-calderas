@@ -75,6 +75,7 @@
             });
 
             document.getElementById('itemsTableBody').appendChild(tr);
+            QuoteTextHints.update(descArea);
             QuoteForm.calculateGlobalTotals();
         },
 
@@ -136,6 +137,7 @@
             tr.querySelector('.item-disc').addEventListener('input', function () { QuoteForm.calculateRowTotal(tr); });
 
             document.getElementById('itemsTableBody').appendChild(tr);
+            QuoteTextHints.update(descArea);
             QuoteForm.calculateGlobalTotals();
         },
 
@@ -199,6 +201,7 @@
             tr.querySelector('.item-disc').addEventListener('input', function () { QuoteForm.calculateRowTotal(tr); });
 
             document.getElementById('itemsTableBody').appendChild(tr);
+            QuoteTextHints.update(descArea);
             QuoteForm.calculateGlobalTotals();
         },
 
@@ -323,5 +326,110 @@
             .replace(/>/g, '&gt;');
     }
 
+    /* ── Avisos de formato en descripciones largas / Markdown ──────────
+       No bloquean nada: solo explican cómo se verá el texto en el PDF.
+       Se aplican a la descripción de cada partida (.item-desc, también en
+       filas agregadas dinámicamente) y a notas / términos personalizados. */
+    var QuoteTextHints = {
+        LONG_CHARS: 1200,
+        LONG_LINES: 25,
+        SELECTOR: '.item-desc, [data-qhint]',
+
+        analyze: function (text) {
+            text = String(text || '');
+            var lines = text.split(/\r\n|\r|\n/);
+            var markdown = /\*\*/.test(text) || lines.some(function (l) {
+                l = l.trim();
+                return l.length > 1 && (l.charAt(0) === '|' || l.charAt(l.length - 1) === '|');
+            });
+            var long = text.trim().length > QuoteTextHints.LONG_CHARS || lines.length > QuoteTextHints.LONG_LINES;
+            return { markdown: markdown, long: long };
+        },
+
+        update: function (el) {
+            if (!el || el.tagName !== 'TEXTAREA') return;
+            var hint = el.nextElementSibling;
+            if (!hint || !hint.classList.contains('qtext-hint')) {
+                hint = document.createElement('div');
+                hint.className = 'qtext-hint';
+                hint.setAttribute('aria-live', 'polite');
+                el.insertAdjacentElement('afterend', hint);
+            }
+            var r = QuoteTextHints.analyze(el.value);
+            var isItem = el.classList.contains('item-desc');
+            var msgs = [];
+            if (r.markdown) {
+                msgs.push('Detectamos formato de tabla/markdown (| o **). Al guardar, usa «Regenerar PDF» en la cotización para verlo como lista con negritas.');
+            }
+            if (r.long) {
+                msgs.push(isItem
+                    ? 'Descripción extensa: al guardar, usa «Regenerar PDF» en la cotización para verla completa (sección «Alcance detallado») y sin páginas en blanco.'
+                    : 'Texto extenso: al guardar, usa «Regenerar PDF» en la cotización para que se vea completo en varias páginas.');
+            }
+            hint.innerHTML = msgs.map(function (m) {
+                return '<p class="qtext-hint__msg">' + _esc(m) + '</p>';
+            }).join('');
+            hint.hidden = msgs.length === 0;
+        },
+
+        scan: function (root) {
+            (root || document).querySelectorAll(QuoteTextHints.SELECTOR).forEach(QuoteTextHints.update);
+        },
+    };
+
+    // Delegado: cubre escribir y pegar en cualquier fila, incluidas las nuevas.
+    document.addEventListener('input', function (e) {
+        var t = e.target;
+        if (t && t.matches && t.matches(QuoteTextHints.SELECTOR)) QuoteTextHints.update(t);
+    });
+
+    /* ── Vista previa del PDF con los datos sin guardar ───────────────
+       Botones [data-qpdf-preview] dentro del formulario del asistente.
+       Copia TODOS los campos del formulario real (mismos nombres que
+       store()/update()) a un formulario temporal que hace POST a
+       admin.quotes.pdf-draft en una pestaña nueva. Al ser un submit
+       síncrono dentro del clic, no lo bloquean los bloqueadores de
+       ventanas emergentes (Safari iOS incluido). */
+    function openPdfDraft(btn) {
+        var form = btn.closest('form');
+        var url  = btn.getAttribute('data-qpdf-preview');
+        if (!form || !url) return;
+
+        // Serializa las partidas actuales al hidden items_json (sin filas → []).
+        var hasItems = QuoteForm.serializeItems();
+        var fd = new FormData(form);
+        fd.set('items_json', hasItems ? (document.getElementById('itemsJson') || {}).value || '[]' : '[]');
+        fd.delete('_method'); // edit usa PUT; la vista previa es siempre POST
+        var quoteId = btn.getAttribute('data-quote-id');
+        if (quoteId) fd.set('quote_id', quoteId);
+
+        var tmp = document.createElement('form');
+        tmp.method = 'POST';
+        tmp.action = url;
+        tmp.target = '_blank';
+        tmp.style.display = 'none';
+        fd.forEach(function (value, name) {
+            if (typeof value !== 'string') return;
+            var input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = name;
+            input.value = value;
+            tmp.appendChild(input);
+        });
+        document.body.appendChild(tmp);
+        tmp.submit();
+        setTimeout(function () { tmp.remove(); }, 0);
+    }
+
+    document.addEventListener('click', function (e) {
+        var btn = e.target && e.target.closest ? e.target.closest('[data-qpdf-preview]') : null;
+        if (!btn) return;
+        e.preventDefault();
+        openPdfDraft(btn);
+    });
+
+    document.addEventListener('DOMContentLoaded', function () { QuoteTextHints.scan(); });
+
+    window.QuoteTextHints = QuoteTextHints;
     window.QuoteForm = QuoteForm;
 })();

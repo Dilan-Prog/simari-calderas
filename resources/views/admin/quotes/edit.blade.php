@@ -213,7 +213,7 @@
 
                 <div class="form-group">
                     <label class="form-label">Notas internas</label>
-                    <textarea name="notes" class="form-textarea"
+                    <textarea name="notes" class="form-textarea" data-qhint
                               placeholder="Observaciones visibles solo para el equipo">{{ old('notes', $quote->notes) }}</textarea>
                 </div>
 
@@ -387,6 +387,12 @@
                                 </svg>
                                 Agregar línea libre
                             </button>
+
+                            {{-- Vista previa del PDF con los datos sin guardar (public/js/quotes.js → admin.quotes.pdf-draft) --}}
+                            <button type="button" class="btn-outline qpdf-preview-btn" data-qpdf-preview="{{ route('admin.quotes.pdf-draft') }}" data-quote-id="{{ $quote->id }}" title="Abre en una pestaña nueva el PDF con los datos actuales, sin guardar">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/><circle cx="11.5" cy="14.5" r="2.5"/><path d="m13.3 16.3 1.7 1.7"/></svg>
+                                Vista previa PDF
+                            </button>
                         </div>
 
                         <div class="products-table-wrap">
@@ -458,6 +464,11 @@
                             </svg>
                             Actualizar Cotización
                         </button>
+                        <button type="button" class="btn-outline qpdf-preview-btn qpdf-preview-btn--full" data-qpdf-preview="{{ route('admin.quotes.pdf-draft') }}" data-quote-id="{{ $quote->id }}">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/><circle cx="11.5" cy="14.5" r="2.5"/><path d="m13.3 16.3 1.7 1.7"/></svg>
+                            Vista previa PDF
+                        </button>
+                        <p class="qpdf-preview-note">Se abre en una pestaña nueva con los datos actuales; no guarda la cotización.</p>
                         <a href="{{ route('admin.quotes.show', $quote) }}" class="btn-cancel">Cancelar</a>
                     </div>
                 </aside>

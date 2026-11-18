@@ -520,6 +520,33 @@
     line-height: 1.55;
 }
 
+/* Avisos no bloqueantes bajo descripciones / notas / términos (quotes.js → QuoteTextHints) */
+.qtext-hint[hidden],
+.item-desc[style*="none"] + .qtext-hint { display: none; }
+.qtext-hint {
+    margin-top: 6px;
+    padding: 6px 9px;
+    border-left: 3px solid #F59E0B;
+    border-radius: 0 6px 6px 0;
+    background: #FFFBEB;
+    color: #92400E;
+    font-size: 11.5px;
+    line-height: 1.45;
+    white-space: normal;
+}
+.qtext-hint__msg { margin: 0; }
+.qtext-hint__msg + .qtext-hint__msg { margin-top: 4px; }
+
+/* Botón "Vista previa PDF" (toolbar de partidas + panel Resumen) */
+.qpdf-preview-btn { justify-content: center; }
+.products-toolbar .qpdf-preview-btn { margin-left: auto; }
+.qpdf-preview-btn--full { width: 100%; height: 42px; margin-top: 10px; }
+.qpdf-preview-note { margin: 6px 0 0; font-size: 11px; color: var(--aq-text-muted); text-align: center; }
+@media (max-width: 768px) {
+    .quotes-page--wizard .qpdf-preview-btn { height: 46px; font-size: 14px; }
+    .quotes-page--wizard .products-toolbar .qpdf-preview-btn { margin-left: 0; }
+}
+
 /* Delete button — class injected dynamically by quotes.js */
 .qform-del-btn {
     display: inline-flex;
@@ -1824,4 +1851,34 @@
         margin-top: 6px;
         box-shadow: 0 4px 14px rgba(0, 0, 0, .08);
     }
+}
+
+
+/* ── Regenerar PDF (detalle de cotización) ───────────────────────── */
+.btn-regen-wrap { position: relative; display: inline-flex; align-items: center; gap: 6px; }
+.btn-regen-help {
+    position: relative; display: inline-flex; align-items: center; justify-content: center;
+    width: 20px; height: 20px; border-radius: 50%; flex-shrink: 0;
+    background: #fff3ed; color: #ff6213; border: 1px solid #ffc9ad;
+    font-size: 12px; font-weight: 800; line-height: 1; cursor: help; user-select: none;
+}
+.btn-regen-help:focus { outline: 2px solid #ff6213; outline-offset: 2px; }
+.btn-regen-tip {
+    position: absolute; z-index: 50; top: calc(100% + 8px); right: -6px; width: 240px;
+    padding: 8px 10px; border-radius: 8px; background: #141516; color: #fff;
+    font-size: 12px; font-weight: 500; line-height: 1.4; text-align: left;
+    box-shadow: 0 8px 24px rgba(0,0,0,.18);
+    opacity: 0; visibility: hidden; transform: translateY(-4px);
+    transition: opacity .15s ease, transform .15s ease, visibility 0s linear .15s;
+}
+.btn-regen-help:hover .btn-regen-tip,
+.btn-regen-help:focus .btn-regen-tip,
+.btn-regen-help:focus-within .btn-regen-tip {
+    opacity: 1; visibility: visible; transform: none; transition: opacity .15s ease, transform .15s ease;
+}
+@media (max-width: 768px) {
+    .btn-regen-wrap { width: 100%; }
+    .btn-regen-wrap .btn-regen { flex: 1; justify-content: center; }
+    .btn-regen-help { width: 32px; height: 32px; font-size: 15px; }
+    .btn-regen-tip { right: 0; width: min(260px, calc(100vw - 48px)); }
 }

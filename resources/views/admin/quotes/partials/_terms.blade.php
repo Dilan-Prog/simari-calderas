@@ -57,7 +57,7 @@
             @endif
 
             <label class="form-label" for="qtermsCustom" style="margin-bottom:6px;">Texto personalizado (opcional)</label>
-            <textarea name="terms_custom" id="qtermsCustom" class="form-textarea" rows="4"
+            <textarea name="terms_custom" id="qtermsCustom" class="form-textarea" rows="4" data-qhint
                       placeholder="Texto adicional solo para esta cotización">{{ $qtCustom }}</textarea>
 
             <p class="qterms-sub" style="margin-top:12px;">Así se verá en el PDF</p>

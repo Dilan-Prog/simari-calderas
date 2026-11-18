@@ -361,6 +361,8 @@ Route::controller(QuoteController::class)
         Route::get('/buscar-productos', 'searchProducts')->name('search-products');
         Route::get('/buscar-servicios', 'searchServices')->name('search-services');
         Route::get('/terminos/preview', 'termsPreview')->name('terms-preview');
+        // Vista previa del PDF con los datos sin guardar del asistente (create/edit); no persiste nada.
+        Route::post('/vista-previa-pdf', 'pdfDraft')->name('pdf-draft');
         Route::get('/{quote}', 'show')->name('show');
         Route::get('/{quote}/guardada', 'embeddedSaved')->name('embedded-saved');
         Route::get('/{quote}/editar', 'edit')->name('edit')->middleware('permission:quotes,edit');
@@ -368,6 +370,7 @@ Route::controller(QuoteController::class)
         Route::delete('/{quote}', 'destroy')->name('destroy')->middleware('permission:quotes,delete');
         Route::get('/{quote}/pdf', 'downloadPdf')->name('pdf');
         Route::get('/{quote}/pdf-preview', 'previewPdf')->name('pdf-preview');
+        Route::get('/{quote}/pdf-regenerado', 'regeneratedPdf')->name('pdf-regenerated');
         Route::post('/{quote}/enviar-correo', 'sendEmail')->name('send-email')->middleware('permission:quotes,edit');
         Route::patch('/{quote}/estado', 'updateStatus')->name('update-status')->middleware('permission:quotes,edit');
         Route::patch('/{quote}/cliente', 'attachCustomer')->name('attach-customer')->middleware('permission:quotes,edit');
