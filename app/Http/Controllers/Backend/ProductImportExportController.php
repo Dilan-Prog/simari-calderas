@@ -70,15 +70,17 @@ class ProductImportExportController extends Controller
         }
 
         if ($request->input('format') === 'pdf') {
-            $products = \App\Models\Products::with(['category.parent.parent', 'brand'])
-                ->when($ids !== null, fn ($q) => $q->whereIn('id', $ids))
-                ->orderBy('id')->get();
+            $products = ProductFilters::applySort(
+                \App\Models\Products::with(['category.parent.parent', 'brand'])
+                    ->when($ids !== null, fn ($q) => $q->whereIn('products.id', $ids)),
+                $request
+            )->get();
 
             return Pdf::loadView('admin.products.pdf.catalog', ['products' => $products])
                 ->setPaper('a4', 'landscape')->download('catalogo-productos-' . now()->format('Y-m-d') . '.pdf');
         }
 
-        return Excel::download(new ProductsExport($ids), 'productos-' . now()->format('Y-m-d') . '.xlsx');
+        return Excel::download(new ProductsExport($ids, ProductFilters::sortKey($request)), 'productos-' . now()->format('Y-m-d') . '.xlsx');
     }
 
     /**
@@ -104,7 +106,8 @@ class ProductImportExportController extends Controller
     /** ¿Trae el request algún filtro del listado (no solo paginación/formato)? */
     private function hasProductFilters(Request $request): bool
     {
-        return collect($request->except(['ids', 'format', 'page', 'per_page', 'view', '_token']))
+        // "sort" solo ordena: no es un filtro (sin filtros se exporta todo, ya ordenado).
+        return collect($request->except(['ids', 'format', 'page', 'per_page', 'view', 'sort', '_token']))
             ->filter(fn ($v) => is_array($v) ? count(array_filter($v, fn ($x) => $x !== null && $x !== '')) > 0 : ($v !== null && $v !== ''))
             ->isNotEmpty();
     }

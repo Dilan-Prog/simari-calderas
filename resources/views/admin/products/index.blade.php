@@ -23,30 +23,52 @@
         };
 
         $indexColumns = [
-            ['key' => 'sku', 'label' => 'SKU', 'group' => 'Básicos', 'showInGrid' => false],
-            ['key' => 'category_id', 'label' => 'Categoría', 'group' => 'Organización', 'showInGrid' => true],
-            ['key' => 'category_sub', 'label' => 'Subcategoría', 'group' => 'Organización', 'showInGrid' => false],
-            ['key' => 'category_child', 'label' => 'Categoría Hija', 'group' => 'Organización', 'showInGrid' => false],
-            ['key' => 'model', 'label' => 'Modelo', 'group' => 'Básicos', 'showInGrid' => true],
-            ['key' => 'brand_id', 'label' => 'Marca', 'group' => 'Básicos', 'showInGrid' => true],
-            ['key' => 'supplier_sku', 'label' => 'SKU Proveedor', 'group' => 'Básicos', 'showInGrid' => false],
-            ['key' => 'canonical_url', 'label' => 'URL Canónica', 'group' => 'Básicos', 'showInGrid' => false],
-            ['key' => 'price', 'label' => 'Precio', 'group' => 'Precios / Inventario', 'showInGrid' => true],
-            ['key' => 'compare_price', 'label' => 'Precio Comp.', 'group' => 'Precios / Inventario', 'showInGrid' => true],
-            ['key' => 'cost', 'label' => 'Costo', 'group' => 'Precios / Inventario', 'showInGrid' => true],
-            ['key' => 'stock', 'label' => 'Stock', 'group' => 'Precios / Inventario', 'showInGrid' => true],
-            ['key' => 'currency', 'label' => 'Moneda', 'group' => 'Precios / Inventario', 'showInGrid' => true],
-            ['key' => 'availability', 'label' => 'Disponibilidad', 'group' => 'Precios / Inventario', 'showInGrid' => true],
-            ['key' => 'is_active', 'label' => 'Estado', 'group' => 'Organización', 'showInGrid' => false],
-            ['key' => 'publish_on_website', 'label' => 'Publicado Web', 'group' => 'Organización', 'showInGrid' => true],
-            ['key' => 'is_featured', 'label' => 'Destacado', 'group' => 'Organización', 'showInGrid' => true],
-            ['key' => 'is_new', 'label' => 'Nuevo', 'group' => 'Organización', 'showInGrid' => true],
-            ['key' => 'is_recommended', 'label' => 'Recomendado', 'group' => 'Organización', 'showInGrid' => true],
+            ['key' => 'sku', 'label' => 'SKU', 'group' => 'Básicos', 'showInGrid' => false, 'dg' => 'text'],
+            ['key' => 'category_id', 'label' => 'Categoría', 'group' => 'Organización', 'showInGrid' => true, 'dg' => 'list'],
+            ['key' => 'category_sub', 'label' => 'Subcategoría', 'group' => 'Organización', 'showInGrid' => false, 'dg' => 'list'],
+            ['key' => 'category_child', 'label' => 'Categoría Hija', 'group' => 'Organización', 'showInGrid' => false, 'dg' => 'list'],
+            ['key' => 'model', 'label' => 'Modelo', 'group' => 'Básicos', 'showInGrid' => true, 'dg' => 'text'],
+            ['key' => 'brand_id', 'label' => 'Marca', 'group' => 'Básicos', 'showInGrid' => true, 'dg' => 'list'],
+            ['key' => 'supplier_sku', 'label' => 'SKU Proveedor', 'group' => 'Básicos', 'showInGrid' => false, 'dg' => 'text'],
+            ['key' => 'canonical_url', 'label' => 'URL Canónica', 'group' => 'Básicos', 'showInGrid' => false, 'dg' => 'text'],
+            ['key' => 'price', 'label' => 'Precio', 'group' => 'Precios / Inventario', 'showInGrid' => true, 'dg' => 'num'],
+            ['key' => 'compare_price', 'label' => 'Precio Comp.', 'group' => 'Precios / Inventario', 'showInGrid' => true, 'dg' => 'num'],
+            ['key' => 'cost', 'label' => 'Costo', 'group' => 'Precios / Inventario', 'showInGrid' => true, 'dg' => 'num'],
+            ['key' => 'stock', 'label' => 'Stock', 'group' => 'Precios / Inventario', 'showInGrid' => true, 'dg' => 'num', 'sum' => 'int'],
+            ['key' => 'units_sold', 'label' => 'Vendidos', 'group' => 'Precios / Inventario', 'showInGrid' => true, 'dg' => 'num', 'sum' => 'int'],
+            ['key' => 'currency', 'label' => 'Moneda', 'group' => 'Precios / Inventario', 'showInGrid' => true, 'dg' => 'list'],
+            ['key' => 'availability', 'label' => 'Disponibilidad', 'group' => 'Precios / Inventario', 'showInGrid' => true, 'dg' => 'list'],
+            ['key' => 'is_active', 'label' => 'Estado', 'group' => 'Organización', 'showInGrid' => false, 'dg' => 'list'],
+            ['key' => 'publish_on_website', 'label' => 'Publicado Web', 'group' => 'Organización', 'showInGrid' => true, 'dg' => 'list'],
+            ['key' => 'is_featured', 'label' => 'Destacado', 'group' => 'Organización', 'showInGrid' => true, 'dg' => 'list'],
+            ['key' => 'is_new', 'label' => 'Nuevo', 'group' => 'Organización', 'showInGrid' => true, 'dg' => 'list'],
+            ['key' => 'is_recommended', 'label' => 'Recomendado', 'group' => 'Organización', 'showInGrid' => true, 'dg' => 'list'],
         ];
         $defaultVisibleIndexColumns = ['sku', 'category_id', 'price', 'cost', 'stock', 'is_active'];
         $indexColumnGroups = collect($indexColumns)->groupBy('group');
         $indexGridColumns = collect($indexColumns)->where('showInGrid', true);
+        $availabilityLabels = ['available' => 'Disponible', 'out_of_stock' => 'Agotado', 'on_order' => 'Sobre pedido'];
+        // "Vendidos" (ProductFilters::unitsSoldQuery): cotizaciones aceptadas + pedidos pagados de la tienda.
+        $soldOf = fn ($p) => (int) ($unitsSold[$p->id] ?? 0);
+        // Valor crudo de cada columna para la hoja de cálculo (data-dg-v: ordenar/filtrar/sumar en la página).
+        $dgValue = function ($product, string $key) use ($categoryChainLevel, $availabilityLabels, $soldOf) {
+            return match ($key) {
+                'sku', 'model', 'supplier_sku', 'canonical_url', 'currency' => (string) ($product->{$key} ?? ''),
+                'brand_id' => $product->brand->name ?? '',
+                'category_id' => $categoryChainLevel($product->category, 1) ?? '',
+                'category_sub' => $categoryChainLevel($product->category, 2) ?? '',
+                'category_child' => $categoryChainLevel($product->category, 3) ?? '',
+                'price', 'compare_price', 'cost' => $product->{$key} !== null ? (string) (float) $product->{$key} : '',
+                'stock' => (string) (int) ($product->stock ?? 0),
+                'units_sold' => (string) $soldOf($product),
+                'availability' => $availabilityLabels[$product->availability] ?? '',
+                'is_active' => $product->is_active ? 'Activo' : 'Inactivo',
+                default => $product->{$key} ? 'Sí' : 'No',
+            };
+        };
+        $prodHasPages = $products instanceof \Illuminate\Pagination\LengthAwarePaginator && $products->hasPages();
     @endphp
+    <x-erp.datagrid-assets />
     <div class="prod-page">
         <div class="prod-page-header">
             <div class="prod-header-top">
@@ -58,11 +80,13 @@
                     @php
                         // "Exportar" respeta los filtros activos (marca, categoría, búsqueda,
                         // proveedor…): con filtros exporta solo esos productos; sin filtros, todo.
-                        $prodExportFilters = collect(request()->except(['page', 'per_page', 'view']))
+                        // "sort" no es filtro: solo ordena el archivo (ProductFilters::applySort).
+                        $prodExportFilters = collect(request()->except(['page', 'per_page', 'view', 'sort']))
                             ->filter(fn ($v) => is_array($v) ? count(array_filter($v, fn ($x) => $x !== null && $x !== '')) > 0 : ($v !== null && $v !== ''))
                             ->all();
+                        $prodExportParams = $prodExportFilters + ($sortCurrent !== '' ? ['sort' => $sortCurrent] : []);
                     @endphp
-                    <button type="button" class="prod-btn-outline" data-download-url="{{ route('admin.products.export', $prodExportFilters) }}"
+                    <button type="button" class="prod-btn-outline" data-download-url="{{ route('admin.products.export', $prodExportParams) }}"
                         title="{{ $prodExportFilters ? 'Exporta los ' . $totalFiltered . ' productos que cumplen los filtros actuales' : 'Exporta todo el catálogo' }}">
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -129,13 +153,18 @@
                     <option value="inactive" @selected(request('status') === 'inactive')>Inactivos</option>
                 </select>
                 @include('admin.products.partials._advanced_filters', ['filtersKey' => 'prod'])
-                <select name="per_page" id="prodPerPage" class="prod-filter-select">
-                    @foreach ($perPageOptions as $option)
-                        <option value="{{ $option }}" @selected((string) request('per_page', 25) === (string) $option)>
-                            {{ $option }}
-                        </option>
+                {{-- Ordenar por: server-side (?sort=…, ProductFilters::SORTS). Viaja en el query string,
+                     así lo conservan la paginación, los filtros y los filtros guardados. --}}
+                <select name="sort" id="prodSortSelect" class="prod-filter-select" aria-label="Ordenar por" title="Ordenar por">
+                    @foreach ($sortOptions as $value => $label)
+                        <option value="{{ $value }}" @selected($sortCurrent === $value)>{{ $value === '' ? 'Ordenar por: predeterminado' : 'Ordenar: ' . $label }}</option>
                     @endforeach
-                    <option value="all" @selected(request('per_page') === 'all')>Todos</option>
+                </select>
+                <select name="per_page" id="prodPerPage" class="prod-filter-select" aria-label="Productos por página" title="Productos por página">
+                    @foreach ($perPageOptions as $option)
+                        <option value="{{ $option }}" @selected($perPageCurrent === (string) $option)>{{ $option }} por página</option>
+                    @endforeach
+                    <option value="all" @selected($perPageCurrent === 'all')>Todos</option>
                 </select>
                 <div class="prod-bulk-views-wrap">
                     <select id="prodIndexViewSelect" class="prod-filter-select prod-bulk-view-select">
@@ -200,16 +229,22 @@
                  module CSS can scope the mobile card transformation and the
                  vertical scroll container without touching global styles. --}}
             <div class="prod-list-container" id="prodListView">
-                <div class="products-table-wrapper">
-                <table class="prod-table">
+                {{-- Vista de hoja de cálculo (x-erp.datagrid-assets / erp-datagrid.js): nº de fila, Σ, encabezado fijo y
+                     ordenar/filtrar por columna dentro de la página. data-dg-nocols: las columnas visibles las sigue
+                     controlando el menú «Columnas» + vistas guardadas de esta pantalla (no el del componente). --}}
+                <div class="products-table-wrapper prod-index-dg">
+                <table class="prod-table" data-dg="productos-listado" data-dg-nocols data-dg-noun="productos"
+                    data-dg-sum-label="{{ $prodHasPages ? 'Total de esta página' : 'Total general' }}">
                     <thead>
                         <tr>
-                            <th><input type="checkbox" id="prodSelectAllList" class="prod-row-checkbox"></th>
-                            <th>Producto</th>
+                            <th data-dg-skip class="prod-th-check"><input type="checkbox" id="prodSelectAllList" class="prod-row-checkbox" aria-label="Seleccionar todos"></th>
+                            <th data-dg-key="product" data-dg-type="text">Producto</th>
                             @foreach ($indexColumns as $col)
-                                <th data-col="{{ $col['key'] }}" @class(['prod-col-hidden' => !in_array($col['key'], $defaultVisibleIndexColumns, true)])>{{ $col['label'] }}</th>
+                                <th data-col="{{ $col['key'] }}" data-dg-key="{{ $col['key'] }}" data-dg-type="{{ $col['dg'] }}"
+                                    @if (!empty($col['sum'])) data-dg-sum="{{ $col['sum'] }}" @endif
+                                    @class(['prod-col-hidden' => !in_array($col['key'], $defaultVisibleIndexColumns, true), 'is-num' => $col['dg'] === 'num'])>{{ $col['label'] }}</th>
                             @endforeach
-                            <th>Acciones</th>
+                            <th data-dg-skip>Acciones</th>
                         </tr>
                     </thead>
                     <tbody id="prodTableBody">
@@ -221,12 +256,12 @@
                                 $stockClass = $product->stock > 0 ? 'in-stock' : 'out-stock';
                                 $thumbUrl = $product->cover_image_url ?? $product->images->first()?->url;
                             @endphp
-                            <tr data-name="{{ strtolower($product->name) }}" data-sku="{{ strtolower($product->sku) }}"
+                            <tr data-dg-row data-name="{{ strtolower($product->name) }}" data-sku="{{ strtolower($product->sku) }}"
                                 data-status="{{ $statusVal }}">
-                                <td data-label="">
+                                <td data-label="" class="prod-td-check">
                                     <input type="checkbox" class="prod-row-checkbox" data-id="{{ $product->id }}">
                                 </td>
-                                <td data-label="Producto">
+                                <td data-label="Producto" data-dg-v="{{ $product->name }}">
                                     <div class="prod-cell-product">
                                         <div class="prod-thumb">
                                             @if ($thumbUrl)
@@ -251,8 +286,8 @@
                                     </div>
                                 </td>
                                 @foreach ($indexColumns as $col)
-                                    <td data-col="{{ $col['key'] }}" data-label="{{ $col['label'] }}"
-                                        @class(['prod-col-hidden' => !in_array($col['key'], $defaultVisibleIndexColumns, true)])>
+                                    <td data-col="{{ $col['key'] }}" data-label="{{ $col['label'] }}" data-dg-v="{{ $dgValue($product, $col['key']) }}"
+                                        @class(['prod-col-hidden' => !in_array($col['key'], $defaultVisibleIndexColumns, true), 'is-num' => $col['dg'] === 'num'])>
                                         @switch($col['key'])
                                             @case('sku') {{ $product->sku }} @break
                                             @case('model') {{ $product->model ?: '—' }} @break
@@ -268,9 +303,10 @@
                                             @case('stock')
                                                 <span class="prod-stock {{ $stockClass }}">{{ $product->stock ?? 0 }} unidades</span>
                                                 @break
+                                            @case('units_sold') {{ number_format($soldOf($product)) }} @break
                                             @case('currency') {{ $product->currency ?: '—' }} @break
                                             @case('availability')
-                                                {{ ['available' => 'Disponible', 'out_of_stock' => 'Agotado', 'on_order' => 'Sobre pedido'][$product->availability] ?? '—' }}
+                                                {{ $availabilityLabels[$product->availability] ?? '—' }}
                                                 @break
                                             @case('is_active')
                                                 <span class="prod-badge {{ $statusClass }}">{{ $statusLabel }}</span>
@@ -284,7 +320,7 @@
                                         @endswitch
                                     </td>
                                 @endforeach
-                                <td data-label="Acciones">
+                                <td data-label="Acciones" class="prod-td-actions">
                                     <div class="prod-actions">
                                         @permiso('products','edit')
                                         <button class="prod-action-btn edit" type="button"
@@ -378,6 +414,7 @@
                                             @case('stock')
                                                 <span style="color:{{ ($product->stock ?? 0) > 0 ? '#16a34a' : '#dc2626' }}">{{ $product->stock ?? 0 }} unidades</span>
                                                 @break
+                                            @case('units_sold') {{ number_format($soldOf($product)) }} @break
                                             @case('currency') {{ $product->currency ?: '—' }} @break
                                             @case('availability')
                                                 {{ ['available' => 'Disponible', 'out_of_stock' => 'Agotado', 'on_order' => 'Sobre pedido'][$product->availability] ?? '—' }}
@@ -429,6 +466,9 @@
 
             <div class="prod-summary-bar">
                 <span id="prodCountLabel">Mostrando {{ $products->count() }} de {{ $totalFiltered }} productos</span>
+                @if ($sortCurrent !== '')
+                    <span @if (in_array($sortCurrent, ['best_selling', 'least_selling'], true)) title="Vendidos = unidades en cotizaciones aceptadas + pedidos pagados de la tienda en línea" @endif>Orden: {{ $sortOptions[$sortCurrent] }}</span>
+                @endif
                 {{-- FIX BUG 11: stock_unit is now a real column (BUG 9), and the
                      controller selects it. --}}
                 <span>Total en inventario: {{ $stockSum }} {{ $firstStockUnit ?? 'unidades' }}</span>

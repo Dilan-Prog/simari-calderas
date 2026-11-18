@@ -6,7 +6,9 @@ use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Supplier;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Query\Builder as QueryBuilder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Filtros del listado de Productos y del editor en lote (misma lógica para
@@ -57,6 +59,27 @@ class ProductFilters
     ];
 
     public const AVAILABILITY = ['available' => 'Disponible', 'out_of_stock' => 'Sin existencias', 'on_order' => 'Sobre pedido'];
+
+    /**
+     * "Ordenar por" del listado (?sort=…): valor => etiqueta. '' (o un valor
+     * desconocido) = orden predeterminado de siempre (id ascendente).
+     */
+    public const SORTS = [
+        ''              => 'Predeterminado',
+        'newest'        => 'Más recientes',
+        'oldest'        => 'Más antiguos',
+        'price_asc'     => 'Precio: menor a mayor',
+        'price_desc'    => 'Precio: mayor a menor',
+        'best_selling'  => 'Más vendidos',
+        'least_selling' => 'Menos vendidos',
+    ];
+
+    /**
+     * Estatus de store_orders que cuentan como venta pagada (ver
+     * App\Support\StoreOrderStatus::FLOW: todo lo posterior a pendiente_pago;
+     * pago_parcial y cancelado no cuentan).
+     */
+    public const SOLD_STORE_STATUSES = ['pagado', 'en_preparacion', 'enviado', 'entregado'];
 
     public static function apply(Builder $query, Request $request): Builder
     {
@@ -142,6 +165,100 @@ class ProductFilters
         }
 
         return $query;
+    }
+
+    /** Valor de ?sort= válido, o '' (predeterminado). */
+    public static function sortKey(Request $request): string
+    {
+        $sort = $request->input('sort');
+
+        return is_string($sort) && $sort !== '' && isset(self::SORTS[$sort]) ? $sort : '';
+    }
+
+    /**
+     * Aplica el "Ordenar por" (siempre con id como desempate estable, para que
+     * la paginación no repita ni salte productos). Recibe el Request o
+     * directamente el valor de ?sort= (lo usa ProductsExport). Las columnas se califican
+     * con products. porque "vendidos" agrega un LEFT JOIN.
+     */
+    public static function applySort(Builder $query, Request|string|null $sort): Builder
+    {
+        $sort = $sort instanceof Request ? self::sortKey($sort) : (isset(self::SORTS[(string) $sort]) ? (string) $sort : '');
+
+        if ($sort === 'best_selling' || $sort === 'least_selling') {
+            self::withUnitsSold($query);
+            $query->orderBy('units_sold', $sort === 'best_selling' ? 'desc' : 'asc');
+        }
+
+        match ($sort) {
+            'newest'     => $query->orderBy('products.created_at', 'desc')->orderBy('products.id', 'desc'),
+            'oldest'     => $query->orderBy('products.created_at', 'asc')->orderBy('products.id', 'asc'),
+            'price_asc'  => $query->orderBy('products.price', 'asc')->orderBy('products.id', 'asc'),
+            'price_desc' => $query->orderBy('products.price', 'desc')->orderBy('products.id', 'asc'),
+            default      => $query->orderBy('products.id', 'asc'),
+        };
+
+        return $query;
+    }
+
+    /**
+     * Agrega la columna units_sold (COALESCE(…, 0)) con un único LEFT JOIN a
+     * la suma agregada de unidades vendidas — sin N+1.
+     */
+    public static function withUnitsSold(Builder $query): Builder
+    {
+        if (empty($query->getQuery()->columns)) {
+            $query->select('products.*');
+        }
+
+        return $query
+            ->leftJoinSub(self::unitsSoldQuery(), 'product_sales', 'product_sales.product_id', '=', 'products.id')
+            ->addSelect(DB::raw('COALESCE(product_sales.units_sold, 0) as units_sold'));
+    }
+
+    /**
+     * "Unidades vendidas" por producto (product_id, units_sold):
+     *   - cantidades en cotizaciones ACEPTADAS (misma métrica que la insignia
+     *     "+N unidades vendidas" de la ficha, App\Support\QuoteSales), más
+     *   - cantidades en pedidos de la tienda en línea pagados
+     *     (store_orders.status en SOLD_STORE_STATUSES).
+     */
+    public static function unitsSoldQuery(): QueryBuilder
+    {
+        $quotes = DB::table('quote_items')
+            ->join('quotes', 'quotes.id', '=', 'quote_items.quote_id')
+            ->where('quotes.status', \App\Support\QuoteSales::STATUS)
+            ->whereNotNull('quote_items.product_id')
+            ->select('quote_items.product_id', 'quote_items.quantity');
+
+        $store = DB::table('store_order_items')
+            ->join('store_orders', 'store_orders.id', '=', 'store_order_items.store_order_id')
+            ->whereIn('store_orders.status', self::SOLD_STORE_STATUSES)
+            ->select('store_order_items.product_id', 'store_order_items.quantity');
+
+        return DB::query()
+            ->fromSub($quotes->unionAll($store), 'sold_lines')
+            ->groupBy('sold_lines.product_id')
+            ->selectRaw('sold_lines.product_id as product_id, SUM(sold_lines.quantity) as units_sold');
+    }
+
+    /**
+     * Unidades vendidas solo de estos productos (una consulta).
+     *
+     * @param  int[]  $ids
+     * @return array<int,int>
+     */
+    public static function unitsSoldFor(array $ids): array
+    {
+        if (!$ids) {
+            return [];
+        }
+
+        return DB::query()->fromSub(self::unitsSoldQuery(), 's')
+            ->whereIn('s.product_id', $ids)
+            ->pluck('s.units_sold', 's.product_id')
+            ->map(fn ($u) => (int) round((float) $u))
+            ->all();
     }
 
     /** @return string[] palabras de la búsqueda (máx. 8), sin espacios sobrantes. */

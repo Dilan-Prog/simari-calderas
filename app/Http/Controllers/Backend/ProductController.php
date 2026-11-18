@@ -207,6 +207,10 @@ class ProductController extends Controller
     // Options exposed to the "Mostrar" per-page selector in index.blade.php.
     private const PER_PAGE_OPTIONS = [10, 25, 50, 100, 200, 300, 400, 500];
 
+    // Selector "Mostrar" del listado (index); además existe "Todos" (per_page=all).
+    private const INDEX_PER_PAGE_OPTIONS = [10, 20, 30, 50, 100, 200, 500];
+    private const INDEX_PER_PAGE_DEFAULT = 10;
+
     /**
      * Filtros compartidos por index() (catálogo) y bulkEditIndex() (editor
      * en lote) — mismo criterio de búsqueda/categoría/stock/estado en ambas
@@ -260,13 +264,26 @@ class ProductController extends Controller
         $stockSum       = (clone $query)->sum('stock');
         $firstStockUnit = (clone $query)->value('stock_unit');
 
-        $perPageInput = $request->input('per_page', 25);
+        // "Ordenar por" (?sort=…, ver ProductFilters::SORTS). Se aplica después de
+        // los totales: "vendidos" agrega un LEFT JOIN que count()/sum() no necesitan.
+        \App\Services\Products\ProductFilters::applySort($query, $request);
+
+        // "Mostrar": 10/20/30/50/100/200/500/Todos; cualquier otro valor -> 10.
+        $perPageInput = (string) $request->query('per_page', '');
         $showAll      = $perPageInput === 'all';
-        $perPage      = $showAll ? $totalFiltered : (int) $perPageInput;
+        $perPage      = in_array((int) $perPageInput, self::INDEX_PER_PAGE_OPTIONS, true) && ctype_digit($perPageInput)
+            ? (int) $perPageInput
+            : self::INDEX_PER_PAGE_DEFAULT;
 
         $products = $showAll
             ? $query->get()
-            : $query->paginate(max($perPage, 1))->withQueryString();
+            : $query->paginate($perPage)->withQueryString();
+
+        // Columna opcional "Vendidos": una sola consulta agregada para la página
+        // visible (si el orden ya la trajo con el JOIN, se reutiliza).
+        $pageIds   = ($products instanceof \Illuminate\Pagination\AbstractPaginator ? $products->getCollection() : $products)
+            ->pluck('id')->all();
+        $unitsSold = \App\Services\Products\ProductFilters::unitsSoldFor($pageIds);
 
         $categories = Category::orderBy('name')->get(['id', 'name']);
 
@@ -282,8 +299,12 @@ class ProductController extends Controller
             'totalFiltered',
             'stockSum',
             'firstStockUnit',
-            'savedViews'
-        ))->with('perPageOptions', self::PER_PAGE_OPTIONS);
+            'savedViews',
+            'unitsSold'
+        ))->with('perPageOptions', self::INDEX_PER_PAGE_OPTIONS)
+            ->with('perPageCurrent', $showAll ? 'all' : (string) $perPage)
+            ->with('sortOptions', \App\Services\Products\ProductFilters::SORTS)
+            ->with('sortCurrent', \App\Services\Products\ProductFilters::sortKey($request));
     }
 
     private const BULK_EDIT_FIELDS = [
@@ -334,7 +355,7 @@ class ProductController extends Controller
         'sku', 'model', 'brand_id', 'supplier_sku',
         'price', 'compare_price', 'cost', 'stock', 'currency', 'availability',
         'category_id', 'category_sub', 'category_child', 'is_active', 'publish_on_website', 'is_featured', 'is_new', 'is_recommended',
-        'canonical_url',
+        'canonical_url', 'units_sold',
     ];
     private const INDEX_VIEWS_MAX_PER_USER = 10;
 

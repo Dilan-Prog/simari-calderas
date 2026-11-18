@@ -1429,3 +1429,31 @@ html.prod-adv-open { overflow: hidden; }
     .prod-adv-panel { width: 96vw; max-height: 92vh; }
     .prod-adv-body, .prod-adv-head, .prod-adv-actions { padding-left: 14px; padding-right: 14px; }
 }
+
+/* ── Listado (index) como hoja de cálculo ──
+   La tabla usa <x-erp.datagrid-assets /> (erp-datagrid.css/js: nº de fila, Σ, encabezado fijo,
+   ordenar/filtrar por columna). Aquí solo se ajusta la densidad propia del listado de productos.
+   En celular la tabla sigue siendo tarjetas (reglas de .products-table-wrapper más arriba). */
+#prodListView tbody tr[hidden] { display: none !important; }
+/* En celular las filas son tarjetas (td {display:block}), que ganaba a .prod-col-hidden: las columnas
+   ocultas desde «Columnas» aparecían igual en cada tarjeta. */
+#prodListView .prod-col-hidden { display: none !important; }
+
+@media (min-width: 769px) {
+    .prod-index-dg.dg { max-height: 72vh; }
+    .prod-index-dg .prod-table th { box-shadow: none; padding: 6px 10px; }
+    .prod-index-dg .prod-table td { padding: 6px 10px; font-size: 13px; }
+    .prod-index-dg .prod-table td.is-num { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+    .prod-index-dg .prod-table th.prod-th-check,
+    .prod-index-dg .prod-table td.prod-td-check { width: 34px; text-align: center; padding: 0 6px; }
+    .prod-index-dg .prod-table tbody tr { border-bottom: 0; }
+    .prod-index-dg .prod-cell-product { gap: 10px; }
+    .prod-index-dg .prod-thumb { width: 34px; height: 34px; border-radius: 6px; }
+    .prod-index-dg .prod-thumb img { border-radius: 6px !important; }
+    .prod-index-dg .prod-table td { white-space: nowrap; }
+    .prod-index-dg .prod-table td[data-label="Producto"] { white-space: normal; min-width: 240px; max-width: 360px; }
+    .prod-index-dg .prod-name { font-size: 13.5px; white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .prod-index-dg .prod-category-label { font-size: 11.5px; }
+    .prod-index-dg .prod-actions { justify-content: flex-end; }
+    .prod-index-dg .prod-action-btn { width: 32px; height: 32px; }
+}
