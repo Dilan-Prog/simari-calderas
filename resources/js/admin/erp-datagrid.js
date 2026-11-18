@@ -12,6 +12,12 @@
  *   <th data-dg-key="folio" data-dg-type="text|list|num|date" [data-dg-sum] [data-dg-hidden]>
  *   <td data-dg-v="valor" [data-dg-cur="MXN"]> → valor para ordenar/filtrar/sumar (si falta, se usa el texto)
  *   Las filas de datos llevan data-dg-row; la fila "sin resultados" no.
+ *
+ * Opcionales (aditivos):
+ *   <table data-dg-nocols>   → sin menú «Columnas» propio: la página ya tiene su propio sistema de columnas
+ *                              visibles (p. ej. Productos). Las celdas Σ copian el data-col del <th> para que
+ *                              ese sistema las oculte junto con su columna; al terminar se emite «dg:ready».
+ *   <th data-dg-sum="int">   → el Σ se muestra como cantidad entera (unidades), no como importe.
  */
 
 const FILTER_SVG = (fill) => `<svg viewBox="0 0 24 24" fill="${fill}" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M3 4h18l-7 8.5V19l-4 2v-8.5z"/></svg>`;
@@ -68,6 +74,7 @@ function init(table) {
         key: th.dataset.dgKey || null,
         type: th.dataset.dgType || 'text',
         sum: th.hasAttribute('data-dg-sum'),
+        sumInt: th.dataset.dgSum === 'int',
         fixed: th.hasAttribute('data-dg-skip') || !th.dataset.dgKey,
         label: norm(th.textContent),
         defaultHidden: th.hasAttribute('data-dg-hidden'),
@@ -94,12 +101,15 @@ function init(table) {
     rows.forEach((r) => { r.search = (r.el.dataset.search || norm(r.el.textContent)).toLowerCase(); });
 
     // ── Estado ──
+    const noCols = table.hasAttribute('data-dg-nocols');
     const STORE = 'erp-dg:' + key + ':hidden';
-    const state = { filters: {}, sort: null, hidden: new Set(cols.filter((c) => c.defaultHidden).map((c) => c.key)) };
-    try {
-        const stored = JSON.parse(localStorage.getItem(STORE) || 'null');
-        if (Array.isArray(stored)) state.hidden = new Set(stored);
-    } catch (e) { /* sin almacenamiento: no persiste, no es fatal */ }
+    const state = { filters: {}, sort: null, hidden: new Set(noCols ? [] : cols.filter((c) => c.defaultHidden).map((c) => c.key)) };
+    if (!noCols) {
+        try {
+            const stored = JSON.parse(localStorage.getItem(STORE) || 'null');
+            if (Array.isArray(stored)) state.hidden = new Set(stored);
+        } catch (e) { /* sin almacenamiento: no persiste, no es fatal */ }
+    }
     const saveHidden = () => { try { localStorage.setItem(STORE, JSON.stringify([...state.hidden])); } catch (e) { /* idem */ } };
 
     // ── Estructura: columna de número + fila Σ + botones de filtro ──
@@ -120,6 +130,10 @@ function init(table) {
     sumRow.innerHTML = '<th class="dg-idx">Σ</th>' + cols.map(() => '<th></th>').join('');
     thead.insertBefore(sumRow, headRow);
     const sumCells = Array.from(sumRow.cells).slice(1);
+    if (noCols) {
+        // La página oculta columnas por data-col: la celda Σ sigue a su columna.
+        cols.forEach((c, j) => { if (c.th.dataset.col) sumCells[j].dataset.col = c.th.dataset.col; });
+    }
     const labelCol = cols.find((c) => !c.fixed && !c.sum);
 
     dataCols.forEach((c) => {
@@ -132,8 +146,8 @@ function init(table) {
     // ── Barra superior (Columnas) y pie (filtros activos) ──
     const bar = document.createElement('div');
     bar.className = 'dg-bar';
-    bar.innerHTML = `<span class="dg-hint">Usa el embudo de cada columna para ordenar y filtrar.</span>
-        <button type="button" class="dg-btn" data-dg-cols>${COLS_SVG} Columnas <span class="dg-badge" data-dg-colcount>0</span></button>`;
+    bar.innerHTML = `<span class="dg-hint">Usa el embudo de cada columna para ordenar y filtrar.</span>`
+        + (noCols ? '' : `<button type="button" class="dg-btn" data-dg-cols>${COLS_SVG} Columnas <span class="dg-badge" data-dg-colcount>0</span></button>`);
     wrap.parentNode.insertBefore(bar, wrap);
     const foot = document.createElement('div');
     foot.className = 'dg-foot';
@@ -171,6 +185,12 @@ function init(table) {
         const all = document.querySelector('[data-erp-select-all]');
         if (all) { all.checked = false; all.indeterminate = false; }
         if (any) (all || checks[0])?.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+
+    // Solo cambia las clases propias de la celda Σ (conserva las que ponga la página, p. ej. ocultar columna).
+    function setSumCls(cell, cls) {
+        cell.classList.remove('dg-num', 'dg-sum-label');
+        if (cls) cell.classList.add(cls);
     }
 
     function render(resetChecks = false) {
@@ -213,13 +233,14 @@ function init(table) {
                     byCur[cur] = (byCur[cur] || 0) + v;
                 });
                 const keys = Object.keys(byCur);
-                cell.className = 'dg-num';
-                cell.innerHTML = keys.length ? keys.map((cur) => `<div>${money(byCur[cur])}${cur ? `<small>${esc(cur)}</small>` : ''}</div>`).join('') : '';
+                setSumCls(cell, 'dg-num');
+                const fmt = c.sumInt ? (n) => Math.round(n).toLocaleString('en-US') : money;
+                cell.innerHTML = keys.length ? keys.map((cur) => `<div>${fmt(byCur[cur])}${cur ? `<small>${esc(cur)}</small>` : ''}</div>`).join('') : '';
             } else if (c === labelCol) {
-                cell.className = 'dg-sum-label';
+                setSumCls(cell, 'dg-sum-label');
                 cell.textContent = table.dataset.dgSumLabel || 'Total general';
             } else {
-                cell.className = '';
+                setSumCls(cell, '');
                 cell.textContent = '';
             }
         });
@@ -258,6 +279,7 @@ function init(table) {
     }
 
     function applyHidden() {
+        if (noCols) return; // la página controla las columnas visibles
         cols.forEach((c) => {
             if (c.fixed) return;
             const off = state.hidden.has(c.key);
@@ -326,7 +348,7 @@ function init(table) {
     });
 
     // ── Menú «Columnas» ──
-    bar.querySelector('[data-dg-cols]').addEventListener('click', (e) => {
+    bar.querySelector('[data-dg-cols]')?.addEventListener('click', (e) => {
         const html = `<div class="dg-cols-grid">${dataCols.map((c) =>
             `<label class="dg-cols-item"><input type="checkbox" data-col="${c.key}" ${state.hidden.has(c.key) ? '' : 'checked'}> ${esc(c.label)}</label>`).join('')}</div>
             <div class="dg-cols-actions"><button type="button" class="dg-link" data-showall>Mostrar todas</button><button type="button" class="dg-link" data-reset>Restablecer</button></div>`;
@@ -347,6 +369,7 @@ function init(table) {
 
     searchEl?.addEventListener('input', () => render(true));
     render();
+    table.dispatchEvent(new CustomEvent('dg:ready', { bubbles: true }));
 }
 
 function boot() { document.querySelectorAll('table[data-dg]').forEach(init); }

@@ -3,6 +3,7 @@
 namespace App\Exports;
 
 use App\Models\Products;
+use App\Services\Products\ProductFilters;
 use App\Support\CategoryCascadeDropdownBuilder;
 use App\Support\ExcelDropdown;
 use Maatwebsite\Excel\Concerns\FromQuery;
@@ -29,8 +30,9 @@ class ProductsExport implements FromQuery, WithHeadings, WithMapping, ShouldAuto
 
     /**
      * @param  int[]|null  $ids  Solo estos productos; null = todo el catálogo.
+     * @param  string  $sort  "Ordenar por" del listado (ProductFilters::SORTS); '' = por id.
      */
-    public function __construct(private ?array $ids = null)
+    public function __construct(private ?array $ids = null, private string $sort = '')
     {
     }
 
@@ -43,9 +45,11 @@ class ProductsExport implements FromQuery, WithHeadings, WithMapping, ShouldAuto
         // consulta con la condición a nivel de query. category.parent.parent
         // se precarga para poder descomponer la categoría real del producto
         // en Principal/Subcategoría/Categoría Hija sin N+1 (Category::levelNames()).
-        return Products::with(['category.parent.parent', 'brand', 'images', 'suppliers'])
-            ->when($this->ids !== null, fn ($q) => $q->whereIn('id', $this->ids))
-            ->orderBy('id');
+        $query = Products::with(['category.parent.parent', 'brand', 'images', 'suppliers'])
+            ->when($this->ids !== null, fn ($q) => $q->whereIn('products.id', $this->ids));
+
+        // Mismo orden que el listado (?sort=…); sin orden, por id como siempre.
+        return ProductFilters::applySort($query, $this->sort);
     }
 
     public function headings(): array

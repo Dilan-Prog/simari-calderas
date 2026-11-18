@@ -18,9 +18,15 @@
             const stockFilter    = document.getElementById('prodStockFilter');
             const statusFilter   = document.getElementById('prodStatusFilter');
             const perPageSelect  = document.getElementById('prodPerPage');
+            const sortSelect     = document.getElementById('prodSortSelect');
+            // "Ordenar por" actual (server-side, ?sort=…): también ordena "Exportar selección".
+            const currentSort    = @json($sortCurrent ?? '');
 
-            [categoryFilter, stockFilter, statusFilter, perPageSelect].forEach(select => {
-                select.addEventListener('change', () => filterForm.submit());
+            [categoryFilter, stockFilter, statusFilter, perPageSelect, sortSelect].forEach(select => {
+                select?.addEventListener('change', () => {
+                    // Cambiar orden o tamaño de página vuelve a la página 1 (el form GET no lleva "page").
+                    filterForm.submit();
+                });
             });
 
             // Búsqueda: con retraso al escribir, Enter busca de inmediato, Esc / × limpia,
@@ -371,7 +377,10 @@
                 // Ambas vistas (lista y tarjetas) renderizan el mismo conjunto
                 // paginado de productos, así que basta con leer los
                 // data-id de una sola vista para tener el universo completo.
+                // Las filas ocultas por el filtro por columna de la hoja de cálculo
+                // (erp-datagrid.js, atributo hidden) no cuentan para "Seleccionar todos".
                 return Array.from(document.querySelectorAll('#prodListView .prod-row-checkbox[data-id]'))
+                    .filter(cb => !cb.closest('tr')?.hidden)
                     .map(cb => cb.dataset.id);
             }
 
@@ -412,7 +421,8 @@
                 if (bulkExportBtn) {
                     bulkExportBtn.setAttribute('data-download-url', sameAsFilterSelection()
                         ? filterSelection.exportUrl
-                        : exportBaseUrl + '?ids=' + Array.from(selectedIds).join(','));
+                        : exportBaseUrl + '?ids=' + Array.from(selectedIds).join(',')
+                            + (currentSort ? '&sort=' + encodeURIComponent(currentSort) : ''));
                 }
                 syncCheckboxesUI();
             }
@@ -689,7 +699,21 @@
             }, true);
 
             loadStoredIndexColumns();
+            // Ordenado por vendidos: se muestra la columna "Vendidos" para que el orden se entienda
+            // (sin guardarlo como preferencia; si el usuario cambia columnas, se guarda lo que vea).
+            if (currentSort === 'best_selling' || currentSort === 'least_selling') {
+                const soldToggle = Array.from(indexColToggles).find(cb => cb.value === 'units_sold');
+                if (soldToggle) soldToggle.checked = true;
+            }
             applyIndexColumnVisibility();
+            // La hoja de cálculo (erp-datagrid.js, módulo diferido) agrega la fila Σ después: se vuelve
+            // a aplicar la visibilidad para que sus celdas (con data-col) sigan a su columna.
+            document.querySelector('#prodListView table[data-dg]')?.addEventListener('dg:ready', applyIndexColumnVisibility);
+            // Filtrar una columna en la hoja oculta filas: se recalcula "Seleccionar todos".
+            // (captura: el popover se vacía al aplicar, así que se detecta antes de que cierre).
+            ['click', 'keydown'].forEach(evt => document.addEventListener(evt, (e) => {
+                if (e.target.closest?.('.dg-pop, .dg-foot')) setTimeout(syncBulkBar, 0);
+            }, true));
 
             // ── Vistas guardadas de columnas (hasta 10, por usuario) ──
             const INDEX_VIEWS_MAX = 10;
