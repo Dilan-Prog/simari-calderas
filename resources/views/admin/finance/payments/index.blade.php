@@ -155,6 +155,7 @@
     <x-erp.worklist :views="$views">
         <x-slot:toolbar>
             <form method="GET" class="fin-filterform fin-noprint">
+                @if (request()->filled('per_page')) <input type="hidden" name="per_page" value="{{ request('per_page') }}"> @endif
                 @if (request('direction')) <input type="hidden" name="direction" value="{{ request('direction') }}"> @endif
                 @if (request('status')) <input type="hidden" name="status" value="{{ request('status') }}"> @endif
                 <div class="erp-search">
@@ -227,7 +228,10 @@
         </div>
 
         <x-slot:footer>
-            <span>Mostrando {{ $payments->firstItem() ?? 0 }}–{{ $payments->lastItem() ?? 0 }} de {{ $payments->total() }} pagos</span>
+            <span class="erp-wl-meta">
+                <span>Mostrando {{ $payments->firstItem() ?? 0 }}–{{ $payments->lastItem() ?? 0 }} de {{ $payments->total() }} pagos</span>
+                <x-erp.per-page />
+            </span>
             <div>{{ $payments->links('admin.components.pagination') }}</div>
         </x-slot:footer>
     </x-erp.worklist>

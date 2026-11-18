@@ -8,6 +8,7 @@ use App\Models\Supplier;
 use App\Models\Products;;
 use App\Services\PurchaseOrderService;
 use Barryvdh\DomPDF\Facade\Pdf;
+use App\Support\PerPage;
 use Illuminate\Http\Request;
 
 class PurchaseOrderController extends Controller
@@ -33,7 +34,7 @@ class PurchaseOrderController extends Controller
             $query->whereDate('order_date', $request->date);
         }
 
-        $orders = $query->orderByDesc('order_date')->paginate(15)->withQueryString();
+        $orders = PerPage::paginate($query->orderByDesc('order_date'), $request);
 
         $stats = [
             'total'    => PurchaseOrder::count(),

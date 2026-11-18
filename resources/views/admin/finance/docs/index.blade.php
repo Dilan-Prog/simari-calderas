@@ -60,6 +60,7 @@
         <x-slot:toolbar>
             <form method="GET" class="fin-filterform fin-noprint">
                 @if (request('status')) <input type="hidden" name="status" value="{{ request('status') }}"> @endif
+                @if (request()->filled('per_page')) <input type="hidden" name="per_page" value="{{ request('per_page') }}"> @endif
                 <div class="erp-search">
                     <input type="text" name="search" placeholder="Buscar por folio o {{ strtolower($cfg['party_label']) }}…" value="{{ request('search') }}" aria-label="Buscar">
                 </div>
@@ -142,7 +143,10 @@
         </div>
 
         <x-slot:footer>
-            <span>Mostrando {{ $docs->firstItem() ?? 0 }}–{{ $docs->lastItem() ?? 0 }} de {{ $docs->total() }} {{ strtolower($cfg['plural']) }}</span>
+            <span class="erp-wl-meta">
+                <span>Mostrando {{ $docs->firstItem() ?? 0 }}–{{ $docs->lastItem() ?? 0 }} de {{ $docs->total() }} {{ strtolower($cfg['plural']) }}</span>
+                <x-erp.per-page />
+            </span>
             <div>{{ $docs->links('admin.components.pagination') }}</div>
         </x-slot:footer>
     </x-erp.worklist>

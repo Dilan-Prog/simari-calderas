@@ -118,7 +118,7 @@
             $activeTab = request('status', 'all');
         @endphp
         @foreach ($tabs as $tab)
-        <a href="{{ route('admin.purchase-orders.index', array_merge(request()->query(), ['status' => $tab['value']])) }}"
+        <a href="{{ route('admin.purchase-orders.index', array_merge(\Illuminate\Support\Arr::except(request()->query(), ['page']), ['status' => $tab['value']])) }}"
             style="padding:10px 20px;font-size:14px;font-weight:600;text-decoration:none;
                    border-bottom:2px solid {{ $activeTab === $tab['value'] ? '#ff6213' : 'transparent' }};
                    color:{{ $activeTab === $tab['value'] ? '#ff6213' : '#6b7280' }};
@@ -261,12 +261,13 @@
             </table>
         </div>
 
-        @if ($orders->hasPages())
-            <div class="po-count" style="display:flex;justify-content:space-between;align-items:center;margin-top:16px;padding:0 4px;">
+        @if ($orders->total() > 0)
+            <div class="po-count" style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px 16px;margin-top:16px;padding:0 4px;">
                 <p style="margin:0;font-size:13px;color:#6b7280;">
                     Mostrando <strong>{{ $orders->firstItem() }}–{{ $orders->lastItem() }}</strong>
                     de <strong>{{ $orders->total() }}</strong> órdenes
                 </p>
+                <x-erp.per-page />
             </div>
             {{ $orders->links('admin.components.pagination') }}
         @endif
