@@ -1,6 +1,6 @@
 @php
     $config = $section->config ?? [];
-    $ctx = $product ?? $collection ?? $servicePage ?? null;
+    $ctx = $product ?? $collection ?? $servicePage ?? $contextCategory ?? null;
     $left = $config['left'] ?? null;
     $right = $config['right'] ?? null;
 
@@ -36,7 +36,7 @@
     $headingNewTab = !empty($section->heading_link['new_tab']);
 @endphp
 @if (count($sides) > 0)
-<section class="home-dual-banner-block">
+<section class="home-dual-banner-block" data-section-id="{{ $section->id ?? '' }}">
     @if ($headingTitle)
         <h2 class="home-block-heading">
             @if ($headingUrl)

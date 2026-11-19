@@ -12,7 +12,7 @@
      .product-card__add-btn (+ data-*) y .product-card__quote-btn (+
      data-ad-track) para que los tomen los mismos handlers de carrito y de
      tracking que las tarjetas normales. --}}
-<section class="pc-compact" x-data="{
+<section class="pc-compact" {{ $attributes->except('class') }} x-data="{
     page: 0, pages: 1,
     measure() {
         const t = this.$refs.track;

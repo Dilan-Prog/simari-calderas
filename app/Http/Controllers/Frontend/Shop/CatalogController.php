@@ -4,11 +4,14 @@ namespace App\Http\Controllers\Frontend\Shop;
 
 use App\Http\Controllers\Controller;
 use App\Models\Category;
+use App\Models\CategorySection;
 use App\Models\HomeSection;
 use App\Models\Redirect;
 use App\Services\Catalog\CatalogParams;
 use App\Services\Catalog\CatalogQuery;
+use App\Services\Catalog\CatalogResult;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection as SupportCollection;
 
 class CatalogController extends Controller
 {
@@ -77,12 +80,41 @@ class CatalogController extends Controller
         ]);
     }
 
-    protected function renderCatalog(Request $request, ?Category $category)
+    /**
+     * Resultado del catálogo (productos de la página, facetas, chips, etc.)
+     * para una petición. Público para que el editor en vivo de Categorías
+     * (Backend\CategoryLiveEditorController::preview) pinte exactamente lo
+     * mismo que la página pública.
+     */
+    public function catalogResult(Request $request, ?Category $category): CatalogResult
     {
         $params = CatalogParams::fromRequest($request, $category);
         $baseUrl = $category ? route('catalog.category', $category->slug) : route('catalog.index');
 
-        $result = app(CatalogQuery::class)->run($params, $category, $baseUrl, 24);
+        return app(CatalogQuery::class)->run($params, $category, $baseUrl, 24);
+    }
+
+    /**
+     * Separa los bloques por zona pública (config.position): 'top' (por
+     * defecto, bajo las migas) y 'bottom' (tras la paginación, antes de FAQ).
+     *
+     * @return array{sectionsTop: SupportCollection, sectionsBottom: SupportCollection}
+     */
+    public static function splitSections(SupportCollection $sections): array
+    {
+        [$bottom, $top] = $sections->values()->partition(
+            fn (CategorySection $s) => $s->position() === CategorySection::POSITION_BOTTOM
+        );
+
+        return ['sectionsTop' => $top->values(), 'sectionsBottom' => $bottom->values()];
+    }
+
+    protected function renderCatalog(Request $request, ?Category $category)
+    {
+        // Página pedida ANTES de que el servicio la ajuste al rango válido:
+        // los bloques solo van en la página 1 (no en ?page=2+).
+        $requestedPage = (int) $request->input('page', 1);
+        $result = $this->catalogResult($request, $category);
 
         if ($request->wantsJson()) {
             $data = ['result' => $result, 'category' => $category];
@@ -105,8 +137,15 @@ class CatalogController extends Controller
             ])->withHeaders(['Vary' => 'Accept', 'Cache-Control' => 'private, no-cache']);
         }
 
+        // Bloques del editor en vivo (propios o heredados del ancestro), solo
+        // en la carga completa de la página 1 de una categoría; nunca en las
+        // respuestas JSON de filtros/paginación (arriba).
+        $sections = ($category && $requestedPage <= 1 && (int) ($result->meta['page'] ?? 1) === 1)
+            ? $category->effectiveSections(true)['sections']
+            : collect();
+
         return response()
-            ->view('frontend.shop.catalog.index', ['result' => $result, 'category' => $category])
+            ->view('frontend.shop.catalog.index', ['result' => $result, 'category' => $category] + self::splitSections($sections))
             ->header('Vary', 'Accept');
     }
 }

@@ -143,4 +143,49 @@ class Category extends Model
     {
         return $this->hasMany(Products::class, 'category_id');
     }
+
+    /** Bloques del editor en vivo de esta categoría (todos, activos o no). */
+    public function sections()
+    {
+        return $this->hasMany(CategorySection::class, 'category_id')->orderBy('sort_order')->orderBy('id');
+    }
+
+    /**
+     * Bloques que aplican a esta categoría, con herencia:
+     *  - Si la categoría tiene CUALQUIER bloque propio (activo o no), usa los
+     *    suyos (tener solo bloques inactivos cuenta como "personalizada").
+     *  - Si no, sube por `parent` (máx. 3 niveles) hasta el ancestro más
+     *    cercano que tenga bloques y usa los de ese ancestro.
+     *
+     * $onlyActive = true (uso público) devuelve solo los activos; false (editor)
+     * devuelve todos. `inherited_from` es el ancestro del que se heredó, o null
+     * si son propios o no hay ninguno.
+     *
+     * @return array{sections: \Illuminate\Support\Collection<int, CategorySection>, inherited_from: ?Category}
+     */
+    public function effectiveSections(bool $onlyActive = true): array
+    {
+        $filter = fn ($sections) => $onlyActive
+            ? $sections->filter(fn (CategorySection $s) => $s->is_active)->values()
+            : $sections->values();
+
+        $own = $this->relationLoaded('sections') ? $this->sections : $this->sections()->get();
+        if ($own->isNotEmpty()) {
+            return ['sections' => $filter($own), 'inherited_from' => null];
+        }
+
+        $node = $this;
+        for ($depth = 0; $depth < 3 && $node->parent_id; $depth++) {
+            $node = $node->parent;
+            if (!$node) {
+                break;
+            }
+            $sections = $node->sections()->get();
+            if ($sections->isNotEmpty()) {
+                return ['sections' => $filter($sections), 'inherited_from' => $node];
+            }
+        }
+
+        return ['sections' => collect(), 'inherited_from' => null];
+    }
 }

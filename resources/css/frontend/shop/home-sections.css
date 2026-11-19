@@ -200,3 +200,25 @@ a.card-carousel__card:hover { box-shadow: 0 8px 18px rgba(0,0,0,0.1); transform:
 :is(.eq-shop-home, .eq-shop-product, .eq-shop-collection, .eq-shop-catalog, .eq-shop-service) a.brand-carousel__item--link:hover {
     border-color: rgba(0,0,0,0.2); box-shadow: 0 6px 16px rgba(0,0,0,0.1); transform: translateY(-2px);
 }
+
+/* Bloque "Productos en filas" (product_grid, editor en vivo de Categorías):
+   filas de --per-row tarjetas (3/4/5 en escritorio, 3 en tableta, 2 en
+   móvil) con banners a todo el ancho entre filas. Separaciones iguales a
+   .catalog-grid (catalog.css). */
+.product-grid-block { width: 95%; margin: 32px auto; display: flex; flex-direction: column; gap: 12px; }
+.product-grid-block__title { margin: 0 0 4px; font-size: clamp(18px, 3vw, 24px); font-weight: 800; }
+.product-grid-block__row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.product-grid-block__item { min-width: 0; display: flex; }
+.product-grid-block__item > * { width: 100%; }
+.product-grid-block__banner { width: 100%; border-radius: 8px; overflow: hidden; }
+.product-grid-block__banner-link { display: block; }
+.product-grid-block__banner img { width: 100%; height: auto; display: block; }
+.product-grid-block__empty { margin: 0; padding: 24px; text-align: center; color: #6b7280; border: 1px dashed #d1d5db; border-radius: 8px; }
+@media (min-width: 768px) {
+    .product-grid-block { gap: 16px; }
+    .product-grid-block__row { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+}
+@media (min-width: 1200px) {
+    .product-grid-block { gap: 18px; }
+    .product-grid-block__row { grid-template-columns: repeat(var(--per-row, 4), minmax(0, 1fr)); gap: 18px; }
+}

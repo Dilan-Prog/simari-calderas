@@ -204,14 +204,35 @@ class CollectionController extends Controller
 
     public function searchProducts(Request $request)
     {
-        $q = $request->get('q', '');
+        return response()->json(self::productSearchResults(
+            (string) $request->get('q', ''),
+            $request->filled('ids') ? (string) $request->input('ids') : null
+        ));
+    }
 
-        $products = Products::where('name', 'like', "%{$q}%")
+    /**
+     * Búsqueda de productos del selector manual (por nombre o SKU, máx. 10).
+     * Con `ids` ("1,2,3", lo usa el selector para pintar los ya elegidos)
+     * devuelve exactamente esos productos, igual que
+     * ServicePageController::searchProducts. Pública para reutilizarla en el
+     * editor en vivo de Categorías.
+     */
+    public static function productSearchResults(string $q, ?string $ids = null)
+    {
+        $columns = ['id', 'name', 'sku', 'cover_image_url', 'price'];
+
+        if ($ids !== null) {
+            $idList = array_values(array_unique(array_filter(array_map('intval', explode(',', $ids)))));
+
+            return $idList
+                ? Products::whereIn('id', $idList)->limit(100)->get($columns)
+                : collect();
+        }
+
+        return Products::where('name', 'like', "%{$q}%")
             ->orWhere('sku', 'like', "%{$q}%")
             ->limit(10)
-            ->get(['id', 'name', 'sku', 'cover_image_url', 'price']);
-
-        return response()->json($products);
+            ->get($columns);
     }
 
     public function addProduct(Request $request, string $collection)

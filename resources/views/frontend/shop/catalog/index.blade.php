@@ -2,7 +2,22 @@
 
 @php
     // Variables: $result (App\Services\Catalog\CatalogResult) y $category (?Category).
+    // Bloques del editor en vivo de Categorías (CatalogController::splitSections):
+    // $sectionsTop / $sectionsBottom; vacíos si la vista se usa sin ellos.
+    $sectionsTop = $sectionsTop ?? collect();
+    $sectionsBottom = $sectionsBottom ?? collect();
+    $previewMode = $previewMode ?? false;
+    $allSections = $sectionsTop->concat($sectionsBottom);
+
     $shopVite = ['resources/css/frontend/shop/catalog.css', 'resources/js/frontend/shop/catalog.js'];
+
+    // Bloques de estilo "Servicios" (.svc-* en service-page.css), igual que
+    // collection/show.blade.php. Alpine ya lo arranca catalog.js.
+    $svcBlockTypes = ['benefits_grid', 'process_steps', 'content_tabs', 'gallery_carousel', 'cta_final', 'button', 'table_block', 'brand_logos'];
+    if ($allSections->contains(fn ($s) => in_array($s->type, $svcBlockTypes, true))) {
+        $shopVite = array_merge(['resources/css/frontend/shop/service-page.css'], $shopVite);
+    }
+
     $products = $result->paginator;
 
     $categoryChain = [];
@@ -134,6 +149,11 @@
         </div>
     @endif
 
+    {{-- Bloques del editor en vivo, zona "arriba" (a todo el ancho). --}}
+    @foreach ($sectionsTop as $catalogSection)
+        @includeIf('frontend.shop.home.sections.' . str_replace('_', '-', $catalogSection->type), ['section' => $catalogSection, 'contextCategory' => $category, 'previewMode' => $previewMode])
+    @endforeach
+
     <div class="catalog-layout">
         <div class="catalog-overlay" data-catalog-overlay hidden></div>
 
@@ -173,6 +193,11 @@
             </div>
         </div>
     </div>
+
+    {{-- Bloques del editor en vivo, zona "abajo" (tras la paginación). --}}
+    @foreach ($sectionsBottom as $catalogSection)
+        @includeIf('frontend.shop.home.sections.' . str_replace('_', '-', $catalogSection->type), ['section' => $catalogSection, 'contextCategory' => $category, 'previewMode' => $previewMode])
+    @endforeach
 
     @if ($schemaFaqs->isNotEmpty())
         <section class="home-faq">

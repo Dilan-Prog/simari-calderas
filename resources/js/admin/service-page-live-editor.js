@@ -30,14 +30,26 @@
 import Sortable from 'sortablejs';
 import { mountLinkTools } from './live-editor-links.js';
 import { renderCollectionGeneralPanel, renderCollectionProductsPanel } from './live-editor-collection-panels.js';
+import { renderCategoryGeneralPanel } from './live-editor-category-panels.js';
 
 (function () {
     const DATA = window.__LIVE_EDITOR__;
     if (!DATA) return;
 
-    // 'service' (editor original) | 'collection' (mismo editor para Colecciones).
+    // 'service' (editor original) | 'collection' (mismo editor para Colecciones)
+    // | 'category' (mismo editor para Categorías de los 3 niveles).
     const KIND = DATA.kind || 'service';
     const IS_COLLECTION = KIND === 'collection';
+    const IS_CATEGORY = KIND === 'category';
+    // Solo las páginas de servicio tienen galería propia (DATA.images); en
+    // colecciones y categorías las imágenes se eligen con el picker global.
+    const NO_GALLERY = KIND !== 'service';
+    // Nombre de la entidad para textos del editor y su placeholder de título.
+    const ENTITY = IS_CATEGORY
+        ? { thisOne: 'Esta categoría', token: '{categoria}', titlePh: 'Ej: Lo más vendido de esta categoría' }
+        : IS_COLLECTION
+            ? { thisOne: 'Esta colección', token: '{coleccion}', titlePh: 'Ej: Por qué elegir esta colección' }
+            : { thisOne: 'Este servicio', token: '{servicio}', titlePh: 'Ej: Beneficios del servicio' };
 
     const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
 
@@ -60,6 +72,8 @@ import { renderCollectionGeneralPanel, renderCollectionProductsPanel } from './l
         cta_final: 'CTA final',
         button: 'Botón',
         table_block: 'Tabla',
+        pool_calculator: 'Calculadora de alberca',
+        product_grid: 'Productos en filas',
     };
 
     // Iconos por tipo de bloque (mismo set de stroke-icons ya usado en el
@@ -83,6 +97,8 @@ import { renderCollectionGeneralPanel, renderCollectionProductsPanel } from './l
         cta_final: '<path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>',
         button: '<rect width="18" height="7" x="3" y="8.5" rx="3.5"/>',
         table_block: '<path d="M3 3h18v18H3z"/><path d="M3 9h18"/><path d="M3 15h18"/><path d="M9 3v18"/>',
+        pool_calculator: '<rect width="16" height="20" x="4" y="2" rx="2"/><line x1="8" x2="16" y1="6" y2="6"/><line x1="16" x2="16" y1="14" y2="18"/><path d="M16 10h.01"/><path d="M12 10h.01"/><path d="M8 10h.01"/><path d="M12 14h.01"/><path d="M8 14h.01"/><path d="M12 18h.01"/><path d="M8 18h.01"/>',
+        product_grid: '<rect width="5" height="5" x="3" y="3" rx="1"/><rect width="5" height="5" x="9.5" y="3" rx="1"/><rect width="5" height="5" x="16" y="3" rx="1"/><rect width="18" height="4" x="3" y="10" rx="1"/><rect width="5" height="5" x="3" y="16" rx="1"/><rect width="5" height="5" x="9.5" y="16" rx="1"/><rect width="5" height="5" x="16" y="16" rx="1"/>',
         default: '<rect width="18" height="18" x="3" y="3" rx="2"/>',
     };
 
@@ -106,7 +122,14 @@ import { renderCollectionGeneralPanel, renderCollectionProductsPanel } from './l
                     right: { image_url: '', link_url: '', alt: '', no_link: false },
                 };
             case 'product_carousel':
-                return { source: 'featured', category_id: null, brand_id: null, collection_id: null, product_ids: [], limit: 10 };
+                // En categorías, por defecto "Esta categoría" (category_id null =
+                // la categoría de la página, con sus subcategorías).
+                return { source: IS_CATEGORY ? 'category' : 'featured', category_id: null, brand_id: null, collection_id: null, product_ids: [], limit: 10 };
+            case 'product_grid':
+                return {
+                    source: 'category', category_id: null, brand_id: null, collection_id: null,
+                    product_ids: [], tag: '', per_row: 4, rows: 2, sort: 'newest', banners: [],
+                };
             case 'product_carousel_banner':
                 // NOTA: aunque la tarea sugería nombres "limpios" (ej. banner:{...})
                 // ya que este panel arma el JSON directo, el partial público real
@@ -153,6 +176,17 @@ import { renderCollectionGeneralPanel, renderCollectionProductsPanel } from './l
         }
     }
 
+    // Tipos que tienen formulario en renderTypeFields (o que no necesitan
+    // configuración). Los que no estén aquí se ocultan del menú "Agregar
+    // bloque" para no crear bloques que solo muestran "Tipo de bloque
+    // desconocido".
+    const RENDERABLE_TYPES = [
+        'banner', 'dual_banner', 'product_carousel', 'product_carousel_banner', 'product_grid',
+        'category_grid', 'brand_carousel', 'brand_logos', 'html_block', 'faq', 'rich_header',
+        'content_tabs', 'benefits_grid', 'process_steps', 'gallery_carousel', 'rating_reviews',
+        'cta_final', 'button', 'table_block', 'pool_calculator',
+    ];
+
     // ── Estado en memoria ────────────────────────────────────────────
     let uidCounter = 0;
     const nextUid = () => 'u' + (++uidCounter);
@@ -162,9 +196,35 @@ import { renderCollectionGeneralPanel, renderCollectionProductsPanel } from './l
         id: s.id ?? null,
         type: s.type,
         title: s.title ?? '',
-        config: s.config && typeof s.config === 'object' ? s.config : {},
+        // Un config vacío puede llegar como [] (JSON de PHP): se normaliza a {}.
+        config: s.config && typeof s.config === 'object' && !Array.isArray(s.config) ? s.config : {},
         is_active: s.is_active !== false,
     }));
+
+    // ── Herencia (solo categorías): si la categoría no tiene bloques propios
+    //    usa los del ancestro más cercano que sí tenga. Mientras no se
+    //    "personalice", la vista previa pide use_inherited:true. ──
+    const inheritedInfo = (IS_CATEGORY && DATA.inherited) ? DATA.inherited : { from: null, sections: [] };
+    const inheritedSections = Array.isArray(inheritedInfo.sections) ? inheritedInfo.sections : [];
+    let usingInherited = IS_CATEGORY && !draftSections.length && !!inheritedInfo.from && inheritedSections.length > 0;
+
+    // Copia los bloques heredados al borrador como bloques propios (sin id,
+    // se crean al guardar).
+    function customizeInherited() {
+        if (!usingInherited) return;
+        inheritedSections.forEach((s) => {
+            draftSections.push({
+                _uid: nextUid(),
+                id: null,
+                type: s.type,
+                title: s.title ?? '',
+                config: JSON.parse(JSON.stringify(s.config && typeof s.config === 'object' && !Array.isArray(s.config) ? s.config : {})),
+                is_active: s.is_active !== false,
+            });
+        });
+        usingInherited = false;
+        markDirty();
+    }
 
     let selectedUid = null;
     let panelMode = 'empty'; // 'empty' | 'block' | 'general' | 'gallery' | 'reviews'
@@ -742,10 +802,38 @@ import { renderCollectionGeneralPanel, renderCollectionProductsPanel } from './l
     function renderBlocksList() {
         blocksList.innerHTML = '';
 
+        if (usingInherited) {
+            const from = inheritedInfo.from || {};
+            const banner = document.createElement('div');
+            banner.className = 'live-editor-inherit-banner';
+            banner.innerHTML = `
+                <p>Esta categoría usa los bloques heredados de <strong>«${escHtml(from.name || '')}»</strong> (${inheritedSections.length} ${inheritedSections.length === 1 ? 'bloque' : 'bloques'}).</p>
+                <div class="live-editor-inherit-banner__actions">
+                    <button type="button" class="live-editor-btn live-editor-btn--solid" id="leInheritCustomize">Personalizar</button>
+                    ${from.editorUrl ? `<a href="${escHtml(from.editorUrl)}" class="live-editor-inherit-banner__link">Editar bloques de «${escHtml(from.name || '')}»</a>` : ''}
+                </div>
+                <ul class="live-editor-inherit-banner__list">
+                    ${inheritedSections.map((s) => `<li>${escHtml(plainLabel(s.title) || TYPE_LABELS[s.type] || s.type)}${s.is_active === false ? ' <small>(inactivo)</small>' : ''}</li>`).join('')}
+                </ul>
+                <p class="hs-config-note" style="margin:6px 0 0;">Al personalizar se copian como bloques propios de esta categoría; los cambios ya no afectan a «${escHtml(from.name || '')}».</p>
+            `;
+            banner.querySelector('#leInheritCustomize').addEventListener('click', () => {
+                customizeInherited();
+                renderBlocksList();
+                renderPanel();
+                schedulePreview();
+            });
+            blocksList.appendChild(banner);
+            return;
+        }
+
         if (!draftSections.length) {
             const empty = document.createElement('div');
             empty.className = 'live-editor-blocks-empty';
-            empty.textContent = (IS_COLLECTION ? 'Esta colección' : 'Este servicio') + ' todavía no tiene bloques. Agrega uno abajo.';
+            empty.textContent = ENTITY.thisOne + ' todavía no tiene bloques. Agrega uno abajo.';
+            if (IS_CATEGORY && inheritedInfo.from && inheritedSections.length) {
+                empty.textContent += ' Si guardas sin bloques propios, volverá a usar los heredados de «' + (inheritedInfo.from.name || '') + '».';
+            }
             blocksList.appendChild(empty);
             return;
         }
@@ -902,8 +990,36 @@ import { renderCollectionGeneralPanel, renderCollectionProductsPanel } from './l
     if (reviewsBtn) reviewsBtn.addEventListener('click', selectReviews);
     if (productsBtn) productsBtn.addEventListener('click', selectProducts);
 
+    // Menú "Agregar bloque": se limita a DATA.sectionTypes (si el servidor
+    // manda la lista blanca) y se ocultan los tipos sin formulario.
+    (function filterAddTypeOptions() {
+        const allowed = Array.isArray(DATA.sectionTypes) && DATA.sectionTypes.length ? DATA.sectionTypes : null;
+        Array.from(addTypeSelect.options).forEach((opt) => {
+            const ok = RENDERABLE_TYPES.includes(opt.value) && (!allowed || allowed.includes(opt.value));
+            if (!ok) opt.remove();
+        });
+        // Tipos permitidos que la vista no listó (ej. product_grid en otra vista).
+        if (allowed) {
+            allowed.forEach((type) => {
+                if (!RENDERABLE_TYPES.includes(type)) return;
+                if (Array.from(addTypeSelect.options).some((o) => o.value === type)) return;
+                const opt = document.createElement('option');
+                opt.value = type;
+                opt.textContent = TYPE_LABELS[type] || type;
+                addTypeSelect.appendChild(opt);
+            });
+        }
+    })();
+
     addBtn.addEventListener('click', () => {
         const type = addTypeSelect.value;
+        if (!type) return;
+        // Agregar un bloque mientras se usan los heredados = personalizar:
+        // primero se copian los heredados para no perderlos.
+        if (usingInherited) {
+            customizeInherited();
+            if (window.showCenterToast) window.showCenterToast('Se copiaron los bloques heredados como propios de esta categoría.');
+        }
         const section = {
             _uid: nextUid(),
             id: null,
@@ -2015,6 +2131,10 @@ import { renderCollectionGeneralPanel, renderCollectionProductsPanel } from './l
     }
 
     function renderPanel() {
+        if (IS_CATEGORY && panelMode === 'general') {
+            renderCategoryGeneralPanel(collectionCtx());
+            return;
+        }
         if (IS_COLLECTION && panelMode === 'general') {
             renderCollectionGeneralPanel(collectionCtx());
             return;
@@ -2039,7 +2159,7 @@ import { renderCollectionGeneralPanel, renderCollectionProductsPanel } from './l
         const section = findSection(selectedUid);
 
         if (!section) {
-            editPanel.innerHTML = `<div class="live-editor-panel-empty">Selecciona un bloque de la izquierda para editarlo aquí, o "Información general" para ${IS_COLLECTION ? 'nombre, slug y SEO' : 'nombre, slug, precio y SEO'}.</div>`;
+            editPanel.innerHTML = `<div class="live-editor-panel-empty">Selecciona un bloque de la izquierda para editarlo aquí, o "Información general" para ${IS_CATEGORY ? 'nombre, descripción, imagen, SEO y preguntas frecuentes' : (IS_COLLECTION ? 'nombre, slug y SEO' : 'nombre, slug, precio y SEO')}.</div>`;
             return;
         }
 
@@ -2058,8 +2178,12 @@ import { renderCollectionGeneralPanel, renderCollectionProductsPanel } from './l
                 </span>
                 <button type="button" class="live-editor-panel-close" id="lePanelClose" title="Cerrar">&times;</button>
             </div>
-            ${field(IS_COLLECTION ? 'Título (opcional, puedes usar {coleccion})' : 'Título (opcional, puedes usar {servicio})', `<input type="text" class="users-manager-input" id="leTitle" value="${escHtml(section.title)}" placeholder="${IS_COLLECTION ? 'Ej: Por qué elegir esta colección' : 'Ej: Beneficios del servicio'}">`)}
+            ${field('Título (opcional, puedes usar ' + ENTITY.token + ')', `<input type="text" class="users-manager-input" id="leTitle" value="${escHtml(section.title)}" placeholder="${escHtml(ENTITY.titlePh)}">`)}
             ${TITLE_STYLE_TYPES.includes(section.type) ? '<div id="leTitleStyle"></div>' : ''}
+            ${IS_CATEGORY ? field('Posición en la página', `<select class="users-manager-select" id="lePosition">
+                <option value="top" ${(section.config && section.config.position) !== 'bottom' ? 'selected' : ''}>Arriba del catálogo</option>
+                <option value="bottom" ${(section.config && section.config.position) === 'bottom' ? 'selected' : ''}>Debajo del catálogo</option>
+            </select>`) : ''}
             <div class="show-user-divider" style="margin:10px 0;"></div>
             <div id="leTypeFields"></div>
         `;
@@ -2077,6 +2201,16 @@ import { renderCollectionGeneralPanel, renderCollectionProductsPanel } from './l
             schedulePreview();
         });
 
+        const positionSelect = editPanel.querySelector('#lePosition');
+        if (positionSelect) {
+            positionSelect.addEventListener('change', (e) => {
+                section.config = section.config || {};
+                section.config.position = e.target.value === 'bottom' ? 'bottom' : 'top';
+                markDirty();
+                schedulePreview();
+            });
+        }
+
         if (TITLE_STYLE_TYPES.includes(section.type)) {
             const cfg = section.config = section.config || {};
             cfg.title_style = cfg.title_style || {};
@@ -2089,7 +2223,7 @@ import { renderCollectionGeneralPanel, renderCollectionProductsPanel } from './l
     // Tipos cuyo título de bloque (section.title) se renderiza públicamente
     // como encabezado (<h2> por defecto) -- ganan el control de tipografía
     // compartido justo debajo del campo Título.
-    const TITLE_STYLE_TYPES = ['benefits_grid', 'process_steps', 'content_tabs', 'gallery_carousel', 'faq', 'brand_logos'];
+    const TITLE_STYLE_TYPES = ['benefits_grid', 'process_steps', 'content_tabs', 'gallery_carousel', 'faq', 'brand_logos', 'product_grid'];
 
     function renderTypeFields(container, section) {
         const cfg = section.config = section.config || {};
@@ -2107,6 +2241,12 @@ import { renderCollectionGeneralPanel, renderCollectionProductsPanel } from './l
                 break;
             case 'product_carousel':
                 renderProductCarouselFields(container, cfg, '');
+                break;
+            case 'product_grid':
+                renderProductGridFields(container, cfg);
+                break;
+            case 'pool_calculator':
+                container.innerHTML = '<p class="hs-config-note">Este bloque muestra la calculadora de dimensionamiento de alberca. Sus valores (tarifa, COP, horas de operación) se configuran en Ajustes; aquí no requiere configuración adicional.</p>';
                 break;
             case 'product_carousel_banner':
                 container.innerHTML = '<p class="hs-config-subtitle">Banner</p><div id="lePcbBanner"></div><p class="hs-config-subtitle">Productos del carrusel</p><div id="lePcbCarousel"></div>';
@@ -2257,7 +2397,7 @@ import { renderCollectionGeneralPanel, renderCollectionProductsPanel } from './l
             const wrap = container.querySelector('#leSourceFields' + suffix);
             if (cfg.source === 'category') {
                 wrap.innerHTML = field('Categoría', `<select class="users-manager-select" id="${idCategory}">
-                    <option value="">Selecciona una categoría</option>
+                    <option value="">${IS_CATEGORY ? 'Esta categoría (incluye subcategorías)' : 'Selecciona una categoría'}</option>
                     ${(DATA.categories || []).map((c) => `<option value="${c.id}" ${String(cfg.category_id) === String(c.id) ? 'selected' : ''}>${escHtml(c.name)}</option>`).join('')}
                 </select>`);
                 wrap.querySelector('#' + idCategory).addEventListener('change', (e) => {
@@ -2298,6 +2438,242 @@ import { renderCollectionGeneralPanel, renderCollectionProductsPanel } from './l
         }
 
         renderSourceFields();
+    }
+
+    // ── product_grid ("Productos en filas"): N filas de per_row productos con
+    //    banners opcionales insertados después de una fila concreta. ──
+    const GRID_SOURCE_LABELS = {
+        category: 'Por categoría',
+        brand: 'Por marca',
+        collection: 'Por colección',
+        manual: 'Selección manual',
+        tag: 'Por etiqueta',
+        featured: 'Destacados',
+        new: 'Nuevos',
+        best_sellers: 'Más vendidos',
+    };
+    const GRID_SORT_LABELS = {
+        newest: 'Más recientes',
+        price_asc: 'Precio: menor a mayor',
+        price_desc: 'Precio: mayor a menor',
+        best_selling: 'Más vendidos',
+    };
+
+    // Opciones de categoría con su ruta completa (Principal › Sub › Hija).
+    function categoryPathOptionsHtml(selectedId) {
+        const all = DATA.categories || [];
+        const byId = new Map(all.map((c) => [String(c.id), c]));
+        const pathOf = (c) => {
+            const parts = [];
+            let node = c;
+            for (let i = 0; node && i < 6; i++) {
+                parts.unshift(node.name);
+                node = node.parent_id ? byId.get(String(node.parent_id)) : null;
+            }
+            return parts.join(' › ');
+        };
+        return all.map((c) => ({ id: c.id, path: pathOf(c) }))
+            .sort((a, b) => a.path.localeCompare(b.path, 'es'))
+            .map((c) => `<option value="${c.id}" ${String(selectedId) === String(c.id) ? 'selected' : ''}>${escHtml(c.path)}</option>`)
+            .join('');
+    }
+
+    function renderProductGridFields(container, cfg) {
+        // Normaliza el config (bloques viejos o incompletos).
+        if (!GRID_SOURCE_LABELS[cfg.source]) cfg.source = 'category';
+        cfg.per_row = [3, 4, 5].includes(Number(cfg.per_row)) ? Number(cfg.per_row) : 4;
+        cfg.rows = Math.min(10, Math.max(1, parseInt(cfg.rows, 10) || 2));
+        if (!GRID_SORT_LABELS[cfg.sort]) cfg.sort = 'newest';
+        cfg.product_ids = Array.isArray(cfg.product_ids) ? cfg.product_ids : [];
+        cfg.tag = cfg.tag ?? '';
+        cfg.banners = Array.isArray(cfg.banners) ? cfg.banners : [];
+
+        const opts = (labels, current) => Object.keys(labels).map((k) => (
+            `<option value="${k}" ${String(current) === String(k) ? 'selected' : ''}>${escHtml(labels[k])}</option>`
+        )).join('');
+
+        container.innerHTML = `
+            ${field('Origen de productos', `<select class="users-manager-select" id="lePgSource">${opts(GRID_SOURCE_LABELS, cfg.source)}</select>`)}
+            <div id="lePgSourceFields"></div>
+            <div class="live-editor-field-row">
+                ${field('Productos por fila', `<select class="users-manager-select" id="lePgPerRow">${[3, 4, 5].map((n) => `<option value="${n}" ${cfg.per_row === n ? 'selected' : ''}>${n}</option>`).join('')}</select>`)}
+                ${field('Número de filas', `<input type="number" class="users-manager-input" id="lePgRows" min="1" max="10" step="1" value="${cfg.rows}">`)}
+            </div>
+            ${field('Orden', `<select class="users-manager-select" id="lePgSort">${opts(GRID_SORT_LABELS, cfg.sort)}</select>`)}
+            <p class="hs-config-note" id="lePgTotalNote"></p>
+            <div class="show-user-divider" style="margin:10px 0;"></div>
+            <p class="hs-config-subtitle">Banners entre filas</p>
+            <p class="hs-config-note">Opcional. Cada banner se muestra a todo el ancho después de la fila que elijas.</p>
+            <div id="lePgBanners"></div>
+            <button type="button" class="button-secondary size-adjustment" id="lePgAddBanner" style="margin-top:8px;">+ Agregar banner</button>
+        `;
+
+        const changed = () => { markDirty(); schedulePreview(); };
+        const totalNote = container.querySelector('#lePgTotalNote');
+        const updateTotal = () => {
+            totalNote.textContent = `Se muestran hasta ${cfg.per_row * cfg.rows} productos (${cfg.rows} ${cfg.rows === 1 ? 'fila' : 'filas'} de ${cfg.per_row}). En celular se ven 2 por fila.`;
+        };
+        updateTotal();
+
+        container.querySelector('#lePgSource').addEventListener('change', (e) => {
+            cfg.source = e.target.value;
+            renderSourceFields();
+            changed();
+        });
+        container.querySelector('#lePgPerRow').addEventListener('change', (e) => {
+            cfg.per_row = parseInt(e.target.value, 10) || 4;
+            updateTotal();
+            changed();
+        });
+        const rowsInput = container.querySelector('#lePgRows');
+        rowsInput.addEventListener('input', () => {
+            const n = parseInt(rowsInput.value, 10);
+            if (!n) return; // campo vacío mientras se escribe
+            cfg.rows = Math.min(10, Math.max(1, n));
+            updateTotal();
+            renderBanners();
+            changed();
+        });
+        rowsInput.addEventListener('change', () => { rowsInput.value = cfg.rows; });
+        container.querySelector('#lePgSort').addEventListener('change', (e) => {
+            cfg.sort = e.target.value;
+            changed();
+        });
+
+        function renderSourceFields() {
+            const wrap = container.querySelector('#lePgSourceFields');
+            if (cfg.source === 'category') {
+                wrap.innerHTML = field('Categoría', `<select class="users-manager-select" id="lePgCategory">
+                    <option value="">${IS_CATEGORY ? 'Esta categoría (incluye subcategorías)' : 'Selecciona una categoría'}</option>
+                    ${categoryPathOptionsHtml(cfg.category_id)}
+                </select>`);
+                wrap.querySelector('#lePgCategory').addEventListener('change', (e) => { cfg.category_id = e.target.value ? Number(e.target.value) : null; changed(); });
+            } else if (cfg.source === 'brand') {
+                wrap.innerHTML = field('Marca', `<select class="users-manager-select" id="lePgBrand">
+                    <option value="">Selecciona una marca</option>
+                    ${(DATA.brands || []).map((b) => `<option value="${b.id}" ${String(cfg.brand_id) === String(b.id) ? 'selected' : ''}>${escHtml(b.name)}</option>`).join('')}
+                </select>`);
+                wrap.querySelector('#lePgBrand').addEventListener('change', (e) => { cfg.brand_id = e.target.value ? Number(e.target.value) : null; changed(); });
+            } else if (cfg.source === 'collection') {
+                wrap.innerHTML = field('Colección', `<select class="users-manager-select" id="lePgCollection">
+                    <option value="">Selecciona una colección</option>
+                    ${(DATA.collections || []).map((c) => `<option value="${c.id}" ${String(cfg.collection_id) === String(c.id) ? 'selected' : ''}>${escHtml(c.name)}</option>`).join('')}
+                </select>`);
+                wrap.querySelector('#lePgCollection').addEventListener('change', (e) => { cfg.collection_id = e.target.value ? Number(e.target.value) : null; changed(); });
+            } else if (cfg.source === 'manual') {
+                wrap.innerHTML = '<div class="live-editor-field"><label>Productos</label><div id="lePgManual"></div><p class="hs-config-note" style="margin-top:6px;">Se muestran en el orden en que los agregues.</p></div>';
+                mountProductPicker(wrap.querySelector('#lePgManual'), cfg.product_ids, (ids) => { cfg.product_ids = ids; changed(); });
+            } else if (cfg.source === 'tag') {
+                wrap.innerHTML = field('Etiqueta', `
+                    <input type="text" class="users-manager-input" id="lePgTag" list="lePgTagList" value="${escHtml(cfg.tag)}" placeholder="Ej: inverter" autocomplete="off" data-no-link="1">
+                    <datalist id="lePgTagList"></datalist>`);
+                const tagInput = wrap.querySelector('#lePgTag');
+                const dl = wrap.querySelector('#lePgTagList');
+                let t = null;
+                tagInput.addEventListener('input', () => {
+                    cfg.tag = tagInput.value.trim();
+                    changed();
+                    if (!DATA.tagsSuggestUrl) return;
+                    clearTimeout(t);
+                    t = setTimeout(async () => {
+                        try {
+                            const res = await fetch(`${DATA.tagsSuggestUrl}?q=${encodeURIComponent(tagInput.value)}`, { headers: { 'X-Requested-With': 'XMLHttpRequest', Accept: 'application/json' } });
+                            if (!res.ok) return;
+                            const tags = await res.json();
+                            dl.innerHTML = (Array.isArray(tags) ? tags : []).map((tag) => `<option value="${escHtml(typeof tag === 'string' ? tag : (tag.label || tag.name || ''))}"></option>`).join('');
+                        } catch (err) { /* sin sugerencias */ }
+                    }, 200);
+                });
+            } else {
+                const notes = {
+                    featured: 'Muestra los productos marcados como destacados.',
+                    new: 'Muestra los productos más recientes.',
+                    best_sellers: 'Muestra los productos más vendidos.',
+                };
+                wrap.innerHTML = `<p class="hs-config-note">${escHtml(notes[cfg.source] || '')}${IS_CATEGORY ? ' Solo se incluyen productos de esta categoría y sus subcategorías.' : ''}</p>`;
+            }
+        }
+
+        function renderBanners() {
+            const list = container.querySelector('#lePgBanners');
+            list.innerHTML = '';
+            if (!cfg.banners.length) {
+                list.innerHTML = '<p class="hs-config-note">Sin banners.</p>';
+                return;
+            }
+            cfg.banners.forEach((b, i) => {
+                b.after_row = Math.min(cfg.rows, Math.max(1, parseInt(b.after_row, 10) || 1));
+                const idImg = 'lePgBannerImg' + i;
+                const row = document.createElement('div');
+                row.className = 'hs-repeat-row';
+                row.innerHTML = `
+                    <div class="hs-repeat-row-head"><span class="hs-repeat-row-num">${i + 1}</span><button type="button" class="hs-faq-btn hs-repeat-remove" title="Quitar banner">&times;</button></div>
+                    ${field('Insertar después de la fila', `<select class="users-manager-select le-pg-after">${Array.from({ length: cfg.rows }, (_, k) => k + 1).map((n) => `<option value="${n}" ${b.after_row === n ? 'selected' : ''}>Fila ${n}</option>`).join('')}</select>`)}
+                    ${field('Imagen', `
+                        <div class="img-picker-field">
+                            <input type="text" class="users-manager-input le-pg-img" id="${idImg}" value="${escHtml(b.image_url)}" placeholder="https://..." data-no-link="1">
+                            <button type="button" class="img-picker-trigger-btn le-pg-pick">Seleccionar</button>
+                        </div>
+                        <p class="hs-config-note">Medida recomendada: 1200×300 px.</p>`)}
+                    ${field('Texto alternativo', `<input type="text" class="users-manager-input le-pg-alt" maxlength="255" value="${escHtml(b.alt)}" placeholder="Describe la imagen" data-no-link="1">`)}
+                    <div class="le-pg-link-wrap" style="${b.no_link ? 'display:none;' : ''}">
+                        ${field('Enlace', '<div class="le-pg-link"></div>')}
+                    </div>
+                    <label style="display:flex;align-items:center;gap:8px;font-weight:400;font-size:13px;color:#374151;">
+                        <input type="checkbox" class="le-pg-nolink" ${b.no_link ? 'checked' : ''}> Sin enlace (la imagen no redirige a ningún lado)
+                    </label>
+                `;
+
+                row.querySelector('.le-pg-after').addEventListener('change', (e) => { b.after_row = parseInt(e.target.value, 10) || 1; changed(); });
+                const imgInput = row.querySelector('.le-pg-img');
+                imgInput.addEventListener('input', () => { b.image_url = imgInput.value; changed(); });
+                row.querySelector('.le-pg-pick').addEventListener('click', () => {
+                    // El picker global escribe en el <input> y dispara 'input'.
+                    if (typeof window.openImagePicker === 'function') window.openImagePicker(idImg);
+                });
+                row.querySelector('.le-pg-alt').addEventListener('input', (e) => { b.alt = e.target.value; changed(); });
+
+                // Destino del enlace: selector de enlaces del admin (LinkTarget);
+                // si no está disponible, URL a mano en link_url.
+                const linkBox = row.querySelector('.le-pg-link');
+                if (window.LinkPicker && typeof window.LinkPicker.mountField === 'function') {
+                    window.LinkPicker.mountField(linkBox, {
+                        value: b.link || null,
+                        onChange: (v) => { b.link = v; if (v) b.link_url = ''; changed(); },
+                    });
+                    if (!b.link && b.link_url) {
+                        const legacy = document.createElement('p');
+                        legacy.className = 'hs-config-note';
+                        legacy.textContent = 'Enlace actual: ' + b.link_url;
+                        linkBox.appendChild(legacy);
+                    }
+                } else {
+                    linkBox.innerHTML = `<input type="text" class="users-manager-input" value="${escHtml(b.link_url)}" placeholder="/catalogo/..." data-no-link="1">`;
+                    linkBox.querySelector('input').addEventListener('input', (e) => { b.link_url = e.target.value; changed(); });
+                }
+
+                row.querySelector('.le-pg-nolink').addEventListener('change', (e) => {
+                    b.no_link = e.target.checked;
+                    row.querySelector('.le-pg-link-wrap').style.display = b.no_link ? 'none' : '';
+                    changed();
+                });
+                row.querySelector('.hs-repeat-remove').addEventListener('click', () => {
+                    cfg.banners.splice(i, 1);
+                    renderBanners();
+                    changed();
+                });
+                list.appendChild(row);
+            });
+        }
+
+        container.querySelector('#lePgAddBanner').addEventListener('click', () => {
+            cfg.banners.push({ after_row: Math.min(cfg.rows, 1), image_url: '', link: null, link_url: '', alt: '', no_link: false });
+            renderBanners();
+            changed();
+        });
+
+        renderSourceFields();
+        renderBanners();
     }
 
     // ── Buscador de productos con chips — mismo patrón que
@@ -2603,7 +2979,7 @@ import { renderCollectionGeneralPanel, renderCollectionProductsPanel } from './l
                 <input type="text" class="users-manager-input le-subtitle" placeholder="Subtítulo (opcional)" style="margin-top:6px;" value="${escHtml(tab.subtitle)}">
                 <textarea class="users-manager-input client-modal-textarea le-body" rows="2" placeholder="Párrafo" style="margin-top:6px;">${escHtml(tab.body)}</textarea>
                 <textarea class="users-manager-input client-modal-textarea le-bullets" rows="2" placeholder="Viñetas, una por línea" style="margin-top:6px;">${escHtml((tab.bullets || []).join('\n'))}</textarea>
-                ${IS_COLLECTION ? '' : `<select class="users-manager-select le-image" style="margin-top:6px;">
+                ${NO_GALLERY ? '' : `<select class="users-manager-select le-image" style="margin-top:6px;">
                     <option value="">Sin imagen</option>
                     ${imagesOptionsHtml(tab.image_id ? [tab.image_id] : [], DATA.images)}
                 </select>
@@ -2839,7 +3215,7 @@ import { renderCollectionGeneralPanel, renderCollectionProductsPanel } from './l
     }
 
     function renderGalleryCarouselFields(container, cfg) {
-        if (IS_COLLECTION) {
+        if (NO_GALLERY) {
             renderCollectionGalleryFields(container, cfg);
             return;
         }
@@ -2940,8 +3316,8 @@ import { renderCollectionGeneralPanel, renderCollectionProductsPanel } from './l
             <div class="show-user-divider" style="margin:10px 0;"></div>
             ${field('Texto del botón', `<input type="text" class="users-manager-input" id="leCtaWhatsapp" value="${escHtml(cfg.whatsapp_text || 'Cotizar por WhatsApp')}">`)}
             <p class="hs-config-note">Deja este campo vacío para ocultar el botón de WhatsApp.</p>
-            ${IS_COLLECTION ? '' : field('Imagen de fondo (opcional)', `<select class="users-manager-select" id="leCtaBg"><option value="">Sin imagen</option>${imagesOptionsHtml(cfg.background_image_id ? [cfg.background_image_id] : [], DATA.images)}</select>`)}
-            ${IS_COLLECTION ? '' : field('ALT de la imagen de fondo', `<input type="text" class="users-manager-input" id="leCtaBgAlt" maxlength="255" value="${escHtml(cfg.background_alt)}" placeholder="Vacío = ALT de la galería">`)}
+            ${NO_GALLERY ? '' : field('Imagen de fondo (opcional)', `<select class="users-manager-select" id="leCtaBg"><option value="">Sin imagen</option>${imagesOptionsHtml(cfg.background_image_id ? [cfg.background_image_id] : [], DATA.images)}</select>`)}
+            ${NO_GALLERY ? '' : field('ALT de la imagen de fondo', `<input type="text" class="users-manager-input" id="leCtaBgAlt" maxlength="255" value="${escHtml(cfg.background_alt)}" placeholder="Vacío = ALT de la galería">`)}
             <div class="show-user-divider" style="margin:10px 0;"></div>
             <p class="live-editor-col-title">Botón secundario (opcional)</p>
             <p class="hs-config-note">Se muestra junto al de WhatsApp (o solo, si dejaste ese campo vacío) — útil para un enlace que no sea WhatsApp.</p>
@@ -2977,9 +3353,9 @@ import { renderCollectionGeneralPanel, renderCollectionProductsPanel } from './l
             const res = await fetch(DATA.previewUrl, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
-                body: JSON.stringify({
-                    sections: draftSections.filter((s) => s.is_active).map((s, i) => ({ ...s, sort_order: i })),
-                }),
+                body: JSON.stringify(Object.assign({
+                    sections: usingInherited ? [] : draftSections.filter((s) => s.is_active).map((s, i) => ({ ...s, sort_order: i })),
+                }, IS_CATEGORY ? { use_inherited: usingInherited } : {})),
             });
             const data = await res.json();
             iframe.srcdoc = data.html ?? '';
@@ -3052,10 +3428,10 @@ import { renderCollectionGeneralPanel, renderCollectionProductsPanel } from './l
         // "Descripción corta" y luego pulsar el botón grande (lo más
         // intuitivo) no guardaba nada ahí, pareciendo que el campo "no deja
         // actualizarse".
-        if (IS_COLLECTION) {
-            // Los paneles de Colecciones guardan con su propio botón; si hay uno
-            // abierto se dispara antes, para no perder lo capturado ahí.
-            const colBtn = editPanel.querySelector('#leColSaveBtn') || editPanel.querySelector('#leColSettingsSave');
+        if (IS_COLLECTION || IS_CATEGORY) {
+            // Los paneles de Colecciones/Categorías guardan con su propio botón;
+            // si hay uno abierto se dispara antes, para no perder lo capturado ahí.
+            const colBtn = editPanel.querySelector('#leColSaveBtn') || editPanel.querySelector('#leColSettingsSave') || editPanel.querySelector('#leCatSaveBtn');
             if (colBtn) {
                 colBtn.click();
                 // Espera a que el botón del panel termine (se deshabilita mientras guarda)
@@ -3103,7 +3479,7 @@ import { renderCollectionGeneralPanel, renderCollectionProductsPanel } from './l
             csrfToken,
             // Nombre/descripción/SEO se imprimen como texto plano (title, meta, JSON-LD):
             // ahí un enlace aparecería literal.
-            exclude: (f) => /^le(Col|Gen)(Name|Desc|ShortDesc|Seo)/.test(f.id || ''),
+            exclude: (f) => /^le(Col|Gen|Cat)(Name|Desc|ShortDesc|Seo)/.test(f.id || ''),
         });
     }
 
@@ -3111,7 +3487,8 @@ import { renderCollectionGeneralPanel, renderCollectionProductsPanel } from './l
     // Si el servicio no tiene bloques todavía (recién creado desde "+ Nuevo
     // Servicio"), abre directo el panel de Información general — es lo
     // primero que hace falta llenar antes de agregar bloques.
-    if (!draftSections.length) {
+    // En categorías (ya existen y pueden heredar bloques) se muestra la lista.
+    if (!draftSections.length && !IS_CATEGORY) {
         selectGeneral();
     } else {
         renderBlocksList();

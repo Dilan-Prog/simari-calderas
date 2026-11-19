@@ -16,6 +16,8 @@
         $whatsappMessage = "Hola, me interesa cotizar el servicio: {$servicePage->name} - " . url($servicePage->publicPath());
     } elseif (isset($collection)) {
         $whatsappMessage = "Hola, me interesa cotizar la colección: {$collection->name} - " . route('collection.show', $collection->slug);
+    } elseif (isset($contextCategory)) {
+        $whatsappMessage = "Hola, me interesa cotizar productos de la categoría: {$contextCategory->name} - " . route('catalog.category', $contextCategory->slug);
     } else {
         $whatsappMessage = 'Hola, me interesa cotizar un servicio de Equiterm.';
     }
