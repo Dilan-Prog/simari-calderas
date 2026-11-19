@@ -83,6 +83,7 @@
 
             <div class="live-editor-add-block">
                 <select id="leAddBlockType" class="users-manager-select">
+                    <option value="text_block">Título y párrafo</option>
                     <option value="banner">Banner</option>
                     <option value="dual_banner">Banner Doble</option>
                     <option value="product_carousel">Carrusel de Productos</option>

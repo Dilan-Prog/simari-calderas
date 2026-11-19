@@ -74,6 +74,7 @@ import { renderCategoryGeneralPanel } from './live-editor-category-panels.js';
         table_block: 'Tabla',
         pool_calculator: 'Calculadora de alberca',
         product_grid: 'Productos en filas',
+        text_block: 'Título y párrafo',
     };
 
     // Iconos por tipo de bloque (mismo set de stroke-icons ya usado en el
@@ -96,6 +97,7 @@ import { renderCategoryGeneralPanel } from './live-editor-category-panels.js';
         rating_reviews: '<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>',
         cta_final: '<path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>',
         button: '<rect width="18" height="7" x="3" y="8.5" rx="3.5"/>',
+        text_block: '<path d="M4 7V4h16v3"/><path d="M9 20h6"/><path d="M12 4v16"/>',
         table_block: '<path d="M3 3h18v18H3z"/><path d="M3 9h18"/><path d="M3 15h18"/><path d="M9 3v18"/>',
         pool_calculator: '<rect width="16" height="20" x="4" y="2" rx="2"/><line x1="8" x2="16" y1="6" y2="6"/><line x1="16" x2="16" y1="14" y2="18"/><path d="M16 10h.01"/><path d="M12 10h.01"/><path d="M8 10h.01"/><path d="M12 14h.01"/><path d="M8 14h.01"/><path d="M12 18h.01"/><path d="M8 18h.01"/>',
         product_grid: '<rect width="5" height="5" x="3" y="3" rx="1"/><rect width="5" height="5" x="9.5" y="3" rx="1"/><rect width="5" height="5" x="16" y="3" rx="1"/><rect width="18" height="4" x="3" y="10" rx="1"/><rect width="5" height="5" x="3" y="16" rx="1"/><rect width="5" height="5" x="9.5" y="16" rx="1"/><rect width="5" height="5" x="16" y="16" rx="1"/>',
@@ -169,6 +171,8 @@ import { renderCategoryGeneralPanel } from './live-editor-category-panels.js';
                 return { headline: '', subtext: '', whatsapp_text: 'Cotizar por WhatsApp', background_image_id: null, secondary_button: { text: '', url: '', style: 'outline', color: '#ff6213' } };
             case 'button':
                 return { buttons: [{ text: 'Cotizar ahora', url: '', style: 'solid', color: '#ff6213' }], align: 'center' };
+            case 'text_block':
+                return { heading: '', heading_style: { heading_tag: 'h2' }, body: '', body_style: {} };
             case 'table_block':
                 return { title: '', description: '', headers: [], rows: [], buttons: [], align: 'left' };
             default:
@@ -184,7 +188,7 @@ import { renderCategoryGeneralPanel } from './live-editor-category-panels.js';
         'banner', 'dual_banner', 'product_carousel', 'product_carousel_banner', 'product_grid',
         'category_grid', 'brand_carousel', 'brand_logos', 'html_block', 'faq', 'rich_header',
         'content_tabs', 'benefits_grid', 'process_steps', 'gallery_carousel', 'rating_reviews',
-        'cta_final', 'button', 'table_block', 'pool_calculator',
+        'cta_final', 'button', 'table_block', 'pool_calculator', 'text_block',
     ];
 
     // ── Estado en memoria ────────────────────────────────────────────
@@ -2296,6 +2300,9 @@ import { renderCategoryGeneralPanel } from './live-editor-category-panels.js';
             case 'cta_final':
                 renderCtaFinalFields(container, cfg);
                 break;
+            case 'text_block':
+                renderTextBlockFields(container, cfg);
+                break;
             case 'button':
                 renderButtonFields(container, cfg);
                 break;
@@ -3338,6 +3345,25 @@ import { renderCategoryGeneralPanel } from './live-editor-category-panels.js';
 
         cfg.secondary_button = cfg.secondary_button || { text: '', url: '', style: 'outline', color: '#ff6213' };
         mountButtonFields(container.querySelector('#leCtaSecondaryBtn'), cfg.secondary_button, { alignField: false });
+    }
+
+    // Bloque "Título y párrafo": encabezado opcional + párrafos (línea en
+    // blanco = párrafo nuevo), cada uno con su estilo tipográfico.
+    function renderTextBlockFields(container, cfg) {
+        container.innerHTML = `
+            ${field('Título', `<input type="text" class="users-manager-input" id="leTbHeading" value="${escHtml(cfg.heading)}" placeholder="Ej: ¿Por qué elegir nuestras calderas?">`)}
+            <div id="leTbHeadingStyle"></div>
+            <div class="show-user-divider" style="margin:10px 0;"></div>
+            ${field('Párrafo', `<textarea class="users-manager-input client-modal-textarea" id="leTbBody" rows="7" placeholder="Escribe el texto. Deja una línea en blanco para empezar otro párrafo.">${escHtml(cfg.body)}</textarea>`)}
+            <p class="hs-config-note">Deja una línea en blanco para separar párrafos. Puedes insertar enlaces con el botón 🔗.</p>
+            <div id="leTbBodyStyle"></div>
+        `;
+        container.querySelector('#leTbHeading').addEventListener('input', (e) => { cfg.heading = e.target.value; markDirty(); schedulePreview(); });
+        container.querySelector('#leTbBody').addEventListener('input', (e) => { cfg.body = e.target.value; markDirty(); schedulePreview(); });
+        cfg.heading_style = cfg.heading_style && !Array.isArray(cfg.heading_style) ? cfg.heading_style : {};
+        cfg.body_style = cfg.body_style && !Array.isArray(cfg.body_style) ? cfg.body_style : {};
+        mountTypographyFields(container.querySelector('#leTbHeadingStyle'), cfg.heading_style, { tagChoices: ['h2', 'h3', 'h4', 'h1'] });
+        mountTypographyFields(container.querySelector('#leTbBodyStyle'), cfg.body_style, {});
     }
 
     // ── Columna derecha: preview vía POST al servidor ───────────────

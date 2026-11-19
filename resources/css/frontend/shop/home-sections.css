@@ -222,3 +222,16 @@ a.card-carousel__card:hover { box-shadow: 0 8px 18px rgba(0,0,0,0.1); transform:
     .product-grid-block { gap: 18px; }
     .product-grid-block__row { grid-template-columns: repeat(var(--per-row, 4), minmax(0, 1fr)); gap: 18px; }
 }
+
+/* ── Bloque "Título y párrafo" (text_block) ───────────────────────── */
+.text-block-section { width: 95%; max-width: 1280px; margin: 32px auto; }
+.text-block-section__inner { max-width: 900px; }
+.text-block-section__title { margin: 0 0 12px; font-size: clamp(22px, 2.4vw, 30px); line-height: 1.25; font-weight: 700; color: #111827; }
+.text-block-section__text { margin: 0 0 12px; font-size: 16px; line-height: 1.7; color: #374151; }
+.text-block-section__text:last-child { margin-bottom: 0; }
+.text-block-section__text a, .text-block-section__title a { color: #ff6213; text-decoration: underline; }
+.text-block-section__inner:has([style*="text-align:center"]) { margin-left: auto; margin-right: auto; }
+@media (max-width: 720px) {
+    .text-block-section { margin: 24px auto; }
+    .text-block-section__text { font-size: 15px; }
+}

@@ -100,6 +100,7 @@
                     <option value="product_grid">Productos en filas</option>
                     <option value="product_carousel">Carrusel de Productos</option>
                     <option value="product_carousel_banner">Carrusel con Banner</option>
+                    <option value="text_block">Título y párrafo</option>
                     <option value="banner">Banner</option>
                     <option value="dual_banner">Banner Doble</option>
                     <option value="category_grid">Grid de Categorías</option>
