@@ -192,7 +192,12 @@ class TaskController extends Controller
             'due_at'            => 'nullable|date',
             'status'            => 'sometimes|required|in:' . implode(',', array_keys(Task::STATUSES)),
             'assigned_to'       => 'nullable|exists:users,id',
+            // Nota rápida desde la pestaña General: se AGREGA a las notas,
+            // nunca reemplaza nada (antes esa caja era la descripción y se pisaba).
+            'note'              => 'nullable|string|max:2000',
         ]);
+        $newNote = trim((string) ($data['note'] ?? ''));
+        unset($data['note']);
 
         // La fecha llega como "YYYY-MM-DD HH:mm" (o solo "YYYY-MM-DD" desde la API). Si coincide con la
         // actual al minuto no cuenta como cambio: así se conservan los segundos de las tareas automáticas.
@@ -245,13 +250,24 @@ class TaskController extends Controller
             $task->logEvent('edited', 'Fecha límite cambiada: ' . ($beforeDue?->format('d/m/Y H:i') ?? '—') . ' → ' . ($task->due_at?->format('d/m/Y H:i') ?? '—'), $uid);
         }
         if ($changed('description')) {
-            $task->logEvent('edited', 'Descripción editada', $uid);
+            // Se guarda el texto anterior en el historial para que no se pierda.
+            $prev = trim((string) ($before['description'] ?? ''));
+            $task->logEvent('edited', $prev === ''
+                ? 'Descripción editada'
+                : 'Descripción editada (antes: «' . \Illuminate\Support\Str::limit($prev, 200) . '»)', $uid);
         }
         if ($changed('status')) {
             $task->logEvent('status', 'Estatus actualizado a «' . Task::statusLabel($task->status) . '»', $uid);
         }
         if (array_key_exists('assigned_to', $data) && (int) $before['assigned_to'] !== (int) $task->assigned_to) {
             $task->logEvent('assigned', 'Responsable cambiado a ' . ($task->assignee?->full_name ?? 'Sin asignar'), $uid);
+        }
+
+        if ($newNote !== '') {
+            $task->notes()->create(['body' => $newNote, 'user_id' => $uid]);
+            $task->logEvent('note', 'Nota agregada', $uid);
+
+            return redirect(route('admin.tasks.show', $task) . '#notas')->with('success', 'Nota agregada.');
         }
 
         return redirect()->route('admin.tasks.show', $task)->with('success', 'Tarea actualizada.');

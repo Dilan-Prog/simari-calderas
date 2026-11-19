@@ -226,8 +226,9 @@
                                     </select>
                                 </div>
                                 <div class="task-field">
-                                    <label for="taskDescription">Descripción</label>
-                                    <textarea id="taskDescription" name="description">{{ old('description', $task->description) }}</textarea>
+                                    <label for="taskQuickNote">Agregar nota</label>
+                                    <textarea id="taskQuickNote" name="note" maxlength="2000" placeholder="Escribe una nota interna... (se agrega a las notas, no borra las anteriores)">{{ old('note') }}</textarea>
+                                    <small class="erp-cell-sub">La descripción se cambia con el botón «Editar».</small>
                                 </div>
                                 <button type="submit" class="erp-btn erp-btn--primary">Guardar cambios</button>
                             </form>
