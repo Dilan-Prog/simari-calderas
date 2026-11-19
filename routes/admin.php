@@ -307,6 +307,17 @@ Route::controller(CategoryController::class)
         Route::put('/categorias/{id}/filtros', [\App\Http\Controllers\Backend\CategoryFilterController::class, 'update'])->name('categories.filters.update')->whereNumber('id')->middleware('permission:categories,edit');
     });
 
+// Editor en vivo de Categorías (los 3 niveles): bloques de /catalogo/{slug}.
+Route::controller(\App\Http\Controllers\Backend\CategoryLiveEditorController::class)
+    ->middleware(['permission:categories', 'permission:categories,edit'])
+    ->group(function () {
+        Route::get('/categorias/editor-en-vivo/productos/buscar', 'productsSearch')->name('categories.live-editor.products-search');
+        Route::get('/categorias/{category}/editor-en-vivo', 'show')->name('categories.live-editor')->whereNumber('category');
+        Route::post('/categorias/{category}/editor-en-vivo/preview', 'preview')->name('categories.live-editor.preview')->whereNumber('category');
+        Route::put('/categorias/{category}/editor-en-vivo', 'save')->name('categories.live-editor.save')->whereNumber('category');
+        Route::put('/categorias/{category}/editor-en-vivo/general', 'general')->name('categories.live-editor.general')->whereNumber('category');
+    });
+
 // ============================================================
 // Marcas
 // ============================================================

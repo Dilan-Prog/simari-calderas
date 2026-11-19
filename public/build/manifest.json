@@ -7,12 +7,9 @@
     "file": "assets/alpine-init-CvA_QR7z.js",
     "name": "alpine-init"
   },
-  "_charts-BFPyHK5v.js": {
-    "file": "assets/charts-BFPyHK5v.js",
-    "name": "charts",
-    "imports": [
-      "resources/js/admin/charts.js"
-    ]
+  "_auto-CFNrZGOd.js": {
+    "file": "assets/auto-CFNrZGOd.js",
+    "name": "auto"
   },
   "_client-wKI0Igq7.js": {
     "file": "assets/client-wKI0Igq7.js",
@@ -281,7 +278,7 @@
     "isEntry": true
   },
   "resources/css/frontend/shop/catalog.css": {
-    "file": "assets/catalog-nqUCfQIM.css",
+    "file": "assets/catalog-UzmPVbLc.css",
     "src": "resources/css/frontend/shop/catalog.css",
     "isEntry": true
   },
@@ -291,12 +288,12 @@
     "isEntry": true
   },
   "resources/css/frontend/shop/collection.css": {
-    "file": "assets/collection-D1CbHT_T.css",
+    "file": "assets/collection-FAQCjyG3.css",
     "src": "resources/css/frontend/shop/collection.css",
     "isEntry": true
   },
   "resources/css/frontend/shop/home.css": {
-    "file": "assets/home-DP7_mE7P.css",
+    "file": "assets/home-CdlPHASY.css",
     "src": "resources/css/frontend/shop/home.css",
     "isEntry": true
   },
@@ -311,12 +308,12 @@
     "isEntry": true
   },
   "resources/css/frontend/shop/product-detail.css": {
-    "file": "assets/product-detail-CY7BNdsH.css",
+    "file": "assets/product-detail-BpZjdwyX.css",
     "src": "resources/css/frontend/shop/product-detail.css",
     "isEntry": true
   },
   "resources/css/frontend/shop/service-page.css": {
-    "file": "assets/service-page-ggcDK8XB.css",
+    "file": "assets/service-page-CyszSeE3.css",
     "src": "resources/css/frontend/shop/service-page.css",
     "isEntry": true
   },
@@ -343,10 +340,13 @@
     "isEntry": true
   },
   "resources/js/admin/charts.js": {
-    "file": "assets/charts-CFNrZGOd.js",
+    "file": "assets/charts-DVxTwEdS.js",
     "name": "charts",
     "src": "resources/js/admin/charts.js",
-    "isEntry": true
+    "isEntry": true,
+    "imports": [
+      "_auto-CFNrZGOd.js"
+    ]
   },
   "resources/js/admin/dashboard-editor.js": {
     "file": "assets/dashboard-editor-D3t_FZVu.js",
@@ -358,14 +358,14 @@
     ]
   },
   "resources/js/admin/dashboard-grid.js": {
-    "file": "assets/dashboard-grid-TmVHkEPs.js",
+    "file": "assets/dashboard-grid-CBBVp1p7.js",
     "name": "dashboard-grid",
     "src": "resources/js/admin/dashboard-grid.js",
     "isEntry": true,
     "imports": [
       "_sortable.esm-D-EvzYhP.js",
-      "_charts-BFPyHK5v.js",
-      "resources/js/admin/charts.js"
+      "resources/js/admin/charts.js",
+      "_auto-CFNrZGOd.js"
     ]
   },
   "resources/js/admin/deals-board.js": {
@@ -526,13 +526,13 @@
     "isEntry": true
   },
   "resources/js/admin/report-builder.js": {
-    "file": "assets/report-builder-BimP46x8.js",
+    "file": "assets/report-builder-CWjr4ihz.js",
     "name": "report-builder",
     "src": "resources/js/admin/report-builder.js",
     "isEntry": true,
     "imports": [
-      "_charts-BFPyHK5v.js",
-      "resources/js/admin/charts.js"
+      "resources/js/admin/charts.js",
+      "_auto-CFNrZGOd.js"
     ]
   },
   "resources/js/admin/roles.js": {
@@ -548,7 +548,7 @@
     "isEntry": true
   },
   "resources/js/admin/service-page-live-editor.js": {
-    "file": "assets/service-page-live-editor-wXraztLz.js",
+    "file": "assets/service-page-live-editor-NhgMrn6U.js",
     "name": "service-page-live-editor",
     "src": "resources/js/admin/service-page-live-editor.js",
     "isEntry": true,
@@ -584,12 +584,12 @@
     "isEntry": true
   },
   "resources/js/admin/statistics-panel.js": {
-    "file": "assets/statistics-panel-DFIS9sNQ.js",
+    "file": "assets/statistics-panel-DTKYPv8e.js",
     "name": "statistics-panel",
     "src": "resources/js/admin/statistics-panel.js",
     "isEntry": true,
     "imports": [
-      "resources/js/admin/charts.js"
+      "_auto-CFNrZGOd.js"
     ]
   },
   "resources/js/admin/task-date-picker.js": {

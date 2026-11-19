@@ -21,7 +21,17 @@ class CategoryController extends Controller
     private function resolveSlug(Request $request, ?int $ignoreId = null): string
     {
         $parent = $request->filled('parent_id') ? Category::find($request->parent_id) : null;
-        $slug = CategorySlugs::build($parent, (string) $request->slug);
+
+        return self::uniqueSlug($parent, (string) $request->slug, $ignoreId);
+    }
+
+    /**
+     * Misma regla que resolveSlug() a partir del padre ya resuelto; pública
+     * para el editor en vivo (CategoryLiveEditorController::general).
+     */
+    public static function uniqueSlug(?Category $parent, string $raw, ?int $ignoreId = null): string
+    {
+        $slug = CategorySlugs::build($parent, $raw);
 
         if ($slug === '') {
             throw ValidationException::withMessages(['slug' => 'El slug no puede quedar vacío.']);
@@ -36,12 +46,19 @@ class CategoryController extends Controller
 
         return $slug;
     }
+
     /**
      * Preguntas frecuentes personalizadas por categoría. Mismo patrón de
      * FAQs que products.faqs/collections.faqs (trim, descartar pares
      * incompletos, null si queda vacío).
      */
     private function fillFaqs(Category $category, Request $request): void
+    {
+        self::applyFaqs($category, $request);
+    }
+
+    /** Pública para el editor en vivo (CategoryLiveEditorController::general). */
+    public static function applyFaqs(Category $category, Request $request): void
     {
         $faqs = collect((array) $request->input('faq_items', []))
             ->map(fn ($item) => [

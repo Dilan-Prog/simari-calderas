@@ -1,6 +1,6 @@
 @props(['title' => null, 'products' => [], 'banner' => null, 'viewAllUrl' => null, 'headingUrl' => null, 'headingNewTab' => false])
 
-<section class="product-carousel {{ $banner ? 'product-carousel--with-banner' : '' }}" x-data="carouselTrack()">
+<section class="product-carousel {{ $banner ? 'product-carousel--with-banner' : '' }}" x-data="carouselTrack()" {{ $attributes->except('class') }}>
     @if ($title || $viewAllUrl)
         <div class="product-carousel__header">
             @if ($title)

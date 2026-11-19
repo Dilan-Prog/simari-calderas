@@ -1,6 +1,6 @@
 @php
     $config = $section->config ?? [];
-    $ctx = $product ?? $collection ?? $servicePage ?? null;
+    $ctx = $product ?? $collection ?? $servicePage ?? $contextCategory ?? null;
 
     // Destino: `link` (LinkTarget) tiene prioridad; si no existe se usa el
     // campo legado link_url. Un destino roto deja el banner sin enlace.
@@ -23,7 +23,7 @@
     $headingNewTab = !empty($section->heading_link['new_tab']);
 @endphp
 @if (!empty($config['image_url']))
-<section class="home-banner{{ $headingTitle ? ' home-banner--with-heading' : '' }}">
+<section class="home-banner{{ $headingTitle ? ' home-banner--with-heading' : '' }}" data-section-id="{{ $section->id ?? '' }}">
     @if ($headingTitle)
         <h2 class="home-block-heading">
             @if ($headingUrl)
