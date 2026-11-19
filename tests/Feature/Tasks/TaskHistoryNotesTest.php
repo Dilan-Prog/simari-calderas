@@ -167,6 +167,25 @@ class TaskHistoryNotesTest extends TestCase
         $this->assertSame($this->admin->id, (int) $note->user_id);
     }
 
+    public function test_nota_rapida_desde_general_se_agrega_sin_reemplazar(): void
+    {
+        $task = Task::create(['title' => 'Varias notas', 'status' => 'open', 'description' => 'Desc original']);
+
+        $this->actingAs($this->admin)->post(route('admin.tasks.notes.store', $task), ['body' => 'Primera nota']);
+        $this->actingAs($this->admin)->put(route('admin.tasks.update', $task), ['status' => 'open', 'note' => 'Segunda nota'])
+            ->assertRedirect(route('admin.tasks.show', $task) . '#notas');
+        $this->actingAs($this->admin)->put(route('admin.tasks.update', $task), ['status' => 'open', 'note' => 'Tercera nota']);
+
+        $this->assertSame(['Primera nota', 'Segunda nota', 'Tercera nota'], TaskNote::where('task_id', $task->id)->orderBy('id')->pluck('body')->all());
+        $this->assertSame('Desc original', $task->fresh()->description);
+
+        // Si se edita la descripción, el texto anterior queda en el historial.
+        $this->actingAs($this->admin)->put(route('admin.tasks.update', $task), ['description' => 'Nueva desc']);
+        $this->assertTrue(TaskEvent::where('task_id', $task->id)->where('title', 'like', '%Desc original%')->exists());
+
+        $this->actingAs($this->admin)->get(route('admin.tasks.show', $task))->assertOk()->assertSee('name="note"', false);
+    }
+
     public function test_nota_vacia_o_demasiado_larga_falla(): void
     {
         $task = Task::create(['title' => 'Con nota', 'status' => 'open']);
