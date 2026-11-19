@@ -23,7 +23,7 @@ class CollectionController extends Controller
         'banner', 'dual_banner', 'product_carousel', 'product_carousel_banner',
         'category_grid', 'brand_carousel', 'brand_logos', 'html_block', 'faq',
         'content_tabs', 'benefits_grid', 'process_steps', 'gallery_carousel',
-        'cta_final', 'button', 'table_block', 'pool_calculator',
+        'cta_final', 'button', 'table_block', 'pool_calculator', 'text_block',
     ];
 
     /**

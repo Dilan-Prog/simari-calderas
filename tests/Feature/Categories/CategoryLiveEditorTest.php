@@ -188,6 +188,36 @@ class CategoryLiveEditorTest extends TestCase
         $this->assertStringNotContainsString('Bomba ajena', $block);
     }
 
+    public function test_bloque_titulo_y_parrafo_separa_parrafos_y_escapa_html(): void
+    {
+        $c = $this->makeCategory('Calderas', 'calderas');
+        $admin = $this->adminUser();
+
+        $html = $this->actingAs($admin)
+            ->postJson(route('admin.categories.live-editor.preview', $c->id), [
+                'sections' => [[
+                    'type'   => 'text_block',
+                    'config' => [
+                        'heading'       => 'Todo sobre {categoria}',
+                        'heading_style' => ['heading_tag' => 'h3', 'text_align' => 'center'],
+                        'body'          => "Primer párrafo\ncon salto.\n\nSegundo <script>x</script> párrafo.",
+                    ],
+                ]],
+            ])->assertOk()->json('html');
+
+        $this->assertStringContainsString('text-block-section', $html);
+        $this->assertMatchesRegularExpression('/<h3 class="text-block-section__title"[^>]*text-align:center[^>]*>Todo sobre Calderas<\/h3>/', $html);
+        $this->assertStringContainsString('Primer párrafo<br>con salto.', $html);
+        $this->assertSame(2, substr_count($html, 'class="text-block-section__text"'));
+        $this->assertStringNotContainsString('<script>x</script>', $html);
+
+        // Permitido al guardar en los tres editores.
+        $this->actingAs($admin)
+            ->putJson(route('admin.categories.live-editor.save', $c->id), ['sections' => [['type' => 'text_block', 'config' => ['heading' => 'A']]]])
+            ->assertOk();
+        $this->assertContains('text_block', \App\Http\Controllers\Backend\CollectionController::SECTION_TYPES);
+    }
+
     public function test_preview_sin_secciones_y_con_use_inherited(): void
     {
         $parent = $this->makeCategory('Calderas', 'calderas');

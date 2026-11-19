@@ -32,7 +32,7 @@ class CategoryLiveEditorController extends Controller
         'product_grid', 'product_carousel', 'product_carousel_banner', 'banner', 'dual_banner',
         'category_grid', 'brand_carousel', 'brand_logos', 'html_block',
         'benefits_grid', 'cta_final', 'button', 'gallery_carousel',
-        'content_tabs', 'process_steps', 'table_block',
+        'content_tabs', 'process_steps', 'table_block', 'text_block',
     ];
 
     private const LEVEL_LABELS = [
