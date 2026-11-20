@@ -783,6 +783,13 @@ import { renderCategoryGeneralPanel } from './live-editor-category-panels.js';
         });
     }
 
+    // Aviso del navegador al salir / recargar con cambios sin guardar.
+    window.addEventListener('beforeunload', (e) => {
+        if (!isDirty) return;
+        e.preventDefault();
+        e.returnValue = '';
+    });
+
     function markDirty() {
         if (isDirty) return;
         isDirty = true;
@@ -1361,7 +1368,24 @@ import { renderCategoryGeneralPanel } from './live-editor-category-panels.js';
 
         const pageType = val('leGenPageType', generalData.page_type);
         const distNodes = editPanel.querySelectorAll('.le-gen-rating-dist');
-        const payload = {
+        // Colecciones: el bloque "Preguntas frecuentes" guarda por el endpoint
+        // de información general de la colección, que REEMPLAZA descripción,
+        // imagen, SEO… con lo que reciba. Se manda todo lo actual (generalData)
+        // para que guardar las FAQ no borre nada más.
+        const payload = IS_COLLECTION ? {
+            name: generalData.name,
+            slug: generalData.slug,
+            description: generalData.description ?? '',
+            image_url: generalData.image_url ?? '',
+            image_alt: generalData.image_alt ?? '',
+            sort_order: generalData.sort_order ?? 0,
+            is_active: generalData.is_active !== false,
+            seo_title: generalData.seo_title ?? '',
+            seo_description: generalData.seo_description ?? '',
+            og_image_url: generalData.og_image_url ?? '',
+            og_image_alt: generalData.og_image_alt ?? '',
+            faq_items: generalData.faqs || [],
+        } : {
             name: val('leGenName', generalData.name),
             slug: val('leGenSlug', generalData.slug),
             page_type: pageType,
@@ -1413,7 +1437,8 @@ import { renderCategoryGeneralPanel } from './live-editor-category-panels.js';
             const data = await res.json();
 
             if (res.ok) {
-                Object.assign(generalData, data.servicePage);
+                const saved = data.servicePage || data.collection || null;
+                if (saved) Object.assign(generalData, saved);
                 if (pageHeading) pageHeading.textContent = generalData.name;
                 document.title = 'Editor en vivo - ' + generalData.name + ' - Admin';
 
@@ -1425,8 +1450,9 @@ import { renderCategoryGeneralPanel } from './live-editor-category-panels.js';
                     viewLiveLink.href = origin + generalData.public_path;
                 }
 
-                if (window.showCenterToast) showCenterToast('Información general guardada.');
+                if (window.showCenterToast) showCenterToast(opts.btnId === 'leFaqSaveBtn' ? 'Preguntas frecuentes guardadas.' : 'Información general guardada.');
                 schedulePreview();
+                return true;
             } else if (res.status === 422) {
                 const errors = data.errors || {};
                 errorsBox.innerHTML = Object.values(errors).flat().map((m) => `<p>${m}</p>`).join('');
@@ -1454,6 +1480,7 @@ import { renderCategoryGeneralPanel } from './live-editor-category-panels.js';
             btn.disabled = false;
             btn.textContent = originalText;
         }
+        return false;
     }
 
     // ── Panel "Galería" — puerto de partials/_gallery.blade.php +
@@ -3440,7 +3467,19 @@ import { renderCategoryGeneralPanel } from './live-editor-category-panels.js';
         // "Descripción corta" y luego pulsar el botón grande (lo más
         // intuitivo) no guardaba nada ahí, pareciendo que el campo "no deja
         // actualizarse".
-        if (IS_COLLECTION || IS_CATEGORY) {
+        // Preguntas frecuentes (bloque FAQ): viven en la información general,
+        // no en el bloque. Antes, en Colecciones, el botón grande no las
+        // guardaba y la recarga posterior las borraba de la pantalla.
+        if (editPanel.querySelector('#leFaqSaveBtn')) {
+            const ok = await saveGeneralInfo({ btnId: 'leFaqSaveBtn', errorsBoxId: 'leFaqErrors' });
+            if (!ok) {
+                saveBtn.disabled = false;
+                saveBtn.textContent = originalText;
+                dirtyIndicator.textContent = '● Cambios sin guardar';
+                dirtyIndicator.className = 'live-editor-status is-dirty';
+                return;
+            }
+        } else if (IS_COLLECTION || IS_CATEGORY) {
             // Los paneles de Colecciones/Categorías guardan con su propio botón;
             // si hay uno abierto se dispara antes, para no perder lo capturado ahí.
             const colBtn = editPanel.querySelector('#leColSaveBtn') || editPanel.querySelector('#leColSettingsSave') || editPanel.querySelector('#leCatSaveBtn');
@@ -3455,8 +3494,6 @@ import { renderCategoryGeneralPanel } from './live-editor-category-panels.js';
             }
         } else if (editPanel.querySelector('#leGenSaveBtn')) {
             await saveGeneralInfo();
-        } else if (editPanel.querySelector('#leFaqSaveBtn')) {
-            await saveGeneralInfo({ btnId: 'leFaqSaveBtn', errorsBoxId: 'leFaqErrors' });
         }
 
         try {
@@ -3474,6 +3511,7 @@ import { renderCategoryGeneralPanel } from './live-editor-category-panels.js';
             // Recarga para traer los id reales de secciones nuevas y dejar el
             // borrador en memoria sincronizado 1:1 con lo persistido — opción
             // simple explícitamente permitida para esta pantalla BETA.
+            isDirty = false; // ya guardado: la recarga no debe mostrar el aviso
             window.location.reload();
         } catch (err) {
             console.error('Error guardando la página:', err);
