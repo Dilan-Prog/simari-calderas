@@ -2572,25 +2572,11 @@ import { renderCategoryGeneralPanel } from './live-editor-category-panels.js';
                 mountProductPicker(wrap.querySelector('#lePgManual'), cfg.product_ids, (ids) => { cfg.product_ids = ids; changed(); });
             } else if (cfg.source === 'tag') {
                 wrap.innerHTML = field('Etiqueta', `
-                    <input type="text" class="users-manager-input" id="lePgTag" list="lePgTagList" value="${escHtml(cfg.tag)}" placeholder="Ej: inverter" autocomplete="off" data-no-link="1">
-                    <datalist id="lePgTagList"></datalist>`);
+                    <input type="text" class="users-manager-input${DATA.tagsSuggestUrl ? ' rvp-input' : ''}" id="lePgTag" value="${escHtml(cfg.tag)}" placeholder="Escribe para buscar una etiqueta..." autocomplete="off" data-no-link="1"
+                        data-rvp-mode="ajax" data-rvp-endpoint="${escHtml(DATA.tagsSuggestUrl || '')}" data-rvp-delay="3000">`);
+                // Las sugerencias las muestra rule-value-picker.js (global) al dejar de escribir 3 s.
                 const tagInput = wrap.querySelector('#lePgTag');
-                const dl = wrap.querySelector('#lePgTagList');
-                let t = null;
-                tagInput.addEventListener('input', () => {
-                    cfg.tag = tagInput.value.trim();
-                    changed();
-                    if (!DATA.tagsSuggestUrl) return;
-                    clearTimeout(t);
-                    t = setTimeout(async () => {
-                        try {
-                            const res = await fetch(`${DATA.tagsSuggestUrl}?q=${encodeURIComponent(tagInput.value)}`, { headers: { 'X-Requested-With': 'XMLHttpRequest', Accept: 'application/json' } });
-                            if (!res.ok) return;
-                            const tags = await res.json();
-                            dl.innerHTML = (Array.isArray(tags) ? tags : []).map((tag) => `<option value="${escHtml(typeof tag === 'string' ? tag : (tag.label || tag.name || ''))}"></option>`).join('');
-                        } catch (err) { /* sin sugerencias */ }
-                    }, 200);
-                });
+                tagInput.addEventListener('input', () => { cfg.tag = tagInput.value.trim(); changed(); });
             } else {
                 const notes = {
                     featured: 'Muestra los productos marcados como destacados.',

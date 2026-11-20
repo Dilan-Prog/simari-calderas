@@ -515,8 +515,10 @@ function renderAutomatic(ctx, wrap) {
             case 'price':
                 return `<input type="number" class="users-manager-input le-rule-value" step="0.01" placeholder="0.00" value="${escHtml(rule.value)}">`;
             default:
-                return `<input type="text" class="users-manager-input le-rule-value" placeholder="valor de la etiqueta" autocomplete="off" list="leColTagList${i}" value="${escHtml(rule.value)}">
-                        <datalist id="leColTagList${i}"></datalist>`;
+                // Search-select de etiquetas: rule-value-picker.js (global) busca en
+                // el servidor cuando el usuario deja de escribir (data-rvp-delay).
+                return `<input type="text" class="users-manager-input le-rule-value${DATA.tagsSuggestUrl ? ' rvp-input' : ''}" placeholder="Escribe para buscar una etiqueta..." autocomplete="off" data-no-link="1"
+                        data-rvp-mode="ajax" data-rvp-endpoint="${escHtml(DATA.tagsSuggestUrl || '')}" data-rvp-delay="3000" value="${escHtml(rule.value)}">`;
         }
     };
 
@@ -568,22 +570,6 @@ function renderAutomatic(ctx, wrap) {
                 if (cur && cur.value) filter.value = cur.textContent;
             }
 
-            // Sugerencias de etiquetas (ajax) vía <datalist>.
-            const dl = row.querySelector('datalist');
-            if (dl && DATA.tagsSuggestUrl) {
-                let t = null;
-                valueEl.addEventListener('input', () => {
-                    clearTimeout(t);
-                    t = setTimeout(async () => {
-                        try {
-                            const res = await fetch(`${DATA.tagsSuggestUrl}?q=${encodeURIComponent(valueEl.value)}`, { headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' } });
-                            if (!res.ok) return;
-                            const tags = await res.json();
-                            dl.innerHTML = (Array.isArray(tags) ? tags : []).map((tag) => `<option value="${escHtml(typeof tag === 'string' ? tag : tag.label || '')}"></option>`).join('');
-                        } catch (e) { /* ignorar */ }
-                    }, 200);
-                });
-            }
             rowsEl.appendChild(row);
         });
         if (!st.rules.length) rowsEl.innerHTML = '<p class="hs-config-note">Sin condiciones. Agrega al menos una para que la colección tenga productos.</p>';
