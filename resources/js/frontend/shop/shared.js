@@ -67,7 +67,8 @@ Alpine.data('searchOverlay', () => ({
             this.open = false;
             return;
         }
-        this.debounceTimer = setTimeout(() => this.fetchResults(), 350);
+        // Busca cuando el cliente deja de escribir 3 s (Enter busca de inmediato).
+        this.debounceTimer = setTimeout(() => this.fetchResults(), 3000);
     },
 
     onFocus() {
@@ -76,6 +77,7 @@ Alpine.data('searchOverlay', () => ({
 
     submit() {
         if (this.query.trim().length < 2) return;
+        clearTimeout(this.debounceTimer);
         this.fetchResults();
     },
 

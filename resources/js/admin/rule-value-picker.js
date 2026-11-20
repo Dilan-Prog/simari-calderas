@@ -23,7 +23,22 @@
     let debounceTimer = null;
     let requestId = 0;
 
+    // Estilos mínimos del menú inyectados una vez: el picker se usa también en
+    // pantallas que no cargan collections.css (editores en vivo).
+    function ensureStyles() {
+        if (document.getElementById('rvpFloatMenuStyles')) return;
+        const st = document.createElement('style');
+        st.id = 'rvpFloatMenuStyles';
+        st.textContent = '.rvp-float-menu{display:none;position:fixed;z-index:100000;margin:0;padding:4px;list-style:none;background:#fff;border:1px solid #d1d5db;border-radius:8px;box-shadow:0 8px 20px rgba(0,0,0,.1);max-height:220px;overflow-y:auto}'
+            + '.rvp-float-menu.is-open{display:block}'
+            + '.rvp-float-menu-item{padding:8px 10px;font-size:13.5px;color:#374151;border-radius:6px;cursor:pointer}'
+            + '.rvp-float-menu-item:hover,.rvp-float-menu-item.is-active{background:#eef2ff;color:#3730a3}'
+            + '.rvp-float-menu-status:hover{background:transparent;color:#6b7280}';
+        document.head.appendChild(st);
+    }
+
     function ensureDropdown() {
+        ensureStyles();
         if (!dropdown) {
             dropdown = document.createElement('ul');
             dropdown.className = 'rvp-float-menu';
@@ -79,6 +94,16 @@
         });
     }
 
+    // Fila informativa (no seleccionable) en el menú: "Buscando…", "Sin resultados".
+    function renderStatus(input, text) {
+        const menu = ensureDropdown();
+        currentItems = [];
+        activeIndex = -1;
+        menu.innerHTML = `<li class="rvp-float-menu-item rvp-float-menu-status" style="color:#6b7280;cursor:default;font-style:italic;">${escapeHtml(text)}</li>`;
+        positionDropdown(input);
+        menu.classList.add('is-open');
+    }
+
     function selectItem(input, item) {
         if (typeof item === 'string') {
             // Modo ajax (Etiqueta): el input visible ES el que se envía.
@@ -106,7 +131,12 @@
                 headers: { 'X-Requested-With': 'XMLHttpRequest' },
             });
             if (!res.ok || myRequestId !== requestId || activeInput !== input) return;
-            renderItems(input, await res.json());
+            const items = await res.json();
+            if (Array.isArray(items) && !items.length && term !== '') {
+                renderStatus(input, 'Sin etiquetas que coincidan con «' + term + '»');
+                return;
+            }
+            renderItems(input, items);
         } catch (err) {
             console.error('Error fetching rule value suggestions:', err);
         }
@@ -152,9 +182,14 @@
             return;
         }
 
+        // Busca cuando el usuario deja de escribir (data-rvp-delay, 3 s por
+        // defecto). Mientras tanto se avisa que la búsqueda está pendiente.
         clearTimeout(debounceTimer);
-        const term = e.target.value.trim();
-        debounceTimer = setTimeout(() => fetchAjaxSuggestions(e.target, term), 250);
+        const input = e.target;
+        const term = input.value.trim();
+        const delay = parseInt(input.dataset.rvpDelay || '3000', 10);
+        renderStatus(input, term === '' ? 'Escribe para buscar…' : 'Buscando «' + term + '»…');
+        debounceTimer = setTimeout(() => fetchAjaxSuggestions(input, term), delay);
     });
 
     document.addEventListener('keydown', function (e) {

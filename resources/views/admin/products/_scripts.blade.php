@@ -36,6 +36,8 @@
                 form: filterForm,
                 clearBtn: document.getElementById('prodSearchClear'),
                 storageKey: 'prodSearchFocus',
+                // Busca cuando dejas de escribir 3 s (Enter busca de inmediato).
+                delay: 3000,
             });
 
             const gridSelectAllBar = document.getElementById('prodGridSelectAllBar');
