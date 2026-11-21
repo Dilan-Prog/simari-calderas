@@ -262,7 +262,12 @@
                 if (response.ok) {
                     closeCollectionWithAnim();
                     queueCenterToast(isEditMode ? 'Colección actualizada correctamente.' : 'Colección creada correctamente.');
-                    setTimeout(() => window.location.reload(), 200);
+                    // Al crear o editar se abre directo el editor en vivo de la colección.
+                    const savedId = data.collection && data.collection.id;
+                    const liveEditorUrl = savedId
+                        ? @json(route('admin.collections.live-editor', '__ID__')).replace('__ID__', savedId)
+                        : null;
+                    setTimeout(() => { if (liveEditorUrl) window.location.href = liveEditorUrl; else window.location.reload(); }, 200);
                 } else if (response.status === 422) {
                     const errors = data.errors || {};
                     const errorList = Object.values(errors).flat();
