@@ -306,3 +306,16 @@ html.catalog-drawer-open { overflow: hidden; }
     .catalog-js .eq-shop-catalog .catalog-sidebar,
     .eq-shop-catalog .catalog-results [data-catalog-region] { transition: none; }
 }
+
+/* Bloques estilo "Servicios" del editor en vivo (tabla, beneficios, pasos, pestañas,
+   botón, CTA final, logotipos, galería…) en la página de categoría: mismo margen
+   lateral (95%) que el título, el catálogo y el resto de bloques (igual que en
+   colecciones, ver collection.css). Sin esto quedaban pegados a los bordes. */
+.eq-shop-catalog > [class^="svc-"],
+.eq-shop-catalog > [class*=" svc-"] {
+    width: 95%;
+    margin-left: auto;
+    margin-right: auto;
+    box-sizing: border-box;
+}
+.eq-shop-catalog > .svc-table-block { margin-top: 32px; margin-bottom: 32px; }
