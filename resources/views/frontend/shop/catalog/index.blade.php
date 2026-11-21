@@ -34,7 +34,9 @@
     // vienen con meta['noindex'] y se marcan noindex,follow más abajo.
     $catalogUrl = $category ? route('catalog.category', $category->slug) : route('catalog.index');
     $canonicalUrl = $result->meta['canonicalUrl'] ?? $catalogUrl;
-    $catalogTitle = ($category->name ?? 'Catálogo') . ' — Equiterm Industries';
+    // Título SEO de la categoría (editor en vivo / modal) o, si está vacío,
+    // "Nombre — Equiterm Industries" (mismo criterio que colecciones).
+    $catalogTitle = trim((string) ($category?->seo_title ?? '')) ?: (($category->name ?? 'Catálogo') . ' — Equiterm Industries');
     $catalogDescription = $category?->seo_description
         ?: \Illuminate\Support\Str::limit(strip_tags($category?->description ?? ''), 160)
         ?: ('Explora el catálogo de ' . ($category->name ?? 'productos') . ' de Equiterm Industries.');

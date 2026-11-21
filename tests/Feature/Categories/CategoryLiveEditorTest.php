@@ -288,6 +288,21 @@ class CategoryLiveEditorTest extends TestCase
             ->assertDontSee('BOTTOM-MARK', false);
     }
 
+    public function test_titulo_y_descripcion_seo_se_aplican_en_la_pagina_publica(): void
+    {
+        $c = $this->makeCategory('Calderas', 'calderas');
+
+        // Sin SEO: nombre — Equiterm Industries.
+        $this->get('/catalogo/calderas')->assertOk()->assertSee('<title>Calderas — Equiterm Industries</title>', false);
+
+        $c->update(['seo_title' => 'Calderas industriales en México', 'seo_description' => 'Venta de calderas con envío nacional.']);
+
+        $this->get('/catalogo/calderas')->assertOk()
+            ->assertSee('<title>Calderas industriales en México</title>', false)
+            ->assertSee('<meta name="description" content="Venta de calderas con envío nacional."', false)
+            ->assertSee('content="Calderas industriales en México"', false);
+    }
+
     public function test_paginas_publicas_de_los_tres_niveles_cargan(): void
     {
         $main = $this->makeCategory('Calderas', 'calderas');
