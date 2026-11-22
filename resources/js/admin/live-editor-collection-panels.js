@@ -45,7 +45,7 @@ const IMG_ICON = '<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15"
 export function collectionPanelsDefaults() {
     return {
         generalData: {
-            name: '', slug: '', description: '', image_url: '', image_alt: '', sort_order: 0, is_active: true,
+            name: '', slug: '', description: '', image_url: '', image_alt: '', sort_order: 0, is_active: true, show_products: true,
             seo_title: '', seo_description: '', og_image_url: '', og_image_alt: '', faqs: [], public_path: '',
         },
         collectionState: {
@@ -115,6 +115,12 @@ export function renderCollectionGeneralPanel(ctx) {
             <label style="display:flex;align-items:center;gap:8px;font-weight:400;font-size:13px;color:#374151;">
                 <input type="checkbox" id="leColActive" ${generalData.is_active ? 'checked' : ''}> Activa (visible en el sitio público)
             </label>`)}
+        ${field('Contenido de la página', `
+            <select class="users-manager-select" id="leColShowProducts">
+                <option value="1" ${generalData.show_products !== false ? 'selected' : ''}>Con productos</option>
+                <option value="0" ${generalData.show_products === false ? 'selected' : ''}>Solo texto (sin productos)</option>
+            </select>
+            <small style="display:block;margin-top:4px;color:#6B7280;font-size:12px;">"Solo texto" oculta el contador y la cuadrícula de productos en la página pública.</small>`)}
         <div class="show-user-divider" style="margin:10px 0;"></div>
         ${field('Título SEO (máx. 160)', `
             <input type="text" class="users-manager-input" id="leColSeoTitle" value="${escHtml(generalData.seo_title)}" maxlength="160">
@@ -205,6 +211,7 @@ async function saveCollectionGeneral(ctx) {
         image_alt: $('leColImageAlt').value,
         sort_order: $('leColSort').value,
         is_active: $('leColActive').checked,
+        show_products: $('leColShowProducts').value === '1',
         seo_title: $('leColSeoTitle').value,
         seo_description: $('leColSeoDesc').value,
         og_image_url: $('leColOg').value,

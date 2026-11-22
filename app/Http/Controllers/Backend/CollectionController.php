@@ -469,6 +469,7 @@ class CollectionController extends Controller
                 'image_alt'       => $collection->image_alt,
                 'sort_order'      => $collection->sort_order,
                 'is_active'       => $collection->is_active,
+                'show_products'   => $collection->showsProducts(),
                 'seo_title'       => $collection->seo_title,
                 'seo_description' => $collection->seo_description,
                 'og_image_url'    => $collection->og_image_url,
