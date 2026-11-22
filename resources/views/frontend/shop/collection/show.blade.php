@@ -79,6 +79,16 @@
         ->values();
     $faqSectionActive = $sections->contains(fn ($s) => $s->type === 'faq');
 
+    // "Solo texto": colección de contenido, sin contador ni cuadrícula de productos.
+    $showProducts = $collection->showsProducts();
+    $collectionPageSchema = [
+        '@context'    => 'https://schema.org',
+        '@type'       => 'CollectionPage',
+        'name'        => $collection->name,
+        'url'         => $canonicalUrl,
+        'description' => $metaDescription,
+    ];
+
     $itemList = $products->values()->map(fn ($p, $i) => [
         '@type'    => 'ListItem',
         'position' => $i + 1 + (($products->currentPage() - 1) * $products->perPage()),
@@ -92,18 +102,13 @@
         {!! json_encode($breadcrumbSchema, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_PRETTY_PRINT) !!}
     </script>
     <script type="application/ld+json">
-        {!! json_encode([
-            '@context' => 'https://schema.org',
-            '@type' => 'CollectionPage',
-            'name' => $collection->name,
-            'url' => $canonicalUrl,
-            'description' => $metaDescription,
+        {!! json_encode($showProducts ? $collectionPageSchema + [
             'mainEntity' => [
                 '@type' => 'ItemList',
                 'numberOfItems' => $products->total(),
                 'itemListElement' => $itemList,
             ],
-        ], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_PRETTY_PRINT) !!}
+        ] : $collectionPageSchema, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_PRETTY_PRINT) !!}
     </script>
     @if ($faqSectionActive && $schemaFaqs->isNotEmpty())
         <script type="application/ld+json">
@@ -136,7 +141,9 @@
             @if ($collection->description)
                 <p>{{ $collection->description }}</p>
             @endif
-            <span class="collection-hero__count">{{ $products->total() }} producto{{ $products->total() === 1 ? '' : 's' }}</span>
+            @if ($showProducts)
+                <span class="collection-hero__count">{{ $products->total() }} producto{{ $products->total() === 1 ? '' : 's' }}</span>
+            @endif
         </div>
         @if ($collection->image_url)
             <div class="collection-hero__image">
@@ -146,6 +153,7 @@
         @endif
     </section>
 
+    @if ($showProducts)
     <section class="collection-grid-wrap">
         @if ($products->isNotEmpty())
             {{-- OJO: la variable del loop se llama $gridProduct a propósito —
@@ -164,6 +172,7 @@
             <p class="collection-empty">Esta colección aún no tiene productos disponibles.</p>
         @endif
     </section>
+    @endif
 
     {{-- Secciones administrables desde Admin > Secciones del Sitio > Colecciones --}}
     @foreach ($sections as $section)

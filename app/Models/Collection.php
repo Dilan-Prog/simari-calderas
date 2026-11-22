@@ -4,6 +4,8 @@ namespace App\Models;
 
 use App\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Schema;
 
 class Collection extends Model
 {
@@ -16,14 +18,37 @@ class Collection extends Model
 
     protected $fillable = [
         'name', 'slug', 'description', 'type', 'match_type',
-        'image_url', 'image_alt', 'sort_order', 'is_active',
+        'image_url', 'image_alt', 'sort_order', 'is_active', 'show_products',
         'seo_title', 'seo_description', 'og_image_url', 'og_image_alt', 'faqs',
     ];
 
     protected $casts = [
-        'is_active' => 'boolean',
-        'faqs'      => 'array',
+        'is_active'     => 'boolean',
+        'show_products' => 'boolean',
+        'faqs'          => 'array',
     ];
+
+    /** @var bool|null memo por petición de supportsShowProducts() */
+    private static ?bool $hasShowProducts = null;
+
+    /**
+     * ¿Ya existe la columna show_products? Hostinger no corre migraciones solo: entre subir el código y
+     * migrar, ni la tienda ni el admin deben romperse. Se cachea 10 min (igual que Brand::supportsSiteVisibility).
+     */
+    public static function supportsShowProducts(): bool
+    {
+        return self::$hasShowProducts ??= (bool) Cache::remember(
+            'collections.has_show_products',
+            600,
+            fn () => Schema::hasColumn('collections', 'show_products')
+        );
+    }
+
+    /** ¿La página pública muestra contador y cuadrícula de productos? (true si la columna aún no existe) */
+    public function showsProducts(): bool
+    {
+        return $this->show_products ?? true;
+    }
 
     public function rules()
     {

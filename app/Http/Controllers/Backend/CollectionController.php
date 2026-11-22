@@ -80,6 +80,7 @@ class CollectionController extends Controller
             'match_type'      => 'required_if:type,automatic|nullable|in:all,any',
             'image_url'       => 'nullable|string|max:255',
             'is_active'       => 'nullable|boolean',
+            'show_products'   => 'nullable|boolean',
             'sort_order'      => 'nullable|integer|min:0',
             'seo_title'       => 'nullable|string|max:160',
             'seo_description' => 'nullable|string|max:500',
@@ -99,6 +100,7 @@ class CollectionController extends Controller
         $collection->image_alt   = trim((string) $request->input('image_alt', '')) ?: null;
         $collection->sort_order  = $request->sort_order ?? 0;
         $collection->is_active   = $request->boolean('is_active', true);
+        $this->fillShowProducts($collection, $request);
         $this->fillSeoAndFaqs($collection, $request);
         $collection->save();
 
@@ -114,6 +116,17 @@ class CollectionController extends Controller
     {
         $collection = Collection::with('rules')->findOrFail($id);
         return response()->json($collection);
+    }
+
+    /**
+     * "Mostrar productos": solo se toca si el formulario lo manda (el editor en vivo no lo
+     * envía y no debe apagarlo), y solo si la columna ya existe (migración pendiente en Hostinger).
+     */
+    protected function fillShowProducts(Collection $collection, Request $request): void
+    {
+        if ($request->has('show_products') && Collection::supportsShowProducts()) {
+            $collection->show_products = $request->boolean('show_products');
+        }
     }
 
     /**
@@ -156,6 +169,7 @@ class CollectionController extends Controller
             'match_type'      => 'required_if:type,automatic|nullable|in:all,any',
             'image_url'       => 'nullable|string|max:255',
             'is_active'       => 'nullable|boolean',
+            'show_products'   => 'nullable|boolean',
             'sort_order'      => 'nullable|integer|min:0',
             'seo_title'       => 'nullable|string|max:160',
             'seo_description' => 'nullable|string|max:500',
@@ -174,6 +188,7 @@ class CollectionController extends Controller
         $collection->image_alt   = trim((string) $request->input('image_alt', '')) ?: null;
         $collection->sort_order  = $request->sort_order ?? 0;
         $collection->is_active   = $request->boolean('is_active', true);
+        $this->fillShowProducts($collection, $request);
         $this->fillSeoAndFaqs($collection, $request);
         $collection->save();
 
@@ -422,6 +437,7 @@ class CollectionController extends Controller
             'description'     => 'nullable|string',
             'image_url'       => 'nullable|string|max:255',
             'is_active'       => 'nullable|boolean',
+            'show_products'   => 'nullable|boolean',
             'sort_order'      => 'nullable|integer|min:0',
             'seo_title'       => 'nullable|string|max:160',
             'seo_description' => 'nullable|string|max:500',
@@ -438,6 +454,7 @@ class CollectionController extends Controller
         $collection->image_alt   = trim((string) $request->input('image_alt', '')) ?: null;
         $collection->sort_order  = $request->sort_order ?? 0;
         $collection->is_active   = $request->boolean('is_active', true);
+        $this->fillShowProducts($collection, $request);
         $this->fillSeoAndFaqs($collection, $request);
         $collection->save();
 
