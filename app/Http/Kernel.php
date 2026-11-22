@@ -64,6 +64,8 @@ class Kernel extends HttpKernel
         'deny.portal.member' => \App\Http\Middleware\DenyPortalMember::class,
         'token.ability' => \App\Http\Middleware\EnsureTokenAbility::class,
         'log.api' => \App\Http\Middleware\LogApiRequest::class,
+        'mobile.user' => \App\Http\Middleware\EnsureMobileUser::class,
+        'mobile.permission' => \App\Http\Middleware\MobilePermission::class,
         'auth.basic' => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,
         'auth.session' => \Illuminate\Session\Middleware\AuthenticateSession::class,
         'cache.headers' => \Illuminate\Http\Middleware\SetCacheHeaders::class,

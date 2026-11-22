@@ -49,6 +49,20 @@ Route::prefix('v1/pool-calculator')->middleware('throttle:60,1')->group(function
 
 /*
 |--------------------------------------------------------------------------
+| API móvil del personal (app Expo) — /api/mobile/v1
+|--------------------------------------------------------------------------
+|
+| Separada del grupo v1 de integraciones de abajo: tokens de App\Models\User
+| (no de ApiClient), su propio rate limit 'mobile' y respuestas siempre JSON.
+| Ver routes/api/mobile.php y docs/api-movil.md.
+|
+*/
+Route::prefix('mobile/v1')->group(function () {
+    require __DIR__ . '/api/mobile.php';
+});
+
+/*
+|--------------------------------------------------------------------------
 | API de integraciones (N8N y otros clientes externos de confianza)
 |--------------------------------------------------------------------------
 |

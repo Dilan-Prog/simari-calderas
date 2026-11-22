@@ -25,7 +25,33 @@ class RouteServiceProvider extends ServiceProvider
     public function boot(): void
     {
         RateLimiter::for('api', function (Request $request) {
+            // La API móvil (/api/mobile/*) tiene su propio limiter 'mobile' (abajo);
+            // se excluye de este para que el tope de 60/min del grupo `api` no la recorte.
+            if ($request->is('api/mobile/*')) {
+                return Limit::none();
+            }
+
             return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
+        });
+
+        // API móvil del personal (routes/api/mobile.php): 120/min por usuario
+        // autenticado, o por IP en las rutas sin token (login, PDF firmado).
+        RateLimiter::for('mobile', function (Request $request) {
+            return Limit::perMinute(120)->by(
+                $request->user() ? 'user:' . $request->user()->getAuthIdentifier() : 'ip:' . $request->ip()
+            );
+        });
+
+        // Login móvil: 5 intentos por minuto por combinación email + IP
+        // (mismo criterio de llave que LoginRequest::throttleKey del login web).
+        RateLimiter::for('mobile-login', function (Request $request) {
+            $key = \Illuminate\Support\Str::transliterate(
+                \Illuminate\Support\Str::lower((string) $request->input('email')) . '|' . $request->ip()
+            );
+
+            return Limit::perMinute(5)->by($key)->response(fn (Request $request, array $headers) => response()->json([
+                'message' => 'Demasiados intentos de inicio de sesión. Intenta de nuevo en un minuto.',
+            ], 429, $headers));
         });
 
         // Clientes de API de confianza (N8N, etc. -- App\Models\ApiClient,

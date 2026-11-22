@@ -27,4 +27,15 @@ class Handler extends ExceptionHandler
             //
         });
     }
+
+    /**
+     * API móvil: toda respuesta de error (401 no autenticado, 403, 404 de
+     * modelo o de ruta inexistente, 422 de validación, 429...) se entrega como
+     * JSON aunque el cliente no mande `Accept: application/json`, y nunca como
+     * redirect al login web.
+     */
+    protected function shouldReturnJson($request, Throwable $e)
+    {
+        return $request->is('api/mobile/*') || parent::shouldReturnJson($request, $e);
+    }
 }
