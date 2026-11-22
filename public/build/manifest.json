@@ -281,7 +281,7 @@
     "isEntry": true
   },
   "resources/css/frontend/shop/catalog.css": {
-    "file": "assets/catalog-w5mtiloc.css",
+    "file": "assets/catalog-CaQ1rggt.css",
     "src": "resources/css/frontend/shop/catalog.css",
     "isEntry": true
   },
@@ -291,12 +291,12 @@
     "isEntry": true
   },
   "resources/css/frontend/shop/collection.css": {
-    "file": "assets/collection-DfW1XvIM.css",
+    "file": "assets/collection-Bw7PtszA.css",
     "src": "resources/css/frontend/shop/collection.css",
     "isEntry": true
   },
   "resources/css/frontend/shop/home.css": {
-    "file": "assets/home-CAATsmFu.css",
+    "file": "assets/home-Du-XLO2W.css",
     "src": "resources/css/frontend/shop/home.css",
     "isEntry": true
   },
@@ -311,12 +311,12 @@
     "isEntry": true
   },
   "resources/css/frontend/shop/product-detail.css": {
-    "file": "assets/product-detail-BaAKVQQw.css",
+    "file": "assets/product-detail-DNBhUzRS.css",
     "src": "resources/css/frontend/shop/product-detail.css",
     "isEntry": true
   },
   "resources/css/frontend/shop/service-page.css": {
-    "file": "assets/service-page-n4-6iync.css",
+    "file": "assets/service-page-ryY3oR_-.css",
     "src": "resources/css/frontend/shop/service-page.css",
     "isEntry": true
   },
@@ -548,7 +548,7 @@
     "isEntry": true
   },
   "resources/js/admin/service-page-live-editor.js": {
-    "file": "assets/service-page-live-editor-DmA5hi1p.js",
+    "file": "assets/service-page-live-editor-J9nqpm65.js",
     "name": "service-page-live-editor",
     "src": "resources/js/admin/service-page-live-editor.js",
     "isEntry": true,
@@ -556,7 +556,7 @@
       "_sortable.esm-D-EvzYhP.js"
     ],
     "css": [
-      "assets/service-page-live-editor-Dt0BibF6.css"
+      "assets/service-page-live-editor-tA6s_2HC.css"
     ]
   },
   "resources/js/admin/shipments.js": {

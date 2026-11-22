@@ -311,7 +311,9 @@ import { renderCategoryGeneralPanel } from './live-editor-category-panels.js';
     // Quita el marcado de enlaces [texto](destino) para mostrar solo el texto
     // (nombres en la lista de bloques y encabezados del panel).
     function plainLabel(text) {
-        return String(text ?? '').replace(/\[([^\]]+)\]\(((?:\/(?!\/)|https?:\/\/)[^\s)]*)\)/g, '$1');
+        return String(text ?? '')
+            .replace(/\[([^\]]+)\]\(((?:\/(?!\/)|https?:\/\/)[^\s)]*)\)/g, '$1')
+            .replace(/\*\*(?!\s)([^\n]+?)\*\*/g, '$1');
     }
 
     function escHtml(s) {
