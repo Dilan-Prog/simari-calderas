@@ -3531,7 +3531,8 @@ import { renderCategoryGeneralPanel } from './live-editor-category-panels.js';
             csrfToken,
             // Nombre/descripción/SEO se imprimen como texto plano (title, meta, JSON-LD):
             // ahí un enlace aparecería literal.
-            exclude: (f) => /^le(Col|Gen|Cat)(Name|Desc|ShortDesc|Seo)/.test(f.id || ''),
+            // Excepción: la descripción de la colección sí admite formato (la página la renderiza).
+            exclude: (f) => f.id !== 'leColDesc' && /^le(Col|Gen|Cat)(Name|Desc|ShortDesc|Seo)/.test(f.id || ''),
         });
     }
 

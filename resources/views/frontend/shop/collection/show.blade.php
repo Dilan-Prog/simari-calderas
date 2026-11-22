@@ -28,7 +28,7 @@
 
     $metaTitle = $collection->seo_title ?: ($collection->name . ' — Equiterm Industries');
     $metaDescription = $collection->seo_description
-        ?: \Illuminate\Support\Str::limit(strip_tags($collection->description ?? ''), 160)
+        ?: \Illuminate\Support\Str::limit(trim(preg_replace('/\s+/u', ' ', \App\Support\LinkText::plain(strip_tags($collection->description ?? '')))), 160)
         ?: ('Explora la colección ' . $collection->name . ' de Equiterm Industries.');
     $canonicalUrl = route('collection.show', $collection->slug);
 
@@ -139,7 +139,14 @@
         <div class="collection-hero__text">
             <h1>{{ $collection->name }}</h1>
             @if ($collection->description)
-                <p>{{ $collection->description }}</p>
+                {{-- Admite [enlace](/ruta), **negrita** y viñetas "- "; línea en blanco = nuevo párrafo. --}}
+                @foreach (preg_split("/\n\s*\n/", str_replace(["\r\n", "\r"], "\n", trim($collection->description))) as $colDescPara)
+                    @if (trim($colDescPara) !== '')
+                        <p>{!! preg_match('/^\s*[-•]\s+/mu', $colDescPara)
+                            ? \App\Support\LinkText::render(trim($colDescPara))
+                            : implode('<br>', array_map(fn ($l) => \App\Support\LinkText::render(trim($l)), explode("\n", trim($colDescPara)))) !!}</p>
+                    @endif
+                @endforeach
             @endif
             @if ($showProducts)
                 <span class="collection-hero__count">{{ $products->total() }} producto{{ $products->total() === 1 ? '' : 's' }}</span>
