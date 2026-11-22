@@ -5,6 +5,7 @@ namespace App\Exports;
 use App\Models\Products;
 use App\Services\Products\ProductFilters;
 use App\Support\CategoryCascadeDropdownBuilder;
+use App\Support\CategoryPaths;
 use App\Support\ExcelDropdown;
 use Maatwebsite\Excel\Concerns\FromQuery;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
@@ -36,6 +37,22 @@ class ProductsExport implements FromQuery, WithHeadings, WithMapping, ShouldAuto
     {
     }
 
+    /** Rutas completas de categorías (una sola consulta, perezosa). */
+    private ?CategoryPaths $categoryPaths = null;
+
+    /**
+     * Celda "Categorías Adicionales": rutas completas "Padre > Hijo" unidas
+     * con " | " — el mismo formato que leen ProductsImport/ProductsUpdateImport
+     * (también aceptan solo el nombre o el slug).
+     */
+    public static function additionalCategoriesCell(Products $product, CategoryPaths $paths): string
+    {
+        return $product->additionalCategories
+            ->map(fn ($c) => $paths->path((int) $c->id, ' > ') ?: $c->name)
+            ->sort(fn ($a, $b) => strnatcasecmp($a, $b))
+            ->implode(' | ');
+    }
+
     public function query()
     {
         // Sin filtrar por is_primary: se necesitan TODOS los proveedores del
@@ -45,7 +62,7 @@ class ProductsExport implements FromQuery, WithHeadings, WithMapping, ShouldAuto
         // consulta con la condición a nivel de query. category.parent.parent
         // se precarga para poder descomponer la categoría real del producto
         // en Principal/Subcategoría/Categoría Hija sin N+1 (Category::levelNames()).
-        $query = Products::with(['category.parent.parent', 'brand', 'images', 'suppliers'])
+        $query = Products::with(['category.parent.parent', 'brand', 'images', 'suppliers', 'additionalCategories:product_categories.id,product_categories.name'])
             ->when($this->ids !== null, fn ($q) => $q->whereIn('products.id', $this->ids));
 
         // Mismo orden que el listado (?sort=…); sin orden, por id como siempre.
@@ -61,6 +78,7 @@ class ProductsExport implements FromQuery, WithHeadings, WithMapping, ShouldAuto
             'Costo', 'Stock', 'Unidad Stock', 'Moneda', 'Disponibilidad',
             'Activo', 'Destacado', 'Nuevo', 'Recomendado', 'Publicar Web', 'Imagen URL',
             'Costo Envío', 'Envío Gratis Desde', 'Punto Reorden', 'Mostrar Merchant Center',
+            'Categorías Adicionales',
         ];
     }
 
@@ -104,6 +122,7 @@ class ProductsExport implements FromQuery, WithHeadings, WithMapping, ShouldAuto
             $product->free_shipping_threshold,
             $product->reorder_point,
             $product->show_in_merchant_center ? 'Si' : 'No',
+            self::additionalCategoriesCell($product, $this->categoryPaths ??= new CategoryPaths()),
         ];
     }
 
@@ -143,7 +162,7 @@ class ProductsExport implements FromQuery, WithHeadings, WithMapping, ShouldAuto
         // devuelve styles() lo aplica el framework al final del método, así
         // que cualquier estilo de fila 1 puesto ahí pisaría un acento
         // aplicado antes dentro del cuerpo del método.
-        $sheet->getStyle('A1:AB1')->applyFromArray([
+        $sheet->getStyle('A1:AC1')->applyFromArray([
             'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
             'fill' => [
                 'fillType' => Fill::FILL_SOLID,

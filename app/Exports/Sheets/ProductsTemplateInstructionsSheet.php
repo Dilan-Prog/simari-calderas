@@ -55,6 +55,7 @@ class ProductsTemplateInstructionsSheet implements FromArray, WithTitle, WithSty
             ['Envío Gratis Desde', 'No', 'Número. Monto de subtotal del carrito (sin IVA) a partir del cual este producto deja de cobrar Costo Envío. Solo aplica si Costo Envío tiene un valor.'],
             ['Punto Reorden', 'No', 'Número entero. Nivel de stock en el que el sistema debe avisar para reabastecer. Vacío = sin alerta configurada.'],
             ['Mostrar Merchant Center', 'No', 'Si / No. Incluye o excluye el producto del feed de Google Merchant Center. Si se deja vacío, se considera "Si".'],
+            ['Categorías Adicionales', 'No', 'Otras categorías donde también debe aparecer el producto, separadas con " | ". Escribe la ruta completa (ej. "Calderas > Industriales"), el nombre exacto o el slug; no distingue mayúsculas ni acentos. Las que no existan (o cuyo nombre se repita en varias ramas) se ignoran con un aviso. La Categoría Principal sigue definiendo las migas de pan y las reglas de envío.'],
             ['', '', ''],
             ['Al importar:', '', ''],
             ['- Si un SKU ya existe en el sistema (o se repite dentro del mismo archivo), esa fila se omite y se te informa cuál fue, pero el resto del archivo sí se procesa.', '', ''],
@@ -80,14 +81,14 @@ class ProductsTemplateInstructionsSheet implements FromArray, WithTitle, WithSty
         $sheet->getStyle('A4:C4')->getFont()->setBold(true)->getColor()->setRGB('FFFFFF');
         $sheet->getStyle('A4:C4')->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB(\App\Support\ExcelDropdown::HEADER_FILL_COLOR);
 
-        foreach (range(5, 31) as $row) {
+        foreach (range(5, 32) as $row) {
             $sheet->getStyle("C{$row}")->getAlignment()->setWrapText(true);
         }
 
-        $sheet->getStyle('A33')->getFont()->setBold(true);
-        $sheet->mergeCells('A33:C33');
+        $sheet->getStyle('A34')->getFont()->setBold(true);
+        $sheet->mergeCells('A34:C34');
 
-        foreach (range(34, 41) as $row) {
+        foreach (range(35, 42) as $row) {
             $sheet->mergeCells("A{$row}:C{$row}");
             $sheet->getStyle("A{$row}")->getAlignment()->setWrapText(true);
         }

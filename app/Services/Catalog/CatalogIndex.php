@@ -8,6 +8,7 @@ use App\Models\CategoryFilterGroup;
 use App\Models\ProductSalesStat;
 use App\Models\Products;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Filas candidatas del catálogo en caché.
@@ -15,7 +16,9 @@ use Illuminate\Support\Facades\Cache;
  * get() devuelve:
  * [
  *   'v'      => string  (CatalogCache::version() con la que se construyó),
- *   'rows'   => [ [ 'id'=>int, 'c'=>?int (category_id), 'b'=>?int (brand_id),
+ *   'rows'   => [ [ 'id'=>int, 'c'=>?int (category_id principal),
+ *                   'cs'=>int[] (principal + adicionales de product_category_map, sin repetir),
+ *                   'b'=>?int (brand_id),
  *                   'p'=>float (base_price MXN sin IVA), 'cp'=>?float (compare_base),
  *                   'd'=>?int (% descuento, solo si compare>base),
  *                   'st'=>bool (en stock), 'f24'=>bool (available y stock>0),
@@ -173,7 +176,9 @@ class CatalogIndex
     {
         return is_array($cached)
             && ($cached['v'] ?? null) === $version
-            && isset($cached['rows'], $cached['cats'], $cached['groups'], $cached['brands']);
+            && isset($cached['rows'], $cached['cats'], $cached['groups'], $cached['brands'])
+            // Forma vieja (sin 'cs' de categorías adicionales): se reconstruye.
+            && ($cached['rows'] === [] || isset($cached['rows'][0]['cs']));
     }
 
     private static function build(string $version): array
@@ -215,6 +220,12 @@ class CatalogIndex
         $newDays = (int) CatalogSettings::get('new_days');
         $newSince = $newDays > 0 ? now()->subDays($newDays)->getTimestamp() : null;
 
+        // ── Categorías adicionales (pivote), en una sola consulta ───────────
+        $extraCats = [];
+        foreach (DB::table('product_category_map')->get(['product_id', 'category_id']) as $link) {
+            $extraCats[(int) $link->product_id][] = (int) $link->category_id;
+        }
+
         // ── Filas ────────────────────────────────────────────────────────────
         $rows = [];
         Products::query()
@@ -225,7 +236,7 @@ class CatalogIndex
                 'currency', 'shipping_cost', 'free_shipping_threshold', 'stock', 'availability',
                 'is_featured', 'is_new', 'created_at', 'tags',
             ])
-            ->chunkById(500, function ($chunk) use (&$rows, $tagToOptions, $sales, $lastUnits, $newSince) {
+            ->chunkById(500, function ($chunk) use (&$rows, $tagToOptions, $sales, $lastUnits, $newSince, $extraCats) {
                 foreach ($chunk as $product) {
                     $base = (float) $product->base_price;
                     $compare = $product->compare_base_price;
@@ -247,9 +258,16 @@ class CatalogIndex
                         }
                     }
 
+                    $principal = $product->category_id !== null ? (int) $product->category_id : null;
+                    $allCats = $extraCats[$product->id] ?? [];
+                    if ($principal !== null) {
+                        array_unshift($allCats, $principal);
+                    }
+
                     $rows[] = [
                         'id'   => (int) $product->id,
-                        'c'    => $product->category_id !== null ? (int) $product->category_id : null,
+                        'c'    => $principal,
+                        'cs'   => array_values(array_unique($allCats)),
                         'b'    => $product->brand_id !== null ? (int) $product->brand_id : null,
                         'p'    => $base,
                         'cp'   => $compare,

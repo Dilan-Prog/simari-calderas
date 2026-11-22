@@ -89,7 +89,10 @@ class AppServiceProvider extends ServiceProvider
      * categorías, marcas, reglas de envío, filtros técnicos y los ajustes
      * ecommerce.* y catalog.*, p. ej. tipo de cambio o IVA) sube la versión de la
      * caché de CatalogIndex/BadgeResolver. Cambios sin evento de modelo (stock
-     * por pedidos, importaciones masivas) los cubre el TTL.
+     * por pedidos, importaciones masivas) los cubre el TTL. Categorías
+     * adicionales (product_category_map): Products::syncAdditionalCategories()
+     * hace bump; al borrar una categoría o producto el FK cascade limpia el
+     * pivote y el deleted() de abajo hace bump.
      */
     private function registerCatalogCacheInvalidation(): void
     {

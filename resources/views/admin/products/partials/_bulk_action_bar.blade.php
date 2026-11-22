@@ -11,6 +11,10 @@
     <button type="button" class="prod-bulk-btn" data-action="deactivate">Desactivar</button>
     <button type="button" class="prod-bulk-btn" data-action="publish">Publicar en Web</button>
     <button type="button" class="prod-bulk-btn" data-action="unpublish">Despublicar</button>
+    @permiso('products','edit')
+    {{-- Abre #bulkAdditionalCategoriesModal (_bulk_additional_categories_modal.blade.php). --}}
+    <button type="button" class="prod-bulk-btn" id="prodBulkAdditionalCatsBtn">Categorías adicionales</button>
+    @endpermiso
     {{-- data-download-url se actualiza en _scripts.blade.php (syncBulkBar) con
          los ids seleccionados; el modal de formato (PDF/Excel) lo abre. --}}
     <button type="button" class="prod-bulk-btn" id="prodBulkExportBtn"

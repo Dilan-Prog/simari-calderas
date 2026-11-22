@@ -32,7 +32,8 @@ class ProductController extends Controller
         }
 
         if ($request->filled('category_id')) {
-            $query->where('category_id', (int) $request->input('category_id'));
+            // Principal o adicional (product_category_map).
+            $query->inCategories([(int) $request->input('category_id')]);
         }
 
         if ($request->filled('brand_id')) {

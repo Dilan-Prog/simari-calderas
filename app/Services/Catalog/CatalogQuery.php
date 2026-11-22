@@ -102,8 +102,8 @@ class CatalogQuery
 
     /**
      * Búsqueda del overlay del header (/buscar-en-vivo): mismo motor, sin
-     * categoría de ruta. Los conteos de categorías (planas, por la categoría
-     * directa del producto) y de marcas son facetados, como en el catálogo.
+     * categoría de ruta. Los conteos de categorías (planas, por cada
+     * categoría propia del producto: principal y adicionales) y de marcas son facetados, como en el catálogo.
      *
      * @return array{total:int, categories:array, brands:array, products:Collection}
      */
@@ -183,7 +183,8 @@ class CatalogQuery
         $fgCount = 0;
 
         foreach ($index['rows'] as $row) {
-            if ($scopeSet !== null && !isset($scopeSet[$row['c']])) {
+            // Alcance por subárbol: cuenta la principal o cualquier adicional.
+            if ($scopeSet !== null && !self::anyIn($row, $scopeSet)) {
                 continue;
             }
             $scopePrices[] = $row['p'];
@@ -234,7 +235,7 @@ class CatalogQuery
                 }
                 $dim = 'q';
             }
-            if ($legacySel !== null && !isset($legacySel[$row['c']])) {
+            if ($legacySel !== null && !self::anyIn($row, $legacySel)) {
                 if (++$viol > 1) {
                     continue;
                 }
@@ -245,8 +246,11 @@ class CatalogQuery
 
             if ($all) {
                 $results[] = $row;
-                if ($row['c'] !== null) {
-                    $catDirect[$row['c']] = ($catDirect[$row['c']] ?? 0) + 1;
+                // catDirect: lista de categorías (principal + adicionales) de
+                // cada resultado; categoryFacet cuenta cada producto UNA vez
+                // por entrada aunque tenga varias categorías en su subárbol.
+                if ($row['cs']) {
+                    $catDirect[] = $row['cs'];
                 }
             }
             if (($all || $dim === 'brand') && $row['b'] !== null) {
@@ -270,8 +274,11 @@ class CatalogQuery
                     }
                 }
             }
-            if (($all || $dim === 'legacy') && $row['c'] !== null) {
-                $catFlat[$row['c']] = ($catFlat[$row['c']] ?? 0) + 1;
+            if ($all || $dim === 'legacy') {
+                // Plano: una vez por cada categoría propia (cs ya viene sin repetir).
+                foreach ($row['cs'] as $catId) {
+                    $catFlat[$catId] = ($catFlat[$catId] ?? 0) + 1;
+                }
             }
         }
 
@@ -279,6 +286,21 @@ class CatalogQuery
             'results', 'scopePrices', 'priceList', 'brandCounts', 'catDirect', 'catFlat',
             'techCounts', 'stockCount', 'fastCount', 'fgCount', 'groups'
         );
+    }
+
+    /** ¿Alguna categoría de la fila (principal o adicional) está en el set? */
+    private static function anyIn(array $row, array $set): bool
+    {
+        if ($row['c'] !== null && isset($set[$row['c']])) {
+            return true;
+        }
+        foreach ($row['cs'] as $catId) {
+            if (isset($set[$catId])) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /** IDs de productos cuyo nombre, SKU, descripción o marca contienen $q (% y _ escapados). */
@@ -353,13 +375,38 @@ class CatalogQuery
 
         $scopeId = $scope?->id !== null ? (int) $scope->id : null;
 
-        $items = [];
+        // Entradas = hijas activas del alcance. Sus subárboles son disjuntos,
+        // así que se mapea cada categoría a su entrada y luego cada producto
+        // suma 1 a cada entrada distinta que toque (sin doble conteo si la
+        // principal y una adicional caen en el mismo subárbol).
+        $entries = [];
+        $entryOf = [];
         foreach ($index['cats'] as $cat) {
             if (!$cat['is_active'] || $cat['parent_id'] !== $scopeId) {
                 continue;
             }
-            $subtree = CatalogIndex::subtreeIds($index, $cat['id']);
-            $count = array_sum(array_intersect_key($catDirect, $subtree));
+            $entries[$cat['id']] = $cat;
+            foreach (CatalogIndex::subtreeIds($index, $cat['id']) as $id) {
+                $entryOf[$id] = $cat['id'];
+            }
+        }
+
+        $counts = [];
+        foreach ($catDirect as $catIds) {
+            $hit = [];
+            foreach ($catIds as $catId) {
+                if (isset($entryOf[$catId])) {
+                    $hit[$entryOf[$catId]] = true;
+                }
+            }
+            foreach ($hit as $entryId => $_) {
+                $counts[$entryId] = ($counts[$entryId] ?? 0) + 1;
+            }
+        }
+
+        $items = [];
+        foreach ($entries as $cat) {
+            $count = $counts[$cat['id']] ?? 0;
             if ($count <= 0) {
                 continue;
             }

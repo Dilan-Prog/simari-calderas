@@ -66,6 +66,22 @@
                 default => $product->{$key} ? 'Sí' : 'No',
             };
         };
+        // Badge "+N" de categorías adicionales (product_category_map) junto a la
+        // categoría principal; el title lista las rutas completas. Las rutas se
+        // calculan con una sola consulta y solo si alguna fila visible las tiene.
+        $prodRows = $products instanceof \Illuminate\Pagination\AbstractPaginator ? $products->getCollection() : $products;
+        $prodCategoryPaths = $prodRows->contains(fn ($p) => $p->additionalCategories->isNotEmpty())
+            ? new \App\Support\CategoryPaths()
+            : null;
+        $additionalCatsBadge = function ($product) use ($prodCategoryPaths) {
+            $extra = $product->additionalCategories;
+            if ($extra->isEmpty() || !$prodCategoryPaths) {
+                return '';
+            }
+            $title = 'También en: ' . $extra->map(fn ($c) => $prodCategoryPaths->path((int) $c->id) ?: $c->name)->implode(', ');
+
+            return '<span class="prod-addcat-badge" title="' . e($title) . '" aria-label="' . e($title) . '">+' . $extra->count() . '</span>';
+        };
         $prodHasPages = $products instanceof \Illuminate\Pagination\LengthAwarePaginator && $products->hasPages();
     @endphp
     <x-erp.datagrid-assets />
@@ -294,7 +310,7 @@
                                             @case('brand_id') {{ $product->brand->name ?? '—' }} @break
                                             @case('supplier_sku') {{ $product->supplier_sku ?: '—' }} @break
                                             @case('canonical_url') {{ $product->canonical_url ?: '—' }} @break
-                                            @case('category_id') {{ $categoryChainLevel($product->category, 1) ?? '—' }} @break
+                                            @case('category_id') {{ $categoryChainLevel($product->category, 1) ?? '—' }}{!! $additionalCatsBadge($product) !!} @break
                                             @case('category_sub') {{ $categoryChainLevel($product->category, 2) ?? '—' }} @break
                                             @case('category_child') {{ $categoryChainLevel($product->category, 3) ?? '—' }} @break
                                             @case('price') <span class="prod-price">${{ number_format($product->price, 0) }}</span> @break
@@ -405,7 +421,7 @@
                                     <span class="prod-grid-meta-label">{{ $col['label'] }}</span>
                                     <span class="prod-grid-meta-val {{ $col['key'] === 'price' ? 'price' : '' }}">
                                         @switch($col['key'])
-                                            @case('category_id') {{ $categoryChainLevel($product->category, 1) ?? '—' }} @break
+                                            @case('category_id') {{ $categoryChainLevel($product->category, 1) ?? '—' }}{!! $additionalCatsBadge($product) !!} @break
                                             @case('model') {{ $product->model ?: '—' }} @break
                                             @case('brand_id') {{ $product->brand->name ?? '—' }} @break
                                             @case('price') ${{ number_format($product->price, 0) }} @break
@@ -484,8 +500,20 @@
 @include('admin.products.partials._import_modal')
 @include('admin.products.partials._bulk_action_bar')
 @include('admin.products.partials._bulk_delete_modal')
+@include('admin.products.partials._bulk_additional_categories_modal')
 @include('admin.components._download_format_modal')
 @include('admin.products._scripts')
+
+@push('styles')
+    <style>
+        /* Badge discreto "+N" de categorías adicionales (listado y tarjetas). */
+        .prod-addcat-badge {
+            display: inline-block; margin-left: 6px; padding: 0 6px; border-radius: 10px;
+            background: #eef2ff; color: #4338ca; font-size: 11px; font-weight: 600; line-height: 18px;
+            vertical-align: middle; cursor: help; white-space: nowrap;
+        }
+    </style>
+@endpush
 
 @push('scripts')
     <script src="{{ asset('js/admin/download-format.js') }}"></script>

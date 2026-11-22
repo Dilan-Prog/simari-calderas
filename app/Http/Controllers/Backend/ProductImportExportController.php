@@ -170,6 +170,7 @@ class ProductImportExportController extends Controller
             'skipped_duplicates' => $import->skippedDuplicates,
             'failures' => $failures,
             'image_download_failures' => $import->imageDownloadFailures,
+            'additional_category_warnings' => $import->additionalCategoryWarnings,
         ]);
     }
 
@@ -215,6 +216,7 @@ class ProductImportExportController extends Controller
             'skipped_not_found' => $import->skippedNotFound,
             'failures' => $failures,
             'image_download_failures' => $import->imageDownloadFailures,
+            'additional_category_warnings' => $import->additionalCategoryWarnings,
         ]);
     }
 }
