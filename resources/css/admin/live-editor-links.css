@@ -21,6 +21,16 @@
 .le-link-btn:focus-visible { color: #ff6213; border-color: #ff6213; outline: none; }
 .le-link-btn svg { width: 14px; height: 14px; pointer-events: none; }
 
+/* Barra flotante: negrita + viñetas + enlace */
+.le-link-bar {
+    position: absolute;
+    z-index: 9990;
+    display: none;
+    gap: 4px;
+}
+.le-link-bar.is-visible { display: inline-flex; }
+.le-link-bar .le-link-btn { position: static; display: inline-flex; }
+
 .le-link-pop {
     position: absolute;
     z-index: 9995;

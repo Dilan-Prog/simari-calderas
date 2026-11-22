@@ -240,6 +240,15 @@ a.card-carousel__card:hover { box-shadow: 0 8px 18px rgba(0,0,0,0.1); transform:
 .text-block-section__title[style*="text-align:right"],
 .text-block-section__text[style*="text-align:right"] { margin-left: auto; }
 .text-block-section__text a, .text-block-section__title a { color: #ff6213; text-decoration: underline; }
+
+/* Formato en línea de los bloques (App\Support\LinkText): enlaces en color de
+   marca (nunca el morado de "visitado") y viñetas escritas con "- ". */
+a.eq-inline-link,
+a.eq-inline-link:visited { color: #ff6213; text-decoration: underline; text-underline-offset: 2px; }
+a.eq-inline-link:hover { color: #e0520a; }
+.eq-list { display: block; margin: 6px 0; padding: 0; text-align: left; }
+.eq-li { display: block; position: relative; padding-left: 1.25em; margin: 3px 0; }
+.eq-li::before { content: ''; position: absolute; left: .35em; top: .7em; width: .38em; height: .38em; border-radius: 50%; background: #ff6213; }
 @media (max-width: 720px) {
     .text-block-section { margin: 28px auto; }
     .text-block-section__title { margin-bottom: 10px; font-size: 22px; }

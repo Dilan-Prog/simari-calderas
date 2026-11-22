@@ -14,13 +14,13 @@ class LinkTextTest extends TestCase
 
     public function test_converts_internal_link(): void
     {
-        $this->assertSame('Ver <a href="/producto/x">bombas</a> hoy', $this->r('Ver [bombas](/producto/x) hoy'));
+        $this->assertSame('Ver <a class="eq-inline-link" href="/producto/x">bombas</a> hoy', $this->r('Ver [bombas](/producto/x) hoy'));
     }
 
     public function test_external_link_opens_new_tab(): void
     {
         $this->assertSame(
-            '<a href="https://ex.com/a" target="_blank" rel="noopener">ex</a>',
+            '<a class="eq-inline-link" href="https://ex.com/a" target="_blank" rel="noopener">ex</a>',
             $this->r('[ex](https://ex.com/a)')
         );
     }
@@ -57,7 +57,7 @@ class LinkTextTest extends TestCase
     {
         $this->assertSame(e('[a [b](/x'), $this->r('[a [b](/x'));
         $this->assertSame(e('[[x]](/y)'), $this->r('[[x]](/y)'));
-        $this->assertStringContainsString('<a href="/x">b</a>', $this->r('[a [b](/x)]'));
+        $this->assertStringContainsString('<a class="eq-inline-link" href="/x">b</a>', $this->r('[a [b](/x)]'));
         $this->assertSame(e('[x](/a b)'), $this->r('[x](/a b)'));
     }
 
@@ -74,8 +74,31 @@ class LinkTextTest extends TestCase
         $this->assertStringNotContainsString('<script>', $out);
     }
 
+    public function test_bold(): void
+    {
+        $this->assertSame('Precio <strong>desde $7,360</strong> + IVA', $this->r('Precio **desde $7,360** + IVA'));
+        $this->assertSame('<strong><a class="eq-inline-link" href="/x">ver</a></strong>', $this->r('**[ver](/x)**'));
+        // Sin cierre o con espacios pegados no es negrita.
+        $this->assertSame(e('a ** b'), $this->r('a ** b'));
+        $this->assertSame(e('**sin cierre'), $this->r('**sin cierre'));
+        $this->assertSame('&lt;b&gt;<strong>&amp;</strong>', $this->r('<b>**&**'));
+    }
+
+    public function test_bullets(): void
+    {
+        $this->assertSame(
+            'Incluye:<span class="eq-list"><span class="eq-li">Tubería</span><span class="eq-li"><strong>Mano</strong> de obra</span></span>Fin<br>otra',
+            $this->r("Incluye:\n- Tubería\n• **Mano** de obra\nFin\notra")
+        );
+        // Sin viñetas, los saltos de línea quedan igual que antes.
+        $this->assertSame(e("uno\ndos"), $this->r("uno\ndos"));
+        // Un guion sin espacio no es viñeta.
+        $this->assertSame(e('-5 °C'), $this->r('-5 °C'));
+    }
+
     public function test_plain_strips_markup(): void
     {
+        $this->assertSame("Hola fuerte\nuno", LinkText::plain("Hola **fuerte**\n- uno"));
         $this->assertSame('Ver bombas hoy', LinkText::plain('Ver [bombas](/producto/x) hoy'));
         $this->assertSame('x', LinkText::plain('[x](https://a.com)'));
         $this->assertSame('[x](javascript:a)', LinkText::plain('[x](javascript:a)'));

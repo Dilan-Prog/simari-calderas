@@ -34,7 +34,12 @@
             <{{ $tbHeadingTag }} class="text-block-section__title"{!! \App\Support\TextStyle::attr($tbHeadingStyle) !!}>{!! \App\Support\LinkText::render($tbHeading) !!}</{{ $tbHeadingTag }}>
         @endif
         @foreach ($tbParagraphs as $tbParagraph)
-            <p class="text-block-section__text"{!! $tbBodyAttr !!}>{!! implode('<br>', array_map(fn ($l) => \App\Support\LinkText::render(trim($l)), explode("\n", trim($tbParagraph)))) !!}</p>
+            @if (preg_match('/^\s*[-•]\s+/mu', $tbParagraph))
+                {{-- Párrafo con viñetas ("- "): LinkText arma la lista y los <br>. --}}
+                <p class="text-block-section__text"{!! $tbBodyAttr !!}>{!! \App\Support\LinkText::render(trim($tbParagraph)) !!}</p>
+            @else
+                <p class="text-block-section__text"{!! $tbBodyAttr !!}>{!! implode('<br>', array_map(fn ($l) => \App\Support\LinkText::render(trim($l)), explode("\n", trim($tbParagraph)))) !!}</p>
+            @endif
         @endforeach
     </div>
 </section>

@@ -5,11 +5,10 @@ namespace App\Support;
 class TextLinks
 {
     /**
-     * Convierte la sintaxis `[texto](url)` escrita por el admin (en
-     * respuestas de FAQ) en un <a> real, escapando todo lo demás para que
-     * el resto del texto nunca se interprete como HTML. Solo se permiten
-     * URLs relativas o http(s) — cualquier otro esquema (ej. javascript:)
-     * se deja como texto plano.
+     * Respuestas de FAQ escritas por el admin: mismo formato que el resto de
+     * bloques (enlaces `[texto](url)` en color de marca, `**negritas**` y
+     * viñetas con "- "). Delegado a LinkText para que la gramática sea una
+     * sola; todo lo demás se escapa.
      */
     public static function render(?string $text): ?string
     {
@@ -17,20 +16,6 @@ class TextLinks
             return $text;
         }
 
-        $escaped = e($text);
-
-        return preg_replace_callback(
-            '/\[([^\]]+)\]\(([^)\s]+)\)/',
-            function (array $m) {
-                $url = html_entity_decode($m[2]);
-
-                if (!preg_match('#^(https?://|/)#i', $url)) {
-                    return $m[0];
-                }
-
-                return '<a href="' . e($url) . '">' . $m[1] . '</a>';
-            },
-            $escaped
-        );
+        return (string) LinkText::render($text);
     }
 }

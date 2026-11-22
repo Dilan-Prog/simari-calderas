@@ -79,6 +79,65 @@ export function unwrapAt(value, pos, end) {
 }
 
 /* ------------------------------------------------------------------ */
+/* Negritas (**texto**) y viñetas ("- " al inicio del renglón)        */
+/* Misma gramática que App\Support\LinkText en el servidor.           */
+/* ------------------------------------------------------------------ */
+
+const BULLET_RE = /^\s*[-•]\s+/;
+
+/** Pone/quita **…** alrededor de la selección. Sin selección inserta un ejemplo seleccionado. */
+export function toggleBold(value, start, end) {
+    const v = String(value ?? '');
+    let s = Math.max(0, Math.min(start ?? 0, v.length));
+    let e = Math.max(0, Math.min(end ?? s, v.length));
+    if (e < s) [s, e] = [e, s];
+
+    // Ya está entre ** ** (dentro o justo afuera de la selección): se quita.
+    if (v.slice(s - 2, s) === '**' && v.slice(e, e + 2) === '**') {
+        return { value: v.slice(0, s - 2) + v.slice(s, e) + v.slice(e + 2), start: s - 2, end: e - 2 };
+    }
+    const sel = v.slice(s, e);
+    if (sel.length >= 4 && sel.startsWith('**') && sel.endsWith('**')) {
+        const inner = sel.slice(2, -2);
+        return { value: v.slice(0, s) + inner + v.slice(e), start: s, end: s + inner.length };
+    }
+
+    if (s === e) {
+        const ph = 'texto en negrita';
+        return { value: v.slice(0, s) + '**' + ph + '**' + v.slice(e), start: s + 2, end: s + 2 + ph.length };
+    }
+    // Los espacios de las orillas quedan fuera (**texto ** no se reconoce como negrita).
+    while (s < e && /\s/.test(v[s])) s++;
+    while (e > s && /\s/.test(v[e - 1])) e--;
+    if (s === e) return { value: v, start: s, end: e };
+    return { value: v.slice(0, s) + '**' + v.slice(s, e) + '**' + v.slice(e), start: s + 2, end: e + 2 };
+}
+
+/** Pone/quita "- " en los renglones que toca la selección. */
+export function toggleBullets(value, start, end) {
+    const v = String(value ?? '');
+    let s = Math.max(0, Math.min(start ?? 0, v.length));
+    let e = Math.max(0, Math.min(end ?? s, v.length));
+    if (e < s) [s, e] = [e, s];
+    if (e > s && v[e - 1] === '\n') e--;
+
+    const lineStart = v.lastIndexOf('\n', s - 1) + 1;
+    let lineEnd = v.indexOf('\n', e);
+    if (lineEnd === -1) lineEnd = v.length;
+
+    const lines = v.slice(lineStart, lineEnd).split('\n');
+    const filled = lines.filter((l) => l.trim() !== '');
+    const allBullets = filled.length > 0 && filled.every((l) => BULLET_RE.test(l));
+    const out = lines.map((l) => {
+        if (allBullets) return l.replace(BULLET_RE, '');
+        if (l.trim() === '' && lines.length > 1) return l;
+        return BULLET_RE.test(l) ? l : '- ' + l;
+    }).join('\n');
+
+    return { value: v.slice(0, lineStart) + out + v.slice(lineEnd), start: lineStart, end: lineStart + out.length };
+}
+
+/* ------------------------------------------------------------------ */
 /* UI                                                                 */
 /* ------------------------------------------------------------------ */
 
@@ -86,6 +145,9 @@ const NAME_BLOCK = /slug|url|color|image|alt|price|phone|email|class|html/i;
 const TYPE_LABELS = { producto: 'Producto', product: 'Producto', coleccion: 'Colección', collection: 'Colección', servicio: 'Servicio', service: 'Servicio', categoria: 'Categoría', category: 'Categoría', marca: 'Marca', brand: 'Marca' };
 const TYPE_ORDER = ['Producto', 'Colección', 'Servicio', 'Categoría', 'Marca'];
 const LINK_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.07 0l3-3a5 5 0 0 0-7.07-7.07l-1.5 1.5"/><path d="M14 11a5 5 0 0 0-7.07 0l-3 3a5 5 0 0 0 7.07 7.07l1.5-1.5"/></svg>';
+
+const BOLD_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 4h8a4 4 0 0 1 0 8H6z"/><path d="M6 12h9a4 4 0 0 1 0 8H6z"/></svg>';
+const LIST_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="9" y1="6" x2="20" y2="6"/><line x1="9" y1="12" x2="20" y2="12"/><line x1="9" y1="18" x2="20" y2="18"/><circle cx="4.5" cy="6" r="1"/><circle cx="4.5" cy="12" r="1"/><circle cx="4.5" cy="18" r="1"/></svg>';
 
 function typeLabel(t) {
     const k = String(t ?? '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
@@ -113,7 +175,13 @@ export function mountLinkTools(root, options) {
 
     const btn = el('button', { type: 'button', class: 'le-link-btn', 'aria-label': 'Insertar enlace', title: 'Insertar enlace' });
     btn.innerHTML = LINK_ICON;
-    document.body.appendChild(btn);
+    const boldBtn = el('button', { type: 'button', class: 'le-link-btn le-fmt-bold', 'aria-label': 'Negrita', title: 'Negrita (**texto**)' });
+    boldBtn.innerHTML = BOLD_ICON;
+    const listBtn = el('button', { type: 'button', class: 'le-link-btn le-fmt-list', 'aria-label': 'Viñetas', title: 'Viñetas (renglones con "- ")' });
+    listBtn.innerHTML = LIST_ICON;
+    // Barra flotante: negrita, viñetas (solo en campos de varios renglones) y enlace.
+    const bar = el('div', { class: 'le-link-bar' }, [boldBtn, listBtn, btn]);
+    document.body.appendChild(bar);
 
     let current = null;      // campo con botón visible
     let hideTimer = null;
@@ -153,15 +221,16 @@ export function mountLinkTools(root, options) {
         const r = current.getBoundingClientRect();
         if (r.width < 60 || r.height < 14) return hideButton(true);
         const isArea = current.tagName === 'TEXTAREA';
+        listBtn.style.display = isArea ? '' : 'none';
         const top = isArea ? r.top + 6 : r.top + (r.height - 24) / 2;
-        btn.style.top = (top + window.scrollY) + 'px';
-        btn.style.left = (r.right - 30 + window.scrollX) + 'px';
+        bar.style.top = (top + window.scrollY) + 'px';
+        bar.style.left = (r.right - (bar.offsetWidth || 30) - 6 + window.scrollX) + 'px';
     }
 
     function showButton(f) {
         clearTimeout(hideTimer);
         current = f;
-        btn.classList.add('is-visible');
+        bar.classList.add('is-visible');
         placeButton();
     }
 
@@ -169,7 +238,7 @@ export function mountLinkTools(root, options) {
         clearTimeout(hideTimer);
         const run = () => {
             if (pop) return;
-            btn.classList.remove('is-visible');
+            bar.classList.remove('is-visible');
             current = null;
         };
         if (now) run(); else hideTimer = setTimeout(run, 180);
@@ -198,12 +267,23 @@ export function mountLinkTools(root, options) {
         const f = fieldFrom(e.target);
         if (f) { remember(f); if (f === current) placeButton(); }
     }));
-    btn.addEventListener('mouseenter', () => clearTimeout(hideTimer));
-    btn.addEventListener('mouseleave', () => { if (!pop) hideButton(); });
-    // Evita que el botón robe foco/selección antes de leerla.
-    btn.addEventListener('pointerdown', (e) => { if (current) remember(current); e.preventDefault(); });
-    btn.addEventListener('mousedown', (e) => e.preventDefault());
+    bar.addEventListener('mouseenter', () => clearTimeout(hideTimer));
+    bar.addEventListener('mouseleave', () => { if (!pop) hideButton(); });
+    // Evita que los botones roben foco/selección antes de leerla.
+    bar.addEventListener('pointerdown', (e) => { if (current) remember(current); e.preventDefault(); });
+    bar.addEventListener('mousedown', (e) => e.preventDefault());
     btn.addEventListener('click', (e) => { e.preventDefault(); if (current) openPopover(current); });
+    function applyFormat(fn) {
+        const f = current;
+        if (!f || !document.contains(f)) return;
+        const saved = sel.get(f) || [f.selectionStart ?? 0, f.selectionEnd ?? 0];
+        commit(f, fn(f.value || '', saved[0], saved[1]));
+        remember(f);
+        try { f.focus({ preventScroll: true }); } catch (_) { /* noop */ }
+        placeButton();
+    }
+    boldBtn.addEventListener('click', (e) => { e.preventDefault(); applyFormat(toggleBold); });
+    listBtn.addEventListener('click', (e) => { e.preventDefault(); applyFormat(toggleBullets); });
     const reposition = () => { if (pop) positionPop(); else if (current) placeButton(); };
     window.addEventListener('scroll', reposition, true);
     window.addEventListener('resize', reposition);
@@ -235,7 +315,7 @@ export function mountLinkTools(root, options) {
     }
 
     function onOutside(e) {
-        if (pop && !pop.contains(e.target) && !btn.contains(e.target)) closePopover(false);
+        if (pop && !pop.contains(e.target) && !bar.contains(e.target)) closePopover(false);
     }
 
     function onKey(e) {
@@ -409,7 +489,7 @@ export function mountLinkTools(root, options) {
         destroy() {
             mo.disconnect();
             closePopover(false);
-            btn.remove();
+            bar.remove();
             window.removeEventListener('scroll', reposition, true);
             window.removeEventListener('resize', reposition);
             delete root.__leLinkTools;
