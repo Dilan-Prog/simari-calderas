@@ -42,6 +42,31 @@
             }, true);
         </script>
     @endif
+    <script>
+        // Acomoda un menú desplegable (position:absolute) dentro del área de
+        // contenido: sin esto, un menú anclado a la derecha de un botón que está
+        // a la izquierda se abría por debajo de la barra lateral y se cortaba
+        // (p. ej. "Columnas" en Productos / Editar en lote).
+        window.fitDropdownToMain = function (menu) {
+            if (!menu) return;
+            menu.style.left = ''; menu.style.right = ''; menu.style.maxWidth = '';
+            if (!menu.offsetParent) return; // cerrado
+            var main = document.querySelector('.admin-main');
+            var b = main ? main.getBoundingClientRect() : { left: 0, right: window.innerWidth };
+            var pad = 12;
+            var minL = Math.max(b.left, 0) + pad;
+            var maxR = Math.min(b.right, window.innerWidth) - pad;
+            menu.style.boxSizing = 'border-box';
+            menu.style.maxWidth = Math.max(240, maxR - minL) + 'px';
+            var r = menu.getBoundingClientRect();
+            var left = parseFloat(getComputedStyle(menu).left) || 0;
+            if (r.left < minL) { left += minL - r.left; }
+            else if (r.right > maxR) { left -= Math.min(r.right - maxR, r.left - minL); }
+            else { return; }
+            menu.style.right = 'auto';
+            menu.style.left = left + 'px';
+        };
+    </script>
     <style>
     .val-error-input,.val-error-select{border-color:#e3342f!important;box-shadow:0 0 0 2px rgba(227,52,47,.18)!important;}
     .val-error-msg{display:block;color:#e3342f;font-size:12px;margin-top:4px;font-weight:500;}

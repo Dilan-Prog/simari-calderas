@@ -763,6 +763,7 @@
             indexColumnsBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 indexColumnsMenu.classList.toggle('active');
+                if (window.fitDropdownToMain) window.fitDropdownToMain(indexColumnsMenu);
                 if (indexColumnsMenu.classList.contains('active')) positionIndexColumnsMenu();
             });
             document.addEventListener('click', (e) => {

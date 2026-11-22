@@ -208,6 +208,7 @@
             columnsBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 columnsMenu.classList.toggle('active');
+                if (window.fitDropdownToMain) window.fitDropdownToMain(columnsMenu);
             });
             document.addEventListener('click', (e) => {
                 if (columnsMenu.classList.contains('active') && !columnsMenu.contains(e.target) && e.target !== columnsBtn) {
