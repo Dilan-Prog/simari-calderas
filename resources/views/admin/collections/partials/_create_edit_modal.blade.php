@@ -72,6 +72,14 @@
                             <option value="0" {{ old('is_active', 1) == 0 ? 'selected' : '' }}>Inactiva</option>
                         </select>
                     </div>
+                    <div>
+                        <label class="supliers-manager-slider-label">Contenido de la página</label>
+                        <select class="users-manager-select" name="show_products" id="collectionShowProducts">
+                            <option value="1" {{ old('show_products', 1) == 1 ? 'selected' : '' }}>Con productos</option>
+                            <option value="0" {{ old('show_products', 1) == 0 ? 'selected' : '' }}>Solo texto (sin productos)</option>
+                        </select>
+                        <small style="display:block;margin-top:4px;color:#6B7280;font-size:12px;">"Solo texto" oculta el contador y la cuadrícula de productos en la página pública.</small>
+                    </div>
                 </div>
 
                 {{-- Automatic-only fields --}}

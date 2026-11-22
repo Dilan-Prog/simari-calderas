@@ -174,6 +174,7 @@
             collectionForm.reset();
             document.getElementById('collectionSortOrder').value = '0';
             document.getElementById('collectionIsActive').value = '1';
+            document.getElementById('collectionShowProducts').value = '1';
             collectionFaqRows.innerHTML = '';
             ruleRowsContainer.innerHTML = '';
             toggleTypeFields();
@@ -310,6 +311,7 @@
                         document.getElementById('collectionImageAlt').value = col.image_alt ?? '';
                         document.getElementById('collectionSortOrder').value = col.sort_order ?? 0;
                         document.getElementById('collectionIsActive').value = col.is_active ? '1' : '0';
+                        document.getElementById('collectionShowProducts').value = col.show_products === false ? '0' : '1';
                         document.getElementById('collectionType').value = col.type ?? 'manual';
                         document.getElementById('collectionMatchType').value = col.match_type ?? 'all';
                         document.getElementById('collectionSeoTitle').value = col.seo_title ?? '';
