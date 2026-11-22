@@ -85,9 +85,20 @@ class User extends Authenticatable
             return true;
         }
 
-        // Cache por 60 minutos para evitar queries repetidas
-        // Estructura: ['module' => ['view', 'create', ...], ...]
-        $permissions = cache()->remember(
+        $permissions = $this->rolePermissionsMap();
+
+        return in_array($action, $permissions[$module] ?? [], true);
+    }
+
+    /**
+     * Permisos del rol agrupados por módulo: ['module' => ['view', 'create', ...], ...].
+     * Es la misma fuente que usa hasPermission() (cache por 60 minutos para evitar
+     * queries repetidas). No contempla el bypass de administrador: para eso ver
+     * permissionsMap().
+     */
+    public function rolePermissionsMap(): array
+    {
+        return cache()->remember(
             "user_{$this->id}_permissions",
             now()->addMinutes(60),
             fn() => $this->role?->permissions()
@@ -96,8 +107,24 @@ class User extends Authenticatable
                         ->map(fn($rows) => $rows->pluck('action')->all())
                         ->all() ?? []
         );
+    }
 
-        return in_array($action, $permissions[$module] ?? [], true);
+    /**
+     * Mapa efectivo de permisos (módulo => acciones) tal como lo resuelve
+     * hasPermission(): el administrador tiene todos los permisos existentes en
+     * el catálogo `permissions`; el resto, los de su rol. Lo consume la API móvil.
+     */
+    public function permissionsMap(): array
+    {
+        if ($this->isAdmin()) {
+            return Permission::query()
+                ->get(['module', 'action'])
+                ->groupBy('module')
+                ->map(fn($rows) => $rows->pluck('action')->unique()->values()->all())
+                ->all();
+        }
+
+        return $this->rolePermissionsMap();
     }
 
     public function isAdmin(): bool
