@@ -164,6 +164,9 @@ class BadgeResolver
      * Por categoría directa: N = publicados, k = max(1, ceil(N × top%)),
      * solo califican units >= min_units y solo si la categoría tiene al menos
      * best_seller_min_products productos con ventas; gana el top k.
+     * Solo cuenta la categoría PRINCIPAL (category_id): con adicionales un
+     * producto competiría en varios rankings y la insignia no depende de la
+     * página en que se muestra, así que se mantiene un único ranking por producto.
      *
      * @return array<int, int>
      */

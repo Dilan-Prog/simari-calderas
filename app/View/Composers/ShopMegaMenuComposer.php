@@ -52,6 +52,21 @@ class ShopMegaMenuComposer
         // en realidad una sub-coleccion de productos, no un Model.
         $productsByCategory = $publishedProducts->groupBy('category_id')->toBase();
 
+        // Categorías adicionales (product_category_map): el producto también
+        // aparece en la rama de cada una. Una consulta; unique('id') abajo
+        // evita repetirlo si principal y adicional caen en la misma rama.
+        $byId = $publishedProducts->keyBy('id');
+        $extraLinks = \Illuminate\Support\Facades\DB::table('product_category_map')
+            ->get(['product_id', 'category_id']);
+        foreach ($extraLinks as $link) {
+            $product = $byId->get($link->product_id);
+            if (!$product || (int) $product->category_id === (int) $link->category_id) {
+                continue;
+            }
+            $group = $productsByCategory->get($link->category_id, collect());
+            $productsByCategory->put($link->category_id, $group->push($product));
+        }
+
         $categoryProducts = collect();
 
         // Recolecta los ids de una categoria y de todos sus descendientes.

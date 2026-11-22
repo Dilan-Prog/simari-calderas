@@ -258,6 +258,71 @@ class Products extends Model
         return $this->belongsTo(Category::class, 'category_id');
     }
 
+    /**
+     * Categorías ADICIONALES (tabla product_category_map). La categoría
+     * principal sigue siendo category_id: define migas de pan, schema,
+     * reglas de envío y filtros técnicos. Las adicionales solo hacen que el
+     * producto también aparezca en esos listados (catálogo, bloques,
+     * colecciones y admin). Nunca cambian la URL del producto.
+     */
+    public function additionalCategories()
+    {
+        return $this->belongsToMany(Category::class, 'product_category_map', 'product_id', 'category_id');
+    }
+
+    /** Principal + adicionales, sin repetir. @return int[] */
+    public function allCategoryIds(): array
+    {
+        $ids = $this->relationLoaded('additionalCategories')
+            ? $this->additionalCategories->pluck('id')->all()
+            : $this->additionalCategories()->pluck('product_categories.id')->all();
+        if ($this->category_id) {
+            array_unshift($ids, (int) $this->category_id);
+        }
+
+        return array_values(array_unique(array_map('intval', $ids)));
+    }
+
+    /**
+     * Reemplaza las categorías adicionales (nunca incluye la principal) y
+     * refresca la caché del catálogo: sync() del pivote no dispara saved().
+     *
+     * @param  array<int|string>  $ids
+     */
+    public function syncAdditionalCategories(array $ids): void
+    {
+        $ids = collect($ids)->map(fn ($v) => (int) $v)->filter()
+            ->reject(fn ($id) => $id === (int) $this->category_id)
+            ->unique()->values()->all();
+        $ids = Category::whereIn('id', $ids)->pluck('id')->all();
+
+        $changes = $this->additionalCategories()->sync($ids);
+        if (array_filter($changes)) {
+            \App\Services\Catalog\CatalogCache::bump();
+        }
+    }
+
+    /**
+     * Productos que pertenecen a alguna de estas categorías, ya sea como
+     * principal o como adicional.
+     *
+     * @param  int[]  $categoryIds
+     */
+    public function scopeInCategories($query, array $categoryIds)
+    {
+        $categoryIds = array_values(array_unique(array_map('intval', $categoryIds)));
+
+        return $query->where(function ($q) use ($categoryIds) {
+            $q->whereIn($q->getModel()->getTable() . '.category_id', $categoryIds)
+              ->orWhereExists(function ($sub) use ($categoryIds, $q) {
+                  $table = $q->getModel()->getTable();
+                  $sub->selectRaw('1')->from('product_category_map as pcm')
+                      ->whereColumn('pcm.product_id', $table . '.id')
+                      ->whereIn('pcm.category_id', $categoryIds);
+              });
+        });
+    }
+
     // Belongs to a brand
     public function brand()
     {

@@ -111,8 +111,10 @@ class ProductFilters
             default        => null,
         };
 
+        // La categoría (y sus descendientes) cuenta como principal O como
+        // adicional (product_category_map) — ver Products::scopeInCategories().
         if ($categoryId = (int) $request->input('category_id')) {
-            $query->whereIn('category_id', self::categoryWithDescendants($categoryId));
+            $query->inCategories(self::categoryWithDescendants($categoryId));
         }
 
         if ($brandIds = self::ids($request->input('brand_id'))) {

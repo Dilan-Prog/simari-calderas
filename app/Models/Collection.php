@@ -97,7 +97,8 @@ class Collection extends Model
     {
         match ($rule->field) {
             'tag' => $query->whereJsonContains('tags', $rule->value),
-            'category_id' => $query->where('category_id', (int) $rule->value),
+            // Principal o adicional (product_category_map), sin descendientes.
+            'category_id' => $query->inCategories([(int) $rule->value]),
             'brand_id' => $query->where('brand_id', (int) $rule->value),
             'price' => match ($rule->operator) {
                 'greater_than' => $query->where('price', '>', (float) $rule->value),

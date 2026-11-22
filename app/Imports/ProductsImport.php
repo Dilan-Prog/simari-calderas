@@ -8,6 +8,7 @@ use App\Models\ProductImage;
 use App\Models\Products;
 use App\Traits\ImageUploadTrait;
 use App\Traits\NormalizesProductFields;
+use App\Traits\ResolvesAdditionalCategories;
 use Illuminate\Support\Str;
 use Maatwebsite\Excel\Concerns\RegistersEventListeners;
 use Maatwebsite\Excel\Concerns\RemembersRowNumber;
@@ -29,6 +30,7 @@ class ProductsImport implements ToModel, WithHeadingRow, WithValidation, WithBat
     use RegistersEventListeners;
     use ImageUploadTrait;
     use NormalizesProductFields;
+    use ResolvesAdditionalCategories;
 
     /** @var array<string,string> sku => URL de imagen pendiente de descargar (se resuelve en afterImport, una vez que los productos ya tienen id) */
     private array $pendingImageUrls = [];
@@ -58,6 +60,9 @@ class ProductsImport implements ToModel, WithHeadingRow, WithValidation, WithBat
     public array $skippedDuplicates = [];
 
     public int $createdCount = 0;
+
+    /** @var array<string,int[]> sku => ids de categorías adicionales (se asignan en afterImport, ya con id) */
+    private array $pendingAdditionalCategories = [];
 
     public function __construct()
     {
@@ -163,6 +168,15 @@ class ProductsImport implements ToModel, WithHeadingRow, WithValidation, WithBat
         // ProductController), se asigna por propiedad directa.
         $product->availability = $this->normalizeProductAvailability($row['disponibilidad'] ?? null);
 
+        // Columna opcional "Categorías Adicionales": el producto aún no tiene
+        // id (WithBatchInserts), se asignan en afterImport() por SKU.
+        if (array_key_exists('categorias_adicionales', $row)) {
+            $ids = $this->resolveAdditionalCategories($row['categorias_adicionales'], (string) $row['sku']);
+            if ($ids) {
+                $this->pendingAdditionalCategories[$row['sku']] = $ids;
+            }
+        }
+
         if (!empty($row['imagen_url'])) {
             // El producto todavía no tiene id en este punto (WithBatchInserts
             // difiere el INSERT real), así que la descarga se resuelve en
@@ -181,6 +195,14 @@ class ProductsImport implements ToModel, WithHeadingRow, WithValidation, WithBat
      */
     public function afterImport(AfterImport $event): void
     {
+        if ($this->pendingAdditionalCategories) {
+            $products = Products::whereIn('sku', array_keys($this->pendingAdditionalCategories))->get(['id', 'sku', 'category_id']);
+            foreach ($products as $product) {
+                // syncAdditionalCategories() excluye la principal y refresca la caché del catálogo.
+                $product->syncAdditionalCategories($this->pendingAdditionalCategories[$product->sku] ?? []);
+            }
+        }
+
         if (empty($this->pendingImageUrls)) {
             return;
         }

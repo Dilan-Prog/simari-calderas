@@ -82,10 +82,11 @@ class CatalogCacheTest extends TestCase
 
         $row = $this->row($product->id);
         $this->assertEqualsCanonicalizing(
-            ['id', 'c', 'b', 'p', 'cp', 'd', 'st', 'f24', 'fg', 'ls', 'nw', 'ts', 'feat', 'u', 'o'],
+            ['id', 'c', 'cs', 'b', 'p', 'cp', 'd', 'st', 'f24', 'fg', 'ls', 'nw', 'ts', 'feat', 'u', 'o'],
             array_keys($row)
         );
         $this->assertSame($c->id, $row['c']);
+        $this->assertSame([$c->id], $row['cs']);
         $this->assertSame($brand->id, $row['b']);
         $this->assertSame(100.0, $row['p']);
         $this->assertSame(200.0, $row['cp']);

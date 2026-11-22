@@ -210,6 +210,7 @@ Route::controller(ProductController::class)
         Route::get('/productos/especificaciones/buscar', 'specNameSuggestions')->name('products.specs.suggestions');
         Route::get('/productos/canonica/buscar', 'searchForCanonical')->name('products.canonical.search');
         Route::post('/productos/bulk', 'bulkUpdate')->name('products.bulk')->middleware('permission:products,edit');
+        Route::post('/productos/bulk/categorias-adicionales', 'bulkAdditionalCategories')->name('products.bulk-additional-categories')->middleware('permission:products,edit');
         Route::get('/productos/edicion-masiva', 'bulkEditIndex')->name('products.bulk-edit');
         Route::post('/productos/edicion-masiva/guardar', 'bulkEditSave')->name('products.bulk.save')->middleware('permission:products,edit');
         Route::post('/productos/edicion-masiva/rellenar-alt', 'bulkFillAlt')->name('products.bulk.fill-alt')->middleware('permission:products,edit');

@@ -288,6 +288,8 @@
 
                     const failCount = data.failures.length;
                     const imgFailCount = (data.image_download_failures ?? []).length;
+                    // Avisos no bloqueantes: categorías adicionales que no se reconocieron.
+                    const catWarnings = data.additional_category_warnings ?? [];
                     let summary, skippedList, skippedLabel, processedCount;
 
                     if (mode === 'update') {
@@ -303,6 +305,9 @@
                     }
                     if (imgFailCount) {
                         summary += ` ${imgFailCount} imagen(es) no se pudieron descargar.`;
+                    }
+                    if (catWarnings.length) {
+                        summary += ` ${catWarnings.length} categoría(s) adicional(es) no reconocida(s) se ignoraron.`;
                     }
                     importShowStatus('success', summary);
 
@@ -324,12 +329,21 @@
                                 `<li>SKU ${escapeHtml(f.sku)}: ${escapeHtml(f.url)}</li>`
                             ).join('') + '</ul>';
                     }
+                    if (catWarnings.length) {
+                        html += '<p><strong>Categorías adicionales ignoradas (no existen o el nombre es ambiguo; usa la ruta completa "Padre > Hijo"):</strong></p><ul>' +
+                            catWarnings.map(w =>
+                                `<li>Fila ${w.row}, SKU ${escapeHtml(w.sku)}: "${escapeHtml(w.value)}"</li>`
+                            ).join('') + '</ul>';
+                    }
                     if (html) {
                         importResultDetail.innerHTML = html;
                         importResultDetail.style.display = 'block';
                     }
 
-                    if (processedCount > 0) {
+                    // Con avisos de categorías no se recarga sola: hay que poder leerlos.
+                    if (processedCount > 0 && catWarnings.length) {
+                        btnDoImport.disabled = false;
+                    } else if (processedCount > 0) {
                         setTimeout(() => window.location.reload(), 2500);
                     } else {
                         btnDoImport.disabled = false;
@@ -605,6 +619,72 @@
                     showProductToast('Error de conexión. Intenta de nuevo.', 'error');
                 }
             });
+
+            // ── Acción masiva: Categorías adicionales (agregar / quitar) ──
+            // Modal en partials/_bulk_additional_categories_modal.blade.php; el
+            // selector es el mismo de crear/editar (window.AdditionalCategoryPicker).
+            const addCatsBtn = document.getElementById('prodBulkAdditionalCatsBtn');
+            const addCatsModal = document.getElementById('bulkAdditionalCategoriesModal');
+            if (addCatsBtn && addCatsModal) {
+                const addCatsPicker = document.getElementById('bulkAdditionalCategoriesPicker');
+                const addCatsCount = document.getElementById('bulkAdditionalCategoriesCount');
+                const addCatsButtons = addCatsModal.querySelectorAll('[data-acp-mode]');
+                const addCatsUrl = addCatsModal.dataset.url;
+
+                const closeAddCats = () => addCatsModal.classList.remove('active');
+                addCatsBtn.addEventListener('click', () => {
+                    if (!selectedIds.size) return;
+                    window.AdditionalCategoryPicker.set(addCatsPicker, []);
+                    addCatsCount.textContent = selectedIds.size;
+                    addCatsButtons.forEach(b => { b.disabled = false; });
+                    addCatsModal.classList.add('active');
+                    setTimeout(() => addCatsPicker.querySelector('.acp-input')?.focus(), 50);
+                });
+                document.getElementById('bulkAdditionalCategoriesCancelBtn').addEventListener('click', closeAddCats);
+                addCatsModal.addEventListener('click', (e) => { if (e.target === addCatsModal) closeAddCats(); });
+
+                addCatsButtons.forEach(btn => btn.addEventListener('click', async () => {
+                    const categoryIds = window.AdditionalCategoryPicker.get(addCatsPicker);
+                    if (!categoryIds.length) {
+                        showProductToast('Elige al menos una categoría.', 'error');
+                        return;
+                    }
+                    const mode = btn.dataset.acpMode;
+                    addCatsButtons.forEach(b => { b.disabled = true; });
+                    try {
+                        const response = await fetch(addCatsUrl, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': csrfToken,
+                                'Accept': 'application/json',
+                            },
+                            body: JSON.stringify({ ids: Array.from(selectedIds), category_ids: categoryIds, mode }),
+                        });
+                        const data = await response.json();
+                        if (!response.ok || !data.success) {
+                            showProductToast(data.message ?? 'No se pudo aplicar la acción.', 'error');
+                            addCatsButtons.forEach(b => { b.disabled = false; });
+                            return;
+                        }
+                        let msg = mode === 'add'
+                            ? `${data.changed} asignación(es) agregada(s) en ${data.products} producto(s).`
+                            : `${data.changed} asignación(es) quitada(s) en ${data.products} producto(s).`;
+                        if (data.skipped_principal) {
+                            msg += ` ${data.skipped_principal} omitida(s): ya es su categoría principal.`;
+                        }
+                        showProductToast(msg);
+                        closeAddCats();
+                        selectedIds.clear();
+                        persistSelection();
+                        setTimeout(() => window.location.reload(), 1400);
+                    } catch (err) {
+                        console.error('Error running bulk additional categories:', err);
+                        showProductToast('Error de conexión. Intenta de nuevo.', 'error');
+                        addCatsButtons.forEach(b => { b.disabled = false; });
+                    }
+                }));
+            }
 
             // ── Columnas configurables + vistas guardadas (listado normal) ──
             // Mismo patrón que _bulk_edit_scripts.blade.php (columnsBtn/

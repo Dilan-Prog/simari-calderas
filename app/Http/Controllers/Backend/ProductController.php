@@ -256,7 +256,7 @@ class ProductController extends Controller
             // importar el valor real en BD, así que la columna opcional
             // "URL Canónica" del listado siempre se veía vacía.
             'canonical_url',
-        ])->with(['category.parent.parent', 'brand', 'images']);
+        ])->with(['category.parent.parent', 'brand', 'images', 'additionalCategories:product_categories.id,product_categories.name']);
 
         // Totals over the filtered set, computed before pagination/get()
         // consumes the query builder below.
@@ -1104,7 +1104,10 @@ class ProductController extends Controller
 
         $sku = \App\Services\ProductSkuGenerator::next();
 
-        return view('admin.products.create_product.create', compact('categories', 'brands', 'sku'));
+        // Opciones del selector "Categorías adicionales" (ruta completa, una consulta).
+        $additionalCategoryOptions = (new \App\Support\CategoryPaths())->options();
+
+        return view('admin.products.create_product.create', compact('categories', 'brands', 'sku', 'additionalCategoryOptions'));
     }
 
     public function store(Request $request)
@@ -1130,6 +1133,10 @@ class ProductController extends Controller
             // — nullable in DB, so a bypass silently saved a brand-less
             // product. Option A chosen: make it truly required.
             'brand_id'          => 'required|exists:brands,id',
+            // Categorías adicionales (product_category_map): la principal se
+            // excluye sola en Products::syncAdditionalCategories().
+            'additional_category_ids'   => 'nullable|array',
+            'additional_category_ids.*' => 'integer|exists:product_categories,id',
             'model'             => 'nullable|string|max:100',
             'price'             => 'required|numeric|min:0',
             'cost'              => 'nullable|numeric|min:0',
@@ -1339,6 +1346,8 @@ class ProductController extends Controller
 
         $product->save();
 
+        $this->syncAdditionalCategoriesFromRequest($product, $request);
+
         $this->saveProductImages($product, $request, 0);
         $this->syncCoverAlt($product);
 
@@ -1357,7 +1366,7 @@ class ProductController extends Controller
     {
         // FIX (Documentación tab): eager-load documents so the edit view
         // can show what's already uploaded per type.
-        $product = Products::with(['category', 'brand', 'images', 'documents', 'suppliers'])->findOrFail($id);
+        $product = Products::with(['category', 'brand', 'images', 'documents', 'suppliers', 'additionalCategories:product_categories.id'])->findOrFail($id);
 
         $categories = Category::where('is_active', true)
             ->whereNull('parent_id')
@@ -1379,9 +1388,11 @@ class ProductController extends Controller
             ? $this->safeIndexReturnUrl(request('return_to'))
             : '';
 
+        $additionalCategoryOptions = (new \App\Support\CategoryPaths())->options();
+
         return view(
             'admin.products.edit_product.edit',
-            compact('product', 'categories', 'brands', 'allSuppliers', 'returnTo')
+            compact('product', 'categories', 'brands', 'allSuppliers', 'returnTo', 'additionalCategoryOptions')
         );
     }
 
@@ -1404,6 +1415,10 @@ class ProductController extends Controller
             'category_id'       => 'required|exists:product_categories,id',
             // FIX BUG 7: mirrors store() — brand_id is now truly required.
             'brand_id'          => 'required|exists:brands,id',
+            // Categorías adicionales (product_category_map): la principal se
+            // excluye sola en Products::syncAdditionalCategories().
+            'additional_category_ids'   => 'nullable|array',
+            'additional_category_ids.*' => 'integer|exists:product_categories,id',
             'model'             => 'nullable|string|max:100',
             'price'             => 'required|numeric|min:0',
             'cost'              => 'nullable|numeric|min:0',
@@ -1626,6 +1641,8 @@ class ProductController extends Controller
 
         $product->save();
 
+        $this->syncAdditionalCategoriesFromRequest($product, $request);
+
         if ($request->filled('delete_images')) {
             $toDelete = ProductImage::whereIn('id', $request->delete_images)
                 ->where('product_id', $product->id)
@@ -1665,6 +1682,21 @@ class ProductController extends Controller
         // el usuario llegó desde ahí -- ver return_to en index.blade.php.
         return redirect($this->safeIndexReturnUrl($request->input('return_to')))
             ->with('success', 'Producto actualizado correctamente.');
+    }
+
+    /**
+     * Guarda las "Categorías adicionales" del formulario. Solo se tocan si el
+     * formulario trae el campo (o su marca additional_categories_present,
+     * necesaria porque sin chips no viaja ningún additional_category_ids[]):
+     * una petición que no conoce el campo no borra lo ya guardado.
+     */
+    private function syncAdditionalCategoriesFromRequest(Products $product, Request $request): void
+    {
+        if (!$request->has('additional_category_ids') && !$request->has('additional_categories_present')) {
+            return;
+        }
+
+        $product->syncAdditionalCategories((array) $request->input('additional_category_ids', []));
     }
 
     /**
@@ -1985,6 +2017,84 @@ class ProductController extends Controller
             'performed_at' => now(),
             'ip_address' => request()?->ip(),
             'user_agent' => request()?->userAgent(),
+        ]);
+    }
+
+    /**
+     * Acción masiva "Categorías adicionales" del listado: agrega o quita las
+     * categorías elegidas a cada producto seleccionado SIN reemplazar las que
+     * ya tenga (attach/detach, no sync). La categoría principal de cada
+     * producto nunca se agrega como adicional. La caché del catálogo se
+     * refresca una sola vez al final.
+     */
+    public function bulkAdditionalCategories(Request $request)
+    {
+        $data = $request->validate([
+            'ids'            => 'required|array|min:1',
+            'ids.*'          => 'integer|exists:products,id',
+            'category_ids'   => 'required|array|min:1',
+            'category_ids.*' => 'integer|exists:product_categories,id',
+            'mode'           => 'required|in:add,remove',
+        ], [
+            'category_ids.required' => 'Elige al menos una categoría.',
+            'category_ids.min'      => 'Elige al menos una categoría.',
+        ]);
+
+        $productIds  = array_values(array_unique(array_map('intval', $data['ids'])));
+        $categoryIds = array_values(array_unique(array_map('intval', $data['category_ids'])));
+        $mode = $data['mode'];
+        $changed = 0;
+        $skippedPrincipal = 0;
+
+        DB::transaction(function () use ($productIds, $categoryIds, $mode, &$changed, &$skippedPrincipal) {
+            $principal = Products::whereIn('id', $productIds)->pluck('category_id', 'id');
+            $existing = DB::table('product_category_map')
+                ->whereIn('product_id', $productIds)
+                ->whereIn('category_id', $categoryIds)
+                ->get(['product_id', 'category_id'])
+                ->groupBy('product_id')
+                ->map(fn ($rows) => $rows->pluck('category_id')->map(fn ($v) => (int) $v)->all());
+
+            if ($mode === 'remove') {
+                $changed = DB::table('product_category_map')
+                    ->whereIn('product_id', $productIds)
+                    ->whereIn('category_id', $categoryIds)
+                    ->delete();
+
+                return;
+            }
+
+            $rows = [];
+            foreach ($productIds as $pid) {
+                $have = $existing[$pid] ?? [];
+                foreach ($categoryIds as $cid) {
+                    if ((int) ($principal[$pid] ?? 0) === $cid) {
+                        $skippedPrincipal++;
+                        continue;
+                    }
+                    if (!in_array($cid, $have, true)) {
+                        $rows[] = ['product_id' => $pid, 'category_id' => $cid];
+                    }
+                }
+            }
+            foreach (array_chunk($rows, 500) as $chunk) {
+                DB::table('product_category_map')->insertOrIgnore($chunk);
+            }
+            $changed = count($rows);
+        });
+
+        if ($changed > 0) {
+            \App\Services\Catalog\CatalogCache::bump();
+        }
+
+        $this->logBulkProductAction('additional_categories_' . $mode, $productIds);
+
+        return response()->json([
+            'success'           => true,
+            'mode'              => $mode,
+            'changed'           => $changed,
+            'products'          => count($productIds),
+            'skipped_principal' => $skippedPrincipal,
         ]);
     }
 

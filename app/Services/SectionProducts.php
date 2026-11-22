@@ -24,6 +24,9 @@ use Illuminate\Support\Collection;
  *  - source=category sin category_id usa la categoría de la página ($context),
  *    con sus hijas: una plantilla heredada muestra los productos correctos en
  *    cada subcategoría.
+ *  - category / related_category cuentan la categoría principal Y las
+ *    adicionales (product_category_map) vía Products::scopeInCategories().
+ *    related_category parte de la categoría PRINCIPAL del producto actual.
  *  - source=best_sellers: productos con ventas (product_sales_stats.units > 0),
  *    más vendidos primero.
  *  - config['sort']: newest (default) | price_asc | price_desc | best_selling.
@@ -85,7 +88,8 @@ class SectionProducts
             ->with($with);
 
         // Mismo alcance que /catalogo/{slug}: la categoría elegida con TODAS
-        // sus descendientes (Category::idsWithChildren()).
+        // sus descendientes (Category::idsWithChildren()), como principal o
+        // como adicional.
         $categoryIds = [0];
         if ($source === 'category') {
             $category = !empty($config['category_id']) ? Category::find($config['category_id']) : $context;
@@ -97,7 +101,7 @@ class SectionProducts
         $tag = trim((string) ($config['tag'] ?? ''));
 
         match ($source) {
-            'category'    => $query->whereIn('category_id', $categoryIds),
+            'category'    => $query->inCategories($categoryIds),
             'brand'       => $query->where('brand_id', $config['brand_id'] ?? 0),
             'new'         => $query->where('is_new', true),
             'recommended' => $query->where('is_recommended', true),
@@ -108,7 +112,7 @@ class SectionProducts
             'best_sellers' => $query->whereIn('id', ProductSalesStat::query()->select('product_id')->where('units', '>', 0)),
             // Fuentes relativas al producto en cuyo contexto se renderiza la
             // sección (solo página de producto; fuera de ella degradan a vacío).
-            'related_category' => $query->whereIn('category_id', $categoryIds),
+            'related_category' => $query->inCategories($categoryIds),
             'related_brand'    => $query->where('brand_id', $currentProduct ? ($currentProduct->brand_id ?? 0) : 0),
             default       => $query->where('is_featured', true),
         };

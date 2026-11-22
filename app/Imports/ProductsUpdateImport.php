@@ -8,6 +8,7 @@ use App\Models\ProductImage;
 use App\Models\Products;
 use App\Traits\ImageUploadTrait;
 use App\Traits\NormalizesProductFields;
+use App\Traits\ResolvesAdditionalCategories;
 use Maatwebsite\Excel\Concerns\RegistersEventListeners;
 use Maatwebsite\Excel\Concerns\RemembersRowNumber;
 use Maatwebsite\Excel\Concerns\SkipsFailures;
@@ -34,6 +35,7 @@ class ProductsUpdateImport implements ToModel, WithHeadingRow, WithValidation, W
     use RegistersEventListeners;
     use ImageUploadTrait;
     use NormalizesProductFields;
+    use ResolvesAdditionalCategories;
 
     private const STOCK_UNITS = ['pieza', 'juego', 'kit', 'metro', 'kg', 'litro'];
     private const CURRENCIES = ['MXN', 'USD'];
@@ -203,6 +205,21 @@ class ProductsUpdateImport implements ToModel, WithHeadingRow, WithValidation, W
 
         $product->save();
         $this->updatedCount++;
+
+        // "Categorías Adicionales": si la COLUMNA existe en el archivo, su celda
+        // reemplaza las adicionales (vacía = quitarlas todas; las no reconocidas
+        // se ignoran con aviso). Si la columna no existe, no se tocan. Va después
+        // de save() para excluir la categoría principal ya actualizada.
+        // Guarda: si la celda trae valores pero NINGUNO se reconoce (ej. typo),
+        // no se borran las actuales — solo queda el aviso.
+        if (array_key_exists('categorias_adicionales', $row)) {
+            $cell = $row['categorias_adicionales'];
+            $ids = $this->resolveAdditionalCategories($cell, (string) ($row['sku'] ?? ''));
+            $hasValues = \App\Support\CategoryPaths::splitCell(is_scalar($cell) ? (string) $cell : '') !== [];
+            if ($ids || !$hasValues) {
+                $product->syncAdditionalCategories($ids);
+            }
+        }
 
         if ($this->present($row['imagen_url'] ?? null)) {
             // El producto ya existe (a diferencia de ProductsImport), pero

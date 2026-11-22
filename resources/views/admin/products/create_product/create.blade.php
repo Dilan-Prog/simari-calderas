@@ -716,6 +716,25 @@
                                 @error('category_id')
                                     <p class="pform-error-msg">{{ $message }}</p>
                                 @enderror
+
+                                {{-- Categorías adicionales (product_category_map) --}}
+                                <div class="pform-field" style="margin-top:16px;margin-bottom:0">
+                                    <label class="pform-label">Categorías adicionales</label>
+                                    @include('admin.products.partials._additional_categories_picker', [
+                                        'acpId' => 'pformAdditionalCategories',
+                                        'acpSelected' => old('additional_category_ids', []),
+                                        'acpInputName' => 'additional_category_ids[]',
+                                        'acpPrincipalInputId' => 'pformCategoryIdHidden',
+                                        'acpOptions' => $additionalCategoryOptions ?? null,
+                                    ])
+                                    <p class="pform-hint">El producto también aparecerá en estas categorías. La categoría principal define las migas de pan y las reglas de envío.</p>
+                                    @error('additional_category_ids')
+                                        <p class="pform-error-msg">{{ $message }}</p>
+                                    @enderror
+                                    @error('additional_category_ids.*')
+                                        <p class="pform-error-msg">{{ $message }}</p>
+                                    @enderror
+                                </div>
                             </div>
 
                             {{-- Etiquetas --}}
