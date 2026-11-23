@@ -81,6 +81,16 @@
                 </a>
                 <h1 class="sr-show-title">{{ $report->report_number }}</h1>
                 <span class="sr-badge {{ $report->status_color }}">{{ $report->status_label }}</span>
+                @if(($report->origin ?? null) === 'app_movil')
+                    @php
+                        $capturedAtText = $report->captured_at
+                            ? \Illuminate\Support\Carbon::parse($report->captured_at)->format('d/m/Y H:i')
+                            : null;
+                    @endphp
+                    <span class="sr-badge" style="background:#FFF7ED; color:#C2410C; border-color:#FDBA74;">
+                        Capturado en la app{{ $capturedAtText ? ' · ' . $capturedAtText : '' }}
+                    </span>
+                @endif
             </div>
         </div>
         <div class="sr-show-actions">
@@ -189,6 +199,9 @@
                         </div>
                     </div>
                 </div>
+
+                {{-- Equipo, lecturas y materiales (capturados en la app; solo si hay datos) --}}
+                @include('admin.service-reports._field-data', ['variant' => 'panel'])
 
                 {{-- Measurements --}}
                 @if($report->usesMeasurementsForm() && $report->measurements->isNotEmpty())
@@ -310,9 +323,18 @@
                                 <p class="sr-doc-photos-col-label">Antes del servicio</p>
                                 <div class="sr-doc-photos-inner">
                                     @foreach($report->images->take(2) as $img)
-                                        <div class="sr-photo-item" role="button" tabindex="0" aria-label="Ampliar foto" onclick="openLightbox('{{ $img->url }}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openLightbox('{{ $img->url }}');}">
-                                            <img src="{{ $img->url }}" alt="Evidencia">
-                                        </div>
+                                        @if(filled($img->caption ?? null))
+                                            <figure style="margin:0; min-width:0;">
+                                                <div class="sr-photo-item" role="button" tabindex="0" aria-label="Ampliar foto" onclick="openLightbox('{{ $img->url }}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openLightbox('{{ $img->url }}');}">
+                                                    <img src="{{ $img->url }}" alt="{{ $img->caption }}">
+                                                </div>
+                                                <figcaption style="font-size:11px; line-height:1.35; color:#6B7280; margin-top:4px; overflow-wrap:anywhere;">{{ $img->caption }}</figcaption>
+                                            </figure>
+                                        @else
+                                            <div class="sr-photo-item" role="button" tabindex="0" aria-label="Ampliar foto" onclick="openLightbox('{{ $img->url }}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openLightbox('{{ $img->url }}');}">
+                                                <img src="{{ $img->url }}" alt="Evidencia">
+                                            </div>
+                                        @endif
                                     @endforeach
                                     @for($pi = $report->images->take(2)->count(); $pi < 2; $pi++)
                                         <div class="sr-photo-placeholder">
@@ -325,9 +347,18 @@
                                 <p class="sr-doc-photos-col-label">Después del servicio</p>
                                 <div class="sr-doc-photos-inner">
                                     @foreach($report->images->slice(2, 2) as $img)
-                                        <div class="sr-photo-item" role="button" tabindex="0" aria-label="Ampliar foto" onclick="openLightbox('{{ $img->url }}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openLightbox('{{ $img->url }}');}">
-                                            <img src="{{ $img->url }}" alt="Evidencia">
-                                        </div>
+                                        @if(filled($img->caption ?? null))
+                                            <figure style="margin:0; min-width:0;">
+                                                <div class="sr-photo-item" role="button" tabindex="0" aria-label="Ampliar foto" onclick="openLightbox('{{ $img->url }}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openLightbox('{{ $img->url }}');}">
+                                                    <img src="{{ $img->url }}" alt="{{ $img->caption }}">
+                                                </div>
+                                                <figcaption style="font-size:11px; line-height:1.35; color:#6B7280; margin-top:4px; overflow-wrap:anywhere;">{{ $img->caption }}</figcaption>
+                                            </figure>
+                                        @else
+                                            <div class="sr-photo-item" role="button" tabindex="0" aria-label="Ampliar foto" onclick="openLightbox('{{ $img->url }}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openLightbox('{{ $img->url }}');}">
+                                                <img src="{{ $img->url }}" alt="Evidencia">
+                                            </div>
+                                        @endif
                                     @endforeach
                                     @for($pi = $report->images->slice(2, 2)->count(); $pi < 2; $pi++)
                                         <div class="sr-photo-placeholder">
@@ -414,6 +445,18 @@
                         <span class="sr-info-key">Fecha de creación</span>
                         <span class="sr-info-val">{{ $report->created_at->format('d/m/Y H:i') }}</span>
                     </div>
+                    @if(($report->origin ?? null) === 'app_movil')
+                        <div class="sr-info-row">
+                            <span class="sr-info-key">Origen</span>
+                            <span class="sr-info-val">Capturado en la app</span>
+                        </div>
+                        @if($capturedAtText)
+                            <div class="sr-info-row">
+                                <span class="sr-info-key">Capturado el</span>
+                                <span class="sr-info-val">{{ $capturedAtText }}</span>
+                            </div>
+                        @endif
+                    @endif
                 </div>
             </div>
 

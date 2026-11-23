@@ -4,6 +4,7 @@ namespace App\Http\Resources\Mobile;
 
 use App\Models\ServiceRating;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\URL;
 
 /**
@@ -88,10 +89,16 @@ class ServiceReportDetailResource extends ServiceReportResource
                 'image'     => $this->signature_data,
             ] : null,
             'rating'              => $this->ratingPayload(),
+            // Datos de campo capturados en la app (null en reportes del panel / anteriores).
+            'equipment'           => $this->fieldDataArray('equipment'),
+            'readings'            => $this->fieldDataArray('readings'),
+            'materials'           => array_values($this->fieldDataArray('materials') ?? []),
+            'origin'              => $this->origin ?: null,
+            'captured_at'         => $this->captured_at ? Carbon::parse($this->captured_at)->toIso8601String() : null,
             'images'              => $this->images->map(fn ($img) => [
                 'id'      => $img->id,
                 'url'     => $img->url,
-                'caption' => $img->caption ?: null,
+                'caption' => filled($img->caption ?? null) ? $img->caption : null,
             ])->values()->all(),
             'created_at'          => $this->created_at?->toIso8601String(),
             'pdf_url'             => URL::temporarySignedRoute(
@@ -100,6 +107,18 @@ class ServiceReportDetailResource extends ServiceReportResource
                 ['report' => $this->id]
             ),
         ]);
+    }
+
+    /** Columna JSON de datos de campo como arreglo (tolera que aún no esté casteada); null si está vacía. */
+    protected function fieldDataArray(string $attribute): ?array
+    {
+        $value = $this->{$attribute};
+
+        if (is_string($value)) {
+            $value = json_decode($value, true);
+        }
+
+        return is_array($value) && $value !== [] ? $value : null;
     }
 
     /** Fecha de muestreo (se captura en tres campos sueltos), en formato dd/mm/aaaa. */

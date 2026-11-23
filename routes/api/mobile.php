@@ -1,8 +1,11 @@
 <?php
 
 use App\Http\Controllers\Api\Mobile\AuthController;
+use App\Http\Controllers\Api\Mobile\CustomerController;
+use App\Http\Controllers\Api\Mobile\RoleController;
 use App\Http\Controllers\Api\Mobile\ServiceReportController;
 use App\Http\Controllers\Api\Mobile\TechnicalServiceController;
+use App\Http\Controllers\Api\Mobile\UserController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -45,8 +48,30 @@ Route::middleware('throttle:mobile')->name('mobile.v1.')->group(function () {
                 ->name('reportes.show');
         });
 
+        // Alta de reporte desde la app (asistente de 5 pasos, ya firmado).
+        // Idempotente por el header Idempotency-Key.
+        Route::post('/reportes', [ServiceReportController::class, 'store'])
+            ->middleware('mobile.permission:service-reports,create')
+            ->name('reportes.store');
+
+        // Buscador de clientes (paso «Cliente» del asistente y «Programar
+        // servicio»). El permiso se revisa en el controlador: basta con
+        // service-reports,create o technical-services,create.
+        Route::get('/clientes', [CustomerController::class, 'index'])->name('clientes.index');
+
         Route::get('/servicios', [TechnicalServiceController::class, 'index'])
             ->middleware('mobile.permission:technical-services,view')
             ->name('servicios.index');
+        Route::post('/servicios', [TechnicalServiceController::class, 'store'])
+            ->middleware('mobile.permission:technical-services,create')
+            ->name('servicios.store');
+
+        // Usuarios y roles: solo lectura, mismo permiso que el panel.
+        Route::get('/usuarios', [UserController::class, 'index'])
+            ->middleware('mobile.permission:users,view')
+            ->name('usuarios.index');
+        Route::get('/roles', [RoleController::class, 'index'])
+            ->middleware('mobile.permission:roles,view')
+            ->name('roles.index');
     });
 });

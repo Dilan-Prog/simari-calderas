@@ -56,12 +56,23 @@ class ServiceReport extends Model
         'signature_phone',
         'signed_at',
         'current_step',
+        // Captura desde la app móvil (POST /api/mobile/v1/reportes).
+        'equipment',
+        'readings',
+        'materials',
+        'origin',
+        'captured_at',
+        'idempotency_key',
     ];
 
     protected $casts = [
         'service_date'    => 'date',
         'signed_at'       => 'datetime',
         'include_sampling'=> 'boolean',
+        'equipment'       => 'array',
+        'readings'        => 'array',
+        'materials'       => 'array',
+        'captured_at'     => 'datetime',
     ];
 
     // ── Relations ──────────────────────────────────────────────────────────────

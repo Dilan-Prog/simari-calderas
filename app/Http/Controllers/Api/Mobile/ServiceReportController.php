@@ -7,12 +7,13 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Mobile\ServiceReportDetailResource;
 use App\Http\Resources\Mobile\ServiceReportResource;
 use App\Models\ServiceReport;
+use App\Services\MobileServiceReportService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 /**
- * Reportes de servicio para la app móvil (solo lectura).
+ * Reportes de servicio para la app móvil: listado, detalle, PDF y alta (store).
  *
  * Visibilidad: espejo exacto del panel (Backend\ServiceReportController::index
  * y ::show), que hoy NO acota por técnico — cualquier usuario con
@@ -68,6 +69,55 @@ class ServiceReportController extends Controller
         return response()->json([
             'data' => (new ServiceReportDetailResource($report))->resolve($request),
         ]);
+    }
+
+    /** Relaciones que necesita ServiceReportDetailResource (mismas que show()). */
+    private const DETAIL_RELATIONS = ['measurements', 'activity', 'customFields', 'assignedUser', 'createdBy', 'customer', 'images', 'service', 'rating'];
+
+    /**
+     * POST /api/mobile/v1/reportes — alta de un reporte completo (y normalmente
+     * firmado) capturado en el asistente de la app. Multipart; ver
+     * MobileServiceReportService para el mapeo al modelo del panel.
+     *
+     * Idempotente por el header Idempotency-Key (o el campo idempotency_key):
+     *  - 201 {data, warnings?}  reporte creado.
+     *  - 200 {data} + header Idempotent-Replayed: true  la key ya existía
+     *    (reintento de la bandeja de salida): no se crea ni se sube nada.
+     *  - 422 validación (incluida la key faltante), 403 sin service-reports,create.
+     *
+     * `warnings`: avisos no fatales (fotos que no se pudieron procesar, firma
+     * ilegible, cliente tomado del servicio). El reporte sí se guardó.
+     */
+    public function store(Request $request, MobileServiceReportService $mobile): JsonResponse
+    {
+        $user = $request->user();
+        $key  = $mobile->idempotencyKey($request);
+
+        if ($existing = $mobile->findByKey($key, $user)) {
+            return $this->replayed($request, $existing);
+        }
+
+        $validated = $mobile->validate($request);
+
+        [$report, $warnings, $replayed] = $mobile->create($validated, $request, $user, $key);
+
+        if ($replayed) {
+            return $this->replayed($request, $report);
+        }
+
+        $body = ['data' => (new ServiceReportDetailResource($report->load(self::DETAIL_RELATIONS)))->resolve($request)];
+        if ($warnings) {
+            $body['warnings'] = array_values($warnings);
+        }
+
+        return response()->json($body, 201);
+    }
+
+    private function replayed(Request $request, ServiceReport $report): JsonResponse
+    {
+        return response()
+            ->json(['data' => (new ServiceReportDetailResource($report->load(self::DETAIL_RELATIONS)))->resolve($request)], 200)
+            ->header('Idempotent-Replayed', 'true');
     }
 
     /**
