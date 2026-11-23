@@ -412,6 +412,9 @@ thead { display: table-header-group; }
         @endif
     </div>
 
+    {{-- Equipo, lecturas y materiales (capturados en la app; solo si hay datos) --}}
+    @include('admin.service-reports._field-data', ['variant' => 'pdf'])
+
     {{-- Mediciones --}}
     @if($report->usesMeasurementsForm() && $report->measurements->isNotEmpty())
         <div class="section-title">Resultados de Análisis ({{ $report->measurements->count() }} parámetros)</div>
@@ -521,6 +524,9 @@ thead { display: table-header-group; }
                     <img src="{{ \App\Support\UploadPath::full($img->path) }}"
                          style="width:100%; max-height:280px; object-fit:cover; border-radius:4px; border:1px solid #e5e5e5; display:block;"
                          alt="Evidencia">
+                    @if(filled($img->caption ?? null))
+                    <div style="font-size:9px; color:#6B7280; line-height:1.4; margin-top:4px;">{{ $img->caption }}</div>
+                    @endif
                 </td>
                 @endforeach
                 @for($j = $row->count(); $j < 2; $j++)
