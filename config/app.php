@@ -59,6 +59,9 @@ return [
 
     'asset_url' => env('ASSET_URL'),
 
+    // Proxies de confianza (App\Http\Middleware\TrustProxies): vacío, "*" o IPs separadas por coma.
+    'trusted_proxies' => env('TRUSTED_PROXIES'),
+
     /*
     |--------------------------------------------------------------------------
     | Application Timezone

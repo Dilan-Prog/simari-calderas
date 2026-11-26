@@ -409,6 +409,27 @@ class MobileApiTest extends TestCase
         $this->get($expired)->assertStatus(403);
     }
 
+    public function test_pdf_url_usa_app_url_y_valida_aunque_el_proxy_cambie_esquema_y_host(): void
+    {
+        config(['app.url' => 'https://equitermindustries.com.mx']);
+        $report = $this->report($this->admin());
+
+        $pdfUrl = \App\Http\Resources\Mobile\ServiceReportDetailResource::pdfUrl($report->id);
+        $this->assertStringStartsWith('https://equitermindustries.com.mx/api/mobile/v1/reportes/' . $report->id . '/pdf?', $pdfUrl);
+
+        // Detrás de un proxy/CDN la petición puede llegar como http y con otro host:
+        // la firma es relativa, así que igual abre el PDF.
+        $parts = parse_url($pdfUrl);
+        $this->get('http://servidor-interno.local' . $parts['path'] . '?' . $parts['query'])
+            ->assertOk()
+            ->assertHeader('content-type', 'application/pdf');
+
+        // Usar la firma para OTRO reporte sigue dando 403.
+        $other = $this->report($this->staff('Otro'));
+        $tampered = str_replace('/reportes/' . $report->id . '/', '/reportes/' . $other->id . '/', $pdfUrl);
+        $this->get($tampered)->assertStatus(403);
+    }
+
     // ── Servicios (agenda) ───────────────────────────────────────────────────
 
     public function test_servicios_requires_permission(): void

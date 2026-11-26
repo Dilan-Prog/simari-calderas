@@ -58,6 +58,15 @@ class AppServiceProvider extends ServiceProvider
             // disponible por cualquier razón.
         }
 
+        // Producción detrás de proxy/CDN: genera siempre las URLs absolutas
+        // (fotos de reportes en la app, enlaces, PDFs) con https y el dominio de
+        // APP_URL, aunque la petición llegue al servidor como http.
+        $appUrl = (string) config('app.url');
+        if ($this->app->environment('production') && str_starts_with($appUrl, 'https://')) {
+            \Illuminate\Support\Facades\URL::forceScheme('https');
+            \Illuminate\Support\Facades\URL::forceRootUrl(rtrim($appUrl, '/'));
+        }
+
         $this->registerCatalogCacheInvalidation();
         \App\Support\QuoteSales::registerInvalidation();
 
