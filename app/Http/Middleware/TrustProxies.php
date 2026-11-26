@@ -25,4 +25,22 @@ class TrustProxies extends Middleware
         Request::HEADER_X_FORWARDED_PORT |
         Request::HEADER_X_FORWARDED_PROTO |
         Request::HEADER_X_FORWARDED_AWS_ELB;
+
+    /**
+     * Proxies de confianza desde TRUSTED_PROXIES (config app.trusted_proxies):
+     * vacío = ninguno (como antes); "*" = cualquiera (detrás de Cloudflare o
+     * del proxy del hosting); o IPs/rangos separados por coma.
+     */
+    protected function proxies()
+    {
+        $value = trim((string) config('app.trusted_proxies', ''));
+        if ($value === '') {
+            return $this->proxies;
+        }
+        if ($value === '*' || $value === '**') {
+            return $value;
+        }
+
+        return array_values(array_filter(array_map('trim', explode(',', $value))));
+    }
 }

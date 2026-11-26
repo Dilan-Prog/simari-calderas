@@ -33,7 +33,7 @@ Route::middleware('throttle:mobile')->name('mobile.v1.')->group(function () {
     // obtiene en `pdf_url` del detalle y la abre en el navegador / WebView).
     Route::get('/reportes/{report}/pdf', [ServiceReportController::class, 'pdf'])
         ->whereNumber('report')
-        ->middleware('signed')
+        ->middleware('signed:relative')
         ->name('reportes.pdf');
 
     // ── Autenticado (token de usuario del personal) ───────────────────────

@@ -101,12 +101,27 @@ class ServiceReportDetailResource extends ServiceReportResource
                 'caption' => filled($img->caption ?? null) ? $img->caption : null,
             ])->values()->all(),
             'created_at'          => $this->created_at?->toIso8601String(),
-            'pdf_url'             => URL::temporarySignedRoute(
-                'mobile.v1.reportes.pdf',
-                now()->addMinutes(self::PDF_URL_TTL_MINUTES),
-                ['report' => $this->id]
-            ),
+            'pdf_url'             => self::pdfUrl($this->id),
         ]);
+    }
+
+    /**
+     * URL firmada del PDF. La firma se calcula sobre la ruta RELATIVA
+     * (/api/mobile/v1/reportes/{id}/pdf?expires=…) y la ruta valida con
+     * `signed:relative`, así que no importa si detrás de un proxy/CDN Laravel
+     * ve la petición como http o con otro host: no da 403 por eso. El dominio
+     * se toma de APP_URL (https://equitermindustries.com.mx en producción).
+     */
+    public static function pdfUrl(int $reportId): string
+    {
+        $relative = URL::temporarySignedRoute(
+            'mobile.v1.reportes.pdf',
+            now()->addMinutes(self::PDF_URL_TTL_MINUTES),
+            ['report' => $reportId],
+            false
+        );
+
+        return rtrim((string) config('app.url'), '/') . $relative;
     }
 
     /** Columna JSON de datos de campo como arreglo (tolera que aún no esté casteada); null si está vacía. */
